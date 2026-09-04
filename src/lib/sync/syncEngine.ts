@@ -1,0 +1,271 @@
+import type { Settings, Session } from "../store";
+import type { FocusArea } from "../focusAreas";
+import { newSessionId } from "../sessions";
+import {
+  planAreaMerge,
+  planSessionMerge,
+  planSettingsMerge,
+  remoteOnlyAreas,
+  type RemoteAreaRow,
+  type RemoteSessionRow,
+  type RemoteSettingsRow,
+} from "./merge";
+import { loadSyncState, markSyncSuccess, type SyncState } from "./syncState";
+import { runLocalMigrations } from "../storage/migrations";
+
+/**
+ * Moneo sync engine (Gate 9).
+ *
+ * Principles: LOCAL FIRST · USER CONTROLLED · CLOUD ENHANCED.
+ * - Explicit consent gates the first sync; signing in uploads nothing.
+ * - Sessions are append-mostly immutable; identity = session.id.
+ *   Same-id conflict → remote canonical, local preserved, counted.
+ * - Areas: newer updatedAt wins; tie → remote canonical.
+ * - Settings: last-write-wins on updatedAt; equal → noop.
+ * - Failure at ANY stage leaves local data intact and sync state
+ *   un-advanced; rerunning converges (idempotent upserts).
+ * - Growth/stats are never synced — they recompute from merged history.
+ * - Never throws; every outcome is a plain SyncOutcome.
+ */
+
+export interface SyncRepos {
+  pullSessions(userId: string): Promise<RemoteSessionRow[] | null>;
+  pushSessions(
+    userId: string,
+    sessions: Array<{ id: string; at: number; min: number; intention?: string; areaId?: string }>,
+  ): Promise<boolean>;
+  pullAreas(userId: string): Promise<RemoteAreaRow[] | null>;
+  pushAreas(userId: string, areas: FocusArea[]): Promise<boolean>;
+  pullSettings(userId: string): Promise<RemoteSettingsRow | null>;
+  pushSettings(userId: string, settings: Settings): Promise<boolean>;
+}
+
+export interface SyncLocalIO {
+  readHistory(): Session[];
+  writeHistory(h: Session[]): boolean;
+  readAreas(): FocusArea[];
+  writeAreas(a: FocusArea[]): boolean;
+  readSettings(): Settings;
+  writeSettings(s: Settings): boolean;
+}
+
+export type SyncStage =
+  | "auth"
+  | "consent"
+  | "backfill"
+  | "pull"
+  | "apply"
+  | "push"
+  | "done"
+  | "failed";
+
+export interface SyncOutcome {
+  ok: boolean;
+  stage: SyncStage;
+  insertedSessions: number;
+  adoptedSessions: number;
+  pushedAreas: number;
+  appliedRemoteAreas: number;
+  settingsOp: "pushLocal" | "applyRemote" | "noop" | "none";
+  conflicts: number;
+  error?: string;
+  state?: SyncState;
+}
+
+const fail = (stage: SyncStage, error: string): SyncOutcome => ({
+  ok: false,
+  stage,
+  insertedSessions: 0,
+  adoptedSessions: 0,
+  pushedAreas: 0,
+  appliedRemoteAreas: 0,
+  settingsOp: "none",
+  conflicts: 0,
+  error,
+});
+
+export async function runSync(opts: {
+  userId: string | null;
+  /** Explicit first-sync consent; ignored once initialized. */
+  consented: boolean;
+  repos: SyncRepos;
+  local: SyncLocalIO;
+  now?: () => number;
+}): Promise<SyncOutcome> {
+  const now = (opts.now ?? Date.now)();
+
+  // 1. Auth — unsigned users never touch cloud sync.
+  if (!opts.userId) return fail("auth", "Not signed in.");
+
+  // 2. Consent — first sync requires an explicit user action.
+  const state = loadSyncState();
+  if (!state.initialized && !opts.consented) {
+    return fail("consent", "First sync requires explicit consent.");
+  }
+
+  // 3. Backfill — guarantee exactly one stable id per local session
+  //    (idempotent; entries that already have ids are never re-stamped).
+  runLocalMigrations();
+  {
+    const pre = opts.local.readHistory();
+    if (pre.some((s) => typeof s.id !== "string" || s.id.length === 0)) {
+      const stamped = pre.map((s) =>
+        typeof s.id === "string" && s.id.length > 0 ? s : { ...s, id: newSessionId() },
+      );
+      if (!opts.local.writeHistory(stamped)) {
+        return fail("backfill", "Could not prepare local session ids.");
+      }
+    }
+  }
+
+  // 4. Pull — any failure aborts before anything local or remote changes.
+  let remoteSessions: RemoteSessionRow[] | null = null;
+  let remoteAreas: RemoteAreaRow[] | null = null;
+  let remoteSettings: RemoteSettingsRow | null = null;
+  try {
+    [remoteSessions, remoteAreas, remoteSettings] = await Promise.all([
+      opts.repos.pullSessions(opts.userId),
+      opts.repos.pullAreas(opts.userId),
+      opts.repos.pullSettings(opts.userId),
+    ]);
+  } catch {
+    remoteSessions = null;
+  }
+  // pullSettings returning null legitimately means "no row yet"; the
+  // guaranteed tables (sessions/areas) are the abort signal.
+  if (!remoteSessions || !remoteAreas) {
+    return fail("pull", "Could not reach your account — nothing changed.");
+  }
+
+  // 5. Plan — pure, deterministic merge decisions.
+  const localHistory = opts.local.readHistory();
+  const localAreas = opts.local.readAreas();
+  const localSettings = opts.local.readSettings();
+
+  const sessionPlan = planSessionMerge(localHistory, remoteSessions);
+  const areaPlan = planAreaMerge(localAreas, remoteAreas);
+  const remoteOnly = remoteOnlyAreas(localAreas, remoteAreas);
+  const settingsOp = planSettingsMerge(localSettings, remoteSettings);
+
+  // 6. Apply local-safe changes BEFORE pushing (crash-safe: a failed push
+  //    still leaves the user with merged data; the next run converges).
+  let appliedRemoteAreas = 0;
+  try {
+    if (sessionPlan.adoptLocal.length > 0) {
+      const adopted: Session[] = sessionPlan.adoptLocal.map((r) => ({
+        id: r.id,
+        at: r.at,
+        min: r.min,
+        ...(r.intention ? { intention: r.intention } : {}),
+        ...(r.areaId ? { areaId: r.areaId } : {}),
+      }));
+      const merged = [...localHistory, ...adopted].sort((a, b) => a.at - b.at);
+      if (!opts.local.writeHistory(merged)) return fail("apply", "storage");
+    }
+
+    let nextAreas = localAreas;
+    let areasChanged = false;
+    for (const { areaId, op } of areaPlan.ops) {
+      if (op.kind !== "applyLocal") continue;
+      areasChanged = true;
+      appliedRemoteAreas++;
+      nextAreas = nextAreas.map((a) =>
+        a.id === areaId
+          ? {
+              ...a,
+              name: op.remote.name,
+              updatedAt: op.remote.updatedAt,
+              ...(op.remote.deletedAt !== null
+                ? { deletedAt: op.remote.deletedAt }
+                : {}),
+            }
+          : a,
+      );
+    }
+    if (remoteOnly.length > 0) {
+      areasChanged = true;
+      appliedRemoteAreas += remoteOnly.length;
+      nextAreas = [
+        ...nextAreas,
+        ...remoteOnly.map((r) => ({
+          id: r.id,
+          name: r.name,
+          createdAt: r.createdAt,
+          updatedAt: r.updatedAt,
+          ...(r.deletedAt !== null ? { deletedAt: r.deletedAt } : {}),
+        })),
+      ];
+    }
+    if (areasChanged && !opts.local.writeAreas(nextAreas)) {
+      return fail("apply", "storage");
+    }
+
+    if (settingsOp === "applyRemote" && remoteSettings) {
+      const applied: Settings = {
+        focusMin: remoteSettings.focusMin,
+        shortMin: remoteSettings.shortMin,
+        longMin: remoteSettings.longMin,
+        longEvery: remoteSettings.longEvery,
+        dailyGoal: remoteSettings.dailyGoal,
+        autoStart: remoteSettings.autoStart,
+        sound: remoteSettings.sound,
+        updatedAt: remoteSettings.updatedAt,
+      };
+      if (!opts.local.writeSettings(applied)) return fail("apply", "storage");
+    } else if (settingsOp === "pushLocal" && localSettings.updatedAt === undefined) {
+      // Give local settings a trustworthy stamp before their first push.
+      if (!opts.local.writeSettings({ ...localSettings, updatedAt: now })) {
+        return fail("apply", "storage");
+      }
+    }
+  } catch {
+    return fail("apply", "Unexpected local write failure.");
+  }
+
+  // 7. Push — batched, idempotent (onConflict ignore-duplicates).
+  let pushedAreas = 0;
+  try {
+    if (sessionPlan.insertRemote.length > 0) {
+      const ok = await opts.repos.pushSessions(
+        opts.userId,
+        sessionPlan.insertRemote,
+      );
+      if (!ok) return fail("push", "Session upload failed — local data is safe.");
+    }
+    const areasToPush = areaPlan.ops
+      .filter(
+        (o): o is { areaId: string; op: { kind: "pushInsert" | "pushUpdate"; area: FocusArea } } =>
+          o.op.kind === "pushInsert" || o.op.kind === "pushUpdate",
+      )
+      .map((o) => o.op.area);
+    if (areasToPush.length > 0) {
+      const ok = await opts.repos.pushAreas(opts.userId, areasToPush);
+      if (!ok) return fail("push", "Area upload failed — local data is safe.");
+      pushedAreas = areasToPush.length;
+    }
+    if (settingsOp === "pushLocal") {
+      const toPush = opts.local.readSettings();
+      const ok = await opts.repos.pushSettings(opts.userId, {
+        ...toPush,
+        updatedAt: toPush.updatedAt ?? now,
+      });
+      if (!ok) return fail("push", "Settings upload failed — local data is safe.");
+    }
+  } catch {
+    return fail("push", "Network failure — local data is safe, retry later.");
+  }
+
+  // 8. Mark success — only a COMPLETE run advances sync state.
+  const nextState = markSyncSuccess(now);
+  return {
+    ok: true,
+    stage: "done",
+    insertedSessions: sessionPlan.insertRemote.length,
+    adoptedSessions: sessionPlan.adoptLocal.length,
+    pushedAreas,
+    appliedRemoteAreas,
+    settingsOp,
+    conflicts: sessionPlan.conflicts.length,
+    state: nextState,
+  };
+}
