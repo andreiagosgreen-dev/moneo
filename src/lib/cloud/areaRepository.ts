@@ -98,7 +98,9 @@ export function pushAreaBatch(
   return withClient(async (client) => {
     for (let i = 0; i < areas.length; i += chunkSize) {
       const rows = areas.slice(i, i + chunkSize).map((a) => ({
-        id: a.id,
+        // Cloud identity is the stable cloudId (R1). Every area has one after
+        // seeding/creation/migration, so upserts on this id never duplicate.
+        id: a.cloudId ?? a.id,
         user_id: userId,
         name: a.name,
         created_at: new Date(a.createdAt).toISOString(),

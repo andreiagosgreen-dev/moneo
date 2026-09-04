@@ -33,8 +33,8 @@ describe("centralized storage keys", () => {
 });
 
 describe("schema versioning", () => {
-  it("is at version 2", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe(2);
+  it("is at version 3 (R1 added the Focus Area cloudId backfill)", () => {
+    expect(CURRENT_SCHEMA_VERSION).toBe(3);
   });
 
   it("treats malformed markers as legacy", () => {
@@ -126,12 +126,18 @@ describe("legacy payloads remain readable after migration", () => {
     expect(safeRead<unknown>(STORAGE_KEYS.intentionDraft)).toBe("Write thesis");
   });
 
-  it("focus areas and selected area survive", () => {
+  it("focus areas and selected area survive (cloudId additively backfilled)", () => {
     const areas = [{ id: "a1", name: "Thesis", createdAt: 5 }];
     localStorage.setItem(STORAGE_KEYS.focusAreas, JSON.stringify(areas));
     localStorage.setItem(STORAGE_KEYS.selectedFocusArea, JSON.stringify("a1"));
     runLocalMigrations();
-    expect(safeRead<unknown>(STORAGE_KEYS.focusAreas)).toEqual(areas);
+    const stored = safeRead<
+      Array<{ id: string; name: string; createdAt: number; cloudId?: string }>
+    >(STORAGE_KEYS.focusAreas)!;
+    // Original identity/content preserved; R1 adds a stable cloud UUID.
+    expect(stored.map(({ id, name, createdAt }) => ({ id, name, createdAt }))).toEqual(areas);
+    expect(typeof stored[0].cloudId).toBe("string");
+    expect(stored[0].cloudId!.length).toBeGreaterThan(0);
     expect(safeRead<unknown>(STORAGE_KEYS.selectedFocusArea)).toBe("a1");
   });
 });

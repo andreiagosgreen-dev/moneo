@@ -1,5 +1,6 @@
 import { dayKey, lastNDays, type Session } from "./store";
 import { sanitizeIntention } from "./intentions";
+import { ensureAreaCloudId, isUuid } from "./areaIdentity";
 import { STORAGE_KEYS } from "./storage/storageKeys";
 import {
   hasKey,
@@ -19,7 +20,11 @@ export const AREA_NAME_MAX = 40;
 export const MAX_AREAS = 8;
 
 export interface FocusArea {
+  /** Stable LOCAL identity. Never changes; history references this. */
   id: string;
+  /** Stable UUID used as the cloud (Supabase) identity. Seeded areas get a
+   *  well-known shared UUID; UUID-id custom areas use their own id (R1). */
+  cloudId?: string;
   name: string;
   createdAt: number;
   /** Last rename/delete stamp — powers deterministic sync LWW (Gate 9). */
@@ -91,7 +96,9 @@ function genId(): string {
 
 function seedDefaults(): FocusArea[] {
   const now = Date.now();
-  return SEED.map((s) => ({ ...s, createdAt: now }));
+  // Seeded ids get their well-known shared cloud UUID (R1) so every device
+  // converges on a single cloud row per default area.
+  return SEED.map((s) => ({ ...s, createdAt: now, cloudId: ensureAreaCloudId(s.id) }));
 }
 
 /**
@@ -113,7 +120,18 @@ export function loadFocusAreas(): FocusArea[] {
     if (areas.length >= MAX_AREAS) break;
     if (isValidArea(a) && !seen.has(a.id)) {
       seen.add(a.id);
-      areas.push({ id: a.id, name: sanitizeAreaName(a.name), createdAt: a.createdAt });
+      // Preserve every declared field so identity (cloudId) and sync state
+      // (updatedAt/deletedAt) survive a reload — not just id/name/createdAt.
+      areas.push({
+        id: a.id,
+        name: sanitizeAreaName(a.name),
+        createdAt: a.createdAt,
+        ...(typeof a.cloudId === "string" && a.cloudId.length > 0
+          ? { cloudId: a.cloudId }
+          : {}),
+        ...(typeof a.updatedAt === "number" ? { updatedAt: a.updatedAt } : {}),
+        ...(typeof a.deletedAt === "number" ? { deletedAt: a.deletedAt } : {}),
+      });
     }
   }
   return areas;
@@ -130,7 +148,9 @@ export function createFocusArea(
 ): FocusArea[] | null {
   const clean = sanitizeAreaName(name);
   if (!clean || areas.length >= MAX_AREAS) return null;
-  return [...areas, { id: genId(), name: clean, createdAt: Date.now() }];
+  const id = genId();
+  // Custom areas: UUID local ids double as their cloud id (R1).
+  return [...areas, { id, name: clean, createdAt: Date.now(), cloudId: ensureAreaCloudId(id) }];
 }
 
 /** Returns the new list, or null for an unknown id or empty name. */
@@ -162,6 +182,45 @@ export function resolveAreaName(
   // Soft-deleted areas resolve as unknown → UI shows "Deleted area".
   if (!found || typeof found.deletedAt === "number") return null;
   return found.name;
+}
+
+/* ---------- local <-> cloud area identity (R1) ---------- */
+
+/** The cloud-ready UUID for an area, or null if it cannot be resolved. */
+export function effectiveCloudId(area: FocusArea): string | null {
+  return area.cloudId ?? (isUuid(area.id) ? area.id : null);
+}
+
+/**
+ * Map a LOCAL session.areaId to its cloud UUID for upload.
+ * Seeded ("area:work") and UUID custom ids resolve; genuinely unresolved
+ * references return null so the caller sends an explicit null — never an
+ * invalid UUID and never a silent local id.
+ */
+export function resolveCloudAreaId(
+  areas: FocusArea[],
+  localAreaId: string | null | undefined,
+): string | null {
+  if (!localAreaId) return null;
+  const found = areas.find((a) => a.id === localAreaId);
+  return found ? effectiveCloudId(found) : null;
+}
+
+/**
+ * Map a cloud area UUID back to the LOCAL area id (preserves local
+ * historical semantics for adopted sessions). Falls back to matching by
+ * local id (UUID custom areas and adopted remote-only areas use id==cloudId).
+ */
+export function resolveLocalAreaId(
+  areas: FocusArea[],
+  cloudAreaId: string | null | undefined,
+): string | null {
+  if (!cloudAreaId) return null;
+  const byCloud = areas.find((a) => a.cloudId === cloudAreaId);
+  if (byCloud) return byCloud.id;
+  const byId = areas.find((a) => a.id === cloudAreaId);
+  if (byId) return byId.id;
+  return null;
 }
 
 /**

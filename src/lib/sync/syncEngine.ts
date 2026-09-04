@@ -12,6 +12,7 @@ import {
 } from "./merge";
 import { loadSyncState, markSyncSuccess, type SyncState } from "./syncState";
 import { runLocalMigrations } from "../storage/migrations";
+import { resolveCloudAreaId, resolveLocalAreaId } from "../focusAreas";
 
 /**
  * Moneo sync engine (Gate 9).
@@ -142,23 +143,47 @@ export async function runSync(opts: {
   const localAreas = opts.local.readAreas();
   const localSettings = opts.local.readSettings();
 
-  const sessionPlan = planSessionMerge(localHistory, remoteSessions);
+  // Local storage keeps LOCAL area ids; the cloud speaks cloud UUIDs. Normalize
+  // a copy of local history to cloud area identity so merge comparison and the
+  // push both operate in cloud space (R1). Unresolvable refs become an explicit
+  // null — never a non-UUID local id and never a false "associated" claim.
+  const normalizedForMerge = localHistory.map((s) => ({
+    ...s,
+    areaId: s.areaId
+      ? resolveCloudAreaId(localAreas, s.areaId) ?? undefined
+      : undefined,
+  }));
+
+  const sessionPlan = planSessionMerge(normalizedForMerge, remoteSessions);
   const areaPlan = planAreaMerge(localAreas, remoteAreas);
   const remoteOnly = remoteOnlyAreas(localAreas, remoteAreas);
   const settingsOp = planSettingsMerge(localSettings, remoteSettings);
+
+  // Map a remote (cloud) area id back to a LOCAL area id for adoption.
+  // Remote-only areas are adopted with local id == their cloud id.
+  const resolveToLocal = (cloudAreaId: string | null): string | null => {
+    if (!cloudAreaId) return null;
+    const local = resolveLocalAreaId(localAreas, cloudAreaId);
+    if (local) return local;
+    return remoteOnly.some((r) => r.id === cloudAreaId) ? cloudAreaId : null;
+  };
 
   // 6. Apply local-safe changes BEFORE pushing (crash-safe: a failed push
   //    still leaves the user with merged data; the next run converges).
   let appliedRemoteAreas = 0;
   try {
     if (sessionPlan.adoptLocal.length > 0) {
-      const adopted: Session[] = sessionPlan.adoptLocal.map((r) => ({
-        id: r.id,
-        at: r.at,
-        min: r.min,
-        ...(r.intention ? { intention: r.intention } : {}),
-        ...(r.areaId ? { areaId: r.areaId } : {}),
-      }));
+      const adopted: Session[] = sessionPlan.adoptLocal.map((r) => {
+        // Preserve local semantics: store the LOCAL area id, not the cloud UUID.
+        const localAreaId = resolveToLocal(r.areaId);
+        return {
+          id: r.id,
+          at: r.at,
+          min: r.min,
+          ...(r.intention ? { intention: r.intention } : {}),
+          ...(localAreaId ? { areaId: localAreaId } : {}),
+        };
+      });
       const merged = [...localHistory, ...adopted].sort((a, b) => a.at - b.at);
       if (!opts.local.writeHistory(merged)) return fail("apply", "storage");
     }
@@ -188,7 +213,9 @@ export async function runSync(opts: {
       nextAreas = [
         ...nextAreas,
         ...remoteOnly.map((r) => ({
+          // Adopted with local id == cloud id, so its cloud identity is itself.
           id: r.id,
+          cloudId: r.id,
           name: r.name,
           createdAt: r.createdAt,
           updatedAt: r.updatedAt,

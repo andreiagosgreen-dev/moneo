@@ -15,8 +15,10 @@ import { STORAGE_KEYS } from "./storageKeys";
  * v1 (Gate 7): schema marker introduced; payloads unchanged.
  * v2 (Gate 8): stable ids backfilled onto existing history entries
  *              (one id per legacy session; new completions get ids too).
+ * v3 (R1):     stable cloud UUIDs (cloudId) backfilled onto Focus Areas so
+ *              seeded/custom local ids map to cloud-compatible identity.
  */
-export const CURRENT_SCHEMA_VERSION = 2;
+export const CURRENT_SCHEMA_VERSION = 3;
 
 /** Raw string read for migration work that must preserve unknown bytes. */
 export function rawRead(key: string): string | null {
