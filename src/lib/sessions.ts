@@ -39,3 +39,36 @@ export function assembleSession(
   if (meta.areaId) entry.areaId = meta.areaId;
   return entry;
 }
+
+/**
+ * Build a canonical Session from a transport row (shared by adoption and
+ * remote-canonical conflict resolution). Absent intention/areaId (null) are
+ * omitted so downstream equality treats them as "absent".
+ */
+export function sessionFromRemoteRow(r: {
+  id: string;
+  at: number;
+  min: number;
+  intention: string | null;
+  areaId: string | null;
+}): Session {
+  return {
+    id: r.id,
+    at: r.at,
+    min: r.min,
+    ...(r.intention ? { intention: r.intention } : {}),
+    ...(r.areaId ? { areaId: r.areaId } : {}),
+  };
+}
+
+/**
+ * Replace exactly one session by id with the canonical payload.
+ * Same history length; exactly one matching id; unrelated entries unchanged.
+ * Pure: always returns a new array, never mutates the input.
+ */
+export function replaceSessionById(
+  history: Session[],
+  canonical: Session,
+): Session[] {
+  return history.map((s) => (s.id === canonical.id ? canonical : s));
+}

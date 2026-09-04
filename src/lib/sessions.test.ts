@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { assembleSession, newSessionId } from "./sessions";
+import {
+  assembleSession,
+  newSessionId,
+  replaceSessionById,
+  sessionFromRemoteRow,
+} from "./sessions";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -49,5 +54,48 @@ describe("assembleSession", () => {
     const bare = assembleSession({ at: 2, min: 50 }, { intention: null, areaId: null });
     expect(bare!.intention).toBeUndefined();
     expect(bare!.areaId).toBeUndefined();
+  });
+});
+
+describe("sessionFromRemoteRow", () => {
+  it("builds a Session omitting null intention/areaId", () => {
+    const s = sessionFromRemoteRow({ id: "x", at: 1, min: 9, intention: null, areaId: null });
+    expect(s).toEqual({ id: "x", at: 1, min: 9 });
+    expect(s.intention).toBeUndefined();
+    expect(s.areaId).toBeUndefined();
+  });
+
+  it("preserves present intention/areaId", () => {
+    const s = sessionFromRemoteRow({ id: "x", at: 1, min: 9, intention: "A", areaId: "u-1" });
+    expect(s).toEqual({ id: "x", at: 1, min: 9, intention: "A", areaId: "u-1" });
+  });
+});
+
+describe("replaceSessionById", () => {
+  const history = [
+    { id: "a", at: 1, min: 1 },
+    { id: "b", at: 2, min: 2 },
+    { id: "c", at: 3, min: 3 },
+  ];
+
+  it("replaces exactly the matching id, preserving length and others", () => {
+    const next = replaceSessionById(history, { id: "b", at: 9, min: 9 });
+    expect(next).toHaveLength(3); // same length
+    expect(next.map((s) => s.id)).toEqual(["a", "b", "c"]); // exactly one "b"
+    expect(next.find((s) => s.id === "b")).toEqual({ id: "b", at: 9, min: 9 });
+    expect(next.find((s) => s.id === "a")).toEqual({ id: "a", at: 1, min: 1 }); // unchanged
+    expect(next.find((s) => s.id === "c")).toEqual({ id: "c", at: 3, min: 3 }); // unchanged
+  });
+
+  it("leaves history semantically unchanged when the id is absent", () => {
+    const next = replaceSessionById(history, { id: "zzz", at: 9, min: 9 });
+    expect(next.map((s) => s.id)).toEqual(["a", "b", "c"]);
+    expect(next.find((s) => s.id === "zzz")).toBeUndefined();
+  });
+
+  it("does not mutate the input array", () => {
+    const before = history.map((s) => ({ ...s }));
+    replaceSessionById(history, { id: "b", at: 9, min: 9 });
+    expect(history).toEqual(before);
   });
 });

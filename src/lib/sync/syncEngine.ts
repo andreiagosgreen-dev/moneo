@@ -1,6 +1,10 @@
 import type { Settings, Session } from "../store";
 import type { FocusArea } from "../focusAreas";
-import { newSessionId } from "../sessions";
+import {
+  newSessionId,
+  replaceSessionById,
+  sessionFromRemoteRow,
+} from "../sessions";
 import {
   planAreaMerge,
   planSessionMerge,
@@ -20,7 +24,8 @@ import { resolveCloudAreaId, resolveLocalAreaId } from "../focusAreas";
  * Principles: LOCAL FIRST · USER CONTROLLED · CLOUD ENHANCED.
  * - Explicit consent gates the first sync; signing in uploads nothing.
  * - Sessions are append-mostly immutable; identity = session.id.
- *   Same-id conflict → remote canonical, local preserved, counted.
+ *   Same-id conflict → remote canonical: the local copy is REPLACED with the
+ *   remote payload (terminal — the next sync is a zero-op). Counted in outcome.
  * - Areas: newer updatedAt wins; tie → remote canonical.
  * - Settings: last-write-wins on updatedAt; equal → noop.
  * - Failure at ANY stage leaves local data intact and sync state
@@ -172,19 +177,46 @@ export async function runSync(opts: {
   //    still leaves the user with merged data; the next run converges).
   let appliedRemoteAreas = 0;
   try {
-    if (sessionPlan.adoptLocal.length > 0) {
-      const adopted: Session[] = sessionPlan.adoptLocal.map((r) => {
-        // Preserve local semantics: store the LOCAL area id, not the cloud UUID.
-        const localAreaId = resolveToLocal(r.areaId);
-        return {
-          id: r.id,
-          at: r.at,
-          min: r.min,
-          ...(r.intention ? { intention: r.intention } : {}),
-          ...(localAreaId ? { areaId: localAreaId } : {}),
-        };
-      });
-      const merged = [...localHistory, ...adopted].sort((a, b) => a.at - b.at);
+    const hasAdoptions = sessionPlan.adoptLocal.length > 0;
+    const hasConflicts = sessionPlan.resolveConflictRemoteCanonical.length > 0;
+    if (hasAdoptions || hasConflicts) {
+      let nextHistory = localHistory;
+
+      // Append remote-only sessions (adoption).
+      if (hasAdoptions) {
+        const adopted: Session[] = sessionPlan.adoptLocal.map((r) => {
+          // Preserve local semantics: store the LOCAL area id, not the cloud UUID.
+          const localAreaId = resolveToLocal(r.areaId);
+          return {
+            id: r.id,
+            at: r.at,
+            min: r.min,
+            ...(r.intention ? { intention: r.intention } : {}),
+            ...(localAreaId ? { areaId: localAreaId } : {}),
+          };
+        });
+        nextHistory = [...nextHistory, ...adopted];
+      }
+
+      // Remote-canonical conflicts: replace the matching local session by id
+      // with the canonical remote payload (same id, no new UUID, no duplicate).
+      for (const r of sessionPlan.resolveConflictRemoteCanonical) {
+        nextHistory = replaceSessionById(
+          nextHistory,
+          sessionFromRemoteRow({
+            id: r.id,
+            at: r.at,
+            min: r.min,
+            intention: r.intention,
+            // Preserve local semantics: store the LOCAL area id.
+            areaId: resolveToLocal(r.areaId),
+          }),
+        );
+      }
+
+      // Normalize ordering by completion time — the same invariant adoption
+      // already enforces. Entries are preserved; only order is canonicalized.
+      const merged = [...nextHistory].sort((a, b) => a.at - b.at);
       if (!opts.local.writeHistory(merged)) return fail("apply", "storage");
     }
 
@@ -292,7 +324,7 @@ export async function runSync(opts: {
     pushedAreas,
     appliedRemoteAreas,
     settingsOp,
-    conflicts: sessionPlan.conflicts.length,
+    conflicts: sessionPlan.resolveConflictRemoteCanonical.length,
     state: nextState,
   };
 }

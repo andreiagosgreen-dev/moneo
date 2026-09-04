@@ -8,15 +8,15 @@ import type { FocusArea } from "../focusAreas";
  *
  * SESSIONS — immutable after completion. Identity: session.id.
  *   · id missing remotely            → insertRemote (pushLocal)
- *   · remote-only id                 → adoptRemote
+ *   · remote-only id                 → adoptLocal (adoptRemote)
  *   · id present, payload identical  → noop
- *   · id present, payload differs    → resolveRemote: REMOTE is canonical
- *     (it has passed authenticated repo scoping + server RLS ownership).
- *     The engine REPLACES the local copy with the canonical payload —
- *     one id is exactly one logical session, so conflicts reach a
- *     TERMINAL state and the next sync is a zero-op. No new UUID is ever
- *     generated for a conflicting session (that would corrupt counts,
- *     Growth, streaks and analytics).
+ *   · id present, payload differs    → resolveConflictRemoteCanonical:
+ *     REMOTE is canonical (it has already passed authenticated repo scoping
+ *     + server RLS ownership). The engine REPLACES the local copy with the
+ *     canonical payload — one id is exactly one logical session, so the
+ *     conflict reaches a TERMINAL state and the next sync is a zero-op.
+ *     No new UUID is ever generated for a conflicting session (that would
+ *     corrupt counts, Growth, streaks and analytics).
  *
  * AREAS — mutable name/deletion. Rule: newer updatedAt wins.
  *   · exact timestamp tie            → remote canonical (deterministic):
@@ -85,8 +85,12 @@ export interface SessionMergePlan {
   /** Remote sessions to adopt locally (local lacks the id). */
   adoptLocal: RemoteSessionRow[];
   noopCount: number;
-  /** Same id, different immutable payload — remote canonical. */
-  conflicts: Array<{ local: LocalSession & { id: string }; remote: RemoteSessionRow }>;
+  /**
+   * Same-id conflicts resolved remote-canonical. The engine must replace the
+   * matching local session (by id) with each of these canonical payloads.
+   * This is a TERMINAL action — after it, the conflict no longer exists.
+   */
+  resolveConflictRemoteCanonical: RemoteSessionRow[];
 }
 
 export function planSessionMerge(
@@ -98,7 +102,7 @@ export function planSessionMerge(
     insertRemote: [],
     adoptLocal: [],
     noopCount: 0,
-    conflicts: [],
+    resolveConflictRemoteCanonical: [],
   };
   const seenRemote = new Set<string>();
   for (const s of local) {
@@ -109,7 +113,9 @@ export function planSessionMerge(
     } else if (sessionPayloadEqual(s, r)) {
       plan.noopCount++;
     } else {
-      plan.conflicts.push({ local: s as LocalSession & { id: string }, remote: r });
+      // Same id, differing immutable payload → remote is canonical. Emit a
+      // terminal reconciliation op (the engine replaces the local copy).
+      plan.resolveConflictRemoteCanonical.push(r);
     }
     seenRemote.add(s.id);
   }

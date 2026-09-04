@@ -45,7 +45,7 @@ describe("session merge plans", () => {
     expect(plan.insertRemote).toHaveLength(1);
     expect(plan.insertRemote[0].id).toBe("s1");
     expect(plan.adoptLocal).toHaveLength(0);
-    expect(plan.conflicts).toHaveLength(0);
+    expect(plan.resolveConflictRemoteCanonical).toHaveLength(0);
   });
 
   it("remote-only sessions are adopted locally", () => {
@@ -60,17 +60,20 @@ describe("session merge plans", () => {
     expect(plan.noopCount).toBe(1);
     expect(plan.insertRemote).toHaveLength(0);
     expect(plan.adoptLocal).toHaveLength(0);
-    expect(plan.conflicts).toHaveLength(0);
+    expect(plan.resolveConflictRemoteCanonical).toHaveLength(0);
   });
 
-  it("same id with different immutable payload is a conflict (remote canonical)", () => {
+  it("same id with different immutable payload emits a remote-canonical resolution op", () => {
     const local = [{ id: "s1", at: 1000, min: 25, intention: "Local note" }];
     const plan = planSessionMerge(local, [rs("s1", { intention: "Cloud note" })]);
-    expect(plan.conflicts).toHaveLength(1);
-    expect(plan.conflicts[0].remote.intention).toBe("Cloud note");
-    // Local is preserved as-is; nothing is pushed or duplicated.
+    // Terminal op: the engine replaces the local copy with this canonical row.
+    expect(plan.resolveConflictRemoteCanonical).toHaveLength(1);
+    expect(plan.resolveConflictRemoteCanonical[0].id).toBe("s1");
+    expect(plan.resolveConflictRemoteCanonical[0].intention).toBe("Cloud note");
+    // Nothing is pushed or appended — the id already exists on both sides.
     expect(plan.insertRemote).toHaveLength(0);
     expect(plan.adoptLocal).toHaveLength(0);
+    expect(plan.noopCount).toBe(0);
   });
 
   it("normalizes absent intention/areaId against null for equality", () => {
@@ -83,6 +86,50 @@ describe("session merge plans", () => {
         rs("x", { at: 5, min: 9 }),
       ),
     ).toBe(false);
+  });
+
+  it("undefined (local) vs null (remote) intention/areaId produce no conflict", () => {
+    // Local omits the fields (undefined); remote stores null. Semantically equal.
+    const plan = planSessionMerge(
+      [{ id: "s1", at: 1000, min: 25 }],
+      [rs("s1", { intention: null, areaId: null })],
+    );
+    expect(plan.noopCount).toBe(1);
+    expect(plan.resolveConflictRemoteCanonical).toHaveLength(0);
+  });
+
+  it("equivalent epoch-ms timestamps compare equal (no false conflict)", () => {
+    const at = Date.parse("2026-09-04T10:00:00.000Z");
+    const plan = planSessionMerge(
+      [{ id: "s1", at, min: 25 }],
+      [rs("s1", { at, min: 25 })],
+    );
+    expect(plan.noopCount).toBe(1);
+    expect(plan.resolveConflictRemoteCanonical).toHaveLength(0);
+  });
+
+  it("each differing immutable field independently produces a resolution op", () => {
+    const base = rs("s1"); // at 1000, min 25, intention null, areaId null
+    // timestamp differs
+    expect(
+      planSessionMerge([{ id: "s1", at: 2000, min: 25 }], [base])
+        .resolveConflictRemoteCanonical,
+    ).toHaveLength(1);
+    // duration differs
+    expect(
+      planSessionMerge([{ id: "s1", at: 1000, min: 50 }], [base])
+        .resolveConflictRemoteCanonical,
+    ).toHaveLength(1);
+    // intention differs
+    expect(
+      planSessionMerge([{ id: "s1", at: 1000, min: 25, intention: "A" }], [base])
+        .resolveConflictRemoteCanonical,
+    ).toHaveLength(1);
+    // area differs
+    expect(
+      planSessionMerge([{ id: "s1", at: 1000, min: 25, areaId: "u-1" }], [base])
+        .resolveConflictRemoteCanonical,
+    ).toHaveLength(1);
   });
 
   it("skips local sessions without an id (pre-backfill guard)", () => {

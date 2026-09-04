@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Session, Settings } from "../store";
 import type { FocusArea } from "../focusAreas";
+import { SEEDED_AREA_CLOUD_IDS } from "../areaIdentity";
 import { getTotalFocusedMinutes } from "../growth";
 import { STORAGE_KEYS } from "../storage/storageKeys";
 import type {
@@ -382,7 +383,7 @@ describe("merge behavior", () => {
     expect(store.history[1].id).toBe("55555555-5555-4555-8555-555555555555");
   });
 
-  it("counts same-id conflicts, preserves local, and never duplicates", async () => {
+  it("resolves a same-id conflict by adopting the remote canonical payload locally", async () => {
     const sharedId = "66666666-6666-4666-8666-666666666666";
     const store = fakeLocal({ history: [{ id: sharedId, at: 1000, min: 25 }] });
     const cloud = fakeCloud();
@@ -400,12 +401,45 @@ describe("merge behavior", () => {
       local: localIO(store),
     });
     expect(res.ok).toBe(true);
-    expect(res.conflicts).toBe(1);
+    expect(res.conflicts).toBe(1); // one conflict resolved this run
     expect(res.insertedSessions).toBe(0);
-    // Local entry preserved as-is; remote canonical; no duplicate rows.
-    expect(store.history).toEqual([{ id: sharedId, at: 1000, min: 25 }]);
+    expect(res.adoptedSessions).toBe(0);
+    // Local is REPLACED by the remote canonical (same id, no new UUID, no duplicate).
+    expect(store.history).toEqual([{ id: sharedId, at: 1000, min: 50 }]);
+    expect(store.history).toHaveLength(1);
+    // Cloud row is untouched (remote was already canonical) — no duplicate pushed.
     expect(cloud.sessions).toHaveLength(1);
     expect(cloud.sessions[0].min).toBe(50);
+  });
+
+  it("terminal convergence: after resolution, second and third syncs are zero-ops", async () => {
+    const sharedId = "77777777-7777-4777-8777-777777777777";
+    const store = fakeLocal({ history: [{ id: sharedId, at: 1000, min: 25 }] });
+    const cloud = fakeCloud();
+    cloud.sessions.push({ id: sharedId, at: 1000, min: 50, intention: null, areaId: null });
+
+    // Sync 1: resolves the conflict.
+    const r1 = await runSync({ userId: USER, consented: true, repos: reposFor(cloud), local: localIO(store) });
+    expect(r1.ok).toBe(true);
+    expect(r1.conflicts).toBe(1);
+    expect(store.history[0].min).toBe(50);
+
+    // Sync 2: identical local/cloud → zero conflict, insert, adoption, cloud write.
+    const r2 = await runSync({ userId: USER, consented: false, repos: reposFor(cloud), local: localIO(store) });
+    expect(r2.ok).toBe(true);
+    expect(r2.conflicts).toBe(0);
+    expect(r2.insertedSessions).toBe(0);
+    expect(r2.adoptedSessions).toBe(0);
+    expect(cloud.sessions).toHaveLength(1);
+
+    // Sync 3: still a complete zero-op (proves terminal, not two-pass, convergence).
+    const r3 = await runSync({ userId: USER, consented: false, repos: reposFor(cloud), local: localIO(store) });
+    expect(r3.ok).toBe(true);
+    expect(r3.conflicts).toBe(0);
+    expect(r3.insertedSessions).toBe(0);
+    expect(r3.adoptedSessions).toBe(0);
+    expect(cloud.sessions).toHaveLength(1);
+    expect(store.history).toEqual([{ id: sharedId, at: 1000, min: 50 }]);
   });
 
   it("merges areas: newer wins, deletion propagates, remote-only adopted", async () => {
@@ -582,5 +616,184 @@ describe("privacy boundaries", () => {
       expect(s).not.toHaveProperty("remaining");
       expect(s).not.toHaveProperty("endsAt");
     }
+  });
+});
+
+describe("session conflict terminal convergence", () => {
+  const sharedId = "88888888-8888-4888-8888-888888888888";
+
+  it("each differing immutable field converges to the remote canonical payload", async () => {
+    const canonical = { id: sharedId, at: 5000, min: 90, intention: "Cloud", areaId: null };
+    const variants = [
+      { id: sharedId, at: 1000, min: 90, intention: "Cloud" }, // timestamp differs
+      { id: sharedId, at: 5000, min: 25, intention: "Cloud" }, // duration differs
+      { id: sharedId, at: 5000, min: 90, intention: "Local" }, // intention differs
+    ];
+    for (const localRow of variants) {
+      const store = fakeLocal({ history: [localRow] });
+      const cloud = fakeCloud();
+      cloud.sessions.push({ ...canonical });
+      const res = await runSync({
+        userId: USER,
+        consented: true,
+        repos: reposFor(cloud),
+        local: localIO(store),
+      });
+      expect(res.ok).toBe(true);
+      expect(res.conflicts).toBe(1);
+      // Local replaced by canonical; exactly one entry; cloud untouched.
+      expect(store.history).toHaveLength(1);
+      expect(store.history[0]).toMatchObject({
+        id: sharedId,
+        at: 5000,
+        min: 90,
+        intention: "Cloud",
+      });
+      expect(cloud.sessions).toHaveLength(1);
+    }
+  });
+
+  it("maps a local seeded area id to its cloud UUID — no false conflict", async () => {
+    const workCloud = SEEDED_AREA_CLOUD_IDS["area:work"];
+    const areas: FocusArea[] = [
+      { id: "area:work", name: "Work", createdAt: 5, cloudId: workCloud },
+    ];
+    // Local references the area by LOCAL id; cloud by the cloud UUID. Same area.
+    const store = fakeLocal({
+      history: [{ id: sharedId, at: 1000, min: 25, areaId: "area:work" }],
+      areas,
+    });
+    const cloud = fakeCloud();
+    cloud.sessions.push({ id: sharedId, at: 1000, min: 25, intention: null, areaId: workCloud });
+    const res = await runSync({
+      userId: USER,
+      consented: true,
+      repos: reposFor(cloud),
+      local: localIO(store),
+    });
+    expect(res.ok).toBe(true);
+    expect(res.conflicts).toBe(0); // same cloud UUID after mapping → identical → noop
+    expect(store.history[0].areaId).toBe("area:work"); // still the local id
+  });
+
+  it("a genuine area conflict resolves remote-canonical and stores the local id back", async () => {
+    const workCloud = SEEDED_AREA_CLOUD_IDS["area:work"];
+    const studyCloud = SEEDED_AREA_CLOUD_IDS["area:study"];
+    const areas: FocusArea[] = [
+      { id: "area:work", name: "Work", createdAt: 5, cloudId: workCloud },
+      { id: "area:study", name: "Study", createdAt: 5, cloudId: studyCloud },
+    ];
+    const store = fakeLocal({
+      history: [{ id: sharedId, at: 1000, min: 25, areaId: "area:work" }],
+      areas,
+    });
+    const cloud = fakeCloud();
+    cloud.sessions.push({ id: sharedId, at: 1000, min: 25, intention: null, areaId: studyCloud });
+    const res = await runSync({
+      userId: USER,
+      consented: true,
+      repos: reposFor(cloud),
+      local: localIO(store),
+    });
+    expect(res.ok).toBe(true);
+    expect(res.conflicts).toBe(1);
+    // Remote canonical (study) wins; stored back as the LOCAL area id.
+    expect(store.history[0].areaId).toBe("area:study");
+  });
+
+  it("preserves unrelated sessions, keeps length stable, and never duplicates ids", async () => {
+    const store = fakeLocal({
+      history: [
+        { id: "other-1", at: 500, min: 10 },
+        { id: sharedId, at: 1000, min: 25 },
+        { id: "other-2", at: 1500, min: 20 },
+      ],
+    });
+    const cloud = fakeCloud();
+    cloud.sessions.push({ id: sharedId, at: 1000, min: 50, intention: null, areaId: null });
+    const res = await runSync({
+      userId: USER,
+      consented: true,
+      repos: reposFor(cloud),
+      local: localIO(store),
+    });
+    expect(res.ok).toBe(true);
+    expect(store.history).toHaveLength(3); // length stable
+    const ids = store.history.map((s) => s.id);
+    expect(new Set(ids).size).toBe(3); // no duplicate ids
+    expect(store.history.find((s) => s.id === sharedId)!.min).toBe(50); // canonical
+    expect(store.history.find((s) => s.id === "other-1")!.min).toBe(10); // untouched
+    expect(store.history.find((s) => s.id === "other-2")!.min).toBe(20); // untouched
+  });
+
+  it("Growth reflects exactly one canonical session (no double count)", async () => {
+    const store = fakeLocal({ history: [{ id: sharedId, at: 1000, min: 25 }] });
+    const cloud = fakeCloud();
+    cloud.sessions.push({ id: sharedId, at: 1000, min: 50, intention: null, areaId: null });
+    await runSync({ userId: USER, consented: true, repos: reposFor(cloud), local: localIO(store) });
+    expect(store.history).toHaveLength(1); // exactly one session
+    expect(getTotalFocusedMinutes(store.history)).toBe(50); // canonical, not 25+50
+  });
+
+  it("two devices converge to a single canonical session", async () => {
+    const cloud = fakeCloud();
+    cloud.sessions.push({ id: sharedId, at: 1000, min: 50, intention: "Canonical", areaId: null });
+    const deviceA = fakeLocal({
+      history: [{ id: sharedId, at: 1000, min: 25, intention: "A-version" }],
+    });
+    const deviceB = fakeLocal();
+
+    // A syncs: conflict resolved to canonical.
+    const rA = await runSync({ userId: USER, consented: true, repos: reposFor(cloud), local: localIO(deviceA) });
+    expect(rA.conflicts).toBe(1);
+    expect(deviceA.history[0]).toMatchObject({ id: sharedId, min: 50, intention: "Canonical" });
+
+    // B syncs: pulls canonical X.
+    const rB = await runSync({ userId: USER, consented: true, repos: reposFor(cloud), local: localIO(deviceB) });
+    expect(rB.adoptedSessions).toBe(1);
+    expect(deviceB.history[0]).toMatchObject({ id: sharedId, min: 50, intention: "Canonical" });
+
+    // A syncs again: zero-op.
+    const rA2 = await runSync({ userId: USER, consented: false, repos: reposFor(cloud), local: localIO(deviceA) });
+    expect(rA2.conflicts).toBe(0);
+    expect(rA2.insertedSessions).toBe(0);
+    expect(rA2.adoptedSessions).toBe(0);
+
+    // All hold exactly one canonical X with equal Growth.
+    for (const d of [deviceA, deviceB]) {
+      expect(d.history).toHaveLength(1);
+      expect(d.history[0].id).toBe(sharedId);
+      expect(getTotalFocusedMinutes(d.history)).toBe(50);
+    }
+    expect(cloud.sessions).toHaveLength(1);
+    expect(cloud.sessions[0].min).toBe(50);
+  });
+
+  it("a failed local write during resolution prevents the success marker", async () => {
+    const store = fakeLocal({ history: [{ id: sharedId, at: 1000, min: 25 }] });
+    const cloud = fakeCloud();
+    cloud.sessions.push({ id: sharedId, at: 1000, min: 50, intention: null, areaId: null });
+    const failingLocal: SyncLocalIO = {
+      readHistory: () => store.history,
+      writeHistory: () => false, // storage write fails
+      readAreas: () => store.areas,
+      writeAreas: () => true,
+      readSettings: () => store.settings,
+      writeSettings: () => true,
+    };
+    const res = await runSync({
+      userId: USER,
+      consented: true,
+      repos: reposFor(cloud),
+      local: failingLocal,
+    });
+    expect(res.ok).toBe(false);
+    expect(res.stage).toBe("apply");
+    // No success marker; retry possible; local & cloud unchanged.
+    expect(loadSyncState().initialized).toBe(false);
+    expect(loadSyncState().lastSuccessfulSyncAt).toBeNull();
+    expect(store.history).toEqual([{ id: sharedId, at: 1000, min: 25 }]);
+    expect(cloud.sessions).toHaveLength(1);
+    expect(cloud.sessions[0].min).toBe(50);
   });
 });
