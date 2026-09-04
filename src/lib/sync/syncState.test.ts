@@ -75,6 +75,7 @@ describe("sync state semantics", () => {
 
 describe("change channel", () => {
   it("notifies subscribers on save and supports unsubscribe", () => {
+    loadSyncState(); // bootstrap-persist happens before subscribing
     let calls = 0;
     const off = onSyncStateChange(() => calls++);
     saveSyncState(loadSyncState());
