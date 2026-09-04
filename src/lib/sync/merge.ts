@@ -7,11 +7,16 @@ import type { FocusArea } from "../focusAreas";
  * Documented conflict policies:
  *
  * SESSIONS — immutable after completion. Identity: session.id.
- *   · id missing remotely            → insertRemote
+ *   · id missing remotely            → insertRemote (pushLocal)
+ *   · remote-only id                 → adoptRemote
  *   · id present, payload identical  → noop
- *   · id present, payload differs    → conflict; REMOTE is canonical
- *     (server-confirmed ownership). The local entry is preserved as-is,
- *     never overwritten, never duplicated, and the conflict is counted.
+ *   · id present, payload differs    → resolveRemote: REMOTE is canonical
+ *     (it has passed authenticated repo scoping + server RLS ownership).
+ *     The engine REPLACES the local copy with the canonical payload —
+ *     one id is exactly one logical session, so conflicts reach a
+ *     TERMINAL state and the next sync is a zero-op. No new UUID is ever
+ *     generated for a conflicting session (that would corrupt counts,
+ *     Growth, streaks and analytics).
  *
  * AREAS — mutable name/deletion. Rule: newer updatedAt wins.
  *   · exact timestamp tie            → remote canonical (deterministic):
