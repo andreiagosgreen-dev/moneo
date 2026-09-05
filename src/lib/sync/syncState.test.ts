@@ -59,8 +59,9 @@ describe("sync state semantics", () => {
 
   it("markSyncSuccess advances initialized and lastSuccessfulSyncAt", () => {
     const s = markSyncSuccess(123456);
-    expect(s.initialized).toBe(true);
-    expect(s.lastSuccessfulSyncAt).toBe(123456);
+    expect(s).not.toBeNull();
+    expect(s!.initialized).toBe(true);
+    expect(s!.lastSuccessfulSyncAt).toBe(123456);
     expect(loadSyncState().initialized).toBe(true);
   });
 

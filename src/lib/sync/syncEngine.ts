@@ -111,7 +111,10 @@ export async function runSync(opts: {
 
   // 3. Backfill — guarantee exactly one stable id per local session
   //    (idempotent; entries that already have ids are never re-stamped).
-  runLocalMigrations();
+  const migration = runLocalMigrations();
+  if (migration.status === "failed") {
+    return fail("backfill", "Could not prepare local storage.");
+  }
   {
     const pre = opts.local.readHistory();
     if (pre.some((s) => typeof s.id !== "string" || s.id.length === 0)) {
@@ -315,6 +318,7 @@ export async function runSync(opts: {
 
   // 8. Mark success — only a COMPLETE run advances sync state.
   const nextState = markSyncSuccess(now);
+  if (!nextState) return fail("apply", "Could not save sync state.");
   return {
     ok: true,
     stage: "done",

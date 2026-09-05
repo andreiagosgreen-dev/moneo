@@ -32,10 +32,10 @@ export function createSupabaseSyncRepos(): SyncRepos {
 export function createLocalSyncIO(): SyncLocalIO {
   return {
     readHistory: loadHistory,
-    writeHistory: (h) => (saveHistory(h), true),
+    writeHistory: saveHistory,
     readAreas: loadFocusAreas,
-    writeAreas: (a) => (saveFocusAreas(a), true),
+    writeAreas: saveFocusAreas,
     readSettings: loadSettings,
-    writeSettings: (s) => (saveSettings(s), true),
+    writeSettings: saveSettings,
   };
 }

@@ -137,8 +137,8 @@ export function loadFocusAreas(): FocusArea[] {
   return areas;
 }
 
-export function saveFocusAreas(areas: FocusArea[]) {
-  safeWrite(AREAS_KEY, areas);
+export function saveFocusAreas(areas: FocusArea[]): boolean {
+  return safeWrite(AREAS_KEY, areas);
 }
 
 /** Returns the new list, or null when the name is empty or the cap is reached. */

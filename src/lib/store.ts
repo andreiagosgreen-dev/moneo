@@ -90,8 +90,8 @@ export function loadSettings(): Settings {
   };
 }
 
-export function saveSettings(s: Settings) {
-  write(KEYS.settings, s);
+export function saveSettings(s: Settings): boolean {
+  return write(KEYS.settings, s);
 }
 
 export function loadHistory(): Session[] {
@@ -122,8 +122,8 @@ export function loadHistory(): Session[] {
     });
 }
 
-export function saveHistory(h: Session[]) {
-  write(KEYS.history, h);
+export function saveHistory(h: Session[]): boolean {
+  return write(KEYS.history, h);
 }
 
 export function loadSnapshot(): Snapshot | null {

@@ -291,10 +291,10 @@ export default function App() {
 
   /* ---------- persistence ---------- */
 
-  useEffect(() => saveSettings(settings), [settings]);
-  useEffect(() => saveHistory(history), [history]);
+  useEffect(() => { saveSettings(settings); }, [settings]);
+  useEffect(() => { saveHistory(history); }, [history]);
   useEffect(() => saveIntentionDraft(intentionDraft), [intentionDraft]);
-  useEffect(() => saveFocusAreas(areas), [areas]);
+  useEffect(() => { saveFocusAreas(areas); }, [areas]);
   useEffect(() => saveSelectedArea(selectedAreaId), [selectedAreaId]);
   // Persist only meaningful state: every discrete change (mode/total/cycle),
   // every pause/idle settle, and at most once per 10s of live countdown.

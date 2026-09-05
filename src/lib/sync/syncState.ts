@@ -103,13 +103,12 @@ export function getOrCreateDeviceId(): string {
 }
 
 /** Advance ONLY after a fully successful sync run. */
-export function markSyncSuccess(at: number): SyncState {
+export function markSyncSuccess(at: number): SyncState | null {
   const state = loadSyncState();
   const next: SyncState = {
     ...state,
     initialized: true,
     lastSuccessfulSyncAt: at,
   };
-  saveSyncState(next);
-  return next;
+  return saveSyncState(next) ? next : null;
 }
