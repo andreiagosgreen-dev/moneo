@@ -11,6 +11,10 @@ import type {
 } from "./merge";
 import { runSync, type SyncLocalIO, type SyncRepos } from "./syncEngine";
 import { loadSyncState } from "./syncState";
+import {
+  SESSION_PULL_PAGE_SIZE,
+  pullPaged,
+} from "../cloud/sessionRepository";
 
 /* ---------- fake cloud + fake local stores (deterministic harness) ---------- */
 
@@ -795,5 +799,363 @@ describe("session conflict terminal convergence", () => {
     expect(store.history).toEqual([{ id: sharedId, at: 1000, min: 25 }]);
     expect(cloud.sessions).toHaveLength(1);
     expect(cloud.sessions[0].min).toBe(50);
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* R3-FINAL: pagination × sync-engine integration.                     */
+/* The fake pullSessions is driven by the REAL pullPaged orchestrator  */
+/* over an in-memory dataset ordered exactly like the production query */
+/* (completed_at ASC, then id ASC), so page traversal, termination and */
+/* failure semantics are the repository's actual behavior.             */
+/* ------------------------------------------------------------------ */
+
+function pagedRepos(
+  cloud: Cloud,
+  opts?: {
+    pageSize?: number;
+    failPageIndex?: number;
+    ranges?: Array<{ from: number; to: number }>;
+  },
+): SyncRepos {
+  const pageSize = opts?.pageSize ?? 2;
+  const ranges: Array<{ from: number; to: number }> = opts?.ranges ?? [];
+  return {
+    pullSessions: async () => {
+      let pageCalls = 0;
+      const sorted = [...cloud.sessions].sort(
+        (a, b) => a.at - b.at || a.id.localeCompare(b.id),
+      );
+      return pullPaged<RemoteSessionRow>(async (from, to) => {
+        const pageIndex = pageCalls++;
+        ranges.push({ from, to });
+        if (opts?.failPageIndex === pageIndex) return null;
+        return sorted.slice(from, to + 1);
+      }, pageSize);
+    },
+    pushSessions: async (_userId, sessions) => {
+      for (const s of sessions) {
+        if (!cloud.sessions.some((c) => c.id === s.id)) {
+          cloud.sessions.push({
+            id: s.id,
+            at: s.at,
+            min: s.min,
+            intention: s.intention ?? null,
+            areaId: s.areaId ?? null,
+          });
+        }
+      }
+      return true;
+    },
+    pullAreas: async () => [...cloud.areas],
+    pushAreas: async (_userId, areas) => {
+      for (const a of areas) {
+        const existing = cloud.areas.find((c) => c.id === a.id);
+        const row: RemoteAreaRow = {
+          id: a.id,
+          name: a.name,
+          createdAt: a.createdAt,
+          updatedAt: a.updatedAt ?? a.createdAt,
+          deletedAt: typeof a.deletedAt === "number" ? a.deletedAt : null,
+        };
+        if (existing) Object.assign(existing, row);
+        else cloud.areas.push(row);
+      }
+      return true;
+    },
+    pullSettings: async () => cloud.settings,
+    pushSettings: async (_userId, settings) => {
+      cloud.settings = {
+        focusMin: settings.focusMin,
+        shortMin: settings.shortMin,
+        longMin: settings.longMin,
+        longEvery: settings.longEvery,
+        dailyGoal: settings.dailyGoal,
+        autoStart: settings.autoStart,
+        sound: settings.sound,
+        updatedAt: settings.updatedAt ?? Date.now(),
+      };
+      return true;
+    },
+  };
+}
+
+describe("R3 pagination × sync engine integration", () => {
+  it("runSync consumes the COMPLETE multi-page remote history — no later-page row lost", async () => {
+    const cloud = fakeCloud();
+    for (let i = 1; i <= 7; i++) {
+      cloud.sessions.push({
+        id: `pg-${i}`,
+        at: i * 1000,
+        min: 10 + i,
+        intention: i === 6 ? "Late page intention" : null,
+        areaId: null,
+      });
+    }
+    const ranges: Array<{ from: number; to: number }> = [];
+    const store = fakeLocal();
+    const res = await runSync({
+      userId: USER,
+      consented: true,
+      repos: pagedRepos(cloud, { pageSize: 2, ranges }),
+      local: localIO(store),
+    });
+    expect(res.ok).toBe(true);
+    expect(ranges).toHaveLength(4); // 2+2+2+1 → pages [0-1],[2-3],[4-5],[6-7]
+    expect(res.adoptedSessions).toBe(7);
+    // Every page-1/2/3 row is in the final local history with payload intact.
+    expect(store.history.map((s) => s.id).sort()).toEqual([
+      "pg-1", "pg-2", "pg-3", "pg-4", "pg-5", "pg-6", "pg-7",
+    ]);
+    expect(store.history.find((s) => s.id === "pg-6")!.intention).toBe(
+      "Late page intention",
+    );
+    expect(new Set(store.history.map((s) => s.id)).size).toBe(7); // no dupes
+    expect(getTotalFocusedMinutes(store.history)).toBe(
+      cloud.sessions.reduce((sum, s) => sum + s.min, 0),
+    );
+  });
+
+  it("20,001 remote rows traverse 21 production-size pages into complete history (old 20k cap is gone)", async () => {
+    expect(SESSION_PULL_PAGE_SIZE).toBe(1000);
+    const cloud = fakeCloud();
+    for (let i = 0; i < 20_001; i++) {
+      cloud.sessions.push({
+        id: `bulk-${String(i).padStart(5, "0")}`,
+        at: i,
+        min: 1,
+        intention: null,
+        areaId: null,
+      });
+    }
+    const ranges: Array<{ from: number; to: number }> = [];
+    const store = fakeLocal();
+    const res = await runSync({
+      userId: USER,
+      consented: true,
+      repos: pagedRepos(cloud, { pageSize: SESSION_PULL_PAGE_SIZE, ranges }),
+      local: localIO(store),
+    });
+    expect(res.ok).toBe(true);
+    expect(ranges).toHaveLength(21); // 20 full pages + one 1-row page
+    expect(ranges[0]).toEqual({ from: 0, to: 999 });
+    expect(ranges[20]).toEqual({ from: 20_000, to: 20_999 });
+    expect(res.adoptedSessions).toBe(20_001); // nothing truncated at 20,000
+    expect(store.history).toHaveLength(20_001);
+    expect(new Set(store.history.map((s) => s.id)).size).toBe(20_001);
+    expect(getTotalFocusedMinutes(store.history)).toBe(20_001);
+  });
+
+  it("local-only sessions survive and are pushed while a multi-page remote is adopted", async () => {
+    const cloud = fakeCloud();
+    for (let i = 1; i <= 3; i++) {
+      cloud.sessions.push({ id: `r-${i}`, at: i * 100, min: 5, intention: null, areaId: null });
+    }
+    const store = fakeLocal({
+      history: [{ id: "local-only", at: 50, min: 25, intention: "Mine" }],
+    });
+    const res = await runSync({
+      userId: USER,
+      consented: true,
+      repos: pagedRepos(cloud, { pageSize: 2 }),
+      local: localIO(store),
+    });
+    expect(res.ok).toBe(true);
+    expect(res.adoptedSessions).toBe(3);
+    expect(res.insertedSessions).toBe(1); // local-only pushed per policy
+    // Complete remote pull deletes nothing: 3 remote + 1 local-only.
+    expect(store.history).toHaveLength(4);
+    expect(store.history.find((s) => s.id === "local-only")).toMatchObject({
+      min: 25,
+      intention: "Mine",
+    });
+    expect(cloud.sessions.map((s) => s.id).sort()).toEqual([
+      "local-only", "r-1", "r-2", "r-3",
+    ]);
+  });
+
+  it("R2 regression: a same-id conflict on a LATER page converges terminally", async () => {
+    const conflictId = "99999999-9999-4999-8999-999999999999";
+    const cloud = fakeCloud();
+    cloud.sessions.push({ id: "page-1-row", at: 100, min: 5, intention: null, areaId: null });
+    cloud.sessions.push({ id: conflictId, at: 5000, min: 90, intention: "Cloud canonical", areaId: null }); // page 2
+    const store = fakeLocal({
+      history: [{ id: conflictId, at: 1000, min: 25, intention: "Local stale" }],
+    });
+    const first = await runSync({
+      userId: USER,
+      consented: true,
+      repos: pagedRepos(cloud, { pageSize: 1 }),
+      local: localIO(store),
+    });
+    expect(first.ok).toBe(true);
+    expect(first.conflicts).toBe(1); // pagination reached the later page
+    // Remote canonical replaced local; page-1 row adopted; no duplicates.
+    expect(store.history).toHaveLength(2);
+    expect(store.history.find((s) => s.id === conflictId)).toMatchObject({
+      at: 5000,
+      min: 90,
+      intention: "Cloud canonical",
+    });
+    expect(cloud.sessions).toHaveLength(2);
+
+    const second = await runSync({
+      userId: USER,
+      consented: false,
+      repos: pagedRepos(cloud, { pageSize: 1 }),
+      local: localIO(store),
+    });
+    expect(second.conflicts).toBe(0); // terminal convergence
+    expect(second.insertedSessions).toBe(0);
+    expect(second.adoptedSessions).toBe(0);
+    expect(store.history).toHaveLength(2);
+    expect(cloud.sessions).toHaveLength(2);
+  });
+
+  it("R1 regression: a later-page session referencing a seeded cloud area UUID maps to the local id with no false conflict", async () => {
+    const workCloud = SEEDED_AREA_CLOUD_IDS["area:work"];
+    const cloud = fakeCloud();
+    cloud.sessions.push({ id: "other-row", at: 100, min: 5, intention: null, areaId: null }); // page 1
+    cloud.sessions.push({ id: "shared", at: 1000, min: 25, intention: null, areaId: workCloud }); // page 2
+    const store = fakeLocal({
+      history: [{ id: "shared", at: 1000, min: 25, areaId: "area:work" }],
+      areas: [{ id: "area:work", name: "Work", createdAt: 5, cloudId: workCloud }],
+    });
+    const res = await runSync({
+      userId: USER,
+      consented: true,
+      repos: pagedRepos(cloud, { pageSize: 1 }),
+      local: localIO(store),
+    });
+    expect(res.ok).toBe(true);
+    expect(res.conflicts).toBe(0); // local id vs cloud UUID compare equal after mapping
+    expect(res.adoptedSessions).toBe(1);
+    expect(store.history.find((s) => s.id === "shared")!.areaId).toBe("area:work");
+    expect(store.history.map((s) => s.id).sort()).toEqual(["other-row", "shared"]);
+  });
+
+  it("a later-page failure aborts runSync — no partial apply, no success mark, local untouched", async () => {
+    const cloud = fakeCloud();
+    for (let i = 1; i <= 5; i++) {
+      cloud.sessions.push({ id: `f-${i}`, at: i * 100, min: 5, intention: null, areaId: null });
+    }
+    const preExisting: Session = { id: "keep-me", at: 9000, min: 10 };
+    const store = fakeLocal({ history: [{ ...preExisting }] });
+    const res = await runSync({
+      userId: USER,
+      consented: true,
+      repos: pagedRepos(cloud, { pageSize: 2, failPageIndex: 2 }), // page 3 fails
+      local: localIO(store),
+    });
+    expect(res.ok).toBe(false);
+    expect(res.stage).toBe("pull");
+    // The two successful pages are NOT applied as if complete.
+    expect(store.history).toEqual([preExisting]);
+    expect(cloud.sessions).toHaveLength(5); // nothing pushed
+    expect(loadSyncState().initialized).toBe(false);
+    expect(loadSyncState().lastSuccessfulSyncAt).toBeNull();
+  });
+
+  it("retry after a later-page failure completes with no duplicates and advances the marker", async () => {
+    const cloud = fakeCloud();
+    for (let i = 1; i <= 5; i++) {
+      cloud.sessions.push({ id: `f-${i}`, at: i * 100, min: 5, intention: null, areaId: null });
+    }
+    const store = fakeLocal({ history: [{ id: "keep-me", at: 9000, min: 10 }] });
+
+    const failed = await runSync({
+      userId: USER,
+      consented: true,
+      repos: pagedRepos(cloud, { pageSize: 2, failPageIndex: 2 }),
+      local: localIO(store),
+    });
+    expect(failed.ok).toBe(false);
+
+    const ok = await runSync({
+      userId: USER,
+      consented: true,
+      repos: pagedRepos(cloud, { pageSize: 2 }),
+      local: localIO(store),
+      now: () => 4242,
+    });
+    expect(ok.ok).toBe(true);
+    expect(ok.adoptedSessions).toBe(5);
+    expect(store.history).toHaveLength(6); // 5 remote + 1 pre-existing
+    expect(new Set(store.history.map((s) => s.id)).size).toBe(6); // no duplicates
+    expect(loadSyncState().initialized).toBe(true);
+    expect(loadSyncState().lastSuccessfulSyncAt).toBe(4242);
+
+    const again = await runSync({
+      userId: USER,
+      consented: false,
+      repos: pagedRepos(cloud, { pageSize: 2 }),
+      local: localIO(store),
+    });
+    expect(again.adoptedSessions).toBe(0);
+    expect(again.insertedSessions).toBe(0);
+    expect(again.conflicts).toBe(0);
+    expect(store.history).toHaveLength(6);
+  });
+
+  it("an exact page-multiple dataset terminates via one final empty request (no infinite loop)", async () => {
+    const cloud = fakeCloud();
+    for (let i = 1; i <= 4; i++) {
+      cloud.sessions.push({ id: `e-${i}`, at: i * 100, min: 5, intention: null, areaId: null });
+    }
+    const ranges: Array<{ from: number; to: number }> = [];
+    const store = fakeLocal();
+    const res = await runSync({
+      userId: USER,
+      consented: true,
+      repos: pagedRepos(cloud, { pageSize: 2, ranges }),
+      local: localIO(store),
+    });
+    expect(res.ok).toBe(true);
+    expect(res.adoptedSessions).toBe(4);
+    expect(ranges).toEqual([
+      { from: 0, to: 1 },
+      { from: 2, to: 3 },
+      { from: 4, to: 5 }, // empty final page proves completion
+    ]);
+    expect(store.history).toHaveLength(4);
+  });
+
+  it("ordering is deterministic (completed_at ASC, id ASC) and unique ids never inflate history", async () => {
+    const mkCloud = (): Cloud => {
+      const c = fakeCloud();
+      // Deliberately unsorted input with EQUAL timestamps but distinct ids.
+      c.sessions.push(
+        { id: "b", at: 500, min: 5, intention: null, areaId: null },
+        { id: "z-first", at: 100, min: 5, intention: null, areaId: null },
+        { id: "a", at: 500, min: 5, intention: null, areaId: null },
+        { id: "c", at: 500, min: 5, intention: null, areaId: null },
+      );
+      return c;
+    };
+    const expectedOrder = ["z-first", "a", "b", "c"];
+
+    const runOnce = async () => {
+      const ranges: Array<{ from: number; to: number }> = [];
+      const store = fakeLocal();
+      const res = await runSync({
+        userId: USER,
+        consented: true,
+        repos: pagedRepos(mkCloud(), { pageSize: 1, ranges }),
+        local: localIO(store),
+      });
+      expect(res.ok).toBe(true);
+      // Strictly increasing, non-overlapping page ranges.
+      for (let i = 1; i < ranges.length; i++) {
+        expect(ranges[i].from).toBe(ranges[i - 1].to + 1);
+      }
+      // Stable deterministic order end-to-end, including the id tie-breaker.
+      expect(store.history.map((s) => s.id)).toEqual(expectedOrder);
+      expect(new Set(store.history.map((s) => s.id)).size).toBe(4); // one entry per id
+      return store.history.map((s) => s.id).join(",");
+    };
+
+    const first = await runOnce();
+    const second = await runOnce();
+    expect(first).toBe(second); // identical runs → identical result
   });
 });
