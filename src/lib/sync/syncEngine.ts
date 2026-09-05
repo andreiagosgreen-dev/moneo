@@ -232,9 +232,7 @@ export async function runSync(opts: {
               ...a,
               name: op.remote.name,
               updatedAt: op.remote.updatedAt,
-              ...(op.remote.deletedAt !== null
-                ? { deletedAt: op.remote.deletedAt }
-                : {}),
+              deletedAt: op.remote.deletedAt ?? undefined,
             }
           : a,
       );
@@ -284,13 +282,7 @@ export async function runSync(opts: {
   // 7. Push — batched, idempotent (onConflict ignore-duplicates).
   let pushedAreas = 0;
   try {
-    if (sessionPlan.insertRemote.length > 0) {
-      const ok = await opts.repos.pushSessions(
-        opts.userId,
-        sessionPlan.insertRemote,
-      );
-      if (!ok) return fail("push", "Session upload failed — local data is safe.");
-    }
+    // Referenced areas must exist before session inserts satisfy the scoped FK.
     const areasToPush = areaPlan.ops
       .filter(
         (o): o is { areaId: string; op: { kind: "pushInsert" | "pushUpdate"; area: FocusArea } } =>
@@ -301,6 +293,13 @@ export async function runSync(opts: {
       const ok = await opts.repos.pushAreas(opts.userId, areasToPush);
       if (!ok) return fail("push", "Area upload failed — local data is safe.");
       pushedAreas = areasToPush.length;
+    }
+    if (sessionPlan.insertRemote.length > 0) {
+      const ok = await opts.repos.pushSessions(
+        opts.userId,
+        sessionPlan.insertRemote,
+      );
+      if (!ok) return fail("push", "Session upload failed — local data is safe.");
     }
     if (settingsOp === "pushLocal") {
       const toPush = opts.local.readSettings();

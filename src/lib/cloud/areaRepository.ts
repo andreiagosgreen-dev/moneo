@@ -57,11 +57,13 @@ export function listAreas(userId: string): Promise<CloudAreaRow[] | null> {
   });
 }
 
-export function softDeleteArea(areaId: string): Promise<boolean> {
+export function softDeleteArea(userId: string, areaId: string): Promise<boolean> {
   return withClient(async (client) => {
+    const now = new Date().toISOString();
     const { error } = await client
       .from("focus_areas")
-      .update({ deleted_at: new Date().toISOString() })
+      .update({ deleted_at: now, updated_at: now })
+      .eq("user_id", userId)
       .eq("id", areaId);
     return !error;
   }).then((r) => r ?? false);
@@ -88,7 +90,7 @@ export function pullAreasAll(userId: string): Promise<RemoteAreaRow[] | null> {
   });
 }
 
-/** Chunked upsert by id; merge policy already guaranteed local-newer. */
+/** Chunked upsert by (user_id, id); UUIDs are account-relative (R4A). */
 export function pushAreaBatch(
   userId: string,
   areas: FocusArea[],
@@ -112,7 +114,7 @@ export function pushAreaBatch(
       }));
       const { error } = await client
         .from("focus_areas")
-        .upsert(rows, { onConflict: "id" });
+        .upsert(rows, { onConflict: "user_id,id" });
       if (error) return false;
     }
     return true;

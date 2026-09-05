@@ -143,6 +143,12 @@ export interface AreaMergePlan {
 
 const areaStamp = (a: FocusArea): number => a.updatedAt ?? a.createdAt ?? 0;
 
+/** Both inputs belong to the user selected by runSync/repository scoping.
+ * Compare the account-relative cloud key, retaining local id only as the
+ * target of local operations. The fallback supports pre-cloud local records.
+ */
+const areaCloudKey = (a: FocusArea): string => a.cloudId ?? a.id;
+
 const areaDiffers = (a: FocusArea, r: RemoteAreaRow): boolean =>
   a.name !== r.name ||
   typeof a.deletedAt === "number" !== (r.deletedAt !== null);
@@ -160,7 +166,7 @@ export function planAreaMerge(
     noopCount: 0,
   };
   for (const a of local) {
-    const r = remoteById.get(a.id);
+    const r = remoteById.get(areaCloudKey(a));
     if (!r) {
       plan.ops.push({ areaId: a.id, op: { kind: "pushInsert", area: a } });
       plan.pushInsertCount++;
@@ -203,8 +209,8 @@ export function remoteOnlyAreas(
   local: FocusArea[],
   remote: RemoteAreaRow[],
 ): RemoteAreaRow[] {
-  const localIds = new Set(local.map((a) => a.id));
-  return remote.filter((r) => !localIds.has(r.id));
+  const cloudIds = new Set(local.map(areaCloudKey));
+  return remote.filter((r) => !cloudIds.has(r.id));
 }
 
 /* ---------------- settings ---------------- */

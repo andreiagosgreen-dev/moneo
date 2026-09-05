@@ -11,7 +11,10 @@
  * ids map to WELL-KNOWN, deterministic cloud UUIDs that are identical on every
  * device. Custom areas whose local id is already a UUID simply use it.
  *
- * All helpers here are pure and synchronous (safe for the storage migration).
+ * Cloud relational identity is (user_id, cloudId), not cloudId alone (R4A).
+ * Thus different users can own the same seeded UUID without colliding, while
+ * devices of one account converge without rewriting any stored identities.
+ * All helpers here are synchronous (safe for the storage migration).
  */
 
 /** Well-known cloud identities for the seeded default areas. Identical on

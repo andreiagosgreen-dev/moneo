@@ -20,10 +20,10 @@ export interface CloudSessionRow {
 }
 
 /**
- * Local → cloud row mapping.
- * NOTE: locally seeded areas use non-uuid ids ("area:work"); the sync
- * mapping nulls non-uuid area ids (cloud FK expects uuid). A dedicated
- * area-id migration remains deferred work.
+ * Boundary projection → cloud row mapping. runSync has already translated
+ * local session.areaId to the area's cloud UUID on a copy. The scoped FK
+ * (user_id, area_id) references focus_areas(user_id, id). Invalid/unresolved
+ * references are sent as null; local history is never rewritten here.
  */
 export function toCloudSessionRow(
   userId: string,
