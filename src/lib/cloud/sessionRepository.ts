@@ -80,22 +80,106 @@ export function listSessions(
 
 /* ---------- sync primitives (Gate 9) ---------- */
 
-/** Cap until paginated pulls are added (deferred work; documented). */
-const PULL_CAP = 20_000;
+/**
+ * Bounded page size for session pulls (R3). Keeps each network response
+ * small while keeping request counts predictable:
+ * 1,000 sessions → 2 requests; 20,001 → 21 requests.
+ */
+export const SESSION_PULL_PAGE_SIZE = 1000;
 
-/** Pull all of the user's sessions as transport-neutral rows. */
-export async function pullAllSessions(
-  userId: string,
-): Promise<RemoteSessionRow[] | null> {
-  const rows = await listSessions(userId, PULL_CAP);
-  if (!rows) return null;
-  return rows.map((r) => ({
+/** Safety guard against a pathological server that never returns a short
+ *  page (1,000 pages × 1,000 rows = 1M sessions max per pull). */
+const MAX_PAGES = 1000;
+
+/**
+ * Cloud row → transport-neutral domain row. Single mapping point so every
+ * page is normalized identically (timestamp ISO → epoch-ms, optional
+ * fields passed through as-is).
+ */
+export function mapCloudSessionRow(r: CloudSessionRow): RemoteSessionRow {
+  return {
     id: r.id,
     at: Date.parse(r.completed_at),
     min: r.duration_min,
     intention: r.intention,
     areaId: r.area_id,
-  }));
+  };
+}
+
+/**
+ * Deterministic bounded-range pagination orchestrator (R3).
+ *
+ * Contract:
+ * - Pages are requested as inclusive ranges [from, to] of a dataset ordered
+ *   deterministically by the caller (completed_at ASC, id ASC — a UNIQUE
+ *   total order, so offsets are stable on a static dataset).
+ * - Stops when a page contains fewer than `pageSize` rows (an exactly-full
+ *   page always triggers one more request to prove completion).
+ * - ANY failed page → the whole pull fails with null. A partial history is
+ *   NEVER returned as if it were complete.
+ * - `maxPages` guards against a server that never terminates.
+ *
+ * Concurrency note: range pagination is not snapshot-consistent. Because
+ * ordering is ascending on completed_at, realistically concurrent inserts
+ * (new sessions, later timestamps) append at the TAIL and never shift
+ * earlier pages. A back-dated insert from another device mid-pull could in
+ * theory shift offsets; the id tie-breaker, engine-level id de-duplication
+ * and next-sync self-healing make the residual risk negligible (P2).
+ */
+export async function pullPaged<T>(
+  fetchPage: (from: number, to: number) => Promise<T[] | null>,
+  pageSize: number,
+  maxPages: number = MAX_PAGES,
+): Promise<T[] | null> {
+  const out: T[] = [];
+  let from = 0;
+  for (let page = 0; page < maxPages; page++) {
+    const rows = await fetchPage(from, from + pageSize - 1);
+    if (rows === null) return null; // failure mid-pull — never partial
+    out.push(...rows);
+    if (rows.length < pageSize) return out; // short page → complete
+    from += pageSize;
+  }
+  return null; // pathological non-terminating source — treat as failure
+}
+
+/**
+ * Pull ALL of the user's sessions as transport-neutral rows, in bounded
+ * pages, regardless of history size. No silent truncation.
+ *
+ * Deterministic order: completed_at ASC, then id ASC (unique). The result
+ * is oldest → newest; the merge engine is order-insensitive (id-keyed maps
+ * + explicit time sort), so this changes no product ordering semantics.
+ */
+export async function pullAllSessions(
+  userId: string,
+  pageSize: number = SESSION_PULL_PAGE_SIZE,
+): Promise<RemoteSessionRow[] | null> {
+  return withClient(async (client) => {
+    const rows = await pullPaged<CloudSessionRow>(async (from, to) => {
+      const { data, error } = await client
+        .from("focus_sessions")
+        .select("*")
+        .eq("user_id", userId)
+        .order("completed_at", { ascending: true })
+        .order("id", { ascending: true })
+        .range(from, to);
+      if (error || !data) return null;
+      return data as CloudSessionRow[];
+    }, pageSize);
+    if (rows === null) return null;
+    // Defensive de-duplication by id (offset-shift safety net). Keeps the
+    // FIRST occurrence; any differing duplicate payload still flows through
+    // the merge engine's same-id conflict machinery, never dropped silently.
+    const seen = new Set<string>();
+    const out: RemoteSessionRow[] = [];
+    for (const r of rows) {
+      if (seen.has(r.id)) continue;
+      seen.add(r.id);
+      out.push(mapCloudSessionRow(r));
+    }
+    return out;
+  });
 }
 
 /**
