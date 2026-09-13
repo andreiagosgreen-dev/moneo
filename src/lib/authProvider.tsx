@@ -15,7 +15,7 @@ import {
 } from "./authController";
 import { getSupabaseClient } from "./supabase";
 import { getBrowserTimezone } from "./timezone";
-import { ensureProfile, getProfileTimezone } from "./cloud/profileRepository";
+import { ensureProfile, getProfileTimezone, deleteUserData } from "./cloud/profileRepository";
 
 /**
  * Thin React wrapper around the framework-free auth controller.
@@ -35,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           (await getSupabaseClient()) as unknown as AuthClientLike | null,
         ensureProfile: (userId, timezone) => ensureProfile(userId, timezone),
         getProfileTimezone: (userId) => getProfileTimezone(userId),
+        deleteUserData: (userId) => deleteUserData(userId),
         browserTimezone: getBrowserTimezone,
       }),
     [],
@@ -52,6 +53,7 @@ export interface AuthApi extends AuthSnapshot {
   signIn(email: string, password: string): Promise<AuthResult>;
   signUp(email: string, password: string): Promise<AuthResult>;
   signOut(): Promise<void>;
+  deleteAccount(): Promise<AuthResult>;
 }
 
 export function useAuth(): AuthApi {
@@ -63,9 +65,9 @@ export function useAuth(): AuthApi {
     (cb) => controller.subscribe(cb),
     () => controller.getSnapshot(),
   );
-  const { signIn, signUp, signOut } = controller;
+  const { signIn, signUp, signOut, deleteAccount } = controller;
   return useMemo(
-    () => ({ ...snapshot, signIn, signUp, signOut }),
-    [snapshot, signIn, signUp, signOut],
+    () => ({ ...snapshot, signIn, signUp, signOut, deleteAccount }),
+    [snapshot, signIn, signUp, signOut, deleteAccount],
   );
 }

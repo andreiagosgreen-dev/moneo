@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
+import { Routes, Route, Link, useLocation } from "react-router-dom";
 import TimerCard from "./components/TimerCard";
 import StatsCard from "./components/StatsCard";
 import SettingsCard from "./components/SettingsCard";
 import BrandMark from "./components/BrandMark";
 import GrowthCard from "./components/GrowthCard";
 import AccountButton from "./components/AccountButton";
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import TermsOfService from "./components/TermsOfService";
 import {
   MODE_META,
   durationFor,
@@ -80,6 +83,9 @@ const BOOT = (() => {
 })();
 
 export default function App() {
+  const location = useLocation();
+  const isLegalPage = location.pathname === "/privacy" || location.pathname === "/terms";
+
   const auth = useAuth();
   const [syncState, setSyncState] = useState(loadSyncState);
   useEffect(() => onSyncStateChange(() => setSyncState(loadSyncState())), []);
@@ -387,117 +393,136 @@ export default function App() {
     .reduce((sum, s) => sum + s.min, 0);
 
   return (
-    <div data-mode={mode} className="relative min-h-screen overflow-hidden">
-      {/* ambient layers */}
-      <div className={`bg-glow bg-glow-focus ${mode === "focus" ? "is-on" : ""}`} aria-hidden />
-      <div className={`bg-glow bg-glow-short ${mode === "short" ? "is-on" : ""}`} aria-hidden />
-      <div className={`bg-glow bg-glow-long ${mode === "long" ? "is-on" : ""}`} aria-hidden />
-      <div className="bg-grid" aria-hidden />
-      <div className="bg-grain" aria-hidden />
-      <p role="status" aria-live="polite" className="sr-only">
-        {announce}
-      </p>
+    <Routes>
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsOfService />} />
+      <Route
+        path="*"
+        element={
+          <div data-mode={mode} className="relative min-h-screen overflow-hidden">
+            {/* ambient layers */}
+            <div className={`bg-glow bg-glow-focus ${mode === "focus" ? "is-on" : ""}`} aria-hidden />
+            <div className={`bg-glow bg-glow-short ${mode === "short" ? "is-on" : ""}`} aria-hidden />
+            <div className={`bg-glow bg-glow-long ${mode === "long" ? "is-on" : ""}`} aria-hidden />
+            <div className="bg-grid" aria-hidden />
+            <div className="bg-grain" aria-hidden />
+            <p role="status" aria-live="polite" className="sr-only">
+              {announce}
+            </p>
 
-      <div className="relative z-10 mx-auto max-w-6xl px-4 pb-6 pt-6 sm:px-6">
-        {/* header */}
-        <header className="reveal flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div
-              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-line bg-card2/80 shadow-lg"
-              style={{ boxShadow: "0 8px 24px -8px rgb(var(--accent-rgb) / 0.45)" }}
-            >
-              <BrandMark />
-            </div>
-            <div>
-              <h1 className="font-display text-[22px] font-extrabold leading-none tracking-tight text-cream">
-                Moneo
-              </h1>
-              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.24em] text-faint">
-                Focus companion
-              </p>
+            <div className="relative z-10 mx-auto max-w-6xl px-4 pb-6 pt-6 sm:px-6">
+              {/* header */}
+              <header className="reveal flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="flex h-11 w-11 items-center justify-center rounded-2xl border border-line bg-card2/80 shadow-lg"
+                    style={{ boxShadow: "0 8px 24px -8px rgb(var(--accent-rgb) / 0.45)" }}
+                  >
+                    <BrandMark />
+                  </div>
+                  <div>
+                    <h1 className="font-display text-[22px] font-extrabold leading-none tracking-tight text-cream">
+                      Moneo
+                    </h1>
+                    <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.24em] text-faint">
+                      Focus companion
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 rounded-full border border-line bg-card/80 py-2 pl-3 pr-4">
+                    <span
+                      className={`relative inline-block h-2 w-2 rounded-full ${running ? "ping-dot" : ""}`}
+                      style={{ background: "var(--accent)", color: "var(--accent)" }}
+                    />
+                    <span className="font-mono text-[12px] text-sage">
+                      today&nbsp;
+                      <span className="font-semibold text-cream">
+                        {minutesToday > 0 ? fmtMinutes(minutesToday) : "0m"}
+                      </span>
+                    </span>
+                  </div>
+                  <AccountButton />
+                </div>
+              </header>
+
+              {/* main */}
+              <main className="mt-7 grid gap-6 lg:grid-cols-[7fr_5fr]">
+                <div className="reveal" style={{ animationDelay: "90ms" }}>
+                  <TimerCard
+                    mode={mode}
+                    running={running}
+                    remaining={remaining}
+                    total={total}
+                    cycle={cycle}
+                    settings={settings}
+                    flashKey={flashKey}
+                    onModeChange={switchMode}
+                    onToggle={toggle}
+                    onReset={reset}
+                    onSkip={skip}
+                    intentionDraft={intentionDraft}
+                    onIntentionDraftChange={setIntentionDraft}
+                    onIntentionEnter={() => {
+                      if (!runningRef.current && modeRef.current === "focus") start();
+                    }}
+                    areas={activeAreas(areas)}
+                    selectedAreaId={selectedAreaId}
+                    onSelectArea={setSelectedAreaId}
+                    onCreateArea={handleCreateArea}
+                    onRenameArea={handleRenameArea}
+                    onDeleteArea={handleDeleteArea}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-6">
+                  <div className="reveal" style={{ animationDelay: "135ms" }}>
+                    <GrowthCard history={history} />
+                  </div>
+                  <div className="reveal" style={{ animationDelay: "180ms" }}>
+                    <StatsCard
+                      history={history}
+                      settings={settings}
+                      areas={areas}
+                      timezone={auth.timezone}
+                      clearDisabled={syncState.initialized}
+                      onClear={() => setHistory([])}
+                    />
+                  </div>
+                  <div className="reveal" style={{ animationDelay: "270ms" }}>
+                    <SettingsCard settings={settings} onChange={updateSettings} />
+                  </div>
+                </div>
+              </main>
+
+              {/* footer */}
+              <footer
+                className="reveal mt-9 flex flex-col items-center justify-between gap-3 border-t border-line/70 pt-5 sm:flex-row"
+                style={{ animationDelay: "360ms" }}
+              >
+                <div className="flex flex-col items-center gap-3 sm:flex-row">
+                  <p className="font-mono text-[11px] text-faint">
+                    Moneo — build focus. See it grow.
+                  </p>
+                  <div className="flex items-center gap-4 font-mono text-[11px] text-faint">
+                    <Link to="/privacy" className="hover:text-cream transition-colors">
+                      Privacy
+                    </Link>
+                    <Link to="/terms" className="hover:text-cream transition-colors">
+                      Terms
+                    </Link>
+                  </div>
+                </div>
+                <p className="hidden items-center gap-2 font-mono text-[11px] text-faint sm:flex">
+                  <span className="kbd">Space</span> start / pause
+                  <span className="kbd">R</span> reset
+                </p>
+              </footer>
             </div>
           </div>
-
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 rounded-full border border-line bg-card/80 py-2 pl-3 pr-4">
-              <span
-                className={`relative inline-block h-2 w-2 rounded-full ${running ? "ping-dot" : ""}`}
-                style={{ background: "var(--accent)", color: "var(--accent)" }}
-              />
-              <span className="font-mono text-[12px] text-sage">
-                today&nbsp;
-                <span className="font-semibold text-cream">
-                  {minutesToday > 0 ? fmtMinutes(minutesToday) : "0m"}
-                </span>
-              </span>
-            </div>
-            <AccountButton />
-          </div>
-        </header>
-
-        {/* main */}
-        <main className="mt-7 grid gap-6 lg:grid-cols-[7fr_5fr]">
-          <div className="reveal" style={{ animationDelay: "90ms" }}>
-            <TimerCard
-              mode={mode}
-              running={running}
-              remaining={remaining}
-              total={total}
-              cycle={cycle}
-              settings={settings}
-              flashKey={flashKey}
-              onModeChange={switchMode}
-              onToggle={toggle}
-              onReset={reset}
-              onSkip={skip}
-              intentionDraft={intentionDraft}
-              onIntentionDraftChange={setIntentionDraft}
-              onIntentionEnter={() => {
-                if (!runningRef.current && modeRef.current === "focus") start();
-              }}
-              areas={activeAreas(areas)}
-              selectedAreaId={selectedAreaId}
-              onSelectArea={setSelectedAreaId}
-              onCreateArea={handleCreateArea}
-              onRenameArea={handleRenameArea}
-              onDeleteArea={handleDeleteArea}
-            />
-          </div>
-
-          <div className="flex flex-col gap-6">
-            <div className="reveal" style={{ animationDelay: "135ms" }}>
-              <GrowthCard history={history} />
-            </div>
-            <div className="reveal" style={{ animationDelay: "180ms" }}>
-              <StatsCard
-                history={history}
-                settings={settings}
-                areas={areas}
-                timezone={auth.timezone}
-                clearDisabled={syncState.initialized}
-                onClear={() => setHistory([])}
-              />
-            </div>
-            <div className="reveal" style={{ animationDelay: "270ms" }}>
-              <SettingsCard settings={settings} onChange={updateSettings} />
-            </div>
-          </div>
-        </main>
-
-        {/* footer */}
-        <footer
-          className="reveal mt-9 flex flex-col items-center justify-between gap-3 border-t border-line/70 pt-5 sm:flex-row"
-          style={{ animationDelay: "360ms" }}
-        >
-          <p className="font-mono text-[11px] text-faint">
-            Moneo — build focus. See it grow.
-          </p>
-          <p className="hidden items-center gap-2 font-mono text-[11px] text-faint sm:flex">
-            <span className="kbd">Space</span> start / pause
-            <span className="kbd">R</span> reset
-          </p>
-        </footer>
-      </div>
-    </div>
+        }
+      />
+    </Routes>
   );
 }

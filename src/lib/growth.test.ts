@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { Session } from "./store";
 import { loadHistory } from "./store";
 import {
@@ -18,10 +18,6 @@ const day = (offset: number) => {
 };
 
 const s = (min: number, at = day(0)): Session => ({ at, min });
-
-beforeEach(() => {
-  localStorage.clear();
-});
 
 describe("growth source of truth", () => {
   it("is zero with no history", () => {

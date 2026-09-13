@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { Session } from "./store";
 import { loadHistory, saveHistory } from "./store";
 import { getTotalFocusedMinutes } from "./growth";
@@ -19,10 +19,6 @@ const day = (offset: number) => {
 
 const s = (min: number, intention?: string, at = day(0)): Session =>
   intention === undefined ? { at, min } : { at, min, intention };
-
-beforeEach(() => {
-  localStorage.clear();
-});
 
 describe("sanitizeIntention", () => {
   it("treats an empty intention as none", () => {

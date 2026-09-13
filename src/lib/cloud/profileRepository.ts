@@ -49,3 +49,35 @@ export function getProfileTimezone(userId: string): Promise<string | null> {
     return typeof tz === "string" && tz.length > 0 ? tz : null;
   }).then((r) => r ?? null);
 }
+
+/**
+ * Deletes all user data from the database: focus_sessions, focus_areas, and profile.
+ * Returns true if deletion succeeded, false otherwise.
+ */
+export function deleteUserData(userId: string): Promise<boolean> {
+  return withClient(async (client) => {
+    // Delete sessions first (they reference areas)
+    const { error: sessionsError } = await client
+      .from("focus_sessions")
+      .delete()
+      .eq("user_id", userId);
+
+    if (sessionsError) return false;
+
+    // Delete focus areas
+    const { error: areasError } = await client
+      .from("focus_areas")
+      .delete()
+      .eq("user_id", userId);
+
+    if (areasError) return false;
+
+    // Delete profile
+    const { error: profileError } = await client
+      .from("profiles")
+      .delete()
+      .eq("user_id", userId);
+
+    return !profileError;
+  }).then((r) => r ?? false);
+}

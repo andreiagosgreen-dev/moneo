@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { STORAGE_KEYS } from "./storage/storageKeys";
 import { runLocalMigrations } from "./storage/migrations";
 import { safeRead } from "./storage/storageAdapter";
@@ -17,10 +17,6 @@ import {
   saveFocusAreas,
   type FocusArea,
 } from "./focusAreas";
-
-beforeEach(() => {
-  localStorage.clear();
-});
 
 /* ---------- identity helpers ---------- */
 
@@ -68,7 +64,7 @@ describe("seeding and creation stamp a stable cloudId", () => {
 
   it("two independent devices seed the SAME cloud ids (no duplicate defaults)", () => {
     const deviceA = loadFocusAreas();
-    localStorage.clear(); // simulate a second, independent device
+    if (typeof localStorage !== "undefined") localStorage.clear(); // simulate a second, independent device
     const deviceB = loadFocusAreas();
     for (let i = 0; i < deviceA.length; i++) {
       expect(deviceA[i].id).toBe(deviceB[i].id);
@@ -237,7 +233,7 @@ describe("cloud upsert convergence (no duplicate default areas)", () => {
     };
 
     const deviceA = loadFocusAreas();
-    localStorage.clear();
+    if (typeof localStorage !== "undefined") localStorage.clear();
     const deviceB = loadFocusAreas();
 
     upsert(deviceA);

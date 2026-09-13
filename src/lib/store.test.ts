@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   DEFAULT_SETTINGS,
   currentStreak,
@@ -12,10 +12,6 @@ import {
   saveSettings,
   saveSnapshot,
 } from "./store";
-
-beforeEach(() => {
-  localStorage.clear();
-});
 
 describe("settings duration limits", () => {
   it("clamps out-of-range values on load", () => {

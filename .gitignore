@@ -6,8 +6,8 @@ dist
 
 # environment / secrets — never commit
 .env
-.env.*
-*.local
+.env.local
+.env.*.local
 supabase/.env*
 
 # logs & OS noise

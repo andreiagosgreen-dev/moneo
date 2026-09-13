@@ -68,6 +68,8 @@ export interface AuthControllerDeps {
   ensureProfile: (userId: string, timezone: string) => Promise<boolean>;
   /** Stored profile timezone, or null when absent/unreadable. */
   getProfileTimezone: (userId: string) => Promise<string | null>;
+  /** Deletes all user data from the database (sessions, areas, profile). */
+  deleteUserData: (userId: string) => Promise<boolean>;
   browserTimezone: () => string;
 }
 
@@ -81,6 +83,8 @@ export interface AuthController {
   signIn(email: string, password: string): Promise<AuthResult>;
   signUp(email: string, password: string): Promise<AuthResult>;
   signOut(): Promise<void>;
+  /** Permanently deletes the account and all associated data. */
+  deleteAccount(): Promise<AuthResult>;
 }
 
 /** Concise, user-readable mapping — raw server text never surfaces. */
@@ -288,6 +292,45 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
         /* best-effort; local state resets regardless */
       }
       if (!disposed) emit(anonymous());
+    },
+
+    async deleteAccount() {
+      const userId = snapshot.user?.userId;
+      if (!userId) {
+        return { ok: false, message: "Not signed in." };
+      }
+
+      let client: AuthClientLike | null = null;
+      try {
+        client = await getClient();
+      } catch (e) {
+        return {
+          ok: false,
+          message: mapAuthError(e instanceof Error ? e.message : null),
+        };
+      }
+      if (!client)
+        return { ok: false, message: "Cloud is not configured on this installation." };
+
+      try {
+        // Delete all user data from the database
+        const dataDeleted = await deps.deleteUserData(userId);
+        if (!dataDeleted) {
+          return { ok: false, message: "Failed to delete user data. Please try again." };
+        }
+
+        // Sign out to clear local auth state
+        await client.signOut();
+
+        // Clear local state
+        if (!disposed) emit(anonymous());
+        return { ok: true };
+      } catch (e) {
+        return {
+          ok: false,
+          message: mapAuthError(e instanceof Error ? e.message : null),
+        };
+      }
     },
   };
 }

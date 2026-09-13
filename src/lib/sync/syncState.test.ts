@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { STORAGE_KEYS } from "../storage/storageKeys";
 import {
   SYNC_STATE_VERSION,
@@ -11,10 +11,6 @@ import {
 } from "./syncState";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-beforeEach(() => {
-  localStorage.clear();
-});
 
 describe("device identity", () => {
   it("generates a UUID-shaped id and persists it exactly once", () => {

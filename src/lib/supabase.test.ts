@@ -1,5 +1,12 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getSupabaseClient, getSupabaseConfig } from "./supabase";
+
+beforeEach(() => {
+  vi.unstubAllEnvs();
+  // Remove env vars that might be loaded from .env.local
+  vi.stubEnv("VITE_SUPABASE_URL", "");
+  vi.stubEnv("VITE_SUPABASE_ANON_KEY", "");
+});
 
 afterEach(() => {
   vi.unstubAllEnvs();

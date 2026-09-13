@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { Session } from "./store";
 import { loadHistory } from "./store";
 import {
@@ -24,10 +24,6 @@ const day = (offset: number) => {
   d.setHours(12, 0, 0, 0);
   return d.getTime();
 };
-
-beforeEach(() => {
-  localStorage.clear();
-});
 
 describe("default areas", () => {
   it("seeds Work / Study / Personal on first load and persists them", () => {

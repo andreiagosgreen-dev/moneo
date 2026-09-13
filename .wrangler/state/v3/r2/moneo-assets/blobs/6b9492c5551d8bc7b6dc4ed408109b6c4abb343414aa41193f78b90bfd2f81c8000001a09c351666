@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Moneo is a calm focus companion for intentional work, structured breaks, and consistent progress."
+    />
+    <meta name="theme-color" content="#0d1310" />
+    <meta name="application-name" content="Moneo" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Moneo" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>Moneo — Focus Timer</title>
+    <link
+      rel="icon"
+      href="image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1310'/%3E%3Ccircle cx='16' cy='16' r='10.5' fill='none' stroke='%23eef1e8' stroke-width='2.4' stroke-linecap='round' stroke-dasharray='55 11' transform='rotate(-15 16 16)'/%3E%3Cpath d='M11 20.5V12.8L16 17.3L21 12.8V20.5' fill='none' stroke='%23eef1e8' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='23.4' cy='8.6' r='2.1' fill='%23ff6242'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Spline+Sans+Mono:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" crossorigin src="/assets/index-DnZ1x6oR.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Cg_2sPRK.css">
+  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

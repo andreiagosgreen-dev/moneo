@@ -1,0 +1,20 @@
+name = "moneo"
+main = "index.ts"
+compatibility_date = "2024-01-01"
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+[env.preview]
+vars = { ENVIRONMENT = "preview" }
+
+# KV namespace for caching
+[[kv_namespaces]]
+binding = "KV_CACHE"
+id = "75386684902b4b80b85db1ddcc01b5fb"
+preview_id = "75386684902b4b80b85db1ddcc01b5fb"
+
+# R2 bucket for static assets
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "moneo-assets"

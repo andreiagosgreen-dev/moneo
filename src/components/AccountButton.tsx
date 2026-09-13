@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import BrandMark from "./BrandMark";
+import PricingCard from "./PricingCard";
+import NotificationsSettings from "./NotificationsSettings";
 import { useAuth } from "../lib/authProvider";
 import { loadSyncState, onSyncStateChange } from "../lib/sync/syncState";
 import { runSync } from "../lib/sync/syncEngine";
@@ -179,6 +181,7 @@ export default function AccountButton() {
   const [error, setError] = useState("");
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
 
@@ -187,6 +190,7 @@ export default function AccountButton() {
     setError("");
     setNote("");
     setPassword("");
+    setShowDeleteConfirm(false);
   };
 
   useEffect(() => {
@@ -307,6 +311,8 @@ export default function AccountButton() {
                   </div>
                 </div>
                 <SyncPanel userId={auth.user!.userId} onClose={close} />
+                <PricingCard />
+                <NotificationsSettings />
                 <p className="text-[12px] leading-relaxed text-faint">
                   Without an account, everything stays on this device. Sync is
                   optional and never uploads anything until you choose to.
@@ -325,6 +331,51 @@ export default function AccountButton() {
                   {busy ? <Spinner /> : null}
                   Sign out
                 </button>
+                {!showDeleteConfirm ? (
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="press btn-ghost flex h-10 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold text-tomato hover:text-tomato/80"
+                  >
+                    Delete account
+                  </button>
+                ) : (
+                  <div className="rounded-xl border border-tomato/30 bg-tomato/5 px-4 py-3">
+                    <p className="text-[12px] font-semibold text-tomato">
+                      Are you sure?
+                    </p>
+                    <p className="mt-1 text-[11px] leading-relaxed text-sage">
+                      This will permanently delete all your synced data (sessions,
+                      areas, settings). Your auth account will be signed out.
+                    </p>
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        onClick={() => setShowDeleteConfirm(false)}
+                        disabled={busy}
+                        className="press btn-ghost flex h-9 flex-1 items-center justify-center rounded-lg text-sm font-semibold"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={async () => {
+                          setBusy(true);
+                          const result = await auth.deleteAccount();
+                          setBusy(false);
+                          if (result.ok) {
+                            close();
+                          } else {
+                            setError(result.message);
+                            setShowDeleteConfirm(false);
+                          }
+                        }}
+                        disabled={busy}
+                        className="press btn-accent flex h-9 flex-1 items-center justify-center gap-2 rounded-lg text-sm font-semibold bg-tomato hover:bg-tomato/90"
+                      >
+                        {busy ? <Spinner /> : null}
+                        Delete data
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <>

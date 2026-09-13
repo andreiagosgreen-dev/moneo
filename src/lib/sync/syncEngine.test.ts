@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { Session, Settings } from "../store";
 import type { FocusArea } from "../focusAreas";
 import { SEEDED_AREA_CLOUD_IDS } from "../areaIdentity";
@@ -151,10 +151,6 @@ function reposFor(
 }
 
 const USER = "11111111-1111-4111-8111-111111111111";
-
-beforeEach(() => {
-  localStorage.clear();
-});
 
 describe("gates: auth + consent", () => {
   it("refuses unsigned users with zero repo calls", async () => {
