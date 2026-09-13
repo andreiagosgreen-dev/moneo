@@ -23,6 +23,9 @@ describe("settings duration limits", () => {
       dailyGoal: 99,
       autoStart: true,
       sound: false,
+      soundType: "bell",
+      volume: 50,
+      notifications: true,
     });
     const s = loadSettings();
     expect(s.focusMin).toBe(120);

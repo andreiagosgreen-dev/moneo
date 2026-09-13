@@ -235,6 +235,9 @@ describe("settings merge plans", () => {
     dailyGoal: 8,
     autoStart: false,
     sound: true,
+      soundType: "bell" as const,
+      volume: 50,
+      notifications: true,
   };
   const remote = (over: Partial<RemoteSettingsRow> = {}): RemoteSettingsRow => ({
     ...base,

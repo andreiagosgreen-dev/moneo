@@ -46,6 +46,9 @@ function fakeLocal(init?: Partial<LocalStore>): LocalStore {
       dailyGoal: 8,
       autoStart: false,
       sound: true,
+      soundType: "bell" as const,
+      volume: 50,
+      notifications: true,
     },
   };
 }
@@ -481,7 +484,10 @@ describe("merge behavior", () => {
     const cloudA = fakeCloud();
     cloudA.settings = {
       focusMin: 25, shortMin: 5, longMin: 15, longEvery: 4,
-      dailyGoal: 8, autoStart: false, sound: true, updatedAt: 100,
+      dailyGoal: 8, autoStart: false, sound: true,
+      soundType: "bell" as const,
+      volume: 50,
+      notifications: true, updatedAt: 100,
     };
     const resA = await runSync({
       userId: USER, consented: true,
@@ -496,7 +502,10 @@ describe("merge behavior", () => {
     const cloudB = fakeCloud();
     cloudB.settings = {
       focusMin: 45, shortMin: 5, longMin: 15, longEvery: 4,
-      dailyGoal: 8, autoStart: false, sound: true, updatedAt: 500,
+      dailyGoal: 8, autoStart: false, sound: true,
+      soundType: "bell" as const,
+      volume: 50,
+      notifications: true, updatedAt: 500,
     };
     const resB = await runSync({
       userId: USER, consented: true,
@@ -512,7 +521,10 @@ describe("merge behavior", () => {
     const cloudC = fakeCloud();
     cloudC.settings = {
       focusMin: equal.settings.focusMin, shortMin: 5, longMin: 15,
-      longEvery: 4, dailyGoal: 8, autoStart: false, sound: true, updatedAt: 400,
+      longEvery: 4, dailyGoal: 8, autoStart: false, sound: true,
+      soundType: "bell" as const,
+      volume: 50,
+      notifications: true, updatedAt: 400,
     };
     const resC = await runSync({
       userId: USER, consented: true,

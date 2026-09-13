@@ -5,6 +5,8 @@ import { safeRead as read, safeWrite as write } from "./storage/storageAdapter";
 
 export type Mode = "focus" | "short" | "long";
 
+export type SoundType = "bell" | "gong" | "piano" | "birds" | "gentle";
+
 export interface Settings {
   focusMin: number;
   shortMin: number;
@@ -13,6 +15,9 @@ export interface Settings {
   dailyGoal: number;
   autoStart: boolean;
   sound: boolean;
+  soundType: SoundType;
+  volume: number; // 0-100
+  notifications: boolean;
   /** Last-edit stamp — powers settings sync last-write-wins (Gate 9, additive). */
   updatedAt?: number;
 }
@@ -40,6 +45,9 @@ export const DEFAULT_SETTINGS: Settings = {
   dailyGoal: 8,
   autoStart: false,
   sound: true,
+  soundType: "bell",
+  volume: 50,
+  notifications: true,
 };
 
 export const MODE_META: Record<
@@ -84,6 +92,12 @@ export function loadSettings(): Settings {
         : DEFAULT_SETTINGS.autoStart,
     sound:
       typeof stored.sound === "boolean" ? stored.sound : DEFAULT_SETTINGS.sound,
+    soundType: stored.soundType || DEFAULT_SETTINGS.soundType,
+    volume: typeof stored.volume === "number" ? stored.volume : DEFAULT_SETTINGS.volume,
+    notifications:
+      typeof stored.notifications === "boolean"
+        ? stored.notifications
+        : DEFAULT_SETTINGS.notifications,
     ...(typeof stored.updatedAt === "number" && Number.isFinite(stored.updatedAt)
       ? { updatedAt: stored.updatedAt }
       : {}),
@@ -229,7 +243,7 @@ export function fmtTimeOfDay(ts: number): string {
 
 let audioCtx: AudioContext | null = null;
 
-export function playChime(enabled: boolean) {
+export function playChime(enabled: boolean, soundType: SoundType = "bell", volume: number = 50) {
   if (!enabled) return;
   try {
     const Ctx =
@@ -238,21 +252,78 @@ export function playChime(enabled: boolean) {
         .webkitAudioContext;
     audioCtx = audioCtx || new Ctx();
     if (audioCtx.state === "suspended") void audioCtx.resume();
+    
     const t0 = audioCtx.currentTime;
-    [659.25, 987.77].forEach((freq, i) => {
+    const vol = volume / 100;
+    
+    // Sound patterns for different types
+    const sounds: Record<SoundType, number[]> = {
+      bell: [659.25, 987.77], // Two-note bell
+      gong: [196, 293.66, 392], // Three-note gong
+      piano: [523.25, 659.25, 783.99, 1046.50], // Piano chord
+      birds: [880, 1100, 1320, 1760], // Bird chirp pattern
+      gentle: [440, 554.37, 659.25], // Gentle three-note
+    };
+    
+    const frequencies = sounds[soundType] || sounds.bell;
+    
+    frequencies.forEach((freq, i) => {
       const osc = audioCtx!.createOscillator();
       const gain = audioCtx!.createGain();
-      osc.type = "sine";
+      
+      // Different waveforms for different sounds
+      const waveforms: Record<SoundType, OscillatorType> = {
+        bell: "sine",
+        gong: "triangle",
+        piano: "sine",
+        birds: "sine",
+        gentle: "sine",
+      };
+      
+      osc.type = waveforms[soundType] || "sine";
       osc.frequency.value = freq;
+      
       const start = t0 + i * 0.16;
+      const duration = soundType === "gong" ? 1.0 : 0.6;
+      
       gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(0.18, start + 0.025);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.55);
+      gain.gain.exponentialRampToValueAtTime(0.18 * vol, start + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      
       osc.connect(gain).connect(audioCtx!.destination);
       osc.start(start);
-      osc.stop(start + 0.6);
+      osc.stop(start + duration + 0.1);
     });
   } catch {
     /* audio unavailable — stay silent */
   }
+}
+
+export function requestNotificationPermission(): Promise<NotificationPermission> {
+  if (!("Notification" in window)) {
+    return Promise.resolve("denied");
+  }
+  
+  if (Notification.permission === "granted") {
+    return Promise.resolve("granted");
+  }
+  
+  if (Notification.permission !== "denied") {
+    return Notification.requestPermission();
+  }
+  
+  return Promise.resolve("denied");
+}
+
+export function showNotification(title: string, body: string) {
+  if (!("Notification" in window) || Notification.permission !== "granted") {
+    return;
+  }
+  
+  new Notification(title, {
+    body,
+    icon: "/icon-192.png",
+    badge: "/icon-192.png",
+    tag: "moneo-timer",
+  });
 }

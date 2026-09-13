@@ -20,6 +20,8 @@ import {
   saveHistory,
   saveSettings,
   saveSnapshot,
+  showNotification,
+  requestNotificationPermission,
   type Mode,
   type Session,
   type Settings,
@@ -205,7 +207,16 @@ export default function App() {
       endsAtRef.current,
       roundMinRef.current,
     );
-    playChime(s.sound);
+    playChime(s.sound, s.soundType, s.volume);
+    
+    // Show browser notification if enabled
+    if (s.notifications) {
+      const title = m === "focus" ? "Focus session complete" : "Break over";
+      const body = m === "focus" 
+        ? res.mode === "long" ? "Long break time" : "Short break time"
+        : "Ready to focus";
+      showNotification(title, body);
+    }
     setFlashKey((k) => k + 1);
     // Assemble the entry with its stable id + round-captured metadata.
     const entry = assembleSession(res.session, {
@@ -302,6 +313,13 @@ export default function App() {
   useEffect(() => saveIntentionDraft(intentionDraft), [intentionDraft]);
   useEffect(() => { saveFocusAreas(areas); }, [areas]);
   useEffect(() => saveSelectedArea(selectedAreaId), [selectedAreaId]);
+  
+  // Request notification permission when notifications are enabled
+  useEffect(() => {
+    if (settings.notifications) {
+      requestNotificationPermission();
+    }
+  }, [settings.notifications]);
   // Persist only meaningful state: every discrete change (mode/total/cycle),
   // every pause/idle settle, and at most once per 10s of live countdown.
   const sigRef = useRef("");

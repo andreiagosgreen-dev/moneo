@@ -19,6 +19,9 @@ export interface CloudSettingsRow {
   daily_goal: number;
   auto_start: boolean;
   sound: boolean;
+  sound_type?: string;
+  volume?: number;
+  notifications?: boolean;
   updated_at?: string;
 }
 
@@ -35,6 +38,9 @@ export function toCloudSettingsRow(
     daily_goal: s.dailyGoal,
     auto_start: s.autoStart,
     sound: s.sound,
+    sound_type: s.soundType,
+    volume: s.volume,
+    notifications: s.notifications,
     updated_at: new Date(s.updatedAt ?? Date.now()).toISOString(),
   };
 }
@@ -91,6 +97,9 @@ export async function pullSettingsRow(
     dailyGoal: row.daily_goal,
     autoStart: row.auto_start,
     sound: row.sound,
+    soundType: row.sound_type,
+    volume: row.volume,
+    notifications: row.notifications,
     updatedAt: Date.parse(row.updated_at ?? "1970-01-01T00:00:00Z"),
   };
 }

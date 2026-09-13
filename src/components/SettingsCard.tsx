@@ -1,4 +1,4 @@
-import type { Settings } from "../lib/store";
+import type { Settings, SoundType } from "../lib/store";
 
 interface Props {
   settings: Settings;
@@ -193,10 +193,51 @@ export default function SettingsCard({ settings, onChange }: Props) {
         />
         <Toggle
           label="Completion chime"
-          hint="Two-note bell when a round ends"
+          hint="Play sound when a round ends"
           on={settings.sound}
           onClick={() => onChange({ sound: !settings.sound })}
         />
+        {settings.sound && (
+          <>
+            <div className="flex items-center justify-between gap-3 py-3">
+              <div className="min-w-0">
+                <div className="text-[14px] font-semibold text-cream/90">Sound type</div>
+                <div className="text-[12px] text-faint">Choose your notification sound</div>
+              </div>
+              <select
+                value={settings.soundType}
+                onChange={(e) => onChange({ soundType: e.target.value as SoundType })}
+                className="min-w-32 rounded-lg bg-ink/60 px-3 py-2 text-sm font-semibold text-cream ring-1 ring-inset ring-line"
+              >
+                <option value="bell">Bell</option>
+                <option value="gong">Gong</option>
+                <option value="piano">Piano</option>
+                <option value="birds">Birds</option>
+                <option value="gentle">Gentle</option>
+              </select>
+            </div>
+            <div className="flex items-center justify-between gap-3 py-3">
+              <div className="min-w-0">
+                <div className="text-[14px] font-semibold text-cream/90">Volume</div>
+                <div className="text-[12px] text-faint">Adjust sound volume</div>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={settings.volume}
+                onChange={(e) => onChange({ volume: parseInt(e.target.value) })}
+                className="w-32 accent-current"
+              />
+            </div>
+            <Toggle
+              label="Browser notifications"
+              hint="Show notification when timer ends"
+              on={settings.notifications}
+              onClick={() => onChange({ notifications: !settings.notifications })}
+            />
+          </>
+        )}
       </div>
     </section>
   );

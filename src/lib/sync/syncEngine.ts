@@ -269,6 +269,9 @@ export async function runSync(opts: {
         dailyGoal: remoteSettings.dailyGoal,
         autoStart: remoteSettings.autoStart,
         sound: remoteSettings.sound,
+        soundType: (remoteSettings.soundType || "bell") as any,
+        volume: remoteSettings.volume || 50,
+        notifications: remoteSettings.notifications !== undefined ? remoteSettings.notifications : true,
         updatedAt: remoteSettings.updatedAt,
       };
       if (!opts.local.writeSettings(applied)) return fail("apply", "storage");

@@ -16,6 +16,9 @@ const baseSettings: Settings = {
   dailyGoal: 8,
   autoStart: false,
   sound: true,
+      soundType: "bell" as const,
+      volume: 50,
+      notifications: true,
 };
 
 describe("focus completion", () => {

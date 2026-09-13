@@ -54,6 +54,9 @@ export interface RemoteSettingsRow {
   dailyGoal: number;
   autoStart: boolean;
   sound: boolean;
+  soundType?: string;
+  volume?: number;
+  notifications?: boolean;
   updatedAt: number;
 }
 
