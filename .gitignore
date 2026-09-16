@@ -21,3 +21,7 @@ build/
 
 # Wrangler local state
 .wrangler
+
+# Worker build artifact (tsc output inside cloudflare/workers)
+cloudflare/workers/*.js
+cloudflare/workers/*.d.ts
