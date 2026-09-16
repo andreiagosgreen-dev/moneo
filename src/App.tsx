@@ -11,6 +11,14 @@ import ProjectsCard from './components/ProjectsCard';
 import InsightsCard from './components/InsightsCard';
 import IvyLeeCard from './components/IvyLeeCard';
 import CalendarCard from './components/CalendarCard';
+import MatrixCard from './components/MatrixCard';
+import FrogCard from './components/FrogCard';
+import AssistantCard from './components/AssistantCard';
+import GoalsCard from './components/GoalsCard';
+import LifeCard from './components/LifeCard';
+import AgileCard from './components/AgileCard';
+import OkrCard from './components/OkrCard';
+import SkillsCard from './components/SkillsCard';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import {
@@ -18,11 +26,34 @@ import {
   loadSelectedProject,
   saveSelectedProject,
   saveProjects,
+  deadlinesDue,
+  loadDeadlineReminders,
+  saveDeadlineReminders,
+  markDeadlineReminded,
+  localDayKey,
   type Project,
 } from './lib/projects';
 import { loadTasks, saveTasks, type Task } from './lib/tasks';
 import { loadPlans, savePlans, carryForNewDay } from './lib/ivyLee';
 import { loadBlocks, saveBlocks, type TimeBlock } from './lib/timeBlocks';
+import { loadSkills, saveSkills, type Skill } from './lib/skills';
+import { loadFrogLog, saveFrogLog, type FrogLog } from './lib/frog';
+import { loadGoals, saveGoals, type Goal } from './lib/goals';
+import { loadChatHistory, saveChatHistory, type ChatMessage } from './lib/assistant';
+import {
+  loadHabits,
+  saveHabits,
+  loadHabitLog,
+  saveHabitLog,
+  type Habit,
+  type HabitLog,
+} from './lib/habits';
+import { loadLifeAreas, saveLifeAreas, type LifeArea } from './lib/lifeAreas';
+import { loadJournal, saveJournal, type Journal } from './lib/journal';
+import { loadEnergyLog, saveEnergyLog, type EnergyEntry } from './lib/energy';
+import { loadSprints, saveSprints, type Sprint } from './lib/sprints';
+import { loadObjectives, saveObjectives, type Objective } from './lib/okrs';
+import { loadPhases, savePhases, type WaterfallPhase } from './lib/waterfall';
 import {
   applyTheme,
   loadTheme,
@@ -97,6 +128,18 @@ const BOOT = (() => {
   const tasks = loadTasks();
   const ivyPlans = loadPlans();
   const timeBlocks = loadBlocks();
+  const skills = loadSkills();
+  const frogLog = loadFrogLog();
+  const goals = loadGoals();
+  const chatHistory = loadChatHistory();
+  const habits = loadHabits();
+  const habitLog = loadHabitLog();
+  const lifeAreas = loadLifeAreas();
+  const journal = loadJournal();
+  const energyLog = loadEnergyLog();
+  const sprints = loadSprints();
+  const objectives = loadObjectives();
+  const phases = loadPhases();
   const selectedProjectId = loadSelectedProject(projects);
   // Round metadata is captured at arming time; boot arms the current round.
   const roundMeta =
@@ -118,6 +161,18 @@ const BOOT = (() => {
     tasks,
     ivyPlans,
     timeBlocks,
+    skills,
+    frogLog,
+    goals,
+    chatHistory,
+    habits,
+    habitLog,
+    lifeAreas,
+    journal,
+    energyLog,
+    sprints,
+    objectives,
+    phases,
     selectedProjectId,
     roundIntention: roundMeta.intention,
     roundAreaId: roundMeta.areaId,
@@ -146,6 +201,18 @@ export default function App() {
   const [tasks, setTasks] = useState<Task[]>(BOOT.tasks);
   const [ivyPlans, setIvyPlans] = useState(BOOT.ivyPlans);
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>(BOOT.timeBlocks);
+  const [skills, setSkills] = useState<Skill[]>(BOOT.skills);
+  const [frogLog, setFrogLog] = useState<FrogLog>(BOOT.frogLog);
+  const [goals, setGoals] = useState<Goal[]>(BOOT.goals);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>(BOOT.chatHistory);
+  const [habits, setHabits] = useState<Habit[]>(BOOT.habits);
+  const [habitLog, setHabitLog] = useState<HabitLog>(BOOT.habitLog);
+  const [lifeAreas, setLifeAreas] = useState<LifeArea[]>(BOOT.lifeAreas);
+  const [journal, setJournal] = useState<Journal>(BOOT.journal);
+  const [energyLog, setEnergyLog] = useState<EnergyEntry[]>(BOOT.energyLog);
+  const [sprints, setSprints] = useState<Sprint[]>(BOOT.sprints);
+  const [objectives, setObjectives] = useState<Objective[]>(BOOT.objectives);
+  const [phases, setPhases] = useState<WaterfallPhase[]>(BOOT.phases);
   const [theme, setTheme] = useState<UITheme>(loadTheme);
   const [showOnboarding, setShowOnboarding] = useState(() => !loadOnboardingSeen());
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(BOOT.selectedProjectId);
@@ -393,6 +460,42 @@ export default function App() {
     saveBlocks(timeBlocks);
   }, [timeBlocks]);
   useEffect(() => {
+    saveSkills(skills);
+  }, [skills]);
+  useEffect(() => {
+    saveFrogLog(frogLog);
+  }, [frogLog]);
+  useEffect(() => {
+    saveGoals(goals);
+  }, [goals]);
+  useEffect(() => {
+    saveChatHistory(chatHistory);
+  }, [chatHistory]);
+  useEffect(() => {
+    saveHabits(habits);
+  }, [habits]);
+  useEffect(() => {
+    saveHabitLog(habitLog);
+  }, [habitLog]);
+  useEffect(() => {
+    saveLifeAreas(lifeAreas);
+  }, [lifeAreas]);
+  useEffect(() => {
+    saveJournal(journal);
+  }, [journal]);
+  useEffect(() => {
+    saveEnergyLog(energyLog);
+  }, [energyLog]);
+  useEffect(() => {
+    saveSprints(sprints);
+  }, [sprints]);
+  useEffect(() => {
+    saveObjectives(objectives);
+  }, [objectives]);
+  useEffect(() => {
+    savePhases(phases);
+  }, [phases]);
+  useEffect(() => {
     saveTheme(theme);
   }, [theme]);
 
@@ -416,6 +519,29 @@ export default function App() {
       return changed ? plans : current;
     });
   }, [auth.timezone]);
+
+  // Deadline reminders: one browser notice per project per day while the tab
+  // is open. Gated on Pro (notifications are a Pro feature) + the user prefs.
+  useEffect(() => {
+    if (!auth.isPro || !settings.notifications) return;
+    if (!loadNotificationPrefs().deadlineReminders) return;
+    const now = Date.now();
+    const due = deadlinesDue(projects, now);
+    if (due.length === 0) return;
+    const dayKey = localDayKey(now);
+    const reminded = loadDeadlineReminders();
+    let next = reminded;
+    for (const { project, msLeft } of due) {
+      if (next[project.id] === dayKey) continue;
+      const hours = Math.max(1, Math.round(msLeft / 3600000));
+      showNotification(
+        `Deadline approaching: ${project.name}`,
+        `Due in ~${hours}h. Finish strong — open Moneo to plan the last push.`,
+      );
+      next = markDeadlineReminded(next, project.id, dayKey);
+    }
+    if (next !== reminded) saveDeadlineReminders(next);
+  }, [projects, settings.notifications, auth.isPro]);
 
   // Request notification permission when notifications are enabled
   useEffect(() => {
@@ -644,7 +770,70 @@ export default function App() {
                       blocksChange={setTimeBlocks}
                     />
                   </div>
-                  <div className="reveal" style={{ animationDelay: '315ms' }}>
+                  <div className="reveal" style={{ animationDelay: '300ms' }}>
+                    <MatrixCard
+                      tasks={tasks}
+                      history={history}
+                      onTasksChange={setTasks}
+                      isPro={auth.isPro}
+                    />
+                  </div>
+                  <div className="reveal" style={{ animationDelay: '330ms' }}>
+                    <FrogCard
+                      tasks={tasks}
+                      projects={projects}
+                      frogLog={frogLog}
+                      frogLogChange={setFrogLog}
+                      onTasksChange={setTasks}
+                      isPro={auth.isPro}
+                    />
+                  </div>
+                  <div className="reveal" style={{ animationDelay: '360ms' }}>
+                    <AssistantCard
+                      messages={chatHistory}
+                      messagesChange={setChatHistory}
+                      tasks={tasks}
+                      projects={projects}
+                      history={history}
+                      timezone={auth.timezone}
+                      goals={goals}
+                      selectedProjectId={selectedProjectId}
+                      onTasksChange={setTasks}
+                      isPro={auth.isPro}
+                    />
+                  </div>
+                  <div className="reveal" style={{ animationDelay: '390ms' }}>
+                    <GoalsCard
+                      goals={goals}
+                      goalsChange={setGoals}
+                      projects={projects}
+                      tasks={tasks}
+                      onTasksChange={setTasks}
+                      ivyPlans={ivyPlans}
+                      onIvyPlansChange={setIvyPlans}
+                      timezone={auth.timezone}
+                      isPro={auth.isPro}
+                    />
+                  </div>
+                  <div className="reveal" style={{ animationDelay: '420ms' }}>
+                    <LifeCard
+                      habits={habits}
+                      habitsChange={setHabits}
+                      habitLog={habitLog}
+                      habitLogChange={setHabitLog}
+                      lifeAreas={lifeAreas}
+                      lifeAreasChange={setLifeAreas}
+                      focusAreas={areas}
+                      journal={journal}
+                      journalChange={setJournal}
+                      energyLog={energyLog}
+                      energyLogChange={setEnergyLog}
+                      history={history}
+                      timezone={auth.timezone}
+                      isPro={auth.isPro}
+                    />
+                  </div>
+                  <div className="reveal" style={{ animationDelay: '450ms' }}>
                     <ProjectsCard
                       projects={projects}
                       history={history}
@@ -657,17 +846,43 @@ export default function App() {
                       isPro={auth.isPro}
                     />
                   </div>
-                  <div className="reveal" style={{ animationDelay: '360ms' }}>
+                  <div className="reveal" style={{ animationDelay: '480ms' }}>
+                    <AgileCard
+                      projects={projects}
+                      tasks={tasks}
+                      onTasksChange={setTasks}
+                      sprints={sprints}
+                      sprintsChange={setSprints}
+                      phases={phases}
+                      phasesChange={setPhases}
+                      selectedProjectId={selectedProjectId}
+                      onSelectProject={handleSelectProject}
+                      isPro={auth.isPro}
+                    />
+                  </div>
+                  <div className="reveal" style={{ animationDelay: '510ms' }}>
+                    <OkrCard
+                      objectives={objectives}
+                      objectivesChange={setObjectives}
+                      isPro={auth.isPro}
+                    />
+                  </div>
+                  <div className="reveal" style={{ animationDelay: '540ms' }}>
+                    <SkillsCard skills={skills} skillsChange={setSkills} isPro={auth.isPro} />
+                  </div>
+                  <div className="reveal" style={{ animationDelay: '570ms' }}>
                     <StatsCard
                       history={history}
                       settings={settings}
                       areas={areas}
+                      projects={projects}
                       timezone={auth.timezone}
                       clearDisabled={syncState.initialized}
                       onClear={() => setHistory([])}
+                      onHistoryAdd={(session) => setHistory((h) => [...h, session])}
                     />
                   </div>
-                  <div className="reveal" style={{ animationDelay: '405ms' }}>
+                  <div className="reveal" style={{ animationDelay: '600ms' }}>
                     <ReportsCard
                       history={history}
                       areas={areas}
@@ -676,7 +891,7 @@ export default function App() {
                       timezone={auth.timezone}
                     />
                   </div>
-                  <div className="reveal" style={{ animationDelay: '450ms' }}>
+                  <div className="reveal" style={{ animationDelay: '630ms' }}>
                     <SettingsCard
                       settings={settings}
                       onChange={updateSettings}
