@@ -1,4 +1,4 @@
-import type { Mode, Session, Settings } from "./store";
+import type { Mode, Session, Settings } from './store';
 
 /**
  * Pure timer-domain logic, extracted from App.tsx so it can be tested
@@ -31,21 +31,21 @@ export function applyCompletion(
   at: number,
   roundMin: number,
 ): CompletionResult {
-  if (mode === "focus") {
+  if (mode === 'focus') {
     const done = cycle + 1;
     const isLong = done >= settings.longEvery;
     return {
-      mode: isLong ? "long" : "short",
+      mode: isLong ? 'long' : 'short',
       cycle: isLong ? 0 : done,
       session: { at, min: roundMin },
     };
   }
-  return { mode: "focus", cycle, session: null };
+  return { mode: 'focus', cycle, session: null };
 }
 
 /** Skip never credits a session — it only selects the next mode. */
 export function applySkip(mode: Mode): Mode {
-  return mode === "focus" ? "short" : "focus";
+  return mode === 'focus' ? 'short' : 'focus';
 }
 
 /** Seconds left on a schedule, never negative. */

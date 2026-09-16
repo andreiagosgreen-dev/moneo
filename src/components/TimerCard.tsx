@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import { MODE_META, fmtClock, type Mode, type Settings } from "../lib/store";
-import { AREA_NAME_MAX, MAX_AREAS, type FocusArea } from "../lib/focusAreas";
+import { useEffect, useRef, useState } from 'react';
+import { MODE_META, fmtClock, type Mode, type Settings } from '../lib/store';
+import { AREA_NAME_MAX, MAX_AREAS, type FocusArea } from '../lib/focusAreas';
+import { tasksForProject, type Task } from '../lib/tasks';
 
-const MODES: Mode[] = ["focus", "short", "long"];
+const MODES: Mode[] = ['focus', 'short', 'long'];
 
 interface Props {
   mode: Mode;
@@ -25,6 +26,12 @@ interface Props {
   onCreateArea: (name: string) => boolean;
   onRenameArea: (id: string, name: string) => boolean;
   onDeleteArea: (id: string) => void;
+  projects: Array<{ id: string; name: string; color: string }>;
+  selectedProjectId: string | null;
+  onSelectProject: (id: string | null) => void;
+  tasks: Task[];
+  selectedTaskId: string | null;
+  onSelectTask: (id: string | null) => void;
 }
 
 function PlayIcon() {
@@ -44,7 +51,17 @@ function PauseIcon() {
 }
 function ResetIcon() {
   return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <path d="M3 12a9 9 0 1 0 3-6.7" />
       <path d="M3 4v5h5" />
     </svg>
@@ -52,7 +69,17 @@ function ResetIcon() {
 }
 function SkipIcon() {
   return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <path d="M5 4l10 8-10 8V4z" fill="currentColor" stroke="none" />
       <path d="M19 5v14" />
     </svg>
@@ -60,42 +87,100 @@ function SkipIcon() {
 }
 function ChevronIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <path d="M6 9l6 6 6-6" />
     </svg>
   );
 }
 function PencilIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
     </svg>
   );
 }
 function TrashIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
     </svg>
   );
 }
 function PlusIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      aria-hidden
+    >
       <path d="M12 5v14M5 12h14" />
     </svg>
   );
 }
 function CheckIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <path d="M4 12.5l5 5L20 6.5" />
     </svg>
   );
 }
 function XIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden>
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      aria-hidden
+    >
       <path d="M6 6l12 12M18 6L6 18" />
     </svg>
   );
@@ -122,6 +207,12 @@ export default function TimerCard({
   onCreateArea,
   onRenameArea,
   onDeleteArea,
+  projects,
+  selectedProjectId,
+  onSelectProject,
+  tasks,
+  selectedTaskId,
+  onSelectTask,
 }: Props) {
   const { mm, ss } = fmtClock(remaining);
   const progress = total > 0 ? remaining / total : 0;
@@ -129,18 +220,16 @@ export default function TimerCard({
   const activeIdx = MODES.indexOf(mode);
   const started = running || remaining < total;
 
-  const statusLabel = running
-    ? "In session"
-    : started
-      ? "Paused"
-      : "Ready";
+  const projectTasks = selectedProjectId ? tasksForProject(tasks, selectedProjectId) : [];
+
+  const statusLabel = running ? 'In session' : started ? 'Paused' : 'Ready';
 
   /* ---------- focus area management (local UI state only) ---------- */
   const [areaOpen, setAreaOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editName, setEditName] = useState("");
-  const [newName, setNewName] = useState("");
-  const [areaNote, setAreaNote] = useState("");
+  const [editName, setEditName] = useState('');
+  const [newName, setNewName] = useState('');
+  const [areaNote, setAreaNote] = useState('');
   const addRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -152,12 +241,12 @@ export default function TimerCard({
   const submitNewArea = () => {
     const ok = onCreateArea(newName);
     if (ok) {
-      setNewName("");
-      setAreaNote("");
+      setNewName('');
+      setAreaNote('');
     } else {
       setAreaNote(
         newName.trim().length === 0
-          ? "Give the area a name first."
+          ? 'Give the area a name first.'
           : `Up to ${MAX_AREAS} areas — rename or remove one first.`,
       );
     }
@@ -166,12 +255,11 @@ export default function TimerCard({
   const submitRename = (id: string) => {
     if (onRenameArea(id, editName)) {
       setEditingId(null);
-      setEditName("");
+      setEditName('');
     }
   };
 
-  const iconBtn =
-    "press btn-ghost flex h-8 w-8 shrink-0 items-center justify-center rounded-lg";
+  const iconBtn = 'press btn-ghost flex h-8 w-8 shrink-0 items-center justify-center rounded-lg';
 
   return (
     <section className="card px-4 pb-8 pt-6 sm:px-10 sm:pb-10" aria-label="Timer">
@@ -186,16 +274,16 @@ export default function TimerCard({
           className="absolute inset-y-1 left-1 w-[calc((100%-0.5rem)/3)] rounded-full border transition-all duration-300 ease-out"
           style={{
             transform: `translateX(${activeIdx * 100}%)`,
-            background: "rgb(var(--accent-rgb) / 0.13)",
-            borderColor: "rgb(var(--accent-rgb) / 0.35)",
+            background: 'rgb(var(--accent-rgb) / 0.13)',
+            borderColor: 'rgb(var(--accent-rgb) / 0.35)',
           }}
         />
         {MODES.map((m) => {
           const active = m === mode;
           const mins =
-            m === "focus"
+            m === 'focus'
               ? settings.focusMin
-              : m === "short"
+              : m === 'short'
                 ? settings.shortMin
                 : settings.longMin;
           return (
@@ -205,15 +293,15 @@ export default function TimerCard({
               aria-selected={active}
               onClick={() => onModeChange(m)}
               className={`press relative z-10 flex items-center justify-center gap-2 rounded-full px-2 py-2.5 font-display text-sm font-semibold tracking-wide sm:text-[15px] ${
-                active ? "text-cream" : "text-faint hover:text-sage"
+                active ? 'text-cream' : 'text-faint hover:text-sage'
               }`}
             >
               {MODE_META[m].short}
               <span
                 className={`hidden font-mono text-[11px] font-medium sm:inline ${
-                  active ? "opacity-80" : "opacity-60"
+                  active ? 'opacity-80' : 'opacity-60'
                 }`}
-                style={active ? { color: "var(--accent)" } : undefined}
+                style={active ? { color: 'var(--accent)' } : undefined}
               >
                 {mins}m
               </span>
@@ -239,18 +327,18 @@ export default function TimerCard({
             value={intentionDraft}
             onChange={(e) => onIntentionDraftChange(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
+              if (e.key === 'Enter') {
                 e.preventDefault();
                 onIntentionEnter();
               }
             }}
             placeholder="What are you working on? (optional)"
             className="h-10 w-full min-w-0 rounded-xl border border-line bg-ink/60 px-3 text-sm text-cream transition-colors placeholder:text-faint focus:[border-color:var(--accent)] focus:outline-none"
-            style={{ caretColor: "var(--accent)" }}
+            style={{ caretColor: 'var(--accent)' }}
           />
           {intentionDraft.length > 0 && (
             <button
-              onClick={() => onIntentionDraftChange("")}
+              onClick={() => onIntentionDraftChange('')}
               className="press btn-ghost flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
               aria-label="Clear intention"
             >
@@ -272,7 +360,7 @@ export default function TimerCard({
           <div className="relative min-w-0 flex-1">
             <select
               id="focus-area"
-              value={selectedAreaId ?? ""}
+              value={selectedAreaId ?? ''}
               onChange={(e) => onSelectArea(e.target.value || null)}
               className="h-10 w-full cursor-pointer appearance-none truncate rounded-xl border border-line bg-ink/60 pl-3 pr-8 text-sm text-cream transition-colors focus:[border-color:var(--accent)] focus:outline-none"
             >
@@ -291,9 +379,9 @@ export default function TimerCard({
             onClick={() => setAreaOpen((o) => !o)}
             className="press btn-ghost flex h-10 shrink-0 items-center gap-1.5 rounded-xl px-3 font-mono text-[12px]"
             aria-expanded={areaOpen}
-            aria-label={areaOpen ? "Close area manager" : "Manage areas"}
+            aria-label={areaOpen ? 'Close area manager' : 'Manage areas'}
           >
-            {areaOpen ? "Close" : "Manage"}
+            {areaOpen ? 'Close' : 'Manage'}
           </button>
         </div>
 
@@ -301,9 +389,7 @@ export default function TimerCard({
         {areaOpen && (
           <div className="mt-2 rounded-xl border border-line bg-ink/50 p-3">
             {areas.length === 0 ? (
-              <p className="text-[12px] text-faint">
-                No areas yet — add one below.
-              </p>
+              <p className="text-[12px] text-faint">No areas yet — add one below.</p>
             ) : (
               <ul className="space-y-1.5">
                 {areas.map((a) => (
@@ -315,10 +401,10 @@ export default function TimerCard({
                           maxLength={AREA_NAME_MAX}
                           onChange={(e) => setEditName(e.target.value)}
                           onKeyDown={(e) => {
-                            if (e.key === "Enter") {
+                            if (e.key === 'Enter') {
                               e.preventDefault();
                               submitRename(a.id);
-                            } else if (e.key === "Escape") {
+                            } else if (e.key === 'Escape') {
                               setEditingId(null);
                             }
                           }}
@@ -381,7 +467,7 @@ export default function TimerCard({
                 maxLength={AREA_NAME_MAX}
                 onChange={(e) => setNewName(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === 'Enter') {
                     e.preventDefault();
                     submitNewArea();
                   }
@@ -390,11 +476,7 @@ export default function TimerCard({
                 aria-label="New area name"
                 className="h-8 w-full min-w-0 rounded-lg border border-line bg-ink/60 px-2 text-[13px] text-cream placeholder:text-faint focus:[border-color:var(--accent)] focus:outline-none"
               />
-              <button
-                onClick={submitNewArea}
-                className={`${iconBtn} h-8`}
-                aria-label="Add area"
-              >
+              <button onClick={submitNewArea} className={`${iconBtn} h-8`} aria-label="Add area">
                 <PlusIcon />
               </button>
             </div>
@@ -407,11 +489,73 @@ export default function TimerCard({
         )}
       </div>
 
+      {/* project selector */}
+      <div className="mt-3">
+        <label
+          htmlFor="project"
+          className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint"
+        >
+          Project
+        </label>
+        <div className="mt-1.5 flex items-center gap-2">
+          <div className="relative min-w-0 flex-1">
+            <select
+              id="project"
+              value={selectedProjectId ?? ''}
+              onChange={(e) => onSelectProject(e.target.value || null)}
+              className="h-10 w-full cursor-pointer appearance-none truncate rounded-xl border border-line bg-ink/60 pl-3 pr-8 text-sm text-cream transition-colors focus:[border-color:var(--accent)] focus:outline-none"
+            >
+              <option value="">No project</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-faint">
+              <ChevronIcon />
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* task selector (only when a project is selected) */}
+      {selectedProjectId && projectTasks.length > 0 && (
+        <div className="mt-3">
+          <label
+            htmlFor="task"
+            className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint"
+          >
+            Task
+          </label>
+          <div className="mt-1.5 flex items-center gap-2">
+            <div className="relative min-w-0 flex-1">
+              <select
+                id="task"
+                value={selectedTaskId ?? ''}
+                onChange={(e) => onSelectTask(e.target.value || null)}
+                className="h-10 w-full cursor-pointer appearance-none truncate rounded-xl border border-line bg-ink/60 pl-3 pr-8 text-sm text-cream transition-colors focus:[border-color:var(--accent)] focus:outline-none"
+              >
+                <option value="">No task</option>
+                {projectTasks.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.title}
+                  </option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-faint">
+                <ChevronIcon />
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ring + digits */}
       <div key={flashKey} className={`pop relative mx-auto mt-6 max-w-[400px] sm:mt-8`}>
         <svg
           viewBox="0 0 400 400"
-          className={`w-full ${running ? "anim-breathe" : ""}`}
+          className={`w-full ${running ? 'anim-breathe' : ''}`}
           role="img"
           aria-label={`${meta.label}: ${mm} minutes ${ss} seconds remaining`}
         >
@@ -453,7 +597,7 @@ export default function TimerCard({
                 y1={quarter ? 34 : 38}
                 x2="200"
                 y2="48"
-                stroke={quarter ? "rgb(238 241 232 / 0.18)" : "rgb(238 241 232 / 0.09)"}
+                stroke={quarter ? 'rgb(238 241 232 / 0.18)' : 'rgb(238 241 232 / 0.09)'}
                 strokeWidth={quarter ? 3 : 2}
                 strokeLinecap="round"
                 transform={`rotate(${deg} 200 200)`}
@@ -475,8 +619,7 @@ export default function TimerCard({
             transform="rotate(-90 200 200)"
             filter="url(#ringGlow)"
             style={{
-              transition:
-                "stroke-dashoffset 0.35s linear, stroke 0.6s ease",
+              transition: 'stroke-dashoffset 0.35s linear, stroke 0.6s ease',
             }}
           />
         </svg>
@@ -485,29 +628,34 @@ export default function TimerCard({
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span
             className="flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.22em]"
-            style={{ color: "var(--accent)" }}
+            style={{ color: 'var(--accent)' }}
           >
-            <span className={`relative inline-block h-1.5 w-1.5 rounded-full ${running ? "ping-dot" : ""}`} style={{ background: "var(--accent)", color: "var(--accent)" }} />
+            <span
+              className={`relative inline-block h-1.5 w-1.5 rounded-full ${running ? 'ping-dot' : ''}`}
+              style={{ background: 'var(--accent)', color: 'var(--accent)' }}
+            />
             {statusLabel}
           </span>
           <div className="mt-2 font-mono font-medium leading-none tracking-tight text-cream [font-size:clamp(4.2rem,17vw,7.5rem)]">
             {mm}
-            <span className={running ? "colon-run" : ""} style={{ opacity: 0.55 }}>
+            <span className={running ? 'colon-run' : ''} style={{ opacity: 0.55 }}>
               :
             </span>
             {ss}
           </div>
           <p className="mt-3 hidden text-sm text-sage sm:block">{meta.tagline}</p>
-          {mode === "focus" && (
-            <div className="mt-4 flex items-center gap-2" aria-label={`${cycle} of ${settings.longEvery} sessions until long break`}>
+          {mode === 'focus' && (
+            <div
+              className="mt-4 flex items-center gap-2"
+              aria-label={`${cycle} of ${settings.longEvery} sessions until long break`}
+            >
               {Array.from({ length: settings.longEvery }).map((_, i) => (
                 <span
                   key={i}
                   className="h-2 w-2 rounded-full transition-all duration-500"
                   style={{
-                    background:
-                      i < cycle ? "var(--accent)" : "rgb(238 241 232 / 0.14)",
-                    boxShadow: i < cycle ? "0 0 10px rgb(var(--accent-rgb) / 0.7)" : "none",
+                    background: i < cycle ? 'var(--accent)' : 'rgb(238 241 232 / 0.14)',
+                    boxShadow: i < cycle ? '0 0 10px rgb(var(--accent-rgb) / 0.7)' : 'none',
                   }}
                 />
               ))}
@@ -533,10 +681,10 @@ export default function TimerCard({
         <button
           onClick={onToggle}
           className="press btn-accent flex h-16 min-w-36 items-center justify-center gap-3 rounded-full px-6 font-display text-lg font-bold tracking-wide sm:min-w-44 sm:px-10"
-          aria-label={running ? "Pause timer" : "Start timer"}
+          aria-label={running ? 'Pause timer' : 'Start timer'}
         >
           {running ? <PauseIcon /> : <PlayIcon />}
-          {running ? "Pause" : started ? "Resume" : "Start"}
+          {running ? 'Pause' : started ? 'Resume' : 'Start'}
         </button>
 
         <button

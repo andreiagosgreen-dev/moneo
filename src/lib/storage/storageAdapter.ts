@@ -1,4 +1,4 @@
-import { STORAGE_KEYS } from "./storageKeys";
+import { STORAGE_KEYS } from './storageKeys';
 
 /**
  * Storage adapter — the single safe boundary between product code and
@@ -18,7 +18,7 @@ import { STORAGE_KEYS } from "./storageKeys";
  * v3 (R1):     stable cloud UUIDs (cloudId) backfilled onto Focus Areas so
  *              seeded/custom local ids map to cloud-compatible identity.
  */
-export const CURRENT_SCHEMA_VERSION = 3;
+export const CURRENT_SCHEMA_VERSION = 4;
 
 /** Raw string read for migration work that must preserve unknown bytes. */
 export function rawRead(key: string): string | null {
@@ -73,9 +73,7 @@ export function hasKey(key: string): boolean {
 
 export function getSchemaVersion(): number | null {
   const v = safeRead<unknown>(STORAGE_KEYS.schemaVersion);
-  return typeof v === "number" && Number.isFinite(v) && v >= 0
-    ? Math.floor(v)
-    : null;
+  return typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Math.floor(v) : null;
 }
 
 export function setSchemaVersion(version: number): boolean {

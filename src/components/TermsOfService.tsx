@@ -15,16 +15,14 @@ export default function TermsOfService() {
       <section className="mb-6">
         <h2 className="text-lg font-semibold mb-2">2. Service Description</h2>
         <p className="mb-2">
-          Moneo is a focus timer application that helps users track productivity sessions,
-          manage focus areas, and optionally sync data across devices.
+          Moneo is a focus timer application that helps users track productivity sessions, manage
+          focus areas, and optionally sync data across devices.
         </p>
       </section>
 
       <section className="mb-6">
         <h2 className="text-lg font-semibold mb-2">3. User Responsibilities</h2>
-        <p className="mb-2">
-          You agree to:
-        </p>
+        <p className="mb-2">You agree to:</p>
         <ul className="list-disc pl-5 mb-2 space-y-1">
           <li>Use the service for personal productivity purposes only</li>
           <li>Not attempt to reverse engineer or circumvent security measures</li>
@@ -44,8 +42,8 @@ export default function TermsOfService() {
       <section className="mb-6">
         <h2 className="text-lg font-semibold mb-2">5. Disclaimer of Warranties</h2>
         <p className="mb-2">
-          Moneo is provided "as is" without warranties of any kind. We do not guarantee that
-          the service will be uninterrupted, secure, or error-free.
+          Moneo is provided "as is" without warranties of any kind. We do not guarantee that the
+          service will be uninterrupted, secure, or error-free.
         </p>
       </section>
 
@@ -60,8 +58,8 @@ export default function TermsOfService() {
       <section className="mb-6">
         <h2 className="text-lg font-semibold mb-2">7. Termination</h2>
         <p className="mb-2">
-          We reserve the right to suspend or terminate your access to the service at any time,
-          with or without notice, for any reason.
+          We reserve the right to suspend or terminate your access to the service at any time, with
+          or without notice, for any reason.
         </p>
       </section>
 

@@ -3,7 +3,7 @@
  * Uses Supabase Edge Functions or a third-party email service.
  */
 
-export type NotificationType = "daily_summary" | "focus_reminder" | "streak_milestone";
+export type NotificationType = 'daily_summary' | 'focus_reminder' | 'streak_milestone';
 
 export interface EmailNotification {
   userId: string;
@@ -17,13 +17,41 @@ export interface EmailNotification {
  * In production, this would integrate with:
  * - Supabase Edge Functions with Resend/SendGrid
  * - Or a dedicated email service like Mailgun
+ *
+ * Fail-safe contract: when no provider endpoint is configured
+ * (VITE_EMAIL_API_URL), the call resolves `{ success: false }` instead
+ * of pretending the email was sent.
  */
+
+function readEnv(): Record<string, string | undefined> {
+  try {
+    const meta = import.meta as unknown as {
+      env?: Record<string, string | undefined>;
+    };
+    return meta.env ?? {};
+  } catch {
+    return {};
+  }
+}
+
+/** Never throws. Pure environment inspection. */
+export function isEmailConfigured(): boolean {
+  try {
+    const endpoint = readEnv().VITE_EMAIL_API_URL;
+    return typeof endpoint === 'string' && /^https?:\/\/.+/i.test(endpoint.trim());
+  } catch {
+    return false;
+  }
+}
+
 export async function sendEmailNotification(
   notification: EmailNotification,
 ): Promise<{ success: boolean; error?: string }> {
-  // TODO: Implement actual email sending
-  // For now, this is a placeholder that logs the notification
-  console.log("Email notification:", notification);
+  if (!isEmailConfigured()) {
+    return { success: false, error: 'Email provider not configured (VITE_EMAIL_API_URL)' };
+  }
+  // TODO: Implement actual email sending via the configured endpoint.
+  console.log('Email notification:', notification);
 
   // In production, you would:
   // 1. Call a Supabase Edge Function
@@ -45,7 +73,7 @@ export function generateDailySummaryEmail(data: {
   body: string;
 } {
   return {
-    subject: "Your Moneo Daily Summary",
+    subject: 'Your Moneo Daily Summary',
     body: `
 Hi! Here's your Moneo summary for today:
 
@@ -68,7 +96,7 @@ export function generateFocusReminderEmail(): {
   body: string;
 } {
   return {
-    subject: "Time to focus! 🎯",
+    subject: 'Time to focus! 🎯',
     body: `
 Hi! It's time for your next focus session.
 
@@ -82,9 +110,7 @@ Open Moneo and start your timer now. Every session counts!
 /**
  * Generate streak milestone email content
  */
-export function generateStreakMilestoneEmail(data: {
-  streak: number;
-}): {
+export function generateStreakMilestoneEmail(data: { streak: number }): {
   subject: string;
   body: string;
 } {

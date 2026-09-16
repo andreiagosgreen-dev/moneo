@@ -1,4 +1,4 @@
-import { isValidIanaTimezone } from "./timezone";
+import { isValidIanaTimezone } from './timezone';
 
 /**
  * Moneo auth state machine — framework-free so it is fully testable.
@@ -14,7 +14,7 @@ import { isValidIanaTimezone } from "./timezone";
  *   user-consented sync flow. auth ≠ migration.
  */
 
-export type AuthStatus = "loading" | "anonymous" | "authenticated";
+export type AuthStatus = 'loading' | 'anonymous' | 'authenticated';
 
 export interface AuthIdentity {
   userId: string;
@@ -28,9 +28,7 @@ export interface AuthSnapshot {
   timezone: string;
 }
 
-export type AuthResult =
-  | { ok: true; note?: string }
-  | { ok: false; message: string };
+export type AuthResult = { ok: true; note?: string } | { ok: false; message: string };
 
 interface RawUser {
   id: string;
@@ -44,17 +42,14 @@ export interface AuthClientLike {
     data: { session: { user: RawUser } | null } | null;
     error?: unknown;
   }>;
-  onAuthStateChange(
-    cb: (event: string, session: { user: RawUser } | null) => void,
-  ): { data: { subscription: { unsubscribe(): void } } };
+  onAuthStateChange(cb: (event: string, session: { user: RawUser } | null) => void): {
+    data: { subscription: { unsubscribe(): void } };
+  };
   signInWithPassword(creds: {
     email: string;
     password: string;
   }): Promise<{ data: { user: RawUser | null }; error: { message?: string } | null }>;
-  signUp(creds: {
-    email: string;
-    password: string;
-  }): Promise<{
+  signUp(creds: { email: string; password: string }): Promise<{
     data: { user: RawUser | null; session: unknown };
     error: { message?: string } | null;
   }>;
@@ -89,30 +84,27 @@ export interface AuthController {
 
 /** Concise, user-readable mapping — raw server text never surfaces. */
 export function mapAuthError(raw: string | undefined | null): string {
-  const msg = (raw ?? "").toLowerCase();
-  if (msg.includes("invalid login credentials"))
-    return "Incorrect email or password.";
-  if (msg.includes("already registered"))
-    return "That email already has an account — sign in instead.";
-  if (msg.includes("password should be at least") || msg.includes("weak password"))
-    return "Password is too weak — use at least 8 characters.";
-  if (msg.includes("email not confirmed"))
-    return "Check your inbox and confirm your email first.";
-  if (msg.includes("rate limit"))
-    return "Too many attempts — wait a moment and try again.";
+  const msg = (raw ?? '').toLowerCase();
+  if (msg.includes('invalid login credentials')) return 'Incorrect email or password.';
+  if (msg.includes('already registered'))
+    return 'That email already has an account — sign in instead.';
+  if (msg.includes('password should be at least') || msg.includes('weak password'))
+    return 'Password is too weak — use at least 8 characters.';
+  if (msg.includes('email not confirmed')) return 'Check your inbox and confirm your email first.';
+  if (msg.includes('rate limit')) return 'Too many attempts — wait a moment and try again.';
   if (
-    msg.includes("failed to fetch") ||
-    msg.includes("network") ||
-    msg.includes("timeout") ||
-    msg.includes("fetch")
+    msg.includes('failed to fetch') ||
+    msg.includes('network') ||
+    msg.includes('timeout') ||
+    msg.includes('fetch')
   )
-    return "Network unavailable — Moneo keeps working offline.";
-  return "Something went wrong. Please try again.";
+    return 'Network unavailable — Moneo keeps working offline.';
+  return 'Something went wrong. Please try again.';
 }
 
 export function createAuthController(deps: AuthControllerDeps): AuthController {
   let snapshot: AuthSnapshot = {
-    status: "loading",
+    status: 'loading',
     user: null,
     timezone: deps.browserTimezone(),
   };
@@ -129,14 +121,14 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
   };
 
   const anonymous = (): AuthSnapshot => ({
-    status: "anonymous",
+    status: 'anonymous',
     user: null,
     timezone: deps.browserTimezone(),
   });
 
   const applyAuthenticated = async (raw: RawUser) => {
     const user: AuthIdentity = { userId: raw.id, email: raw.email ?? null };
-    emit({ status: "authenticated", user, timezone: deps.browserTimezone() });
+    emit({ status: 'authenticated', user, timezone: deps.browserTimezone() });
     // Profile bootstrap: insert-if-absent with the browser timezone.
     // An existing saved timezone is NEVER overwritten.
     if (!profileEnsuredFor.has(user.userId)) {
@@ -189,14 +181,12 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
           return;
         }
         try {
-          subscription = client
-            .onAuthStateChange((_event, session) => {
-              if (disposed) return;
-              const user = session?.user ?? null;
-              if (user) void applyAuthenticated(user);
-              else emit(anonymous());
-            })
-            .data.subscription;
+          subscription = client.onAuthStateChange((_event, session) => {
+            if (disposed) return;
+            const user = session?.user ?? null;
+            if (user) void applyAuthenticated(user);
+            else emit(anonymous());
+          }).data.subscription;
           const { data } = await client.getSession();
           if (disposed) return;
           const user = data?.session?.user ?? null;
@@ -228,8 +218,7 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
           message: mapAuthError(e instanceof Error ? e.message : null),
         };
       }
-      if (!client)
-        return { ok: false, message: "Cloud is not configured on this installation." };
+      if (!client) return { ok: false, message: 'Cloud is not configured on this installation.' };
       try {
         const { data, error } = await client.signInWithPassword({
           email: email.trim(),
@@ -259,8 +248,7 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
           message: mapAuthError(e instanceof Error ? e.message : null),
         };
       }
-      if (!client)
-        return { ok: false, message: "Cloud is not configured on this installation." };
+      if (!client) return { ok: false, message: 'Cloud is not configured on this installation.' };
       try {
         const { data, error } = await client.signUp({
           email: email.trim(),
@@ -274,7 +262,7 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
         // Email confirmation required — signed up but not yet signed in.
         return {
           ok: true,
-          note: "Account created — check your inbox to confirm your email.",
+          note: 'Account created — check your inbox to confirm your email.',
         };
       } catch (e) {
         return {
@@ -297,7 +285,7 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
     async deleteAccount() {
       const userId = snapshot.user?.userId;
       if (!userId) {
-        return { ok: false, message: "Not signed in." };
+        return { ok: false, message: 'Not signed in.' };
       }
 
       let client: AuthClientLike | null = null;
@@ -309,14 +297,13 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
           message: mapAuthError(e instanceof Error ? e.message : null),
         };
       }
-      if (!client)
-        return { ok: false, message: "Cloud is not configured on this installation." };
+      if (!client) return { ok: false, message: 'Cloud is not configured on this installation.' };
 
       try {
         // Delete all user data from the database
         const dataDeleted = await deps.deleteUserData(userId);
         if (!dataDeleted) {
-          return { ok: false, message: "Failed to delete user data. Please try again." };
+          return { ok: false, message: 'Failed to delete user data. Please try again.' };
         }
 
         // Sign out to clear local auth state

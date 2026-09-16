@@ -1,7 +1,7 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
-import { getSupabaseClient } from "../supabase";
-import type { Session } from "../store";
-import type { RemoteSessionRow } from "../sync/merge";
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from '../supabase';
+import type { Session } from '../store';
+import type { RemoteSessionRow } from '../sync/merge';
 
 /**
  * Focus session repository: authenticated CRUD primitives only.
@@ -30,10 +30,8 @@ export function toCloudSessionRow(
   session: Session & { id: string },
 ): CloudSessionRow {
   const isUuid =
-    typeof session.areaId === "string" &&
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-      session.areaId,
-    );
+    typeof session.areaId === 'string' &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(session.areaId);
   return {
     id: session.id,
     user_id: userId,
@@ -44,9 +42,7 @@ export function toCloudSessionRow(
   };
 }
 
-async function withClient<T>(
-  fn: (client: SupabaseClient) => Promise<T>,
-): Promise<T | null> {
+async function withClient<T>(fn: (client: SupabaseClient) => Promise<T>): Promise<T | null> {
   const client = await getSupabaseClient();
   if (!client) return null;
   try {
@@ -58,21 +54,18 @@ async function withClient<T>(
 
 export function insertSession(row: CloudSessionRow): Promise<boolean> {
   return withClient(async (client) => {
-    const { error } = await client.from("focus_sessions").insert(row);
+    const { error } = await client.from('focus_sessions').insert(row);
     return !error;
   }).then((r) => r ?? false);
 }
 
-export function listSessions(
-  userId: string,
-  limit = 500,
-): Promise<CloudSessionRow[] | null> {
+export function listSessions(userId: string, limit = 500): Promise<CloudSessionRow[] | null> {
   return withClient(async (client) => {
     const { data, error } = await client
-      .from("focus_sessions")
-      .select("*")
-      .eq("user_id", userId)
-      .order("completed_at", { ascending: false })
+      .from('focus_sessions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('completed_at', { ascending: false })
       .limit(limit);
     return error ? null : ((data as CloudSessionRow[]) ?? null);
   });
@@ -158,11 +151,11 @@ export async function pullAllSessions(
   return withClient(async (client) => {
     const rows = await pullPaged<CloudSessionRow>(async (from, to) => {
       const { data, error } = await client
-        .from("focus_sessions")
-        .select("*")
-        .eq("user_id", userId)
-        .order("completed_at", { ascending: true })
-        .order("id", { ascending: true })
+        .from('focus_sessions')
+        .select('*')
+        .eq('user_id', userId)
+        .order('completed_at', { ascending: true })
+        .order('id', { ascending: true })
         .range(from, to);
       if (error || !data) return null;
       return data as CloudSessionRow[];
@@ -204,8 +197,8 @@ export function pushSessionBatch(
         .slice(i, i + chunkSize)
         .map((s) => toCloudSessionRow(userId, s as Session & { id: string }));
       const { error } = await client
-        .from("focus_sessions")
-        .upsert(rows, { onConflict: "id", ignoreDuplicates: true });
+        .from('focus_sessions')
+        .upsert(rows, { onConflict: 'id', ignoreDuplicates: true });
       if (error) return false;
     }
     return true;

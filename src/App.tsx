@@ -1,13 +1,37 @@
-import { useEffect, useRef, useState } from "react";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
-import TimerCard from "./components/TimerCard";
-import StatsCard from "./components/StatsCard";
-import SettingsCard from "./components/SettingsCard";
-import BrandMark from "./components/BrandMark";
-import GrowthCard from "./components/GrowthCard";
-import AccountButton from "./components/AccountButton";
-import PrivacyPolicy from "./components/PrivacyPolicy";
-import TermsOfService from "./components/TermsOfService";
+import { useEffect, useRef, useState } from 'react';
+import { Routes, Route, Link } from 'react-router-dom';
+import TimerCard from './components/TimerCard';
+import StatsCard from './components/StatsCard';
+import SettingsCard from './components/SettingsCard';
+import ReportsCard from './components/ReportsCard';
+import BrandMark from './components/BrandMark';
+import GrowthCard from './components/GrowthCard';
+import AccountButton from './components/AccountButton';
+import ProjectsCard from './components/ProjectsCard';
+import InsightsCard from './components/InsightsCard';
+import IvyLeeCard from './components/IvyLeeCard';
+import CalendarCard from './components/CalendarCard';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import TermsOfService from './components/TermsOfService';
+import {
+  loadProjects,
+  loadSelectedProject,
+  saveSelectedProject,
+  saveProjects,
+  type Project,
+} from './lib/projects';
+import { loadTasks, saveTasks, type Task } from './lib/tasks';
+import { loadPlans, savePlans, carryForNewDay } from './lib/ivyLee';
+import { loadBlocks, saveBlocks, type TimeBlock } from './lib/timeBlocks';
+import {
+  applyTheme,
+  loadTheme,
+  loadOnboardingSeen,
+  markOnboardingSeen,
+  saveTheme,
+  type UITheme,
+} from './lib/theme';
+import OnboardingModal from './components/OnboardingModal';
 import {
   MODE_META,
   durationFor,
@@ -25,16 +49,16 @@ import {
   type Mode,
   type Session,
   type Settings,
-} from "./lib/store";
+} from './lib/store';
 import {
   applyCompletion,
   applySkip,
   endsAtFor,
   remainingAt,
   shouldPersist,
-} from "./lib/timerEngine";
-import { assembleSession } from "./lib/sessions";
-import { loadIntentionDraft, saveIntentionDraft } from "./lib/intentions";
+} from './lib/timerEngine';
+import { assembleSession } from './lib/sessions';
+import { loadIntentionDraft, saveIntentionDraft } from './lib/intentions';
 import {
   activeAreas,
   armRoundFocus,
@@ -45,11 +69,17 @@ import {
   renameFocusArea,
   saveFocusAreas,
   saveSelectedArea,
-} from "./lib/focusAreas";
-import { runLocalMigrations } from "./lib/storage/migrations";
-import { useAuth } from "./lib/authProvider";
-import { isTodayInTz } from "./lib/timezone";
-import { loadSyncState, onSyncStateChange } from "./lib/sync/syncState";
+} from './lib/focusAreas';
+import { runLocalMigrations } from './lib/storage/migrations';
+import { useAuth } from './lib/authProvider';
+import { isTodayInTz } from './lib/timezone';
+import { loadSyncState, onSyncStateChange } from './lib/sync/syncState';
+import {
+  loadNotificationPrefs,
+  saveNotificationPrefs,
+  shouldShowFocusReminder,
+  markReminderShown,
+} from './lib/notificationPrefs';
 
 /* Boot once: restore settings, history and the paused timer position. */
 const BOOT = (() => {
@@ -57,15 +87,20 @@ const BOOT = (() => {
   runLocalMigrations();
   const settings = loadSettings();
   const snap = loadSnapshot();
-  const mode: Mode = snap?.mode ?? "focus";
+  const mode: Mode = snap?.mode ?? 'focus';
   const total = snap?.mode === mode ? snap.total : durationFor(mode, settings);
   const remaining = snap?.mode === mode ? Math.min(snap.remaining, total) : total;
   const intentionDraft = loadIntentionDraft();
   const areas = loadFocusAreas();
   const selectedAreaId = loadSelectedArea(areas);
+  const projects = loadProjects();
+  const tasks = loadTasks();
+  const ivyPlans = loadPlans();
+  const timeBlocks = loadBlocks();
+  const selectedProjectId = loadSelectedProject(projects);
   // Round metadata is captured at arming time; boot arms the current round.
   const roundMeta =
-    mode === "focus"
+    mode === 'focus'
       ? armRoundFocus(intentionDraft, selectedAreaId, areas)
       : { intention: null, areaId: null };
   return {
@@ -75,19 +110,23 @@ const BOOT = (() => {
     total,
     remaining,
     cycle: snap?.cycle ?? 0,
-    roundMin: mode === "focus" ? settings.focusMin : 0,
+    roundMin: mode === 'focus' ? settings.focusMin : 0,
     intentionDraft,
     areas,
     selectedAreaId,
+    projects,
+    tasks,
+    ivyPlans,
+    timeBlocks,
+    selectedProjectId,
     roundIntention: roundMeta.intention,
     roundAreaId: roundMeta.areaId,
+    roundProjectId: mode === 'focus' ? selectedProjectId : null,
+    roundTaskId: null,
   };
 })();
 
 export default function App() {
-  const location = useLocation();
-  const isLegalPage = location.pathname === "/privacy" || location.pathname === "/terms";
-
   const auth = useAuth();
   const [syncState, setSyncState] = useState(loadSyncState);
   useEffect(() => onSyncStateChange(() => setSyncState(loadSyncState())), []);
@@ -99,12 +138,29 @@ export default function App() {
   const [running, setRunning] = useState(false);
   const [cycle, setCycle] = useState(BOOT.cycle);
   const [flashKey, setFlashKey] = useState(0);
-  const [announce, setAnnounce] = useState("");
+  const [announce, setAnnounce] = useState('');
   const [intentionDraft, setIntentionDraft] = useState(BOOT.intentionDraft);
   const [areas, setAreas] = useState(BOOT.areas);
-  const [selectedAreaId, setSelectedAreaId] = useState<string | null>(
-    BOOT.selectedAreaId,
-  );
+  const [selectedAreaId, setSelectedAreaId] = useState<string | null>(BOOT.selectedAreaId);
+  const [projects, setProjects] = useState<Project[]>(BOOT.projects);
+  const [tasks, setTasks] = useState<Task[]>(BOOT.tasks);
+  const [ivyPlans, setIvyPlans] = useState(BOOT.ivyPlans);
+  const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>(BOOT.timeBlocks);
+  const [theme, setTheme] = useState<UITheme>(loadTheme);
+  const [showOnboarding, setShowOnboarding] = useState(() => !loadOnboardingSeen());
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(BOOT.selectedProjectId);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+
+  const handleSelectProject = (id: string | null) => {
+    setSelectedProjectId(id);
+    saveSelectedProject(id);
+    // A task belongs to exactly one project — clear it on project switch.
+    setSelectedTaskId(null);
+  };
+
+  const handleSelectTask = (id: string | null) => {
+    setSelectedTaskId(id);
+  };
 
   const endsAtRef = useRef(0);
   const runningRef = useRef(false);
@@ -115,13 +171,18 @@ export default function App() {
   const remainingRef = useRef(remaining);
   // Focus minutes belonging to the round that is currently armed/running.
   const roundMinRef = useRef(BOOT.roundMin);
-  // Intention + area are captured once, at arming time — a running round
+  // Intention + area + project are captured once, at arming time — a running round
   // keeps exactly these values no matter what the user edits afterwards.
   const roundIntentionRef = useRef<string | null>(BOOT.roundIntention);
   const roundAreaIdRef = useRef<string | null>(BOOT.roundAreaId);
+  const roundProjectIdRef = useRef<string | null>(BOOT.roundProjectId);
+  const roundTaskIdRef = useRef<string | null>(BOOT.roundTaskId);
   const intentionDraftRef = useRef(intentionDraft);
   const areasRef = useRef(areas);
   const selectedAreaIdRef = useRef(selectedAreaId);
+  const selectedProjectIdRef = useRef(selectedProjectId);
+  const selectedTaskIdRef = useRef(selectedTaskId);
+  const tasksRef = useRef(tasks);
   modeRef.current = mode;
   settingsRef.current = settings;
   cycleRef.current = cycle;
@@ -130,6 +191,9 @@ export default function App() {
   intentionDraftRef.current = intentionDraft;
   areasRef.current = areas;
   selectedAreaIdRef.current = selectedAreaId;
+  selectedProjectIdRef.current = selectedProjectId;
+  selectedTaskIdRef.current = selectedTaskId;
+  tasksRef.current = tasks;
 
   const captureRoundMeta = () => {
     const meta = armRoundFocus(
@@ -139,6 +203,8 @@ export default function App() {
     );
     roundIntentionRef.current = meta.intention;
     roundAreaIdRef.current = meta.areaId;
+    roundProjectIdRef.current = selectedProjectIdRef.current;
+    roundTaskIdRef.current = roundProjectIdRef.current !== null ? selectedTaskIdRef.current : null;
   };
 
   /* ---------- engine ---------- */
@@ -150,10 +216,7 @@ export default function App() {
     }
     // Arming a fresh focus round: capture its immutable metadata.
     // Resumes (remaining < total) keep the round's original capture.
-    if (
-      modeRef.current === "focus" &&
-      remainingRef.current === totalRef.current
-    ) {
+    if (modeRef.current === 'focus' && remainingRef.current === totalRef.current) {
       captureRoundMeta();
     }
     endsAtRef.current = endsAtFor(remainingRef.current, Date.now());
@@ -183,7 +246,7 @@ export default function App() {
     setRemaining(d);
     remainingRef.current = d;
     totalRef.current = d;
-    if (next === "focus") {
+    if (next === 'focus') {
       roundMinRef.current = settingsRef.current.focusMin;
       captureRoundMeta();
     }
@@ -200,21 +263,18 @@ export default function App() {
     const s = settingsRef.current;
     // Credit the round that actually ran, stamped with its *scheduled* end —
     // not the (possibly much later) moment a suspended browser noticed.
-    const res = applyCompletion(
-      m,
-      cycleRef.current,
-      s,
-      endsAtRef.current,
-      roundMinRef.current,
-    );
+    const res = applyCompletion(m, cycleRef.current, s, endsAtRef.current, roundMinRef.current);
     playChime(s.sound, s.soundType, s.volume);
-    
+
     // Show browser notification if enabled
     if (s.notifications) {
-      const title = m === "focus" ? "Focus session complete" : "Break over";
-      const body = m === "focus" 
-        ? res.mode === "long" ? "Long break time" : "Short break time"
-        : "Ready to focus";
+      const title = m === 'focus' ? 'Focus session complete' : 'Break over';
+      const body =
+        m === 'focus'
+          ? res.mode === 'long'
+            ? 'Long break time'
+            : 'Short break time'
+          : 'Ready to focus';
       showNotification(title, body);
     }
     setFlashKey((k) => k + 1);
@@ -222,17 +282,19 @@ export default function App() {
     const entry = assembleSession(res.session, {
       intention: roundIntentionRef.current,
       areaId: roundAreaIdRef.current,
+      projectId: roundProjectIdRef.current,
+      taskId: roundTaskIdRef.current,
     });
     if (entry) setHistory((h) => [...h, entry]);
     setCycle(res.cycle);
     setAnnounce(
-      m === "focus"
-        ? res.mode === "long"
-          ? "Focus session complete. Long break."
-          : "Focus session complete. Short break."
+      m === 'focus'
+        ? res.mode === 'long'
+          ? 'Focus session complete. Long break.'
+          : 'Focus session complete. Short break.'
         : s.autoStart
-          ? "Break over. Focus started."
-          : "Break over. Ready to focus.",
+          ? 'Break over. Focus started.'
+          : 'Break over. Ready to focus.',
     );
     gotoMode(res.mode, s.autoStart);
   };
@@ -261,7 +323,7 @@ export default function App() {
     runningRef.current = false;
     setRunning(false);
     const d = durationFor(m, settingsRef.current);
-    if (m === "focus") {
+    if (m === 'focus') {
       roundMinRef.current = settingsRef.current.focusMin;
       captureRoundMeta();
     }
@@ -281,14 +343,14 @@ export default function App() {
     const next = { ...settings, ...patch, updatedAt: Date.now() };
     setSettings(next);
     const durKeys: Array<[keyof Settings, Mode]> = [
-      ["focusMin", "focus"],
-      ["shortMin", "short"],
-      ["longMin", "long"],
+      ['focusMin', 'focus'],
+      ['shortMin', 'short'],
+      ['longMin', 'long'],
     ];
     for (const [key, m] of durKeys) {
       const v = patch[key];
       if (
-        typeof v === "number" &&
+        typeof v === 'number' &&
         m === modeRef.current &&
         !runningRef.current &&
         remainingRef.current === totalRef.current
@@ -298,45 +360,90 @@ export default function App() {
         setRemaining(d);
         totalRef.current = d;
         remainingRef.current = d;
-        if (key === "focusMin") roundMinRef.current = v;
+        if (key === 'focusMin') roundMinRef.current = v;
       }
     }
-    if (typeof patch.longEvery === "number") {
+    if (typeof patch.longEvery === 'number') {
       setCycle((c) => Math.min(c, patch.longEvery! - 1));
     }
   };
 
   /* ---------- persistence ---------- */
 
-  useEffect(() => { saveSettings(settings); }, [settings]);
-  useEffect(() => { saveHistory(history); }, [history]);
+  useEffect(() => {
+    saveSettings(settings);
+  }, [settings]);
+  useEffect(() => {
+    saveHistory(history);
+  }, [history]);
   useEffect(() => saveIntentionDraft(intentionDraft), [intentionDraft]);
-  useEffect(() => { saveFocusAreas(areas); }, [areas]);
+  useEffect(() => {
+    saveFocusAreas(areas);
+  }, [areas]);
+  useEffect(() => {
+    saveProjects(projects);
+  }, [projects]);
+  useEffect(() => {
+    saveTasks(tasks);
+  }, [tasks]);
+  useEffect(() => {
+    savePlans(ivyPlans);
+  }, [ivyPlans]);
+  useEffect(() => {
+    saveBlocks(timeBlocks);
+  }, [timeBlocks]);
+  useEffect(() => {
+    saveTheme(theme);
+  }, [theme]);
+
+  // Premium Polish: keep the applied theme in sync with state.
+  const modeWrapRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    applyTheme(theme, modeWrapRef.current);
+  }, [theme, mode]);
+
+  const dismissOnboarding = () => {
+    setShowOnboarding(false);
+    markOnboardingSeen();
+  };
   useEffect(() => saveSelectedArea(selectedAreaId), [selectedAreaId]);
-  
+
+  // Ivy Lee carry-over: unfinished tasks roll into a fresh day's list once
+  // the effective timezone is known.
+  useEffect(() => {
+    setIvyPlans((current) => {
+      const { plans, changed } = carryForNewDay(current, auth.timezone);
+      return changed ? plans : current;
+    });
+  }, [auth.timezone]);
+
   // Request notification permission when notifications are enabled
   useEffect(() => {
     if (settings.notifications) {
       requestNotificationPermission();
     }
   }, [settings.notifications]);
+
+  // In-app focus reminder: check every 30s while the tab is open.
+  useEffect(() => {
+    const check = () => {
+      const prefs = loadNotificationPrefs();
+      if (!shouldShowFocusReminder(prefs)) return;
+      saveNotificationPrefs(markReminderShown(prefs));
+      showNotification('Time to focus', 'Your focus reminder is due. Start a round!');
+    };
+    check();
+    const id = window.setInterval(check, 30_000);
+    return () => window.clearInterval(id);
+  }, []);
   // Persist only meaningful state: every discrete change (mode/total/cycle),
   // every pause/idle settle, and at most once per 10s of live countdown.
-  const sigRef = useRef("");
+  const sigRef = useRef('');
   const lastPersistRef = useRef(0);
   useEffect(() => {
     const sig = `${mode}|${total}|${cycle}`;
     const now = Date.now();
-    if (
-      shouldPersist(
-        sigRef.current,
-        sig,
-        running,
-        now,
-        lastPersistRef.current,
-        10_000,
-      )
-    ) {
+    if (shouldPersist(sigRef.current, sig, running, now, lastPersistRef.current, 10_000)) {
       sigRef.current = sig;
       lastPersistRef.current = now;
       saveSnapshot({ mode, total, remaining, cycle });
@@ -351,7 +458,7 @@ export default function App() {
       const { mm, ss } = fmtClock(remaining);
       document.title = `${mm}:${ss} · ${label} — Moneo`;
     } else {
-      document.title = "Moneo — Focus Timer";
+      document.title = 'Moneo — Focus Timer';
     }
   }, [running, remaining, total, mode]);
 
@@ -364,22 +471,22 @@ export default function App() {
       const el = e.target as HTMLElement | null;
       const tag = el?.tagName;
       if (
-        tag === "INPUT" ||
-        tag === "TEXTAREA" ||
-        tag === "SELECT" ||
-        tag === "BUTTON" ||
+        tag === 'INPUT' ||
+        tag === 'TEXTAREA' ||
+        tag === 'SELECT' ||
+        tag === 'BUTTON' ||
         el?.isContentEditable
       )
         return;
-      if (e.code === "Space") {
+      if (e.code === 'Space') {
         e.preventDefault();
         toggleRef.current();
-      } else if (e.code === "KeyR") {
+      } else if (e.code === 'KeyR') {
         resetRef.current();
       }
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
 
   /* ---------- focus areas (CRUD never touches history) ---------- */
@@ -417,11 +524,17 @@ export default function App() {
       <Route
         path="*"
         element={
-          <div data-mode={mode} className="relative min-h-screen overflow-hidden">
+          <div ref={modeWrapRef} data-mode={mode} className="relative min-h-screen overflow-hidden">
             {/* ambient layers */}
-            <div className={`bg-glow bg-glow-focus ${mode === "focus" ? "is-on" : ""}`} aria-hidden />
-            <div className={`bg-glow bg-glow-short ${mode === "short" ? "is-on" : ""}`} aria-hidden />
-            <div className={`bg-glow bg-glow-long ${mode === "long" ? "is-on" : ""}`} aria-hidden />
+            <div
+              className={`bg-glow bg-glow-focus ${mode === 'focus' ? 'is-on' : ''}`}
+              aria-hidden
+            />
+            <div
+              className={`bg-glow bg-glow-short ${mode === 'short' ? 'is-on' : ''}`}
+              aria-hidden
+            />
+            <div className={`bg-glow bg-glow-long ${mode === 'long' ? 'is-on' : ''}`} aria-hidden />
             <div className="bg-grid" aria-hidden />
             <div className="bg-grain" aria-hidden />
             <p role="status" aria-live="polite" className="sr-only">
@@ -434,7 +547,7 @@ export default function App() {
                 <div className="flex items-center gap-3">
                   <div
                     className="flex h-11 w-11 items-center justify-center rounded-2xl border border-line bg-card2/80 shadow-lg"
-                    style={{ boxShadow: "0 8px 24px -8px rgb(var(--accent-rgb) / 0.45)" }}
+                    style={{ boxShadow: '0 8px 24px -8px rgb(var(--accent-rgb) / 0.45)' }}
                   >
                     <BrandMark />
                   </div>
@@ -451,13 +564,13 @@ export default function App() {
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-2 rounded-full border border-line bg-card/80 py-2 pl-3 pr-4">
                     <span
-                      className={`relative inline-block h-2 w-2 rounded-full ${running ? "ping-dot" : ""}`}
-                      style={{ background: "var(--accent)", color: "var(--accent)" }}
+                      className={`relative inline-block h-2 w-2 rounded-full ${running ? 'ping-dot' : ''}`}
+                      style={{ background: 'var(--accent)', color: 'var(--accent)' }}
                     />
                     <span className="font-mono text-[12px] text-sage">
                       today&nbsp;
                       <span className="font-semibold text-cream">
-                        {minutesToday > 0 ? fmtMinutes(minutesToday) : "0m"}
+                        {minutesToday > 0 ? fmtMinutes(minutesToday) : '0m'}
                       </span>
                     </span>
                   </div>
@@ -467,7 +580,7 @@ export default function App() {
 
               {/* main */}
               <main className="mt-7 grid gap-6 lg:grid-cols-[7fr_5fr]">
-                <div className="reveal" style={{ animationDelay: "90ms" }}>
+                <div className="reveal" style={{ animationDelay: '90ms' }}>
                   <TimerCard
                     mode={mode}
                     running={running}
@@ -483,7 +596,7 @@ export default function App() {
                     intentionDraft={intentionDraft}
                     onIntentionDraftChange={setIntentionDraft}
                     onIntentionEnter={() => {
-                      if (!runningRef.current && modeRef.current === "focus") start();
+                      if (!runningRef.current && modeRef.current === 'focus') start();
                     }}
                     areas={activeAreas(areas)}
                     selectedAreaId={selectedAreaId}
@@ -491,14 +604,60 @@ export default function App() {
                     onCreateArea={handleCreateArea}
                     onRenameArea={handleRenameArea}
                     onDeleteArea={handleDeleteArea}
+                    projects={projects}
+                    selectedProjectId={selectedProjectId}
+                    onSelectProject={handleSelectProject}
+                    tasks={tasks}
+                    selectedTaskId={selectedTaskId}
+                    onSelectTask={handleSelectTask}
                   />
                 </div>
 
                 <div className="flex flex-col gap-6">
-                  <div className="reveal" style={{ animationDelay: "135ms" }}>
+                  <div className="reveal" style={{ animationDelay: '135ms' }}>
                     <GrowthCard history={history} />
                   </div>
-                  <div className="reveal" style={{ animationDelay: "180ms" }}>
+                  <div className="reveal" style={{ animationDelay: '180ms' }}>
+                    <InsightsCard
+                      history={history}
+                      areas={areas}
+                      projects={projects}
+                      tasks={tasks}
+                      timezone={auth.timezone}
+                      isPro={auth.isPro}
+                    />
+                  </div>
+                  <div className="reveal" style={{ animationDelay: '225ms' }}>
+                    <IvyLeeCard
+                      plans={ivyPlans}
+                      plansChange={setIvyPlans}
+                      timezone={auth.timezone}
+                      isPro={auth.isPro}
+                    />
+                  </div>
+                  <div className="reveal" style={{ animationDelay: '270ms' }}>
+                    <CalendarCard
+                      history={history}
+                      projects={projects}
+                      timezone={auth.timezone}
+                      isPro={auth.isPro}
+                      blocksChange={setTimeBlocks}
+                    />
+                  </div>
+                  <div className="reveal" style={{ animationDelay: '315ms' }}>
+                    <ProjectsCard
+                      projects={projects}
+                      history={history}
+                      areas={areas}
+                      tasks={tasks}
+                      selectedProjectId={selectedProjectId}
+                      onSelectProject={handleSelectProject}
+                      onProjectsChange={setProjects}
+                      onTasksChange={setTasks}
+                      isPro={auth.isPro}
+                    />
+                  </div>
+                  <div className="reveal" style={{ animationDelay: '360ms' }}>
                     <StatsCard
                       history={history}
                       settings={settings}
@@ -508,8 +667,23 @@ export default function App() {
                       onClear={() => setHistory([])}
                     />
                   </div>
-                  <div className="reveal" style={{ animationDelay: "270ms" }}>
-                    <SettingsCard settings={settings} onChange={updateSettings} />
+                  <div className="reveal" style={{ animationDelay: '405ms' }}>
+                    <ReportsCard
+                      history={history}
+                      areas={areas}
+                      projects={projects}
+                      tasks={tasks}
+                      timezone={auth.timezone}
+                    />
+                  </div>
+                  <div className="reveal" style={{ animationDelay: '450ms' }}>
+                    <SettingsCard
+                      settings={settings}
+                      onChange={updateSettings}
+                      theme={theme}
+                      onThemeChange={setTheme}
+                      isPro={auth.isPro}
+                    />
                   </div>
                 </div>
               </main>
@@ -517,7 +691,7 @@ export default function App() {
               {/* footer */}
               <footer
                 className="reveal mt-9 flex flex-col items-center justify-between gap-3 border-t border-line/70 pt-5 sm:flex-row"
-                style={{ animationDelay: "360ms" }}
+                style={{ animationDelay: '360ms' }}
               >
                 <div className="flex flex-col items-center gap-3 sm:flex-row">
                   <p className="font-mono text-[11px] text-faint">
@@ -538,6 +712,8 @@ export default function App() {
                 </p>
               </footer>
             </div>
+
+            {showOnboarding && <OnboardingModal onDone={dismissOnboarding} />}
           </div>
         }
       />

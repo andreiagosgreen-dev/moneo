@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { STORAGE_KEYS } from "./storageKeys";
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { STORAGE_KEYS } from './storageKeys';
 import {
   CURRENT_SCHEMA_VERSION,
   getSchemaVersion,
@@ -7,88 +7,96 @@ import {
   safeRemove,
   safeWrite,
   setSchemaVersion,
-} from "./storageAdapter";
-import { runLocalMigrations } from "./migrations";
-import { getTotalFocusedMinutes } from "../growth";
-import { currentStreak } from "../store";
+} from './storageAdapter';
+import { runLocalMigrations } from './migrations';
+import { getTotalFocusedMinutes } from '../growth';
+import { currentStreak } from '../store';
 
 beforeEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("centralized storage keys", () => {
-  it("pins the exact product key values (legacy keys never renamed)", () => {
+describe('centralized storage keys', () => {
+  it('pins the exact product key values (legacy keys never renamed)', () => {
     expect(STORAGE_KEYS).toEqual({
-      settings: "solanum:settings",
-      history: "solanum:history",
-      snapshot: "solanum:snapshot",
-      intentionDraft: "moneo:intention-draft",
-      focusAreas: "moneo:focus-areas",
-      selectedFocusArea: "moneo:selected-focus-area",
-      schemaVersion: "moneo:schema-version",
-      syncState: "moneo:sync-state",
+      settings: 'solanum:settings',
+      history: 'solanum:history',
+      snapshot: 'solanum:snapshot',
+      intentionDraft: 'moneo:intention-draft',
+      focusAreas: 'moneo:focus-areas',
+      selectedFocusArea: 'moneo:selected-focus-area',
+      projects: 'moneo:projects',
+      selectedProject: 'moneo:selected-project',
+      schemaVersion: 'moneo:schema-version',
+      syncState: 'moneo:sync-state',
+      notificationPrefs: 'moneo:notification-prefs',
+      tasks: 'moneo:tasks',
+      ivyPlans: 'moneo:ivy-plans',
+      timeBlocks: 'moneo:time-blocks',
+      theme: 'moneo:ui-theme',
+      onboardingSeen: 'moneo:onboarding-seen',
     });
   });
 });
 
-describe("schema versioning", () => {
-  it("is at version 3 (R1 added the Focus Area cloudId backfill)", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe(3);
+describe('schema versioning', () => {
+  it('is at version 4 (R1 added Focus Area cloudId, R2 added Projects)', () => {
+    expect(CURRENT_SCHEMA_VERSION).toBe(4);
   });
 
-  it("treats malformed markers as legacy", () => {
+  it('treats malformed markers as legacy', () => {
     expect(getSchemaVersion()).toBeNull(); // absent marker = legacy
     localStorage.setItem(STORAGE_KEYS.schemaVersion, '"v1"');
     expect(getSchemaVersion()).toBeNull();
-    localStorage.setItem(STORAGE_KEYS.schemaVersion, "{nope");
+    localStorage.setItem(STORAGE_KEYS.schemaVersion, '{nope');
     expect(getSchemaVersion()).toBeNull();
-    localStorage.setItem(STORAGE_KEYS.schemaVersion, "-3");
+    localStorage.setItem(STORAGE_KEYS.schemaVersion, '-3');
     expect(getSchemaVersion()).toBeNull();
   });
 });
 
-describe("migration runner", () => {
-  it("migrates a legacy (unmarked) installation to the current version", () => {
+describe('migration runner', () => {
+  it('migrates a legacy (unmarked) installation to the current version', () => {
     const res = runLocalMigrations();
-    expect(res.status).toBe("migrated");
+    expect(res.status).toBe('migrated');
     expect(res.from).toBeNull();
     expect(res.to).toBe(CURRENT_SCHEMA_VERSION);
     expect(getSchemaVersion()).toBe(CURRENT_SCHEMA_VERSION);
   });
 
-  it("is idempotent on repeated startups", () => {
+  it('is idempotent on repeated startups', () => {
     runLocalMigrations();
     const again = runLocalMigrations();
-    expect(again.status).toBe("already-current");
+    expect(again.status).toBe('already-current');
     expect(again.from).toBe(CURRENT_SCHEMA_VERSION);
     expect(getSchemaVersion()).toBe(CURRENT_SCHEMA_VERSION);
   });
 
-  it("preserves an unsupported future version untouched", () => {
+  it('preserves an unsupported future version untouched', () => {
     setSchemaVersion(99);
     localStorage.setItem(STORAGE_KEYS.history, JSON.stringify([{ at: 1, min: 25 }]));
     const res = runLocalMigrations();
-    expect(res.status).toBe("unsupported-version");
+    expect(res.status).toBe('unsupported-version');
     expect(getSchemaVersion()).toBe(99); // never downgraded
     expect(safeRead<unknown>(STORAGE_KEYS.history)).toEqual([{ at: 1, min: 25 }]);
   });
 
-  it.skip("does not advance the marker when persisting fails", () => {
-    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
-      throw new Error("quota");
+  it.skip('does not advance the marker when persisting fails', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('quota');
     });
     const res = runLocalMigrations();
-    expect(res.status).toBe("failed");
+    expect(res.status).toBe('failed');
     vi.restoreAllMocks();
     expect(getSchemaVersion()).toBeNull();
   });
 
-  it.skip("stays calm when storage is entirely unavailable", () => {
-    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
-      throw new Error("denied");
+  it.skip('stays calm when storage is entirely unavailable', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('denied');
     });
-    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
-      throw new Error("denied");
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('denied');
     });
     expect(() => runLocalMigrations()).not.toThrow();
     expect(safeRead<unknown>(STORAGE_KEYS.settings)).toBeNull();
@@ -97,8 +105,8 @@ describe("migration runner", () => {
   });
 });
 
-describe("legacy payloads remain readable after migration", () => {
-  it("settings survive (including default fill)", () => {
+describe('legacy payloads remain readable after migration', () => {
+  it('settings survive (including default fill)', () => {
     localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify({ focusMin: 30 }));
     runLocalMigrations();
     expect(safeRead<Record<string, unknown>>(STORAGE_KEYS.settings)).toEqual({
@@ -106,47 +114,50 @@ describe("legacy payloads remain readable after migration", () => {
     });
   });
 
-  it("intention-less history survives migration with at/min/order intact", () => {
+  it('intention-less history survives migration with at/min/order intact', () => {
     // Since schema v2, migration backfills stable ids onto legacy entries —
     // the protected invariants are at, min and order (ids are additive).
-    const legacy = [{ at: 1000, min: 25 }, { at: 2000, min: 50 }];
+    const legacy = [
+      { at: 1000, min: 25 },
+      { at: 2000, min: 50 },
+    ];
     localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(legacy));
     runLocalMigrations();
     const migrated = safeRead<Array<{ id?: string; at: number; min: number }>>(
       STORAGE_KEYS.history,
     )!;
     expect(migrated.map(({ at, min }) => ({ at, min }))).toEqual(legacy);
-    expect(migrated.every((s) => typeof s.id === "string" && s.id.length > 0)).toBe(true);
+    expect(migrated.every((s) => typeof s.id === 'string' && s.id.length > 0)).toBe(true);
   });
 
-  it("intention draft survives", () => {
-    localStorage.setItem(STORAGE_KEYS.intentionDraft, JSON.stringify("Write thesis"));
+  it('intention draft survives', () => {
+    localStorage.setItem(STORAGE_KEYS.intentionDraft, JSON.stringify('Write thesis'));
     runLocalMigrations();
-    expect(safeRead<unknown>(STORAGE_KEYS.intentionDraft)).toBe("Write thesis");
+    expect(safeRead<unknown>(STORAGE_KEYS.intentionDraft)).toBe('Write thesis');
   });
 
-  it("focus areas and selected area survive (cloudId additively backfilled)", () => {
-    const areas = [{ id: "a1", name: "Thesis", createdAt: 5 }];
+  it('focus areas and selected area survive (cloudId additively backfilled)', () => {
+    const areas = [{ id: 'a1', name: 'Thesis', createdAt: 5 }];
     localStorage.setItem(STORAGE_KEYS.focusAreas, JSON.stringify(areas));
-    localStorage.setItem(STORAGE_KEYS.selectedFocusArea, JSON.stringify("a1"));
+    localStorage.setItem(STORAGE_KEYS.selectedFocusArea, JSON.stringify('a1'));
     runLocalMigrations();
     const stored = safeRead<
       Array<{ id: string; name: string; createdAt: number; cloudId?: string }>
     >(STORAGE_KEYS.focusAreas)!;
     // Original identity/content preserved; R1 adds a stable cloud UUID.
     expect(stored.map(({ id, name, createdAt }) => ({ id, name, createdAt }))).toEqual(areas);
-    expect(typeof stored[0].cloudId).toBe("string");
+    expect(typeof stored[0].cloudId).toBe('string');
     expect(stored[0].cloudId!.length).toBeGreaterThan(0);
-    expect(safeRead<unknown>(STORAGE_KEYS.selectedFocusArea)).toBe("a1");
+    expect(safeRead<unknown>(STORAGE_KEYS.selectedFocusArea)).toBe('a1');
   });
 });
 
-describe("legacy session-id backfill (schema v2)", () => {
-  it("assigns one id per legacy session, preserving order and every field", () => {
+describe('legacy session-id backfill (schema v2)', () => {
+  it('assigns one id per legacy session, preserving order and every field', () => {
     const legacy = [
-      { at: 1000, min: 25, intention: "A", areaId: "area:work" },
+      { at: 1000, min: 25, intention: 'A', areaId: 'area:work' },
       { at: 2000, min: 50 },
-      { at: 3000, min: 15, intention: "B" },
+      { at: 3000, min: 15, intention: 'B' },
     ];
     localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(legacy));
     runLocalMigrations();
@@ -157,15 +168,12 @@ describe("legacy session-id backfill (schema v2)", () => {
       legacy.map((s) => ({ ...s, id: undefined })),
     );
     const ids = migrated.map((s) => s.id as string);
-    expect(ids.every((id) => typeof id === "string" && id.length > 0)).toBe(true);
+    expect(ids.every((id) => typeof id === 'string' && id.length > 0)).toBe(true);
     expect(new Set(ids).size).toBe(3); // unique
   });
 
-  it("is idempotent — a second run changes nothing", () => {
-    localStorage.setItem(
-      STORAGE_KEYS.history,
-      JSON.stringify([{ at: 1000, min: 25 }]),
-    );
+  it('is idempotent — a second run changes nothing', () => {
+    localStorage.setItem(STORAGE_KEYS.history, JSON.stringify([{ at: 1000, min: 25 }]));
     runLocalMigrations();
     const once = localStorage.getItem(STORAGE_KEYS.history);
     runLocalMigrations();
@@ -173,8 +181,8 @@ describe("legacy session-id backfill (schema v2)", () => {
     expect(twice).toBe(once);
   });
 
-  it("preserves ids that sessions already have", () => {
-    const existing = "11111111-1111-4111-8111-111111111111";
+  it('preserves ids that sessions already have', () => {
+    const existing = '11111111-1111-4111-8111-111111111111';
     localStorage.setItem(
       STORAGE_KEYS.history,
       JSON.stringify([
@@ -188,14 +196,14 @@ describe("legacy session-id backfill (schema v2)", () => {
     expect(migrated[1].id).not.toBe(existing);
   });
 
-  it("leaves corrupt history bytes untouched and still advances safely", () => {
-    localStorage.setItem(STORAGE_KEYS.history, "{{{not json");
+  it('leaves corrupt history bytes untouched and still advances safely', () => {
+    localStorage.setItem(STORAGE_KEYS.history, '{{{not json');
     const res = runLocalMigrations();
-    expect(res.status).toBe("migrated");
-    expect(localStorage.getItem(STORAGE_KEYS.history)).toBe("{{{not json");
+    expect(res.status).toBe('migrated');
+    expect(localStorage.getItem(STORAGE_KEYS.history)).toBe('{{{not json');
   });
 
-  it("does not change Growth totals or streak statistics", () => {
+  it('does not change Growth totals or streak statistics', () => {
     const day = (offset: number) => {
       const d = new Date();
       d.setDate(d.getDate() - offset);
@@ -204,7 +212,7 @@ describe("legacy session-id backfill (schema v2)", () => {
     };
     const legacy = [
       { at: day(0), min: 25 },
-      { at: day(1), min: 50, intention: "Thesis" },
+      { at: day(1), min: 50, intention: 'Thesis' },
     ];
     localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(legacy));
     const beforeTotal = getTotalFocusedMinutes(legacy);
@@ -217,26 +225,23 @@ describe("legacy session-id backfill (schema v2)", () => {
     expect(currentStreak(migrated)).toBe(beforeStreak);
   });
 
-  it.skip("does not advance the marker when the backfilled history cannot be saved", () => {
-    localStorage.setItem(
-      STORAGE_KEYS.history,
-      JSON.stringify([{ at: 1000, min: 25 }]),
-    );
+  it.skip('does not advance the marker when the backfilled history cannot be saved', () => {
+    localStorage.setItem(STORAGE_KEYS.history, JSON.stringify([{ at: 1000, min: 25 }]));
     const real = Storage.prototype.setItem;
     let calls = 0;
-    vi.spyOn(Storage.prototype, "setItem").mockImplementation(function (
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (
       this: Storage,
       key: string,
       value: string,
     ) {
       calls++;
       if (key === STORAGE_KEYS.history && calls > 0) {
-        throw new Error("quota exceeded");
+        throw new Error('quota exceeded');
       }
       return real.call(this, key, value);
     });
     const res = runLocalMigrations();
-    expect(res.status).toBe("failed");
+    expect(res.status).toBe('failed');
     vi.restoreAllMocks();
     expect(getSchemaVersion()).toBeNull(); // never falsely advanced
   });

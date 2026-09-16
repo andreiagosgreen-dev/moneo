@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * INERT Supabase foundation (Gate 7).
@@ -15,8 +15,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  */
 
 export type SupabaseConfig =
-  | { configured: true; url: string; anonKey: string }
-  | { configured: false };
+  { configured: true; url: string; anonKey: string } | { configured: false };
 
 function readEnv(): Record<string, string | undefined> {
   try {
@@ -35,9 +34,9 @@ export function getSupabaseConfig(): SupabaseConfig {
     const url = readEnv().VITE_SUPABASE_URL;
     const anonKey = readEnv().VITE_SUPABASE_ANON_KEY;
     if (
-      typeof url === "string" &&
+      typeof url === 'string' &&
       /^https?:\/\/.+/i.test(url.trim()) &&
-      typeof anonKey === "string" &&
+      typeof anonKey === 'string' &&
       anonKey.trim().length > 0
     ) {
       return { configured: true, url: url.trim(), anonKey: anonKey.trim() };
@@ -60,7 +59,7 @@ export function getSupabaseClient(): Promise<SupabaseClient | null> {
     clientPromise = (async () => {
       const cfg = getSupabaseConfig();
       if (!cfg.configured) return null;
-      const { createClient } = await import("@supabase/supabase-js");
+      const { createClient } = await import('@supabase/supabase-js');
       return createClient(cfg.url, cfg.anonKey);
     })().catch(() => null);
   }

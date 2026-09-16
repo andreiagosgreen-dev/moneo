@@ -1,7 +1,7 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
-import { getSupabaseClient } from "../supabase";
-import type { Settings } from "../store";
-import type { RemoteSettingsRow } from "../sync/merge";
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from '../supabase';
+import type { Settings } from '../store';
+import type { RemoteSettingsRow } from '../sync/merge';
 
 /**
  * User settings repository: authenticated CRUD primitives only.
@@ -25,10 +25,7 @@ export interface CloudSettingsRow {
   updated_at?: string;
 }
 
-export function toCloudSettingsRow(
-  userId: string,
-  s: Settings,
-): CloudSettingsRow {
+export function toCloudSettingsRow(userId: string, s: Settings): CloudSettingsRow {
   return {
     user_id: userId,
     focus_min: s.focusMin,
@@ -45,9 +42,7 @@ export function toCloudSettingsRow(
   };
 }
 
-async function withClient<T>(
-  fn: (client: SupabaseClient) => Promise<T>,
-): Promise<T | null> {
+async function withClient<T>(fn: (client: SupabaseClient) => Promise<T>): Promise<T | null> {
   const client = await getSupabaseClient();
   if (!client) return null;
   try {
@@ -57,15 +52,12 @@ async function withClient<T>(
   }
 }
 
-export function upsertSettings(
-  userId: string,
-  settings: Settings,
-): Promise<boolean> {
+export function upsertSettings(userId: string, settings: Settings): Promise<boolean> {
   return withClient(async (client) => {
     const { error } = await client
-      .from("user_settings")
+      .from('user_settings')
       .upsert(toCloudSettingsRow(userId, settings), {
-        onConflict: "user_id",
+        onConflict: 'user_id',
       });
     return !error;
   }).then((r) => r ?? false);
@@ -74,9 +66,9 @@ export function upsertSettings(
 export function getSettings(userId: string): Promise<CloudSettingsRow | null> {
   return withClient(async (client) => {
     const { data, error } = await client
-      .from("user_settings")
-      .select("*")
-      .eq("user_id", userId)
+      .from('user_settings')
+      .select('*')
+      .eq('user_id', userId)
       .maybeSingle();
     return error || !data ? null : ((data as CloudSettingsRow) ?? null);
   });
@@ -84,9 +76,7 @@ export function getSettings(userId: string): Promise<CloudSettingsRow | null> {
 
 /** Transport-neutral pull; null covers both "no row yet" and failure —
  *  the engine distinguishes via the guaranteed session/area pulls. */
-export async function pullSettingsRow(
-  userId: string,
-): Promise<RemoteSettingsRow | null> {
+export async function pullSettingsRow(userId: string): Promise<RemoteSettingsRow | null> {
   const row = await getSettings(userId);
   if (!row) return null;
   return {
@@ -100,6 +90,6 @@ export async function pullSettingsRow(
     soundType: row.sound_type,
     volume: row.volume,
     notifications: row.notifications,
-    updatedAt: Date.parse(row.updated_at ?? "1970-01-01T00:00:00Z"),
+    updatedAt: Date.parse(row.updated_at ?? '1970-01-01T00:00:00Z'),
   };
 }

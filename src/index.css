@@ -1,9 +1,9 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-display: "Bricolage Grotesque", "Instrument Sans", sans-serif;
-  --font-body: "Instrument Sans", sans-serif;
-  --font-mono: "Spline Sans Mono", ui-monospace, monospace;
+  --font-display: 'Bricolage Grotesque', 'Instrument Sans', sans-serif;
+  --font-body: 'Instrument Sans', sans-serif;
+  --font-mono: 'Spline Sans Mono', ui-monospace, monospace;
 
   --color-ink: #0d1310;
   --color-pine: #111913;
@@ -27,23 +27,131 @@
 }
 
 :root,
-[data-mode="focus"] {
+[data-mode='focus'] {
   --accent: #ff6242;
   --accent-deep: #d94322;
   --accent-rgb: 255, 98, 66;
   --on-accent: #1a0d08;
 }
-[data-mode="short"] {
+[data-mode='short'] {
   --accent: #3ddc97;
   --accent-deep: #1fb877;
   --accent-rgb: 61, 220, 151;
   --on-accent: #06170f;
 }
-[data-mode="long"] {
+[data-mode='long'] {
   --accent: #6faeff;
   --accent-deep: #3e86e8;
   --accent-rgb: 111, 174, 255;
   --on-accent: #081220;
+}
+
+/* ---------- custom accent (Premium Polish) ----------
+ * Must come AFTER the mode rules so a chosen accent wins over them.
+ * `auto` keeps the per-mode colors. */
+[data-accent='tomato'] {
+  --accent: #ff6242;
+  --accent-deep: #d94322;
+  --accent-rgb: 255, 98, 66;
+  --on-accent: #1a0d08;
+}
+[data-accent='mint'] {
+  --accent: #3ddc97;
+  --accent-deep: #1fb877;
+  --accent-rgb: 61, 220, 151;
+  --on-accent: #06170f;
+}
+[data-accent='sky'] {
+  --accent: #6faeff;
+  --accent-deep: #3e86e8;
+  --accent-rgb: 111, 174, 255;
+  --on-accent: #081220;
+}
+[data-accent='violet'] {
+  --accent: #a78bfa;
+  --accent-deep: #7c5ce8;
+  --accent-rgb: 167, 139, 250;
+  --on-accent: #110a24;
+}
+[data-accent='amber'] {
+  --accent: #f5b942;
+  --accent-deep: #d19422;
+  --accent-rgb: 245, 185, 66;
+  --on-accent: #1d1404;
+}
+[data-accent='rose'] {
+  --accent: #ff7ab6;
+  --accent-deep: #e04f92;
+  --accent-rgb: 255, 122, 182;
+  --on-accent: #200a14;
+}
+
+/* ---------- light theme (Premium Polish) ---------- */
+[data-theme='light'] {
+  color-scheme: light;
+  --color-ink: #eff2ea;
+  --color-pine: #e4e9dc;
+  --color-card: #ffffff;
+  --color-card2: #f5f7f0;
+  --color-line: #d3dbcf;
+  --color-cream: #18211a;
+  --color-sage: #4d5b4b;
+  --color-faint: #7c8a79;
+  --color-tomato: #e33a17;
+  --color-tomato-deep: #c02c0e;
+  --color-mint: #10a86a;
+  --color-mint-deep: #0b8a55;
+  --color-sky: #2f7fe0;
+  --color-sky-deep: #1f63bd;
+}
+
+html[data-theme='light'] body {
+  background-color: var(--color-ink);
+  color: var(--color-cream);
+}
+
+[data-theme='light'] .bg-grid {
+  background-image:
+    linear-gradient(rgb(24 33 26 / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(24 33 26 / 0.06) 1px, transparent 1px);
+}
+
+[data-theme='light'] .card {
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.7) inset,
+    0 16px 40px -24px rgb(24 33 26 / 0.22);
+}
+
+[data-theme='light'] .btn-ghost {
+  background: rgb(24 33 26 / 0.03);
+}
+[data-theme='light'] .btn-ghost:hover {
+  background: rgb(var(--accent-rgb) / 0.1);
+}
+
+[data-theme='light'] .kbd {
+  background: rgb(24 33 26 / 0.04);
+}
+
+[data-theme='light'] .settle-track {
+  background: rgb(24 33 26 / 0.14);
+}
+[data-theme='light'] .settle-thumb-off {
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgb(24 33 26 / 0.35);
+}
+
+/* ---------- font options (Premium Polish) ---------- */
+html[data-font='serif'] {
+  --font-display: 'Instrument Serif', 'Playfair Display', Georgia, serif;
+  --font-body: 'Instrument Sans', Georgia, serif;
+}
+
+html[data-font-scale='comfort'] {
+  font-size: 16.5px;
+}
+html[data-font-scale='compact'] {
+  font-size: 14.5px;
 }
 
 html,
@@ -140,7 +248,9 @@ body {
   box-shadow:
     0 1px 0 rgb(255 255 255 / 0.04) inset,
     0 24px 48px -28px rgb(0 0 0 / 0.65);
-  transition: border-color 0.6s ease, background 0.6s ease;
+  transition:
+    border-color 0.6s ease,
+    background 0.6s ease;
 }
 
 .press {
@@ -296,7 +406,7 @@ button:focus-visible {
   }
 }
 .ping-dot::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   border-radius: 9999px;

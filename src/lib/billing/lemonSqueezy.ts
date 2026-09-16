@@ -3,7 +3,7 @@
  * Uses checkout URLs for subscription management.
  */
 
-export type Plan = "free" | "pro-monthly" | "pro-yearly";
+export type Plan = 'free' | 'pro-monthly' | 'pro-yearly';
 
 export interface Pricing {
   id: Plan;
@@ -17,46 +17,46 @@ export interface Pricing {
 
 const PRICING_PLANS: Pricing[] = [
   {
-    id: "free",
-    name: "Free",
-    description: "Perfect for getting started",
-    price: "$0",
-    priceMonthly: "$0",
+    id: 'free',
+    name: 'Free',
+    description: 'Perfect for getting started',
+    price: '$0',
+    priceMonthly: '$0',
     features: [
-      "Unlimited focus sessions",
-      "Local storage only",
-      "Basic statistics",
-      "Single device",
+      'Unlimited focus sessions',
+      'Local storage only',
+      'Basic statistics',
+      'Single device',
     ],
     checkoutUrl: null,
   },
   {
-    id: "pro-monthly",
-    name: "Pro (Monthly)",
-    description: "For serious focus practitioners",
-    price: "$9",
-    priceMonthly: "$9",
+    id: 'pro-monthly',
+    name: 'Pro (Monthly)',
+    description: 'For serious focus practitioners',
+    price: '$9',
+    priceMonthly: '$9',
     features: [
-      "All Free features",
-      "Cloud sync across devices",
-      "Advanced analytics",
-      "Focus areas & intentions",
-      "Session export",
-      "Priority support",
+      'All Free features',
+      'Cloud sync across devices',
+      'Advanced analytics',
+      'Focus areas & intentions',
+      'Session export',
+      'Priority support',
     ],
     checkoutUrl: null,
   },
   {
-    id: "pro-yearly",
-    name: "Pro (Yearly)",
-    description: "Best value - 2 months free",
-    price: "$90",
-    priceMonthly: "$7.50",
+    id: 'pro-yearly',
+    name: 'Pro (Yearly)',
+    description: 'Best value - 2 months free',
+    price: '$90',
+    priceMonthly: '$7.50',
     features: [
-      "All Pro features",
-      "2 months free",
-      "Early access to new features",
-      "Priority support",
+      'All Pro features',
+      '2 months free',
+      'Early access to new features',
+      'Priority support',
     ],
     checkoutUrl: null,
   },
@@ -90,7 +90,7 @@ export function getPricingPlans(): Pricing[] {
   const config = getLemonSqueezyConfig();
 
   return PRICING_PLANS.map((plan) => {
-    if (plan.id === "free" || !config.checkoutUrl || !config.storeId) {
+    if (plan.id === 'free' || !config.checkoutUrl || !config.storeId) {
       return plan;
     }
 
@@ -113,9 +113,9 @@ export function initiateCheckout(planId: Plan, userId: string): string | null {
   }
 
   // Replace USER_ID placeholder with actual user ID
-  return plan.checkoutUrl.replace("USER_ID", userId);
+  return plan.checkoutUrl.replace('USER_ID', userId);
 }
 
 export function getProPlanCheckoutUrl(userId: string): string | null {
-  return initiateCheckout("pro-monthly", userId);
+  return initiateCheckout('pro-monthly', userId);
 }

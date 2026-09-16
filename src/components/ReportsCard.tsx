@@ -1,0 +1,347 @@
+import { useMemo, useState } from 'react';
+import { type Session } from '../lib/store';
+import type { FocusArea } from '../lib/focusAreas';
+import type { Project } from '../lib/projects';
+import type { Task } from '../lib/tasks';
+import { fmtMinutes } from '../lib/store';
+import { buildReport, type RangeKey, type ReportData, type DayBucket } from '../lib/reports';
+import { exportSessionsToCSV } from '../lib/export';
+import { isTodayInTz } from '../lib/timezone';
+
+interface Props {
+  history: Session[];
+  areas: FocusArea[];
+  projects: Project[];
+  tasks: Task[];
+  timezone: string;
+}
+
+type Breakdown = 'daily' | 'projects' | 'areas';
+
+function Tab({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`press rounded-lg px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors ${
+        active ? 'bg-cream/10 text-cream' : 'text-faint hover:text-sage'
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function DayChart({ data, timezone }: { data: DayBucket[]; timezone: string }) {
+  const max = Math.max(1, ...data.map((d) => d.min));
+  return (
+    <div className="mt-4 flex items-end gap-1" style={{ height: 140 }}>
+      {data.map((d, i) => {
+        const pct = d.min === 0 ? 0 : Math.max(4, (d.min / max) * 100);
+        const [y, m, dd] = d.key.split('-').map(Number);
+        const date = new Date(y, m - 1, dd);
+        const isToday = isTodayInTz(date.getTime(), timezone);
+        const weekday = date.toLocaleDateString([], { weekday: 'narrow' });
+        return (
+          <div
+            key={d.key}
+            className="group flex flex-1 flex-col items-center gap-1"
+            title={`${date.toLocaleDateString([], { month: 'short', day: 'numeric' })}: ${fmtMinutes(d.min)}`}
+          >
+            <span
+              className={`font-mono text-[9px] transition-opacity ${
+                isToday ? 'text-cream' : 'text-faint opacity-0 group-hover:opacity-100'
+              }`}
+            >
+              {d.min > 0 ? fmtMinutes(d.min) : ''}
+            </span>
+            <div className="flex w-full flex-1 items-end">
+              <div
+                className="bar-grow w-full rounded-t-sm transition-colors duration-300"
+                style={{
+                  height: `${pct}%`,
+                  animationDelay: `${i * 30}ms`,
+                  background: isToday
+                    ? 'linear-gradient(180deg, var(--accent), var(--accent-deep))'
+                    : d.min > 0
+                      ? 'rgb(238 241 232 / 0.14)'
+                      : 'rgb(238 241 232 / 0.04)',
+                  boxShadow: isToday ? '0 0 12px rgb(var(--accent-rgb) / 0.4)' : 'none',
+                }}
+              />
+            </div>
+            <span
+              className={`font-mono text-[9px] uppercase ${
+                isToday ? 'font-bold text-cream' : 'text-faint'
+              }`}
+            >
+              {data.length <= 8
+                ? weekday
+                : date.getDate() % 5 === 0 || date.getDate() === 1
+                  ? date.getDate()
+                  : ''}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function HorizontalBar({
+  slices,
+  totalMin,
+  maxMin,
+}: {
+  slices: Array<{ name: string; color: string; min: number }>;
+  totalMin: number;
+  maxMin: number;
+}) {
+  if (slices.length === 0) {
+    return (
+      <p className="mt-4 text-center font-mono text-[12px] text-faint">No data in this range.</p>
+    );
+  }
+  return (
+    <div className="mt-4 space-y-3">
+      {slices.slice(0, 8).map((s, i) => {
+        const pct = totalMin > 0 ? Math.round((s.min / totalMin) * 100) : 0;
+        const barPct = maxMin > 0 ? (s.min / maxMin) * 100 : 0;
+        return (
+          <div key={s.name + i}>
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="truncate text-[13px] text-cream/90">{s.name}</span>
+              <span className="shrink-0 font-mono text-[12px] text-sage">
+                {fmtMinutes(s.min)}
+                <span className="ml-1 text-faint">({pct}%)</span>
+              </span>
+            </div>
+            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink/80 ring-1 ring-line/50">
+              <div
+                className="h-full rounded-full transition-all duration-500 ease-out"
+                style={{
+                  width: `${barPct}%`,
+                  background: s.color,
+                  boxShadow: `0 0 8px ${s.color}44`,
+                }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function DonutChart({
+  slices,
+  totalMin,
+}: {
+  slices: Array<{ name: string; color: string; min: number }>;
+  totalMin: number;
+}) {
+  if (slices.length === 0 || totalMin === 0) return null;
+  const R = 36;
+  const C = 2 * Math.PI * R;
+  let offset = 0;
+  const arcs = slices.slice(0, 6).map((s) => {
+    const pct = s.min / totalMin;
+    const dash = pct * C;
+    const gap = C - dash;
+    const arc = { ...s, dash, gap, offset };
+    offset += dash;
+    return arc;
+  });
+  const otherMin = slices.slice(6).reduce((sum, s) => sum + s.min, 0);
+
+  return (
+    <div className="flex items-center gap-5">
+      <svg width="88" height="88" viewBox="0 0 88 88" className="shrink-0">
+        {arcs.map((a, i) => (
+          <circle
+            key={i}
+            cx="44"
+            cy="44"
+            r={R}
+            fill="none"
+            stroke={a.color}
+            strokeWidth="8"
+            strokeDasharray={`${a.dash} ${a.gap}`}
+            strokeDashoffset={-a.offset}
+            strokeLinecap="round"
+            className="transition-all duration-500"
+          />
+        ))}
+      </svg>
+      <div className="space-y-1.5">
+        {arcs.map((a, i) => (
+          <div key={i} className="flex items-center gap-2 text-[12px]">
+            <span className="inline-block h-2 w-2 rounded-full" style={{ background: a.color }} />
+            <span className="text-cream/80">{a.name}</span>
+            <span className="font-mono text-faint">{Math.round((a.min / totalMin) * 100)}%</span>
+          </div>
+        ))}
+        {otherMin > 0 && (
+          <div className="flex items-center gap-2 text-[12px]">
+            <span className="inline-block h-2 w-2 rounded-full bg-faint" />
+            <span className="text-cream/80">Other</span>
+            <span className="font-mono text-faint">{Math.round((otherMin / totalMin) * 100)}%</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function ReportsCard({ history, areas, projects, tasks, timezone }: Props) {
+  const [range, setRange] = useState<RangeKey>('week');
+  const [breakdown, setBreakdown] = useState<Breakdown>('daily');
+
+  const report: ReportData = useMemo(
+    () => buildReport(history, projects, areas, tasks, range, timezone),
+    [history, projects, areas, tasks, range, timezone],
+  );
+
+  const { summary, days, projects: projSlices, areas: areaSlices } = report;
+
+  const maxProjMin = projSlices.length > 0 ? projSlices[0].min : 0;
+  const maxAreaMin = areaSlices.length > 0 ? areaSlices[0].min : 0;
+
+  const projectBarData = projSlices.map((p) => ({
+    name: p.name,
+    color: p.color,
+    min: p.min,
+  }));
+  const areaBarData = areaSlices.map((a) => ({
+    name: a.name,
+    color: '#94a398',
+    min: a.min,
+  }));
+
+  return (
+    <section className="card px-6 py-6 sm:px-7" aria-label="Reports and analytics">
+      {/* header */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-display text-xl font-bold tracking-tight text-cream">Reports</h2>
+        <div className="flex gap-1 rounded-xl bg-ink/60 p-1 ring-1 ring-line">
+          <Tab active={range === 'week'} onClick={() => setRange('week')}>
+            7 days
+          </Tab>
+          <Tab active={range === 'month'} onClick={() => setRange('month')}>
+            30 days
+          </Tab>
+        </div>
+      </div>
+
+      {/* summary strip */}
+      <div className="mt-5 flex flex-wrap gap-4">
+        <div>
+          <div
+            className="font-display text-3xl font-extrabold leading-none"
+            style={{ color: 'var(--accent)' }}
+          >
+            {fmtMinutes(summary.totalMin)}
+          </div>
+          <div className="mt-1 text-[12px] text-sage">total focused</div>
+        </div>
+        <div className="ml-auto text-right">
+          <div className="font-mono text-[22px] font-bold text-cream">{summary.sessionCount}</div>
+          <div className="mt-1 text-[12px] text-sage">sessions</div>
+        </div>
+        <div className="text-right">
+          <div className="font-mono text-[22px] font-bold text-cream">
+            {fmtMinutes(summary.avgMinPerDay)}
+          </div>
+          <div className="mt-1 text-[12px] text-sage">avg / day</div>
+        </div>
+      </div>
+
+      {/* quick insights */}
+      {(summary.topDay || summary.topProject) && (
+        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t border-line/60 pt-3">
+          {summary.topDay && summary.topDay.min > 0 && (
+            <span className="text-[12px] text-sage">
+              Best day:{' '}
+              <span className="font-semibold text-cream">
+                {(() => {
+                  const [y, m, d] = summary.topDay.key.split('-').map(Number);
+                  return new Date(y, m - 1, d).toLocaleDateString([], {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                  });
+                })()}
+              </span>{' '}
+              ({fmtMinutes(summary.topDay.min)})
+            </span>
+          )}
+          {summary.topProject && (
+            <span className="text-[12px] text-sage">
+              Top project:{' '}
+              <span className="font-semibold text-cream">{summary.topProject.name}</span> (
+              {fmtMinutes(summary.topProject.min)})
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* breakdown tabs */}
+      <div className="mt-5 flex gap-1 rounded-xl bg-ink/60 p-1 ring-1 ring-line w-fit">
+        <Tab active={breakdown === 'daily'} onClick={() => setBreakdown('daily')}>
+          Daily
+        </Tab>
+        <Tab active={breakdown === 'projects'} onClick={() => setBreakdown('projects')}>
+          Projects
+        </Tab>
+        <Tab active={breakdown === 'areas'} onClick={() => setBreakdown('areas')}>
+          Areas
+        </Tab>
+      </div>
+
+      {/* charts */}
+      {breakdown === 'daily' && (
+        <div className="mt-2">
+          <DayChart data={days} timezone={timezone} />
+        </div>
+      )}
+
+      {breakdown === 'projects' && (
+        <div className="mt-2 flex flex-wrap gap-6">
+          <div className="min-w-0 flex-1">
+            <HorizontalBar
+              slices={projectBarData}
+              totalMin={summary.totalMin}
+              maxMin={maxProjMin}
+            />
+          </div>
+          <div className="flex items-center justify-center">
+            <DonutChart slices={projectBarData} totalMin={summary.totalMin} />
+          </div>
+        </div>
+      )}
+
+      {breakdown === 'areas' && (
+        <div className="mt-2">
+          <HorizontalBar slices={areaBarData} totalMin={summary.totalMin} maxMin={maxAreaMin} />
+        </div>
+      )}
+
+      {/* export */}
+      <div className="mt-6 border-t border-line/60 pt-4">
+        <button
+          onClick={() => exportSessionsToCSV(history, projects, areas, tasks)}
+          className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold"
+        >
+          Export CSV
+        </button>
+      </div>
+    </section>
+  );
+}

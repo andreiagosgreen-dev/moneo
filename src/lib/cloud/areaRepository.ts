@@ -1,7 +1,7 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
-import { getSupabaseClient } from "../supabase";
-import { sanitizeAreaName, type FocusArea } from "../focusAreas";
-import type { RemoteAreaRow } from "../sync/merge";
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from '../supabase';
+import { sanitizeAreaName, type FocusArea } from '../focusAreas';
+import type { RemoteAreaRow } from '../sync/merge';
 
 /**
  * Focus area repository: authenticated CRUD primitives only.
@@ -18,9 +18,7 @@ export interface CloudAreaRow {
   deleted_at: string | null;
 }
 
-async function withClient<T>(
-  fn: (client: SupabaseClient) => Promise<T>,
-): Promise<T | null> {
+async function withClient<T>(fn: (client: SupabaseClient) => Promise<T>): Promise<T | null> {
   const client = await getSupabaseClient();
   if (!client) return null;
   try {
@@ -30,17 +28,13 @@ async function withClient<T>(
   }
 }
 
-export function insertArea(
-  userId: string,
-  name: string,
-  id?: string,
-): Promise<boolean> {
+export function insertArea(userId: string, name: string, id?: string): Promise<boolean> {
   const clean = sanitizeAreaName(name);
   if (!clean) return Promise.resolve(false);
   return withClient(async (client) => {
     const row: Record<string, unknown> = { user_id: userId, name: clean };
     if (id) row.id = id;
-    const { error } = await client.from("focus_areas").insert(row);
+    const { error } = await client.from('focus_areas').insert(row);
     return !error;
   }).then((r) => r ?? false);
 }
@@ -48,11 +42,11 @@ export function insertArea(
 export function listAreas(userId: string): Promise<CloudAreaRow[] | null> {
   return withClient(async (client) => {
     const { data, error } = await client
-      .from("focus_areas")
-      .select("*")
-      .eq("user_id", userId)
-      .is("deleted_at", null)
-      .order("created_at", { ascending: true });
+      .from('focus_areas')
+      .select('*')
+      .eq('user_id', userId)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: true });
     return error ? null : ((data as CloudAreaRow[]) ?? null);
   });
 }
@@ -61,10 +55,10 @@ export function softDeleteArea(userId: string, areaId: string): Promise<boolean>
   return withClient(async (client) => {
     const now = new Date().toISOString();
     const { error } = await client
-      .from("focus_areas")
+      .from('focus_areas')
       .update({ deleted_at: now, updated_at: now })
-      .eq("user_id", userId)
-      .eq("id", areaId);
+      .eq('user_id', userId)
+      .eq('id', areaId);
     return !error;
   }).then((r) => r ?? false);
 }
@@ -75,10 +69,10 @@ export function softDeleteArea(userId: string, areaId: string): Promise<boolean>
 export function pullAreasAll(userId: string): Promise<RemoteAreaRow[] | null> {
   return withClient(async (client) => {
     const { data, error } = await client
-      .from("focus_areas")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: true });
+      .from('focus_areas')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true });
     if (error || !data) return null;
     return (data as CloudAreaRow[]).map((r) => ({
       id: r.id,
@@ -107,14 +101,9 @@ export function pushAreaBatch(
         name: a.name,
         created_at: new Date(a.createdAt).toISOString(),
         updated_at: new Date(a.updatedAt ?? a.createdAt).toISOString(),
-        deleted_at:
-          typeof a.deletedAt === "number"
-            ? new Date(a.deletedAt).toISOString()
-            : null,
+        deleted_at: typeof a.deletedAt === 'number' ? new Date(a.deletedAt).toISOString() : null,
       }));
-      const { error } = await client
-        .from("focus_areas")
-        .upsert(rows, { onConflict: "user_id,id" });
+      const { error } = await client.from('focus_areas').upsert(rows, { onConflict: 'user_id,id' });
       if (error) return false;
     }
     return true;

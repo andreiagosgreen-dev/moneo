@@ -1,4 +1,4 @@
-import type { Session } from "./store";
+import type { Session } from './store';
 
 /**
  * Stable session identity (Gate 8).
@@ -11,7 +11,7 @@ import type { Session } from "./store";
 /** crypto.randomUUID with a spec-shaped local fallback. */
 export function newSessionId(): string {
   try {
-    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
       return crypto.randomUUID();
     }
   } catch {
@@ -23,6 +23,8 @@ export function newSessionId(): string {
 export interface SessionMeta {
   intention?: string | null;
   areaId?: string | null;
+  projectId?: string | null;
+  taskId?: string | null;
 }
 
 /**
@@ -37,6 +39,8 @@ export function assembleSession(
   const entry: Session = { id: newSessionId(), at: base.at, min: base.min };
   if (meta.intention) entry.intention = meta.intention;
   if (meta.areaId) entry.areaId = meta.areaId;
+  if (meta.projectId) entry.projectId = meta.projectId;
+  if (meta.taskId) entry.taskId = meta.taskId;
   return entry;
 }
 
@@ -66,9 +70,6 @@ export function sessionFromRemoteRow(r: {
  * Same history length; exactly one matching id; unrelated entries unchanged.
  * Pure: always returns a new array, never mutates the input.
  */
-export function replaceSessionById(
-  history: Session[],
-  canonical: Session,
-): Session[] {
+export function replaceSessionById(history: Session[], canonical: Session): Session[] {
   return history.map((s) => (s.id === canonical.id ? canonical : s));
 }
