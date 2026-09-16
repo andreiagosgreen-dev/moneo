@@ -22,6 +22,7 @@ describe('saveNotificationPrefs', () => {
       dailySummary: true,
       focusReminder: true,
       reminderTime: '08:30',
+      deadlineReminders: true,
     };
     const ok = saveNotificationPrefs(prefs);
     expect(ok).toBe(true);
@@ -35,6 +36,7 @@ describe('saveNotificationPrefs', () => {
       dailySummary: false,
       focusReminder: false,
       reminderTime: 'bad',
+      deadlineReminders: true,
     });
     const loaded = loadNotificationPrefs();
     expect(loaded.reminderTime).toBe(DEFAULT_NOTIFICATION_PREFS.reminderTime);
@@ -113,9 +115,25 @@ describe('markReminderShown', () => {
       dailySummary: true,
       focusReminder: true,
       reminderTime: '08:15',
+      deadlineReminders: false,
     };
     const marked = markReminderShown(prefs, now);
     expect(marked.dailySummary).toBe(true);
     expect(marked.reminderTime).toBe('08:15');
+    expect(marked.deadlineReminders).toBe(false);
+  });
+});
+
+describe('deadlineReminders pref', () => {
+  it('defaults to on', () => {
+    expect(loadNotificationPrefs().deadlineReminders).toBe(true);
+    expect(DEFAULT_NOTIFICATION_PREFS.deadlineReminders).toBe(true);
+  });
+
+  it('persists the toggle', () => {
+    saveNotificationPrefs({ ...DEFAULT_NOTIFICATION_PREFS, deadlineReminders: false });
+    expect(loadNotificationPrefs().deadlineReminders).toBe(false);
+    saveNotificationPrefs({ ...DEFAULT_NOTIFICATION_PREFS, deadlineReminders: true });
+    expect(loadNotificationPrefs().deadlineReminders).toBe(true);
   });
 });

@@ -15,12 +15,15 @@ export interface NotificationPrefs {
   reminderTime: string; // "HH:MM"
   /** Last day (local "YYYY-M-D") a focus reminder was shown — dedupe once/day. */
   lastReminderDay?: string;
+  /** Deadline warnings for projects due within 48h (Roadmap 2.4). */
+  deadlineReminders: boolean;
 }
 
 export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
   dailySummary: false,
   focusReminder: false,
   reminderTime: '09:00',
+  deadlineReminders: true,
 };
 
 const PREFS_KEY = STORAGE_KEYS.notificationPrefs;
@@ -47,6 +50,10 @@ export function loadNotificationPrefs(): NotificationPrefs {
     ...(typeof stored.lastReminderDay === 'string'
       ? { lastReminderDay: stored.lastReminderDay }
       : {}),
+    deadlineReminders:
+      typeof stored.deadlineReminders === 'boolean'
+        ? stored.deadlineReminders
+        : DEFAULT_NOTIFICATION_PREFS.deadlineReminders,
   };
 }
 

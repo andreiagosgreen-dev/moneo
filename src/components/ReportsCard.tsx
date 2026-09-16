@@ -5,7 +5,14 @@ import type { Project } from '../lib/projects';
 import type { Task } from '../lib/tasks';
 import { fmtMinutes } from '../lib/store';
 import { buildReport, type RangeKey, type ReportData, type DayBucket } from '../lib/reports';
-import { exportSessionsToCSV } from '../lib/export';
+import { billableAmount } from '../lib/projects';
+import {
+  exportSessionsToCSV,
+  buildPrintableReportHTML,
+  printReportHTML,
+  type PrintableProjectRow,
+  type PrintableDayRow,
+} from '../lib/export';
 import { isTodayInTz } from '../lib/timezone';
 
 interface Props {
@@ -334,12 +341,60 @@ export default function ReportsCard({ history, areas, projects, tasks, timezone 
       )}
 
       {/* export */}
-      <div className="mt-6 border-t border-line/60 pt-4">
+      <div className="mt-6 flex flex-wrap gap-2 border-t border-line/60 pt-4">
         <button
           onClick={() => exportSessionsToCSV(history, projects, areas, tasks)}
           className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold"
         >
           Export CSV
+        </button>
+        <button
+          onClick={() => {
+            const byId = new Map(projects.map((p) => [p.id, p]));
+            const rows: PrintableProjectRow[] = projSlices.map((s) => {
+              const p = byId.get(s.projectId);
+              return {
+                name: s.name,
+                color: s.color,
+                min: s.min,
+                amount: p ? billableAmount(p, s.min) : 0,
+              };
+            });
+            const dayRows: PrintableDayRow[] = days
+              .filter((d) => d.min > 0)
+              .map((d) => {
+                const [y, m, dd] = d.key.split('-').map(Number);
+                return {
+                  label: new Date(y, m - 1, dd).toLocaleDateString([], {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                  }),
+                  min: d.min,
+                };
+              });
+            printReportHTML(
+              buildPrintableReportHTML({
+                title: 'Moneo Focus Report',
+                rangeLabel: range === 'week' ? 'Last 7 days' : 'Last 30 days',
+                generatedAt: new Date().toLocaleDateString([], {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                }),
+                totalMin: summary.totalMin,
+                sessionCount: summary.sessionCount,
+                avgMinPerDay: summary.avgMinPerDay,
+                totalBillable: rows.reduce((sum, r) => sum + r.amount, 0),
+                projects: rows,
+                days: dayRows,
+              }),
+            );
+          }}
+          className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold"
+          title="Open a printable report (Print → Save as PDF)"
+        >
+          Export PDF
         </button>
       </div>
     </section>

@@ -35,6 +35,20 @@ describe('centralized storage keys', () => {
       timeBlocks: 'moneo:time-blocks',
       theme: 'moneo:ui-theme',
       onboardingSeen: 'moneo:onboarding-seen',
+      skills: 'moneo:skills',
+      deadlineReminders: 'moneo:deadline-reminders',
+      frogLog: 'moneo:frog-log',
+      goals: 'moneo:goals',
+      chatHistory: 'moneo:chat-history',
+      habits: 'moneo:habits',
+      habitLog: 'moneo:habit-log',
+      lifeAreas: 'moneo:life-areas',
+      journal: 'moneo:journal',
+      energyLog: 'moneo:energy-log',
+      sprints: 'moneo:sprints',
+      objectives: 'moneo:objectives',
+      boardConfig: 'moneo:board-config',
+      waterfall: 'moneo:waterfall',
     });
   });
 });

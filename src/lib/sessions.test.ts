@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   assembleSession,
+  createManualSession,
   newSessionId,
   replaceSessionById,
   sessionFromRemoteRow,
@@ -101,5 +102,43 @@ describe('replaceSessionById', () => {
     const before = history.map((s) => ({ ...s }));
     replaceSessionById(history, { id: 'b', at: 9, min: 9 });
     expect(history).toEqual(before);
+  });
+});
+
+describe('createManualSession', () => {
+  it('builds a session from valid manual input', () => {
+    const at = Date.now() - 3600_000;
+    const s = createManualSession({
+      minutes: 45,
+      at,
+      projectId: 'p1',
+      intention: '  Client work  ',
+    });
+    expect(s).not.toBeNull();
+    expect(s!.min).toBe(45);
+    expect(s!.at).toBe(at);
+    expect(s!.projectId).toBe('p1');
+    expect(s!.intention).toBe('Client work');
+    expect(typeof s!.id).toBe('string');
+  });
+
+  it('floors fractional minutes and rejects out-of-range values', () => {
+    const at = Date.now() - 1000;
+    expect(createManualSession({ minutes: 25.9, at })!.min).toBe(25);
+    expect(createManualSession({ minutes: 0, at })).toBeNull();
+    expect(createManualSession({ minutes: -5, at })).toBeNull();
+    expect(createManualSession({ minutes: 481, at })).toBeNull();
+    expect(createManualSession({ minutes: Number.NaN, at })).toBeNull();
+  });
+
+  it('rejects future or invalid dates', () => {
+    expect(createManualSession({ minutes: 25, at: Date.now() + 3600_000 })).toBeNull();
+    expect(createManualSession({ minutes: 25, at: Number.NaN })).toBeNull();
+  });
+
+  it('omits empty optional metadata', () => {
+    const s = createManualSession({ minutes: 10, at: 1000, projectId: '', intention: '   ' });
+    expect(s!.projectId).toBeUndefined();
+    expect(s!.intention).toBeUndefined();
   });
 });

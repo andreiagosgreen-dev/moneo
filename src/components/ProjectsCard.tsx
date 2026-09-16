@@ -14,23 +14,45 @@ import {
   getProjectStats,
   getMinutesForProject,
   formatProjectDuration,
+  billableAmount,
+  formatBillable,
   parseTags,
   saveProjects,
 } from '../lib/projects';
-import type { Task, TaskStatus, TaskPriority } from '../lib/tasks';
+import type { Task, TaskStatus, TaskPriority, TaskRecurrence } from '../lib/tasks';
 import {
   createTaskObject,
-  tasksForProject,
+  createSubtaskObject,
+  canNest,
+  rootTasks,
+  subtasksOf,
+  completeTask,
   updateTaskStatus,
+  setBlockedBy,
+  blockingTasks,
+  canComplete,
+  setRecurrence,
+  setDueAt,
+  setNotes,
+  setTaskPoints,
   removeTask,
   setTaskPriority,
   projectCompletion,
   PRIORITY_LABELS,
+  STATUS_LABELS,
+  TASK_RECURRENCES,
+  TASK_POINTS,
   saveTasks,
 } from '../lib/tasks';
 import type { Session } from '../lib/store';
 import type { FocusArea } from '../lib/focusAreas';
 import { exportSessionsToCSV } from '../lib/export';
+import {
+  PROJECT_TEMPLATES,
+  availableTemplates,
+  getTemplateById,
+  instantiateTemplate,
+} from '../lib/projectTemplates';
 
 interface Props {
   projects: Project[];
@@ -171,6 +193,7 @@ export default function ProjectsCard({
   isPro = false,
 }: Props) {
   const [showCreate, setShowCreate] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [newProjectCategory, setNewProjectCategory] = useState<ProjectCategory>('work');
   const [limitNotice, setLimitNotice] = useState(false);
@@ -207,6 +230,13 @@ export default function ProjectsCard({
       return;
     }
     setShowCreate(!showCreate);
+    setShowTemplates(false);
+    setLimitNotice(false);
+  };
+
+  const handleToggleTemplates = () => {
+    setShowTemplates(!showTemplates);
+    setShowCreate(false);
     setLimitNotice(false);
   };
 
@@ -222,6 +252,21 @@ export default function ProjectsCard({
     setExpandedId(newProject.id);
     setNewProjectName('');
     setShowCreate(false);
+  };
+
+  const handleInstantiate = (templateId: string) => {
+    const template = getTemplateById(templateId);
+    if (!template || (template.pro && !isPro)) return;
+    if (!canCreate) {
+      setLimitNotice(true);
+      return;
+    }
+    const { project, tasks: starter } = instantiateTemplate(template);
+    commitProjects([...projects, project]);
+    commitTasks([...tasks, ...starter]);
+    onSelectProject(project.id);
+    setExpandedId(project.id);
+    setShowTemplates(false);
   };
 
   const handleDelete = (id: string) => {
@@ -287,6 +332,12 @@ export default function ProjectsCard({
             </button>
           )}
           <button
+            onClick={handleToggleTemplates}
+            className="press text-[12px] font-semibold text-sage hover:text-cream"
+          >
+            {showTemplates ? 'Cancel' : '◇ Template'}
+          </button>
+          <button
             onClick={handleToggleCreate}
             className="press text-[12px] font-semibold text-accent hover:opacity-80"
           >
@@ -350,6 +401,75 @@ export default function ProjectsCard({
               Add
             </button>
           </div>
+        </div>
+      )}
+
+      {showTemplates && (
+        <div className="mt-4 space-y-2 rounded-xl border border-line bg-ink/60 p-4">
+          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+            Start from a blueprint · {availableTemplates(isPro).length}/{PROJECT_TEMPLATES.length}{' '}
+            available
+          </p>
+          {PROJECT_TEMPLATES.map((t) => {
+            const locked = t.pro && !isPro;
+            return (
+              <div
+                key={t.id}
+                className={`rounded-lg px-3 py-2.5 ring-1 ring-inset ${
+                  locked ? 'bg-ink/20 ring-line/50' : 'bg-ink/40 ring-line'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: t.color }}
+                    aria-hidden
+                  />
+                  <div className="min-w-0 flex-1">
+                    <span className="text-[13px] font-semibold text-cream">{t.name}</span>
+                    <span className="ml-2 font-mono text-[10px] text-faint">
+                      {t.tasks.length} tasks · {t.stack.slice(0, 3).join(' · ')}
+                    </span>
+                  </div>
+                  {locked ? (
+                    <span
+                      className="shrink-0 rounded-md px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-accent ring-1 ring-inset ring-accent/40"
+                      title="Pro template — upgrade to use this blueprint"
+                    >
+                      Pro
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => handleInstantiate(t.id)}
+                      className="press shrink-0 rounded-md px-2.5 py-1 font-mono text-[11px] text-cream ring-1 ring-inset ring-line hover:ring-accent"
+                    >
+                      Use
+                    </button>
+                  )}
+                </div>
+                <p className="mt-1 truncate text-[11px] text-faint" title={t.description}>
+                  {t.description}
+                </p>
+                <details className="mt-1">
+                  <summary className="cursor-pointer font-mono text-[10px] text-sage hover:text-cream">
+                    Practices & pitfalls
+                  </summary>
+                  <ul className="mt-1 space-y-0.5">
+                    {t.bestPractices.map((b) => (
+                      <li key={b} className="text-[11px] text-sage">
+                        ✓ {b}
+                      </li>
+                    ))}
+                    {t.pitfalls.map((p) => (
+                      <li key={p} className="text-[11px] text-faint">
+                        ✕ {p}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -477,7 +597,7 @@ function ProjectRow({
   const minutes = getMinutesForProject(project.id, history);
   const timeFormatted = formatProjectDuration(minutes);
   const completion = projectCompletion(tasks, project.id);
-  const projectTasks = tasksForProject(tasks, project.id);
+  const projectTasks = rootTasks(tasks, project.id);
 
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState(project.name);
@@ -486,6 +606,10 @@ function ProjectRow({
   const [editTags, setEditTags] = useState(project.tags.join(', '));
   const [editDeadline, setEditDeadline] = useState(
     project.deadline ? new Date(project.deadline).toISOString().slice(0, 10) : '',
+  );
+  const [editBillable, setEditBillable] = useState(project.billable === true);
+  const [editRate, setEditRate] = useState(
+    typeof project.hourlyRate === 'number' ? String(project.hourlyRate) : '',
   );
 
   const [newTaskTitle, setNewTaskTitle] = useState('');
@@ -498,6 +622,7 @@ function ProjectRow({
       return;
     }
     const deadline = editDeadline ? new Date(editDeadline + 'T12:00:00').getTime() : null;
+    const rate = editBillable && editRate.trim() ? Number(editRate) : null;
     onProjectsChange(
       updateProject([project], project.id, {
         name: editName,
@@ -505,6 +630,8 @@ function ProjectRow({
         color: editColor,
         tags: parseTags(editTags),
         deadline,
+        billable: editBillable,
+        hourlyRate: rate !== null && Number.isFinite(rate) && rate > 0 ? rate : null,
       }),
     );
     setEditing(false);
@@ -515,17 +642,6 @@ function ProjectRow({
     const task = createTaskObject(project.id, newTaskTitle, newTaskPriority);
     onTasksChange([...tasks, task]);
     setNewTaskTitle('');
-  };
-
-  const toggleTask = (taskId: string) => {
-    const task = tasks.find((t) => t.id === taskId);
-    if (!task) return;
-    const nextStatus: TaskStatus = task.status === 'completed' ? 'pending' : 'completed';
-    onTasksChange(updateTaskStatus(tasks, taskId, nextStatus));
-  };
-
-  const changeTaskPriority = (taskId: string, priority: TaskPriority) => {
-    onTasksChange(setTaskPriority(tasks, taskId, priority));
   };
 
   return (
@@ -615,6 +731,13 @@ function ProjectRow({
             <Stat label="Time" value={timeFormatted} accent />
             <Stat label="Sessions" value={String(projectStats(history, project.id).sessions)} />
             <Stat label="Tasks done" value={`${completion.done}/${completion.total || '—'}`} />
+            {project.billable === true && (
+              <Stat
+                label="Billable"
+                value={formatBillable(billableAmount(project, minutes))}
+                accent
+              />
+            )}
           </div>
 
           {/* edit controls */}
@@ -668,6 +791,34 @@ function ProjectRow({
                   placeholder="Tags: client, urgent (comma separated)"
                   className="w-full rounded-lg bg-ink/40 px-3 py-2 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
                 />
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setEditBillable(!editBillable)}
+                    className={`press flex h-6 w-11 shrink-0 rounded-full transition-colors ${
+                      editBillable ? 'bg-accent' : 'bg-line/50'
+                    }`}
+                    aria-pressed={editBillable}
+                    title="Billable client work"
+                  >
+                    <div
+                      className={`h-5 w-5 rounded-full bg-cream transition-transform ${
+                        editBillable ? 'translate-x-5' : 'translate-x-0.5'
+                      }`}
+                    />
+                  </button>
+                  <span className="text-[12px] text-sage">Billable</span>
+                  {editBillable && (
+                    <input
+                      type="number"
+                      min={1}
+                      value={editRate}
+                      onChange={(e) => setEditRate(e.target.value)}
+                      placeholder="$/hour"
+                      className="h-9 w-28 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
+                      title="Hourly rate (USD)"
+                    />
+                  )}
+                </div>
                 <div className="flex justify-end gap-2">
                   <button
                     onClick={() => setEditing(false)}
@@ -694,6 +845,10 @@ function ProjectRow({
                     setEditTags(project.tags.join(', '));
                     setEditDeadline(
                       project.deadline ? new Date(project.deadline).toISOString().slice(0, 10) : '',
+                    );
+                    setEditBillable(project.billable === true);
+                    setEditRate(
+                      typeof project.hourlyRate === 'number' ? String(project.hourlyRate) : '',
                     );
                   }}
                   className="press rounded-lg bg-ink/60 px-2.5 py-1.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream"
@@ -766,71 +921,380 @@ function ProjectRow({
                 </p>
               ) : (
                 projectTasks.map((task) => (
-                  <div
+                  <TaskRow
                     key={task.id}
-                    className={`flex items-center gap-2 rounded-lg px-2.5 py-2 ${
-                      task.status === 'completed' ? 'opacity-55' : ''
-                    }`}
-                  >
-                    <button
-                      onClick={() => toggleTask(task.id)}
-                      className={`press flex h-5 w-5 shrink-0 items-center justify-center rounded-md ring-1 ring-inset ${
-                        task.status === 'completed'
-                          ? 'bg-accent text-on-accent ring-accent'
-                          : 'bg-ink/60 text-transparent ring-line hover:text-sage'
-                      }`}
-                      aria-label={task.status === 'completed' ? 'Mark incomplete' : 'Mark complete'}
-                    >
-                      <svg
-                        width="11"
-                        height="11"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M4 12.5l5 5L20 6.5" />
-                      </svg>
-                    </button>
-                    <span
-                      className={`truncate text-[13px] text-cream/90 ${
-                        task.status === 'completed' ? 'line-through' : ''
-                      }`}
-                    >
-                      {task.title}
-                    </span>
-                    <div className="ml-auto flex shrink-0 items-center gap-1">
-                      <select
-                        value={task.priority}
-                        onChange={(e) =>
-                          changeTaskPriority(task.id, e.target.value as TaskPriority)
-                        }
-                        className="rounded bg-ink/50 px-1.5 py-1 font-mono text-[10px] text-faint ring-1 ring-inset ring-line"
-                        title="Priority"
-                      >
-                        {(['p0', 'p1', 'p2', 'p3'] as const).map((p) => (
-                          <option key={p} value={p}>
-                            {PRIORITY_LABELS[p]}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        onClick={() => onTasksChange(removeTask(tasks, task.id))}
-                        className="press rounded p-1 text-faint hover:text-tomato"
-                        aria-label={`Delete task ${task.title}`}
-                      >
-                        <TrashIcon />
-                      </button>
-                    </div>
-                  </div>
+                    task={task}
+                    tasks={tasks}
+                    projectId={project.id}
+                    depth={0}
+                    ancestorIds={[]}
+                    onTasksChange={onTasksChange}
+                  />
                 ))
               )}
             </div>
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function startOfToday(): number {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
+
+function formatDue(dueAt: number): string {
+  return new Date(dueAt).toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
+
+const RECURRENCE_LABELS: Record<TaskRecurrence, string> = {
+  none: 'Once',
+  daily: 'Daily',
+  weekly: 'Weekly',
+};
+
+interface TaskRowProps {
+  task: Task;
+  tasks: Task[];
+  projectId: string;
+  depth: number;
+  ancestorIds: string[];
+  onTasksChange: (next: Task[]) => void;
+}
+
+/** Recursive task row: nesting, blockers, recurrence, due dates, notes. */
+function TaskRow({ task, tasks, projectId, depth, ancestorIds, onTasksChange }: TaskRowProps) {
+  const [showDetails, setShowDetails] = useState(false);
+  const [subDraft, setSubDraft] = useState('');
+  const [blockerPick, setBlockerPick] = useState('');
+
+  const done = task.status === 'completed';
+  const gate = canComplete(task, tasks);
+  const blockers = blockingTasks(task, tasks);
+  // Ancestor guard: legacy cycles can never infinite-loop the render.
+  const children = subtasksOf(tasks, task.id).filter((c) => !ancestorIds.includes(c.id));
+  const nestable = canNest(tasks, task.id, projectId);
+  const candidates = tasks.filter(
+    (t) => t.projectId === projectId && t.id !== task.id && !(task.blockedBy ?? []).includes(t.id),
+  );
+  const overdue = task.dueAt !== undefined && !done && task.dueAt < startOfToday();
+
+  const toggle = () => {
+    if (done) {
+      onTasksChange(updateTaskStatus(tasks, task.id, 'pending'));
+      return;
+    }
+    const { tasks: next } = completeTask(tasks, task.id);
+    onTasksChange(next);
+  };
+
+  const addSubtask = () => {
+    const child = createSubtaskObject(tasks, task.id, subDraft);
+    if (!child) return;
+    onTasksChange([...tasks, child]);
+    setSubDraft('');
+  };
+
+  const addBlocker = () => {
+    if (!blockerPick) return;
+    onTasksChange(setBlockedBy(tasks, task.id, [...(task.blockedBy ?? []), blockerPick]));
+    setBlockerPick('');
+  };
+
+  return (
+    <div style={depth > 0 ? { marginLeft: depth * 16 } : undefined}>
+      <div
+        className={`flex items-center gap-2 rounded-lg px-2.5 py-2 ${
+          done ? 'opacity-55' : ''
+        } ${depth > 0 ? 'border-l-2 border-line/60' : ''}`}
+      >
+        <button
+          onClick={toggle}
+          disabled={!done && !gate.ok}
+          className={`press flex h-5 w-5 shrink-0 items-center justify-center rounded-md ring-1 ring-inset disabled:cursor-not-allowed disabled:opacity-40 ${
+            done
+              ? 'bg-accent text-on-accent ring-accent'
+              : 'bg-ink/60 text-transparent ring-line hover:text-sage'
+          }`}
+          aria-label={done ? 'Mark incomplete' : 'Mark complete'}
+          title={!done && !gate.ok ? `Blocked by: ${gate.blockers.join(', ')}` : undefined}
+        >
+          <svg
+            width="11"
+            height="11"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M4 12.5l5 5L20 6.5" />
+          </svg>
+        </button>
+        <button
+          onClick={() => setShowDetails(!showDetails)}
+          className={`min-w-0 flex-1 truncate text-left text-[13px] text-cream/90 hover:text-cream ${
+            done ? 'line-through' : ''
+          }`}
+          title={task.notes ?? task.title}
+        >
+          {task.title}
+        </button>
+        {!done && blockers.length > 0 && (
+          <span
+            className="shrink-0 rounded bg-tomato/15 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-tomato"
+            title={`Blocked by: ${gate.blockers.join(', ')}`}
+          >
+            ⛔ {blockers.length}
+          </span>
+        )}
+        {task.recurrence && task.recurrence !== 'none' && (
+          <span
+            className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-sage ring-1 ring-inset ring-line"
+            title={`Repeats ${task.recurrence}`}
+          >
+            ↻ {task.recurrence === 'daily' ? 'D' : 'W'}
+          </span>
+        )}
+        {typeof task.points === 'number' && (
+          <span
+            className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] text-sage ring-1 ring-inset ring-line"
+            title="Story points"
+          >
+            {task.points}pt
+          </span>
+        )}
+        {task.dueAt !== undefined && (
+          <span
+            className={`shrink-0 font-mono text-[10px] ${overdue ? 'font-bold text-tomato' : 'text-faint'}`}
+            title={new Date(task.dueAt).toLocaleDateString()}
+          >
+            {formatDue(task.dueAt)}
+          </span>
+        )}
+        <div className="ml-auto flex shrink-0 items-center gap-1">
+          <select
+            value={task.priority}
+            onChange={(e) =>
+              onTasksChange(setTaskPriority(tasks, task.id, e.target.value as TaskPriority))
+            }
+            className="rounded bg-ink/50 px-1.5 py-1 font-mono text-[10px] text-faint ring-1 ring-inset ring-line"
+            title="Priority"
+          >
+            {(['p0', 'p1', 'p2', 'p3'] as const).map((p) => (
+              <option key={p} value={p}>
+                {PRIORITY_LABELS[p]}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => setShowDetails(!showDetails)}
+            className="press rounded p-1 font-mono text-[11px] text-faint hover:text-cream"
+            aria-label={`${showDetails ? 'Hide' : 'Show'} details for ${task.title}`}
+            title="Details: notes, due date, recurrence, blockers, subtasks"
+          >
+            ⋯
+          </button>
+          <button
+            onClick={() => onTasksChange(removeTask(tasks, task.id))}
+            className="press rounded p-1 text-faint hover:text-tomato"
+            aria-label={`Delete task ${task.title}`}
+            title={children.length > 0 ? `Deletes ${children.length} subtask(s) too` : undefined}
+          >
+            <TrashIcon />
+          </button>
+        </div>
+      </div>
+
+      {showDetails && (
+        <div
+          className="mb-1 space-y-2 rounded-lg bg-ink/30 px-2.5 py-2.5"
+          style={depth > 0 ? { marginLeft: 0 } : undefined}
+        >
+          {/* status + due + recurrence */}
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={task.status}
+              onChange={(e) =>
+                onTasksChange(updateTaskStatus(tasks, task.id, e.target.value as TaskStatus))
+              }
+              className="h-8 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+              title="Workflow status"
+            >
+              {(['pending', 'in_progress', 'blocked'] as const).map((s) => (
+                <option key={s} value={s}>
+                  {STATUS_LABELS[s]}
+                </option>
+              ))}
+              <option value="completed">{STATUS_LABELS.completed}</option>
+            </select>
+            <input
+              type="date"
+              value={task.dueAt ? new Date(task.dueAt).toISOString().slice(0, 10) : ''}
+              onChange={(e) =>
+                onTasksChange(
+                  setDueAt(
+                    tasks,
+                    task.id,
+                    e.target.value ? new Date(e.target.value + 'T12:00:00').getTime() : null,
+                  ),
+                )
+              }
+              className="h-8 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+              title="Due date"
+            />
+            <select
+              value={task.recurrence ?? 'none'}
+              onChange={(e) =>
+                onTasksChange(setRecurrence(tasks, task.id, e.target.value as TaskRecurrence))
+              }
+              className="h-8 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+              title="Recurrence"
+            >
+              {TASK_RECURRENCES.map((r) => (
+                <option key={r} value={r}>
+                  {RECURRENCE_LABELS[r]}
+                </option>
+              ))}
+            </select>
+            <select
+              value={typeof task.points === 'number' ? task.points : ''}
+              onChange={(e) =>
+                onTasksChange(
+                  setTaskPoints(
+                    tasks,
+                    task.id,
+                    e.target.value === '' ? null : Number(e.target.value),
+                  ),
+                )
+              }
+              className="h-8 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+              title="Story points"
+            >
+              <option value="">— pt</option>
+              {TASK_POINTS.map((p) => (
+                <option key={p} value={p}>
+                  {p} pt
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* notes */}
+          <textarea
+            key={`notes-${task.id}-${task.updatedAt}`}
+            defaultValue={task.notes ?? ''}
+            maxLength={2000}
+            rows={2}
+            onBlur={(e) => {
+              if ((e.target.value.trim() || '') !== (task.notes ?? '')) {
+                onTasksChange(setNotes(tasks, task.id, e.target.value));
+              }
+            }}
+            placeholder="Notes… (saved on blur)"
+            className="w-full resize-y rounded-lg bg-ink/50 px-2.5 py-2 text-[12px] leading-relaxed text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
+          />
+
+          {/* blockers */}
+          <div>
+            {blockers.length > 0 && (
+              <div className="mb-1.5 flex flex-wrap gap-1">
+                {blockers.map((b) => (
+                  <span
+                    key={b.id}
+                    className="flex items-center gap-1 rounded-full bg-tomato/15 px-2 py-0.5 font-mono text-[10px] text-tomato"
+                  >
+                    ⛔ {b.title}
+                    <button
+                      onClick={() =>
+                        onTasksChange(
+                          setBlockedBy(
+                            tasks,
+                            task.id,
+                            (task.blockedBy ?? []).filter((id) => id !== b.id),
+                          ),
+                        )
+                      }
+                      className="press hover:text-cream"
+                      aria-label={`Remove blocker ${b.title}`}
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            {candidates.length > 0 && (
+              <div className="flex items-center gap-1.5">
+                <select
+                  value={blockerPick}
+                  onChange={(e) => setBlockerPick(e.target.value)}
+                  className="h-8 min-w-0 flex-1 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+                  title="Must complete first"
+                >
+                  <option value="">Blocked by…</option>
+                  {candidates.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.title}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={addBlocker}
+                  disabled={!blockerPick}
+                  className="press h-8 shrink-0 rounded-lg px-2.5 text-[12px] text-sage ring-1 ring-inset ring-line hover:text-cream disabled:opacity-40"
+                >
+                  Add
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* subtask */}
+          {nestable ? (
+            <div className="flex items-center gap-1.5">
+              <input
+                type="text"
+                value={subDraft}
+                maxLength={120}
+                onChange={(e) => setSubDraft(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && addSubtask()}
+                placeholder="Add a subtask…"
+                className="h-8 min-w-0 flex-1 rounded-lg bg-ink/50 px-2.5 text-[12px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
+              />
+              <button
+                onClick={addSubtask}
+                disabled={!subDraft.trim()}
+                className="press btn-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg font-display text-base font-bold disabled:opacity-40"
+                aria-label="Add subtask"
+              >
+                +
+              </button>
+            </div>
+          ) : (
+            <p className="font-mono text-[10px] text-faint">
+              Max nesting depth ({children.length} subtask{children.length === 1 ? '' : 's'}).
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* children */}
+      {children.map((child) => (
+        <TaskRow
+          key={child.id}
+          task={child}
+          tasks={tasks}
+          projectId={projectId}
+          depth={depth + 1}
+          ancestorIds={[...ancestorIds, task.id]}
+          onTasksChange={onTasksChange}
+        />
+      ))}
     </div>
   );
 }

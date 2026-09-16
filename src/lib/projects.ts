@@ -15,6 +15,10 @@ export interface Project {
   deadline?: number;
   /** Archive hides the project from the active list without deleting history. */
   archived?: boolean;
+  /** Billable client work (Roadmap 2.3). Absent = non-billable. */
+  billable?: boolean;
+  /** Hourly rate in USD for billable projects. */
+  hourlyRate?: number;
   createdAt: number;
   updatedAt: number;
 }
@@ -59,6 +63,10 @@ export function loadProjects(): Project[] {
         ? { deadline: p.deadline }
         : {}),
       ...(typeof p.archived === 'boolean' ? { archived: p.archived } : {}),
+      ...(p.billable === true ? { billable: true as const } : {}),
+      ...(typeof p.hourlyRate === 'number' && Number.isFinite(p.hourlyRate) && p.hourlyRate > 0
+        ? { hourlyRate: p.hourlyRate }
+        : {}),
       createdAt: typeof p.createdAt === 'number' ? p.createdAt : Date.now(),
       updatedAt: typeof p.updatedAt === 'number' ? p.updatedAt : Date.now(),
     }));
@@ -92,6 +100,8 @@ export function cloneProject(project: Project): Project {
     category: project.category,
     tags: [...project.tags],
     ...(typeof project.deadline === 'number' ? { deadline: project.deadline } : {}),
+    ...(project.billable === true ? { billable: true as const } : {}),
+    ...(typeof project.hourlyRate === 'number' ? { hourlyRate: project.hourlyRate } : {}),
     createdAt: now,
     updatedAt: now,
   };
@@ -104,6 +114,8 @@ export interface ProjectUpdates {
   tags?: string[]; // full replacement
   deadline?: number | null; // null removes the deadline
   archived?: boolean;
+  billable?: boolean;
+  hourlyRate?: number | null; // null removes the rate
 }
 
 /** Apply updates to an existing project; returns the updated project when found. */
@@ -120,6 +132,19 @@ export function updateProject(projects: Project[], id: string, updates: ProjectU
       else delete next.deadline;
     }
     if (updates.archived !== undefined) next.archived = updates.archived;
+    if (updates.billable !== undefined) {
+      if (updates.billable) next.billable = true;
+      else delete next.billable;
+    }
+    if (updates.hourlyRate !== undefined) {
+      if (
+        updates.hourlyRate !== null &&
+        Number.isFinite(updates.hourlyRate) &&
+        updates.hourlyRate > 0
+      )
+        next.hourlyRate = updates.hourlyRate;
+      else delete next.hourlyRate;
+    }
     return next;
   });
 }
@@ -210,4 +235,77 @@ export function formatProjectDuration(totalMinutes: number): string {
   if (hours === 0) return `${minutes}m`;
   if (minutes === 0) return `${hours}h`;
   return `${hours}h ${minutes}m`;
+}
+
+/* ---------- billable time (Roadmap 2.3) ---------- */
+
+/** Billable USD amount for minutes on a project (0 when not billable/rated). */
+export function billableAmount(project: Project, minutes: number): number {
+  if (project.billable !== true) return 0;
+  if (typeof project.hourlyRate !== 'number' || !Number.isFinite(project.hourlyRate)) return 0;
+  if (project.hourlyRate <= 0 || minutes <= 0) return 0;
+  return (minutes / 60) * project.hourlyRate;
+}
+
+export function formatBillable(amount: number): string {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+}
+
+/* ---------- deadline reminders (Roadmap 2.4) ---------- */
+
+/** Local day key ("YYYY-M-D"), shared with notificationPrefs dedupe. */
+export function localDayKey(at: number): string {
+  const d = new Date(at);
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+
+export interface DueDeadline {
+  project: Project;
+  msLeft: number;
+}
+
+/**
+ * Active projects whose deadline falls within the window (default 48h).
+ * Sorted soonest-first. Never throws.
+ */
+export function deadlinesDue(
+  projects: Project[],
+  now: number = Date.now(),
+  withinMs: number = 48 * 60 * 60 * 1000,
+): DueDeadline[] {
+  if (!Number.isFinite(now) || !Number.isFinite(withinMs) || withinMs <= 0) return [];
+  return projects
+    .filter(
+      (p) =>
+        !p.archived &&
+        typeof p.deadline === 'number' &&
+        p.deadline > now &&
+        p.deadline <= now + withinMs,
+    )
+    .map((project) => ({ project, msLeft: (project.deadline as number) - now }))
+    .sort((a, b) => a.msLeft - b.msLeft);
+}
+
+/** projectId → day key of the last deadline reminder (dedupe once/day). */
+export function loadDeadlineReminders(): Record<string, string> {
+  const stored = read<Record<string, string>>(STORAGE_KEYS.deadlineReminders);
+  if (!stored || typeof stored !== 'object') return {};
+  const clean: Record<string, string> = {};
+  for (const [k, v] of Object.entries(stored)) {
+    if (typeof v === 'string') clean[k] = v;
+  }
+  return clean;
+}
+
+export function saveDeadlineReminders(reminded: Record<string, string>): boolean {
+  return write(STORAGE_KEYS.deadlineReminders, reminded);
+}
+
+/** Pure: stamp a project as reminded for the given day key. */
+export function markDeadlineReminded(
+  reminded: Record<string, string>,
+  projectId: string,
+  dayKey: string,
+): Record<string, string> {
+  return { ...reminded, [projectId]: dayKey };
 }

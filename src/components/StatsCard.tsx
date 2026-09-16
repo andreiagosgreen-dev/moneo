@@ -14,16 +14,21 @@ import {
   trailingWeekDayKeysInTz,
 } from '../lib/timezone';
 import SessionLog from './SessionLog';
+import type { Project } from '../lib/projects';
+import { activeProjects } from '../lib/projects';
+import { createManualSession } from '../lib/sessions';
 
 interface Props {
   history: Session[];
   settings: Settings;
   areas: FocusArea[];
+  projects: Project[];
   /** Effective IANA timezone (account tz when signed in, else browser). */
   timezone: string;
   /** True once cloud sync is initialized — local clearing is then locked. */
   clearDisabled?: boolean;
   onClear: () => void;
+  onHistoryAdd: (session: Session) => void;
 }
 
 function FlameIcon() {
@@ -55,11 +60,17 @@ export default function StatsCard({
   history,
   settings,
   areas,
+  projects,
   timezone,
   clearDisabled,
   onClear,
+  onHistoryAdd,
 }: Props) {
   const [confirming, setConfirming] = useState(false);
+  const [showManual, setShowManual] = useState(false);
+  const [manualMin, setManualMin] = useState('25');
+  const [manualDate, setManualDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [manualProject, setManualProject] = useState('');
   const timer = useRef<number | null>(null);
   useEffect(
     () => () => {
@@ -109,6 +120,21 @@ export default function StatsCard({
     if (timer.current) window.clearTimeout(timer.current);
     setConfirming(false);
     onClear();
+  };
+
+  const manualProjects = useMemo(() => activeProjects(projects), [projects]);
+
+  const addManual = () => {
+    const at = manualDate ? new Date(manualDate + 'T12:00:00').getTime() : Date.now();
+    const session = createManualSession({
+      minutes: Number(manualMin),
+      at,
+      ...(manualProject ? { projectId: manualProject } : {}),
+    });
+    if (!session) return;
+    onHistoryAdd(session);
+    setManualMin('25');
+    setShowManual(false);
   };
 
   return (
@@ -266,28 +292,83 @@ export default function StatsCard({
           <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">
             Session log
           </h3>
-          {clearDisabled ? (
-            <span
-              className="rounded-md px-2 py-1 font-mono text-[11px] text-faint"
-              title="Signed-in history is managed through your account"
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setShowManual(!showManual)}
+              className="press rounded-md px-2 py-1 font-mono text-[11px] text-sage hover:text-cream"
+              title="Log time worked without the timer (meetings, offline work)"
             >
-              Protected by sync
-            </span>
-          ) : (
-            history.length > 0 && (
-              <button
-                onClick={askClear}
-                className={`press rounded-md px-2 py-1 font-mono text-[11px] ${
-                  confirming
-                    ? 'bg-tomato/15 font-bold text-tomato ring-1 ring-tomato/40'
-                    : 'text-faint hover:text-sage'
-                }`}
+              {showManual ? 'Cancel' : '+ Log time'}
+            </button>
+            {clearDisabled ? (
+              <span
+                className="rounded-md px-2 py-1 font-mono text-[11px] text-faint"
+                title="Signed-in history is managed through your account"
               >
-                {confirming ? 'Tap again to confirm' : 'Clear all'}
-              </button>
-            )
-          )}
+                Protected by sync
+              </span>
+            ) : (
+              history.length > 0 && (
+                <button
+                  onClick={askClear}
+                  className={`press rounded-md px-2 py-1 font-mono text-[11px] ${
+                    confirming
+                      ? 'bg-tomato/15 font-bold text-tomato ring-1 ring-tomato/40'
+                      : 'text-faint hover:text-sage'
+                  }`}
+                >
+                  {confirming ? 'Tap again to confirm' : 'Clear all'}
+                </button>
+              )
+            )}
+          </div>
         </div>
+        {showManual && (
+          <div className="mt-2.5 space-y-2 rounded-xl border border-line bg-ink/60 p-3">
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="number"
+                min={1}
+                max={480}
+                value={manualMin}
+                onChange={(e) => setManualMin(e.target.value)}
+                className="h-9 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+                title="Minutes (1–480)"
+                placeholder="Minutes"
+              />
+              <input
+                type="date"
+                value={manualDate}
+                max={new Date().toISOString().slice(0, 10)}
+                onChange={(e) => setManualDate(e.target.value)}
+                className="h-9 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+                title="Work date"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={manualProject}
+                onChange={(e) => setManualProject(e.target.value)}
+                className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+                title="Project (optional)"
+              >
+                <option value="">No project</option>
+                {manualProjects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={addManual}
+                disabled={Number(manualMin) < 1}
+                className="press btn-accent h-9 shrink-0 rounded-lg px-4 text-sm font-semibold disabled:opacity-40"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        )}
         <SessionLog sessions={today} resolveAreaName={(id) => resolveAreaName(liveAreas, id)} />
       </div>
     </section>

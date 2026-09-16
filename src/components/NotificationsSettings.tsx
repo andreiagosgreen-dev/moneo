@@ -105,6 +105,28 @@ export default function NotificationsSettings() {
             />
           </div>
         )}
+
+        <label className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-sm font-semibold text-cream">Deadline Reminders</div>
+            <div className="text-[11px] text-faint">
+              Browser warning when a project deadline is within 48 hours
+            </div>
+          </div>
+          <button
+            onClick={() => update({ deadlineReminders: !prefs.deadlineReminders })}
+            className={`press h-6 w-11 rounded-full transition-colors ${
+              prefs.deadlineReminders ? 'bg-accent' : 'bg-line/50'
+            }`}
+            aria-pressed={prefs.deadlineReminders}
+          >
+            <div
+              className={`h-5 w-5 rounded-full bg-cream transition-transform ${
+                prefs.deadlineReminders ? 'translate-x-5' : 'translate-x-0.5'
+              }`}
+            />
+          </button>
+        </label>
       </div>
 
       {savedFlash && (

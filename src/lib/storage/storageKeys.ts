@@ -42,6 +42,34 @@ export const STORAGE_KEYS = {
   theme: 'moneo:ui-theme',
   /** First-run onboarding dismissed flag (Premium Polish, Week 10). */
   onboardingSeen: 'moneo:onboarding-seen',
+  /** Technical skills inventory (Roadmap Phase 1.2). */
+  skills: 'moneo:skills',
+  /** Deadline reminder stamps, projectId → day key (Roadmap 2.4). */
+  deadlineReminders: 'moneo:deadline-reminders',
+  /** Eat-the-Frog log, day key → { taskId, done } (Roadmap 3.2). */
+  frogLog: 'moneo:frog-log',
+  /** Goal hierarchy (Roadmap Phase 4.2). */
+  goals: 'moneo:goals',
+  /** Assistant conversation history, capped (Roadmap Phase 4.1). */
+  chatHistory: 'moneo:chat-history',
+  /** Habits inventory (Roadmap Phase 5.1). */
+  habits: 'moneo:habits',
+  /** Habit completions, habitId → day keys (Roadmap Phase 5.1). */
+  habitLog: 'moneo:habit-log',
+  /** Life areas + balance targets (Roadmap Phase 5.2). */
+  lifeAreas: 'moneo:life-areas',
+  /** Journal entries, day key → entry (Roadmap Phase 5.3). */
+  journal: 'moneo:journal',
+  /** Energy check-ins (Roadmap Phase 5.4). */
+  energyLog: 'moneo:energy-log',
+  /** Agile sprints (Roadmap Phase 7.2). */
+  sprints: 'moneo:sprints',
+  /** OKR objectives with nested key results (Roadmap Phase 7.3). */
+  objectives: 'moneo:objectives',
+  /** Kanban board config: WIP limits per status (Roadmap Phase 7.1). */
+  boardConfig: 'moneo:board-config',
+  /** Waterfall phases per project (Roadmap Phase 7.5). */
+  waterfall: 'moneo:waterfall',
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
