@@ -39,6 +39,26 @@ const STEPS = [
     ),
   },
   {
+    title: 'Plan it, then do it',
+    body: "Pick tonight's top tasks, eat the frog first, and let the Eisenhower matrix sort the rest. Projects, goals and sprints track the bigger picture.",
+    icon: (
+      <svg
+        width="26"
+        height="26"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="4" y="4" width="16" height="16" rx="2" />
+        <path d="M9 4v16M4 9h5M4 15h5" />
+        <path d="M13.5 12.5l2.5 2.5 4-4.5" />
+      </svg>
+    ),
+  },
+  {
     title: 'Private by design',
     body: 'Everything lives on your device first. Sign in when you want cloud sync between devices — your round history stays yours.',
     icon: (

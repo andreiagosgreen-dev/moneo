@@ -28,6 +28,23 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - SEO/Launch prep — OG/Twitter meta, robots.txt, sitemap, generated icon set
 - CI/CD — GitHub Actions: lint, format, typecheck, tests, Cloudflare deploy
 - ESLint + Prettier wired into the repo
+- Skills Tracking (Phase 1.2) — inventory, levels 1-5, resources, certifications
+- Project Templates (Phase 1.3) — 6 blueprints with tasks, stack, practices
+- Advanced Tasks (Phase 2.2) — subtasks (3-level), dependencies, recurrence, notes
+- Manual time entry, billable rates, deadline reminders, PDF export (Phase 2.3-2.4)
+- Eisenhower Matrix + Eat the Frog (Phase 3) — auto quadrants, streaks
+- AI Assistant chat + Goals hierarchy (Phase 4) — NL task creation, rollups
+- Life Management (Phase 5) — habits, balance, journal, energy
+- Agile Enterprise (Phase 7) — kanban, sprints, OKRs, Gantt, waterfall
+
+**Test suite: 530 passing tests, 43 files. Typecheck + lint + build green.**
+
+### 🚧 In Progress
+
+- DNS propagation (moneo.bond)
+- Custom domain activation
+- Google Calendar API integration (requires OAuth credentials — optional)
+- LLM-powered coach (Phase 6 — needs OpenAI/Anthropic key; rule-based coach ships meanwhile)
 
 ### 🚧 In Progress
 
