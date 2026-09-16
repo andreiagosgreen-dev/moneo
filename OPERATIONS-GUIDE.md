@@ -3,6 +3,7 @@
 ## 🏗️ Technical Architecture Overview
 
 ### **Current Stack**
+
 - **Frontend:** React 18 + TypeScript + Vite
 - **Backend:** Supabase (PostgreSQL + Auth + Storage)
 - **Deployment:** Cloudflare Pages (static hosting)
@@ -15,6 +16,7 @@
 ## 💳 Lemon Squeezy Integration
 
 ### **Current Status**
+
 - ✅ Lemon Squeezy SDK installed (@lemonsqueezy/lemonsqueezy.js)
 - ✅ Pricing UI implemented (PricingCard component)
 - ✅ Billing types defined (lib/billing/lemonSqueezy.ts)
@@ -26,38 +28,44 @@
 ### **Setup Steps (Before Launch)**
 
 #### 1. Create Lemon Squeezy Store
+
 1. Go to [lemonsqueezy.com](https://lemonsqueezy.com)
 2. Sign up / Log in
 3. Create a new store: "Moneo Productivity"
 4. Configure store settings (currency, tax, etc.)
 
 #### 2. Create Products & Variants
+
 ```
 Product: Moneo Pro
   Variant: Monthly ($9/month)
   Variant: Annual ($90/year - $7.50/month)
-  
+
 Product: Moneo Teams (Future)
   Variant: Monthly ($29/month)
 ```
 
 #### 3. Configure Checkout URLs
+
 Copy variant IDs and update in:
+
 - `src/lib/billing/lemonSqueezy.ts`
 - Environment variables (if needed)
 
 #### 4. Implement Webhook Handler
+
 Create endpoint to receive Lemon Squeezy webhooks:
+
 ```typescript
 // cloudflare/workers/webhook.ts (or Supabase Edge Function)
 export async function handleWebhook(request: Request) {
   const signature = request.headers.get('X-Signature');
   const body = await request.json();
-  
+
   // Verify signature
   const isValid = verifyWebhookSignature(body, signature);
   if (!isValid) return new Response('Invalid signature', { status: 401 });
-  
+
   // Handle events
   switch (body.meta.event_name) {
     case 'subscription_created':
@@ -70,12 +78,13 @@ export async function handleWebhook(request: Request) {
       await cancelSubscription(body.data);
       break;
   }
-  
+
   return new Response('OK');
 }
 ```
 
 #### 5. Database Schema for Subscriptions
+
 ```sql
 CREATE TABLE subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -93,12 +102,15 @@ CREATE INDEX idx_subscriptions_status ON subscriptions(status);
 ```
 
 #### 6. Frontend Integration
+
 Update `PricingCard.tsx` to:
+
 - Redirect to real Lemon Squeezy checkout URLs
 - Store customer ID in Supabase
 - Show subscription status in AccountButton
 
 ### **Security Considerations**
+
 - Never expose Lemon Squeezy API key in frontend
 - Use Supabase Edge Functions or Cloudflare Workers for API calls
 - Verify webhook signatures
@@ -109,6 +121,7 @@ Update `PricingCard.tsx` to:
 ## 🔐 Authentication System
 
 ### **Current Status**
+
 - ✅ Supabase Auth implemented
 - ✅ Email/password sign up
 - ✅ Sign in
@@ -120,6 +133,7 @@ Update `PricingCard.tsx` to:
 ### **Authentication Flow**
 
 #### Current Flow
+
 1. User signs up with email/password
 2. Supabase creates auth user
 3. User profile created in `profiles` table
@@ -127,6 +141,7 @@ Update `PricingCard.tsx` to:
 5. Session managed by Supabase client
 
 #### Future Flow (Google OAuth)
+
 1. User clicks "Sign in with Google"
 2. Redirect to Google OAuth
 3. User authorizes
@@ -138,26 +153,29 @@ Update `PricingCard.tsx` to:
 ### **Implementing Google OAuth**
 
 #### Step 1: Enable Google Auth in Supabase
+
 1. Go to Supabase Dashboard → Authentication → Providers
 2. Enable Google provider
 3. Add Google OAuth credentials (client ID, secret)
 4. Configure redirect URL: `https://moneo.bond/auth/callback`
 
 #### Step 2: Add Google Sign In Button
+
 ```typescript
 // src/components/GoogleSignIn.tsx
 const signInWithGoogle = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${window.location.origin}/auth/callback`
-    }
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
   });
   if (error) console.error(error);
 };
 ```
 
 #### Step 3: Handle Callback
+
 ```typescript
 // src/pages/AuthCallback.tsx
 useEffect(() => {
@@ -175,6 +193,7 @@ useEffect(() => {
 ```
 
 ### **Security Best Practices**
+
 - Never store passwords in frontend
 - Use Supabase Row Level Security (RLS)
 - Secure API endpoints with auth checks
@@ -186,6 +205,7 @@ useEffect(() => {
 ## 🎨 UI/UX Modifications
 
 ### **Current UI**
+
 - Dark theme default
 - Clean, minimal design
 - Basic timer interface
@@ -195,12 +215,14 @@ useEffect(() => {
 ### **Pre-Launch UI Improvements**
 
 #### 1. Onboarding Flow
+
 - Welcome screen
 - Quick tutorial (3 slides)
 - Feature highlights
 - First session guidance
 
 #### 2. Premium Polish
+
 - Smooth animations (300ms transitions)
 - Loading states
 - Error states
@@ -209,12 +231,14 @@ useEffect(() => {
 - Dark/light theme toggle
 
 #### 3. Mobile Optimization
+
 - Touch-friendly timer controls
 - Bottom navigation
 - Swipe gestures
 - Responsive layout (320px+)
 
 #### 4. Accessibility
+
 - ARIA labels
 - Keyboard navigation
 - Screen reader support
@@ -222,6 +246,7 @@ useEffect(() => {
 - Focus indicators
 
 ### **UI Framework**
+
 - Current: Tailwind CSS 4
 - Recommended: Keep Tailwind, add:
   - Framer Motion (animations)
@@ -235,18 +260,21 @@ useEffect(() => {
 ### **Regular Maintenance Tasks**
 
 #### Daily
+
 - Monitor error logs (Sentry)
 - Check uptime (Uptime Robot)
 - Review user feedback
 - Monitor revenue metrics
 
 #### Weekly
+
 - Review analytics (user engagement)
 - Check performance metrics
 - Review security alerts
 - Update dependencies (if critical)
 
 #### Monthly
+
 - Database backups verification
 - Security audit
 - Performance optimization
@@ -254,6 +282,7 @@ useEffect(() => {
 - Competitor analysis
 
 #### Quarterly
+
 - Major dependency updates
 - Security review
 - User survey
@@ -263,6 +292,7 @@ useEffect(() => {
 ### **Maintenance Tools**
 
 #### Error Monitoring
+
 - **Sentry** (Recommended)
   - Real-time error tracking
   - Stack traces
@@ -271,12 +301,14 @@ useEffect(() => {
   - $26/month for up to 50k errors/month
 
 #### Uptime Monitoring
+
 - **Uptime Robot** (Free)
   - Checks every 5 minutes
   - Email/SMS alerts
   - Status page included
 
 #### Analytics
+
 - **Plausible** (Self-hosted, $9/month)
   - Privacy-focused
   - Simple dashboard
@@ -290,6 +322,7 @@ useEffect(() => {
 ### **Maintenance Workflow**
 
 #### Bug Fix Process
+
 1. User reports bug → Jira/GitHub issue
 2. Team triages → Priority assigned
 3. Developer fixes → Pull request
@@ -299,6 +332,7 @@ useEffect(() => {
 7. Deploy to production → Monitor
 
 #### Feature Update Process
+
 1. Plan feature → Design specs
 2. Implement → Tests
 3. Code review → Approve
@@ -313,6 +347,7 @@ useEffect(() => {
 ### **Development Debugging**
 
 #### Local Development
+
 ```bash
 # Run dev server
 npm run dev
@@ -328,6 +363,7 @@ npm run build
 ```
 
 #### Debugging Tools
+
 - **React DevTools** (Browser extension)
 - **Supabase Dashboard** (Database queries)
 - **Cloudflare Dashboard** (Worker logs)
@@ -336,12 +372,14 @@ npm run build
 ### **Production Debugging**
 
 #### Error Tracking
+
 - Sentry captures errors automatically
 - Stack traces with source maps
 - User session replay
 - Performance monitoring
 
 #### Log Analysis
+
 - Cloudflare Workers logs
 - Supabase logs
 - Application logs (if needed)
@@ -349,20 +387,24 @@ npm run build
 #### Common Issues & Solutions
 
 **Issue: Auth session expired**
+
 - Solution: Implement automatic token refresh
 - Check Supabase auth configuration
 
 **Issue: Database connection failed**
+
 - Solution: Check Supabase status page
 - Verify RLS policies
 - Check database size limits
 
 **Issue: Slow page load**
+
 - Solution: Optimize bundle size
 - Lazy load components
 - Implement caching
 
 **Issue: Payment failed**
+
 - Solution: Check Lemon Squeezy webhook
 - Verify subscription status
 - Contact Lemon Squeezy support
@@ -374,11 +416,13 @@ npm run build
 ### **Primary Database: Supabase (PostgreSQL)**
 
 #### Location
+
 - **Region:** Choose region closest to users (EU/US)
 - **Hosting:** Supabase (managed PostgreSQL)
 - **Backup:** Automatic daily backups + point-in-time recovery
 
 #### Current Tables
+
 ```sql
 -- Users (Supabase Auth)
 auth.users (managed by Supabase)
@@ -397,6 +441,7 @@ subscriptions (billing status)
 ```
 
 #### Future Tables (Pre-Launch)
+
 ```sql
 -- Projects
 projects (project management)
@@ -417,16 +462,19 @@ time_blocks (calendar integration)
 ### **Database Design Principles**
 
 #### Normalization
+
 - Each table has single responsibility
 - Avoid data duplication
 - Use foreign keys for relationships
 
 #### Indexing
+
 - Index frequently queried columns
 - Composite indexes for common joins
 - Regular index maintenance
 
 #### Row Level Security (RLS)
+
 - Users can only access their own data
 - Teams can access team data
 - Admin can access all data
@@ -434,22 +482,26 @@ time_blocks (calendar integration)
 ### **Backup Strategy**
 
 #### Supabase Backups
+
 - **Automatic:** Daily backups retained for 7 days
 - **Point-in-time Recovery:** Restore to any point in 7 days
 - **Physical Backups:** Optional paid feature
 
 #### Additional Backups
+
 - **Export to CSV:** Weekly export of critical tables
 - **External Backup:** Optional PostgreSQL backup service
 
 ### **Database Scaling**
 
 #### When to Scale
+
 - Storage: > 1GB (Supabase free tier is 500MB)
 - Connections: > 50 concurrent
 - Query time: > 100ms average
 
 #### Scaling Options
+
 - **Supabase Pro:** $25/month (10GB storage, 500 concurrent connections)
 - **Supabase Enterprise:** Custom pricing
 - **Self-hosted PostgreSQL:** Full control, more maintenance
@@ -461,6 +513,7 @@ time_blocks (calendar integration)
 ### **Current Deployment**
 
 #### Frontend (Cloudflare Pages)
+
 - **Location:** Global CDN (300+ locations)
 - **Build:** Static HTML/CSS/JS
 - **Hosting:** Free tier (unlimited bandwidth)
@@ -468,12 +521,14 @@ time_blocks (calendar integration)
 - **Custom Domain:** moneo.bond
 
 #### Backend (Supabase)
+
 - **Location:** EU or US region
 - **Hosting:** Managed PostgreSQL
 - **Auth:** Supabase Auth
 - **Storage:** Supabase Storage (if needed)
 
 #### Edge (Cloudflare Workers) - Optional
+
 - **Location:** Global edge
 - **Purpose:** API proxying, caching
 - **Cost:** Free tier ($5/month if exceeded)
@@ -481,6 +536,7 @@ time_blocks (calendar integration)
 ### **Deployment Pipeline**
 
 #### Manual Deployment (Current)
+
 ```bash
 # Build
 npm run build
@@ -490,6 +546,7 @@ git push origin main
 ```
 
 #### Automated Deployment (Future)
+
 ```yaml
 # .github/workflows/deploy.yml
 name: Deploy
@@ -510,12 +567,14 @@ jobs:
 ### **Environment Variables**
 
 #### Supabase (Frontend)
+
 ```env
 VITE_SUPABASE_URL=https://xxx.supabase.co
 VITE_SUPABASE_ANON_KEY=xxx
 ```
 
 #### Lemon Squeezy (Backend/Worker)
+
 ```env
 LEMONSQUEEZY_API_KEY=xxx
 LEMONSQUEEZY_STORE_ID=xxx
@@ -523,6 +582,7 @@ LEMONSQUEEZY_WEBHOOK_SECRET=xxx
 ```
 
 #### Sentry (Frontend)
+
 ```env
 VITE_SENTRY_DSN=xxx
 ```
@@ -534,24 +594,28 @@ VITE_SENTRY_DSN=xxx
 ### **Security Layers**
 
 #### 1. Application Security
+
 - Input validation (all user inputs)
 - XSS prevention (React default)
 - CSRF protection (Supabase)
 - Content Security Policy (CSP headers)
 
 #### 2. Data Security
+
 - Encryption at rest (Supabase)
 - Encryption in transit (HTTPS)
 - RLS policies (data isolation)
 - No secrets in frontend
 
 #### 3. API Security
+
 - Rate limiting (Cloudflare)
 - API key validation
 - Webhook signature verification
 - Admin-only endpoints
 
 #### 4. Auth Security
+
 - Strong password requirements
 - Session management (Supabase)
 - Multi-factor authentication (future)
@@ -560,6 +624,7 @@ VITE_SENTRY_DSN=xxx
 ### **Security Checklist**
 
 #### Pre-Launch
+
 - [ ] RLS policies configured
 - [ ] No secrets in frontend code
 - [ ] HTTPS enforced
@@ -570,6 +635,7 @@ VITE_SENTRY_DSN=xxx
 - [ ] Dependencies audited (npm audit)
 
 #### Post-Launch
+
 - [ ] Regular security updates
 - [ ] Penetration testing (quarterly)
 - [ ] Dependency updates (monthly)
@@ -582,12 +648,14 @@ VITE_SENTRY_DSN=xxx
 ### **Key Metrics to Monitor**
 
 #### User Metrics
+
 - Daily Active Users (DAU)
 - Monthly Active Users (MAU)
 - Session duration
 - Feature usage
 
 #### Business Metrics
+
 - Free → Pro conversion rate
 - Churn rate
 - Revenue MRR
@@ -595,6 +663,7 @@ VITE_SENTRY_DSN=xxx
 - Lifetime Value (LTV)
 
 #### Technical Metrics
+
 - Page load time
 - Error rate
 - Uptime percentage
@@ -603,6 +672,7 @@ VITE_SENTRY_DSN=xxx
 ### **Monitoring Tools**
 
 #### User Analytics
+
 - **Plausible** (Self-hosted, $9/month)
   - Privacy-focused
   - Simple dashboard
@@ -614,12 +684,14 @@ VITE_SENTRY_DSN=xxx
   - Privacy concerns
 
 #### Error Monitoring
+
 - **Sentry** ($26/month)
   - Real-time errors
   - Stack traces
   - User context
 
 #### Uptime Monitoring
+
 - **Uptime Robot** (Free)
   - Checks every 5 minutes
   - Email/SMS alerts
@@ -632,12 +704,14 @@ VITE_SENTRY_DSN=xxx
 ### **Support Channels**
 
 #### Self-Service
+
 - **Documentation:** README.md, DEPLOYMENT.md
 - **FAQ:** Common questions
 - **Tutorials:** How-to guides
 - **Videos:** Feature walkthroughs
 
 #### Direct Support
+
 - **Email:** support@moneo.bond
 - **Chat:** Intercom (future, $49/month)
 - **Ticket System:** Zendesk (future)
@@ -645,16 +719,19 @@ VITE_SENTRY_DSN=xxx
 ### **Support Tiers**
 
 #### Free Tier
+
 - Email support (48h response)
 - Documentation only
 - Community forum
 
 #### Pro Tier
+
 - Email support (24h response)
 - Priority ticket handling
 - Feature requests considered
 
 #### Teams Tier
+
 - Dedicated support (4h response)
 - Slack integration
 - Custom onboarding
@@ -664,6 +741,7 @@ VITE_SENTRY_DSN=xxx
 ## 📅 Pre-Launch Checklist
 
 ### **Technical**
+
 - [ ] Sound/Notifications implemented
 - [ ] Project Cabinet implemented
 - [ ] Reports implemented
@@ -676,6 +754,7 @@ VITE_SENTRY_DSN=xxx
 - [ ] Build successful
 
 ### **Integration**
+
 - [ ] Lemon Squeezy store created
 - [ ] Products/variants created
 - [ ] Webhook handler implemented
@@ -684,6 +763,7 @@ VITE_SENTRY_DSN=xxx
 - [ ] Google OAuth enabled (optional)
 
 ### **Infrastructure**
+
 - [ ] DNS propagated (moneo.bond)
 - [ ] Custom domain active
 - [ ] SSL certificate valid
@@ -693,6 +773,7 @@ VITE_SENTRY_DSN=xxx
 - [ ] Analytics configured
 
 ### **Security**
+
 - [ ] RLS policies verified
 - [ ] No secrets in frontend
 - [ ] Dependencies audited
@@ -700,6 +781,7 @@ VITE_SENTRY_DSN=xxx
 - [ ] Rate limiting enabled
 
 ### **Business**
+
 - [ ] Pricing page created
 - [ ] Terms of Service reviewed
 - [ ] Privacy Policy reviewed
@@ -708,6 +790,7 @@ VITE_SENTRY_DSN=xxx
 - [ ] Legal pages linked
 
 ### **Marketing**
+
 - [ ] Landing page copy
 - [ ] Product Hunt listing prepared
 - [ ] Social media accounts
@@ -719,6 +802,7 @@ VITE_SENTRY_DSN=xxx
 ## 🎯 Launch Day Checklist
 
 ### **1 Hour Before Launch**
+
 - [ ] Final health check
 - [ ] Verify all integrations
 - [ ] Test signup flow
@@ -728,6 +812,7 @@ VITE_SENTRY_DSN=xxx
 - [ ] Test email notifications
 
 ### **Launch Time**
+
 - [ ] Deploy to production
 - [ ] Monitor error logs
 - [ ] Monitor signup rate
@@ -737,6 +822,7 @@ VITE_SENTRY_DSN=xxx
 - [ ] Launch on Product Hunt
 
 ### **1 Hour After Launch**
+
 - [ ] Review initial metrics
 - [ ] Check for critical bugs
 - [ ] Respond to first users
@@ -744,6 +830,7 @@ VITE_SENTRY_DSN=xxx
 - [ ] Monitor payment issues
 
 ### **24 Hours After Launch**
+
 - [ ] Review day 1 metrics
 - [ ] Address all bugs
 - [ ] Respond to all support tickets
@@ -755,6 +842,7 @@ VITE_SENTRY_DSN=xxx
 ## 📝 Conclusion
 
 ### **Summary**
+
 - **Database:** Supabase (PostgreSQL) - managed, scalable
 - **Authentication:** Supabase Auth - secure, extendable
 - **Billing:** Lemon Squeezy - needs integration
@@ -764,6 +852,7 @@ VITE_SENTRY_DSN=xxx
 - **Debugging:** Local tools + production monitoring
 
 ### **Key Points**
+
 1. **Don't self-host PostgreSQL** - use Supabase for simplicity
 2. **Never expose secrets** - use Supabase Edge Functions
 3. **Monitor everything** - errors, uptime, metrics
@@ -773,6 +862,7 @@ VITE_SENTRY_DSN=xxx
 7. **Iterate quickly** - launch MVP, improve continuously
 
 ### **Next Steps**
+
 1. Implement Sound/Notifications (Week 1)
 2. Implement Project Cabinet (Week 2-3)
 3. Configure Lemon Squeezy (Week 4)

@@ -56,7 +56,7 @@ import TimerCard from './components/TimerCard';
 
 export default function App() {
   const auth = useAuth();
-  
+
   // Background timer (only on mobile)
   useEffect(() => {
     if (Platform.OS === 'ios') {
@@ -66,7 +66,7 @@ export default function App() {
 
   return (
     <TimerCard
-      // Props...
+    // Props...
     />
   );
 }
@@ -92,6 +92,7 @@ async function requestPermissions() {
 ### 6. Build and Run
 
 **Development:**
+
 ```bash
 npm start
 # iOS: Press 'i'
@@ -99,6 +100,7 @@ npm start
 ```
 
 **Production Build:**
+
 ```bash
 # iOS
 eas build --platform ios
@@ -109,15 +111,15 @@ eas build --platform android
 
 ## Feature Parity
 
-| Feature | Web | Mobile |
-|---------|-----|--------|
-| Timer | ✅ | ✅ |
-| Statistics | ✅ | ✅ |
-| Sync | ✅ | ✅ |
-| PWA | ✅ | ❌ |
-| Push Notifications | ❌ | ✅ |
-| Background Timer | ❌ | ✅ |
-| Haptic Feedback | ❌ | ✅ |
+| Feature            | Web | Mobile |
+| ------------------ | --- | ------ |
+| Timer              | ✅  | ✅     |
+| Statistics         | ✅  | ✅     |
+| Sync               | ✅  | ✅     |
+| PWA                | ✅  | ❌     |
+| Push Notifications | ❌  | ✅     |
+| Background Timer   | ❌  | ✅     |
+| Haptic Feedback    | ❌  | ✅     |
 
 ## Shared Code Strategy
 

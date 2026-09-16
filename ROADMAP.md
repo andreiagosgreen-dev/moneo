@@ -1,6 +1,7 @@
 # Moneo - Strategic Development Plan: Complete Roadmap
 
 ## 🎯 Vision
+
 Transform Moneo from a simple Pomodoro timer into a complete productivity automation system with AI assistant that guides users from technical implementation to business success.
 
 ---
@@ -8,29 +9,52 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 ## 📊 Current State (2026)
 
 ### ✅ Implemented
+
 - Pomodoro timer (25/5/15 min)
 - Focus Areas categorization
 - Session tracking
 - Statistics & streaks
 - Cloud sync (Supabase)
 - Account management
-- PWA support
+- PWA support (fully installable: icons, manifest, offline SW)
 - Billing integration (Lemon Squeezy)
-- Email notifications UI
-- Deployment infrastructure
+- Sound & Notifications (Week 1) — chimes, custom upload, browser notifications
+- Project Cabinet (Weeks 2-3) — projects, tasks, per-session tracking
+- Reports & Analytics (Week 4) — day/project/area breakdowns, charts, CSV export
+- AI Assistant (Weeks 5-6) — rule engine: streaks, Pareto, best windows, deadlines
+- Ivy Lee Method (Week 7) — daily top-6, carry-over, analytics
+- Time Blocking Calendar (Weeks 8-9) — weekly blocks, adherence tracking
+- Premium Polish (Week 10) — dark/light themes, accent colors, fonts, onboarding
+- SEO/Launch prep — OG/Twitter meta, robots.txt, sitemap, generated icon set
+- CI/CD — GitHub Actions: lint, format, typecheck, tests, Cloudflare deploy
+- ESLint + Prettier wired into the repo
 
 ### 🚧 In Progress
+
 - DNS propagation (moneo.bond)
 - Custom domain activation
+- Google Calendar API integration (requires OAuth credentials — optional)
+
+---
+
+## ✅ 10-Week Monetization Roadmap (COMPLETE)
+
+All eight monetizable features from `MONETIZATION-PLAN.md` are implemented and
+shipped, each with Free/Pro gating, storage keys pinned by tests, and full test
+coverage (~381 passing tests). Remaining work before go-live is operational:
+set GitHub Actions secrets (`CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`),
+verify the Cloudflare secret bindings, and execute the marketing plan.
 
 ---
 
 ## 🗺️ Complete Strategic Roadmap (18 Months)
 
 ### **Phase 1: Technical Foundation (Months 1-2)**
+
 **Goal:** Enhanced timer + basic productivity features
 
 #### 1.1 Sound & Notifications (Week 1-2)
+
 - Multiple chime options (bell, gong, piano, ambient sounds)
 - Volume control slider
 - Browser notifications on timer completion
@@ -39,6 +63,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Custom sound upload (mp3, wav)
 
 #### 1.2 Technical Skills Tracking (Week 3-4)
+
 - Skill inventory (what you know)
 - Skill progress tracking
 - Learning resources integration
@@ -47,6 +72,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - LinkedIn skill sync
 
 #### 1.3 Technical Project Templates (Week 5-6)
+
 - Common tech project templates (Web app, API, Mobile)
 - Pre-defined task lists for project types
 - Technology stack suggestions
@@ -54,6 +80,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Common pitfalls warnings
 
 #### 1.4 Ivy Lee Method (Week 7-8)
+
 - 6 priority tasks list
 - Daily task planning UI
 - Task completion tracking
@@ -66,9 +93,11 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 ---
 
 ### **Phase 2: Project Management Core (Months 3-4)**
+
 **Goal:** Complete project cabinet for technical work
 
 #### 2.1 Project Management System (Week 9-12)
+
 - Project creation/edit/delete/archive
 - Project color coding & icons
 - Project categories (Work, Personal, Learning, Clients)
@@ -79,6 +108,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Project cloning for similar work
 
 #### 2.2 Task Management in Projects (Week 13-16)
+
 - Task creation within projects
 - Task status (pending, in progress, blocked, completed)
 - Task priority levels (P0, P1, P2, P3)
@@ -89,6 +119,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Recurring tasks
 
 #### 2.3 Time Tracking per Project (Week 17-18)
+
 - Select project for each focus session
 - Manual time entry
 - Automatic time from Pomodoro sessions
@@ -98,6 +129,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Billable vs non-billable time
 
 #### 2.4 Project Reports (Week 19-20)
+
 - Time distribution per project
 - Project progress tracking
 - Productivity graphs per project
@@ -111,9 +143,11 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 ---
 
 ### **Phase 3: Time Management Intelligence (Months 5-6)**
+
 **Goal:** Smart time allocation and optimization
 
 #### 3.1 Eisenhower Matrix (Week 21-22)
+
 - 4-quadrant UI (Urgent/Important, Urgent/Not Important, etc.)
 - Drag-drop tasks to quadrants
 - Automatic quadrant analysis
@@ -122,6 +156,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Time spent per quadrant analytics
 
 #### 3.2 Eat the Frog (Week 23)
+
 - Identify most difficult task daily
 - Morning frog task recommendation
 - Frog completion tracking
@@ -130,6 +165,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Avoidance of procrastination analytics
 
 #### 3.3 Time Blocking (Week 24-26)
+
 - Calendar integration (Google Calendar, Outlook)
 - Fixed time blocks creation
 - Deep work sessions (2-4h blocks)
@@ -139,6 +175,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Conflict detection and resolution
 
 #### 3.4 80/20 Rule Engine (Week 27-28)
+
 - Identify top 20% activities (high impact)
 - Impact analysis per activity
 - Time optimization suggestions
@@ -147,6 +184,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Pareto chart visualization
 
 #### 3.5 Rule-Based Assistant (Week 29-30)
+
 - Simple heuristics for prioritization
 - No AI API (rule engine)
 - Fast, reliable, no cost
@@ -159,9 +197,11 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 ---
 
 ### **Phase 4: AI Assistant Foundation (Months 7-9)**
+
 **Goal:** AI-powered guidance and automation
 
 #### 4.1 AI Assistant UI (Week 31-32)
+
 - Chat interface with AI
 - Context-aware suggestions
 - Natural language task creation
@@ -171,6 +211,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Web Speech API for voice commands
 
 #### 4.2 Goal Hierarchy System (Week 33-36)
+
 - Vision Goals (yearly)
 - Milestone Goals (quarterly)
 - Project Goals (monthly)
@@ -181,6 +222,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Goal conflict resolution
 
 #### 4.3 AI-Powered Task Generation (Week 37-40)
+
 - Natural language goal input
 - Automatic goal breakdown
 - Task generation from goals
@@ -190,6 +232,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Task complexity scoring
 
 #### 4.4 Progress Automation (Week 41-44)
+
 - Daily task auto-generation
 - Progress tracking and visualization
 - Automatic milestone detection
@@ -198,6 +241,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Motivation and encouragement
 
 #### 4.5 Technical → Non-Technical Transition (Week 45-46)
+
 - Detect when technical skills are sufficient
 - Suggest transition to business skills
 - Marketing automation suggestions
@@ -210,9 +254,11 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 ---
 
 ### **Phase 5: Life Management (Months 10-12)**
+
 **Goal:** Holistic life management beyond work
 
 #### 5.1 Habit Tracking (Week 47-48)
+
 - Daily habit creation
 - Habit streak tracking
 - Habit completion reminders
@@ -221,6 +267,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Habit templates (morning, evening, work)
 
 #### 5.2 Life Areas (Week 49-50)
+
 - Life area categories (Health, Relationships, Learning, Work, Finance)
 - Time allocation per life area
 - Balance tracking
@@ -228,6 +275,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Balance recommendations
 
 #### 5.3 Journaling & Reflection (Week 51-52)
+
 - Daily journal prompts
 - Weekly reflection questions
 - Progress documentation
@@ -236,6 +284,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Insight capture
 
 #### 5.4 Energy Management (Week 53-54)
+
 - Energy level tracking (1-10 scale)
 - Peak hours identification
 - Energy prediction based on patterns
@@ -244,6 +293,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Rest recommendations
 
 #### 5.5 Work-Life Balance (Week 55-56)
+
 - Work vs personal time ratio
 - Overtime tracking
 - Burnout risk detection
@@ -256,9 +306,11 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 ---
 
 ### **Phase 6: Advanced AI & Automation (Months 13-15)**
+
 **Goal:** AI-powered intelligent automation
 
 #### 6.1 AI Learning Assistant (Week 57-60)
+
 - Learning path generation
 - Resource recommendations
 - Progress tracking
@@ -268,6 +320,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Knowledge graph visualization
 
 #### 6.2 AI Motivation Coach (Week 61-64)
+
 - Motivational quotes and messages
 - Personalized encouragement
 - Failure recovery guidance
@@ -277,6 +330,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Burnout prevention
 
 #### 6.3 AI Optimization Engine (Week 65-68)
+
 - Predictive analytics for task completion
 - Optimal work schedule prediction
 - Bottleneck identification
@@ -285,6 +339,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - A/B testing for productivity methods
 
 #### 6.4 Smart Automation (Week 69-72)
+
 - Recurring task automation
 - Email integration (task reminders)
 - Calendar integration (time blocks)
@@ -297,9 +352,11 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 ---
 
 ### **Phase 7: Advanced Project Management (Months 16-18)**
+
 **Goal:** Professional-grade project tools
 
 #### 7.1 Kanban Board (Week 73-76)
+
 - Drag-drop kanban interface
 - Custom columns (To Do, In Progress, Review, Done)
 - WIP (Work In Progress) limits
@@ -308,6 +365,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Swimlane organization
 
 #### 7.2 Agile/Scrum (Week 77-80)
+
 - Sprint planning interface
 - Sprint backlog management
 - Sprint retrospectives
@@ -317,6 +375,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Daily standup automation
 
 #### 7.3 OKRs (Objectives and Key Results) (Week 81-84)
+
 - Objective definition interface
 - Key results tracking
 - Progress percentage calculation
@@ -325,6 +384,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Cascade OKRs (company → team → individual)
 
 #### 7.4 Critical Path Method (Week 85-86)
+
 - Work breakdown structure (WBS)
 - Critical path analysis
 - Project timeline visualization
@@ -334,6 +394,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Milestone tracking
 
 #### 7.5 Waterfall Planning (Week 87-88)
+
 - Sequential phase planning
 - Phase dependency management
 - Gate and milestone definitions
@@ -348,6 +409,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 ## 🤖 AI Assistant Evolution
 
 ### Phase 1: Rule-Based (Months 7-9)
+
 - Heuristics for prioritization
 - Simple IF-THEN logic
 - No AI API cost
@@ -355,6 +417,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Learning from user patterns
 
 ### Phase 2: Prompt-Based (Months 10-12)
+
 - User asks questions
 - AI responds with suggestions
 - Interactive but not autonomous
@@ -362,6 +425,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 - Limited intelligence
 
 ### Phase 3: AI-Powered (Months 13-18)
+
 - OpenAI/Anthropic integration
 - Autonomous suggestions
 - Real-time analysis
@@ -378,6 +442,7 @@ Transform Moneo from a simple Pomodoro timer into a complete productivity automa
 "I want to learn React and build a SaaS for grant writers in 1 year"
 
 **AI Breakdown:**
+
 ```
 Vision Goal: Grant Writer SaaS (Year 1)
 ├─ Milestone 1: Learn Technical Skills (Months 1-3)
@@ -393,6 +458,7 @@ Vision Goal: Grant Writer SaaS (Year 1)
 ```
 
 **Daily Experience:**
+
 - AI generates: "Today: Learn React Components (3 sessions, 75min)"
 - User: Starts timer, completes sessions
 - AI: "Great! You're 20% ahead on weekly goal. Stretch goal: Learn hooks tomorrow"
@@ -403,12 +469,14 @@ Vision Goal: Grant Writer SaaS (Year 1)
 - AI: "React basics complete! Moving to State Management"
 
 **Automatic Progression:**
+
 - When project 100% complete → advance to next project
 - When milestone 100% complete → celebrate, advance to next
 - When behind schedule → AI suggests: "Defer non-critical tasks"
 - When stuck for 3 days → AI: "Let's restructure: break this into smaller steps"
 
 **Technical → Non-Technical Transition:**
+
 - AI detects: "You've completed MVP and have technical skills"
 - AI suggests: "Time to transition to marketing"
 - AI generates: Marketing learning path + real marketing tasks
@@ -424,17 +492,21 @@ Vision Goal: Grant Writer SaaS (Year 1)
 ## 💰 Monetization Strategy Evolution
 
 ### Phase 1-2 (Free + Pro)
+
 - **Free:** Timer + basic AI (rule-based)
 - **Pro ($9/mo):** Full AI + projects + goals + reports
 
 ### Phase 3-4 (Pro + Teams)
+
 - **Pro ($9/mo):** Individual productivity
 - **Teams ($29/mo):** Team collaboration + shared goals + team AI
 
 ### Phase 5-6 (Enterprise)
+
 - **Enterprise ($99/mo):** Custom AI models + SSO + API + dedicated support
 
 ### AI Credits Model
+
 - **Free:** 50 AI queries/month
 - **Pro:** Unlimited AI queries
 - **Teams:** 100 queries/member
@@ -445,36 +517,43 @@ Vision Goal: Grant Writer SaaS (Year 1)
 ## 🚀 Launch Strategy
 
 ### **Stage 1: MVP (Now)**
+
 - Launch current version
 - Target: Pomodoro users
 - Marketing: "Best AI-Powered Timer 2026"
 
 ### **Stage 2: Enhanced MVP (Month 2)**
+
 - Add sound + notifications
 - Add technical skills tracking
 - Marketing: "Moneo: The Productivity Coach for Developers"
 
 ### **Stage 3: Project Management (Month 4)**
+
 - Launch project cabinet
 - Target: Freelancers, agencies
 - Marketing: "Moneo: From Timer to Project Manager"
 
 ### **Stage 4: Time Intelligence (Month 6)**
+
 - Launch Eisenhower + Time Blocking
 - Target: Knowledge workers
 - Marketing: "Moneo: Your AI Time Manager"
 
 ### **Stage 5: AI Assistant (Month 9)**
+
 - Launch AI assistant with goal automation
 - Target: Ambitious achievers
 - Marketing: "Moneo: The AI That Plans Your Success"
 
 ### **Stage 6: Life Management (Month 12)**
+
 - Launch habits + life areas
 - Target: Holistic productivity
 - Marketing: "Moneo: Balance Your Entire Life"
 
 ### **Stage 7: Full Suite (Month 18)**
+
 - Launch complete system
 - Target: Enterprises
 - Marketing: "Moneo: The Complete Productivity OS"
@@ -484,12 +563,14 @@ Vision Goal: Grant Writer SaaS (Year 1)
 ## 📈 Success Metrics
 
 ### User Success
+
 - Time to first goal completion: 30% faster
 - Goal achievement rate: 60% (vs 20% manual)
 - User retention: 90% (30-day)
 - Productivity gain: 40% reported
 
 ### Business Success
+
 - Year 1: 1,000 users, 50 Pro, $5,400 revenue
 - Year 2: 5,000 users, 250 Pro + 50 Teams, $44,400 revenue
 - Year 3: 20,000 users, 1,000 Pro + 200 Teams + 10 Enterprise, $191,880 revenue
@@ -499,6 +580,7 @@ Vision Goal: Grant Writer SaaS (Year 1)
 ## 🔮 Future (Year 2+)
 
 ### Advanced AI
+
 - Voice control
 - Natural language planning
 - Predictive suggestions
@@ -506,6 +588,7 @@ Vision Goal: Grant Writer SaaS (Year 1)
 - Personalized models
 
 ### Integrations
+
 - 50+ productivity tools
 - Calendar systems
 - Communication platforms
@@ -513,6 +596,7 @@ Vision Goal: Grant Writer SaaS (Year 1)
 - Design tools
 
 ### Platforms
+
 - Desktop apps (Windows, Mac, Linux)
 - Mobile apps (iOS, Android)
 - Browser extensions
@@ -524,6 +608,7 @@ Vision Goal: Grant Writer SaaS (Year 1)
 ## 📝 Implementation Discipline
 
 ### Each Phase Must:
+
 1. ✅ Complete test coverage
 2. ✅ Update documentation
 3. ✅ Design migration strategy
@@ -533,6 +618,7 @@ Vision Goal: Grant Writer SaaS (Year 1)
 7. ✅ Iterative improvement
 
 ### Quality Standards
+
 - < 3s page load
 - < 100ms interaction response
 - 99.9% uptime
@@ -554,6 +640,7 @@ Vision Goal: Grant Writer SaaS (Year 1)
 **Phase 16-18:** Enterprise PM (Kanban + Agile + OKRs + CPM)
 
 **Value Delivered Every Month**
+
 - Not "build everything, then launch"
 - "Launch incrementally, improve continuously"
 - Quick wins → Foundation → Intelligence → Automation
@@ -568,14 +655,14 @@ From timer → Technical skills → Project management → Time intelligence →
 
 ## 🎯 Execution Timeline Summary
 
-| Phase | Duration | Months | Core Focus | Launch |
-|-------|----------|---------|-------------|--------|
-| 1 | 2 months | 1-2 | Technical Foundation | Enhanced Timer |
-| 2 | 2 months | 3-4 | Project Management | Project Cabinet |
-| 3 | 2 months | 5-6 | Time Intelligence | Time Manager |
-| 4 | 3 months | 7-9 | AI Assistant | AI Coach |
-| 5 | 3 months | 10-12 | Life Management | Life Balance |
-| 6 | 3 months | 13-15 | Advanced AI | Intelligent System |
-| 7 | 3 months | 16-18 | Enterprise PM | Complete Suite |
+| Phase | Duration | Months | Core Focus           | Launch             |
+| ----- | -------- | ------ | -------------------- | ------------------ |
+| 1     | 2 months | 1-2    | Technical Foundation | Enhanced Timer     |
+| 2     | 2 months | 3-4    | Project Management   | Project Cabinet    |
+| 3     | 2 months | 5-6    | Time Intelligence    | Time Manager       |
+| 4     | 3 months | 7-9    | AI Assistant         | AI Coach           |
+| 5     | 3 months | 10-12  | Life Management      | Life Balance       |
+| 6     | 3 months | 13-15  | Advanced AI          | Intelligent System |
+| 7     | 3 months | 16-18  | Enterprise PM        | Complete Suite     |
 
 **Total: 18 months to complete vision, with incremental launches every 2-3 months.**
