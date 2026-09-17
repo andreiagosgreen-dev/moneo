@@ -57,6 +57,7 @@ export interface RemoteSettingsRow {
   soundType?: string;
   volume?: number;
   notifications?: boolean;
+  weeklyCapacityMin?: number;
   updatedAt: number;
 }
 

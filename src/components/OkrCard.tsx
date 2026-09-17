@@ -10,6 +10,7 @@ import {
   krProgress,
   objectiveProgress,
   okrPeriods,
+  okrReview,
   overallOkrProgress,
   removeKeyResult,
   rootObjectives,
@@ -28,6 +29,7 @@ export default function OkrCard({ objectives, objectivesChange, isPro = false }:
   const [draftParent, setDraftParent] = useState('');
   const [period, setPeriod] = useState<string>('');
   const [showArchived, setShowArchived] = useState(false);
+  const [review, setReview] = useState<string | null>(null);
 
   const periods = useMemo(() => okrPeriods(objectives), [objectives]);
   const activePeriod = period || currentPeriod();
@@ -71,13 +73,20 @@ export default function OkrCard({ objectives, objectivesChange, isPro = false }:
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">OKRs</h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            Objectives · key results · {isPro ? 'unlimited' : `free ${FREE_OKRS_LIMIT}`}
+            {isPro ? 'Quarterly goals with measurable results' : `Quarterly goals · free holds ${FREE_OKRS_LIMIT}`}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <span className="font-display text-2xl font-extrabold" style={{ color: 'var(--accent)' }}>
             {overall}%
           </span>
+          <button
+            onClick={() => setReview(okrReview(objectives, period || undefined))}
+            className="press rounded-md px-2 py-1 font-mono text-[11px] text-sage ring-1 ring-inset ring-line hover:text-cream"
+            title="Generate a quarterly review summary"
+          >
+            Review
+          </button>
           {periods.length > 1 && (
             <select
               value={period}
@@ -95,6 +104,37 @@ export default function OkrCard({ objectives, objectivesChange, isPro = false }:
           )}
         </div>
       </header>
+
+      {review !== null && (
+        <div className="mt-3 rounded-xl bg-ink/40 px-4 py-3 ring-1 ring-inset ring-line">
+          <div className="flex items-center justify-between">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-faint">
+              Quarterly review
+            </p>
+            <button
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(review);
+                } catch {
+                  /* clipboard unavailable */
+                }
+              }}
+              className="press font-mono text-[10px] text-sage hover:text-cream"
+            >
+              Copy
+            </button>
+          </div>
+          <pre className="mt-1.5 whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-sage">
+            {review}
+          </pre>
+          <button
+            onClick={() => setReview(null)}
+            className="press mt-1 font-mono text-[10px] text-faint hover:text-cream"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {roots.length === 0 ? (
         <p className="mt-4 rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">

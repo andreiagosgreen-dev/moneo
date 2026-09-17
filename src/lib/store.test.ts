@@ -26,6 +26,7 @@ describe('settings duration limits', () => {
       soundType: 'bell',
       volume: 50,
       notifications: true,
+      weeklyCapacityMin: 99999,
     });
     const s = loadSettings();
     expect(s.focusMin).toBe(120);
@@ -35,6 +36,7 @@ describe('settings duration limits', () => {
     expect(s.dailyGoal).toBe(20);
     expect(s.autoStart).toBe(true);
     expect(s.sound).toBe(false);
+    expect(s.weeklyCapacityMin).toBe(10080);
   });
 
   it('falls back to defaults on corrupt JSON', () => {

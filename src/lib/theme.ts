@@ -35,12 +35,12 @@ export const ACCENT_PRESETS: Record<
   Exclude<AccentName, 'auto'>,
   { accent: string; deep: string; rgb: string; on: string }
 > = {
-  tomato: { accent: '#ff6242', deep: '#d94322', rgb: '255, 98, 66', on: '#1a0d08' },
-  mint: { accent: '#3ddc97', deep: '#1fb877', rgb: '61, 220, 151', on: '#06170f' },
-  sky: { accent: '#6faeff', deep: '#3e86e8', rgb: '111, 174, 255', on: '#081220' },
+  tomato: { accent: '#f07167', deep: '#d65448', rgb: '240, 113, 103', on: '#200b08' },
+  mint: { accent: '#3ecf8e', deep: '#27a56e', rgb: '62, 207, 142', on: '#04170e' },
+  sky: { accent: '#7aa5ff', deep: '#4f7dd6', rgb: '122, 165, 255', on: '#0a1226' },
   violet: { accent: '#a78bfa', deep: '#7c5ce8', rgb: '167, 139, 250', on: '#110a24' },
-  amber: { accent: '#f5b942', deep: '#d19422', rgb: '245, 185, 66', on: '#1d1404' },
-  rose: { accent: '#ff7ab6', deep: '#e04f92', rgb: '255, 122, 182', on: '#200a14' },
+  amber: { accent: '#f5a524', deep: '#cf850a', rgb: '245, 165, 36', on: '#1c1204' },
+  rose: { accent: '#f483b8', deep: '#d65696', rgb: '244, 131, 184', on: '#200a14' },
 };
 
 export const THEME_OPTIONS: ThemeName[] = ['dark', 'light'];

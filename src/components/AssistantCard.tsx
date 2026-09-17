@@ -1,15 +1,23 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Project } from '../lib/projects';
 import { activeProjects } from '../lib/projects';
 import type { Task, TaskPriority } from '../lib/tasks';
 import { createTaskObject, setDueAt } from '../lib/tasks';
 import type { Session } from '../lib/store';
 import type { Goal } from '../lib/goals';
+import { addTaskToDay, IVY_MAX_TASKS, IVY_FREE_MAX_TASKS, type IvyPlan } from '../lib/ivyLee';
+import { dayKeyInTz } from '../lib/timezone';
 import {
   QUICK_ACTIONS,
+  ASSISTANT_TONES,
+  TONE_LABELS,
   appendMessage,
+  loadAssistantTone,
+  saveAssistantTone,
+  motivationLine,
   respondTo,
   saveChatHistory,
+  type AssistantTone,
   type ChatMessage,
 } from '../lib/assistant';
 
@@ -21,9 +29,22 @@ interface Props {
   history: Session[];
   timezone: string;
   goals: Goal[];
+  energyLog: Array<{ at: number; level: number }>;
+  ivyPlans: IvyPlan[];
+  onIvyPlansChange: (plans: IvyPlan[]) => void;
   selectedProjectId: string | null;
   onTasksChange: (tasks: Task[]) => void;
   isPro?: boolean;
+}
+
+interface WebSpeechRecognizer {
+  lang: string;
+  interimResults: boolean;
+  maxAlternatives: number;
+  onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+  onerror: (() => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
 }
 
 export default function AssistantCard({
@@ -34,12 +55,28 @@ export default function AssistantCard({
   history,
   timezone,
   goals,
+  energyLog,
+  ivyPlans,
+  onIvyPlansChange,
   selectedProjectId,
   onTasksChange,
   isPro = false,
 }: Props) {
   const [draft, setDraft] = useState('');
+  const [tone, setTone] = useState<AssistantTone>(loadAssistantTone);
+  const [speakOn, setSpeakOn] = useState(false);
+  const [listening, setListening] = useState(false);
   const scrollRef = useRef<HTMLUListElement | null>(null);
+
+  const greeting = useMemo(
+    () => motivationLine(history, timezone, isPro ? tone : 'concise'),
+    [history, timezone, tone, isPro],
+  );
+
+  const micSupported =
+    typeof window !== 'undefined' &&
+    ((window as unknown as Record<string, unknown>).SpeechRecognition !== undefined ||
+      (window as unknown as Record<string, unknown>).webkitSpeechRecognition !== undefined);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -65,19 +102,53 @@ export default function AssistantCard({
     messagesChange(log);
   };
 
+  const speak = (text: string) => {
+    try {
+      if (!speakOn || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance(text.slice(0, 300)));
+    } catch {
+      /* speech unavailable */
+    }
+  };
+
+  const listen = () => {
+    try {
+      const w = window as unknown as {
+        SpeechRecognition?: new () => WebSpeechRecognizer;
+        webkitSpeechRecognition?: new () => WebSpeechRecognizer;
+      };
+      const Ctor = w.SpeechRecognition ?? w.webkitSpeechRecognition;
+      if (!Ctor) return;
+      const rec = new Ctor();
+      rec.lang = 'en-US';
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      setListening(true);
+      rec.onresult = (e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => {
+        const transcript = e.results[0]?.[0]?.transcript ?? '';
+        setListening(false);
+        if (transcript.trim()) send(transcript);
+      };
+      rec.onerror = () => setListening(false);
+      rec.onend = () => setListening(false);
+      rec.start();
+    } catch {
+      setListening(false);
+    }
+  };
+
   const send = (raw: string) => {
     const text = raw.trim();
     if (!text || (!isPro && !isQuickAllowed(text))) return;
     let log = appendMessage(messages, 'user', text);
-    const reply = respondTo(text, { tasks, projects, history, timezone, goals });
+    const reply = respondTo(text, { tasks, projects, history, timezone, goals, energyLog }, tone);
+    let spoken = reply.text;
     if (reply.action?.type === 'add-task') {
       const target = resolveProject(reply.action.projectQuery);
       if (!target) {
-        log = appendMessage(
-          log,
-          'assistant',
-          'Create a project first — every task needs a home. Then try again.',
-        );
+        spoken = 'Create a project first — every task needs a home. Then try again.';
+        log = appendMessage(log, 'assistant', spoken);
       } else {
         const task = createTaskObject(
           target.id,
@@ -89,11 +160,29 @@ export default function AssistantCard({
         onTasksChange(next);
         log = appendMessage(log, 'assistant', reply.text);
       }
+    } else if (reply.action?.type === 'build-plan') {
+      const key = dayKeyInTz(Date.now(), timezone);
+      const max = isPro ? IVY_MAX_TASKS : IVY_FREE_MAX_TASKS;
+      let plans = ivyPlans;
+      let added = 0;
+      for (const item of reply.action.items.slice(0, max)) {
+        const res = addTaskToDay(plans, key, item, max);
+        plans = res.plans;
+        if (res.added) added += 1;
+      }
+      if (added > 0) {
+        onIvyPlansChange(plans);
+        log = appendMessage(log, 'assistant', reply.text);
+      } else {
+        spoken = 'Your Ivy Lee list is already full — clear something first.';
+        log = appendMessage(log, 'assistant', spoken);
+      }
     } else {
       log = appendMessage(log, 'assistant', reply.text);
     }
     commit(log);
     setDraft('');
+    speak(spoken);
   };
 
   const isQuickAllowed = (message: string) => {
@@ -108,7 +197,7 @@ export default function AssistantCard({
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">Assistant</h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            Rule-based coach · {isPro ? 'full access' : '2 quick actions'}
+            {isPro ? 'Ask anything · it creates tasks too' : '2 free quick actions · chat is Pro'}
           </p>
         </div>
         {messages.length > 0 && (
@@ -121,6 +210,41 @@ export default function AssistantCard({
           </button>
         )}
       </header>
+
+      <div className="mt-3 flex items-center gap-2">
+        {isPro && (
+          <select
+            value={tone}
+            onChange={(e) => {
+              const next = e.target.value as AssistantTone;
+              setTone(next);
+              saveAssistantTone(next);
+            }}
+            className="h-7 rounded-lg bg-ink/40 px-2 font-mono text-[11px] text-sage ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+            title="Assistant personality"
+            aria-label="Assistant personality"
+          >
+            {ASSISTANT_TONES.map((t) => (
+              <option key={t} value={t}>
+                {TONE_LABELS[t]}
+              </option>
+            ))}
+          </select>
+        )}
+        <button
+          onClick={() => setSpeakOn(!speakOn)}
+          className={`press rounded-md px-2 py-1 font-mono text-[11px] ring-1 ring-inset ${
+            speakOn ? 'text-accent ring-accent/50' : 'text-faint ring-line hover:text-cream'
+          }`}
+          aria-pressed={speakOn}
+          title="Read replies aloud"
+        >
+          {speakOn ? '🔊' : '🔇'}
+        </button>
+        <p className="min-w-0 flex-1 truncate font-mono text-[11px] text-faint" title={greeting}>
+          {greeting}
+        </p>
+      </div>
 
       {messages.length > 0 && (
         <ul ref={scrollRef} className="nice-scroll mt-4 max-h-56 space-y-2 overflow-y-auto pr-1">
@@ -162,6 +286,19 @@ export default function AssistantCard({
 
       {isPro ? (
         <div className="mt-2.5 flex items-center gap-2">
+          {micSupported && (
+            <button
+              onClick={listen}
+              disabled={listening}
+              className={`press flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${
+                listening ? 'text-accent ring-accent/60' : 'text-sage ring-line hover:text-cream'
+              } disabled:opacity-60`}
+              title="Voice input"
+              aria-label="Voice input"
+            >
+              🎙
+            </button>
+          )}
           <input
             type="text"
             value={draft}

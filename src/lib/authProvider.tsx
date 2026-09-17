@@ -17,7 +17,9 @@ import {
 } from './authController';
 import { getSupabaseClient } from './supabase';
 import { getBrowserTimezone } from './timezone';
-import { ensureProfile, getProfileTimezone, deleteUserData } from './cloud/profileRepository';
+import { ensureProfile, getProfileTimezone } from './cloud/profileRepository';
+import { STORAGE_KEYS } from './storage/storageKeys';
+import { safeRemove } from './storage/storageAdapter';
 import {
   fetchSubscription,
   DEFAULT_FREE_SUBSCRIPTION,
@@ -41,7 +43,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clientFactory: async () => (await getSupabaseClient()) as unknown as AuthClientLike | null,
         ensureProfile: (userId, timezone) => ensureProfile(userId, timezone),
         getProfileTimezone: (userId) => getProfileTimezone(userId),
-        deleteUserData: (userId) => deleteUserData(userId),
+        // Same-origin Worker endpoint (serves the frontend in production).
+        // Unreachable in dev → the promise rejects → controller fails closed.
+        requestAccountDeletion: async (accessToken) => {
+          try {
+            const res = await fetch('/api/account/delete', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${accessToken}`,
+              },
+            });
+            return res.ok;
+          } catch {
+            return false;
+          }
+        },
+        // Only invoked after the server confirms the wipe.
+        clearLocalData: () => {
+          try {
+            for (const key of Object.values(STORAGE_KEYS)) safeRemove(key);
+          } catch {
+            /* best-effort */
+          }
+        },
         browserTimezone: getBrowserTimezone,
       }),
     [],

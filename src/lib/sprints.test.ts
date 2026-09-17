@@ -7,9 +7,11 @@ import {
   createSprintObject,
   deleteSprint,
   formatStandup,
+  loadBoardConfig,
   loadSprints,
   pruneSprintTasks,
   removeTaskFromSprint,
+  saveBoardConfig,
   sprintPoints,
   sprintTasks,
   sprintsForProject,
@@ -130,5 +132,20 @@ describe('sprint math', () => {
     expect(text).toContain('Yesterday: API done');
     expect(text).toContain('Today: UI build');
     expect(text).toContain('Blocked: Keys waiting');
+  });
+
+  it('loads default board config and persists labels', () => {
+    expect(loadBoardConfig()).toEqual({ wipLimits: {}, columnLabels: {}, hidden: [] });
+    expect(
+      saveBoardConfig({
+        wipLimits: { pending: 3 },
+        columnLabels: { pending: 'Todo', in_progress: 'Doing' },
+        hidden: ['blocked'],
+      }),
+    ).toBe(true);
+    const loaded = loadBoardConfig();
+    expect(loaded.wipLimits).toEqual({ pending: 3 });
+    expect(loaded.columnLabels).toEqual({ pending: 'Todo', in_progress: 'Doing' });
+    expect(loaded.hidden).toEqual(['blocked']);
   });
 });

@@ -12,19 +12,38 @@ export type WipLimits = Partial<Record<TaskStatus, number>>;
 
 export interface BoardConfig {
   wipLimits: WipLimits;
+  /** Custom display labels per status column (Roadmap 7.1 custom columns). */
+  columnLabels: Partial<Record<TaskStatus, string>>;
+  /** Hidden status columns (empty = all visible). */
+  hidden: TaskStatus[];
 }
 
 /** Load board config (WIP limits), defaulting to unlimited. Never throws. */
 export function loadBoardConfig(): BoardConfig {
   const stored = read<BoardConfig>(STORAGE_KEYS.boardConfig);
   const wip = stored?.wipLimits;
-  if (!wip || typeof wip !== 'object') return { wipLimits: {} };
   const clean: WipLimits = {};
-  for (const status of ['pending', 'in_progress', 'blocked', 'completed'] as const) {
-    const v = (wip as Record<string, unknown>)[status];
-    if (typeof v === 'number' && Number.isFinite(v) && v > 0) clean[status] = Math.floor(v);
+  if (wip && typeof wip === 'object') {
+    for (const status of ['pending', 'in_progress', 'blocked', 'completed'] as const) {
+      const v = (wip as Record<string, unknown>)[status];
+      if (typeof v === 'number' && Number.isFinite(v) && v > 0) clean[status] = Math.floor(v);
+    }
   }
-  return { wipLimits: clean };
+  const labels: Partial<Record<TaskStatus, string>> = {};
+  const rawLabels = stored?.columnLabels;
+  if (rawLabels && typeof rawLabels === 'object') {
+    for (const status of ['pending', 'in_progress', 'blocked', 'completed'] as const) {
+      const v = (rawLabels as Record<string, unknown>)[status];
+      if (typeof v === 'string' && v.trim()) labels[status] = v.trim().slice(0, 24);
+    }
+  }
+  const hidden = Array.isArray(stored?.hidden)
+    ? (stored.hidden as unknown[]).filter(
+        (s): s is TaskStatus =>
+          s === 'pending' || s === 'in_progress' || s === 'blocked' || s === 'completed',
+      )
+    : [];
+  return { wipLimits: clean, columnLabels: labels, hidden };
 }
 
 export function saveBoardConfig(config: BoardConfig): boolean {

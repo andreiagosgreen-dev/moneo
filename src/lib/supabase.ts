@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { readEnv } from './env';
 
 /**
  * INERT Supabase foundation (Gate 7).
@@ -16,17 +17,6 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 export type SupabaseConfig =
   { configured: true; url: string; anonKey: string } | { configured: false };
-
-function readEnv(): Record<string, string | undefined> {
-  try {
-    const meta = import.meta as unknown as {
-      env?: Record<string, string | undefined>;
-    };
-    return meta.env ?? {};
-  } catch {
-    return {};
-  }
-}
 
 /** Never throws. Pure environment inspection. */
 export function getSupabaseConfig(): SupabaseConfig {

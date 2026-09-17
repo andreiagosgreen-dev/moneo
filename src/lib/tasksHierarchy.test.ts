@@ -13,6 +13,15 @@ import {
   setDueAt,
   setNotes,
   setRecurrence,
+  setTaskMilestone,
+  addTaskLink,
+  removeTaskLink,
+  taskComplexity,
+  pointsVelocity,
+  etaByPoints,
+  openPoints,
+  impactEffort,
+  suggestDeadline,
   setTaskPoints,
   criticalChain,
   taskPoints,
@@ -231,5 +240,81 @@ describe('story points + critical chain', () => {
     const chain = criticalChain(tasks, 'p1');
     expect(chain.map((t) => t.id).sort()).toEqual(['x', 'y']);
     expect(criticalChain([], 'p1')).toEqual([]);
+  });
+});
+
+describe('milestones + links', () => {
+  it('toggles the milestone flag', () => {
+    const tasks = [makeTask({ id: 'a' })];
+    expect(setTaskMilestone(tasks, 'a', true)[0].milestone).toBe(true);
+    expect(setTaskMilestone(tasks, 'a', false)[0].milestone).toBeUndefined();
+  });
+
+  it('attaches links capped and deduped, removes cleanly', () => {
+    const tasks = [makeTask({ id: 'a' })];
+    let next = addTaskLink(tasks, 'a', '  https://example.com/spec  ');
+    expect(next[0].links).toEqual(['https://example.com/spec']);
+    expect(addTaskLink(next, 'a', 'https://example.com/spec')).toBe(next);
+    expect(addTaskLink(next, 'a', '   ')).toBe(next);
+    next = addTaskLink(next, 'a', 'https://example.com/2');
+    expect(next[0].links).toHaveLength(2);
+    const removed = removeTaskLink(next, 'a', 'https://example.com/spec');
+    expect(removed[0].links).toEqual(['https://example.com/2']);
+    expect(removeTaskLink(removed, 'a', 'https://example.com/2')[0].links).toBeUndefined();
+  });
+});
+
+describe('complexity + ETA', () => {
+  it('scores 1 for a plain task, up to 5 for monsters', () => {
+    expect(taskComplexity(makeTask({ id: 'a' }), [makeTask({ id: 'a' })])).toBe(1);
+    const monster = makeTask({ id: 'm', priority: 'p0', blockedBy: ['x'], notes: 'n'.repeat(500) });
+    const kids = [
+      monster,
+      makeTask({ id: 'k1', parentId: 'm' }),
+      makeTask({ id: 'k2', parentId: 'm' }),
+    ];
+    expect(taskComplexity(monster, kids)).toBeGreaterThanOrEqual(4);
+  });
+
+  it('estimates completion from measured velocity', () => {
+    const now = Date.now();
+    const DAY = 24 * 3600_000;
+    const tasks = [
+      makeTask({ id: 'd1', status: 'completed', points: 10, completedAt: now - 7 * DAY }),
+      makeTask({ id: 'open', points: 5 }),
+    ];
+    expect(pointsVelocity(tasks, now, 4)).toBeCloseTo(2.5);
+    expect(openPoints(tasks)).toBe(5);
+    const eta = etaByPoints(5, 2.5, now)!;
+    expect(eta).toBe(now + 14 * DAY);
+    expect(etaByPoints(0, 5, now)).toBeNull();
+    expect(etaByPoints(5, 0, now)).toBeNull();
+  });
+
+  it('scores impact × effort and suggests priorities', () => {
+    const leaf = makeTask({ id: 'leaf', priority: 'p2' });
+    expect(impactEffort(leaf, [leaf]).suggested).toBe('p2');
+    const hub = makeTask({ id: 'hub', priority: 'p0' });
+    const tasks = [
+      hub,
+      makeTask({ id: 'd1', blockedBy: ['hub'] }),
+      makeTask({ id: 'd2', blockedBy: ['hub'] }),
+    ];
+    const scored = impactEffort(hub, tasks);
+    expect(scored.impact).toBeGreaterThanOrEqual(4);
+    expect(['p0', 'p1']).toContain(scored.suggested);
+  });
+
+  it('suggests deadlines from velocity with buffer', () => {
+    const now = Date.now();
+    const DAY = 24 * 3600_000;
+    const tasks = [
+      makeTask({ id: 'd1', status: 'completed', points: 20, completedAt: now - 7 * DAY }),
+      makeTask({ id: 'open', points: 5 }),
+    ];
+    const eta = suggestDeadline(tasks, 'p1', now)!;
+    // 5 open pts at 5 pts/week + 20% buffer ≈ 8.4 → 9 days
+    expect(eta).toBe(now + 9 * DAY);
+    expect(suggestDeadline([], 'p1', now)).toBeNull();
   });
 });

@@ -19,6 +19,8 @@ export interface Settings {
   soundType: SoundType;
   volume: number; // 0-100
   notifications: boolean;
+  /** Weekly focus capacity in minutes for allocation insights (default 25h). */
+  weeklyCapacityMin: number;
   /** Last-edit stamp — powers settings sync last-write-wins (Gate 9, additive). */
   updatedAt?: number;
 }
@@ -51,6 +53,7 @@ export const DEFAULT_SETTINGS: Settings = {
   soundType: 'bell',
   volume: 50,
   notifications: true,
+  weeklyCapacityMin: 1500,
 };
 
 export const MODE_META: Record<Mode, { label: string; short: string; tagline: string }> = {
@@ -95,6 +98,12 @@ export function loadSettings(): Settings {
       typeof stored.notifications === 'boolean'
         ? stored.notifications
         : DEFAULT_SETTINGS.notifications,
+    weeklyCapacityMin: clampNum(
+      stored.weeklyCapacityMin,
+      60,
+      10080,
+      DEFAULT_SETTINGS.weeklyCapacityMin,
+    ),
     ...(typeof stored.updatedAt === 'number' && Number.isFinite(stored.updatedAt)
       ? { updatedAt: stored.updatedAt }
       : {}),

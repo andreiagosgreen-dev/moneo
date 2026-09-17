@@ -1,5 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { getSupabaseClient } from '../supabase';
+import { withClient } from './withClient';
 import { isValidIanaTimezone } from '../timezone';
 
 /**
@@ -7,16 +6,6 @@ import { isValidIanaTimezone } from '../timezone';
  * Every call is opt-in, lazily resolves the Supabase client, and returns
  * a calm null/false when unconfigured or unreachable — never throws.
  */
-
-async function withClient<T>(fn: (client: SupabaseClient) => Promise<T>): Promise<T | null> {
-  const client = await getSupabaseClient();
-  if (!client) return null;
-  try {
-    return await fn(client);
-  } catch {
-    return null;
-  }
-}
 
 /**
  * Idempotent profile bootstrap: insert-if-absent.

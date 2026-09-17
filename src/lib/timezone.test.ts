@@ -108,11 +108,13 @@ describe('account-timezone day grouping (Gate 9)', () => {
   });
 
   it('computes streaks in the account timezone', () => {
+    // Anchor on UTC noon so the test means the same on every machine
+    // (local noon can fall on a different UTC date depending on TZ).
     const day = (offset: number) => {
-      const d = new Date();
-      d.setDate(d.getDate() - offset);
-      d.setHours(12, 0, 0, 0);
-      return d.getTime();
+      const now = new Date();
+      return (
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 12) - offset * 86400000
+      );
     };
     const hist = [{ at: day(0) }, { at: day(1) }, { at: day(3) }];
     expect(currentStreakInTz(hist, 'UTC')).toBe(2);

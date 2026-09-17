@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { rangeDayKeys, buildReport, RANGES } from './reports';
+import { rangeDayKeys, buildReport, paretoSplit, RANGES } from './reports';
 
 const TZ = 'UTC';
 
@@ -133,5 +133,24 @@ describe('buildReport', () => {
   it('excludes sessions older than the range', () => {
     const report = buildReport(sessions(), projects, areas, tasks, 'week', TZ);
     expect(report.summary.totalMin).toBe(85);
+  });
+});
+
+describe('paretoSplit', () => {
+  it('splits the head covering ~80% of minutes', () => {
+    const slices = [
+      { name: 'a', min: 70 },
+      { name: 'b', min: 20 },
+      { name: 'c', min: 10 },
+    ];
+    const { top, rest, topShare } = paretoSplit(slices);
+    expect(top.map((s) => s.name)).toEqual(['a', 'b']);
+    expect(rest.map((s) => s.name)).toEqual(['c']);
+    expect(topShare).toBeCloseTo(0.9);
+  });
+
+  it('handles empty input', () => {
+    expect(paretoSplit([])).toEqual({ top: [], rest: [], topShare: 0 });
+    expect(paretoSplit([{ min: 0 }]).top).toEqual([]);
   });
 });

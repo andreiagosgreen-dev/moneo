@@ -45,10 +45,18 @@ describe('centralized storage keys', () => {
       lifeAreas: 'moneo:life-areas',
       journal: 'moneo:journal',
       energyLog: 'moneo:energy-log',
+      timeOff: 'moneo:time-off',
+      assistantTone: 'moneo:assistant-tone',
+      insightsDismissed: 'moneo:insights-dismissed',
       sprints: 'moneo:sprints',
       objectives: 'moneo:objectives',
       boardConfig: 'moneo:board-config',
       waterfall: 'moneo:waterfall',
+      ritualDay: 'moneo:ritual-day',
+      lifeMap: 'moneo:life-map',
+      locale: 'moneo:locale',
+      estimateProfiles: 'moneo:estimate-profiles',
+      aiConsent: 'moneo:ai-consent',
     });
   });
 });

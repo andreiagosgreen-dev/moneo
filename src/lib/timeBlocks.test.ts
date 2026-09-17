@@ -10,6 +10,9 @@ import {
   weekdayOfKey,
   minuteOfDayInTz,
   adherenceForDay,
+  blockConflicts,
+  conflictedBlockIds,
+  nextFocusBlock,
   BLOCK_PALETTE,
   type Weekday,
 } from './timeBlocks';
@@ -106,11 +109,12 @@ describe('week helpers', () => {
     expect(weekdayOfKey(keys[0])).toBe(1);
     expect(weekdayOfKey(keys[6])).toBe(0);
     for (let i = 1; i < keys.length; i++) {
+      // Calendar-day stepping (DST-proof: never compare raw ms across days).
       const [y, m, d] = keys[i].split('-').map(Number);
       const [py, pm, pd] = keys[i - 1].split('-').map(Number);
-      expect((new Date(y, m - 1, d).getTime() - new Date(py, pm - 1, pd).getTime()) / 8.64e7).toBe(
-        1,
-      );
+      const next = new Date(py, pm - 1, pd);
+      next.setDate(next.getDate() + 1);
+      expect([y, m, d]).toEqual([next.getFullYear(), next.getMonth() + 1, next.getDate()]);
     }
   });
 });
@@ -198,5 +202,70 @@ describe('storage round trip', () => {
       },
     ]);
     expect(loadBlocks()).toEqual([]);
+  });
+});
+
+describe('blockConflicts', () => {
+  const blk = (id: string, weekday: number, startMin: number, endMin: number) => ({
+    id,
+    label: id,
+    weekday: weekday as Weekday,
+    startMin,
+    endMin,
+    color: '#fff',
+    createdAt: 0,
+    updatedAt: 0,
+  });
+
+  it('finds overlapping pairs on the same weekday only', () => {
+    const blocks = [
+      blk('a', 1, 540, 660),
+      blk('b', 1, 600, 720),
+      blk('c', 1, 720, 780),
+      blk('d', 2, 600, 720),
+    ];
+    const conflicts = blockConflicts(blocks);
+    expect(conflicts).toHaveLength(1);
+    expect(conflicts[0].a.id).toBe('a');
+    expect(conflicts[0].b.id).toBe('b');
+    expect(conflicts[0].overlapMin).toBe(60);
+    expect(conflictedBlockIds(blocks)).toEqual(new Set(['a', 'b']));
+  });
+
+  it('returns empty when nothing overlaps', () => {
+    expect(blockConflicts([])).toEqual([]);
+    expect(blockConflicts([blk('a', 1, 540, 600)])).toEqual([]);
+  });
+});
+
+describe('nextFocusBlock', () => {
+  const blocks = [
+    { id: 'a', weekday: 1, startMin: 540, endMin: 600 },
+    { id: 'b', weekday: 1, startMin: 660, endMin: 720 },
+  ].map((b) => ({
+    ...b,
+    weekday: b.weekday as Weekday,
+    label: b.id,
+    color: '#fff',
+    createdAt: 0,
+    updatedAt: 0,
+  }));
+
+  it('returns the running block as now', () => {
+    const next = nextFocusBlock(blocks, 1, 550);
+    expect(next?.block.id).toBe('a');
+    expect(next?.state).toBe('now');
+  });
+
+  it('returns the next upcoming block as later', () => {
+    const next = nextFocusBlock(blocks, 1, 610);
+    expect(next?.block.id).toBe('b');
+    expect(next?.state).toBe('later');
+  });
+
+  it('returns null when the day is clear', () => {
+    expect(nextFocusBlock(blocks, 1, 800)).toBeNull();
+    expect(nextFocusBlock(blocks, 3, 100)).toBeNull();
+    expect(nextFocusBlock([], 1, 100)).toBeNull();
   });
 });

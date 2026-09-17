@@ -18,12 +18,13 @@ import {
 interface Props {
   skills: Skill[];
   skillsChange: (skills: Skill[]) => void;
+  transitionTip?: string | null;
   isPro?: boolean;
 }
 
 const LEVELS: SkillLevel[] = [1, 2, 3, 4, 5];
 
-export default function SkillsCard({ skills, skillsChange, isPro = false }: Props) {
+export default function SkillsCard({ skills, skillsChange, transitionTip, isPro = false }: Props) {
   const [draft, setDraft] = useState('');
   const [draftCategory, setDraftCategory] = useState<SkillCategory>('frontend');
   const [openId, setOpenId] = useState<string | null>(null);
@@ -51,11 +52,17 @@ export default function SkillsCard({ skills, skillsChange, isPro = false }: Prop
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">Skills</h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            Inventory · {isPro ? 'unlimited' : `free ${FREE_SKILLS_LIMIT}`}
+            {isPro ? 'What you know · leveled 1–5' : `Know-how inventory · free holds ${FREE_SKILLS_LIMIT}`}
           </p>
         </div>
         <span className="font-mono text-[11px] text-sage">{formatLearningDuration(total)}</span>
       </header>
+
+      {transitionTip && (
+        <p className="mt-3 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-[12px] leading-relaxed text-cream">
+          🚀 {transitionTip}
+        </p>
+      )}
 
       {skills.length === 0 ? (
         <p className="mt-4 rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">

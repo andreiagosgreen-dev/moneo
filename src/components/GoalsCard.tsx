@@ -9,11 +9,16 @@ import {
   childrenOf,
   createGoalObject,
   deleteGoal,
+  goalBlockers,
+  goalConflicts,
   goalProgress,
   rootGoals,
+  setGoalBlockedBy,
+  smartScore,
   suggestTasksForGoal,
   updateGoal,
 } from '../lib/goals';
+import type { LifeArea } from '../lib/lifeAreas';
 import type { Project } from '../lib/projects';
 import { activeProjects } from '../lib/projects';
 import type { Task } from '../lib/tasks';
@@ -30,6 +35,7 @@ interface Props {
   ivyPlans: IvyPlan[];
   onIvyPlansChange: (plans: IvyPlan[]) => void;
   timezone: string;
+  lifeAreas: LifeArea[];
   isPro?: boolean;
 }
 
@@ -47,6 +53,7 @@ export default function GoalsCard({
   ivyPlans,
   onIvyPlansChange,
   timezone,
+  lifeAreas,
   isPro = false,
 }: Props) {
   const [draft, setDraft] = useState('');
@@ -64,6 +71,7 @@ export default function GoalsCard({
   }, [goals, tasks]);
 
   const atCapacity = !isPro && goals.filter((g) => !g.archived).length >= FREE_GOALS_LIMIT;
+  const conflicts = useMemo(() => goalConflicts(goals), [goals]);
   const maxIvy = isPro ? IVY_MAX_TASKS : IVY_FREE_MAX_TASKS;
   const todayKey = dayKeyInTz(Date.now(), timezone);
 
@@ -99,10 +107,17 @@ export default function GoalsCard({
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">Goals</h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            Vision → weekly · {isPro ? 'unlimited' : `free ${FREE_GOALS_LIMIT}`}
+            {isPro ? 'Big goals, broken into milestones and weeks' : `Big goals, broken down · free holds ${FREE_GOALS_LIMIT}`}
           </p>
         </div>
       </header>
+
+      {conflicts.length > 0 && (
+        <p className="mt-3 rounded-lg bg-tomato/10 px-3 py-2 font-mono text-[11px] text-tomato ring-1 ring-inset ring-tomato/30">
+          ⚠ {conflicts.length} target-week clash{conflicts.length === 1 ? '' : 'es'}: "
+          {conflicts[0].a.title}" × "{conflicts[0].b.title}" ({conflicts[0].week})
+        </p>
+      )}
 
       {roots.length === 0 ? (
         <p className="mt-4 rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">
@@ -119,6 +134,8 @@ export default function GoalsCard({
               goals={goals}
               goalsChange={goalsChange}
               liveProjects={liveProjects}
+              lifeAreas={lifeAreas}
+              tasks={tasks}
               progressOf={progressOf}
               ancestorIds={[]}
               onGenerate={generateTasks}
@@ -232,6 +249,8 @@ interface NodeProps {
   goals: Goal[];
   goalsChange: (goals: Goal[]) => void;
   liveProjects: Project[];
+  lifeAreas: LifeArea[];
+  tasks: Task[];
   progressOf: Map<string, number>;
   ancestorIds: string[];
   onGenerate: (goal: Goal) => void;
@@ -243,6 +262,8 @@ function GoalNode({
   goals,
   goalsChange,
   liveProjects,
+  lifeAreas,
+  tasks,
   progressOf,
   ancestorIds,
   onGenerate,
@@ -252,6 +273,15 @@ function GoalNode({
   const pct = progressOf.get(goal.id) ?? 0;
   const kids = childrenOf(goals, goal.id).filter((k) => !ancestorIds.includes(k.id));
   const linked = goal.projectId ? liveProjects.find((p) => p.id === goal.projectId) : null;
+  const smart = useMemo(() => smartScore(goal.title), [goal.title]);
+  const blockers = useMemo(() => goalBlockers(goals, tasks, goal), [goals, tasks, goal]);
+  const depCandidates = useMemo(
+    () =>
+      goals.filter(
+        (g) => !g.archived && g.id !== goal.id && !(goal.blockedBy ?? []).includes(g.id),
+      ),
+    [goals, goal],
+  );
 
   return (
     <li>
@@ -339,6 +369,84 @@ function GoalNode({
                 Progress mirrors “{linked.name}” tasks.
               </p>
             )}
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={goal.lifeAreaId ?? ''}
+                onChange={(e) =>
+                  goalsChange(updateGoal(goals, goal.id, { lifeAreaId: e.target.value || null }))
+                }
+                className="h-8 min-w-0 flex-1 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+                title="Linked life area"
+              >
+                <option value="">No life area</option>
+                {lifeAreas.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.label}
+                  </option>
+                ))}
+              </select>
+              <span
+                className="shrink-0 font-mono text-[10px] text-sage"
+                title={
+                  smart.tips.length > 0
+                    ? smart.tips.join(' ')
+                    : 'SMART: specific, measurable, achievable, relevant, time-bound'
+                }
+              >
+                SMART {smart.score}/5
+              </span>
+            </div>
+            {blockers.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {blockers.map((b) => (
+                  <span
+                    key={b.id}
+                    className="flex items-center gap-1 rounded-full bg-tomato/15 px-2 py-0.5 font-mono text-[10px] text-tomato"
+                    title="Unfinished dependency"
+                  >
+                    ⛔ {b.title}
+                    <button
+                      onClick={() =>
+                        goalsChange(
+                          setGoalBlockedBy(
+                            goals,
+                            goal.id,
+                            (goal.blockedBy ?? []).filter((id) => id !== b.id),
+                          ),
+                        )
+                      }
+                      className="press hover:text-cream"
+                      aria-label={`Remove dependency ${b.title}`}
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            {depCandidates.length > 0 && (
+              <div className="flex items-center gap-1.5">
+                <select
+                  value=""
+                  onChange={(e) => {
+                    if (!e.target.value) return;
+                    goalsChange(
+                      setGoalBlockedBy(goals, goal.id, [...(goal.blockedBy ?? []), e.target.value]),
+                    );
+                  }}
+                  className="h-8 min-w-0 flex-1 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+                  title="Finish first (dependency)"
+                  aria-label="Add goal dependency"
+                >
+                  <option value="">Depends on…</option>
+                  {depCandidates.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="flex flex-wrap items-center gap-1.5">
               <button
                 onClick={() => onGenerate(goal)}
@@ -384,6 +492,8 @@ function GoalNode({
               goals={goals}
               goalsChange={goalsChange}
               liveProjects={liveProjects}
+              lifeAreas={lifeAreas}
+              tasks={tasks}
               progressOf={progressOf}
               ancestorIds={[...ancestorIds, goal.id]}
               onGenerate={onGenerate}

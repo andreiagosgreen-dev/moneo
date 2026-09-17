@@ -4,7 +4,14 @@ import type { FocusArea } from '../lib/focusAreas';
 import type { Project } from '../lib/projects';
 import type { Task } from '../lib/tasks';
 import { fmtMinutes } from '../lib/store';
-import { buildReport, type RangeKey, type ReportData, type DayBucket } from '../lib/reports';
+import {
+  buildReport,
+  paretoSplit,
+  type RangeKey,
+  type ReportData,
+  type DayBucket,
+} from '../lib/reports';
+import { openPoints, pointsVelocity, etaByPoints } from '../lib/tasks';
 import { billableAmount } from '../lib/projects';
 import {
   exportSessionsToCSV,
@@ -21,6 +28,8 @@ interface Props {
   projects: Project[];
   tasks: Task[];
   timezone: string;
+  /** Weekly focus budget in minutes for allocation insights. */
+  capacityMin: number;
 }
 
 type Breakdown = 'daily' | 'projects' | 'areas';
@@ -78,8 +87,8 @@ function DayChart({ data, timezone }: { data: DayBucket[]; timezone: string }) {
                   background: isToday
                     ? 'linear-gradient(180deg, var(--accent), var(--accent-deep))'
                     : d.min > 0
-                      ? 'rgb(238 241 232 / 0.14)'
-                      : 'rgb(238 241 232 / 0.04)',
+                      ? 'rgb(242 244 249 / 0.14)'
+                      : 'rgb(242 244 249 / 0.04)',
                   boxShadow: isToday ? '0 0 12px rgb(var(--accent-rgb) / 0.4)' : 'none',
                 }}
               />
@@ -147,6 +156,19 @@ function HorizontalBar({
   );
 }
 
+/** 80/20 callout: the vital few projects holding ~80% of the time. */
+function ParetoNote({ slices }: { slices: Array<{ name: string; min: number }> }) {
+  const { top, topShare } = paretoSplit(slices);
+  if (top.length === 0 || top.length >= slices.length) return null;
+  return (
+    <p className="mt-3 rounded-lg bg-ink/40 px-3 py-2 font-mono text-[11px] leading-relaxed text-sage ring-1 ring-inset ring-line">
+      ⚖ 80/20: <span className="font-bold text-cream">{top.map((s) => s.name).join(', ')}</span>{' '}
+      hold{top.length === 1 ? 's' : ''} ~{Math.round(topShare * 100)}% of your time — protect{' '}
+      {top.length === 1 ? 'it' : 'them'} first.
+    </p>
+  );
+}
+
 function DonutChart({
   slices,
   totalMin,
@@ -207,7 +229,14 @@ function DonutChart({
   );
 }
 
-export default function ReportsCard({ history, areas, projects, tasks, timezone }: Props) {
+export default function ReportsCard({
+  history,
+  areas,
+  projects,
+  tasks,
+  timezone,
+  capacityMin,
+}: Props) {
   const [range, setRange] = useState<RangeKey>('week');
   const [breakdown, setBreakdown] = useState<Breakdown>('daily');
 
@@ -220,6 +249,15 @@ export default function ReportsCard({ history, areas, projects, tasks, timezone 
 
   const maxProjMin = projSlices.length > 0 ? projSlices[0].min : 0;
   const maxAreaMin = areaSlices.length > 0 ? areaSlices[0].min : 0;
+
+  const eta = useMemo(() => {
+    const open = openPoints(tasks);
+    const vel = pointsVelocity(tasks);
+    const at = etaByPoints(open, vel);
+    return at !== null
+      ? new Date(at).toLocaleDateString([], { month: 'short', day: 'numeric' })
+      : null;
+  }, [tasks]);
 
   const projectBarData = projSlices.map((p) => ({
     name: p.name,
@@ -236,7 +274,12 @@ export default function ReportsCard({ history, areas, projects, tasks, timezone 
     <section className="card px-6 py-6 sm:px-7" aria-label="Reports and analytics">
       {/* header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-display text-xl font-bold tracking-tight text-cream">Reports</h2>
+        <div>
+          <h2 className="font-display text-xl font-bold tracking-tight text-cream">Reports</h2>
+          <p className="mt-1 text-[12px] text-faint">
+            Where every minute went — and what it earned.
+          </p>
+        </div>
         <div className="flex gap-1 rounded-xl bg-ink/60 p-1 ring-1 ring-line">
           <Tab active={range === 'week'} onClick={() => setRange('week')}>
             7 days
@@ -268,6 +311,12 @@ export default function ReportsCard({ history, areas, projects, tasks, timezone 
           </div>
           <div className="mt-1 text-[12px] text-sage">avg / day</div>
         </div>
+        {eta && (
+          <div className="text-right" title="From pointed tasks at measured velocity">
+            <div className="font-mono text-[22px] font-bold text-cream">{eta}</div>
+            <div className="mt-1 text-[12px] text-sage">open work ETA</div>
+          </div>
+        )}
       </div>
 
       {/* quick insights */}
@@ -296,6 +345,39 @@ export default function ReportsCard({ history, areas, projects, tasks, timezone 
               {fmtMinutes(summary.topProject.min)})
             </span>
           )}
+        </div>
+      )}
+
+      {/* allocation vs weekly capacity */}
+      {capacityMin > 0 && summary.totalMin > 0 && (
+        <div className="mt-4 border-t border-line/60 pt-3">
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+              Allocation
+            </span>
+            <span className="font-mono text-[11px] text-sage">
+              {fmtMinutes(summary.totalMin)} of {fmtMinutes(capacityMin)} budget (
+              {Math.round((summary.totalMin / capacityMin) * 100)}%)
+            </span>
+          </div>
+          <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-ink/80 ring-1 ring-line">
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{
+                width: `${Math.min(100, Math.round((summary.totalMin / capacityMin) * 100))}%`,
+                background: 'linear-gradient(90deg, var(--accent-deep), var(--accent))',
+              }}
+            />
+          </div>
+          <p className="mt-1.5 text-[12px] text-sage">
+            Top share:{' '}
+            <span className="font-semibold text-cream">
+              {projectBarData.length > 0
+                ? `${projectBarData[0].name} (${Math.round((projectBarData[0].min / summary.totalMin) * 100)}%)`
+                : '—'}
+            </span>{' '}
+            · tune the budget in Settings → Weekly capacity
+          </p>
         </div>
       )}
 
@@ -332,6 +414,9 @@ export default function ReportsCard({ history, areas, projects, tasks, timezone 
             <DonutChart slices={projectBarData} totalMin={summary.totalMin} />
           </div>
         </div>
+      )}
+      {breakdown === 'projects' && projectBarData.length > 1 && (
+        <ParetoNote slices={projectBarData} />
       )}
 
       {breakdown === 'areas' && (

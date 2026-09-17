@@ -34,6 +34,10 @@ export interface Goal {
   parentId?: string;
   /** Linked project: leaf progress mirrors its task completion. */
   projectId?: string;
+  /** Linked life area (Roadmap 5.2 life-area goals). */
+  lifeAreaId?: string;
+  /** Goal-level dependencies: ids that should finish first (Roadmap 4.2). */
+  blockedBy?: string[];
   /** Target date in epoch ms. */
   targetDate?: number;
   /** Manual 0-100 progress (used when no children / no linked project). */
@@ -66,6 +70,10 @@ export function loadGoals(): Goal[] {
       level: GOAL_LEVELS.includes(g.level as GoalLevel) ? (g.level as GoalLevel) : 'project',
       ...(typeof g.parentId === 'string' && g.parentId ? { parentId: g.parentId } : {}),
       ...(typeof g.projectId === 'string' && g.projectId ? { projectId: g.projectId } : {}),
+      ...(typeof g.lifeAreaId === 'string' && g.lifeAreaId ? { lifeAreaId: g.lifeAreaId } : {}),
+      ...(Array.isArray(g.blockedBy)
+        ? { blockedBy: g.blockedBy.filter((b) => typeof b === 'string' && b) }
+        : {}),
       ...(typeof g.targetDate === 'number' && Number.isFinite(g.targetDate)
         ? { targetDate: g.targetDate }
         : {}),
@@ -114,6 +122,7 @@ export interface GoalUpdates {
   level?: GoalLevel;
   parentId?: string | null;
   projectId?: string | null;
+  lifeAreaId?: string | null;
   targetDate?: number | null;
   progress?: number | null;
   archived?: boolean;
@@ -132,6 +141,10 @@ export function updateGoal(goals: Goal[], id: string, updates: GoalUpdates): Goa
     if (updates.projectId !== undefined) {
       if (updates.projectId) next.projectId = updates.projectId;
       else delete next.projectId;
+    }
+    if (updates.lifeAreaId !== undefined) {
+      if (updates.lifeAreaId) next.lifeAreaId = updates.lifeAreaId;
+      else delete next.lifeAreaId;
     }
     if (updates.targetDate !== undefined) {
       if (updates.targetDate !== null && Number.isFinite(updates.targetDate)) {
@@ -255,6 +268,55 @@ export function goalProgress(
   return typeof goal.progress === 'number' ? goal.progress : 0;
 }
 
+/* ---------------- goal dependencies (Roadmap 4.2) ---------------- */
+
+function goalWouldCycle(goals: Goal[], goalId: string, candidateId: string): boolean {
+  const index = byId(goals);
+  const stack = [candidateId];
+  const seen = new Set<string>();
+  while (stack.length > 0) {
+    const id = stack.pop()!;
+    if (id === goalId) return true;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    stack.push(...(index.get(id)?.blockedBy ?? []));
+  }
+  return false;
+}
+
+/**
+ * Replace a goal's dependency list. Kept refs must exist, be non-self,
+ * non-archived and cycle-free. Never throws.
+ */
+export function setGoalBlockedBy(goals: Goal[], goalId: string, blockerIds: string[]): Goal[] {
+  const goal = byId(goals).get(goalId);
+  if (!goal) return goals;
+  const index = byId(goals);
+  const kept = Array.from(new Set(blockerIds.filter((b) => typeof b === 'string' && b))).filter(
+    (b) =>
+      b !== goalId &&
+      index.get(b) !== undefined &&
+      !index.get(b)!.archived &&
+      !goalWouldCycle(goals, goalId, b),
+  );
+  return goals.map((g) => {
+    if (g.id !== goalId) return g;
+    const next: Goal = { ...g, updatedAt: Date.now() };
+    if (kept.length > 0) next.blockedBy = kept;
+    else delete next.blockedBy;
+    return next;
+  });
+}
+
+/** Unfinished dependencies (progress < 100) for display. Never throws. */
+export function goalBlockers(goals: Goal[], tasks: Task[], goal: Goal): Goal[] {
+  if (!goal.blockedBy || goal.blockedBy.length === 0) return [];
+  const index = byId(goals);
+  return goal.blockedBy
+    .map((b) => index.get(b))
+    .filter((b): b is Goal => !!b && goalProgress(goals, tasks, b.id) < 100);
+}
+
 /* ---------------- rule-based task generation (Phase 4.3) ---------------- */
 
 const GOAL_BLUEPRINTS: Array<{ match: RegExp; steps: string[] }> = [
@@ -315,4 +377,88 @@ export function suggestTasksForGoal(title: string): string[] {
     if (bp.match.test(clean)) return [...bp.steps];
   }
   return [...DEFAULT_STEPS];
+}
+
+/* ---------------- SMART check + conflicts (Roadmap 4.3/4.2) ---------------- */
+
+export interface SmartCheck {
+  specific: boolean;
+  measurable: boolean;
+  achievable: boolean;
+  relevant: boolean;
+  timeBound: boolean;
+  score: number; // 0-5 passed letters
+  tips: string[];
+}
+
+/**
+ * Heuristic SMART scan of a goal title: numbers/units → measurable,
+ * action verb → specific, date words/date → time-bound, length bounds →
+ * achievable, non-blank → relevant. Never throws.
+ */
+export function smartScore(title: string): SmartCheck {
+  const text = title.trim();
+  const specific =
+    /^(launch|ship|write|build|learn|run|save|grow|finish|publish|release|complete|create|earn|lose|read)\b/i.test(
+      text,
+    ) && text.split(/\s+/).length >= 3;
+  const measurable = /\d/.test(text);
+  const achievable = text.length > 0 && text.length <= 80;
+  const relevant = text.length > 0;
+  const timeBound =
+    /\b(q[1-4]|20\d\d|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|week|month|year|by |until|today|tomorrow)\b/i.test(
+      text,
+    );
+  const parts = [specific, measurable, achievable, relevant, timeBound];
+  const tips: string[] = [];
+  if (!specific) tips.push('Start with an action verb + object (“Launch …”, “Write …”).');
+  if (!measurable) tips.push('Add a number (“$10k”, “3x/week”).');
+  if (!timeBound) tips.push('Add a when (“by Q3”, “in June”).');
+  return {
+    specific,
+    measurable,
+    achievable,
+    relevant,
+    timeBound,
+    score: parts.filter(Boolean).length,
+    tips,
+  };
+}
+
+export interface GoalConflict {
+  a: Goal;
+  b: Goal;
+  /** Shared target week label ("2026-W37"). */
+  week: string;
+}
+
+function targetWeek(targetDate: number): string {
+  const d = new Date(targetDate);
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  const onejan = new Date(monday.getFullYear(), 0, 1);
+  const week = Math.ceil(
+    ((monday.getTime() - onejan.getTime()) / 86400000 + onejan.getDay() + 1) / 7,
+  );
+  return `${monday.getFullYear()}-W${week}`;
+}
+
+/**
+ * Pairs of active goals sharing a target week (planning conflict smell).
+ * Never throws.
+ */
+export function goalConflicts(goals: Goal[]): GoalConflict[] {
+  const dated = goals.filter(
+    (g) => !g.archived && typeof g.targetDate === 'number' && Number.isFinite(g.targetDate),
+  );
+  const out: GoalConflict[] = [];
+  for (let i = 0; i < dated.length; i++) {
+    for (let j = i + 1; j < dated.length; j++) {
+      const week = targetWeek(dated[i].targetDate as number);
+      if (week === targetWeek(dated[j].targetDate as number)) {
+        out.push({ a: dated[i], b: dated[j], week });
+      }
+    }
+  }
+  return out;
 }

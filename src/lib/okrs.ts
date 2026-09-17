@@ -306,3 +306,34 @@ export function overallOkrProgress(objectives: Objective[], period?: string): nu
   const sum = roots.reduce((acc, o) => acc + objectiveProgress(objectives, o.id), 0);
   return Math.round(sum / roots.length);
 }
+
+/**
+ * Quarterly review text (Roadmap 7.3 automation): headline + per-objective
+ * lines calling out the strongest and weakest key results. Never throws.
+ */
+export function okrReview(objectives: Objective[], period?: string): string {
+  const roots = rootObjectives(objectives, period);
+  const label = period ?? 'all periods';
+  if (roots.length === 0) return `OKR review (${label}): no objectives yet.`;
+  const lines = [`OKR review (${label}): ${overallOkrProgress(objectives, period)}% overall.`];
+  for (const o of roots) {
+    const pct = objectiveProgress(objectives, o.id);
+    lines.push(`- ${o.title}: ${pct}%`);
+    const ranked = o.keyResults.slice().sort((a, b) => krProgress(a) - krProgress(b));
+    if (ranked.length > 0) {
+      const best = ranked[ranked.length - 1];
+      const worst = ranked[0];
+      lines.push(`  Best KR: ${best.title} ${Math.round(krProgress(best) * 100)}%.`);
+      if (worst.id !== best.id) {
+        lines.push(`  Needs work: ${worst.title} ${Math.round(krProgress(worst) * 100)}%.`);
+      }
+    }
+    const kids = childrenOf(objectives, o.id);
+    if (kids.length > 0) {
+      lines.push(
+        `  Cascaded: ${kids.map((k) => `${k.title} ${objectiveProgress(objectives, k.id)}%`).join('; ')}.`,
+      );
+    }
+  }
+  return lines.join('\n');
+}

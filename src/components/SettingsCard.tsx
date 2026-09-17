@@ -278,6 +278,37 @@ export default function SettingsCard({
           field="dailyGoal"
           onStep={step}
         />
+        <div className="flex items-center justify-between gap-3 py-3">
+          <div className="min-w-0">
+            <div className="text-[14px] font-semibold text-cream/90">Weekly capacity</div>
+            <div className="text-[12px] text-faint">Focus budget for allocation insights</div>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              onClick={() =>
+                onChange({ weeklyCapacityMin: Math.max(60, settings.weeklyCapacityMin - 60) })
+              }
+              className="press btn-ghost flex h-8 w-8 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
+              disabled={settings.weeklyCapacityMin <= 60}
+              aria-label="Decrease weekly capacity"
+            >
+              <MinusIcon />
+            </button>
+            <span className="w-14 text-center font-mono text-[13px] text-cream">
+              {Math.round(settings.weeklyCapacityMin / 60)}h
+            </span>
+            <button
+              onClick={() =>
+                onChange({ weeklyCapacityMin: Math.min(10080, settings.weeklyCapacityMin + 60) })
+              }
+              className="press btn-ghost flex h-8 w-8 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
+              disabled={settings.weeklyCapacityMin >= 10080}
+              aria-label="Increase weekly capacity"
+            >
+              <PlusIcon />
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="mt-2 divide-y divide-line/70 border-t border-line">

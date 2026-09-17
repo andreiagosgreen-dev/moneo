@@ -260,6 +260,8 @@ export async function runSync(opts: {
         volume: remoteSettings.volume || 50,
         notifications:
           remoteSettings.notifications !== undefined ? remoteSettings.notifications : true,
+        weeklyCapacityMin:
+          remoteSettings.weeklyCapacityMin ?? localSettings.weeklyCapacityMin ?? 1500,
         updatedAt: remoteSettings.updatedAt,
       };
       if (!opts.local.writeSettings(applied)) return fail('apply', 'storage');

@@ -1,6 +1,9 @@
 /* Technical skills tracking (Roadmap Phase 1.2) — local-first, additive. */
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
+import { projectCompletion, type Task } from './tasks';
+import type { Project } from './projects';
+import type { Goal } from './goals';
 
 export type SkillCategory =
   'frontend' | 'backend' | 'mobile' | 'devops' | 'data' | 'design' | 'soft' | 'other';
@@ -192,4 +195,37 @@ export function formatLearningDuration(totalMinutes: number): string {
   if (hours === 0) return `${minutes}m`;
   if (minutes === 0) return `${hours}h`;
   return `${hours}h ${minutes}m`;
+}
+
+/* ---------------- technical → business transition (Roadmap 4.5) ---------------- */
+
+/**
+ * Detect when technical foundations look solid (top-3 skills averaging
+ * Competent+ with shipped project work) but no business goal exists yet,
+ * and suggest the transition. Rule-based. Never throws.
+ */
+export function transitionAdvice(
+  skills: Skill[],
+  tasks: Task[],
+  projects: Project[],
+  goals: Goal[],
+): string | null {
+  if (skills.length < 3) return null;
+  const top = skills
+    .slice()
+    .sort((a, b) => b.level - a.level)
+    .slice(0, 3);
+  const avg = top.reduce((sum, s) => sum + s.level, 0) / top.length;
+  if (avg < 3) return null;
+  const shipped = projects.filter((p) => {
+    const { done } = projectCompletion(tasks, p.id);
+    return done >= 2;
+  }).length;
+  if (shipped < 2) return null;
+  const hasBusiness = goals.some(
+    (g) =>
+      !g.archived && /market|sales|business|client|customer|brand|launch|revenue/i.test(g.title),
+  );
+  if (hasBusiness) return null;
+  return `Your top skills (${top.map((s) => s.name).join(', ')}) are solid and ${shipped} projects shipped work — time to add a business goal (marketing, sales, clients) alongside the technical ones.`;
 }

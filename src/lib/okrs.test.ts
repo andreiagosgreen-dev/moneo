@@ -12,6 +12,7 @@ import {
   loadObjectives,
   objectiveProgress,
   okrPeriods,
+  okrReview,
   overallOkrProgress,
   removeKeyResult,
   rootObjectives,
@@ -127,5 +128,19 @@ describe('progress rollup', () => {
     expect(objectiveProgress(objectives, 'tm')).toBe(75);
     expect(objectiveProgress(objectives, 'ghost')).toBe(0);
     expect(overallOkrProgress(objectives)).toBe(75);
+  });
+
+  it('generates a quarterly review text', () => {
+    const objectives = [
+      makeObjective({
+        id: 'co',
+        keyResults: [{ id: 'k', title: 'MRR', target: 100, current: 100, unit: '$' }],
+      }),
+    ];
+    const review = okrReview(objectives, '2026-Q3');
+    expect(review).toContain('2026-Q3');
+    expect(review).toContain('100%');
+    expect(review).toContain('Best KR: MRR');
+    expect(okrReview([], '2026-Q3')).toContain('no objectives');
   });
 });

@@ -194,3 +194,53 @@ export function balanceReport(
     advice,
   };
 }
+
+/* ---------------- burnout gauge (Roadmap 2.4/5.5) ---------------- */
+
+export interface BurnoutInput {
+  overtime: boolean;
+  /** 1-5 trailing mood average (null when unlogged). */
+  mood: number | null;
+  /** 1-10 trailing energy average (null when unlogged). */
+  energy: number | null;
+  /** Frogs picked-but-unfinished share 0-1 (null when no frogs). */
+  frogSkipRate: number | null;
+}
+
+export interface BurnoutGauge {
+  level: 'low' | 'guarded' | 'high';
+  reasons: string[];
+}
+
+/**
+ * Rule-based burnout read from combined signals. Needs at least two
+ * weak signals for guarded, four points for high. Never throws.
+ */
+export function burnoutGauge(input: BurnoutInput): BurnoutGauge {
+  let score = 0;
+  const reasons: string[] = [];
+  if (input.overtime) {
+    score += 2;
+    reasons.push('Work overshoots its share');
+  }
+  if (input.mood !== null && Number.isFinite(input.mood) && input.mood < 2.5) {
+    score += 2;
+    reasons.push('Mood running low');
+  }
+  if (input.energy !== null && Number.isFinite(input.energy) && input.energy < 4) {
+    score += 1;
+    reasons.push('Energy running low');
+  }
+  if (
+    input.frogSkipRate !== null &&
+    Number.isFinite(input.frogSkipRate) &&
+    input.frogSkipRate > 0.5
+  ) {
+    score += 1;
+    reasons.push('Frogs keep slipping');
+  }
+  return {
+    level: score >= 4 ? 'high' : score >= 2 ? 'guarded' : 'low',
+    reasons,
+  };
+}

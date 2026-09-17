@@ -41,7 +41,7 @@ export default function MatrixCard({ tasks, history, onTasksChange, isPro = fals
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">Matrix</h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            Eisenhower · {isPro ? 'auto + manual' : 'auto'}
+            {isPro ? 'Urgent vs important · yours to override' : 'Urgent vs important · auto-sorted'}
           </p>
         </div>
         <span className="font-mono text-[11px] text-sage">{total} active</span>

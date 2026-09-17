@@ -39,7 +39,7 @@ interface RawUser {
  *  independent of the SDK so tests run without it. */
 export interface AuthClientLike {
   getSession(): Promise<{
-    data: { session: { user: RawUser } | null } | null;
+    data: { session: { user: RawUser; access_token?: string } | null } | null;
     error?: unknown;
   }>;
   onAuthStateChange(cb: (event: string, session: { user: RawUser } | null) => void): {
@@ -63,8 +63,14 @@ export interface AuthControllerDeps {
   ensureProfile: (userId: string, timezone: string) => Promise<boolean>;
   /** Stored profile timezone, or null when absent/unreadable. */
   getProfileTimezone: (userId: string) => Promise<string | null>;
-  /** Deletes all user data from the database (sessions, areas, profile). */
-  deleteUserData: (userId: string) => Promise<boolean>;
+  /**
+   * Server-side account wipe via the Worker endpoint (`/api/account/delete`).
+   * The server derives identity from the access token; local data is only
+   * cleared by the caller after this resolves true. Never throws.
+   */
+  requestAccountDeletion: (accessToken: string) => Promise<boolean>;
+  /** Clears this device's app data. Called only after confirmed server wipe. */
+  clearLocalData: () => void;
   browserTimezone: () => string;
 }
 
@@ -299,25 +305,47 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
       }
       if (!client) return { ok: false, message: 'Cloud is not configured on this installation.' };
 
+      // The server derives identity from this token — no user id is sent.
+      let accessToken: string | undefined;
       try {
-        // Delete all user data from the database
-        const dataDeleted = await deps.deleteUserData(userId);
-        if (!dataDeleted) {
-          return { ok: false, message: 'Failed to delete user data. Please try again.' };
-        }
+        const { data } = await client.getSession();
+        const token = data?.session?.access_token;
+        accessToken = typeof token === 'string' && token.length > 0 ? token : undefined;
+      } catch {
+        accessToken = undefined;
+      }
+      if (!accessToken) {
+        return { ok: false, message: 'Session expired — sign in again to delete your account.' };
+      }
 
-        // Sign out to clear local auth state
-        await client.signOut();
-
-        // Clear local state
-        if (!disposed) emit(anonymous());
-        return { ok: true };
-      } catch (e) {
+      // Server-side wipe first. Local data is untouched until it succeeds,
+      // so a failure or retry can never strand the user without their data.
+      let wiped = false;
+      try {
+        wiped = await deps.requestAccountDeletion(accessToken);
+      } catch {
+        wiped = false;
+      }
+      if (!wiped) {
         return {
           ok: false,
-          message: mapAuthError(e instanceof Error ? e.message : null),
+          message: 'Could not delete your account. Nothing was removed — please try again.',
         };
       }
+
+      // Confirmed: clear this device, then sign out.
+      try {
+        deps.clearLocalData();
+      } catch {
+        /* best-effort; sign-out still proceeds */
+      }
+      try {
+        await client.signOut();
+      } catch {
+        /* best-effort; local state resets regardless */
+      }
+      if (!disposed) emit(anonymous());
+      return { ok: true };
     },
   };
 }

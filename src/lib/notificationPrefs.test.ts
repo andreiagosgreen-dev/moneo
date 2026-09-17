@@ -6,6 +6,10 @@ import {
   reminderTodayAt,
   shouldShowFocusReminder,
   markReminderShown,
+  shouldShowHabitReminder,
+  markHabitShown,
+  shouldShowDisconnectReminder,
+  markDisconnectShown,
 } from './notificationPrefs';
 import type { NotificationPrefs } from './notificationPrefs';
 
@@ -23,6 +27,10 @@ describe('saveNotificationPrefs', () => {
       focusReminder: true,
       reminderTime: '08:30',
       deadlineReminders: true,
+      habitReminders: false,
+      habitTime: '20:00',
+      disconnectReminders: false,
+      disconnectTime: '18:00',
     };
     const ok = saveNotificationPrefs(prefs);
     expect(ok).toBe(true);
@@ -37,6 +45,10 @@ describe('saveNotificationPrefs', () => {
       focusReminder: false,
       reminderTime: 'bad',
       deadlineReminders: true,
+      habitReminders: true,
+      habitTime: 'bad',
+      disconnectReminders: true,
+      disconnectTime: '25:00',
     });
     const loaded = loadNotificationPrefs();
     expect(loaded.reminderTime).toBe(DEFAULT_NOTIFICATION_PREFS.reminderTime);
@@ -116,11 +128,17 @@ describe('markReminderShown', () => {
       focusReminder: true,
       reminderTime: '08:15',
       deadlineReminders: false,
+      habitReminders: true,
+      habitTime: '20:00',
+      disconnectReminders: true,
+      disconnectTime: '18:00',
     };
     const marked = markReminderShown(prefs, now);
     expect(marked.dailySummary).toBe(true);
     expect(marked.reminderTime).toBe('08:15');
     expect(marked.deadlineReminders).toBe(false);
+    expect(marked.habitReminders).toBe(true);
+    expect(marked.disconnectTime).toBe('18:00');
   });
 });
 
@@ -135,5 +153,42 @@ describe('deadlineReminders pref', () => {
     expect(loadNotificationPrefs().deadlineReminders).toBe(false);
     saveNotificationPrefs({ ...DEFAULT_NOTIFICATION_PREFS, deadlineReminders: true });
     expect(loadNotificationPrefs().deadlineReminders).toBe(true);
+  });
+});
+
+describe('habit + disconnect reminders', () => {
+  it('defaults to off with evening times', () => {
+    expect(DEFAULT_NOTIFICATION_PREFS.habitReminders).toBe(false);
+    expect(DEFAULT_NOTIFICATION_PREFS.habitTime).toBe('20:00');
+    expect(DEFAULT_NOTIFICATION_PREFS.disconnectReminders).toBe(false);
+    expect(DEFAULT_NOTIFICATION_PREFS.disconnectTime).toBe('18:00');
+  });
+
+  it('fires once per day after the set time', () => {
+    const evening = new Date(2026, 8, 16, 21, 0);
+    const prefs = {
+      ...DEFAULT_NOTIFICATION_PREFS,
+      habitReminders: true,
+      disconnectReminders: true,
+    };
+    expect(shouldShowHabitReminder(prefs, evening)).toBe(true);
+    expect(shouldShowDisconnectReminder(prefs, evening)).toBe(true);
+    const marked = markDisconnectShown(markHabitShown(prefs, evening), evening);
+    expect(shouldShowHabitReminder(marked, evening)).toBe(false);
+    expect(shouldShowDisconnectReminder(marked, evening)).toBe(false);
+  });
+
+  it('stays quiet before the set time or when disabled', () => {
+    const afternoon = new Date(2026, 8, 16, 15, 0);
+    const prefs = {
+      ...DEFAULT_NOTIFICATION_PREFS,
+      habitReminders: true,
+      disconnectReminders: true,
+    };
+    expect(shouldShowHabitReminder(prefs, afternoon)).toBe(false);
+    expect(shouldShowDisconnectReminder(prefs, afternoon)).toBe(false);
+    expect(shouldShowHabitReminder(DEFAULT_NOTIFICATION_PREFS, new Date(2026, 8, 16, 23, 0))).toBe(
+      false,
+    );
   });
 });

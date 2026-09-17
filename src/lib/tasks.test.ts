@@ -10,6 +10,7 @@ import {
   removeTasksForProject,
   getMinutesForTask,
   projectCompletion,
+  setTaskEstimate,
   loadTasks,
   saveTasks,
   type Task,
@@ -162,5 +163,16 @@ describe('storage round-trip', () => {
     const loaded = loadTasks();
     expect(loaded[0].status).toBe('pending');
     expect(loaded[0].priority).toBe('p2');
+  });
+});
+
+describe('setTaskEstimate', () => {
+  it('sets, clamps and clears minute estimates', () => {
+    const tasks = [makeTask({ id: 't1' })];
+    expect(setTaskEstimate(tasks, 't1', 25)[0].estimateMin).toBe(25);
+    expect(setTaskEstimate(tasks, 't1', 3)[0].estimateMin).toBe(5);
+    expect(setTaskEstimate(tasks, 't1', 999)[0].estimateMin).toBe(480);
+    expect(setTaskEstimate(tasks, 't1', null)[0].estimateMin).toBeUndefined();
+    expect(setTaskEstimate(tasks, 'ghost', 25)).toEqual(tasks);
   });
 });

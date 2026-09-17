@@ -3,6 +3,8 @@
  * Uses Supabase Edge Functions or a third-party email service.
  */
 
+import { readEnv } from '../env';
+
 export type NotificationType = 'daily_summary' | 'focus_reminder' | 'streak_milestone';
 
 export interface EmailNotification {
@@ -23,17 +25,6 @@ export interface EmailNotification {
  * of pretending the email was sent.
  */
 
-function readEnv(): Record<string, string | undefined> {
-  try {
-    const meta = import.meta as unknown as {
-      env?: Record<string, string | undefined>;
-    };
-    return meta.env ?? {};
-  } catch {
-    return {};
-  }
-}
-
 /** Never throws. Pure environment inspection. */
 export function isEmailConfigured(): boolean {
   try {
@@ -44,21 +35,20 @@ export function isEmailConfigured(): boolean {
   }
 }
 
+/**
+ * Email delivery entry point.
+ *
+ * Roadmap Faza 0.4: there is no email backend yet (no Edge Function, no
+ * provider), and only a backend may ever talk to a provider. Until one
+ * exists this function ALWAYS fails closed — it never reports success
+ * without performing a request. `isEmailConfigured` below only gates UI
+ * copy; it does not promise delivery.
+ */
 export async function sendEmailNotification(
   notification: EmailNotification,
 ): Promise<{ success: boolean; error?: string }> {
-  if (!isEmailConfigured()) {
-    return { success: false, error: 'Email provider not configured (VITE_EMAIL_API_URL)' };
-  }
-  // TODO: Implement actual email sending via the configured endpoint.
-  console.log('Email notification:', notification);
-
-  // In production, you would:
-  // 1. Call a Supabase Edge Function
-  // 2. Or call a third-party email API directly
-  // 3. Use webhooks for subscription management
-
-  return { success: true };
+  void notification;
+  return { success: false, error: 'Email delivery is not connected yet' };
 }
 
 /**

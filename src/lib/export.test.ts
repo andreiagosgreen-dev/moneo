@@ -50,6 +50,36 @@ describe('generateSessionsCSV', () => {
     );
     expect(lines[2]).toContain('25,"Unassigned","","","",""');
   });
+
+  it('neutralizes CSV formula injection (OWASP)', () => {
+    const at = new Date('2026-09-14T10:30:00Z').getTime();
+    const projects: Project[] = [
+      {
+        id: 'p1',
+        name: '+cmd|/c calc',
+        color: '#22c55e',
+        category: 'clients',
+        tags: [],
+        createdAt: 1000,
+        updatedAt: 1000,
+      },
+    ];
+    const areas: FocusArea[] = [{ id: 'a1', name: '@mal', createdAt: 1000 }];
+    const history: Session[] = [
+      {
+        id: 's1',
+        at,
+        min: 25,
+        projectId: 'p1',
+        areaId: 'a1',
+        intention: '=HYPERLINK("http://evil","x")',
+      },
+    ];
+    const csv = generateSessionsCSV(history, projects, areas);
+    expect(csv).toContain('"\'+cmd|/c calc"');
+    expect(csv).toContain('"\'@mal"');
+    expect(csv).toContain('"\'=HYPERLINK');
+  });
 });
 
 describe('buildPrintableReportHTML', () => {

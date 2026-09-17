@@ -29,6 +29,12 @@ export interface Task {
   quadrant?: TaskQuadrant;
   /** Story points for Agile planning (Roadmap 7.2). Absent = unpointed. */
   points?: number;
+  /** Milestone marker shown as ◆ on the timeline (Roadmap 7.4). */
+  milestone?: boolean;
+  /** Attached reference links (URLs/paths) — lightweight attachments (Roadmap 2.2). */
+  links?: string[];
+  /** Estimated minutes to complete (rituals + overcommit). Absent = unestimated. */
+  estimateMin?: number;
 }
 
 export type TaskQuadrant = 'q1' | 'q2' | 'q3' | 'q4';
@@ -37,6 +43,23 @@ export const TASK_QUADRANTS: TaskQuadrant[] = ['q1', 'q2', 'q3', 'q4'];
 
 /** Fibonacci-ish story point scale (Roadmap 7.2). */
 export const TASK_POINTS: number[] = [0, 1, 2, 3, 5, 8];
+
+/** Starter task templates (Roadmap 2.2): title + priority presets. */
+export interface TaskTemplate {
+  name: string;
+  title: string;
+  priority: TaskPriority;
+}
+
+export const TASK_TEMPLATES: TaskTemplate[] = [
+  { name: 'Bug', title: 'Fix: ', priority: 'p1' },
+  { name: 'Feature', title: 'Build: ', priority: 'p2' },
+  { name: 'Chore', title: 'Chore: ', priority: 'p3' },
+  { name: 'Spike', title: 'Spike: ', priority: 'p1' },
+  { name: 'Urgent', title: 'URGENT: ', priority: 'p0' },
+];
+
+export const MAX_TASK_LINKS = 5;
 
 export type TaskRecurrence = 'none' | 'daily' | 'weekly';
 
@@ -101,6 +124,18 @@ export function loadTasks(): Task[] {
         : {}),
       ...(typeof t.points === 'number' && Number.isFinite(t.points)
         ? { points: Math.min(21, Math.max(0, Math.round(t.points))) }
+        : {}),
+      ...(typeof t.estimateMin === 'number' && Number.isFinite(t.estimateMin)
+        ? { estimateMin: Math.min(480, Math.max(5, Math.round(t.estimateMin))) }
+        : {}),
+      ...(t.milestone === true ? { milestone: true as const } : {}),
+      ...(Array.isArray(t.links) && t.links.some((l) => typeof l === 'string' && l.trim())
+        ? {
+            links: t.links
+              .filter((l) => typeof l === 'string' && l.trim())
+              .map((l) => (l as string).trim().slice(0, 300))
+              .slice(0, MAX_TASK_LINKS),
+          }
         : {}),
     }));
 }
@@ -535,9 +570,159 @@ export function setTaskPoints(tasks: Task[], taskId: string, points: number | nu
   });
 }
 
+/** Set (or clear with null) the minute estimate. Clamped 5–480. */
+export function setTaskEstimate(tasks: Task[], taskId: string, minutes: number | null): Task[] {
+  return tasks.map((t) => {
+    if (t.id !== taskId) return t;
+    const next: Task = { ...t, updatedAt: Date.now() };
+    if (minutes !== null && Number.isFinite(minutes)) {
+      next.estimateMin = Math.min(480, Math.max(5, Math.round(minutes)));
+    } else delete next.estimateMin;
+    return next;
+  });
+}
+
 /** Effective points for planning math (unpointed counts as 1). */
 export function taskPoints(task: Task): number {
   return typeof task.points === 'number' ? task.points : 1;
+}
+
+/**
+ * Complexity 1-5 from structure (Roadmap 4.3): subtasks, blockers,
+ * notes/links weight and priority. Pure estimate, not a verdict.
+ */
+export function taskComplexity(task: Task, tasks: Task[]): number {
+  let score = 1;
+  const kids = tasks.filter((t) => t.parentId === task.id).length;
+  score += Math.min(2, kids > 0 ? 1 + Math.floor(kids / 3) : 0);
+  score += Math.min(1, (task.blockedBy ?? []).length > 0 ? 1 : 0);
+  const textWeight = (task.notes?.length ?? 0) + (task.links ?? []).length * 60;
+  if (textWeight > 400) score += 1;
+  if (task.priority === 'p0') score += 1;
+  return Math.min(5, Math.max(1, score));
+}
+
+/** Done points per week over the trailing window (velocity input for ETAs). */
+export function pointsVelocity(tasks: Task[], now: number = Date.now(), weeks = 4): number {
+  const start = now - Math.max(1, weeks) * 7 * 24 * 60 * 60 * 1000;
+  const done = tasks.filter(
+    (t) =>
+      t.status === 'completed' &&
+      typeof t.completedAt === 'number' &&
+      t.completedAt >= start &&
+      t.completedAt <= now,
+  );
+  const points = done.reduce((sum, t) => sum + taskPoints(t), 0);
+  return points / Math.max(1, weeks);
+}
+
+/**
+ * ETA date (epoch ms) for open points at the measured velocity.
+ * Null when there is nothing open or no velocity yet. Never throws.
+ */
+export function etaByPoints(
+  openPoints: number,
+  pointsPerWeek: number,
+  now: number = Date.now(),
+): number | null {
+  if (!Number.isFinite(openPoints) || openPoints <= 0) return null;
+  if (!Number.isFinite(pointsPerWeek) || pointsPerWeek <= 0) return null;
+  return now + Math.ceil((openPoints / pointsPerWeek) * 7) * 24 * 60 * 60 * 1000;
+}
+
+/** Open (incomplete) story points in a project. */
+export function openPoints(tasks: Task[], projectId?: string): number {
+  return tasks
+    .filter((t) => t.status !== 'completed' && (!projectId || t.projectId === projectId))
+    .reduce((sum, t) => sum + taskPoints(t), 0);
+}
+
+/* ---------------- impact × effort prioritization (Roadmap 4.3) ---------------- */
+
+export interface ImpactEffort {
+  /** 1-5: downstream dependents + subtasks + P0 weight. */
+  impact: number;
+  /** 1-5: derived from structural complexity. */
+  effort: number;
+  suggested: TaskPriority;
+}
+
+/**
+ * Impact × effort scoring: blockers and parents carry weight; effort comes
+ * from complexity. High impact + low effort → P0. Pure. Never throws.
+ */
+export function impactEffort(task: Task, tasks: Task[]): ImpactEffort {
+  const downstream = tasks.filter((t) => (t.blockedBy ?? []).includes(task.id)).length;
+  const kids = tasks.filter((t) => t.parentId === task.id).length;
+  const impact = Math.min(
+    5,
+    1 + Math.min(2, downstream) + (kids > 0 ? 1 : 0) + (task.priority === 'p0' ? 1 : 0),
+  );
+  const effort = taskComplexity(task, tasks);
+  let suggested: TaskPriority = 'p2';
+  if (impact >= 4 && effort <= 2) suggested = 'p0';
+  else if (impact >= 4 || (impact >= 3 && effort <= 2)) suggested = 'p1';
+  else if (impact <= 2 && effort >= 4) suggested = 'p3';
+  return { impact, effort, suggested };
+}
+
+/**
+ * Suggested deadline from measured velocity (Roadmap 4.4 adaptive planning):
+ * open points at trailing velocity + 20% buffer. Null without velocity.
+ */
+export function suggestDeadline(
+  tasks: Task[],
+  projectId: string,
+  now: number = Date.now(),
+): number | null {
+  const open = openPoints(tasks, projectId);
+  if (open <= 0) return null;
+  const vel = pointsVelocity(
+    tasks.filter((t) => t.projectId === projectId),
+    now,
+    4,
+  );
+  if (vel <= 0) return null;
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  return now + Math.ceil((open / vel) * 7 * 1.2) * DAY_MS;
+}
+
+/** Toggle the milestone flag (Roadmap 7.4). */
+export function setTaskMilestone(tasks: Task[], taskId: string, milestone: boolean): Task[] {
+  return tasks.map((t) => {
+    if (t.id !== taskId) return t;
+    const next: Task = { ...t, updatedAt: Date.now() };
+    if (milestone) next.milestone = true;
+    else delete next.milestone;
+    return next;
+  });
+}
+
+/** Attach a reference link (capped, deduped). Returns the list unchanged on junk. */
+export function addTaskLink(tasks: Task[], taskId: string, link: string): Task[] {
+  const clean = link.trim().slice(0, 300);
+  if (!clean) return tasks;
+  const task = tasks.find((t) => t.id === taskId);
+  if (!task || (task.links ?? []).includes(clean)) return tasks;
+  return tasks.map((t) => {
+    if (t.id !== taskId) return t;
+    return {
+      ...t,
+      links: [...(t.links ?? []), clean].slice(0, MAX_TASK_LINKS),
+      updatedAt: Date.now(),
+    };
+  });
+}
+
+export function removeTaskLink(tasks: Task[], taskId: string, link: string): Task[] {
+  return tasks.map((t) => {
+    if (t.id !== taskId || !t.links) return t;
+    const links = t.links.filter((l) => l !== link);
+    const next: Task = { ...t, updatedAt: Date.now() };
+    if (links.length > 0) next.links = links;
+    else delete next.links;
+    return next;
+  });
 }
 
 /* ---------------- critical path (Roadmap 7.4, lightweight) ---------------- */

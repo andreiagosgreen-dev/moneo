@@ -62,6 +62,12 @@ export const STORAGE_KEYS = {
   journal: 'moneo:journal',
   /** Energy check-ins (Roadmap Phase 5.4). */
   energyLog: 'moneo:energy-log',
+  /** Planned days off as day keys (Roadmap Phase 5.5). */
+  timeOff: 'moneo:time-off',
+  /** Assistant personality (Roadmap Phase 4.1). */
+  assistantTone: 'moneo:assistant-tone',
+  /** Dismissed insight ids — user feedback memory (Roadmap 3.5). */
+  insightsDismissed: 'moneo:insights-dismissed',
   /** Agile sprints (Roadmap Phase 7.2). */
   sprints: 'moneo:sprints',
   /** OKR objectives with nested key results (Roadmap Phase 7.3). */
@@ -70,6 +76,16 @@ export const STORAGE_KEYS = {
   boardConfig: 'moneo:board-config',
   /** Waterfall phases per project (Roadmap Phase 7.5). */
   waterfall: 'moneo:waterfall',
+  /** Last day the morning ritual ran (day key, rituals). */
+  ritualDay: 'moneo:ritual-day',
+  /** Life Map areas — local-only by design, never synced. */
+  lifeMap: 'moneo:life-map',
+  /** Interface language choice (Faza 5 i18n) — local only, never synced. */
+  locale: 'moneo:locale',
+  /** Pomodoro estimate-learner profiles (Faza 6) — local only, never synced. */
+  estimateProfiles: 'moneo:estimate-profiles',
+  /** AI standing consent for auto-prepare (Faza 6) — local only, never synced. */
+  aiConsent: 'moneo:ai-consent',
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

@@ -31,7 +31,10 @@ export function generateSessionsCSV(
 
   const escapeCsv = (val: string | null | undefined): string => {
     if (!val) return '""';
-    return `"${val.replace(/"/g, '""')}"`;
+    // OWASP CSV formula injection: a leading = + - @ (or tab/CR) makes
+    // spreadsheet apps evaluate the cell. Prefix with ' to force text.
+    const safe = /^[=+\-@\t\r]/.test(val) ? `'${val}` : val;
+    return `"${safe.replace(/"/g, '""')}"`;
   };
 
   const rows = history

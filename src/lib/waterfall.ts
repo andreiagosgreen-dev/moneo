@@ -19,6 +19,8 @@ export interface WaterfallPhase {
   status: WaterfallStatus;
   /** Exit criteria — the gate to the next phase. */
   gate?: string;
+  /** Top risk for this phase (Roadmap 7.5 risk assessment). */
+  risk?: string;
   startedAt?: number;
   doneAt?: number;
   createdAt: number;
@@ -48,6 +50,7 @@ export function loadPhases(): WaterfallPhase[] {
         ? (p.status as WaterfallStatus)
         : 'todo',
       ...(typeof p.gate === 'string' && p.gate.trim() ? { gate: p.gate.slice(0, 200) } : {}),
+      ...(typeof p.risk === 'string' && p.risk.trim() ? { risk: p.risk.slice(0, 200) } : {}),
       ...(typeof p.startedAt === 'number' ? { startedAt: p.startedAt } : {}),
       ...(typeof p.doneAt === 'number' ? { doneAt: p.doneAt } : {}),
       createdAt: typeof p.createdAt === 'number' ? p.createdAt : Date.now(),
@@ -106,6 +109,7 @@ export function seedStarterPhases(phases: WaterfallPhase[], projectId: string): 
 export interface PhaseUpdates {
   name?: string;
   gate?: string | null;
+  risk?: string | null;
 }
 
 /** Rename / re-gate a phase. Status moves only through setPhaseStatus. */
@@ -121,6 +125,10 @@ export function updatePhase(
     if (updates.gate !== undefined) {
       if (updates.gate && updates.gate.trim()) next.gate = updates.gate.trim().slice(0, 200);
       else delete next.gate;
+    }
+    if (updates.risk !== undefined) {
+      if (updates.risk && updates.risk.trim()) next.risk = updates.risk.trim().slice(0, 200);
+      else delete next.risk;
     }
     return next;
   });
@@ -159,6 +167,29 @@ export function setPhaseStatus(
 
 export function deletePhase(phases: WaterfallPhase[], id: string): WaterfallPhase[] {
   return phases.filter((p) => p.id !== id);
+}
+
+/**
+ * Rollback a done phase to active (Roadmap 7.5): allowed only when every
+ * later phase is still todo, so history never contradicts the sequence.
+ * Never throws.
+ */
+export function rollbackPhase(
+  phases: WaterfallPhase[],
+  id: string,
+  now: number = Date.now(),
+): WaterfallPhase[] {
+  const phase = phases.find((p) => p.id === id);
+  if (!phase || phase.status !== 'done') return phases;
+  const ordered = phasesForProject(phases, phase.projectId);
+  const idx = ordered.findIndex((p) => p.id === id);
+  if (!ordered.slice(idx + 1).every((p) => p.status === 'todo')) return phases;
+  return phases.map((p) => {
+    if (p.id !== id) return p;
+    const next: WaterfallPhase = { ...p, status: 'active', updatedAt: now };
+    delete next.doneAt;
+    return next;
+  });
 }
 
 /** Share of done phases 0-100 (0 when the project has no phases). */

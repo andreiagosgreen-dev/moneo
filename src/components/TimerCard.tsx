@@ -1,9 +1,32 @@
 import { useEffect, useRef, useState } from 'react';
-import { MODE_META, fmtClock, type Mode, type Settings } from '../lib/store';
+import { fmtClock, type Mode, type Settings } from '../lib/store';
+import { useI18n } from '../lib/i18n/LocaleContext';
+import type { TKey } from '../lib/i18n/types';
+import { postSessionLine } from '../lib/ai/coach';
+import type { SessionFeedback } from '../lib/ai/types';
 import { AREA_NAME_MAX, MAX_AREAS, type FocusArea } from '../lib/focusAreas';
 import { tasksForProject, type Task } from '../lib/tasks';
 
 const MODES: Mode[] = ['focus', 'short', 'long'];
+
+/** Translated mode meta (Faza 5) — replaces the English-only MODE_META. */
+const MODE_KEYS: Record<Mode, { label: TKey; short: TKey; tagline: TKey }> = {
+  focus: {
+    label: 'timer.mode.focus.label',
+    short: 'timer.mode.focus.short',
+    tagline: 'timer.mode.focus.tagline',
+  },
+  short: {
+    label: 'timer.mode.short.label',
+    short: 'timer.mode.short.short',
+    tagline: 'timer.mode.short.tagline',
+  },
+  long: {
+    label: 'timer.mode.long.label',
+    short: 'timer.mode.long.short',
+    tagline: 'timer.mode.long.tagline',
+  },
+};
 
 interface Props {
   mode: Mode;
@@ -32,6 +55,10 @@ interface Props {
   tasks: Task[];
   selectedTaskId: string | null;
   onSelectTask: (id: string | null) => void;
+  /** Faza 6 estimate learner: base guess in Pomodoros + feedback sink. */
+  estimatePomodoros?: number;
+  taskTitle?: string;
+  onFeedback?: (kind: SessionFeedback, estimated: number, actual: number) => void;
 }
 
 function PlayIcon() {
@@ -213,16 +240,28 @@ export default function TimerCard({
   tasks,
   selectedTaskId,
   onSelectTask,
+  estimatePomodoros,
+  taskTitle,
+  onFeedback,
 }: Props) {
   const { mm, ss } = fmtClock(remaining);
+  const { t, fmtDur } = useI18n();
   const progress = total > 0 ? remaining / total : 0;
-  const meta = MODE_META[mode];
+  const meta = {
+    label: t(MODE_KEYS[mode].label),
+    short: t(MODE_KEYS[mode].short),
+    tagline: t(MODE_KEYS[mode].tagline),
+  };
   const activeIdx = MODES.indexOf(mode);
   const started = running || remaining < total;
 
   const projectTasks = selectedProjectId ? tasksForProject(tasks, selectedProjectId) : [];
 
-  const statusLabel = running ? 'In session' : started ? 'Paused' : 'Ready';
+  const statusLabel = running
+    ? t('timer.status.in')
+    : started
+      ? t('timer.status.paused')
+      : t('timer.status.ready');
 
   /* ---------- focus area management (local UI state only) ---------- */
   const [areaOpen, setAreaOpen] = useState(false);
@@ -238,6 +277,42 @@ export default function TimerCard({
 
   const selectedArea = areas.find((a) => a.id === selectedAreaId) ?? null;
 
+  /* ---------- 10-second completion summary (Faza 4) ----------
+   * flashKey bumps once per completed session (sound + notification already
+   * fire in useTimer). Only the finished kind + minutes are stored; the
+   * text renders through t() so a mid-summary language switch still works. */
+  const [summary, setSummary] = useState<null | {
+    id: number;
+    kind: 'focus' | 'break';
+    minutes: number;
+  }>(null);
+  const latestSession = useRef({ mode, total });
+  const firstFlash = useRef(true);
+  const [feedbackFor, setFeedbackFor] = useState<number | null>(null);
+  const [coachKind, setCoachKind] = useState<SessionFeedback | null>(null);
+  useEffect(() => {
+    if (firstFlash.current) {
+      firstFlash.current = false;
+      latestSession.current = { mode, total };
+      return;
+    }
+    const done = latestSession.current;
+    latestSession.current = { mode, total };
+    const id = flashKey;
+    setSummary({
+      id,
+      kind: done.mode === 'focus' ? 'focus' : 'break',
+      minutes: done.total,
+    });
+    setFeedbackFor(null);
+    setCoachKind(null);
+    const timer = window.setTimeout(() => {
+      setSummary((s) => (s && s.id === id ? null : s));
+    }, 10000);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flashKey]);
+
   const submitNewArea = () => {
     const ok = onCreateArea(newName);
     if (ok) {
@@ -246,8 +321,8 @@ export default function TimerCard({
     } else {
       setAreaNote(
         newName.trim().length === 0
-          ? 'Give the area a name first.'
-          : `Up to ${MAX_AREAS} areas — rename or remove one first.`,
+          ? t('timer.areaEmpty')
+          : t('timer.areaFull', { max: MAX_AREAS }),
       );
     }
   };
@@ -262,12 +337,15 @@ export default function TimerCard({
   const iconBtn = 'press btn-ghost flex h-8 w-8 shrink-0 items-center justify-center rounded-lg';
 
   return (
-    <section className="card px-4 pb-8 pt-6 sm:px-10 sm:pb-10" aria-label="Timer">
+    <section
+      className={`card px-4 pb-8 pt-6 sm:px-10 sm:pb-10 ${running ? 'focus-hero' : ''}`}
+      aria-label="Timer"
+    >
       {/* mode switcher */}
       <div
         className="relative grid grid-cols-3 rounded-full border border-line bg-ink/60 p-1"
         role="tablist"
-        aria-label="Timer mode"
+        aria-label={t('timer.modeLabel')}
       >
         <span
           aria-hidden
@@ -296,7 +374,7 @@ export default function TimerCard({
                 active ? 'text-cream' : 'text-faint hover:text-sage'
               }`}
             >
-              {MODE_META[m].short}
+              {t(MODE_KEYS[m].short)}
               <span
                 className={`hidden font-mono text-[11px] font-medium sm:inline ${
                   active ? 'opacity-80' : 'opacity-60'
@@ -311,12 +389,13 @@ export default function TimerCard({
       </div>
 
       {/* focus intention — optional, never blocks the timer */}
-      <div className="mt-4">
+      <p className="mt-3 text-center text-[12px] text-faint">{t('timer.intentionHint')}</p>
+      <div className="mt-3">
         <label
           htmlFor="focus-intention"
           className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint"
         >
-          Focus intention
+          {t('timer.intention')}
         </label>
         <div className="mt-1.5 flex items-center gap-2">
           <input
@@ -332,7 +411,7 @@ export default function TimerCard({
                 onIntentionEnter();
               }
             }}
-            placeholder="What are you working on? (optional)"
+            placeholder={t('timer.intentionPh')}
             className="h-10 w-full min-w-0 rounded-xl border border-line bg-ink/60 px-3 text-sm text-cream transition-colors placeholder:text-faint focus:[border-color:var(--accent)] focus:outline-none"
             style={{ caretColor: 'var(--accent)' }}
           />
@@ -340,7 +419,7 @@ export default function TimerCard({
             <button
               onClick={() => onIntentionDraftChange('')}
               className="press btn-ghost flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-              aria-label="Clear intention"
+              aria-label={t('timer.clearIntention')}
             >
               <XIcon />
             </button>
@@ -354,7 +433,7 @@ export default function TimerCard({
           htmlFor="focus-area"
           className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint"
         >
-          Focus area
+          {t('timer.area')}
         </label>
         <div className="mt-1.5 flex items-center gap-2">
           <div className="relative min-w-0 flex-1">
@@ -364,7 +443,7 @@ export default function TimerCard({
               onChange={(e) => onSelectArea(e.target.value || null)}
               className="h-10 w-full cursor-pointer appearance-none truncate rounded-xl border border-line bg-ink/60 pl-3 pr-8 text-sm text-cream transition-colors focus:[border-color:var(--accent)] focus:outline-none"
             >
-              <option value="">No area</option>
+              <option value="">{t('timer.noArea')}</option>
               {areas.map((a) => (
                 <option key={a.id} value={a.id}>
                   {a.name}
@@ -379,9 +458,9 @@ export default function TimerCard({
             onClick={() => setAreaOpen((o) => !o)}
             className="press btn-ghost flex h-10 shrink-0 items-center gap-1.5 rounded-xl px-3 font-mono text-[12px]"
             aria-expanded={areaOpen}
-            aria-label={areaOpen ? 'Close area manager' : 'Manage areas'}
+            aria-label={areaOpen ? t('timer.closeAreas') : t('timer.manageAreas')}
           >
-            {areaOpen ? 'Close' : 'Manage'}
+            {areaOpen ? t('timer.close') : t('timer.manage')}
           </button>
         </div>
 
@@ -389,7 +468,7 @@ export default function TimerCard({
         {areaOpen && (
           <div className="mt-2 rounded-xl border border-line bg-ink/50 p-3">
             {areas.length === 0 ? (
-              <p className="text-[12px] text-faint">No areas yet — add one below.</p>
+              <p className="text-[12px] text-faint">{t('timer.noAreas')}</p>
             ) : (
               <ul className="space-y-1.5">
                 {areas.map((a) => (
@@ -408,21 +487,21 @@ export default function TimerCard({
                               setEditingId(null);
                             }
                           }}
-                          aria-label={`Rename area ${a.name}`}
+                          aria-label={t('timer.renameArea', { name: a.name })}
                           className="h-8 w-full min-w-0 rounded-lg border border-line bg-ink/60 px-2 text-[13px] text-cream focus:[border-color:var(--accent)] focus:outline-none"
                           autoFocus
                         />
                         <button
                           onClick={() => submitRename(a.id)}
                           className={iconBtn}
-                          aria-label="Save area name"
+                          aria-label={t('timer.saveArea')}
                         >
                           <CheckIcon />
                         </button>
                         <button
                           onClick={() => setEditingId(null)}
                           className={iconBtn}
-                          aria-label="Cancel rename"
+                          aria-label={t('timer.cancelRename')}
                         >
                           <XIcon />
                         </button>
@@ -433,7 +512,7 @@ export default function TimerCard({
                           {a.name}
                           {selectedArea?.id === a.id && (
                             <span className="ml-2 font-mono text-[10px] uppercase text-faint">
-                              selected
+                              {t('timer.selected')}
                             </span>
                           )}
                         </span>
@@ -443,14 +522,14 @@ export default function TimerCard({
                             setEditName(a.name);
                           }}
                           className={iconBtn}
-                          aria-label={`Rename area ${a.name}`}
+                          aria-label={t('timer.renameArea', { name: a.name })}
                         >
                           <PencilIcon />
                         </button>
                         <button
                           onClick={() => onDeleteArea(a.id)}
                           className={iconBtn}
-                          aria-label={`Delete area ${a.name}`}
+                          aria-label={t('timer.deleteArea', { name: a.name })}
                         >
                           <TrashIcon />
                         </button>
@@ -472,11 +551,15 @@ export default function TimerCard({
                     submitNewArea();
                   }
                 }}
-                placeholder="New area name"
-                aria-label="New area name"
+                placeholder={t('timer.newArea')}
+                aria-label={t('timer.newArea')}
                 className="h-8 w-full min-w-0 rounded-lg border border-line bg-ink/60 px-2 text-[13px] text-cream placeholder:text-faint focus:[border-color:var(--accent)] focus:outline-none"
               />
-              <button onClick={submitNewArea} className={`${iconBtn} h-8`} aria-label="Add area">
+              <button
+                onClick={submitNewArea}
+                className={`${iconBtn} h-8`}
+                aria-label={t('timer.addArea')}
+              >
                 <PlusIcon />
               </button>
             </div>
@@ -495,7 +578,7 @@ export default function TimerCard({
           htmlFor="project"
           className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint"
         >
-          Project
+          {t('timer.project')}
         </label>
         <div className="mt-1.5 flex items-center gap-2">
           <div className="relative min-w-0 flex-1">
@@ -505,7 +588,7 @@ export default function TimerCard({
               onChange={(e) => onSelectProject(e.target.value || null)}
               className="h-10 w-full cursor-pointer appearance-none truncate rounded-xl border border-line bg-ink/60 pl-3 pr-8 text-sm text-cream transition-colors focus:[border-color:var(--accent)] focus:outline-none"
             >
-              <option value="">No project</option>
+              <option value="">{t('timer.noProject')}</option>
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name}
@@ -526,7 +609,7 @@ export default function TimerCard({
             htmlFor="task"
             className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint"
           >
-            Task
+            {t('timer.task')}
           </label>
           <div className="mt-1.5 flex items-center gap-2">
             <div className="relative min-w-0 flex-1">
@@ -536,7 +619,7 @@ export default function TimerCard({
                 onChange={(e) => onSelectTask(e.target.value || null)}
                 className="h-10 w-full cursor-pointer appearance-none truncate rounded-xl border border-line bg-ink/60 pl-3 pr-8 text-sm text-cream transition-colors focus:[border-color:var(--accent)] focus:outline-none"
               >
-                <option value="">No task</option>
+                <option value="">{t('timer.noTask')}</option>
                 {projectTasks.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.title}
@@ -555,9 +638,9 @@ export default function TimerCard({
       <div key={flashKey} className={`pop relative mx-auto mt-6 max-w-[400px] sm:mt-8`}>
         <svg
           viewBox="0 0 400 400"
-          className={`w-full ${running ? 'anim-breathe' : ''}`}
+          className="w-full"
           role="img"
-          aria-label={`${meta.label}: ${mm} minutes ${ss} seconds remaining`}
+          aria-label={t('timer.ringAria', { label: meta.label, time: `${mm}:${ss}` })}
         >
           <defs>
             <filter id="ringGlow" x="-40%" y="-40%" width="180%" height="180%">
@@ -574,7 +657,7 @@ export default function TimerCard({
             cy="200"
             r="178"
             fill="none"
-            stroke="rgb(238 241 232 / 0.07)"
+            stroke="rgb(242 244 249 / 0.07)"
             strokeWidth="10"
           />
           {/* inner hairline guide */}
@@ -583,7 +666,7 @@ export default function TimerCard({
             cy="200"
             r="146"
             fill="none"
-            stroke="rgb(238 241 232 / 0.05)"
+            stroke="rgb(242 244 249 / 0.05)"
             strokeWidth="1"
           />
           {/* clock-face ticks, quarters emphasized */}
@@ -597,13 +680,32 @@ export default function TimerCard({
                 y1={quarter ? 34 : 38}
                 x2="200"
                 y2="48"
-                stroke={quarter ? 'rgb(238 241 232 / 0.18)' : 'rgb(238 241 232 / 0.09)'}
+                stroke={quarter ? 'rgb(242 244 249 / 0.18)' : 'rgb(242 244 249 / 0.09)'}
                 strokeWidth={quarter ? 3 : 2}
                 strokeLinecap="round"
                 transform={`rotate(${deg} 200 200)`}
               />
             );
           })}
+          {/* luminous breathing arc — opacity only, while running */}
+          {running && (
+            <circle
+              cx="200"
+              cy="200"
+              r="178"
+              fill="none"
+              stroke="var(--accent)"
+              strokeWidth="18"
+              strokeLinecap="round"
+              pathLength={100}
+              strokeDasharray={100}
+              strokeDashoffset={100 - progress * 100}
+              transform="rotate(-90 200 200)"
+              filter="url(#ringGlow)"
+              className="arc-breathe"
+              aria-hidden
+            />
+          )}
           {/* progress */}
           <circle
             cx="200"
@@ -636,7 +738,7 @@ export default function TimerCard({
             />
             {statusLabel}
           </span>
-          <div className="mt-2 font-mono font-medium leading-none tracking-tight text-cream [font-size:clamp(4.2rem,17vw,7.5rem)]">
+          <div className="mt-2 font-mono font-medium tabular-nums leading-none tracking-tight text-cream [font-size:clamp(4.2rem,17vw,7.5rem)]">
             {mm}
             <span className={running ? 'colon-run' : ''} style={{ opacity: 0.55 }}>
               :
@@ -647,14 +749,17 @@ export default function TimerCard({
           {mode === 'focus' && (
             <div
               className="mt-4 flex items-center gap-2"
-              aria-label={`${cycle} of ${settings.longEvery} sessions until long break`}
+              aria-label={t('timer.cycleAria', {
+                done: cycle,
+                total: settings.longEvery,
+              })}
             >
               {Array.from({ length: settings.longEvery }).map((_, i) => (
                 <span
                   key={i}
                   className="h-2 w-2 rounded-full transition-all duration-500"
                   style={{
-                    background: i < cycle ? 'var(--accent)' : 'rgb(238 241 232 / 0.14)',
+                    background: i < cycle ? 'var(--accent)' : 'rgb(242 244 249 / 0.14)',
                     boxShadow: i < cycle ? '0 0 10px rgb(var(--accent-rgb) / 0.7)' : 'none',
                   }}
                 />
@@ -672,8 +777,8 @@ export default function TimerCard({
         <button
           onClick={onReset}
           className="press btn-ghost flex h-12 w-12 items-center justify-center rounded-full"
-          aria-label="Reset timer"
-          title="Reset (R)"
+          aria-label={t('timer.reset')}
+          title={`${t('timer.reset')} (R)`}
         >
           <ResetIcon />
         </button>
@@ -681,21 +786,102 @@ export default function TimerCard({
         <button
           onClick={onToggle}
           className="press btn-accent flex h-16 min-w-36 items-center justify-center gap-3 rounded-full px-6 font-display text-lg font-bold tracking-wide sm:min-w-44 sm:px-10"
-          aria-label={running ? 'Pause timer' : 'Start timer'}
+          aria-label={running ? t('timer.pause') : started ? t('timer.resume') : t('timer.start')}
+          title={
+            running
+              ? `${t('timer.pause')} (Space)`
+              : started
+                ? `${t('timer.resume')} (Space)`
+                : `${t('timer.start')} (Space)`
+          }
         >
           {running ? <PauseIcon /> : <PlayIcon />}
-          {running ? 'Pause' : started ? 'Resume' : 'Start'}
+          {running ? t('timer.pause') : started ? t('timer.resume') : t('timer.start')}
         </button>
 
         <button
           onClick={onSkip}
           className="press btn-ghost flex h-12 w-12 items-center justify-center rounded-full"
-          aria-label="Skip to next session"
-          title="Skip"
+          aria-label={t('timer.skip')}
+          title={t('timer.skip')}
         >
           <SkipIcon />
         </button>
       </div>
+
+      {/* 10-second completion summary */}
+      {summary && (
+        <div
+          role="status"
+          className={`dialog-pop glass fixed bottom-6 left-1/2 z-50 w-[min(24rem,calc(100vw-2rem))] -translate-x-1/2 rounded-2xl px-5 pb-3.5 pt-4 ${
+            summary.kind === 'break' ? 'accent-reflect' : ''
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <span
+              className="mt-0.5 inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+              style={{ background: 'var(--accent)', boxShadow: '0 0 12px var(--accent)' }}
+              aria-hidden
+            />
+            <div className="min-w-0 flex-1">
+              <p className="font-display text-[15px] font-bold text-cream">
+                {summary.kind === 'focus' ? t('timer.done.focus') : t('timer.done.break')}
+              </p>
+              <p className="mt-0.5 text-[13px] leading-relaxed text-sage">
+                {summary.kind === 'focus'
+                  ? t('timer.doneFocusDetail', { dur: fmtDur(summary.minutes) })
+                  : t('timer.doneBreakDetail', { dur: fmtDur(summary.minutes) })}
+              </p>
+              {onFeedback && feedbackFor !== summary.id && (
+                <div
+                  className="mt-2.5 flex flex-wrap gap-1.5"
+                  role="group"
+                  aria-label={t('ai.fb.aria')}
+                >
+                  {(['done', 'continue', 'blocked', 'misestimated'] as const).map((k) => (
+                    <button
+                      key={k}
+                      onClick={() => {
+                        const actual = Math.max(1, Math.round(total / 25));
+                        onFeedback(k, estimatePomodoros ?? actual, actual);
+                        setFeedbackFor(summary.id);
+                        setCoachKind(k);
+                      }}
+                      className="press rounded-md px-2 py-1 font-mono text-[10px] text-sage ring-1 ring-inset ring-line hover:text-cream hover:ring-accent/50"
+                    >
+                      {t(`ai.fb.${k}` as TKey)}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {feedbackFor === summary.id &&
+                (() => {
+                  const line =
+                    coachKind && taskTitle
+                      ? postSessionLine({ feedback: coachKind, taskTitle })
+                      : null;
+                  return (
+                    <p className="mt-2 text-[12px] leading-relaxed text-sage">
+                      {line ? t(line.key as TKey, line.vars) : t('ai.fb.tuned')}
+                    </p>
+                  );
+                })()}
+            </div>
+            <button
+              onClick={() => setSummary(null)}
+              className="press shrink-0 rounded-lg px-2 py-1 font-mono text-[11px] text-faint hover:text-cream"
+              aria-label={t('timer.dismiss')}
+            >
+              ✕
+            </button>
+          </div>
+          <div
+            className="summary-timer-bar mt-3 h-0.5 rounded-full"
+            style={{ background: 'var(--accent)' }}
+            aria-hidden
+          />
+        </div>
+      )}
     </section>
   );
 }

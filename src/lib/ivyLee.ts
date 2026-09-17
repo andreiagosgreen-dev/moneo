@@ -14,6 +14,8 @@ export interface IvyTask {
   text: string;
   done: boolean;
   rank: number; // 1..6 — position in the list
+  /** Estimated minutes (morning ritual). Absent = unestimated. */
+  estimateMin?: number;
 }
 
 export interface IvyPlan {
@@ -45,6 +47,9 @@ export function loadPlans(): IvyPlan[] {
           text: t.text,
           done: t.done === true,
           rank: typeof t.rank === 'number' ? t.rank : 0,
+          ...(typeof t.estimateMin === 'number' && Number.isFinite(t.estimateMin)
+            ? { estimateMin: Math.min(480, Math.max(5, Math.round(t.estimateMin))) }
+            : {}),
         }))
         .sort((a, b) => a.rank - b.rank),
     }));
@@ -95,6 +100,7 @@ export function addTaskToDay(
   dateKey: string,
   text: string,
   maxTasks: number = IVY_MAX_TASKS,
+  estimateMin?: number,
 ): { plans: IvyPlan[]; added: boolean } {
   const clean = text.trim();
   if (!clean) return { plans, added: false };
@@ -107,8 +113,34 @@ export function addTaskToDay(
     text: clean,
     done: false,
     rank,
+    ...(typeof estimateMin === 'number' && Number.isFinite(estimateMin)
+      ? { estimateMin: Math.min(480, Math.max(5, Math.round(estimateMin))) }
+      : {}),
   });
   return { plans: setDayPlan(plans, dateKey, tasks), added: true };
+}
+
+/** Set (or clear with null) a planned task's minute estimate. */
+export function setPlanEstimate(
+  plans: IvyPlan[],
+  dateKey: string,
+  taskId: string,
+  minutes: number | null,
+): IvyPlan[] {
+  const plan = planForDay(plans, dateKey);
+  if (!plan) return plans;
+  return setDayPlan(
+    plans,
+    dateKey,
+    plan.tasks.map((t) => {
+      if (t.id !== taskId) return t;
+      const next: IvyTask = { ...t };
+      if (minutes !== null && Number.isFinite(minutes)) {
+        next.estimateMin = Math.min(480, Math.max(5, Math.round(minutes)));
+      } else delete next.estimateMin;
+      return next;
+    }),
+  );
 }
 
 export function togglePlanTask(plans: IvyPlan[], dateKey: string, taskId: string): IvyPlan[] {
@@ -141,6 +173,30 @@ export function removePlanTask(plans: IvyPlan[], dateKey: string, taskId: string
   return tasks.length === 0
     ? plans.filter((p) => p.dateKey !== dateKey)
     : setDayPlan(plans, dateKey, tasks);
+}
+
+/**
+ * Re-prioritize by moving a task up (-1) or down (+1) within the day's list.
+ * Out-of-range moves leave the list unchanged. Ranks are re-stamped.
+ */
+export function movePlanTask(
+  plans: IvyPlan[],
+  dateKey: string,
+  taskId: string,
+  dir: -1 | 1,
+): IvyPlan[] {
+  const plan = planForDay(plans, dateKey);
+  if (!plan) return plans;
+  const idx = plan.tasks.findIndex((t) => t.id === taskId);
+  const swap = idx + dir;
+  if (idx < 0 || swap < 0 || swap >= plan.tasks.length) return plans;
+  const tasks = [...plan.tasks];
+  [tasks[idx], tasks[swap]] = [tasks[swap], tasks[idx]];
+  return setDayPlan(
+    plans,
+    dateKey,
+    tasks.map((t, i) => ({ ...t, rank: i + 1 })),
+  );
 }
 
 export function planDoneCount(plan: IvyPlan | null): number {

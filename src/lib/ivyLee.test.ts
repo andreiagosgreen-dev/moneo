@@ -9,6 +9,8 @@ import {
   togglePlanTask,
   renamePlanTask,
   removePlanTask,
+  movePlanTask,
+  setPlanEstimate,
   planDoneCount,
   carryForNewDay,
   getIvyAnalytics,
@@ -168,10 +170,13 @@ describe('getIvyAnalytics', () => {
   }
 
   it('computes average completion and perfect days', () => {
+    // Keys must stay inside getIvyAnalytics's rolling 7-day window, so
+    // derive them from now instead of hardcoding calendar dates.
+    const key = (daysAgo: number) => dayKeyInTz(Date.now() - daysAgo * 24 * 3600_000, TZ);
     const plans = [
-      plan('2026-9-10', 3, 3), // perfect (100%)
-      plan('2026-9-11', 2, 4), // 50%
-      plan('2026-9-12', 0, 2), // 0%
+      plan(key(1), 3, 3), // perfect (100%)
+      plan(key(2), 2, 4), // 50%
+      plan(key(3), 0, 2), // 0%
     ];
     const analytics = getIvyAnalytics(plans);
     expect(analytics.activeDays).toBe(3);
@@ -183,5 +188,68 @@ describe('getIvyAnalytics', () => {
     const analytics = getIvyAnalytics([{ dateKey: '2026-9-10', tasks: [] }]);
     expect(analytics.activeDays).toBe(0);
     expect(analytics.average).toBe(0);
+  });
+});
+
+describe('movePlanTask', () => {
+  const plans = [
+    {
+      dateKey: '2026-9-16',
+      tasks: [
+        { id: 'a', text: 'A', done: false, rank: 1 },
+        { id: 'b', text: 'B', done: false, rank: 2 },
+        { id: 'c', text: 'C', done: false, rank: 3 },
+      ],
+    },
+  ];
+
+  it('swaps with the neighbor and re-stamps ranks', () => {
+    const next = planForDay(movePlanTask(plans, '2026-9-16', 'b', -1), '2026-9-16')!;
+    expect(next.tasks.map((t) => t.id)).toEqual(['b', 'a', 'c']);
+    expect(next.tasks.map((t) => t.rank)).toEqual([1, 2, 3]);
+    const down = planForDay(movePlanTask(plans, '2026-9-16', 'b', 1), '2026-9-16')!;
+    expect(down.tasks.map((t) => t.id)).toEqual(['a', 'c', 'b']);
+  });
+
+  it('ignores out-of-range moves and unknown ids/days', () => {
+    expect(movePlanTask(plans, '2026-9-16', 'a', -1)).toBe(plans);
+    expect(movePlanTask(plans, '2026-9-16', 'c', 1)).toBe(plans);
+    expect(movePlanTask(plans, '2026-9-16', 'ghost', 1)).toBe(plans);
+    expect(movePlanTask(plans, '2026-9-99', 'a', 1)).toBe(plans);
+  });
+});
+
+describe('setPlanEstimate', () => {
+  const plans = [
+    {
+      dateKey: '2026-9-16',
+      tasks: [
+        { id: 'a', text: 'A', done: false, rank: 1 },
+        { id: 'b', text: 'B', done: false, rank: 2 },
+      ],
+    },
+  ];
+
+  it('sets, clamps and clears estimates', () => {
+    const next = planForDay(setPlanEstimate(plans, '2026-9-16', 'a', 50), '2026-9-16')!;
+    expect(next.tasks[0].estimateMin).toBe(50);
+    expect(
+      planForDay(setPlanEstimate(plans, '2026-9-16', 'a', 2), '2026-9-16')!.tasks[0].estimateMin,
+    ).toBe(5);
+    expect(
+      planForDay(setPlanEstimate(plans, '2026-9-16', 'a', null), '2026-9-16')!.tasks[0]
+        .estimateMin,
+    ).toBeUndefined();
+  });
+
+  it('accepts estimates at creation time', () => {
+    const { plans: next, added } = addTaskToDay([], '2026-9-16', 'Deep work', 6, 90);
+    expect(added).toBe(true);
+    expect(planForDay(next, '2026-9-16')!.tasks[0].estimateMin).toBe(90);
+  });
+
+  it('ignores unknown days and ids', () => {
+    expect(setPlanEstimate(plans, '2026-9-99', 'a', 30)).toBe(plans);
+    expect(setPlanEstimate(plans, '2026-9-16', 'ghost', 30)).toEqual(plans);
   });
 });

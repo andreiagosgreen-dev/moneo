@@ -439,7 +439,7 @@
 - [x] Font options
 - [x] UI animations
 - [x] Onboarding flow
-- [ ] Help documentation (dev docs exist; in-app help center pending)
+- [x] Help documentation (in-app help center at /help)
 - [x] In-app tutorials (onboarding wizard)
 
 ### **Week 11: Launch**

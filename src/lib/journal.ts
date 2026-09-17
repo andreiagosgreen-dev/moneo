@@ -168,3 +168,29 @@ export function weeklySummary(
     mood: moodAverage(journal, now, 7),
   };
 }
+
+/* ---------------- days off / vacation (Roadmap 5.5) ---------------- */
+
+/** Planned days off as local day keys ("YYYY-M-D"), capped at a year. */
+export function loadTimeOff(): string[] {
+  const stored = read<string[]>(STORAGE_KEYS.timeOff);
+  if (!Array.isArray(stored)) return [];
+  return Array.from(new Set(stored.filter((d) => typeof d === 'string')))
+    .sort()
+    .slice(-365);
+}
+
+export function saveTimeOff(days: string[]): boolean {
+  const clean = Array.from(new Set(days.filter((d) => typeof d === 'string')))
+    .sort()
+    .slice(-365);
+  return write(STORAGE_KEYS.timeOff, clean);
+}
+
+/** Toggle a day off. Pure. Never throws. */
+export function toggleTimeOff(days: string[], dayKey: string): string[] {
+  const set = new Set(days);
+  if (set.has(dayKey)) set.delete(dayKey);
+  else set.add(dayKey);
+  return [...set].sort().slice(-365);
+}

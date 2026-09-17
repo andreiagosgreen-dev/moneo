@@ -1,5 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { getSupabaseClient } from '../supabase';
+import { withClient } from './withClient';
 import type { Session } from '../store';
 import type { RemoteSessionRow } from '../sync/merge';
 
@@ -40,16 +39,6 @@ export function toCloudSessionRow(
     intention: session.intention ?? null,
     area_id: session.areaId && isUuid ? session.areaId : null,
   };
-}
-
-async function withClient<T>(fn: (client: SupabaseClient) => Promise<T>): Promise<T | null> {
-  const client = await getSupabaseClient();
-  if (!client) return null;
-  try {
-    return await fn(client);
-  } catch {
-    return null;
-  }
 }
 
 export function insertSession(row: CloudSessionRow): Promise<boolean> {

@@ -8,9 +8,13 @@ import {
   createGoalObject,
   deleteGoal,
   descendantIds,
+  goalBlockers,
+  goalConflicts,
   goalProgress,
   loadGoals,
   rootGoals,
+  setGoalBlockedBy,
+  smartScore,
   suggestTasksForGoal,
   updateGoal,
   type Goal,
@@ -162,5 +166,70 @@ describe('suggestTasksForGoal', () => {
   it('falls back to generic steps, empty on blank', () => {
     expect(suggestTasksForGoal('Reorganize garage')).toContain('Weekly review');
     expect(suggestTasksForGoal('   ')).toEqual([]);
+  });
+});
+
+describe('smartScore', () => {
+  it('scores a well-formed goal 5/5', () => {
+    const check = smartScore('Launch the SaaS to $10k by Q3');
+    expect(check.score).toBe(5);
+    expect(check.tips).toEqual([]);
+  });
+
+  it('flags vague goals with actionable tips', () => {
+    const check = smartScore('stuff');
+    expect(check.score).toBeLessThan(3);
+    expect(check.measurable).toBe(false);
+    expect(check.timeBound).toBe(false);
+    expect(check.tips.length).toBeGreaterThan(0);
+  });
+});
+
+describe('goalConflicts + lifeAreaId', () => {
+  it('pairs goals sharing a target week', () => {
+    const friday = new Date(2026, 8, 18, 12, 0).getTime();
+    const saturday = new Date(2026, 8, 19, 12, 0).getTime();
+    const goals = [
+      makeGoal({ id: 'a', targetDate: friday }),
+      makeGoal({ id: 'b', targetDate: saturday }),
+      makeGoal({ id: 'c', targetDate: friday + 30 * 24 * 3600_000 }),
+    ];
+    const conflicts = goalConflicts(goals);
+    expect(conflicts).toHaveLength(1);
+    expect(conflicts[0].a.id).toBe('a');
+    expect(conflicts[0].b.id).toBe('b');
+    expect(goalConflicts([])).toEqual([]);
+  });
+
+  it('links goals to life areas', () => {
+    const next = updateGoal([makeGoal()], 'g1', { lifeAreaId: 'life-health' });
+    expect(next[0].lifeAreaId).toBe('life-health');
+    expect(updateGoal(next, 'g1', { lifeAreaId: null })[0].lifeAreaId).toBeUndefined();
+  });
+
+  it('tracks goal dependencies without cycles', () => {
+    const goals = [makeGoal({ id: 'a' }), makeGoal({ id: 'b' })];
+    const linked = setGoalBlockedBy(goals, 'b', ['a', 'ghost', 'b']);
+    expect(linked.find((g) => g.id === 'b')!.blockedBy).toEqual(['a']);
+    expect(
+      goalBlockers(
+        linked,
+        [],
+        linked.find((g) => g.id === 'b')!,
+      ),
+    ).toHaveLength(1);
+    // cycle a→b→a rejected
+    expect(
+      setGoalBlockedBy(linked, 'a', ['b']).find((g) => g.id === 'a')!.blockedBy,
+    ).toBeUndefined();
+    // done blockers don't block
+    const done = updateGoal(linked, 'a', { progress: 100 });
+    expect(
+      goalBlockers(
+        done,
+        [],
+        done.find((g) => g.id === 'b')!,
+      ),
+    ).toHaveLength(0);
   });
 });

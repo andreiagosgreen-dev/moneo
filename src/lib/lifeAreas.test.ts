@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   balanceReport,
+  burnoutGauge,
   loadLifeAreas,
   resetLifeAreas,
   saveLifeAreas,
@@ -69,5 +70,17 @@ describe('lifeAreas', () => {
     expect(report.totalMin).toBe(0);
     expect(report.score).toBeGreaterThanOrEqual(0);
     expect(report.advice).toContain('No focus time');
+  });
+
+  it('grades burnout from combined signals', () => {
+    expect(burnoutGauge({ overtime: false, mood: 4, energy: 7, frogSkipRate: 0 }).level).toBe(
+      'low',
+    );
+    const guarded = burnoutGauge({ overtime: true, mood: null, energy: null, frogSkipRate: null });
+    expect(guarded.level).toBe('guarded');
+    expect(guarded.reasons).toContain('Work overshoots its share');
+    const high = burnoutGauge({ overtime: true, mood: 2, energy: 3, frogSkipRate: 0.8 });
+    expect(high.level).toBe('high');
+    expect(high.reasons).toHaveLength(4);
   });
 });

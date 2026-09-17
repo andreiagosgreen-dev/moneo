@@ -12,6 +12,7 @@ import {
   skillProgress,
   skillsByCategory,
   totalLearningMinutes,
+  transitionAdvice,
   updateSkill,
 } from './skills';
 
@@ -100,5 +101,50 @@ describe('skills', () => {
     expect(formatLearningDuration(45)).toBe('45m');
     expect(formatLearningDuration(60)).toBe('1h');
     expect(formatLearningDuration(135)).toBe('2h 15m');
+  });
+
+  it('suggests the business transition when tech is solid', () => {
+    const skills = [
+      { ...createSkillObject('React'), level: 4 as const },
+      { ...createSkillObject('Node'), level: 3 as const },
+      { ...createSkillObject('SQL'), level: 3 as const },
+    ];
+    const mkTask = (
+      id: string,
+      projectId: string,
+      status: 'pending' | 'completed' = 'completed',
+    ) => ({
+      id,
+      projectId,
+      title: id,
+      status,
+      priority: 'p2' as const,
+      createdAt: 1,
+      updatedAt: 1,
+    });
+    const tasks = [mkTask('t1', 'p1'), mkTask('t2', 'p1'), mkTask('t3', 'p2'), mkTask('t4', 'p2')];
+    const mkProject = (id: string) => ({
+      id,
+      name: id,
+      color: '#fff',
+      category: 'work' as const,
+      tags: [],
+      createdAt: 1,
+      updatedAt: 1,
+    });
+    const projects = [mkProject('p1'), mkProject('p2')];
+    expect(transitionAdvice(skills, tasks, projects, [])).toContain('business goal');
+    expect(
+      transitionAdvice(skills, tasks, projects, [
+        {
+          id: 'g',
+          title: 'Get marketing clients',
+          level: 'vision' as const,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      ]),
+    ).toBeNull();
+    expect(transitionAdvice(skills.slice(0, 2), tasks, projects, [])).toBeNull();
   });
 });

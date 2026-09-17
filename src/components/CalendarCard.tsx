@@ -4,10 +4,10 @@ import type { Project } from '../lib/projects';
 import {
   adherenceForDay,
   blocksForWeekday,
+  conflictedBlockIds,
   createBlock,
   currentWeekKeys,
   deleteBlock,
-  loadBlocks,
   minuteOfDayInTz,
   weekdayOfKey,
   BLOCK_PALETTE,
@@ -22,6 +22,7 @@ interface Props {
   projects: Project[];
   timezone: string;
   isPro?: boolean;
+  blocks: TimeBlock[];
   blocksChange: (blocks: TimeBlock[]) => void;
 }
 
@@ -61,10 +62,11 @@ export default function CalendarCard({
   projects,
   timezone,
   isPro = false,
+  blocks,
   blocksChange,
 }: Props) {
-  const [blocks, setBlocks] = useState<TimeBlock[]>(loadBlocks);
   const [adding, setAdding] = useState(false);
+  const [view, setView] = useState<'week' | 'list'>('week');
 
   const [label, setLabel] = useState('');
   const [weekday, setWeekday] = useState<Weekday>(() =>
@@ -79,7 +81,6 @@ export default function CalendarCard({
   const todayKey = dayKeyInTz(Date.now(), timezone);
 
   const commit = (next: TimeBlock[]) => {
-    setBlocks(next);
     blocksChange(next);
   };
 
@@ -107,6 +108,11 @@ export default function CalendarCard({
   }, [history, blocks, weekKeys, timezone]);
 
   const anyBlocks = blocks.length > 0;
+  const conflicted = useMemo(() => conflictedBlockIds(blocks), [blocks]);
+  const draftOverlap = useMemo(
+    () => blocksForWeekday(blocks, weekday).some((b) => startMin < b.endMin && endMin > b.startMin),
+    [blocks, weekday, startMin, endMin],
+  );
 
   return (
     <section className="card px-6 py-6 sm:px-7" aria-label="Time blocking calendar">
@@ -114,151 +120,256 @@ export default function CalendarCard({
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">This week</h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            {isPro ? 'time blocks' : 'time blocks · read-only'}
+            {isPro ? 'Recurring windows · green % is adherence' : 'Time blocks · read-only in Free'}
           </p>
         </div>
         <span className="font-mono text-[11px] text-sage">{weekLabel(weekKeys)}</span>
       </header>
 
-      {/* calendar */}
-      <div className="mt-5 grid gap-2 sm:grid-cols-7">
-        {weekKeys.map((key) => {
-          const isToday = key === todayKey;
-          const wd = weekdayOfKey(key);
-          const ad = adherenceMap.get(key)!;
-          const daySessions = history.filter((s) => dayKeyInTz(s.at, timezone) === key);
-          return (
-            <div key={key} className="flex flex-col">
-              <div
-                className={`rounded-lg px-2 py-1.5 text-center ${
-                  isToday ? 'bg-accent/15 ring-1 ring-accent/40' : 'bg-ink/40'
-                }`}
-              >
+      {/* view toggle + conflict banner */}
+      <div className="mt-3 flex items-center gap-2">
+        <div className="flex gap-1 rounded-xl bg-ink/60 p-1 ring-1 ring-line w-fit">
+          {(['week', 'list'] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className={`press rounded-lg px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors ${
+                view === v ? 'bg-cream/10 text-cream' : 'text-faint hover:text-sage'
+              }`}
+            >
+              {v === 'week' ? 'Week' : 'List'}
+            </button>
+          ))}
+        </div>
+        {conflicted.size > 0 && (
+          <span
+            className="font-mono text-[10px] font-bold text-tomato"
+            title="Overlapping blocks share a weekday — shrink one to resolve"
+          >
+            ⚠ {conflicted.size} overlap{conflicted.size === 1 ? '' : 's'}
+          </span>
+        )}
+      </div>
+
+      {view === 'week' ? (
+        <div className="mt-3 grid gap-2 sm:grid-cols-7">
+          {weekKeys.map((key) => {
+            const isToday = key === todayKey;
+            const wd = weekdayOfKey(key);
+            const ad = adherenceMap.get(key)!;
+            const daySessions = history.filter((s) => dayKeyInTz(s.at, timezone) === key);
+            return (
+              <div key={key} className="flex flex-col">
                 <div
-                  className={`font-mono text-[10px] font-bold uppercase tracking-wider ${
-                    isToday ? 'text-accent' : 'text-cream/80'
+                  className={`rounded-lg px-2 py-1.5 text-center ${
+                    isToday ? 'bg-accent/15 ring-1 ring-accent/40' : 'bg-ink/40'
                   }`}
                 >
-                  {WEEKDAY_SHORT[wd]}
-                </div>
-                <div className="font-mono text-[10px] text-faint">
-                  {key.split('-').slice(1).join('/')}
-                </div>
-                {ad.plannedMin > 0 && (
                   <div
-                    className="mt-1 font-mono text-[11px] font-bold"
-                    style={{
-                      color:
-                        ad.pct >= 80
-                          ? 'var(--color-mint)'
-                          : ad.pct >= 40
-                            ? 'var(--color-sky)'
-                            : 'var(--color-tomato)',
-                    }}
-                    title={`${fmtMinutes(ad.actualMin)} of ${fmtMinutes(ad.plannedMin)} planned focused`}
+                    className={`font-mono text-[10px] font-bold uppercase tracking-wider ${
+                      isToday ? 'text-accent' : 'text-cream/80'
+                    }`}
                   >
-                    {ad.pct}%
+                    {WEEKDAY_SHORT[wd]}
                   </div>
-                )}
-              </div>
-
-              {/* timeline */}
-              <div className="relative mt-1.5 h-64 rounded-lg bg-ink/30 ring-1 ring-inset ring-line/50">
-                {hourLines.map((min) => (
-                  <div
-                    key={min}
-                    className="pointer-events-none absolute left-0 right-0 border-t border-line/30"
-                    style={{ top: `${((min - SCALE_START) / SCALE_TOTAL) * 100}%` }}
-                  />
-                ))}
-
-                {/* session pips */}
-                {daySessions.map((s) => {
-                  const mod = minuteOfDayInTz(s.at, timezone);
-                  if (mod < SCALE_START || mod > SCALE_END) return null;
-                  const dur = Math.max(4, s.min);
-                  return (
+                  <div className="font-mono text-[10px] text-faint">
+                    {key.split('-').slice(1).join('/')}
+                  </div>
+                  {ad.plannedMin > 0 && (
                     <div
-                      key={s.id ?? `${s.at}-${s.min}`}
-                      className="absolute left-1 right-1 rounded-sm"
+                      className="mt-1 font-mono text-[11px] font-bold"
                       style={{
-                        top: `${((mod - SCALE_START) / SCALE_TOTAL) * 100}%`,
-                        height: `${(Math.min(dur, 60) / SCALE_TOTAL) * 100}%`,
-                        background: 'rgb(var(--accent-rgb) / 0.5)',
+                        color:
+                          ad.pct >= 80
+                            ? 'var(--color-mint)'
+                            : ad.pct >= 40
+                              ? 'var(--color-sky)'
+                              : 'var(--color-tomato)',
                       }}
-                      title={`${fmtMinutes(s.min)} focused`}
-                    />
-                  );
-                })}
-
-                {/* blocks */}
-                {blocksForWeekday(blocks, wd as Weekday).map((b) => {
-                  const span = b.endMin - b.startMin;
-                  return (
-                    <div
-                      key={b.id}
-                      className="absolute left-1 right-1 overflow-hidden rounded-md px-1.5 py-1"
-                      style={{
-                        top: `${((b.startMin - SCALE_START) / SCALE_TOTAL) * 100}%`,
-                        height: `${(span / SCALE_TOTAL) * 100}%`,
-                        background: `${b.color}2e`,
-                        border: `1px solid ${b.color}99`,
-                      }}
-                      title={`${b.label} · ${fmtHM(b.startMin)}–${fmtHM(b.endMin)}`}
+                      title={`${fmtMinutes(ad.actualMin)} of ${fmtMinutes(ad.plannedMin)} planned focused`}
                     >
-                      <div
-                        className="truncate text-[10px] font-semibold leading-tight"
-                        style={{ color: b.color }}
-                      >
-                        {b.label}
-                      </div>
-                      <div className="font-mono text-[8px] leading-tight opacity-70">
-                        {fmtHM(b.startMin)}–{fmtHM(b.endMin)}
-                      </div>
-                      {isPro && (
-                        <button
-                          onClick={() => commit(deleteBlock(blocks, b.id))}
-                          className="press absolute right-0.5 top-0.5 rounded p-0.5 text-[10px] text-cream/40 hover:text-tomato"
-                          aria-label={`Delete block ${b.label}`}
-                        >
-                          <TrashIcon />
-                        </button>
-                      )}
+                      {ad.pct}%
                     </div>
-                  );
-                })}
+                  )}
+                </div>
 
-                {!anyBlocks && (
-                  <p className="absolute inset-0 flex items-center justify-center px-2 text-center font-mono text-[10px] text-faint">
-                    {isPro ? 'Add a block to plan focus' : 'No blocks yet'}
-                  </p>
-                )}
+                {/* timeline */}
+                <div className="relative mt-1.5 h-64 rounded-lg bg-ink/30 ring-1 ring-inset ring-line/50">
+                  {hourLines.map((min) => (
+                    <div
+                      key={min}
+                      className="pointer-events-none absolute left-0 right-0 border-t border-line/30"
+                      style={{ top: `${((min - SCALE_START) / SCALE_TOTAL) * 100}%` }}
+                    />
+                  ))}
+
+                  {/* session pips */}
+                  {daySessions.map((s) => {
+                    const mod = minuteOfDayInTz(s.at, timezone);
+                    if (mod < SCALE_START || mod > SCALE_END) return null;
+                    const dur = Math.max(4, s.min);
+                    return (
+                      <div
+                        key={s.id ?? `${s.at}-${s.min}`}
+                        className="absolute left-1 right-1 rounded-sm"
+                        style={{
+                          top: `${((mod - SCALE_START) / SCALE_TOTAL) * 100}%`,
+                          height: `${(Math.min(dur, 60) / SCALE_TOTAL) * 100}%`,
+                          background: 'rgb(var(--accent-rgb) / 0.5)',
+                        }}
+                        title={`${fmtMinutes(s.min)} focused`}
+                      />
+                    );
+                  })}
+
+                  {/* blocks */}
+                  {blocksForWeekday(blocks, wd as Weekday).map((b) => {
+                    const span = b.endMin - b.startMin;
+                    return (
+                      <div
+                        key={b.id}
+                        className="absolute left-1 right-1 overflow-hidden rounded-md px-1.5 py-1"
+                        style={{
+                          top: `${((b.startMin - SCALE_START) / SCALE_TOTAL) * 100}%`,
+                          height: `${(span / SCALE_TOTAL) * 100}%`,
+                          background: `${b.color}2e`,
+                          border: `1px solid ${b.color}99`,
+                        }}
+                        title={`${b.label} · ${fmtHM(b.startMin)}–${fmtHM(b.endMin)}${conflicted.has(b.id) ? ' · OVERLAPS another block' : ''}`}
+                      >
+                        <div
+                          className="truncate text-[10px] font-semibold leading-tight"
+                          style={{ color: b.color }}
+                        >
+                          {conflicted.has(b.id) && <span title="Overlaps another block">⚠ </span>}
+                          {b.label}
+                        </div>
+                        <div className="font-mono text-[8px] leading-tight opacity-70">
+                          {fmtHM(b.startMin)}–{fmtHM(b.endMin)}
+                        </div>
+                        {isPro && (
+                          <button
+                            onClick={() => commit(deleteBlock(blocks, b.id))}
+                            className="press absolute right-0.5 top-0.5 rounded p-0.5 text-[10px] text-cream/40 hover:text-tomato"
+                            aria-label={`Delete block ${b.label}`}
+                          >
+                            <TrashIcon />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {!anyBlocks && (
+                    <p className="absolute inset-0 flex items-center justify-center px-2 text-center font-mono text-[10px] text-faint">
+                      {isPro ? 'Add a block to plan focus' : 'No blocks yet'}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      ) : (
+        <ul className="mt-3 space-y-2">
+          {weekKeys.map((key) => {
+            const wd = weekdayOfKey(key);
+            const ad = adherenceMap.get(key)!;
+            const daySessions = history.filter((s) => dayKeyInTz(s.at, timezone) === key);
+            const dayBlocks = blocksForWeekday(blocks, wd as Weekday);
+            const [y, m, d] = key.split('-').map(Number);
+            const label = new Date(y, m - 1, d).toLocaleDateString([], {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric',
+            });
+            return (
+              <li
+                key={key}
+                className="rounded-xl bg-ink/40 px-3.5 py-2.5 ring-1 ring-inset ring-line"
+              >
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-[13px] font-semibold text-cream">
+                    {label}
+                    {key === todayKey && (
+                      <span className="ml-2 rounded-full bg-accent/20 px-2 py-0.5 font-mono text-[9px] font-bold uppercase text-accent">
+                        Today
+                      </span>
+                    )}
+                  </span>
+                  <span className="shrink-0 font-mono text-[11px] text-sage">
+                    {dayBlocks.length > 0 ? (
+                      <>
+                        {dayBlocks.length} block{dayBlocks.length === 1 ? '' : 's'}
+                        {ad.plannedMin > 0 && (
+                          <span className="ml-1.5 text-faint">
+                            {ad.pct}% · {daySessions.length} sessions
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="text-faint">—</span>
+                    )}
+                  </span>
+                </div>
+                {dayBlocks.length > 0 && (
+                  <ul className="mt-1.5 space-y-1">
+                    {dayBlocks.map((b) => (
+                      <li key={b.id} className="flex items-center gap-2 text-[12px]">
+                        <span
+                          className="h-2 w-2 shrink-0 rounded-full"
+                          style={{ backgroundColor: b.color }}
+                        />
+                        <span className="font-mono text-[11px] text-faint">
+                          {fmtHM(b.startMin)}–{fmtHM(b.endMin)}
+                        </span>
+                        <span className="min-w-0 flex-1 truncate text-cream/90">
+                          {conflicted.has(b.id) && <span title="Overlaps another block">⚠ </span>}
+                          {b.label}
+                        </span>
+                        {b.projectId && (
+                          <span className="shrink-0 font-mono text-[10px] text-faint">
+                            {projects.find((p) => p.id === b.projectId)?.name ?? 'Deleted'}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
 
       {/* add / upsell */}
       {isPro ? (
         adding ? (
-          <AddBlockForm
-            label={label}
-            setLabel={setLabel}
-            weekday={weekday}
-            setWeekday={setWeekday}
-            startMin={startMin}
-            setStartMin={setStartMin}
-            endMin={endMin}
-            setEndMin={setEndMin}
-            color={color}
-            setColor={setColor}
-            projectId={projectId}
-            setProjectId={setProjectId}
-            projects={projects}
-            onCancel={() => setAdding(false)}
-            onSave={add}
-          />
+          <>
+            {draftOverlap && (
+              <p className="mt-3 rounded-lg bg-tomato/10 px-3 py-2 font-mono text-[11px] text-tomato ring-1 ring-inset ring-tomato/30">
+                ⚠ Overlaps an existing block on {WEEKDAY_FULL[weekday]} — saving anyway will flag
+                both.
+              </p>
+            )}
+            <AddBlockForm
+              label={label}
+              setLabel={setLabel}
+              weekday={weekday}
+              setWeekday={setWeekday}
+              startMin={startMin}
+              setStartMin={setStartMin}
+              endMin={endMin}
+              setEndMin={setEndMin}
+              color={color}
+              setColor={setColor}
+              projectId={projectId}
+              setProjectId={setProjectId}
+              projects={projects}
+              onCancel={() => setAdding(false)}
+              onSave={add}
+            />
+          </>
         ) : (
           <button
             onClick={() => setAdding(true)}

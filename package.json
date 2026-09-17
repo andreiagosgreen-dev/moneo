@@ -12,14 +12,16 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"cloudflare/**/*.ts\" \"*.{js,json,md,yml}\" \"scripts/**/*.mjs\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"cloudflare/**/*.ts\"",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "audit": "npm audit --audit-level=high",
+    "secret-scan": "node scripts/secret-scan.mjs"
   },
   "dependencies": {
     "@lemonsqueezy/lemonsqueezy.js": "^4.0.0",
     "@supabase/supabase-js": "^2.98.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.30.6"
+    "react-router-dom": "^7.18.4"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",

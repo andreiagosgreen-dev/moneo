@@ -4,9 +4,12 @@ import {
   MAX_CHAT_MESSAGES,
   QUICK_ACTIONS,
   appendMessage,
+  loadAssistantTone,
   loadChatHistory,
+  motivationLine,
   parseTaskCommand,
   respondTo,
+  saveAssistantTone,
   saveChatHistory,
   type AssistantContext,
 } from './assistant';
@@ -152,5 +155,67 @@ describe('chat history', () => {
   it('exposes quick actions with a free tier', () => {
     expect(QUICK_ACTIONS.length).toBeGreaterThanOrEqual(4);
     expect(QUICK_ACTIONS.filter((q) => !q.pro).length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe('tone + motivation', () => {
+  it('persists the personality with a concise fallback', () => {
+    expect(loadAssistantTone()).toBe('concise');
+    expect(saveAssistantTone('direct')).toBe(true);
+    expect(loadAssistantTone()).toBe('direct');
+    expect(saveAssistantTone('concise')).toBe(true);
+  });
+
+  it('flavors the fallback per tone', () => {
+    const ctx = makeCtx();
+    expect(respondTo('blargh', ctx, 'direct').text).toContain('Now.');
+    expect(respondTo('blargh', ctx, 'encouraging').text).toContain('💪');
+    expect(respondTo('blargh', ctx).action).toBeNull();
+  });
+
+  it('motivates from streak and today', () => {
+    const at = Date.now();
+    expect(motivationLine([], 'UTC')).toContain('Fresh page');
+    expect(motivationLine([{ at, min: 30 }], 'UTC', 'direct')).toContain('No excuses');
+    expect(motivationLine([{ at, min: 30 }], 'UTC', 'encouraging')).toContain('💪');
+  });
+
+  it('builds a day plan from frog, focus and goals', () => {
+    const ctx = makeCtx({
+      tasks: [makeTask({ id: 'a', title: 'Hard thing', priority: 'p0' })],
+      goals: [
+        {
+          id: 'g1',
+          title: 'Launch',
+          level: 'vision' as const,
+          progress: 10,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      ],
+    });
+    const reply = respondTo('plan my day', ctx);
+    expect(reply.action).not.toBeNull();
+    expect(reply.action!.type).toBe('build-plan');
+    if (reply.action?.type === 'build-plan') {
+      expect(reply.action.items.join(' ')).toContain('Hard thing');
+      expect(reply.action.items.join(' ')).toContain('Launch');
+    }
+  });
+
+  it('schedules around measured energy peaks', () => {
+    const at = Date.now();
+    const d = new Date(at);
+    d.setHours(9, 0, 0, 0);
+    const peak = d.getTime() > at ? d.getTime() - 24 * 3600_000 : d.getTime();
+    const ctx = makeCtx({
+      tasks: [makeTask({ title: 'Work' })],
+      energyLog: [
+        { at: peak, level: 9 },
+        { at: peak - 24 * 3600_000, level: 8 },
+      ],
+    });
+    const reply = respondTo('plan my day', ctx);
+    expect(reply.text).toContain('Peak energy');
   });
 });

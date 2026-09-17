@@ -4,10 +4,13 @@ import {
   JOURNAL_PROMPTS,
   WEEKLY_REFLECTION_PROMPTS,
   loadJournal,
+  loadTimeOff,
   moodAverage,
   promptForDay,
   recentEntries,
   saveJournal,
+  saveTimeOff,
+  toggleTimeOff,
   upsertEntry,
   weeklySummary,
 } from './journal';
@@ -87,5 +90,16 @@ describe('journal', () => {
     expect(summary.sessions).toBe(2);
     expect(summary.daysActive).toBe(1);
     expect(summary.mood).toBe(4);
+  });
+});
+
+describe('time off', () => {
+  it('toggles day keys sorted, deduped and capped', () => {
+    expect(loadTimeOff()).toEqual([]);
+    const added = toggleTimeOff([], '2026-12-24');
+    expect(added).toEqual(['2026-12-24']);
+    expect(toggleTimeOff(added, '2026-12-24')).toEqual([]);
+    expect(saveTimeOff(['2026-12-24', '2026-12-31'])).toBe(true);
+    expect(loadTimeOff()).toEqual(['2026-12-24', '2026-12-31']);
   });
 });

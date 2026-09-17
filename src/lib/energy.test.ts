@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  breakAdvice,
   energyAdvice,
+  energyMean,
   hourlyAverage,
   loadEnergyLog,
   logEnergy,
   peakHours,
+  predictPeak,
+  restAdvice,
   saveEnergyLog,
 } from './energy';
 
@@ -51,5 +55,41 @@ describe('energy', () => {
     expect(energyAdvice(entries, NOON)).toContain('9:00');
     expect(saveEnergyLog(entries)).toBe(true);
     expect(loadEnergyLog()).toHaveLength(7);
+  });
+
+  it('predicts today from trailing peaks', () => {
+    expect(predictPeak([], NOON)).toBeNull();
+    let entries = logEnergy([], 9, at(9));
+    entries = logEnergy(entries, 8, at(9, -1));
+    expect(predictPeak(entries, NOON)).toMatchObject({ hour: 9 });
+  });
+
+  it('nudges a break after 100+ unbroken minutes', () => {
+    const now = NOON;
+    const history = [
+      { at: now - 110 * 60_000, min: 50 },
+      { at: now - 55 * 60_000, min: 55 },
+    ];
+    expect(breakAdvice(history, now)).toContain('10 minutes');
+    expect(breakAdvice([], now)).toBeNull();
+    const rested = [
+      { at: now - 110 * 60_000, min: 50 },
+      { at: now - 30 * 60_000, min: 20 },
+    ];
+    // 30-minute gap between sessions → rested
+    expect(breakAdvice(rested, now)).toBeNull();
+  });
+
+  it('means trailing levels and advises rest after long runs', () => {
+    const now = NOON;
+    expect(energyMean([], now)).toBeNull();
+    const entries = logEnergy(logEnergy([], 8, at(9)), 6, at(10));
+    expect(energyMean(entries, now)).toBe(7);
+    const sixDays = Array.from({ length: 6 }, (_, i) => ({
+      at: now - i * 24 * 3600_000,
+      min: 30,
+    }));
+    expect(restAdvice(sixDays, now)).toContain('day off');
+    expect(restAdvice([], now)).toBeNull();
   });
 });

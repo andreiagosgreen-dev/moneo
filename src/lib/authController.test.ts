@@ -14,6 +14,7 @@ interface RawUser {
 /** Controllable fake of the Supabase auth surface. */
 function fakeClient(opts?: {
   sessionUser?: RawUser | null;
+  accessToken?: string;
   signInError?: string;
   signUpError?: string;
   signUpNoSession?: boolean;
@@ -23,7 +24,12 @@ function fakeClient(opts?: {
   const client: AuthClientLike = {
     getSession: async () => ({
       data: {
-        session: opts?.sessionUser ? { user: opts.sessionUser } : null,
+        session: opts?.sessionUser
+          ? {
+              user: opts.sessionUser,
+              ...(opts?.accessToken ? { access_token: opts.accessToken } : {}),
+            }
+          : null,
       },
     }),
     onAuthStateChange: (cb) => {
@@ -81,8 +87,12 @@ function deps(
   overrides?: Partial<AuthControllerDeps>,
 ): AuthControllerDeps & {
   ensureCalls: Array<{ userId: string; timezone: string }>;
+  requestCalls: string[];
+  cleared: { count: number };
 } {
   const ensureCalls: Array<{ userId: string; timezone: string }> = [];
+  const requestCalls: string[] = [];
+  const cleared = { count: 0 };
   return {
     clientFactory: async () => client,
     ensureProfile: async (userId, timezone) => {
@@ -90,11 +100,22 @@ function deps(
       return true;
     },
     getProfileTimezone: async () => null,
+    requestAccountDeletion: async (token: string) => {
+      requestCalls.push(token);
+      return true;
+    },
+    clearLocalData: () => {
+      cleared.count += 1;
+    },
     browserTimezone: () => 'Europe/Chisinau',
     ensureCalls,
+    requestCalls,
+    cleared,
     ...overrides,
   } as AuthControllerDeps & {
     ensureCalls: Array<{ userId: string; timezone: string }>;
+    requestCalls: string[];
+    cleared: { count: number };
   };
 }
 
@@ -297,5 +318,99 @@ describe('privacy: auth is not migration', () => {
     expect(mapAuthError('Password should be at least 8 characters')).toContain('too weak');
     expect(mapAuthError('Something exploded #42')).toBe('Something went wrong. Please try again.');
     expect(mapAuthError(null)).toBe('Something went wrong. Please try again.');
+  });
+});
+
+describe('deleteAccount (server-confirmed wipe)', () => {
+  function signedIn(
+    clientOpts?: Parameters<typeof fakeClient>[0],
+    depOverrides?: Partial<AuthControllerDeps>,
+  ) {
+    const fake = fakeClient({
+      sessionUser: { id: 'u-1', email: 'a@example.com' },
+      accessToken: 'tok-abc',
+      ...clientOpts,
+    });
+    const d = deps(fake.client, depOverrides);
+    const c = createAuthController(d);
+    c.init();
+    return { c, d, fake };
+  }
+
+  it('wipes server-side, then clears local data and signs out', async () => {
+    const { c, d, fake } = signedIn();
+    await flush();
+    expect(c.getSnapshot().status).toBe('authenticated');
+
+    const signOutSpy = vi.fn(async () => ({ error: null }));
+    fake.client.signOut = signOutSpy;
+
+    const res = await c.deleteAccount();
+    expect(res).toEqual({ ok: true });
+    // Server got the raw access token (identity derived server-side).
+    expect(d.requestCalls).toEqual(['tok-abc']);
+    // Local wipe happens exactly once, only after server success…
+    expect(d.cleared.count).toBe(1);
+    // …then sign-out and anonymous state.
+    expect(signOutSpy).toHaveBeenCalledTimes(1);
+    expect(c.getSnapshot()).toEqual({
+      status: 'anonymous',
+      user: null,
+      timezone: 'Europe/Chisinau',
+    });
+  });
+
+  it('keeps everything local when the server wipe fails', async () => {
+    const { c, d, fake } = signedIn({}, { requestAccountDeletion: async () => false });
+    await flush();
+
+    const signOutSpy = vi.fn(async () => ({ error: null }));
+    fake.client.signOut = signOutSpy;
+
+    const res = await c.deleteAccount();
+    expect(res.ok).toBe(false);
+    // Still signed in, nothing cleared, no sign-out attempted.
+    expect(c.getSnapshot().status).toBe('authenticated');
+    expect(c.getSnapshot().user?.userId).toBe('u-1');
+    expect(d.cleared.count).toBe(0);
+    expect(signOutSpy).not.toHaveBeenCalled();
+  });
+
+  it('keeps everything local when the endpoint throws', async () => {
+    const { c, d } = signedIn(
+      {},
+      {
+        requestAccountDeletion: async () => {
+          throw new Error('boom');
+        },
+      },
+    );
+    await flush();
+    const res = await c.deleteAccount();
+    expect(res.ok).toBe(false);
+    expect(c.getSnapshot().status).toBe('authenticated');
+    expect(d.cleared.count).toBe(0);
+  });
+
+  it('refuses without a fresh access token', async () => {
+    const { c, d } = signedIn({ accessToken: undefined });
+    await flush();
+    const res = await c.deleteAccount();
+    expect(res.ok).toBe(false);
+    expect(d.requestCalls).toHaveLength(0);
+    expect(d.cleared.count).toBe(0);
+    expect(c.getSnapshot().status).toBe('authenticated');
+  });
+
+  it('refuses when not signed in', async () => {
+    const { client } = fakeClient({ sessionUser: null });
+    const d = deps(client);
+    const c = createAuthController(d);
+    c.init();
+    await flush();
+    const res = await c.deleteAccount();
+    expect(res.ok).toBe(false);
+    expect(d.requestCalls).toHaveLength(0);
+    expect(d.cleared.count).toBe(0);
   });
 });

@@ -42,6 +42,7 @@ function fakeLocal(init?: Partial<LocalStore>): LocalStore {
       soundType: 'bell' as const,
       volume: 50,
       notifications: true,
+      weeklyCapacityMin: 1500,
     },
   };
 }

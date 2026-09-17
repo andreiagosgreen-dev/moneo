@@ -1,5 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { getSupabaseClient } from '../supabase';
+import { withClient } from './withClient';
 import { sanitizeAreaName, type FocusArea } from '../focusAreas';
 import type { RemoteAreaRow } from '../sync/merge';
 
@@ -16,16 +15,6 @@ export interface CloudAreaRow {
   created_at: string;
   updated_at?: string;
   deleted_at: string | null;
-}
-
-async function withClient<T>(fn: (client: SupabaseClient) => Promise<T>): Promise<T | null> {
-  const client = await getSupabaseClient();
-  if (!client) return null;
-  try {
-    return await fn(client);
-  } catch {
-    return null;
-  }
 }
 
 export function insertArea(userId: string, name: string, id?: string): Promise<boolean> {

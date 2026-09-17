@@ -11,6 +11,7 @@ import { dayKeyInTz, currentStreakInTz } from './timezone';
 import { quadrantCounts, quadrantFocus } from './eisenhower';
 import { pickFrog } from './frog';
 import { goalProgress, rootGoals } from './goals';
+import { peakHours } from './energy';
 import type { Task, TaskPriority } from './tasks';
 import type { Project } from './projects';
 import type { Goal } from './goals';
@@ -24,6 +25,26 @@ export interface ChatMessage {
 
 /** Conversation memory cap (oldest trimmed first). */
 export const MAX_CHAT_MESSAGES = 50;
+
+export type AssistantTone = 'concise' | 'encouraging' | 'direct';
+
+export const ASSISTANT_TONES: AssistantTone[] = ['concise', 'encouraging', 'direct'];
+
+export const TONE_LABELS: Record<AssistantTone, string> = {
+  concise: 'Concise',
+  encouraging: 'Encouraging',
+  direct: 'Drill sergeant',
+};
+
+/** Never throws. Falls back to concise on junk. */
+export function loadAssistantTone(): AssistantTone {
+  const stored = read<string>(STORAGE_KEYS.assistantTone);
+  return ASSISTANT_TONES.includes(stored as AssistantTone) ? (stored as AssistantTone) : 'concise';
+}
+
+export function saveAssistantTone(tone: AssistantTone): boolean {
+  return write(STORAGE_KEYS.assistantTone, tone);
+}
 
 export function loadChatHistory(): ChatMessage[] {
   const stored = read<ChatMessage[]>(STORAGE_KEYS.chatHistory);
@@ -155,15 +176,19 @@ export interface AssistantContext {
   history: Array<{ at: number; min: number; taskId?: string }>;
   timezone: string;
   goals: Goal[];
+  energyLog?: Array<{ at: number; level: number }>;
 }
 
-export type AssistantAction = {
-  type: 'add-task';
-  title: string;
-  priority: TaskPriority;
-  dueAt: number | null;
-  projectQuery: string | null;
-} | null;
+export type AssistantAction =
+  | {
+      type: 'add-task';
+      title: string;
+      priority: TaskPriority;
+      dueAt: number | null;
+      projectQuery: string | null;
+    }
+  | { type: 'build-plan'; items: string[] }
+  | null;
 
 export interface AssistantReply {
   text: string;
@@ -179,6 +204,7 @@ export interface QuickAction {
 export const QUICK_ACTIONS: QuickAction[] = [
   { label: 'What should I work on?', message: 'What should I work on?', pro: false },
   { label: 'Pick my frog', message: 'Pick my frog', pro: false },
+  { label: 'Plan my day', message: 'Plan my day', pro: true },
   { label: 'My progress today', message: 'How am I doing today?', pro: true },
   { label: 'Review my goals', message: 'Review my goals', pro: true },
   { label: 'Add a task…', message: 'Add task ', pro: true },
@@ -191,8 +217,33 @@ function todayMinutes(history: AssistantContext['history'], timezone: string): n
     .reduce((sum, s) => sum + (typeof s.min === 'number' ? s.min : 0), 0);
 }
 
+/**
+ * Morning motivation line from streak + today (Roadmap 4.4/6.2, rule-based).
+ * Never throws.
+ */
+export function motivationLine(
+  history: AssistantContext['history'],
+  timezone: string,
+  tone: AssistantTone = 'concise',
+): string {
+  const streak = currentStreakInTz(history, timezone);
+  const min = todayMinutes(history, timezone);
+  let base: string;
+  if (streak >= 7) base = `${streak}-day streak — you're undeniable. Protect it with one round.`;
+  else if (streak >= 3) base = `${streak} days in a row — momentum is real. Keep it alive.`;
+  else if (min > 0) base = `${min}m already today — good start. One more round?`;
+  else base = 'Fresh page. One 25-minute round and the day is already a win.';
+  if (tone === 'encouraging') return `${base} I believe in you — go get it. 💪`;
+  if (tone === 'direct') return `${base} No excuses. Timer on.`;
+  return base;
+}
+
 /** Rule-based reply. Pure except Date.now for "today" math. Never throws. */
-export function respondTo(input: string, ctx: AssistantContext): AssistantReply {
+export function respondTo(
+  input: string,
+  ctx: AssistantContext,
+  tone: AssistantTone = 'concise',
+): AssistantReply {
   const text = input.trim();
   const lower = text.toLowerCase();
   const now = Date.now();
@@ -217,8 +268,30 @@ export function respondTo(input: string, ctx: AssistantContext): AssistantReply 
     };
   }
 
+  const frog = pickFrog(ctx.tasks, ctx.projects, now);
+
+  if (/plan my day|build.*plan|schedule (my day|today)/.test(lower)) {
+    const items: string[] = [];
+    if (frog) items.push(`🐸 ${frog.title}`);
+    const focus = quadrantFocus(ctx.tasks, now);
+    if (focus.task && focus.task.title !== frog?.title) items.push(focus.task.title);
+    const openGoal = rootGoals(ctx.goals).find(
+      (g) => !g.archived && goalProgress(ctx.goals, ctx.tasks, g.id) < 100,
+    );
+    if (openGoal && items.length < 3) items.push(`🎯 ${openGoal.title}`);
+    if (items.length === 0) {
+      return { text: 'Nothing open — enjoy the clear board, or add a task first.', action: null };
+    }
+    const peaks = ctx.energyLog ? peakHours(ctx.energyLog, now, 1) : [];
+    const peakLine =
+      peaks.length > 0 ? ` Peak energy ≈ ${peaks[0].hour}:00 — do the frog then.` : '';
+    return {
+      text: `Today's plan: ${items.join(' → ')}.${peakLine} Writing it into your Ivy Lee list now.`,
+      action: { type: 'build-plan', items },
+    };
+  }
+
   if (/frog/.test(lower)) {
-    const frog = pickFrog(ctx.tasks, ctx.projects, now);
     if (!frog)
       return { text: 'No frogs left — every task is done. Enjoy the clear pond.', action: null };
     return {
@@ -278,7 +351,12 @@ export function respondTo(input: string, ctx: AssistantContext): AssistantReply 
   }
 
   return {
-    text: 'I can prioritize (“what should I work on?”), pick your frog, review goals or progress — or create a task with “add task …”.',
+    text:
+      tone === 'direct'
+        ? 'Unclear. Say “what should I work on?”, “pick my frog”, or “add task …”. Now.'
+        : tone === 'encouraging'
+          ? 'Hmm, not sure I got that — but I believe in you! Try “what should I work on?”, “pick my frog”, or create with “add task …”. 💪'
+          : 'I can prioritize (“what should I work on?”), pick your frog, review goals or progress — or create a task with “add task …”.',
     action: null,
   };
 }

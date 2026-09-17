@@ -131,6 +131,69 @@ export function blocksForWeekday(blocks: TimeBlock[], weekday: Weekday): TimeBlo
   return blocks.filter((b) => b.weekday === weekday).sort((a, b) => a.startMin - b.startMin);
 }
 
+export interface NextBlock {
+  block: TimeBlock;
+  /** 'now' when the block already started, 'later' when still upcoming. */
+  state: 'now' | 'later';
+}
+
+/**
+ * Next focus block for a weekday at a minute-of-day: the running block if
+ * one started, otherwise the next upcoming one. Null when the day is clear.
+ * Never throws.
+ */
+export function nextFocusBlock(
+  blocks: TimeBlock[],
+  weekday: Weekday,
+  nowMin: number,
+): NextBlock | null {
+  const day = blocksForWeekday(blocks, weekday).filter((b) => b.endMin > nowMin);
+  if (day.length === 0) return null;
+  const block = day[0];
+  return { block, state: block.startMin <= nowMin ? 'now' : 'later' };
+}
+
+export interface BlockConflict {
+  a: TimeBlock;
+  b: TimeBlock;
+  overlapMin: number;
+}
+
+/**
+ * Overlapping block pairs sharing a weekday (Roadmap 3.3 conflict
+ * detection). Each unordered pair appears once. Never throws.
+ */
+export function blockConflicts(blocks: TimeBlock[]): BlockConflict[] {
+  const out: BlockConflict[] = [];
+  const byDay = new Map<Weekday, TimeBlock[]>();
+  for (const b of blocks) {
+    const list = byDay.get(b.weekday) ?? [];
+    list.push(b);
+    byDay.set(b.weekday, list);
+  }
+  for (const list of byDay.values()) {
+    const sorted = list.slice().sort((x, y) => x.startMin - y.startMin);
+    for (let i = 0; i < sorted.length; i++) {
+      for (let j = i + 1; j < sorted.length; j++) {
+        if (sorted[j].startMin >= sorted[i].endMin) break;
+        const overlapMin = Math.min(sorted[i].endMin, sorted[j].endMin) - sorted[j].startMin;
+        if (overlapMin > 0) out.push({ a: sorted[i], b: sorted[j], overlapMin });
+      }
+    }
+  }
+  return out;
+}
+
+/** Ids of every block involved in at least one conflict (for badges). */
+export function conflictedBlockIds(blocks: TimeBlock[]): Set<string> {
+  const ids = new Set<string>();
+  for (const c of blockConflicts(blocks)) {
+    ids.add(c.a.id);
+    ids.add(c.b.id);
+  }
+  return ids;
+}
+
 /* ---------- week helpers ---------- */
 
 /** "YYYY-M-D" key of today minus n days (Monday-based week helpers below). */
@@ -138,10 +201,24 @@ export function dayKeyForOffset(offsetDays: number, timezone: string): string {
   return dayKeyInTz(Date.now() - offsetDays * 86400_000, timezone);
 }
 
+/** Weekday (0=Sun..6=Sat) of "now" in the requested zone (never local). */
+function weekdayNowInTz(timezone: string): number {
+  try {
+    const short = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      weekday: 'short',
+    }).format(new Date());
+    const idx = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(short);
+    return idx >= 0 ? idx : new Date().getDay();
+  } catch {
+    return new Date().getDay();
+  }
+}
+
 /** Monday-first view: the 7 day keys of the current week, oldest → newest. */
 export function currentWeekKeys(timezone: string): string[] {
-  const today = new Date();
-  const offset = today.getDay() === 0 ? 6 : today.getDay() - 1; // Monday = 0
+  const wd = weekdayNowInTz(timezone);
+  const offset = wd === 0 ? 6 : wd - 1; // Monday = 0
   const keys: string[] = [];
   for (let i = 0; i < 7; i++) {
     keys.push(dayKeyForOffset(offset - i, timezone));

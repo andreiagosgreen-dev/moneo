@@ -3,6 +3,8 @@
  * Uses checkout URLs for subscription management.
  */
 
+import { readEnv } from '../env';
+
 export type Plan = 'free' | 'pro-monthly' | 'pro-yearly';
 
 export interface Pricing {
@@ -12,7 +14,6 @@ export interface Pricing {
   price: string;
   priceMonthly: string;
   features: string[];
-  checkoutUrl: string | null;
 }
 
 const PRICING_PLANS: Pricing[] = [
@@ -29,7 +30,6 @@ const PRICING_PLANS: Pricing[] = [
       'Habits, journal & energy',
       'Local-first, private by design',
     ],
-    checkoutUrl: null,
   },
   {
     id: 'pro-monthly',
@@ -47,7 +47,6 @@ const PRICING_PLANS: Pricing[] = [
       'Premium themes & customization',
       'Priority support',
     ],
-    checkoutUrl: null,
   },
   {
     id: 'pro-yearly',
@@ -61,62 +60,65 @@ const PRICING_PLANS: Pricing[] = [
       'Early access to new features',
       'Priority support',
     ],
-    checkoutUrl: null,
   },
 ];
-
-function readEnv(): Record<string, string | undefined> {
-  try {
-    const meta = import.meta as unknown as {
-      env?: Record<string, string | undefined>;
-    };
-    return meta.env ?? {};
-  } catch {
-    return {};
-  }
-}
 
 export function getLemonSqueezyConfig(): {
   storeId: string | null;
   checkoutUrl: string | null;
+  monthlyVariantId: string | null;
+  yearlyVariantId: string | null;
 } {
-  const storeId = readEnv().VITE_LEMONSQUEZY_STORE_ID;
-  const checkoutBaseUrl = readEnv().VITE_LEMONSQUEZY_CHECKOUT_URL;
+  const storeId = readEnv().VITE_LEMONSQUEEZY_STORE_ID;
+  const checkoutBaseUrl = readEnv().VITE_LEMONSQUEEZY_CHECKOUT_URL;
 
   return {
     storeId: storeId || null,
     checkoutUrl: checkoutBaseUrl || null,
+    monthlyVariantId: readEnv().VITE_LEMONSQUEEZY_MONTHLY_VARIANT_ID || null,
+    yearlyVariantId: readEnv().VITE_LEMONSQUEEZY_YEARLY_VARIANT_ID || null,
   };
 }
 
-export function getPricingPlans(): Pricing[] {
+function variantForPlan(planId: Plan): string | null {
   const config = getLemonSqueezyConfig();
+  if (planId === 'pro-monthly') return config.monthlyVariantId;
+  if (planId === 'pro-yearly') return config.yearlyVariantId;
+  return null;
+}
 
-  return PRICING_PLANS.map((plan) => {
-    if (plan.id === 'free' || !config.checkoutUrl || !config.storeId) {
-      return plan;
-    }
+/**
+ * Checkout URL for a paid plan. Uses the plan's distinct variant id so
+ * monthly and yearly open different checkouts; the user id is URL-encoded
+ * so the webhook can attribute the subscription. Null when billing is not
+ * configured (free plan or missing env). The configured base must be a
+ * real https: URL — anything else fails closed instead of open-redirecting
+ * the buyer (Faza 5A).
+ */
+export function buildCheckoutUrl(planId: Plan, userId: string): string | null {
+  const config = getLemonSqueezyConfig();
+  if (planId === 'free' || !config.checkoutUrl || !config.storeId) {
+    return null;
+  }
+  let base: string;
+  try {
+    const parsed = new URL(config.checkoutUrl.replace(/\/$/, ''));
+    if (parsed.protocol !== 'https:' || !parsed.hostname) return null;
+    base = parsed.href.replace(/\/$/, '');
+  } catch {
+    return null;
+  }
+  const variant = variantForPlan(planId);
+  const path = variant ? `${base}/buy/${variant}` : base;
+  return `${path}?checkout[custom][user_id]=${encodeURIComponent(userId)}`;
+}
 
-    // Generate checkout URL for paid plans
-    // Format: https://store.lemonsqueezy.com/checkout?variant_id=XYZ
-    // In production, you would map plan IDs to actual Lemon Squeezy variant IDs
-    return {
-      ...plan,
-      checkoutUrl: `${config.checkoutUrl}?checkout[custom][user_id]=USER_ID`,
-    };
-  });
+export function getPricingPlans(): Pricing[] {
+  return PRICING_PLANS.map((plan) => ({ ...plan }));
 }
 
 export function initiateCheckout(planId: Plan, userId: string): string | null {
-  const plans = getPricingPlans();
-  const plan = plans.find((p) => p.id === planId);
-
-  if (!plan || !plan.checkoutUrl) {
-    return null;
-  }
-
-  // Replace USER_ID placeholder with actual user ID
-  return plan.checkoutUrl.replace('USER_ID', userId);
+  return buildCheckoutUrl(planId, userId);
 }
 
 export function getProPlanCheckoutUrl(userId: string): string | null {

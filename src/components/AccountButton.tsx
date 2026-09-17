@@ -357,10 +357,11 @@ export default function AccountButton() {
                   </button>
                 ) : (
                   <div className="rounded-xl border border-tomato/30 bg-tomato/5 px-4 py-3">
-                    <p className="text-[12px] font-semibold text-tomato">Are you sure?</p>
+                    <p className="text-[12px] font-semibold text-tomato">Delete your account?</p>
                     <p className="mt-1 text-[11px] leading-relaxed text-sage">
-                      This will permanently delete all your synced data (sessions, areas, settings).
-                      Your auth account will be signed out.
+                      This permanently deletes your account — you won&apos;t be able to sign in
+                      again — plus all synced data (sessions, areas, settings, subscription). This
+                      can&apos;t be undone.
                     </p>
                     <div className="mt-3 flex gap-2">
                       <button
@@ -386,7 +387,7 @@ export default function AccountButton() {
                         className="press btn-accent flex h-9 flex-1 items-center justify-center gap-2 rounded-lg text-sm font-semibold bg-tomato hover:bg-tomato/90"
                       >
                         {busy ? <Spinner /> : null}
-                        Delete data
+                        Delete account
                       </button>
                     </div>
                   </div>

@@ -6,7 +6,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe('emailService (unconfigured stub)', () => {
+describe('emailService (no backend yet)', () => {
   it('reports not configured when VITE_EMAIL_API_URL is missing', () => {
     vi.stubEnv('VITE_EMAIL_API_URL', '');
     expect(isEmailConfigured()).toBe(false);
@@ -25,7 +25,19 @@ describe('emailService (unconfigured stub)', () => {
       type: 'daily_summary',
     });
     expect(result.success).toBe(false);
-    expect(result.error).toMatch(/not configured/i);
+    expect(result.error).toMatch(/not connected/i);
+  });
+
+  it('never reports success without a backend, even when configured', async () => {
+    vi.stubEnv('VITE_EMAIL_API_URL', 'https://example.com/api/email');
+    expect(isEmailConfigured()).toBe(true);
+    const result = await sendEmailNotification({
+      userId: 'u1',
+      email: 'user@example.com',
+      type: 'daily_summary',
+    });
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/not connected/i);
   });
 
   it('accepts a valid https endpoint as configured', () => {

@@ -4,6 +4,8 @@ import {
   getIvyAnalytics,
   planDoneCount,
   planForDay,
+  movePlanTask,
+  setPlanEstimate,
   removePlanTask,
   renamePlanTask,
   togglePlanTask,
@@ -91,7 +93,7 @@ export default function IvyLeeCard({ plans, plansChange, timezone, isPro = false
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">Today's plan</h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            Ivy Lee · {isPro ? '6 tasks' : '3 tasks'}
+            {isPro ? '6 slots · plan tonight, work top-down' : '3 slots · plan tonight, work top-down'}
           </p>
         </div>
         <span className="font-mono text-[11px] text-sage">{dateLabel}</span>
@@ -129,6 +131,10 @@ export default function IvyLeeCard({ plans, plansChange, timezone, isPro = false
             onToggle={() => plansChange(togglePlanTask(plans, todayKey, task.id))}
             onRename={(text) => plansChange(renamePlanTask(plans, todayKey, task.id, text))}
             onRemove={() => plansChange(removePlanTask(plans, todayKey, task.id))}
+            onEstimate={(min) => plansChange(setPlanEstimate(plans, todayKey, task.id, min))}
+            onMove={(dir) => plansChange(movePlanTask(plans, todayKey, task.id, dir))}
+            disableUp={i === 0}
+            disableDown={i === total - 1}
           />
         ))}
       </ol>
@@ -205,12 +211,20 @@ function IvyRow({
   onToggle,
   onRename,
   onRemove,
+  onEstimate,
+  onMove,
+  disableUp,
+  disableDown,
 }: {
   task: IvyTask;
   index: number;
   onToggle: () => void;
   onRename: (text: string) => void;
   onRemove: () => void;
+  onEstimate: (min: number | null) => void;
+  onMove: (dir: -1 | 1) => void;
+  disableUp: boolean;
+  disableDown: boolean;
 }) {
   const [text, setText] = useState(task.text);
   const committed = useRef(task.text);
@@ -266,6 +280,20 @@ function IvyRow({
           task.done ? 'line-through' : ''
         }`}
       />
+      <select
+        value={typeof task.estimateMin === 'number' ? task.estimateMin : ''}
+        onChange={(e) => onEstimate(e.target.value === '' ? null : Number(e.target.value))}
+        className="h-7 shrink-0 rounded-md bg-ink/60 px-1 font-mono text-[10px] text-faint ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+        title="Time estimate — feeds the overcommit check"
+        aria-label={`Estimate for ${task.text}`}
+      >
+        <option value="">—</option>
+        {[15, 25, 50, 90].map((m) => (
+          <option key={m} value={m}>
+            {m}m
+          </option>
+        ))}
+      </select>
       <button
         onClick={onRemove}
         className="press shrink-0 rounded p-1 text-faint opacity-0 transition-opacity hover:text-tomato focus:opacity-100 group-hover:opacity-100"
@@ -273,6 +301,24 @@ function IvyRow({
       >
         <TrashIcon />
       </button>
+      <span className="flex shrink-0 flex-col opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+        <button
+          onClick={() => onMove(-1)}
+          disabled={disableUp}
+          className="press rounded px-1 font-mono text-[10px] leading-none text-faint hover:text-cream disabled:opacity-30"
+          aria-label={`Move ${task.text} up`}
+        >
+          ▲
+        </button>
+        <button
+          onClick={() => onMove(1)}
+          disabled={disableDown}
+          className="press rounded px-1 font-mono text-[10px] leading-none text-faint hover:text-cream disabled:opacity-30"
+          aria-label={`Move ${task.text} down`}
+        >
+          ▼
+        </button>
+      </span>
     </li>
   );
 }

@@ -54,7 +54,7 @@ function GrowthForm({ stage, progress }: { stage: number; progress: number }) {
           cy={C}
           r={r}
           fill="none"
-          stroke="rgb(238 241 232 / 0.08)"
+          stroke="rgb(242 244 249 / 0.08)"
           strokeWidth="1.5"
         />
       ))}
@@ -191,7 +191,7 @@ function GrowthCardBase({ history }: { history: Session[] }) {
               key={s.name}
               className="h-1.5 w-4 rounded-full transition-colors duration-500"
               style={{
-                background: i <= g.stage ? 'var(--accent)' : 'rgb(238 241 232 / 0.12)',
+                background: i <= g.stage ? 'var(--accent)' : 'rgb(242 244 249 / 0.12)',
               }}
               title={s.name}
             />

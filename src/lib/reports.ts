@@ -235,3 +235,31 @@ export function buildReport(
     summary: { totalMin, sessionCount, avgMinPerDay, topDay, topProject },
   };
 }
+
+/* ---------------- pareto split (Roadmap 3.4) ---------------- */
+
+export interface ParetoSplit<T> {
+  /** Head slices covering ~80% of minutes ("the vital few"). */
+  top: T[];
+  /** Remaining slices ("the trivial many"). */
+  rest: T[];
+  /** Actual share of minutes held by `top`, 0..1. */
+  topShare: number;
+}
+
+/**
+ * Split minute-sorted slices into the head covering ≥80% of minutes.
+ * Never throws.
+ */
+export function paretoSplit<T extends { min: number }>(slices: T[]): ParetoSplit<T> {
+  const total = slices.reduce((sum, s) => sum + (typeof s.min === 'number' ? s.min : 0), 0);
+  if (total <= 0) return { top: [], rest: slices.slice(), topShare: 0 };
+  const top: T[] = [];
+  let acc = 0;
+  for (const s of slices) {
+    top.push(s);
+    acc += typeof s.min === 'number' ? s.min : 0;
+    if (acc / total >= 0.8) break;
+  }
+  return { top, rest: slices.slice(top.length), topShare: acc / total };
+}

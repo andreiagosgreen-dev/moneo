@@ -225,8 +225,8 @@ export default function StatsCard({
                       background: isNow
                         ? 'linear-gradient(180deg, var(--accent), var(--accent-deep))'
                         : min > 0
-                          ? 'rgb(238 241 232 / 0.16)'
-                          : 'rgb(238 241 232 / 0.06)',
+                          ? 'rgb(242 244 249 / 0.16)'
+                          : 'rgb(242 244 249 / 0.06)',
                       boxShadow: isNow ? '0 0 14px rgb(var(--accent-rgb) / 0.45)' : 'none',
                     }}
                   />

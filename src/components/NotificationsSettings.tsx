@@ -6,6 +6,7 @@ import {
   type NotificationPrefs,
 } from '../lib/notificationPrefs';
 import { requestNotificationPermission, showNotification } from '../lib/store';
+import { isEmailConfigured } from '../lib/notifications/emailService';
 
 export default function NotificationsSettings() {
   const auth = useAuth();
@@ -51,6 +52,12 @@ export default function NotificationsSettings() {
             <div className="text-[11px] text-faint">
               Receive a daily summary of your focus sessions
             </div>
+            {!isEmailConfigured() && (
+              <div className="mt-1 text-[11px] text-faint">
+                Email delivery isn&apos;t connected yet — this preference will apply once it is.
+                Browser reminders below work today.
+              </div>
+            )}
           </div>
           <button
             onClick={() => update({ dailySummary: !prefs.dailySummary })}
@@ -106,6 +113,73 @@ export default function NotificationsSettings() {
           </div>
         )}
 
+        <label className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-sm font-semibold text-cream">Habit Check-in</div>
+            <div className="text-[11px] text-faint">Evening nudge to close out open habits</div>
+          </div>
+          <button
+            onClick={() => update({ habitReminders: !prefs.habitReminders })}
+            className={`press h-6 w-11 rounded-full transition-colors ${
+              prefs.habitReminders ? 'bg-accent' : 'bg-line/50'
+            }`}
+            aria-pressed={prefs.habitReminders}
+          >
+            <div
+              className={`h-5 w-5 rounded-full bg-cream transition-transform ${
+                prefs.habitReminders ? 'translate-x-5' : 'translate-x-0.5'
+              }`}
+            />
+          </button>
+        </label>
+
+        {prefs.habitReminders && (
+          <div>
+            <label className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">
+              Habit Time
+            </label>
+            <input
+              type="time"
+              value={prefs.habitTime}
+              onChange={(e) => update({ habitTime: e.target.value })}
+              className="mt-1.5 h-10 w-full rounded-xl border border-line bg-ink/60 px-3 text-sm text-cream transition-colors focus:[border-color:var(--accent)] focus:outline-none"
+            />
+          </div>
+        )}
+
+        <label className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-sm font-semibold text-cream">Disconnect Nudge</div>
+            <div className="text-[11px] text-faint">End-of-day reminder to stop working</div>
+          </div>
+          <button
+            onClick={() => update({ disconnectReminders: !prefs.disconnectReminders })}
+            className={`press h-6 w-11 rounded-full transition-colors ${
+              prefs.disconnectReminders ? 'bg-accent' : 'bg-line/50'
+            }`}
+            aria-pressed={prefs.disconnectReminders}
+          >
+            <div
+              className={`h-5 w-5 rounded-full bg-cream transition-transform ${
+                prefs.disconnectReminders ? 'translate-x-5' : 'translate-x-0.5'
+              }`}
+            />
+          </button>
+        </label>
+
+        {prefs.disconnectReminders && (
+          <div>
+            <label className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">
+              Disconnect Time
+            </label>
+            <input
+              type="time"
+              value={prefs.disconnectTime}
+              onChange={(e) => update({ disconnectTime: e.target.value })}
+              className="mt-1.5 h-10 w-full rounded-xl border border-line bg-ink/60 px-3 text-sm text-cream transition-colors focus:[border-color:var(--accent)] focus:outline-none"
+            />
+          </div>
+        )}
         <label className="flex items-center justify-between gap-3">
           <div>
             <div className="text-sm font-semibold text-cream">Deadline Reminders</div>

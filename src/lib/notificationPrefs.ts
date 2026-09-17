@@ -17,6 +17,14 @@ export interface NotificationPrefs {
   lastReminderDay?: string;
   /** Deadline warnings for projects due within 48h (Roadmap 2.4). */
   deadlineReminders: boolean;
+  /** Evening nudge to complete open habits (Roadmap 5.1). */
+  habitReminders: boolean;
+  habitTime: string; // "HH:MM"
+  lastHabitDay?: string;
+  /** End-of-day disconnect nudge (Roadmap 5.5). */
+  disconnectReminders: boolean;
+  disconnectTime: string; // "HH:MM"
+  lastDisconnectDay?: string;
 }
 
 export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
@@ -24,6 +32,10 @@ export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
   focusReminder: false,
   reminderTime: '09:00',
   deadlineReminders: true,
+  habitReminders: false,
+  habitTime: '20:00',
+  disconnectReminders: false,
+  disconnectTime: '18:00',
 };
 
 const PREFS_KEY = STORAGE_KEYS.notificationPrefs;
@@ -54,6 +66,24 @@ export function loadNotificationPrefs(): NotificationPrefs {
       typeof stored.deadlineReminders === 'boolean'
         ? stored.deadlineReminders
         : DEFAULT_NOTIFICATION_PREFS.deadlineReminders,
+    habitReminders:
+      typeof stored.habitReminders === 'boolean'
+        ? stored.habitReminders
+        : DEFAULT_NOTIFICATION_PREFS.habitReminders,
+    habitTime: isTimeValid(stored.habitTime)
+      ? stored.habitTime
+      : DEFAULT_NOTIFICATION_PREFS.habitTime,
+    ...(typeof stored.lastHabitDay === 'string' ? { lastHabitDay: stored.lastHabitDay } : {}),
+    disconnectReminders:
+      typeof stored.disconnectReminders === 'boolean'
+        ? stored.disconnectReminders
+        : DEFAULT_NOTIFICATION_PREFS.disconnectReminders,
+    disconnectTime: isTimeValid(stored.disconnectTime)
+      ? stored.disconnectTime
+      : DEFAULT_NOTIFICATION_PREFS.disconnectTime,
+    ...(typeof stored.lastDisconnectDay === 'string'
+      ? { lastDisconnectDay: stored.lastDisconnectDay }
+      : {}),
   };
 }
 
@@ -88,4 +118,32 @@ export function shouldShowFocusReminder(prefs: NotificationPrefs, now = new Date
 /** Mark the reminder as shown for today (returns updated prefs). */
 export function markReminderShown(prefs: NotificationPrefs, now = new Date()): NotificationPrefs {
   return { ...prefs, lastReminderDay: localDayKey(now) };
+}
+
+/** Should the evening habits nudge show now? Same once-a-day contract. */
+export function shouldShowHabitReminder(prefs: NotificationPrefs, now = new Date()): boolean {
+  if (!prefs.habitReminders) return false;
+  if (!isTimeValid(prefs.habitTime)) return false;
+  const [hh, mm] = prefs.habitTime.split(':').map(Number);
+  const at = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0, 0).getTime();
+  if (now.getTime() < at) return false;
+  return prefs.lastHabitDay !== localDayKey(now);
+}
+
+/** Should the disconnect nudge show now? Same once-a-day contract. */
+export function shouldShowDisconnectReminder(prefs: NotificationPrefs, now = new Date()): boolean {
+  if (!prefs.disconnectReminders) return false;
+  if (!isTimeValid(prefs.disconnectTime)) return false;
+  const [hh, mm] = prefs.disconnectTime.split(':').map(Number);
+  const at = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0, 0).getTime();
+  if (now.getTime() < at) return false;
+  return prefs.lastDisconnectDay !== localDayKey(now);
+}
+
+export function markHabitShown(prefs: NotificationPrefs, now = new Date()): NotificationPrefs {
+  return { ...prefs, lastHabitDay: localDayKey(now) };
+}
+
+export function markDisconnectShown(prefs: NotificationPrefs, now = new Date()): NotificationPrefs {
+  return { ...prefs, lastDisconnectDay: localDayKey(now) };
 }

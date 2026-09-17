@@ -6,6 +6,7 @@ import {
   deletePhase,
   loadPhases,
   phasesForProject,
+  rollbackPhase,
   seedStarterPhases,
   setPhaseStatus,
   updatePhase,
@@ -95,6 +96,24 @@ describe('waterfall', () => {
     const half = setPhaseStatus(setPhaseStatus(phases, 'a', 'active', NOW), 'a', 'done', NOW);
     expect(waterfallProgress(half, 'p1')).toBe(50);
     expect(phasesForProject(half, 'p9')).toEqual([]);
+  });
+
+  it('tracks risk per phase', () => {
+    const phases = [makePhase({ id: 'a' })];
+    const risky = updatePhase(phases, 'a', { risk: 'Vendor delay' });
+    expect(risky[0].risk).toBe('Vendor delay');
+    expect(updatePhase(risky, 'a', { risk: '' })[0].risk).toBeUndefined();
+  });
+
+  it('rolls back done phases only when later work is untouched', () => {
+    const phases = [makePhase({ id: 'a', order: 0 }), makePhase({ id: 'b', order: 1 })];
+    const doneA = setPhaseStatus(setPhaseStatus(phases, 'a', 'active', NOW), 'a', 'done', NOW);
+    const rolled = rollbackPhase(doneA, 'a', NOW);
+    expect(rolled[0].status).toBe('active');
+    expect(rolled[0].doneAt).toBeUndefined();
+    const activeB = setPhaseStatus(doneA, 'b', 'active', NOW);
+    expect(rollbackPhase(activeB, 'a', NOW)).toBe(activeB);
+    expect(rollbackPhase(phases, 'a', NOW)).toBe(phases);
   });
 });
 
