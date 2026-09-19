@@ -1,5 +1,6 @@
 import { useAuth } from '../lib/authProvider';
 import { getPricingPlans, initiateCheckout, type Plan } from '../lib/billing/lemonSqueezy';
+import { reportError } from '../lib/observability/sentry';
 
 function CheckIcon() {
   return (
@@ -43,6 +44,7 @@ export default function PricingCard() {
       window.open(checkoutUrl, '_blank');
     } else {
       alert('Checkout is not available. Please contact support.');
+      void reportError(new Error('checkout unavailable'), { planId });
     }
   };
 

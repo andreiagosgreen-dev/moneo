@@ -7,6 +7,7 @@ import { getCustomerPortalUrl } from '../lib/billing/lemonSqueezy';
 import { loadSyncState, onSyncStateChange } from '../lib/sync/syncState';
 import { runSync } from '../lib/sync/syncEngine';
 import { createSupabaseSyncRepos, createLocalSyncIO } from '../lib/sync/syncRepos';
+import { reportError } from '../lib/observability/sentry';
 
 /**
  * Minimal account entry — a small header control, never a navbar.
@@ -112,6 +113,10 @@ function SyncPanel({ userId, onClose }: { userId: string; onClose: () => void })
             ? 'Sync failed — your local data is safe. Try again.'
             : (outcome.error ?? 'Sync failed.'),
         );
+        void reportError(new Error(`sync failed: ${outcome.stage}`), {
+          stage: outcome.stage,
+          error: outcome.error,
+        });
       }
     },
     [userId],
@@ -396,6 +401,9 @@ export default function AccountButton() {
                           } else {
                             setError(result.message);
                             setShowDeleteConfirm(false);
+                            void reportError(new Error('account deletion failed'), {
+                              message: result.message,
+                            });
                           }
                         }}
                         disabled={busy}
