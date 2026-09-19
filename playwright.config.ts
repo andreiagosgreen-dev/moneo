@@ -30,16 +30,6 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     actionTimeout: 15_000,
-    // The account dialog (sync panel + full Pro plan comparison + sign
-    // out + delete) is taller than Playwright's 720px default viewport.
-    // Confirmed via a real CI failure: the "Delete account" button never
-    // left "outside of the viewport" no matter how many auto-scroll
-    // retries .click() made — the dialog is a fixed-position overlay
-    // that centers itself, so scrolling its own content doesn't bring an
-    // overflowing bottom edge into the browser's viewport. A taller
-    // viewport is simpler and more robust than juggling scrollIntoView
-    // on every element inside it.
-    viewport: { width: 1280, height: 2000 },
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
