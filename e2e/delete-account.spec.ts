@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { mockSupabaseAuth, signInViaUi } from './mocks/supabase';
+import { mockSupabaseAuth, signInViaUi, skipOnboarding } from './mocks/supabase';
 
 /**
  * Covers the P0 fixed in the 2026-09-17 audit: "Delete account" used to
@@ -9,6 +9,7 @@ import { mockSupabaseAuth, signInViaUi } from './mocks/supabase';
  * to that endpoint and reacts to both outcomes.
  */
 test.beforeEach(async ({ page }) => {
+  await skipOnboarding(page);
   await mockSupabaseAuth(page);
   await page.goto('/');
   await signInViaUi(page);

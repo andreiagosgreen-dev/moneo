@@ -41,6 +41,20 @@ function sessionBody() {
   };
 }
 
+/**
+ * Marks the first-run onboarding tour as already seen, before the app's
+ * own script runs. Without this, the "Welcome to Moneo" dialog covers the
+ * page on every fresh context and swallows pointer events, making the
+ * very first click in any test (e.g. opening the account dialog) hang
+ * until Playwright's 30s timeout — exactly what happened the first time
+ * this suite ran in CI.
+ */
+export async function skipOnboarding(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('moneo:onboarding-seen', 'true');
+  });
+}
+
 export async function mockSupabaseAuth(page: Page): Promise<void> {
   await page.route(`https://${AUTH_HOST}/auth/v1/**`, async (route) => {
     const url = new URL(route.request().url());
@@ -62,8 +76,19 @@ export async function mockSupabaseAuth(page: Page): Promise<void> {
   });
 }
 
-/** Fills and submits the sign-in form; resolves once the account dialog shows the authenticated view. */
+/**
+ * Fills and submits the sign-in form; resolves once the account dialog
+ * shows the authenticated view. Callers must have already navigated
+ * (page.goto) and, if they care about the onboarding dialog, called
+ * skipOnboarding before that navigation — this dismisses it defensively
+ * too in case a caller forgets, so a stray dialog can never hang the
+ * very first click here.
+ */
 export async function signInViaUi(page: Page): Promise<void> {
+  const skip = page.getByRole('button', { name: /skip/i }).first();
+  if (await skip.isVisible().catch(() => false)) {
+    await skip.click();
+  }
   await page.getByRole('button', { name: /open sync and account/i }).click();
   await page.getByLabel(/email/i).fill(E2E_USER.email);
   await page.getByLabel(/password/i).fill('correct-horse-battery-staple');

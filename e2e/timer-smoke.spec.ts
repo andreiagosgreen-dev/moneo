@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { skipOnboarding } from './mocks/supabase';
 
 /**
  * The core local-first loop (no auth, no network) — if this breaks,
@@ -6,13 +7,8 @@ import { test, expect } from '@playwright/test';
  * stays trivially fast and never depends on the Supabase mock working.
  */
 test('loads, starts, pauses and resets a focus session', async ({ page }) => {
+  await skipOnboarding(page);
   await page.goto('/');
-
-  // Onboarding: dismiss if present, don't fail the test if it's already seen.
-  const skip = page.getByRole('button', { name: /skip/i }).first();
-  if (await skip.isVisible().catch(() => false)) {
-    await skip.click();
-  }
 
   await expect(page.getByText('25', { exact: true })).toBeVisible();
   await expect(page.getByText(/ready/i)).toBeVisible();

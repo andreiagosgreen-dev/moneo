@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { mockSupabaseAuth, signInViaUi, E2E_USER } from './mocks/supabase';
+import { mockSupabaseAuth, signInViaUi, skipOnboarding, E2E_USER } from './mocks/supabase';
 
 /**
  * Covers the launch blocker fixed in the 2026-09-18 audit: monthly and
@@ -9,6 +9,7 @@ import { mockSupabaseAuth, signInViaUi, E2E_USER } from './mocks/supabase';
  * this exercises the real button click -> real window.open() path.
  */
 test.beforeEach(async ({ page }) => {
+  await skipOnboarding(page);
   await mockSupabaseAuth(page);
   await page.goto('/');
   await signInViaUi(page);
