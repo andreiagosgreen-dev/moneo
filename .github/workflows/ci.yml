@@ -53,6 +53,13 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 14
+      - name: Upload Playwright test results (traces, screenshots, ARIA snapshots)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: test-results/
+          retention-days: 14
 
   supply-chain:
     name: Audit + Secret scan
