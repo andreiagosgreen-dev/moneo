@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { createI18n, isLocale, loadLocale, LOCALES, saveLocale } from './index';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { createI18n, isLocale, loadLocale, LOCALES, preloadLocale, saveLocale } from './index';
 import { en } from './locales/en';
 import { ro } from './locales/ro';
 import { ru } from './locales/ru';
@@ -20,6 +20,14 @@ const ALL: Array<{ id: Locale; dict: Record<string, string> }> = [
   { id: 'fr', dict: fr },
   { id: 'es', dict: es },
 ];
+
+// createI18n only resolves a non-English dictionary once preloadLocale has
+// fetched it (Roadmap Faza 1.3 — locales are code-split, not all bundled at
+// boot). Warm every locale once so the rest of this file can call
+// createI18n(locale) synchronously, as it did before the split.
+beforeAll(async () => {
+  await Promise.all(LOCALES.map((l) => preloadLocale(l.id)));
+});
 
 describe('locale parity', () => {
   it('covers exactly the 8 required locales', () => {

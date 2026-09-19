@@ -5,11 +5,11 @@ import TopNav, { type NavTab } from './components/TopNav';
 import GettingStarted from './components/GettingStarted';
 import TabFallback from './components/TabFallback';
 import IvyLeeCard from './components/IvyLeeCard';
-import CalendarCard from './components/CalendarCard';
-import MatrixCard from './components/MatrixCard';
 import FrogCard from './components/FrogCard';
-import LifeCard from './components/LifeCard';
 
+const CalendarCard = lazy(() => import('./components/CalendarCard'));
+const MatrixCard = lazy(() => import('./components/MatrixCard'));
+const LifeCard = lazy(() => import('./components/LifeCard'));
 const StatsCard = lazy(() => import('./components/StatsCard'));
 const SettingsCard = lazy(() => import('./components/SettingsCard'));
 const ReportsCard = lazy(() => import('./components/ReportsCard'));
@@ -28,6 +28,7 @@ const AiPathCard = lazy(() => import('./components/AiPathCard'));
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import HelpPage from './components/HelpPage';
+import PricingPage from './components/PricingPage';
 import {
   loadProjects,
   loadSelectedProject,
@@ -188,6 +189,25 @@ const BOOT = (() => {
     roundTaskId: null,
   };
 })();
+
+/** Inline skeleton for the lazy Matrix/Calendar/Life cards under Today's "More" disclosure. */
+function DisclosureFallback() {
+  return (
+    <>
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className={`card animate-pulse px-6 py-6 sm:px-7 ${i === 2 ? 'md:col-span-2' : ''}`}
+          aria-hidden
+        >
+          <div className="h-5 w-32 rounded bg-cream/10" />
+          <div className="mt-3 h-3 w-48 rounded bg-cream/5" />
+          <div className="mt-4 h-10 rounded-xl bg-cream/5" />
+        </div>
+      ))}
+    </>
+  );
+}
 
 export default function App() {
   const auth = useAuth();
@@ -436,6 +456,7 @@ export default function App() {
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/help" element={<HelpPage />} />
+      <Route path="/pricing" element={<PricingPage />} />
       <Route
         path="*"
         element={
@@ -601,46 +622,48 @@ export default function App() {
                       hint={t('today.moreHint')}
                       defaultOpen={engaged}
                     >
-                      <div className="reveal" style={{ animationDelay: '170ms' }}>
-                        <MatrixCard
-                          tasks={tasks}
-                          history={history}
-                          onTasksChange={setTasks}
-                          isPro={auth.isPro}
-                        />
-                      </div>
-                      <div className="reveal" style={{ animationDelay: '210ms' }}>
-                        <CalendarCard
-                          history={history}
-                          projects={projects}
-                          timezone={auth.timezone}
-                          isPro={auth.isPro}
-                          blocks={timeBlocks}
-                          blocksChange={setTimeBlocks}
-                        />
-                      </div>
-                      <div className="reveal md:col-span-2" style={{ animationDelay: '250ms' }}>
-                        <LifeCard
-                          habits={habits}
-                          habitsChange={setHabits}
-                          habitLog={habitLog}
-                          habitLogChange={setHabitLog}
-                          lifeAreas={lifeAreas}
-                          lifeAreasChange={setLifeAreas}
-                          focusAreas={areas}
-                          journal={journal}
-                          journalChange={setJournal}
-                          timeOff={timeOff}
-                          timeOffChange={setTimeOff}
-                          energyLog={energyLog}
-                          energyLogChange={setEnergyLog}
-                          goals={goals}
-                          frogLog={frogLog}
-                          history={history}
-                          timezone={auth.timezone}
-                          isPro={auth.isPro}
-                        />
-                      </div>
+                      <Suspense fallback={<DisclosureFallback />}>
+                        <div className="reveal" style={{ animationDelay: '170ms' }}>
+                          <MatrixCard
+                            tasks={tasks}
+                            history={history}
+                            onTasksChange={setTasks}
+                            isPro={auth.isPro}
+                          />
+                        </div>
+                        <div className="reveal" style={{ animationDelay: '210ms' }}>
+                          <CalendarCard
+                            history={history}
+                            projects={projects}
+                            timezone={auth.timezone}
+                            isPro={auth.isPro}
+                            blocks={timeBlocks}
+                            blocksChange={setTimeBlocks}
+                          />
+                        </div>
+                        <div className="reveal md:col-span-2" style={{ animationDelay: '250ms' }}>
+                          <LifeCard
+                            habits={habits}
+                            habitsChange={setHabits}
+                            habitLog={habitLog}
+                            habitLogChange={setHabitLog}
+                            lifeAreas={lifeAreas}
+                            lifeAreasChange={setLifeAreas}
+                            focusAreas={areas}
+                            journal={journal}
+                            journalChange={setJournal}
+                            timeOff={timeOff}
+                            timeOffChange={setTimeOff}
+                            energyLog={energyLog}
+                            energyLogChange={setEnergyLog}
+                            goals={goals}
+                            frogLog={frogLog}
+                            history={history}
+                            timezone={auth.timezone}
+                            isPro={auth.isPro}
+                          />
+                        </div>
+                      </Suspense>
                     </Disclosure>
                   </main>
                 )}
@@ -816,6 +839,7 @@ export default function App() {
                           tasks={tasks}
                           timezone={auth.timezone}
                           capacityMin={settings.weeklyCapacityMin}
+                          isPro={auth.isPro}
                         />
                       </div>
                     </main>

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react';
-import { createI18n, saveLocale, type I18n, type Locale } from './index';
+import { createI18n, preloadLocale, saveLocale, type I18n, type Locale } from './index';
 
 interface LocaleValue extends I18n {
   setLocale: (locale: Locale) => void;
@@ -21,8 +21,10 @@ export function LocaleProvider({
     return {
       ...i18n,
       setLocale: (next: Locale) => {
-        saveLocale(next);
-        onLocaleChange(next);
+        void preloadLocale(next).finally(() => {
+          saveLocale(next);
+          onLocaleChange(next);
+        });
       },
     };
   }, [locale, onLocaleChange]);

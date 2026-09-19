@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "build:ci": "tsc --noEmit && vitest run && vite build",
+    "build:ci": "tsc --noEmit && vitest run && vite build && npm run perf-budget",
+    "perf-budget": "node scripts/perf-budget.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"cloudflare/**/*.ts\" \"*.{js,json,md,yml}\" \"scripts/**/*.mjs\"",
@@ -17,7 +18,6 @@
     "secret-scan": "node scripts/secret-scan.mjs"
   },
   "dependencies": {
-    "@lemonsqueezy/lemonsqueezy.js": "^4.0.0",
     "@supabase/supabase-js": "^2.98.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

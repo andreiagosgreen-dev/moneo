@@ -1,13 +1,6 @@
 import { STORAGE_KEYS } from '../storage/storageKeys';
 import { safeRead as read, safeWrite as write } from '../storage/storageAdapter';
 import { en } from './locales/en';
-import { ro } from './locales/ro';
-import { ru } from './locales/ru';
-import { uk } from './locales/uk';
-import { de } from './locales/de';
-import { it } from './locales/it';
-import { fr } from './locales/fr';
-import { es } from './locales/es';
 import type { Locale, TKey, Vars } from './types';
 
 export type { Locale, TKey, Vars };
@@ -23,7 +16,49 @@ export const LOCALES: Array<{ id: Locale; native: string; tag: string }> = [
   { id: 'es', native: 'Español', tag: 'es-ES' },
 ];
 
-const DICTS: Record<Locale, Record<TKey, string>> = { en, ro, ru, uk, de, it, fr, es };
+/**
+ * Only `en` is bundled at boot — it doubles as the fallback dictionary, so
+ * it can never be lazily missing. The other 7 locales (~190 kB of source
+ * strings) are fetched on demand via `preloadLocale`, keeping them out of
+ * the main chunk for everyone who isn't actively using that language.
+ */
+const DICTS: Partial<Record<Locale, Record<TKey, string>>> = { en };
+
+/**
+ * One loader per lazy locale (everything but `en`), instead of a templated
+ * `import(`./locales/${locale}.ts`)`. A templated path makes Vite treat
+ * every file matching the glob — including the statically-imported `en.ts`
+ * above — as a possible dynamic-import target, which produces a spurious
+ * "both static and dynamic import" build warning. Explicit loaders avoid
+ * that ambiguity entirely.
+ */
+const LAZY_LOADERS: Record<Exclude<Locale, 'en'>, () => Promise<{ [k: string]: Record<TKey, string> }>> = {
+  ro: () => import('./locales/ro'),
+  ru: () => import('./locales/ru'),
+  uk: () => import('./locales/uk'),
+  de: () => import('./locales/de'),
+  it: () => import('./locales/it'),
+  fr: () => import('./locales/fr'),
+  es: () => import('./locales/es'),
+};
+
+/**
+ * Fetches and caches a locale's dictionary. No-op for `en` (always resident)
+ * or an already-loaded locale. Callers await this before switching `locale`
+ * state (LocaleContext) or before the first render (main.tsx bootstrap) so
+ * `createI18n` never has to fall back to English for a locale the user
+ * actually chose. Failure leaves the cache untouched — `createI18n` then
+ * falls back to `en` until a later call succeeds.
+ */
+export async function preloadLocale(locale: Locale): Promise<void> {
+  if (locale === 'en' || DICTS[locale]) return;
+  try {
+    const mod = await LAZY_LOADERS[locale]();
+    DICTS[locale] = mod[locale];
+  } catch {
+    /* keep the en fallback; a later preload attempt can retry */
+  }
+}
 
 export function isLocale(v: unknown): v is Locale {
   return (
