@@ -38,9 +38,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const controller = useMemo<AuthController>(
     () =>
       createAuthController({
-        // The Supabase client satisfies AuthClientLike structurally at
-        // runtime; the cast bridges its wider generic signatures.
-        clientFactory: async () => (await getSupabaseClient()) as unknown as AuthClientLike | null,
+        // supabase-js exposes getSession/signInWithPassword/onAuthStateChange
+        // etc. on the `.auth` (GoTrueClient) namespace, not on the top-level
+        // client — AuthClientLike models that namespace's shape, so this
+        // must hand over `client.auth`, never the client itself.
+        clientFactory: async () => {
+          const client = await getSupabaseClient();
+          return (client?.auth as unknown as AuthClientLike) ?? null;
+        },
         ensureProfile: (userId, timezone) => ensureProfile(userId, timezone),
         getProfileTimezone: (userId) => getProfileTimezone(userId),
         // Same-origin Worker endpoint (serves the frontend in production).
@@ -88,6 +93,14 @@ export interface AuthApi extends AuthSnapshot {
   signUp(email: string, password: string): Promise<AuthResult>;
   signOut(): Promise<void>;
   deleteAccount(): Promise<AuthResult>;
+  /**
+   * The current session's bearer token for authenticated Worker calls
+   * (e.g. the AI planner). Never cached here — reads fresh from the
+   * Supabase client each time. Null when signed out, Supabase isn't
+   * configured, or the session lookup fails; callers must treat null as
+   * "skip the authenticated call", never retry-loop on it.
+   */
+  getAccessToken(): Promise<string | null>;
 }
 
 export function useAuth(): AuthApi {
@@ -115,6 +128,18 @@ export function useAuth(): AuthApi {
     void refreshSubscription();
   }, [refreshSubscription]);
 
+  const getAccessToken = useCallback(async (): Promise<string | null> => {
+    try {
+      const client = await getSupabaseClient();
+      if (!client) return null;
+      const { data } = await client.auth.getSession();
+      const token = data?.session?.access_token;
+      return typeof token === 'string' && token.length > 0 ? token : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   const { signIn, signUp, signOut, deleteAccount } = controller;
   return useMemo(
     () => ({
@@ -126,7 +151,17 @@ export function useAuth(): AuthApi {
       signUp,
       signOut,
       deleteAccount,
+      getAccessToken,
     }),
-    [snapshot, subscription, refreshSubscription, signIn, signUp, signOut, deleteAccount],
+    [
+      snapshot,
+      subscription,
+      refreshSubscription,
+      signIn,
+      signUp,
+      signOut,
+      deleteAccount,
+      getAccessToken,
+    ],
   );
 }
