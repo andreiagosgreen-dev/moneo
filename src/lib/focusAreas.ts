@@ -1,14 +1,9 @@
-import { dayKey, lastNDays, type Session } from "./store";
-import { sanitizeIntention } from "./intentions";
-import { ensureAreaCloudId, isUuid } from "./areaIdentity";
-import { STORAGE_KEYS } from "./storage/storageKeys";
-import {
-  hasKey,
-  safeRead,
-  safeRemove,
-  safeWrite,
-} from "./storage/storageAdapter";
-import { dayKeyInTz, trailingWeekDayKeysInTz } from "./timezone";
+import { dayKey, lastNDays, type Session } from './store';
+import { sanitizeIntention } from './intentions';
+import { ensureAreaCloudId, isUuid } from './areaIdentity';
+import { STORAGE_KEYS } from './storage/storageKeys';
+import { hasKey, safeRead, safeRemove, safeWrite } from './storage/storageAdapter';
+import { dayKeyInTz, trailingWeekDayKeysInTz } from './timezone';
 
 /**
  * Focus Areas — lightweight containers answering "which part of my life
@@ -36,7 +31,7 @@ export interface FocusArea {
 
 /** The user-facing view: active (non-deleted) areas only. */
 export function activeAreas(areas: FocusArea[]): FocusArea[] {
-  return areas.filter((a) => typeof a.deletedAt !== "number");
+  return areas.filter((a) => typeof a.deletedAt !== 'number');
 }
 
 /**
@@ -49,9 +44,7 @@ export function markAreaDeleted(
   now: number = Date.now(),
 ): FocusArea[] {
   return areas.map((a) =>
-    a.id === id && typeof a.deletedAt !== "number"
-      ? { ...a, deletedAt: now, updatedAt: now }
-      : a,
+    a.id === id && typeof a.deletedAt !== 'number' ? { ...a, deletedAt: now, updatedAt: now } : a,
   );
 }
 
@@ -60,13 +53,13 @@ const SELECTED_KEY = STORAGE_KEYS.selectedFocusArea;
 
 /** Deterministic seed for first-time users. Written to storage exactly once. */
 const SEED: Array<{ id: string; name: string }> = [
-  { id: "area:work", name: "Work" },
-  { id: "area:study", name: "Study" },
-  { id: "area:personal", name: "Personal" },
+  { id: 'area:work', name: 'Work' },
+  { id: 'area:study', name: 'Study' },
+  { id: 'area:personal', name: 'Personal' },
 ];
 
 export function sanitizeAreaName(raw: unknown): string {
-  if (typeof raw !== "string") return "";
+  if (typeof raw !== 'string') return '';
   return raw.trim().slice(0, AREA_NAME_MAX);
 }
 
@@ -74,18 +67,18 @@ function isValidArea(a: unknown): a is FocusArea {
   const x = a as FocusArea | null;
   return (
     !!x &&
-    typeof x.id === "string" &&
+    typeof x.id === 'string' &&
     x.id.length > 0 &&
-    typeof x.name === "string" &&
+    typeof x.name === 'string' &&
     x.name.trim().length > 0 &&
-    typeof x.createdAt === "number"
+    typeof x.createdAt === 'number'
   );
 }
 
 /** Stable id: crypto.randomUUID when available, safe local fallback otherwise. */
 function genId(): string {
   try {
-    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
       return crypto.randomUUID();
     }
   } catch {
@@ -126,11 +119,9 @@ export function loadFocusAreas(): FocusArea[] {
         id: a.id,
         name: sanitizeAreaName(a.name),
         createdAt: a.createdAt,
-        ...(typeof a.cloudId === "string" && a.cloudId.length > 0
-          ? { cloudId: a.cloudId }
-          : {}),
-        ...(typeof a.updatedAt === "number" ? { updatedAt: a.updatedAt } : {}),
-        ...(typeof a.deletedAt === "number" ? { deletedAt: a.deletedAt } : {}),
+        ...(typeof a.cloudId === 'string' && a.cloudId.length > 0 ? { cloudId: a.cloudId } : {}),
+        ...(typeof a.updatedAt === 'number' ? { updatedAt: a.updatedAt } : {}),
+        ...(typeof a.deletedAt === 'number' ? { deletedAt: a.deletedAt } : {}),
       });
     }
   }
@@ -142,10 +133,7 @@ export function saveFocusAreas(areas: FocusArea[]): boolean {
 }
 
 /** Returns the new list, or null when the name is empty or the cap is reached. */
-export function createFocusArea(
-  areas: FocusArea[],
-  name: string,
-): FocusArea[] | null {
+export function createFocusArea(areas: FocusArea[], name: string): FocusArea[] | null {
   const clean = sanitizeAreaName(name);
   if (!clean || areas.length >= MAX_AREAS) return null;
   const id = genId();
@@ -162,9 +150,7 @@ export function renameFocusArea(
 ): FocusArea[] | null {
   const clean = sanitizeAreaName(name);
   if (!clean || !areas.some((a) => a.id === id)) return null;
-  return areas.map((a) =>
-    a.id === id ? { ...a, name: clean, updatedAt: now } : a,
-  );
+  return areas.map((a) => (a.id === id ? { ...a, name: clean, updatedAt: now } : a));
 }
 
 /** Deleting an area never touches history — sessions keep their areaId. */
@@ -173,14 +159,11 @@ export function deleteFocusArea(areas: FocusArea[], id: string): FocusArea[] {
 }
 
 /** null for unknown/deleted ids — callers render a safe fallback. */
-export function resolveAreaName(
-  areas: FocusArea[],
-  id: string | null | undefined,
-): string | null {
+export function resolveAreaName(areas: FocusArea[], id: string | null | undefined): string | null {
   if (!id) return null;
   const found = areas.find((a) => a.id === id);
   // Soft-deleted areas resolve as unknown → UI shows "Deleted area".
-  if (!found || typeof found.deletedAt === "number") return null;
+  if (!found || typeof found.deletedAt === 'number') return null;
   return found.name;
 }
 
@@ -234,8 +217,7 @@ export function armRoundFocus(
   areas: FocusArea[],
 ): { intention: string | null; areaId: string | null } {
   const areaId =
-    typeof selectedAreaId === "string" &&
-    areas.some((a) => a.id === selectedAreaId)
+    typeof selectedAreaId === 'string' && areas.some((a) => a.id === selectedAreaId)
       ? selectedAreaId
       : null;
   return { intention: sanitizeIntention(draftIntention ?? null), areaId };
@@ -251,23 +233,17 @@ export interface AreaSummaryRow {
  * Day grouping uses the given IANA timezone when provided (account-timezone
  * policy), otherwise the device-local day (anonymous default — unchanged).
  */
-export function getWeeklyAreaSummary(
-  history: Session[],
-  timezone?: string,
-): AreaSummaryRow[] {
+export function getWeeklyAreaSummary(history: Session[], timezone?: string): AreaSummaryRow[] {
   const week = timezone
     ? new Set(trailingWeekDayKeysInTz(7, timezone))
     : new Set(lastNDays(7).map((d) => dayKey(d)));
-  const keyOf = (ts: number) =>
-    timezone ? dayKeyInTz(ts, timezone) : dayKey(new Date(ts));
+  const keyOf = (ts: number) => (timezone ? dayKeyInTz(ts, timezone) : dayKey(new Date(ts)));
   const map = new Map<string, number>();
   for (const s of history) {
     if (!s.areaId || !week.has(keyOf(s.at))) continue;
     map.set(s.areaId, (map.get(s.areaId) ?? 0) + s.min);
   }
-  return [...map.entries()]
-    .map(([areaId, min]) => ({ areaId, min }))
-    .sort((a, b) => b.min - a.min);
+  return [...map.entries()].map(([areaId, min]) => ({ areaId, min })).sort((a, b) => b.min - a.min);
 }
 
 /* ---------- selected-area persistence (small UX key) ---------- */
@@ -275,7 +251,7 @@ export function getWeeklyAreaSummary(
 /** Validates against the loaded areas; deleted/corrupt selections → null. */
 export function loadSelectedArea(areas: FocusArea[]): string | null {
   const parsed = safeRead<unknown>(SELECTED_KEY);
-  if (typeof parsed !== "string") return null;
+  if (typeof parsed !== 'string') return null;
   return areas.some((a) => a.id === parsed) ? parsed : null;
 }
 

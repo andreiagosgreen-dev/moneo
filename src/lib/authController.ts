@@ -1,4 +1,4 @@
-import { isValidIanaTimezone } from "./timezone";
+import { isValidIanaTimezone } from './timezone';
 
 /**
  * Moneo auth state machine — framework-free so it is fully testable.
@@ -14,7 +14,7 @@ import { isValidIanaTimezone } from "./timezone";
  *   user-consented sync flow. auth ≠ migration.
  */
 
-export type AuthStatus = "loading" | "anonymous" | "authenticated";
+export type AuthStatus = 'loading' | 'anonymous' | 'authenticated';
 
 export interface AuthIdentity {
   userId: string;
@@ -28,9 +28,7 @@ export interface AuthSnapshot {
   timezone: string;
 }
 
-export type AuthResult =
-  | { ok: true; note?: string }
-  | { ok: false; message: string };
+export type AuthResult = { ok: true; note?: string } | { ok: false; message: string };
 
 interface RawUser {
   id: string;
@@ -41,20 +39,17 @@ interface RawUser {
  *  independent of the SDK so tests run without it. */
 export interface AuthClientLike {
   getSession(): Promise<{
-    data: { session: { user: RawUser } | null } | null;
+    data: { session: { user: RawUser; access_token?: string } | null } | null;
     error?: unknown;
   }>;
-  onAuthStateChange(
-    cb: (event: string, session: { user: RawUser } | null) => void,
-  ): { data: { subscription: { unsubscribe(): void } } };
+  onAuthStateChange(cb: (event: string, session: { user: RawUser } | null) => void): {
+    data: { subscription: { unsubscribe(): void } };
+  };
   signInWithPassword(creds: {
     email: string;
     password: string;
   }): Promise<{ data: { user: RawUser | null }; error: { message?: string } | null }>;
-  signUp(creds: {
-    email: string;
-    password: string;
-  }): Promise<{
+  signUp(creds: { email: string; password: string }): Promise<{
     data: { user: RawUser | null; session: unknown };
     error: { message?: string } | null;
   }>;
@@ -68,8 +63,14 @@ export interface AuthControllerDeps {
   ensureProfile: (userId: string, timezone: string) => Promise<boolean>;
   /** Stored profile timezone, or null when absent/unreadable. */
   getProfileTimezone: (userId: string) => Promise<string | null>;
-  /** Deletes all user data from the database (sessions, areas, profile). */
-  deleteUserData: (userId: string) => Promise<boolean>;
+  /**
+   * Server-side account wipe via the Worker endpoint (`/api/account/delete`).
+   * The server derives identity from the access token; local data is only
+   * cleared by the caller after this resolves true. Never throws.
+   */
+  requestAccountDeletion: (accessToken: string) => Promise<boolean>;
+  /** Clears this device's app data. Called only after confirmed server wipe. */
+  clearLocalData: () => void;
   browserTimezone: () => string;
 }
 
@@ -89,30 +90,27 @@ export interface AuthController {
 
 /** Concise, user-readable mapping — raw server text never surfaces. */
 export function mapAuthError(raw: string | undefined | null): string {
-  const msg = (raw ?? "").toLowerCase();
-  if (msg.includes("invalid login credentials"))
-    return "Incorrect email or password.";
-  if (msg.includes("already registered"))
-    return "That email already has an account — sign in instead.";
-  if (msg.includes("password should be at least") || msg.includes("weak password"))
-    return "Password is too weak — use at least 8 characters.";
-  if (msg.includes("email not confirmed"))
-    return "Check your inbox and confirm your email first.";
-  if (msg.includes("rate limit"))
-    return "Too many attempts — wait a moment and try again.";
+  const msg = (raw ?? '').toLowerCase();
+  if (msg.includes('invalid login credentials')) return 'Incorrect email or password.';
+  if (msg.includes('already registered'))
+    return 'That email already has an account — sign in instead.';
+  if (msg.includes('password should be at least') || msg.includes('weak password'))
+    return 'Password is too weak — use at least 8 characters.';
+  if (msg.includes('email not confirmed')) return 'Check your inbox and confirm your email first.';
+  if (msg.includes('rate limit')) return 'Too many attempts — wait a moment and try again.';
   if (
-    msg.includes("failed to fetch") ||
-    msg.includes("network") ||
-    msg.includes("timeout") ||
-    msg.includes("fetch")
+    msg.includes('failed to fetch') ||
+    msg.includes('network') ||
+    msg.includes('timeout') ||
+    msg.includes('fetch')
   )
-    return "Network unavailable — Moneo keeps working offline.";
-  return "Something went wrong. Please try again.";
+    return 'Network unavailable — Moneo keeps working offline.';
+  return 'Something went wrong. Please try again.';
 }
 
 export function createAuthController(deps: AuthControllerDeps): AuthController {
   let snapshot: AuthSnapshot = {
-    status: "loading",
+    status: 'loading',
     user: null,
     timezone: deps.browserTimezone(),
   };
@@ -129,14 +127,14 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
   };
 
   const anonymous = (): AuthSnapshot => ({
-    status: "anonymous",
+    status: 'anonymous',
     user: null,
     timezone: deps.browserTimezone(),
   });
 
   const applyAuthenticated = async (raw: RawUser) => {
     const user: AuthIdentity = { userId: raw.id, email: raw.email ?? null };
-    emit({ status: "authenticated", user, timezone: deps.browserTimezone() });
+    emit({ status: 'authenticated', user, timezone: deps.browserTimezone() });
     // Profile bootstrap: insert-if-absent with the browser timezone.
     // An existing saved timezone is NEVER overwritten.
     if (!profileEnsuredFor.has(user.userId)) {
@@ -189,14 +187,12 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
           return;
         }
         try {
-          subscription = client
-            .onAuthStateChange((_event, session) => {
-              if (disposed) return;
-              const user = session?.user ?? null;
-              if (user) void applyAuthenticated(user);
-              else emit(anonymous());
-            })
-            .data.subscription;
+          subscription = client.onAuthStateChange((_event, session) => {
+            if (disposed) return;
+            const user = session?.user ?? null;
+            if (user) void applyAuthenticated(user);
+            else emit(anonymous());
+          }).data.subscription;
           const { data } = await client.getSession();
           if (disposed) return;
           const user = data?.session?.user ?? null;
@@ -228,8 +224,7 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
           message: mapAuthError(e instanceof Error ? e.message : null),
         };
       }
-      if (!client)
-        return { ok: false, message: "Cloud is not configured on this installation." };
+      if (!client) return { ok: false, message: 'Cloud is not configured on this installation.' };
       try {
         const { data, error } = await client.signInWithPassword({
           email: email.trim(),
@@ -259,8 +254,7 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
           message: mapAuthError(e instanceof Error ? e.message : null),
         };
       }
-      if (!client)
-        return { ok: false, message: "Cloud is not configured on this installation." };
+      if (!client) return { ok: false, message: 'Cloud is not configured on this installation.' };
       try {
         const { data, error } = await client.signUp({
           email: email.trim(),
@@ -274,7 +268,7 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
         // Email confirmation required — signed up but not yet signed in.
         return {
           ok: true,
-          note: "Account created — check your inbox to confirm your email.",
+          note: 'Account created — check your inbox to confirm your email.',
         };
       } catch (e) {
         return {
@@ -297,7 +291,7 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
     async deleteAccount() {
       const userId = snapshot.user?.userId;
       if (!userId) {
-        return { ok: false, message: "Not signed in." };
+        return { ok: false, message: 'Not signed in.' };
       }
 
       let client: AuthClientLike | null = null;
@@ -309,28 +303,49 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
           message: mapAuthError(e instanceof Error ? e.message : null),
         };
       }
-      if (!client)
-        return { ok: false, message: "Cloud is not configured on this installation." };
+      if (!client) return { ok: false, message: 'Cloud is not configured on this installation.' };
 
+      // The server derives identity from this token — no user id is sent.
+      let accessToken: string | undefined;
       try {
-        // Delete all user data from the database
-        const dataDeleted = await deps.deleteUserData(userId);
-        if (!dataDeleted) {
-          return { ok: false, message: "Failed to delete user data. Please try again." };
-        }
+        const { data } = await client.getSession();
+        const token = data?.session?.access_token;
+        accessToken = typeof token === 'string' && token.length > 0 ? token : undefined;
+      } catch {
+        accessToken = undefined;
+      }
+      if (!accessToken) {
+        return { ok: false, message: 'Session expired — sign in again to delete your account.' };
+      }
 
-        // Sign out to clear local auth state
-        await client.signOut();
-
-        // Clear local state
-        if (!disposed) emit(anonymous());
-        return { ok: true };
-      } catch (e) {
+      // Server-side wipe first. Local data is untouched until it succeeds,
+      // so a failure or retry can never strand the user without their data.
+      let wiped = false;
+      try {
+        wiped = await deps.requestAccountDeletion(accessToken);
+      } catch {
+        wiped = false;
+      }
+      if (!wiped) {
         return {
           ok: false,
-          message: mapAuthError(e instanceof Error ? e.message : null),
+          message: 'Could not delete your account. Nothing was removed — please try again.',
         };
       }
+
+      // Confirmed: clear this device, then sign out.
+      try {
+        deps.clearLocalData();
+      } catch {
+        /* best-effort; sign-out still proceeds */
+      }
+      try {
+        await client.signOut();
+      } catch {
+        /* best-effort; local state resets regardless */
+      }
+      if (!disposed) emit(anonymous());
+      return { ok: true };
     },
   };
 }

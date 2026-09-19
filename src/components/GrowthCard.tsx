@@ -1,6 +1,6 @@
-import { memo, useMemo } from "react";
-import { fmtMinutes, type Session } from "../lib/store";
-import { getGrowthSummary, GROWTH_STAGES } from "../lib/growth";
+import { memo, useMemo } from 'react';
+import { fmtMinutes, type Session } from '../lib/store';
+import { getGrowthSummary, GROWTH_STAGES } from '../lib/growth';
 
 /**
  * Moneo Growth — the quiet, persistent visual of accumulated focus.
@@ -41,18 +41,11 @@ function GrowthForm({ stage, progress }: { stage: number; progress: number }) {
   // Stage 3: complete outer ring + halo + five bloom nodes.
   const r3 = 90;
   const c3 = 2 * Math.PI * r3;
-  const blooms = [0, 1, 2, 3, 4].map((i) =>
-    polar(C, C, r3, i * GOLDEN),
-  );
+  const blooms = [0, 1, 2, 3, 4].map((i) => polar(C, C, r3, i * GOLDEN));
   const seedR = 9 + stage * 2.2;
 
   return (
-    <svg
-      viewBox="0 0 200 200"
-      className="h-full w-full"
-      aria-hidden
-      focusable="false"
-    >
+    <svg viewBox="0 0 200 200" className="h-full w-full" aria-hidden focusable="false">
       {/* ghost orbits */}
       {orbits.map((r) => (
         <circle
@@ -61,7 +54,7 @@ function GrowthForm({ stage, progress }: { stage: number; progress: number }) {
           cy={C}
           r={r}
           fill="none"
-          stroke="rgb(238 241 232 / 0.08)"
+          stroke="rgb(242 244 249 / 0.08)"
           strokeWidth="1.5"
         />
       ))}
@@ -124,9 +117,7 @@ function GrowthForm({ stage, progress }: { stage: number; progress: number }) {
             strokeDasharray={`${c2 * sweep2} ${c2}`}
             transform={`rotate(${rot2 - 90} ${C} ${C})`}
           />
-          {sweep2 > 0 && (
-            <circle cx={tip2.x} cy={tip2.y} r="3.6" fill="#eef1e8" />
-          )}
+          {sweep2 > 0 && <circle cx={tip2.x} cy={tip2.y} r="3.6" fill="#eef1e8" />}
         </>
       )}
 
@@ -145,13 +136,7 @@ function GrowthForm({ stage, progress }: { stage: number; progress: number }) {
             strokeDasharray={`${c1 * sweep1} ${c1}`}
             transform={`rotate(-90 ${C} ${C})`}
           />
-          <circle
-            className="growth-anim"
-            cx={tip1.x}
-            cy={tip1.y}
-            r="4"
-            fill="#eef1e8"
-          />
+          <circle className="growth-anim" cx={tip1.x} cy={tip1.y} r="4" fill="#eef1e8" />
         </>
       )}
 
@@ -179,16 +164,14 @@ function GrowthCardBase({ history }: { history: Session[] }) {
       </div>
       <div className="min-w-0">
         <div className="flex items-baseline justify-between gap-3">
-          <h2 className="font-display text-xl font-bold tracking-tight text-cream">
-            Growth
-          </h2>
+          <h2 className="font-display text-xl font-bold tracking-tight text-cream">Growth</h2>
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
             Built through focus
           </span>
         </div>
         <div
           className="mt-1 font-display text-4xl font-extrabold leading-none tracking-tight"
-          style={{ color: "var(--accent)" }}
+          style={{ color: 'var(--accent)' }}
         >
           {fmtMinutes(g.total)}
         </div>
@@ -208,8 +191,7 @@ function GrowthCardBase({ history }: { history: Session[] }) {
               key={s.name}
               className="h-1.5 w-4 rounded-full transition-colors duration-500"
               style={{
-                background:
-                  i <= g.stage ? "var(--accent)" : "rgb(238 241 232 / 0.12)",
+                background: i <= g.stage ? 'var(--accent)' : 'rgb(242 244 249 / 0.12)',
               }}
               title={s.name}
             />
@@ -218,8 +200,8 @@ function GrowthCardBase({ history }: { history: Session[] }) {
       </div>
       {/* accessible summary — the SVG itself is decorative */}
       <p className="sr-only">
-        Moneo Growth: {g.total} total focused minutes. Stage {g.stage + 1} of{" "}
-        {GROWTH_STAGES.length}, {g.stageName}.
+        Moneo Growth: {g.total} total focused minutes. Stage {g.stage + 1} of {GROWTH_STAGES.length}
+        , {g.stageName}.
       </p>
     </section>
   );

@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import BrandMark from "./BrandMark";
-import PricingCard from "./PricingCard";
-import NotificationsSettings from "./NotificationsSettings";
-import { useAuth } from "../lib/authProvider";
-import { loadSyncState, onSyncStateChange } from "../lib/sync/syncState";
-import { runSync } from "../lib/sync/syncEngine";
-import { createSupabaseSyncRepos, createLocalSyncIO } from "../lib/sync/syncRepos";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import BrandMark from './BrandMark';
+import PricingCard from './PricingCard';
+import NotificationsSettings from './NotificationsSettings';
+import { useAuth } from '../lib/authProvider';
+import { getCustomerPortalUrl } from '../lib/billing/lemonSqueezy';
+import { loadSyncState, onSyncStateChange } from '../lib/sync/syncState';
+import { runSync } from '../lib/sync/syncEngine';
+import { createSupabaseSyncRepos, createLocalSyncIO } from '../lib/sync/syncRepos';
+import { reportError } from '../lib/observability/sentry';
 
 /**
  * Minimal account entry — a small header control, never a navbar.
@@ -15,16 +17,38 @@ import { createSupabaseSyncRepos, createLocalSyncIO } from "../lib/sync/syncRepo
 
 function Spinner() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="animate-spin" aria-hidden>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      className="animate-spin"
+      aria-hidden
+    >
       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2.5" />
-      <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+      <path
+        d="M21 12a9 9 0 0 0-9-9"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 
 function CloudIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <path d="M17.5 19a4.5 4.5 0 0 0 .42-8.98 7 7 0 0 0-13.36 1.9A4 4 0 0 0 6 19h11.5z" />
     </svg>
   );
@@ -32,7 +56,16 @@ function CloudIcon() {
 
 function CloseIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      aria-hidden
+    >
       <path d="M6 6l12 12M18 6L6 18" />
     </svg>
   );
@@ -41,13 +74,13 @@ function CloseIcon() {
 /** Relative stamp for "Last synced". */
 function fmtSyncedAt(ts: number): string {
   const diff = Date.now() - ts;
-  if (diff < 60_000) return "just now";
+  if (diff < 60_000) return 'just now';
   if (diff < 3600_000) return `${Math.floor(diff / 60_000)}m ago`;
   const d = new Date(ts);
   const sameDay = new Date().toDateString() === d.toDateString();
   return sameDay
-    ? d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    : d.toLocaleDateString([], { month: "short", day: "numeric" });
+    ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : d.toLocaleDateString([], { month: 'short', day: 'numeric' });
 }
 
 /**
@@ -58,31 +91,32 @@ function fmtSyncedAt(ts: number): string {
  */
 function SyncPanel({ userId, onClose }: { userId: string; onClose: () => void }) {
   const [syncState, setSyncState] = useState(loadSyncState);
-  const [phase, setPhase] = useState<"idle" | "syncing">("idle");
-  const [lastError, setLastError] = useState("");
+  const [phase, setPhase] = useState<'idle' | 'syncing'>('idle');
+  const [lastError, setLastError] = useState('');
 
-  useEffect(
-    () => onSyncStateChange(() => setSyncState(loadSyncState())),
-    [],
-  );
+  useEffect(() => onSyncStateChange(() => setSyncState(loadSyncState())), []);
 
   const doSync = useCallback(
     async (consented: boolean) => {
-      setPhase("syncing");
-      setLastError("");
+      setPhase('syncing');
+      setLastError('');
       const outcome = await runSync({
         userId,
         consented,
         repos: createSupabaseSyncRepos(),
         local: createLocalSyncIO(),
       });
-      setPhase("idle");
+      setPhase('idle');
       if (!outcome.ok) {
         setLastError(
-          outcome.stage === "pull" || outcome.stage === "push"
-            ? "Sync failed — your local data is safe. Try again."
-            : outcome.error ?? "Sync failed.",
+          outcome.stage === 'pull' || outcome.stage === 'push'
+            ? 'Sync failed — your local data is safe. Try again.'
+            : (outcome.error ?? 'Sync failed.'),
         );
+        void reportError(new Error(`sync failed: ${outcome.stage}`), {
+          stage: outcome.stage,
+          error: outcome.error,
+        });
       }
     },
     [userId],
@@ -93,20 +127,18 @@ function SyncPanel({ userId, onClose }: { userId: string; onClose: () => void })
     const onOnline = () => {
       if (loadSyncState().initialized) void doSync(false);
     };
-    window.addEventListener("online", onOnline);
-    return () => window.removeEventListener("online", onOnline);
+    window.addEventListener('online', onOnline);
+    return () => window.removeEventListener('online', onOnline);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!syncState.initialized) {
     return (
       <div className="rounded-xl border border-line bg-ink/50 px-4 py-4">
-        <h3 className="font-display text-[15px] font-bold text-cream">
-          Sync your Moneo data
-        </h3>
+        <h3 className="font-display text-[15px] font-bold text-cream">Sync your Moneo data</h3>
         <p className="mt-1.5 text-[12px] leading-relaxed text-sage">
-          Your local focus history, areas, intentions and settings can be
-          saved to your account and synced across devices.
+          Your local focus history, areas, intentions and settings can be saved to your account and
+          synced across devices.
         </p>
         {lastError && (
           <p role="alert" className="mt-2 text-[12px] font-medium text-tomato">
@@ -116,10 +148,10 @@ function SyncPanel({ userId, onClose }: { userId: string; onClose: () => void })
         <div className="mt-3 flex gap-2">
           <button
             onClick={() => void doSync(true)}
-            disabled={phase === "syncing"}
+            disabled={phase === 'syncing'}
             className="press btn-accent flex h-10 flex-1 items-center justify-center gap-2 rounded-xl font-display text-sm font-bold disabled:opacity-60"
           >
-            {phase === "syncing" ? <Spinner /> : null}
+            {phase === 'syncing' ? <Spinner /> : null}
             Sync now
           </button>
           <button
@@ -130,8 +162,8 @@ function SyncPanel({ userId, onClose }: { userId: string; onClose: () => void })
           </button>
         </div>
         <p className="mt-2.5 text-[11px] leading-relaxed text-faint">
-          Only sessions, areas and settings sync — intention drafts and timer
-          state never leave this device.
+          Only sessions, areas and settings sync — intention drafts and timer state never leave this
+          device.
         </p>
       </div>
     );
@@ -142,29 +174,25 @@ function SyncPanel({ userId, onClose }: { userId: string; onClose: () => void })
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <div className="text-[13px] font-semibold text-cream">
-            {phase === "syncing"
-              ? "Syncing…"
-              : lastError
-                ? "Sync failed"
-                : "Synced"}
+            {phase === 'syncing' ? 'Syncing…' : lastError ? 'Sync failed' : 'Synced'}
           </div>
           <div className="mt-0.5 truncate font-mono text-[11px] text-faint">
-            {phase === "syncing"
-              ? "comparing with your account"
+            {phase === 'syncing'
+              ? 'comparing with your account'
               : lastError
                 ? lastError
                 : syncState.lastSuccessfulSyncAt
                   ? `Last synced ${fmtSyncedAt(syncState.lastSuccessfulSyncAt)}`
-                  : "Sync enabled"}
+                  : 'Sync enabled'}
           </div>
         </div>
         <button
           onClick={() => void doSync(false)}
-          disabled={phase === "syncing"}
+          disabled={phase === 'syncing'}
           className="press btn-ghost flex h-9 shrink-0 items-center gap-2 rounded-lg px-3 font-mono text-[12px] disabled:opacity-50"
           aria-label="Sync now"
         >
-          {phase === "syncing" ? <Spinner /> : null}
+          {phase === 'syncing' ? <Spinner /> : null}
           Sync now
         </button>
       </div>
@@ -175,11 +203,11 @@ function SyncPanel({ userId, onClose }: { userId: string; onClose: () => void })
 export default function AccountButton() {
   const auth = useAuth();
   const [open, setOpen] = useState(false);
-  const [tab, setTab] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [note, setNote] = useState("");
+  const [tab, setTab] = useState<'signin' | 'signup'>('signin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -187,72 +215,69 @@ export default function AccountButton() {
 
   const close = () => {
     setOpen(false);
-    setError("");
-    setNote("");
-    setPassword("");
+    setError('');
+    setNote('');
+    setPassword('');
     setShowDeleteConfirm(false);
   };
 
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
+      if (e.key === 'Escape') close();
     };
-    window.addEventListener("keydown", onKey);
+    window.addEventListener('keydown', onKey);
     emailRef.current?.focus();
-    return () => window.removeEventListener("keydown", onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => window.removeEventListener('keydown', onKey);
   }, [open]);
 
   const submit = async () => {
     if (busy) return;
     setBusy(true);
-    setError("");
-    setNote("");
+    setError('');
+    setNote('');
     const res =
-      tab === "signin"
-        ? await auth.signIn(email, password)
-        : await auth.signUp(email, password);
+      tab === 'signin' ? await auth.signIn(email, password) : await auth.signUp(email, password);
     setBusy(false);
     if (!res.ok) {
       setError(res.message);
       return;
     }
     if (res.note) setNote(res.note);
-    setPassword("");
+    setPassword('');
   };
 
-  const authenticated = auth.status === "authenticated" && auth.user;
+  const authenticated = auth.status === 'authenticated' && auth.user;
 
   return (
     <>
       <button
         onClick={() => setOpen(true)}
-        disabled={auth.status === "loading"}
+        disabled={auth.status === 'loading'}
         className="press btn-ghost flex h-9 items-center gap-2 rounded-full px-3 font-mono text-[12px]"
         aria-label={
-          auth.status === "loading"
-            ? "Checking account"
+          auth.status === 'loading'
+            ? 'Checking account'
             : authenticated
-              ? "Open account"
-              : "Open sync and account"
+              ? 'Open account'
+              : 'Open sync and account'
         }
       >
-        {auth.status === "loading" ? (
+        {auth.status === 'loading' ? (
           <Spinner />
         ) : authenticated ? (
           <span
             className="inline-block h-1.5 w-1.5 rounded-full"
-            style={{ background: "var(--accent)" }}
+            style={{ background: 'var(--accent)' }}
           />
         ) : (
           <CloudIcon />
         )}
-        {auth.status === "loading" ? (
+        {auth.status === 'loading' ? (
           <span className="hidden text-faint min-[400px]:inline">…</span>
         ) : authenticated ? (
           <span className="hidden max-w-28 truncate text-cream min-[400px]:inline">
-            {auth.user!.email ?? "Account"}
+            {auth.user!.email ?? 'Account'}
           </span>
         ) : (
           <span className="hidden text-sage min-[400px]:inline">Sync</span>
@@ -271,7 +296,7 @@ export default function AccountButton() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="account-dialog-title"
-            className="card dialog-pop w-full max-w-sm px-6 py-6"
+            className="card dialog-pop max-h-[85vh] w-full max-w-sm overflow-y-auto px-6 py-6"
           >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
@@ -281,12 +306,10 @@ export default function AccountButton() {
                     id="account-dialog-title"
                     className="font-display text-lg font-bold leading-none tracking-tight text-cream"
                   >
-                    {authenticated ? "Your account" : "Moneo Account"}
+                    {authenticated ? 'Your account' : 'Moneo Account'}
                   </h2>
                   <p className="mt-1 text-[12px] text-faint">
-                    {authenticated
-                      ? "Signed in"
-                      : "Sync your focus across devices."}
+                    {authenticated ? 'Signed in' : 'Sync your focus across devices.'}
                   </p>
                 </div>
               </div>
@@ -311,11 +334,25 @@ export default function AccountButton() {
                   </div>
                 </div>
                 <SyncPanel userId={auth.user!.userId} onClose={close} />
+                {auth.isPro &&
+                  (() => {
+                    const portalUrl = getCustomerPortalUrl();
+                    return portalUrl ? (
+                      <a
+                        href={portalUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="press btn-ghost flex h-9 w-full items-center justify-center rounded-lg font-mono text-[12px] font-semibold"
+                      >
+                        Manage subscription
+                      </a>
+                    ) : null;
+                  })()}
                 <PricingCard />
                 <NotificationsSettings />
                 <p className="text-[12px] leading-relaxed text-faint">
-                  Without an account, everything stays on this device. Sync is
-                  optional and never uploads anything until you choose to.
+                  Without an account, everything stays on this device. Sync is optional and never
+                  uploads anything until you choose to.
                 </p>
                 <button
                   onClick={() => {
@@ -331,6 +368,11 @@ export default function AccountButton() {
                   {busy ? <Spinner /> : null}
                   Sign out
                 </button>
+                {error && (
+                  <p role="alert" className="text-[12px] font-medium text-tomato">
+                    {error}
+                  </p>
+                )}
                 {!showDeleteConfirm ? (
                   <button
                     onClick={() => setShowDeleteConfirm(true)}
@@ -340,12 +382,11 @@ export default function AccountButton() {
                   </button>
                 ) : (
                   <div className="rounded-xl border border-tomato/30 bg-tomato/5 px-4 py-3">
-                    <p className="text-[12px] font-semibold text-tomato">
-                      Are you sure?
-                    </p>
+                    <p className="text-[12px] font-semibold text-tomato">Delete your account?</p>
                     <p className="mt-1 text-[11px] leading-relaxed text-sage">
-                      This will permanently delete all your synced data (sessions,
-                      areas, settings). Your auth account will be signed out.
+                      This permanently deletes your account — you won&apos;t be able to sign in
+                      again — plus all synced data (sessions, areas, settings, subscription). This
+                      can&apos;t be undone.
                     </p>
                     <div className="mt-3 flex gap-2">
                       <button
@@ -365,13 +406,16 @@ export default function AccountButton() {
                           } else {
                             setError(result.message);
                             setShowDeleteConfirm(false);
+                            void reportError(new Error('account deletion failed'), {
+                              message: result.message,
+                            });
                           }
                         }}
                         disabled={busy}
                         className="press btn-accent flex h-9 flex-1 items-center justify-center gap-2 rounded-lg text-sm font-semibold bg-tomato hover:bg-tomato/90"
                       >
                         {busy ? <Spinner /> : null}
-                        Delete data
+                        Delete account
                       </button>
                     </div>
                   </div>
@@ -389,26 +433,26 @@ export default function AccountButton() {
                     aria-hidden
                     className="absolute inset-y-1 left-1 w-[calc((100%-0.5rem)/2)] rounded-full border transition-transform duration-300 ease-out"
                     style={{
-                      transform: `translateX(${tab === "signin" ? 0 : 100}%)`,
-                      background: "rgb(var(--accent-rgb) / 0.13)",
-                      borderColor: "rgb(var(--accent-rgb) / 0.35)",
+                      transform: `translateX(${tab === 'signin' ? 0 : 100}%)`,
+                      background: 'rgb(var(--accent-rgb) / 0.13)',
+                      borderColor: 'rgb(var(--accent-rgb) / 0.35)',
                     }}
                   />
-                  {(["signin", "signup"] as const).map((t) => (
+                  {(['signin', 'signup'] as const).map((t) => (
                     <button
                       key={t}
                       role="tab"
                       aria-selected={tab === t}
                       onClick={() => {
                         setTab(t);
-                        setError("");
-                        setNote("");
+                        setError('');
+                        setNote('');
                       }}
                       className={`press relative z-10 rounded-full py-2 font-display text-sm font-semibold ${
-                        tab === t ? "text-cream" : "text-faint hover:text-sage"
+                        tab === t ? 'text-cream' : 'text-faint hover:text-sage'
                       }`}
                     >
-                      {t === "signin" ? "Sign in" : "Create account"}
+                      {t === 'signin' ? 'Sign in' : 'Create account'}
                     </button>
                   ))}
                 </div>
@@ -442,11 +486,11 @@ export default function AccountButton() {
                     <input
                       id="account-password"
                       type="password"
-                      autoComplete={tab === "signin" ? "current-password" : "new-password"}
+                      autoComplete={tab === 'signin' ? 'current-password' : 'new-password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") {
+                        if (e.key === 'Enter') {
                           e.preventDefault();
                           void submit();
                         }
@@ -473,13 +517,13 @@ export default function AccountButton() {
                     className="press btn-accent flex h-11 w-full items-center justify-center gap-2 rounded-xl font-display text-[15px] font-bold disabled:opacity-40"
                   >
                     {busy ? <Spinner /> : null}
-                    {tab === "signin" ? "Sign in" : "Create account"}
+                    {tab === 'signin' ? 'Sign in' : 'Create account'}
                   </button>
 
                   <p className="pt-1 text-[11px] leading-relaxed text-faint">
-                    Local-first: your sessions, intentions and areas stay on
-                    this device. Signing in creates your Moneo profile; device
-                    sync stays opt-in — nothing is uploaded until you enable it.
+                    Local-first: your sessions, intentions and areas stay on this device. Signing in
+                    creates your Moneo profile; device sync stays opt-in — nothing is uploaded until
+                    you enable it.
                   </p>
                 </div>
               </>

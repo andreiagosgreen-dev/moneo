@@ -5,9 +5,9 @@ import {
   safeRead,
   safeWrite,
   setSchemaVersion,
-} from "./storageAdapter";
-import { STORAGE_KEYS } from "./storageKeys";
-import { ensureAreaCloudId } from "../areaIdentity";
+} from './storageAdapter';
+import { STORAGE_KEYS } from './storageKeys';
+import { ensureAreaCloudId } from '../areaIdentity';
 
 /**
  * Deterministic, idempotent local migration runner.
@@ -22,11 +22,7 @@ import { ensureAreaCloudId } from "../areaIdentity";
  * - The version only advances after the migration step succeeds.
  */
 
-export type MigrationStatus =
-  | "migrated"
-  | "already-current"
-  | "unsupported-version"
-  | "failed";
+export type MigrationStatus = 'migrated' | 'already-current' | 'unsupported-version' | 'failed';
 
 export interface MigrationResult {
   /** Recorded version before the run; null = legacy/unmarked. */
@@ -43,13 +39,20 @@ const VALIDATED_KEYS = [
   STORAGE_KEYS.intentionDraft,
   STORAGE_KEYS.focusAreas,
   STORAGE_KEYS.selectedFocusArea,
+  STORAGE_KEYS.projects,
+  STORAGE_KEYS.selectedProject,
+  STORAGE_KEYS.tasks,
+  STORAGE_KEYS.ivyPlans,
+  STORAGE_KEYS.timeBlocks,
+  STORAGE_KEYS.theme,
+  STORAGE_KEYS.onboardingSeen,
 ] as const;
 
 /** Stable id generator duplicated here (no domain imports) so migrations
  *  stay dependency-free. */
 function migrationId(): string {
   try {
-    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
       return crypto.randomUUID();
     }
   } catch {
@@ -87,23 +90,20 @@ function migrateV1ToV2(): void {
   }
   if (!Array.isArray(parsed)) return;
   const needsIds = parsed.some(
-    (s) =>
-      s &&
-      typeof s === "object" &&
-      typeof (s as { id?: unknown }).id !== "string",
+    (s) => s && typeof s === 'object' && typeof (s as { id?: unknown }).id !== 'string',
   );
   if (!needsIds) return; // idempotent fast path
   const stamped = parsed.map((s) => {
-    if (s && typeof s === "object") {
+    if (s && typeof s === 'object') {
       const entry = s as { id?: unknown };
-      if (typeof entry.id !== "string" || entry.id.length === 0) {
+      if (typeof entry.id !== 'string' || entry.id.length === 0) {
         return { ...entry, id: migrationId() };
       }
     }
     return s;
   });
   if (!safeWrite(STORAGE_KEYS.history, stamped)) {
-    throw new Error("history backfill write failed");
+    throw new Error('history backfill write failed');
   }
 }
 
@@ -128,17 +128,17 @@ function migrateV2ToV3(): void {
   const needsCloudIds = parsed.some(
     (a) =>
       a &&
-      typeof a === "object" &&
-      typeof (a as { id?: unknown }).id === "string" &&
-      typeof (a as { cloudId?: unknown }).cloudId !== "string",
+      typeof a === 'object' &&
+      typeof (a as { id?: unknown }).id === 'string' &&
+      typeof (a as { cloudId?: unknown }).cloudId !== 'string',
   );
   if (!needsCloudIds) return; // idempotent fast path
   const stamped = parsed.map((a) => {
-    if (a && typeof a === "object") {
+    if (a && typeof a === 'object') {
       const area = a as { id?: unknown; cloudId?: unknown };
       if (
-        typeof area.id === "string" &&
-        (typeof area.cloudId !== "string" || area.cloudId.length === 0)
+        typeof area.id === 'string' &&
+        (typeof area.cloudId !== 'string' || area.cloudId.length === 0)
       ) {
         return { ...area, cloudId: ensureAreaCloudId(area.id) };
       }
@@ -146,8 +146,17 @@ function migrateV2ToV3(): void {
     return a;
   });
   if (!safeWrite(STORAGE_KEYS.focusAreas, stamped)) {
-    throw new Error("area cloudId backfill write failed");
+    throw new Error('area cloudId backfill write failed');
   }
+}
+
+/**
+ * v3 → v4: introduced projects and selected project.
+ * No data transformation needed, only key registration.
+ */
+function migrateV3ToV4(): void {
+  // No data migration - just key registration
+  // Projects start empty when user creates them
 }
 
 export function runLocalMigrations(): MigrationResult {
@@ -155,25 +164,26 @@ export function runLocalMigrations(): MigrationResult {
 
   // Newer than this app understands: leave everything alone.
   if (version !== null && version > CURRENT_SCHEMA_VERSION) {
-    return { from: version, to: version, status: "unsupported-version" };
+    return { from: version, to: version, status: 'unsupported-version' };
   }
 
   if (version === CURRENT_SCHEMA_VERSION) {
-    return { from: version, to: version, status: "already-current" };
+    return { from: version, to: version, status: 'already-current' };
   }
 
   try {
     if ((version ?? 0) < 1) migrateV0ToV1();
     if ((version ?? 0) < 2) migrateV1ToV2();
     if ((version ?? 0) < 3) migrateV2ToV3();
+    if ((version ?? 0) < 4) migrateV3ToV4();
   } catch {
     // Never advance the marker if a step did not complete.
-    return { from: version, to: version ?? CURRENT_SCHEMA_VERSION, status: "failed" };
+    return { from: version, to: version ?? CURRENT_SCHEMA_VERSION, status: 'failed' };
   }
 
   const written = setSchemaVersion(CURRENT_SCHEMA_VERSION);
   if (!written) {
-    return { from: version, to: version ?? CURRENT_SCHEMA_VERSION, status: "failed" };
+    return { from: version, to: version ?? CURRENT_SCHEMA_VERSION, status: 'failed' };
   }
-  return { from: version, to: CURRENT_SCHEMA_VERSION, status: "migrated" };
+  return { from: version, to: CURRENT_SCHEMA_VERSION, status: 'migrated' };
 }

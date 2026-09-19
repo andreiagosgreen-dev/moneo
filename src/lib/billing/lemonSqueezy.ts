@@ -3,7 +3,9 @@
  * Uses checkout URLs for subscription management.
  */
 
-export type Plan = "free" | "pro-monthly" | "pro-yearly";
+import { readEnv } from '../env';
+
+export type Plan = 'free' | 'pro-monthly' | 'pro-yearly';
 
 export interface Pricing {
   id: Plan;
@@ -12,110 +14,134 @@ export interface Pricing {
   price: string;
   priceMonthly: string;
   features: string[];
-  checkoutUrl: string | null;
 }
 
 const PRICING_PLANS: Pricing[] = [
   {
-    id: "free",
-    name: "Free",
-    description: "Perfect for getting started",
-    price: "$0",
-    priceMonthly: "$0",
+    id: 'free',
+    name: 'Free',
+    description: 'Perfect for getting started',
+    price: '$0',
+    priceMonthly: '$0',
     features: [
-      "Unlimited focus sessions",
-      "Local storage only",
-      "Basic statistics",
-      "Single device",
+      'Unlimited focus sessions',
+      '3 projects + task manager',
+      'Ivy Lee planner + daily frog',
+      'Habits, journal & energy',
+      'Local-first, private by design',
     ],
-    checkoutUrl: null,
   },
   {
-    id: "pro-monthly",
-    name: "Pro (Monthly)",
-    description: "For serious focus practitioners",
-    price: "$9",
-    priceMonthly: "$9",
+    id: 'pro-monthly',
+    name: 'Pro (Monthly)',
+    description: 'For serious focus practitioners',
+    price: '$9',
+    priceMonthly: '$9',
     features: [
-      "All Free features",
-      "Cloud sync across devices",
-      "Advanced analytics",
-      "Focus areas & intentions",
-      "Session export",
-      "Priority support",
+      'All Free features',
+      'Unlimited projects, goals & OKRs',
+      'Full AI assistant + all insights',
+      'Reports, CSV/PDF export & billable time',
+      'Time blocking, sprints & kanban',
+      'Cloud sync across devices',
+      'Premium themes & customization',
+      'Priority support',
     ],
-    checkoutUrl: null,
   },
   {
-    id: "pro-yearly",
-    name: "Pro (Yearly)",
-    description: "Best value - 2 months free",
-    price: "$90",
-    priceMonthly: "$7.50",
+    id: 'pro-yearly',
+    name: 'Pro (Yearly)',
+    description: 'Best value - 2 months free',
+    price: '$90',
+    priceMonthly: '$7.50',
     features: [
-      "All Pro features",
-      "2 months free",
-      "Early access to new features",
-      "Priority support",
+      'All Pro features',
+      '2 months free',
+      'Early access to new features',
+      'Priority support',
     ],
-    checkoutUrl: null,
   },
 ];
-
-function readEnv(): Record<string, string | undefined> {
-  try {
-    const meta = import.meta as unknown as {
-      env?: Record<string, string | undefined>;
-    };
-    return meta.env ?? {};
-  } catch {
-    return {};
-  }
-}
 
 export function getLemonSqueezyConfig(): {
   storeId: string | null;
   checkoutUrl: string | null;
+  monthlyVariantId: string | null;
+  yearlyVariantId: string | null;
+  portalUrl: string | null;
 } {
-  const storeId = readEnv().VITE_LEMONSQUEZY_STORE_ID;
-  const checkoutBaseUrl = readEnv().VITE_LEMONSQUEZY_CHECKOUT_URL;
+  const storeId = readEnv().VITE_LEMONSQUEEZY_STORE_ID;
+  const checkoutBaseUrl = readEnv().VITE_LEMONSQUEEZY_CHECKOUT_URL;
 
   return {
     storeId: storeId || null,
     checkoutUrl: checkoutBaseUrl || null,
+    monthlyVariantId: readEnv().VITE_LEMONSQUEEZY_MONTHLY_VARIANT_ID || null,
+    yearlyVariantId: readEnv().VITE_LEMONSQUEEZY_YEARLY_VARIANT_ID || null,
+    portalUrl: readEnv().VITE_LEMONSQUEEZY_PORTAL_URL || null,
   };
 }
 
-export function getPricingPlans(): Pricing[] {
+/**
+ * Lemon Squeezy's hosted customer portal (store-level "My Orders" billing
+ * page). The customer authenticates there via a magic link to their own
+ * email — no user id or API call needed from the frontend. Returns null
+ * when unconfigured so callers can hide the "Manage subscription" action
+ * instead of linking to a broken/unconfigured URL.
+ */
+export function getCustomerPortalUrl(): string | null {
+  const { portalUrl } = getLemonSqueezyConfig();
+  if (!portalUrl) return null;
+  try {
+    const parsed = new URL(portalUrl);
+    if (parsed.protocol !== 'https:' || !parsed.hostname) return null;
+    return parsed.href;
+  } catch {
+    return null;
+  }
+}
+
+function variantForPlan(planId: Plan): string | null {
   const config = getLemonSqueezyConfig();
+  if (planId === 'pro-monthly') return config.monthlyVariantId;
+  if (planId === 'pro-yearly') return config.yearlyVariantId;
+  return null;
+}
 
-  return PRICING_PLANS.map((plan) => {
-    if (plan.id === "free" || !config.checkoutUrl || !config.storeId) {
-      return plan;
-    }
+/**
+ * Checkout URL for a paid plan. Uses the plan's distinct variant id so
+ * monthly and yearly open different checkouts; the user id is URL-encoded
+ * so the webhook can attribute the subscription. Null when billing is not
+ * configured (free plan or missing env). The configured base must be a
+ * real https: URL — anything else fails closed instead of open-redirecting
+ * the buyer (Faza 5A).
+ */
+export function buildCheckoutUrl(planId: Plan, userId: string): string | null {
+  const config = getLemonSqueezyConfig();
+  if (planId === 'free' || !config.checkoutUrl || !config.storeId) {
+    return null;
+  }
+  let base: string;
+  try {
+    const parsed = new URL(config.checkoutUrl.replace(/\/$/, ''));
+    if (parsed.protocol !== 'https:' || !parsed.hostname) return null;
+    base = parsed.href.replace(/\/$/, '');
+  } catch {
+    return null;
+  }
+  const variant = variantForPlan(planId);
+  const path = variant ? `${base}/buy/${variant}` : base;
+  return `${path}?checkout[custom][user_id]=${encodeURIComponent(userId)}`;
+}
 
-    // Generate checkout URL for paid plans
-    // Format: https://store.lemonsqueezy.com/checkout?variant_id=XYZ
-    // In production, you would map plan IDs to actual Lemon Squeezy variant IDs
-    return {
-      ...plan,
-      checkoutUrl: `${config.checkoutUrl}?checkout[custom][user_id]=USER_ID`,
-    };
-  });
+export function getPricingPlans(): Pricing[] {
+  return PRICING_PLANS.map((plan) => ({ ...plan }));
 }
 
 export function initiateCheckout(planId: Plan, userId: string): string | null {
-  const plans = getPricingPlans();
-  const plan = plans.find((p) => p.id === planId);
-
-  if (!plan || !plan.checkoutUrl) {
-    return null;
-  }
-
-  // Replace USER_ID placeholder with actual user ID
-  return plan.checkoutUrl.replace("USER_ID", userId);
+  return buildCheckoutUrl(planId, userId);
 }
 
 export function getProPlanCheckoutUrl(userId: string): string | null {
-  return initiateCheckout("pro-monthly", userId);
+  return initiateCheckout('pro-monthly', userId);
 }

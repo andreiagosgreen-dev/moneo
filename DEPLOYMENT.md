@@ -53,6 +53,7 @@ Complete deployment instructions for Moneo with Cloudflare, Supabase, and Docker
 Navigate to SQL Editor in Supabase and run these migrations in order:
 
 #### Migration 1: Core Schema
+
 ```sql
 -- Create users table (if using custom auth)
 -- Or use Supabase Auth (recommended)
@@ -128,6 +129,7 @@ CREATE POLICY "Users can delete own sessions" ON sessions
 ```
 
 #### Migration 2: User Scoped Area Identity
+
 ```sql
 -- Add cloud_id column to areas if not exists
 ALTER TABLE areas ADD COLUMN IF NOT EXISTS cloud_id UUID;
@@ -143,8 +145,8 @@ Create `.env.local` in the Moneo project root:
 ```bash
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
-VITE_LEMONSQUEZY_STORE_ID=your-store-id
-VITE_LEMONSQUEZY_CHECKOUT_URL=https://your-store.lemonsqueezy.com/checkout
+VITE_LEMONSQUEEZY_STORE_ID=your-store-id
+VITE_LEMONSQUEEZY_CHECKOUT_URL=https://your-store.lemonsqueezy.com/checkout
 ```
 
 ---
@@ -171,6 +173,7 @@ wrangler kv:namespace create KV_CACHE
 ```
 
 Copy the ID and update `wrangler.toml`:
+
 ```toml
 [[kv_namespaces]]
 binding = "KV_CACHE"
@@ -202,6 +205,18 @@ npm install
 wrangler deploy
 ```
 
+#### Optional: AI planner (Faza 6)
+
+Without these, `/api/ai/plan` fails closed with 501 and the app's local
+deterministic planner ("Build my path") is used instead — nothing breaks.
+To enable server-side AI-refined plans:
+
+```bash
+cd cloudflare/workers
+wrangler secret put AI_API_KEY   # an Anthropic API key
+wrangler secret put AI_MODEL     # optional, e.g. claude-sonnet-5 — defaults to claude-haiku-4-5-20251001
+```
+
 ---
 
 ## DNS Configuration
@@ -226,6 +241,7 @@ TTL: 3600
 ```
 
 Or for root domain (if supported):
+
 ```
 Type: A
 Name: @
@@ -240,11 +256,13 @@ TTL: 3600
 ### Option 1: Cloudflare Workers (Recommended)
 
 1. **Build the app:**
+
    ```bash
    npm run build
    ```
 
 2. **Upload assets to R2:**
+
    ```bash
    wrangler r2 object put moneo-assets/index.html --file=dist/index.html
    wrangler r2 object put moneo-assets/manifest.webmanifest --file=dist/manifest.webmanifest
@@ -262,16 +280,19 @@ TTL: 3600
 ### Option 2: Docker
 
 1. **Build Docker image:**
+
    ```bash
    docker build -t moneo:latest .
    ```
 
 2. **Run locally:**
+
    ```bash
    docker run -p 80:80 -e VITE_SUPABASE_URL=your_url -e VITE_SUPABASE_ANON_KEY=your_key moneo:latest
    ```
 
 3. **Push to registry:**
+
    ```bash
    docker tag moneo:latest your-registry/moneo:latest
    docker push your-registry/moneo:latest
@@ -282,11 +303,13 @@ TTL: 3600
 ### Option 3: Static Hosting (Vercel/Netlify)
 
 1. **Build:**
+
    ```bash
    npm run build
    ```
 
 2. **Deploy to Vercel:**
+
    ```bash
    npm install -g vercel
    vercel
@@ -317,7 +340,7 @@ TTL: 3600
 1. Open DevTools → Application
 2. Verify Service Worker is registered
 3. Test offline mode (disconnect network)
-4. Check manifest.json is valid
+4. Check manifest.webmanifest is valid
 
 ### 3. Test Billing
 
@@ -378,7 +401,7 @@ wrangler deploy --verbose
 
 ### PWA Not Working
 
-- Verify manifest.json is accessible
+- Verify manifest.webmanifest is accessible
 - Check service worker is registered
 - Ensure HTTPS is enabled (required for PWA)
 - Check browser console for errors
@@ -395,8 +418,8 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 
 # Lemon Squeezy
-VITE_LEMONSQUEZY_STORE_ID=your-store-id
-VITE_LEMONSQUEZY_CHECKOUT_URL=https://your-store.lemonsqueezy.com/checkout
+VITE_LEMONSQUEEZY_STORE_ID=your-store-id
+VITE_LEMONSQUEEZY_CHECKOUT_URL=https://your-store.lemonsqueezy.com/checkout
 ```
 
 ### Cloudflare Workers (wrangler.toml)
@@ -444,6 +467,7 @@ preview_id = "your-preview-kv-id"
 ## Support
 
 For issues with:
+
 - **Supabase**: https://supabase.com/support
 - **Cloudflare**: https://support.cloudflare.com
 - **Lemon Squeezy**: https://lemonsqueezy.com/support

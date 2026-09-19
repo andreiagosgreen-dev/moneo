@@ -1,24 +1,33 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-display: "Bricolage Grotesque", "Instrument Sans", sans-serif;
-  --font-body: "Instrument Sans", sans-serif;
-  --font-mono: "Spline Sans Mono", ui-monospace, monospace;
+  --font-display: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Spline Sans Mono', ui-monospace, SFMono-Regular, monospace;
 
-  --color-ink: #0d1310;
-  --color-pine: #111913;
-  --color-card: #161e18;
-  --color-card2: #1b241d;
-  --color-line: #2a352c;
-  --color-cream: #eef1e8;
-  --color-sage: #94a396;
-  --color-faint: #61705f;
-  --color-tomato: #ff6242;
-  --color-tomato-deep: #d94322;
-  --color-mint: #3ddc97;
-  --color-mint-deep: #1fb877;
-  --color-sky: #6faeff;
-  --color-sky-deep: #3e86e8;
+  --color-ink: #0f1117;
+  --color-pine: #131824;
+  --color-card: #161c29;
+  --color-card2: #1a2233;
+  --color-line: #263049;
+  --color-cream: #f2f4f9;
+  --color-sage: #9aa7bd;
+  --color-faint: #5f6e88;
+  --color-tomato: #f07167;
+  --color-tomato-deep: #d65448;
+  --color-mint: #3ecf8e;
+  --color-mint-deep: #27a56e;
+  --color-sky: #7aa5ff;
+  --color-sky-deep: #4f7dd6;
+}
+
+/* Bridge the runtime accent vars (--accent set by data-mode / data-accent)
+ * into real Tailwind color utilities, so text-accent, bg-accent/*,
+ * ring-accent/* etc. resolve dynamically instead of being dead classes. */
+@theme inline {
+  --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
+  --color-on-accent: var(--on-accent);
 }
 
 /* ---------- mode theming ---------- */
@@ -27,23 +36,135 @@
 }
 
 :root,
-[data-mode="focus"] {
-  --accent: #ff6242;
-  --accent-deep: #d94322;
-  --accent-rgb: 255, 98, 66;
-  --on-accent: #1a0d08;
+[data-mode='focus'] {
+  --accent: #f5a524;
+  --accent-deep: #cf850a;
+  --accent-rgb: 245, 165, 36;
+  --on-accent: #1c1204;
 }
-[data-mode="short"] {
-  --accent: #3ddc97;
-  --accent-deep: #1fb877;
-  --accent-rgb: 61, 220, 151;
-  --on-accent: #06170f;
+[data-mode='short'] {
+  --accent: #3ecf8e;
+  --accent-deep: #27a56e;
+  --accent-rgb: 62, 207, 142;
+  --on-accent: #04170e;
 }
-[data-mode="long"] {
-  --accent: #6faeff;
-  --accent-deep: #3e86e8;
-  --accent-rgb: 111, 174, 255;
-  --on-accent: #081220;
+[data-mode='long'] {
+  --accent: #7aa5ff;
+  --accent-deep: #4f7dd6;
+  --accent-rgb: 122, 165, 255;
+  --on-accent: #0a1226;
+}
+
+/* ---------- custom accent (Premium Polish) ----------
+ * Must come AFTER the mode rules so a chosen accent wins over them.
+ * `auto` keeps the per-mode colors. */
+[data-accent='tomato'] {
+  --accent: #f07167;
+  --accent-deep: #d65448;
+  --accent-rgb: 240, 113, 103;
+  --on-accent: #200b08;
+}
+[data-accent='mint'] {
+  --accent: #3ecf8e;
+  --accent-deep: #27a56e;
+  --accent-rgb: 62, 207, 142;
+  --on-accent: #04170e;
+}
+[data-accent='sky'] {
+  --accent: #7aa5ff;
+  --accent-deep: #4f7dd6;
+  --accent-rgb: 122, 165, 255;
+  --on-accent: #0a1226;
+}
+[data-accent='violet'] {
+  --accent: #a78bfa;
+  --accent-deep: #7c5ce8;
+  --accent-rgb: 167, 139, 250;
+  --on-accent: #110a24;
+}
+[data-accent='amber'] {
+  --accent: #f5a524;
+  --accent-deep: #cf850a;
+  --accent-rgb: 245, 165, 36;
+  --on-accent: #1c1204;
+}
+[data-accent='rose'] {
+  --accent: #f483b8;
+  --accent-deep: #d65696;
+  --accent-rgb: 244, 131, 184;
+  --on-accent: #200a14;
+}
+
+/* ---------- light theme (Premium Polish) ---------- */
+[data-theme='light'] {
+  color-scheme: light;
+  --color-ink: #edf0f5;
+  --color-pine: #e0e6ef;
+  --color-card: #ffffff;
+  --color-card2: #f3f6fa;
+  --color-line: #d3dbe7;
+  --color-cream: #131a26;
+  --color-sage: #4d5b72;
+  --color-faint: #7d8aa1;
+  --color-tomato: #dd4a3c;
+  --color-tomato-deep: #bd3527;
+  --color-mint: #0f9d63;
+  --color-mint-deep: #0b7d4f;
+  --color-sky: #2f6fe4;
+  --color-sky-deep: #1f56bd;
+}
+
+html[data-theme='light'] body {
+  background-color: var(--color-ink);
+  color: var(--color-cream);
+}
+
+[data-theme='light'] .bg-grid {
+  background-image:
+    linear-gradient(rgb(19 26 38 / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(19 26 38 / 0.06) 1px, transparent 1px);
+}
+
+[data-theme='light'] .card {
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.7) inset,
+    0 16px 40px -24px rgb(19 26 38 / 0.22);
+}
+
+[data-theme='light'] .btn-ghost {
+  background: rgb(19 26 38 / 0.03);
+}
+[data-theme='light'] .btn-ghost:hover {
+  background: rgb(var(--accent-rgb) / 0.1);
+}
+
+[data-theme='light'] .kbd {
+  background: rgb(19 26 38 / 0.04);
+}
+
+[data-theme='light'] .settle-track {
+  background: rgb(19 26 38 / 0.14);
+}
+[data-theme='light'] .settle-thumb-off {
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgb(19 26 38 / 0.35);
+}
+
+[data-theme='light'] .topnav {
+  background: rgb(237 240 245 / 0.82);
+}
+
+/* ---------- font options (Premium Polish) ---------- */
+html[data-font='serif'] {
+  --font-display: 'Instrument Serif', 'Playfair Display', Georgia, serif;
+  --font-body: 'Instrument Sans', Georgia, serif;
+}
+
+html[data-font-scale='comfort'] {
+  font-size: 16.5px;
+}
+html[data-font-scale='compact'] {
+  font-size: 14.5px;
 }
 
 html,
@@ -80,18 +201,18 @@ body {
 }
 .bg-glow-focus {
   background:
-    radial-gradient(42% 38% at 18% 12%, rgb(255 98 66 / 0.17), transparent 70%),
-    radial-gradient(34% 32% at 85% 82%, rgb(255 98 66 / 0.1), transparent 70%);
+    radial-gradient(42% 38% at 18% 12%, rgb(245 165 36 / 0.15), transparent 70%),
+    radial-gradient(34% 32% at 85% 82%, rgb(245 165 36 / 0.09), transparent 70%);
 }
 .bg-glow-short {
   background:
-    radial-gradient(42% 38% at 18% 12%, rgb(61 220 151 / 0.14), transparent 70%),
-    radial-gradient(34% 32% at 85% 82%, rgb(61 220 151 / 0.09), transparent 70%);
+    radial-gradient(42% 38% at 18% 12%, rgb(62 207 142 / 0.13), transparent 70%),
+    radial-gradient(34% 32% at 85% 82%, rgb(62 207 142 / 0.08), transparent 70%);
 }
 .bg-glow-long {
   background:
-    radial-gradient(42% 38% at 18% 12%, rgb(111 174 255 / 0.15), transparent 70%),
-    radial-gradient(34% 32% at 85% 82%, rgb(111 174 255 / 0.09), transparent 70%);
+    radial-gradient(42% 38% at 18% 12%, rgb(122 165 255 / 0.14), transparent 70%),
+    radial-gradient(34% 32% at 85% 82%, rgb(122 165 255 / 0.08), transparent 70%);
 }
 
 .bg-grain {
@@ -108,25 +229,10 @@ body {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgb(238 241 232 / 0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(238 241 232 / 0.022) 1px, transparent 1px);
+    linear-gradient(rgb(242 244 249 / 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(242 244 249 / 0.022) 1px, transparent 1px);
   background-size: 44px 44px;
   mask-image: radial-gradient(80% 70% at 50% 30%, black, transparent 85%);
-}
-
-@keyframes breathe {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.85;
-  }
-  50% {
-    transform: scale(1.06);
-    opacity: 1;
-  }
-}
-.anim-breathe {
-  animation: breathe 5.5s ease-in-out infinite;
 }
 
 /* ---------- cards & controls ---------- */
@@ -135,12 +241,21 @@ body {
   border-radius: 22px;
   border: 1px solid var(--color-line);
   background:
-    linear-gradient(160deg, rgb(var(--accent-rgb) / 0.055), transparent 42%),
+    linear-gradient(160deg, rgb(var(--accent-rgb) / 0.05), transparent 42%),
     linear-gradient(180deg, var(--color-card2), var(--color-card));
   box-shadow:
-    0 1px 0 rgb(255 255 255 / 0.04) inset,
+    0 1px 0 rgb(255 255 255 / 0.05) inset,
     0 24px 48px -28px rgb(0 0 0 / 0.65);
-  transition: border-color 0.6s ease, background 0.6s ease;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    background 0.6s ease;
+}
+.card:hover {
+  border-color: color-mix(in oklab, var(--color-line) 55%, var(--color-cream));
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.06) inset,
+    0 28px 56px -28px rgb(0 0 0 / 0.7);
 }
 
 .press {
@@ -206,6 +321,82 @@ body {
   border-bottom-width: 2px;
   color: var(--color-sage);
   background: rgb(255 255 255 / 0.03);
+}
+
+/* ---------- top navigation ---------- */
+.topnav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  background: color-mix(in oklab, var(--color-ink) 80%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--color-line);
+}
+.navtab {
+  position: relative;
+  border-radius: 10px;
+  padding: 7px 13px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-faint);
+  white-space: nowrap;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.14s ease;
+}
+.navtab:hover {
+  color: var(--color-cream);
+  background: rgb(255 255 255 / 0.04);
+}
+.navtab:active {
+  transform: scale(0.97);
+}
+.navtab[data-active='true'] {
+  color: var(--color-cream);
+  background: rgb(var(--accent-rgb) / 0.13);
+  box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.35);
+}
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+/*
+ * Nav tab strip overflow hint (Roadmap Faza 2). Only rendered on the side
+ * that actually still has hidden tabs (see TopNav's scroll listener), so
+ * unlike a static mask it disappears once the user reaches that edge.
+ */
+.tabs-edge-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 28px;
+  pointer-events: none;
+}
+.tabs-edge-fade-left {
+  left: 0;
+  background: linear-gradient(to right, var(--color-ink), transparent);
+}
+.tabs-edge-fade-right {
+  right: 0;
+  background: linear-gradient(to left, var(--color-ink), transparent);
+}
+.searchpop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(22rem, calc(100vw - 2rem));
+  border-radius: 16px;
+  border: 1px solid var(--color-line);
+  background: var(--color-card2);
+  box-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.7);
+  overflow: hidden;
+  animation: popIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 button:focus-visible {
@@ -296,7 +487,7 @@ button:focus-visible {
   }
 }
 .ping-dot::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   border-radius: 9999px;
@@ -330,6 +521,137 @@ button:focus-visible {
 .bar-grow {
   transform-origin: bottom;
   animation: barGrow 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+/* ---------- Faza 4: art direction ---------- */
+@theme {
+  --color-gold: #f5a524;
+  --color-jade: #3ecf8e;
+  --color-volt: #7aa5ff;
+  --color-iris: #a78bfa;
+}
+
+[data-theme='light'] {
+  --color-gold: #b97a08;
+  --color-jade: #0f9d63;
+  --color-volt: #2f6fe4;
+  --color-iris: #7c5ce8;
+}
+
+/* Frosted surface for sheets, summaries and overlays. */
+.glass {
+  background: color-mix(in oklab, var(--color-card2) 74%, transparent);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border: 1px solid color-mix(in oklab, var(--color-line) 72%, transparent);
+}
+
+/* Reflection accent scope (violet/blue) for review-like surfaces. */
+.accent-reflect {
+  --accent: #a78bfa;
+  --accent-deep: #7c5ce8;
+  --accent-rgb: 167, 139, 250;
+  --on-accent: #110a24;
+}
+
+/* ---------- Faza 4: focus mode ---------- */
+.topnav {
+  transition: opacity 0.5s ease;
+}
+.dim-in-focus {
+  transition: opacity 0.5s ease;
+}
+html[data-focusing='true'] .topnav {
+  opacity: 0.3;
+}
+html[data-focusing='true'] .topnav:hover,
+html[data-focusing='true'] .topnav:focus-within {
+  opacity: 1;
+}
+html[data-focusing='true'] .dim-in-focus {
+  opacity: 0.35;
+}
+html[data-focusing='true'] .dim-in-focus:hover,
+html[data-focusing='true'] .dim-in-focus:focus-within {
+  opacity: 1;
+}
+/* Timer hero state while a session runs. */
+.focus-hero {
+  border-color: rgb(var(--accent-rgb) / 0.4);
+  box-shadow:
+    0 0 0 1px rgb(var(--accent-rgb) / 0.15),
+    0 24px 64px -20px rgb(var(--accent-rgb) / 0.28);
+}
+
+/* ---------- Faza 4: luminous breathing arc ---------- */
+@keyframes arcBreathe {
+  0%,
+  100% {
+    opacity: 0.22;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+.arc-breathe {
+  animation: arcBreathe 6s ease-in-out infinite;
+}
+
+/* 10s summary countdown bar (transform only). */
+@keyframes shrinkBar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+.summary-timer-bar {
+  transform-origin: left;
+  animation: shrinkBar 10s linear forwards;
+}
+
+/* ---------- Faza 4: life map motion ---------- */
+@keyframes segIn {
+  from {
+    opacity: 0;
+    transform: scale(0.93);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.map-seg {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: segIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease,
+    opacity 0.18s ease;
+}
+.map-seg:hover,
+.map-seg:focus-visible {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 6px 14px rgb(0 0 0 / 0.45)) drop-shadow(0 0 12px var(--seg-glow));
+}
+.map-seg:focus {
+  outline: none;
+}
+
+@keyframes sheetUp {
+  from {
+    transform: translateY(48px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.sheet-up {
+  animation: sheetUp 0.32s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ---------- scrollbars ---------- */

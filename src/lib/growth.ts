@@ -1,4 +1,4 @@
-import { dayKey, isToday, lastNDays, type Session } from "./store";
+import { dayKey, isToday, lastNDays, type Session } from './store';
 
 /**
  * Moneo Growth — cumulative focused work creates persistent visible progress.
@@ -16,10 +16,10 @@ export interface GrowthStageDef {
 }
 
 export const GROWTH_STAGES: GrowthStageDef[] = [
-  { name: "Seed", min: 0 },
-  { name: "Sprout", min: 60 },
-  { name: "Leaf", min: 240 },
-  { name: "Bloom", min: 600 },
+  { name: 'Seed', min: 0 },
+  { name: 'Sprout', min: 60 },
+  { name: 'Leaf', min: 240 },
+  { name: 'Bloom', min: 600 },
 ];
 
 export function getTotalFocusedMinutes(history: Session[]): number {
@@ -44,9 +44,7 @@ export function getGrowthProgress(totalMinutes: number): number {
 }
 
 export function getTodayFocusedMinutes(history: Session[]): number {
-  return history
-    .filter((s) => isToday(s.at))
-    .reduce((sum, s) => sum + Math.max(0, s.min), 0);
+  return history.filter((s) => isToday(s.at)).reduce((sum, s) => sum + Math.max(0, s.min), 0);
 }
 
 export function getWeeklyFocusedMinutes(history: Session[]): number {

@@ -31,6 +31,7 @@ A focus timer application for productivity with cloud sync.
 ### Cloudflare Workers (Recommended)
 
 See [DEPLOYMENT.md](./DEPLOYMENT.md) for complete Cloudflare setup including:
+
 - Worker configuration
 - KV cache setup
 - R2 bucket for assets
@@ -55,6 +56,7 @@ docker-compose up --build
 ### Static Hosting
 
 The `dist/` folder contains the production build. Deploy to any static hosting service:
+
 - Vercel
 - Netlify
 - Cloudflare Pages
@@ -67,15 +69,18 @@ See [MOBILE.md](./MOBILE.md) for React Native implementation guide.
 ## Environment Variables
 
 ### Web (.env.local)
+
 ```bash
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
-VITE_LEMONSQUEZY_STORE_ID=your-store-id
-VITE_LEMONSQUEZY_CHECKOUT_URL=https://your-store.lemonsqueezy.com/checkout
+VITE_LEMONSQUEEZY_STORE_ID=your-store-id
+VITE_LEMONSQUEEZY_CHECKOUT_URL=https://your-store.lemonsqueezy.com/checkout
 ```
 
 ### Cloudflare Workers (wrangler.toml)
+
 Update with your actual IDs after setup:
+
 ```toml
 id = "your-actual-kv-id"
 preview_id = "your-preview-kv-id"

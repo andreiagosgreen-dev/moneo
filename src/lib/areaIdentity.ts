@@ -20,25 +20,21 @@
 /** Well-known cloud identities for the seeded default areas. Identical on
  *  every device, so sync upserts converge on a single row per default. */
 export const SEEDED_AREA_CLOUD_IDS = {
-  "area:work": "a1100000-0000-4000-8000-000000000001",
-  "area:study": "a1100000-0000-4000-8000-000000000002",
-  "area:personal": "a1100000-0000-4000-8000-000000000003",
+  'area:work': 'a1100000-0000-4000-8000-000000000001',
+  'area:study': 'a1100000-0000-4000-8000-000000000002',
+  'area:personal': 'a1100000-0000-4000-8000-000000000003',
 } as const;
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function isUuid(value: unknown): value is string {
-  return typeof value === "string" && UUID_RE.test(value);
+  return typeof value === 'string' && UUID_RE.test(value);
 }
 
 /** crypto.randomUUID with a UUID-v4-shaped dependency-free fallback. */
 export function newCloudUuid(): string {
   try {
-    if (
-      typeof crypto !== "undefined" &&
-      typeof crypto.randomUUID === "function"
-    ) {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
       return crypto.randomUUID();
     }
   } catch {
@@ -47,8 +43,8 @@ export function newCloudUuid(): string {
   const hex = (n: number) =>
     Math.floor(Math.random() * 16 ** n)
       .toString(16)
-      .padStart(n, "0");
-  const variant = "89ab"[Math.floor(Math.random() * 4)];
+      .padStart(n, '0');
+  const variant = '89ab'[Math.floor(Math.random() * 4)];
   return `${hex(8)}-${hex(4)}-4${hex(3)}-${variant}${hex(3)}-${hex(12)}`;
 }
 
@@ -59,8 +55,7 @@ export function newCloudUuid(): string {
  *   otherwise  → a fresh UUID (persisted by the caller; stable thereafter)
  */
 export function ensureAreaCloudId(localId: string): string {
-  const seeded =
-    SEEDED_AREA_CLOUD_IDS[localId as keyof typeof SEEDED_AREA_CLOUD_IDS];
+  const seeded = SEEDED_AREA_CLOUD_IDS[localId as keyof typeof SEEDED_AREA_CLOUD_IDS];
   if (seeded) return seeded;
   if (isUuid(localId)) return localId;
   return newCloudUuid();
