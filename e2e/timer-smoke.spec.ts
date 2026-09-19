@@ -10,7 +10,11 @@ test('loads, starts, pauses and resets a focus session', async ({ page }) => {
   await skipOnboarding(page);
   await page.goto('/');
 
-  await expect(page.getByText('25', { exact: true })).toBeVisible();
+  // The digits render as separate {mm}/{ss} text nodes inside one div (no
+  // wrapping element around "25" alone), so the accessible name that
+  // actually identifies the ready state is the ring's img role — confirmed
+  // against a real ARIA snapshot, not assumed.
+  await expect(page.getByRole('img', { name: /25:00 remaining/i })).toBeVisible();
   await expect(page.getByText(/ready/i)).toBeVisible();
 
   await page.getByRole('button', { name: /start timer/i }).click();
@@ -19,6 +23,5 @@ test('loads, starts, pauses and resets a focus session', async ({ page }) => {
 
   await page.getByRole('button', { name: /reset timer/i }).click();
   await expect(page.getByText(/ready/i)).toBeVisible();
-  await expect(page.getByText('25', { exact: true })).toBeVisible();
-  await expect(page.getByText('00', { exact: true })).toBeVisible();
+  await expect(page.getByRole('img', { name: /25:00 remaining/i })).toBeVisible();
 });
