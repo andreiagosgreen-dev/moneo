@@ -87,7 +87,10 @@ function api(body: Record<string, unknown>, status: number): Response {
  */
 function flagInjection(text: string): string[] {
   const patterns: Array<{ id: string; re: RegExp }> = [
-    { id: 'override', re: /ignore\s+(all\s+|any\s+)?(previous|prior|earlier|above)\s+instructions?/i },
+    {
+      id: 'override',
+      re: /ignore\s+(all\s+|any\s+)?(previous|prior|earlier|above)\s+instructions?/i,
+    },
     { id: 'system-role', re: /(^|[\s>])system\s*:/i },
     { id: 'jailbreak', re: /jailbreak|dan\s+mode|developer\s+mode/i },
   ];

@@ -32,7 +32,10 @@ const DICTS: Partial<Record<Locale, Record<TKey, string>>> = { en };
  * "both static and dynamic import" build warning. Explicit loaders avoid
  * that ambiguity entirely.
  */
-const LAZY_LOADERS: Record<Exclude<Locale, 'en'>, () => Promise<{ [k: string]: Record<TKey, string> }>> = {
+const LAZY_LOADERS: Record<
+  Exclude<Locale, 'en'>,
+  () => Promise<{ [k: string]: Record<TKey, string> }>
+> = {
   ro: () => import('./locales/ro'),
   ru: () => import('./locales/ru'),
   uk: () => import('./locales/uk'),

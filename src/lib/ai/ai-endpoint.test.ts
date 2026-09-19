@@ -269,7 +269,11 @@ describe('handleAIPlan (Anthropic provider wired)', () => {
     }) as unknown as FetchImpl;
     const body = JSON.stringify({ goal: evilGoal, horizonMonths: 6, hoursPerWeek: 5 });
     const { status } = await statusOf(
-      await handleAIPlan(req('POST', body, { ...AUTH, 'cf-connecting-ip': 'ai-real-5' }), ENV_WITH_KEY, fetchImpl),
+      await handleAIPlan(
+        req('POST', body, { ...AUTH, 'cf-connecting-ip': 'ai-real-5' }),
+        ENV_WITH_KEY,
+        fetchImpl,
+      ),
     );
     expect(status).toBe(200);
   });

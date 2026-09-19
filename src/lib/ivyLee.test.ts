@@ -237,8 +237,7 @@ describe('setPlanEstimate', () => {
       planForDay(setPlanEstimate(plans, '2026-9-16', 'a', 2), '2026-9-16')!.tasks[0].estimateMin,
     ).toBe(5);
     expect(
-      planForDay(setPlanEstimate(plans, '2026-9-16', 'a', null), '2026-9-16')!.tasks[0]
-        .estimateMin,
+      planForDay(setPlanEstimate(plans, '2026-9-16', 'a', null), '2026-9-16')!.tasks[0].estimateMin,
     ).toBeUndefined();
   });
 

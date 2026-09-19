@@ -48,7 +48,10 @@ export async function initSentry(): Promise<void> {
 }
 
 /** Reports an error if Sentry is configured; always a safe no-op otherwise. */
-export async function reportError(error: unknown, context?: Record<string, unknown>): Promise<void> {
+export async function reportError(
+  error: unknown,
+  context?: Record<string, unknown>,
+): Promise<void> {
   if (!initialized) return;
   try {
     const Sentry = await import('@sentry/react');

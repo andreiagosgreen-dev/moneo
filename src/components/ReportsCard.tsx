@@ -483,7 +483,11 @@ export default function ReportsCard({
           }}
           disabled={!isPro}
           className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
-          title={isPro ? 'Open a printable report (Print → Save as PDF)' : 'Upgrade to Pro to export PDF reports'}
+          title={
+            isPro
+              ? 'Open a printable report (Print → Save as PDF)'
+              : 'Upgrade to Pro to export PDF reports'
+          }
         >
           Export PDF{!isPro && ' · Pro'}
         </button>
