@@ -366,10 +366,25 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-/* Faint right-edge fade so the scrollable tab strip reads as scrollable. */
-.tabs-scroll {
-  -webkit-mask-image: linear-gradient(to right, black calc(100% - 28px), transparent);
-  mask-image: linear-gradient(to right, black calc(100% - 28px), transparent);
+/*
+ * Nav tab strip overflow hint (Roadmap Faza 2). Only rendered on the side
+ * that actually still has hidden tabs (see TopNav's scroll listener), so
+ * unlike a static mask it disappears once the user reaches that edge.
+ */
+.tabs-edge-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 28px;
+  pointer-events: none;
+}
+.tabs-edge-fade-left {
+  left: 0;
+  background: linear-gradient(to right, var(--color-ink), transparent);
+}
+.tabs-edge-fade-right {
+  right: 0;
+  background: linear-gradient(to left, var(--color-ink), transparent);
 }
 .searchpop {
   position: absolute;

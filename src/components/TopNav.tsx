@@ -44,6 +44,12 @@ export default function TopNav({ tab, onTab, todayText, tasks, projects, goals }
   const [highlight, setHighlight] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const activeTabRef = useRef<HTMLButtonElement>(null);
+  const [scrollEdge, setScrollEdge] = useState<{ left: boolean; right: boolean }>({
+    left: false,
+    right: false,
+  });
 
   const hits: SearchHit[] = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -92,6 +98,36 @@ export default function TopNav({ tab, onTab, todayText, tasks, projects, goals }
     return () => window.removeEventListener('pointerdown', onDown);
   }, []);
 
+  // Mobile nav discoverability (Roadmap Faza 2): the tab strip can overflow
+  // horizontally on narrow screens. A static edge fade is too easy to miss,
+  // so this only shows a fade on whichever side still has hidden tabs, and
+  // clears it once the user has scrolled all the way to that edge.
+  useEffect(() => {
+    const el = tabsRef.current;
+    if (!el) return;
+    const update = () => {
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      setScrollEdge({
+        left: el.scrollLeft > 4,
+        right: el.scrollLeft < maxScroll - 4,
+      });
+    };
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      el.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, []);
+
+  // Keep the active section visible: switching tabs (including via
+  // keyboard shortcuts elsewhere in the app) scrolls it into view instead
+  // of leaving the user to guess it moved off-screen.
+  useEffect(() => {
+    activeTabRef.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [tab]);
+
   const go = (hit?: SearchHit) => {
     void hit;
     onTab('plan');
@@ -120,24 +156,30 @@ export default function TopNav({ tab, onTab, todayText, tasks, projects, goals }
           </span>
         </Link>
 
-        <div
-          className="no-scrollbar tabs-scroll -mx-1 flex flex-1 items-center gap-1 overflow-x-auto px-1"
-          role="tablist"
-          aria-label={t('nav.sections')}
-        >
-          {NAV_TABS.map((tb) => (
-            <button
-              key={tb.id}
-              role="tab"
-              aria-selected={tab === tb.id}
-              title={t(tb.hint)}
-              onClick={() => onTab(tb.id)}
-              data-active={tab === tb.id}
-              className="navtab"
-            >
-              {t(tb.label)}
-            </button>
-          ))}
+        <div className="relative min-w-0 flex-1">
+          <div
+            ref={tabsRef}
+            className="no-scrollbar -mx-1 flex items-center gap-1 overflow-x-auto px-1"
+            role="tablist"
+            aria-label={t('nav.sections')}
+          >
+            {NAV_TABS.map((tb) => (
+              <button
+                key={tb.id}
+                ref={tab === tb.id ? activeTabRef : undefined}
+                role="tab"
+                aria-selected={tab === tb.id}
+                title={t(tb.hint)}
+                onClick={() => onTab(tb.id)}
+                data-active={tab === tb.id}
+                className="navtab"
+              >
+                {t(tb.label)}
+              </button>
+            ))}
+          </div>
+          {scrollEdge.left && <div className="tabs-edge-fade tabs-edge-fade-left" aria-hidden />}
+          {scrollEdge.right && <div className="tabs-edge-fade tabs-edge-fade-right" aria-hidden />}
         </div>
 
         <div ref={boxRef} className="relative hidden shrink-0 md:block">
