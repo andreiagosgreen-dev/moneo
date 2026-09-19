@@ -368,6 +368,11 @@ export default function AccountButton() {
                   {busy ? <Spinner /> : null}
                   Sign out
                 </button>
+                {error && (
+                  <p role="alert" className="text-[12px] font-medium text-tomato">
+                    {error}
+                  </p>
+                )}
                 {!showDeleteConfirm ? (
                   <button
                     onClick={() => setShowDeleteConfirm(true)}
