@@ -205,6 +205,18 @@ npm install
 wrangler deploy
 ```
 
+#### Optional: AI planner (Faza 6)
+
+Without these, `/api/ai/plan` fails closed with 501 and the app's local
+deterministic planner ("Build my path") is used instead — nothing breaks.
+To enable server-side AI-refined plans:
+
+```bash
+cd cloudflare/workers
+wrangler secret put AI_API_KEY   # an Anthropic API key
+wrangler secret put AI_MODEL     # optional, e.g. claude-sonnet-5 — defaults to claude-haiku-4-5-20251001
+```
+
 ---
 
 ## DNS Configuration

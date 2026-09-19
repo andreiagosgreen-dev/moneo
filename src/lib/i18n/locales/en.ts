@@ -263,6 +263,7 @@ export const en = {
   'ai.q.hoursPerWeek': '{n} h/week',
   'ai.showPath': 'Show my path',
   'ai.draftKicker': 'Draft — review before approving',
+  'ai.refinedByAI': 'Refined by AI',
   'ai.phase.months': 'Months {a}–{b}',
   'ai.draft.tasks.one': '{n} task · {p} 🍅 planned',
   'ai.draft.tasks.few': '{n} tasks · {p} 🍅 planned',

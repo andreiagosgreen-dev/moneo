@@ -264,6 +264,7 @@ export const fr: Record<TKey, string> = {
   'ai.q.hoursPerWeek': '{n} h/sem.',
   'ai.showPath': 'Voir mon parcours',
   'ai.draftKicker': 'Brouillon — à revoir avant approbation',
+  'ai.refinedByAI': "Affiné par l'IA",
   'ai.phase.months': 'Mois {a}–{b}',
   'ai.draft.tasks.one': '{n} tâche · {p} 🍅 prévus',
   'ai.draft.tasks.few': '{n} tâches · {p} 🍅 prévus',

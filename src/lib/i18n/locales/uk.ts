@@ -259,6 +259,7 @@ export const uk: Record<TKey, string> = {
   'ai.q.hoursPerWeek': '{n} год/тижд.',
   'ai.showPath': 'Показати мій шлях',
   'ai.draftKicker': 'Чернетка — перевірте перед схваленням',
+  'ai.refinedByAI': 'Уточнено ШІ',
   'ai.phase.months': 'Місяці {a}–{b}',
   'ai.draft.tasks.one': '{n} завдання · {p} 🍅 заплановано',
   'ai.draft.tasks.few': '{n} завдання · {p} 🍅 заплановано',

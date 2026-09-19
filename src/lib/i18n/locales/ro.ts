@@ -261,6 +261,7 @@ export const ro: Record<TKey, string> = {
   'ai.q.hoursPerWeek': '{n} h/săpt.',
   'ai.showPath': 'Arată-mi calea',
   'ai.draftKicker': 'Draft — verifică înainte de aprobare',
+  'ai.refinedByAI': 'Rafinat de AI',
   'ai.phase.months': 'Lunile {a}–{b}',
   'ai.draft.tasks.one': '{n} sarcină · {p} 🍅 planificate',
   'ai.draft.tasks.few': '{n} sarcini · {p} 🍅 planificate',

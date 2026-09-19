@@ -259,6 +259,7 @@ export const ru: Record<TKey, string> = {
   'ai.q.hoursPerWeek': '{n} ч/нед.',
   'ai.showPath': 'Показать мой путь',
   'ai.draftKicker': 'Черновик — проверьте перед одобрением',
+  'ai.refinedByAI': 'Уточнено ИИ',
   'ai.phase.months': 'Месяцы {a}–{b}',
   'ai.draft.tasks.one': '{n} задача · {p} 🍅 запланировано',
   'ai.draft.tasks.few': '{n} задачи · {p} 🍅 запланировано',

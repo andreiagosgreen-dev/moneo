@@ -8,7 +8,7 @@ import {
   POMODORO_MIN,
 } from '../lib/ai/planner';
 import { buildSprint, type BuiltSprint } from '../lib/ai/sprint';
-import { loadAIConsent, saveAIConsent } from '../lib/ai/providers';
+import { loadAIConsent, saveAIConsent, WorkerPlanner } from '../lib/ai/providers';
 import type { BuiltPath, ClarifyId, PathInput, SkillLevel } from '../lib/ai/types';
 import { createProjectObject, type Project, type ProjectCategory } from '../lib/projects';
 import { createTaskObject, setTaskEstimate, type Task } from '../lib/tasks';
@@ -18,6 +18,7 @@ import { dayCapacity, nextDayKey } from '../lib/ritual';
 import { dayKeyInTz } from '../lib/timezone';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
+import { useAuth } from '../lib/authProvider';
 
 interface Props {
   projects: Project[];
@@ -55,6 +56,7 @@ export default function AiPathCard({
   isPro = false,
 }: Props) {
   const { t, tp } = useI18n();
+  const auth = useAuth();
   const [mode, setMode] = useState<Mode>('goal');
   const [step, setStep] = useState<Step>('input');
   const [text, setText] = useState('');
@@ -62,11 +64,37 @@ export default function AiPathCard({
   const [level, setLevel] = useState<SkillLevel | null>(null);
   const [hours, setHours] = useState<number | null>(null);
   const [path, setPath] = useState<BuiltPath | null>(null);
+  const [pathSource, setPathSource] = useState<'local' | 'ai'>('local');
   const [sprint, setSprint] = useState<BuiltSprint | null>(null);
   const [createProject, setCreateProject] = useState(true);
   const [draftIntoWeek, setDraftIntoWeek] = useState(true);
   const [consent, setConsent] = useState(loadAIConsent);
   const [resultNote, setResultNote] = useState('');
+
+  /**
+   * Tapping "Build my path" is consent for one AI call (Faza 6 — see
+   * lib/ai/providers.ts). The local deterministic plan renders instantly
+   * and is never blocked on this; if the signed-in user's server planner
+   * responds with a valid plan before they've moved on, it quietly
+   * replaces the local draft and gets a small "Refined by AI" note. Any
+   * failure (signed out, offline, provider not configured, timeout) is
+   * silent — the local plan already on screen is a complete result, not
+   * a loading state waiting to be corrected.
+   */
+  const tryRefineWithAI = (input: PathInput, expectedGoal: string) => {
+    void (async () => {
+      const planner = new WorkerPlanner(undefined, () => auth.getAccessToken());
+      const result = await planner.buildPath(input);
+      if (result.ok && result.path) {
+        setPath((current) => {
+          // Only apply if the user hasn't since changed the goal / gone back.
+          if (!current || current.goal !== expectedGoal) return current;
+          return result.path!;
+        });
+        setPathSource('ai');
+      }
+    })();
+  };
 
   const maxIvy = isPro ? IVY_MAX_TASKS : IVY_FREE_MAX_TASKS;
   const todayKey = dayKeyInTz(Date.now(), timezone);
@@ -100,13 +128,19 @@ export default function AiPathCard({
       setStep('questions');
       return;
     }
-    setPath(buildPath(resolveInput(readyInput)));
+    const localPath = buildPath(resolveInput(readyInput));
+    setPath(localPath);
+    setPathSource('local');
     setStep('roadmap');
+    tryRefineWithAI(readyInput, localPath.goal);
   };
 
   const answerAndBuild = () => {
-    setPath(buildPath(resolveInput(readyInput)));
+    const localPath = buildPath(resolveInput(readyInput));
+    setPath(localPath);
+    setPathSource('local');
     setStep('roadmap');
+    tryRefineWithAI(readyInput, localPath.goal);
   };
 
   const weekCapacities = useMemo(() => {
@@ -211,6 +245,7 @@ export default function AiPathCard({
   const reset = () => {
     setStep('input');
     setPath(null);
+    setPathSource('local');
     setSprint(null);
     setResultNote('');
   };
@@ -360,6 +395,7 @@ export default function AiPathCard({
       {step === 'roadmap' && (path || sprint) && (
         <RoadmapView
           path={path}
+          pathSource={pathSource}
           sprint={sprint}
           createProject={createProject}
           onCreateProject={setCreateProject}
@@ -393,6 +429,7 @@ export default function AiPathCard({
 
 function RoadmapView({
   path,
+  pathSource,
   sprint,
   createProject,
   onCreateProject,
@@ -404,6 +441,7 @@ function RoadmapView({
   onBack,
 }: {
   path: BuiltPath | null;
+  pathSource: 'local' | 'ai';
   sprint: BuiltSprint | null;
   createProject: boolean;
   onCreateProject: (v: boolean) => void;
@@ -423,9 +461,16 @@ function RoadmapView({
     path?.milestones.find((m) => m.id === milestoneId)?.phaseId ?? '';
   return (
     <div className="mt-4">
-      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-        {t('ai.draftKicker')}
-      </p>
+      <div className="flex items-center gap-2">
+        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+          {t('ai.draftKicker')}
+        </p>
+        {path && pathSource === 'ai' && (
+          <span className="rounded-full bg-accent/15 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-accent">
+            {t('ai.refinedByAI')}
+          </span>
+        )}
+      </div>
 
       {path && (
         <>
