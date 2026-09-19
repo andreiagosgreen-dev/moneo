@@ -55,24 +55,46 @@ export async function skipOnboarding(page: Page): Promise<void> {
   });
 }
 
+/**
+ * Every response needs these — the app origin (http://127.0.0.1:4173) and
+ * the mock's origin (https://e2e-fake-project.supabase.co) are different,
+ * so this is a genuine cross-origin fetch from the browser's point of
+ * view even though Playwright intercepts it before it hits the network.
+ * Without Access-Control-Allow-Origin the browser treats the body as
+ * opaque and supabase-js's fetch() rejects/hangs; without answering the
+ * CORS preflight (OPTIONS, sent because supabase-js sets an `apikey`
+ * header) the real request is never even sent.
+ */
+const CORS_HEADERS = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'access-control-allow-headers': '*',
+};
+
 export async function mockSupabaseAuth(page: Page): Promise<void> {
   await page.route(`https://${AUTH_HOST}/auth/v1/**`, async (route) => {
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({ status: 204, headers: CORS_HEADERS, body: '' });
+      return;
+    }
+
     const url = new URL(route.request().url());
+    const headers = CORS_HEADERS;
 
     if (url.pathname.endsWith('/token')) {
-      await route.fulfill({ status: 200, json: sessionBody() });
+      await route.fulfill({ status: 200, headers, json: sessionBody() });
       return;
     }
     if (url.pathname.endsWith('/logout')) {
-      await route.fulfill({ status: 204, body: '' });
+      await route.fulfill({ status: 204, headers, body: '' });
       return;
     }
     if (url.pathname.endsWith('/user')) {
-      await route.fulfill({ status: 200, json: sessionBody().user });
+      await route.fulfill({ status: 200, headers, json: sessionBody().user });
       return;
     }
     // Settings/health and anything else the SDK probes on init.
-    await route.fulfill({ status: 200, json: {} });
+    await route.fulfill({ status: 200, headers, json: {} });
   });
 }
 

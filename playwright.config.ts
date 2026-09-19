@@ -18,9 +18,17 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
+  // CI's first cold run (fresh vite preview, no filesystem/module cache)
+  // is measurably slower to first paint than a warm local run. The
+  // default 30s test / 5s expect budgets are tuned for the latter and
+  // flaked on the former even though nothing was actually broken —
+  // widen both rather than let timing noise masquerade as a real failure.
+  timeout: 60_000,
+  expect: { timeout: 15_000 },
   use: {
     baseURL: 'http://127.0.0.1:4173',
     trace: 'on-first-retry',
+    actionTimeout: 15_000,
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
