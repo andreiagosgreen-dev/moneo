@@ -144,6 +144,7 @@ export default function ProjectsCard({
   };
 
   const handleExport = () => {
+    if (!isPro) return;
     exportSessionsToCSV(history, projects, areas);
   };
 
@@ -158,8 +159,9 @@ export default function ProjectsCard({
           {history.length > 0 && (
             <button
               onClick={handleExport}
-              title="Download CSV timesheet"
-              className="press btn-ghost flex h-8 items-center gap-1.5 rounded-lg px-2.5 font-mono text-[11px] text-sage hover:text-cream"
+              disabled={!isPro}
+              title={isPro ? 'Download CSV timesheet' : 'Upgrade to Pro to export CSV timesheet'}
+              className="press btn-ghost flex h-8 items-center gap-1.5 rounded-lg px-2.5 font-mono text-[11px] text-sage hover:text-cream disabled:cursor-not-allowed disabled:opacity-50"
             >
               <svg
                 width="13"

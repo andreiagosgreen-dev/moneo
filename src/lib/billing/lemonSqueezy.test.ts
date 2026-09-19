@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   buildCheckoutUrl,
+  getCustomerPortalUrl,
   getLemonSqueezyConfig,
   getPricingPlans,
   initiateCheckout,
@@ -14,6 +15,7 @@ function configureEnv(vars: Record<string, string>) {
   vi.stubEnv('VITE_LEMONSQUEEZY_CHECKOUT_URL', vars.base ?? '');
   vi.stubEnv('VITE_LEMONSQUEEZY_MONTHLY_VARIANT_ID', vars.monthly ?? '');
   vi.stubEnv('VITE_LEMONSQUEEZY_YEARLY_VARIANT_ID', vars.yearly ?? '');
+  vi.stubEnv('VITE_LEMONSQUEEZY_PORTAL_URL', vars.portal ?? '');
 }
 
 afterEach(() => {
@@ -22,12 +24,19 @@ afterEach(() => {
 
 describe('getLemonSqueezyConfig', () => {
   it('reads store, base URL and per-plan variant ids', () => {
-    configureEnv({ store: 's1', base: BASE, monthly: '111', yearly: '222' });
+    configureEnv({
+      store: 's1',
+      base: BASE,
+      monthly: '111',
+      yearly: '222',
+      portal: 'https://moneo.lemonsqueezy.com/billing',
+    });
     expect(getLemonSqueezyConfig()).toEqual({
       storeId: 's1',
       checkoutUrl: BASE,
       monthlyVariantId: '111',
       yearlyVariantId: '222',
+      portalUrl: 'https://moneo.lemonsqueezy.com/billing',
     });
   });
 
@@ -38,7 +47,29 @@ describe('getLemonSqueezyConfig', () => {
       checkoutUrl: null,
       monthlyVariantId: null,
       yearlyVariantId: null,
+      portalUrl: null,
     });
+  });
+});
+
+describe('getCustomerPortalUrl', () => {
+  it('returns the configured https portal URL', () => {
+    configureEnv({ portal: 'https://moneo.lemonsqueezy.com/billing' });
+    expect(getCustomerPortalUrl()).toBe('https://moneo.lemonsqueezy.com/billing');
+  });
+
+  it('returns null when unconfigured', () => {
+    configureEnv({});
+    expect(getCustomerPortalUrl()).toBeNull();
+  });
+
+  it('fails closed on non-https or unparsable portal URL', () => {
+    configureEnv({ portal: 'http://evil.test/billing' });
+    expect(getCustomerPortalUrl()).toBeNull();
+    configureEnv({ portal: 'javascript:alert(1)' });
+    expect(getCustomerPortalUrl()).toBeNull();
+    configureEnv({ portal: 'not a url' });
+    expect(getCustomerPortalUrl()).toBeNull();
   });
 });
 

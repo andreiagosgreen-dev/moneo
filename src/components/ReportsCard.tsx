@@ -30,6 +30,7 @@ interface Props {
   timezone: string;
   /** Weekly focus budget in minutes for allocation insights. */
   capacityMin: number;
+  isPro?: boolean;
 }
 
 type Breakdown = 'daily' | 'projects' | 'areas';
@@ -236,6 +237,7 @@ export default function ReportsCard({
   tasks,
   timezone,
   capacityMin,
+  isPro = false,
 }: Props) {
   const [range, setRange] = useState<RangeKey>('week');
   const [breakdown, setBreakdown] = useState<Breakdown>('daily');
@@ -428,13 +430,16 @@ export default function ReportsCard({
       {/* export */}
       <div className="mt-6 flex flex-wrap gap-2 border-t border-line/60 pt-4">
         <button
-          onClick={() => exportSessionsToCSV(history, projects, areas, tasks)}
-          className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold"
+          onClick={() => isPro && exportSessionsToCSV(history, projects, areas, tasks)}
+          disabled={!isPro}
+          className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+          title={isPro ? undefined : 'Upgrade to Pro to export CSV reports'}
         >
-          Export CSV
+          Export CSV{!isPro && ' · Pro'}
         </button>
         <button
           onClick={() => {
+            if (!isPro) return;
             const byId = new Map(projects.map((p) => [p.id, p]));
             const rows: PrintableProjectRow[] = projSlices.map((s) => {
               const p = byId.get(s.projectId);
@@ -476,10 +481,11 @@ export default function ReportsCard({
               }),
             );
           }}
-          className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold"
-          title="Open a printable report (Print → Save as PDF)"
+          disabled={!isPro}
+          className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+          title={isPro ? 'Open a printable report (Print → Save as PDF)' : 'Upgrade to Pro to export PDF reports'}
         >
-          Export PDF
+          Export PDF{!isPro && ' · Pro'}
         </button>
       </div>
     </section>

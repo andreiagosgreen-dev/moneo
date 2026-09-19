@@ -68,6 +68,7 @@ export function getLemonSqueezyConfig(): {
   checkoutUrl: string | null;
   monthlyVariantId: string | null;
   yearlyVariantId: string | null;
+  portalUrl: string | null;
 } {
   const storeId = readEnv().VITE_LEMONSQUEEZY_STORE_ID;
   const checkoutBaseUrl = readEnv().VITE_LEMONSQUEEZY_CHECKOUT_URL;
@@ -77,7 +78,27 @@ export function getLemonSqueezyConfig(): {
     checkoutUrl: checkoutBaseUrl || null,
     monthlyVariantId: readEnv().VITE_LEMONSQUEEZY_MONTHLY_VARIANT_ID || null,
     yearlyVariantId: readEnv().VITE_LEMONSQUEEZY_YEARLY_VARIANT_ID || null,
+    portalUrl: readEnv().VITE_LEMONSQUEEZY_PORTAL_URL || null,
   };
+}
+
+/**
+ * Lemon Squeezy's hosted customer portal (store-level "My Orders" billing
+ * page). The customer authenticates there via a magic link to their own
+ * email — no user id or API call needed from the frontend. Returns null
+ * when unconfigured so callers can hide the "Manage subscription" action
+ * instead of linking to a broken/unconfigured URL.
+ */
+export function getCustomerPortalUrl(): string | null {
+  const { portalUrl } = getLemonSqueezyConfig();
+  if (!portalUrl) return null;
+  try {
+    const parsed = new URL(portalUrl);
+    if (parsed.protocol !== 'https:' || !parsed.hostname) return null;
+    return parsed.href;
+  } catch {
+    return null;
+  }
 }
 
 function variantForPlan(planId: Plan): string | null {

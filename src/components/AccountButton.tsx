@@ -3,6 +3,7 @@ import BrandMark from './BrandMark';
 import PricingCard from './PricingCard';
 import NotificationsSettings from './NotificationsSettings';
 import { useAuth } from '../lib/authProvider';
+import { getCustomerPortalUrl } from '../lib/billing/lemonSqueezy';
 import { loadSyncState, onSyncStateChange } from '../lib/sync/syncState';
 import { runSync } from '../lib/sync/syncEngine';
 import { createSupabaseSyncRepos, createLocalSyncIO } from '../lib/sync/syncRepos';
@@ -328,6 +329,20 @@ export default function AccountButton() {
                   </div>
                 </div>
                 <SyncPanel userId={auth.user!.userId} onClose={close} />
+                {auth.isPro &&
+                  (() => {
+                    const portalUrl = getCustomerPortalUrl();
+                    return portalUrl ? (
+                      <a
+                        href={portalUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="press btn-ghost flex h-9 w-full items-center justify-center rounded-lg font-mono text-[12px] font-semibold"
+                      >
+                        Manage subscription
+                      </a>
+                    ) : null;
+                  })()}
                 <PricingCard />
                 <NotificationsSettings />
                 <p className="text-[12px] leading-relaxed text-faint">

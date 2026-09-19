@@ -145,8 +145,8 @@ Create `.env.local` in the Moneo project root:
 ```bash
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
-VITE_LEMONSQUEZY_STORE_ID=your-store-id
-VITE_LEMONSQUEZY_CHECKOUT_URL=https://your-store.lemonsqueezy.com/checkout
+VITE_LEMONSQUEEZY_STORE_ID=your-store-id
+VITE_LEMONSQUEEZY_CHECKOUT_URL=https://your-store.lemonsqueezy.com/checkout
 ```
 
 ---
@@ -406,8 +406,8 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 
 # Lemon Squeezy
-VITE_LEMONSQUEZY_STORE_ID=your-store-id
-VITE_LEMONSQUEZY_CHECKOUT_URL=https://your-store.lemonsqueezy.com/checkout
+VITE_LEMONSQUEEZY_STORE_ID=your-store-id
+VITE_LEMONSQUEEZY_CHECKOUT_URL=https://your-store.lemonsqueezy.com/checkout
 ```
 
 ### Cloudflare Workers (wrangler.toml)
