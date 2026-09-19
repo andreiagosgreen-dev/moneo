@@ -296,7 +296,7 @@ export default function AccountButton() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="account-dialog-title"
-            className="card dialog-pop w-full max-w-sm px-6 py-6"
+            className="card dialog-pop max-h-[85vh] w-full max-w-sm overflow-y-auto px-6 py-6"
           >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
