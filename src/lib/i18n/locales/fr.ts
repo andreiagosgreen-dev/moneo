@@ -813,4 +813,45 @@ export const fr: Record<TKey, string> = {
   'goals.node.deleteConfirm':
     'Supprimer « {title} » ? Les enfants seront rattachés au niveau supérieur.',
   'goals.node.delete': 'Supprimer',
+
+  // GrowthCard
+  'growth.ariaLabel': 'Moneo Growth',
+  'growth.title': 'Croissance',
+  'growth.builtThroughFocus': 'Construite par le focus',
+  'growth.totalFocusedTime': 'temps de focus total',
+  'growth.today': 'aujourd’hui',
+  'growth.week': 'semaine',
+  'growth.srSummary':
+    'Moneo Growth : {total} minutes de focus au total. Étape {stage} sur {stages}, {stageName}.',
+  'growth.stage.seed': 'Graine',
+  'growth.stage.sprout': 'Pousse',
+  'growth.stage.leaf': 'Feuille',
+  'growth.stage.bloom': 'Fleur',
+
+  // IvyLeeCard
+  'ivy.ariaLabel': 'Plan quotidien Ivy Lee',
+  'ivy.title': "Plan d'aujourd'hui",
+  'ivy.subtitlePro': '6 créneaux · planifiez ce soir, travaillez de haut en bas',
+  'ivy.subtitleFree': '3 créneaux · planifiez ce soir, travaillez de haut en bas',
+  'ivy.doneCount': '{done}/{total} faites',
+  'ivy.emptyLine1': "Choisissez les {n} choses les plus importantes d'aujourd'hui, dans l'ordre.",
+  'ivy.emptyLine2': 'Travaillez la liste de haut en bas.',
+  'ivy.placeholderFirst': 'Tâche la plus importante…',
+  'ivy.placeholderNext': 'Ajouter la tâche suivante…',
+  'ivy.addAria': 'Ajouter une tâche',
+  'ivy.capacityLine': 'Le plan Free limite la liste à {n} tâches',
+  'ivy.capacityUpgrade':
+    'Passez à Moneo Pro pour les 6 créneaux Ivy Lee et des analyses hebdomadaires de réussite.',
+  'ivy.stat.rate': 'Taux sur 7 jours',
+  'ivy.stat.perfectDays': 'Jours parfaits',
+  'ivy.stat.activeDays': 'Jours actifs',
+  'ivy.freeAnalytics.prefix': 'de complétion sur les derniers jours ·',
+  'ivy.freeAnalytics.suffix': 'débloque les analyses hebdomadaires',
+  'ivy.row.markIncomplete': 'Marquer comme incomplète',
+  'ivy.row.markComplete': 'Marquer comme terminée',
+  'ivy.row.estimateTitle': 'Estimation de temps — alimente le contrôle de surengagement',
+  'ivy.row.estimateAria': 'Estimation pour {text}',
+  'ivy.row.deleteAria': 'Supprimer la tâche {text}',
+  'ivy.row.moveUpAria': 'Monter {text}',
+  'ivy.row.moveDownAria': 'Descendre {text}',
 };

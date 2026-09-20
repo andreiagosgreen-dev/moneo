@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react';
 import { fmtMinutes, type Session } from '../lib/store';
 import { getGrowthSummary, GROWTH_STAGES } from '../lib/growth';
+import { useI18n } from '../lib/i18n/LocaleContext';
 
 /**
  * Moneo Growth — the quiet, persistent visual of accumulated focus.
@@ -155,18 +156,24 @@ function GrowthForm({ stage, progress }: { stage: number; progress: number }) {
 }
 
 function GrowthCardBase({ history }: { history: Session[] }) {
+  const { t } = useI18n();
   const g = useMemo(() => getGrowthSummary(history), [history]);
 
   return (
-    <section className="card flex items-center gap-5 px-6 py-5 sm:px-7" aria-label="Moneo Growth">
+    <section
+      className="card flex items-center gap-5 px-6 py-5 sm:px-7"
+      aria-label={t('growth.ariaLabel')}
+    >
       <div className="h-24 w-24 shrink-0 sm:h-28 sm:w-28">
         <GrowthForm stage={g.stage} progress={g.progress} />
       </div>
       <div className="min-w-0">
         <div className="flex items-baseline justify-between gap-3">
-          <h2 className="font-display text-xl font-bold tracking-tight text-cream">Growth</h2>
+          <h2 className="font-display text-xl font-bold tracking-tight text-cream">
+            {t('growth.title')}
+          </h2>
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            Built through focus
+            {t('growth.builtThroughFocus')}
           </span>
         </div>
         <div
@@ -175,13 +182,13 @@ function GrowthCardBase({ history }: { history: Session[] }) {
         >
           {fmtMinutes(g.total)}
         </div>
-        <p className="mt-1.5 text-[12px] text-faint">total focused time</p>
+        <p className="mt-1.5 text-[12px] text-faint">{t('growth.totalFocusedTime')}</p>
         <div className="mt-2.5 flex flex-wrap gap-2">
           <span className="rounded-full bg-ink/60 px-2.5 py-1 font-mono text-[11px] text-sage ring-1 ring-inset ring-line">
-            today <span className="text-cream">{fmtMinutes(g.today)}</span>
+            {t('growth.today')} <span className="text-cream">{fmtMinutes(g.today)}</span>
           </span>
           <span className="rounded-full bg-ink/60 px-2.5 py-1 font-mono text-[11px] text-sage ring-1 ring-inset ring-line">
-            week <span className="text-cream">{fmtMinutes(g.week)}</span>
+            {t('growth.week')} <span className="text-cream">{fmtMinutes(g.week)}</span>
           </span>
         </div>
         {/* stage hint — internal names surfaced only as quiet dots */}
@@ -193,15 +200,19 @@ function GrowthCardBase({ history }: { history: Session[] }) {
               style={{
                 background: i <= g.stage ? 'var(--accent)' : 'rgb(242 244 249 / 0.12)',
               }}
-              title={s.name}
+              title={t(s.name)}
             />
           ))}
         </div>
       </div>
       {/* accessible summary — the SVG itself is decorative */}
       <p className="sr-only">
-        Moneo Growth: {g.total} total focused minutes. Stage {g.stage + 1} of {GROWTH_STAGES.length}
-        , {g.stageName}.
+        {t('growth.srSummary', {
+          total: String(g.total),
+          stage: String(g.stage + 1),
+          stages: String(GROWTH_STAGES.length),
+          stageName: t(g.stageName),
+        })}
       </p>
     </section>
   );

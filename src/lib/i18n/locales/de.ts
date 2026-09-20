@@ -806,4 +806,45 @@ export const de: Record<TKey, string> = {
   'goals.node.deleteConfirm':
     '„{title}“ löschen? Untergeordnete Elemente werden nach oben verschoben.',
   'goals.node.delete': 'Löschen',
+
+  // GrowthCard
+  'growth.ariaLabel': 'Moneo Growth',
+  'growth.title': 'Wachstum',
+  'growth.builtThroughFocus': 'Aufgebaut durch Fokus',
+  'growth.totalFocusedTime': 'gesamte Fokuszeit',
+  'growth.today': 'heute',
+  'growth.week': 'Woche',
+  'growth.srSummary':
+    'Moneo Growth: {total} Minuten Fokus insgesamt. Stufe {stage} von {stages}, {stageName}.',
+  'growth.stage.seed': 'Samen',
+  'growth.stage.sprout': 'Keimling',
+  'growth.stage.leaf': 'Blatt',
+  'growth.stage.bloom': 'Blüte',
+
+  // IvyLeeCard
+  'ivy.ariaLabel': 'Ivy-Lee-Tagesplan',
+  'ivy.title': 'Heutiger Plan',
+  'ivy.subtitlePro': '6 Plätze · heute Abend planen, von oben nach unten arbeiten',
+  'ivy.subtitleFree': '3 Plätze · heute Abend planen, von oben nach unten arbeiten',
+  'ivy.doneCount': '{done}/{total} erledigt',
+  'ivy.emptyLine1': 'Wähle die {n} wichtigsten Dinge für heute, der Reihe nach.',
+  'ivy.emptyLine2': 'Arbeite die Liste von oben nach unten ab.',
+  'ivy.placeholderFirst': 'Wichtigste Aufgabe…',
+  'ivy.placeholderNext': 'Nächste Aufgabe hinzufügen…',
+  'ivy.addAria': 'Aufgabe hinzufügen',
+  'ivy.capacityLine': 'Der Free-Plan begrenzt die Liste auf {n} Aufgaben',
+  'ivy.capacityUpgrade':
+    'Upgrade auf Moneo Pro für alle 6 Ivy-Lee-Plätze und wöchentliche Erfolgsanalysen.',
+  'ivy.stat.rate': '7-Tage-Quote',
+  'ivy.stat.perfectDays': 'Perfekte Tage',
+  'ivy.stat.activeDays': 'Aktive Tage',
+  'ivy.freeAnalytics.prefix': 'Erledigung an den letzten Tagen ·',
+  'ivy.freeAnalytics.suffix': 'schaltet wöchentliche Analysen frei',
+  'ivy.row.markIncomplete': 'Als unerledigt markieren',
+  'ivy.row.markComplete': 'Als erledigt markieren',
+  'ivy.row.estimateTitle': 'Zeitschätzung — fließt in die Überlastungsprüfung ein',
+  'ivy.row.estimateAria': 'Schätzung für {text}',
+  'ivy.row.deleteAria': 'Aufgabe {text} löschen',
+  'ivy.row.moveUpAria': '{text} nach oben verschieben',
+  'ivy.row.moveDownAria': '{text} nach unten verschieben',
 };
