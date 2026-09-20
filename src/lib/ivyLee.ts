@@ -16,6 +16,8 @@ export interface IvyTask {
   rank: number; // 1..6 — position in the list
   /** Estimated minutes (morning ritual). Absent = unestimated. */
   estimateMin?: number;
+  /** Real Task this entry mirrors, if any. Absent = plain freeform text. */
+  taskId?: string;
 }
 
 export interface IvyPlan {
@@ -50,6 +52,7 @@ export function loadPlans(): IvyPlan[] {
           ...(typeof t.estimateMin === 'number' && Number.isFinite(t.estimateMin)
             ? { estimateMin: Math.min(480, Math.max(5, Math.round(t.estimateMin))) }
             : {}),
+          ...(typeof t.taskId === 'string' && t.taskId ? { taskId: t.taskId } : {}),
         }))
         .sort((a, b) => a.rank - b.rank),
     }));
@@ -101,6 +104,7 @@ export function addTaskToDay(
   text: string,
   maxTasks: number = IVY_MAX_TASKS,
   estimateMin?: number,
+  linkedTaskId?: string,
 ): { plans: IvyPlan[]; added: boolean } {
   const clean = text.trim();
   if (!clean) return { plans, added: false };
@@ -116,6 +120,7 @@ export function addTaskToDay(
     ...(typeof estimateMin === 'number' && Number.isFinite(estimateMin)
       ? { estimateMin: Math.min(480, Math.max(5, Math.round(estimateMin))) }
       : {}),
+    ...(typeof linkedTaskId === 'string' && linkedTaskId ? { taskId: linkedTaskId } : {}),
   });
   return { plans: setDayPlan(plans, dateKey, tasks), added: true };
 }

@@ -15,12 +15,15 @@ import {
   type IvyTask,
 } from '../lib/ivyLee';
 import { dayKeyInTz } from '../lib/timezone';
+import { completeTask, updateTaskStatus, type Task } from '../lib/tasks';
 
 interface Props {
   plans: IvyPlan[];
   plansChange: (plans: IvyPlan[]) => void;
   timezone: string;
   isPro?: boolean;
+  tasks: Task[];
+  onTasksChange: (tasks: Task[]) => void;
 }
 
 function CheckIcon() {
@@ -57,7 +60,14 @@ function TrashIcon() {
   );
 }
 
-export default function IvyLeeCard({ plans, plansChange, timezone, isPro = false }: Props) {
+export default function IvyLeeCard({
+  plans,
+  plansChange,
+  timezone,
+  isPro = false,
+  tasks,
+  onTasksChange,
+}: Props) {
   const [draft, setDraft] = useState('');
   const todayKey = dayKeyInTz(Date.now(), timezone);
   const maxTasks = isPro ? IVY_MAX_TASKS : IVY_FREE_MAX_TASKS;
@@ -86,6 +96,20 @@ export default function IvyLeeCard({ plans, plansChange, timezone, isPro = false
   }, [todayKey]);
 
   const atCapacity = total >= maxTasks;
+
+  /** Ticking an Ivy entry linked to a real Task also completes/reopens
+   *  that task, so project/goal progress rollups pick it up. An entry
+   *  whose linked task was deleted elsewhere just toggles locally. */
+  const toggle = (task: IvyTask) => {
+    plansChange(togglePlanTask(plans, todayKey, task.id));
+    if (task.taskId && tasks.some((t) => t.id === task.taskId)) {
+      onTasksChange(
+        !task.done
+          ? completeTask(tasks, task.taskId).tasks
+          : updateTaskStatus(tasks, task.taskId, 'pending'),
+      );
+    }
+  };
 
   return (
     <section className="card px-6 py-6 sm:px-7" aria-label="Ivy Lee daily plan">
@@ -130,7 +154,7 @@ export default function IvyLeeCard({ plans, plansChange, timezone, isPro = false
             key={task.id}
             task={task}
             index={i}
-            onToggle={() => plansChange(togglePlanTask(plans, todayKey, task.id))}
+            onToggle={() => toggle(task)}
             onRename={(text) => plansChange(renamePlanTask(plans, todayKey, task.id, text))}
             onRemove={() => plansChange(removePlanTask(plans, todayKey, task.id))}
             onEstimate={(min) => plansChange(setPlanEstimate(plans, todayKey, task.id, min))}
