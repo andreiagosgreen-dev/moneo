@@ -548,4 +548,29 @@ export const it: Record<TKey, string> = {
   'cabinet.title': 'Il tuo spazio',
   'cabinet.subtitle': 'Account, sincronizzazione e abbonamento — tutto in un unico posto.',
   'cabinet.identity': 'Identità',
+
+  // AgileCard
+  'agile.title': 'Agile',
+  'agile.subtitle': 'Bacheca · sprint · sequenza temporale · fasi con gate',
+  'agile.ariaLabel': 'Bacheca e sprint Agile',
+  'agile.boardProjectLabel': 'Progetto bacheca',
+  'agile.tab.board': 'Bacheca',
+  'agile.tab.sprints': 'Sprint',
+  'agile.tab.timeline': 'Sequenza',
+  'agile.tab.waterfall': 'Waterfall',
+
+  // LifeCard
+  'life.title': 'Vita',
+  'life.subtitle': 'Abitudini, equilibrio, diario ed energia · piccole vittorie quotidiane',
+  'life.ariaLabel': 'Gestione della vita',
+  'life.tab.habits': 'Abitudini',
+  'life.tab.balance': 'Equilibrio',
+  'life.tab.journal': 'Diario',
+  'life.tab.energy': 'Energia',
+
+  // SessionLog
+  'sessionLog.empty':
+    'Ancora nulla registrato oggi. Completa un round di focus e i tuoi progressi appariranno qui.',
+  'sessionLog.deletedArea': 'Area eliminata',
+  'sessionLog.focusSession': 'Sessione di focus',
 };

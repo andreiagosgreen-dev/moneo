@@ -547,4 +547,29 @@ export const en = {
   'cabinet.title': 'Your cabinet',
   'cabinet.subtitle': 'Account, sync and subscription — all in one place.',
   'cabinet.identity': 'Identity',
+
+  // AgileCard
+  'agile.title': 'Agile',
+  'agile.subtitle': 'Kanban · sprints · timeline · gated phases',
+  'agile.ariaLabel': 'Agile board and sprints',
+  'agile.boardProjectLabel': 'Board project',
+  'agile.tab.board': 'Board',
+  'agile.tab.sprints': 'Sprints',
+  'agile.tab.timeline': 'Timeline',
+  'agile.tab.waterfall': 'Waterfall',
+
+  // LifeCard
+  'life.title': 'Life',
+  'life.subtitle': 'Habits, balance, journal and energy · small daily wins',
+  'life.ariaLabel': 'Life management',
+  'life.tab.habits': 'Habits',
+  'life.tab.balance': 'Balance',
+  'life.tab.journal': 'Journal',
+  'life.tab.energy': 'Energy',
+
+  // SessionLog
+  'sessionLog.empty':
+    'Nothing logged yet today. Finish a focus round and your progress will show here.',
+  'sessionLog.deletedArea': 'Deleted area',
+  'sessionLog.focusSession': 'Focus session',
 };

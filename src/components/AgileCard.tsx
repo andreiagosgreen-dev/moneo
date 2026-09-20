@@ -7,12 +7,14 @@ import BoardTab from './agile/BoardTab';
 import SprintsTab from './agile/SprintsTab';
 import TimelineTab from './agile/TimelineTab';
 import WaterfallTab from './agile/WaterfallTab';
+import { useI18n } from '../lib/i18n/LocaleContext';
+import type { TKey } from '../lib/i18n/types';
 
-const AGILE_TABS: Array<{ id: AgileTab; label: string }> = [
-  { id: 'board', label: 'Board' },
-  { id: 'sprints', label: 'Sprints' },
-  { id: 'timeline', label: 'Timeline' },
-  { id: 'waterfall', label: 'Waterfall' },
+const AGILE_TABS: Array<{ id: AgileTab; label: TKey }> = [
+  { id: 'board', label: 'agile.tab.board' },
+  { id: 'sprints', label: 'agile.tab.sprints' },
+  { id: 'timeline', label: 'agile.tab.timeline' },
+  { id: 'waterfall', label: 'agile.tab.waterfall' },
 ];
 
 export default function AgileCard({
@@ -27,6 +29,7 @@ export default function AgileCard({
   onSelectProject,
   isPro = false,
 }: AgileProps) {
+  const { t } = useI18n();
   const [tab, setTab] = useState<AgileTab>('timeline');
   const [board, setBoard] = useState<BoardConfig>(loadBoardConfig);
   const live = useMemo(() => activeProjects(projects), [projects]);
@@ -47,12 +50,14 @@ export default function AgileCard({
   }, [tasks]);
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label="Agile board and sprints">
+    <section className="card px-6 py-6 sm:px-7" aria-label={t('agile.ariaLabel')}>
       <header className="flex items-baseline justify-between gap-3">
         <div>
-          <h2 className="font-display text-xl font-bold tracking-tight text-cream">Agile</h2>
+          <h2 className="font-display text-xl font-bold tracking-tight text-cream">
+            {t('agile.title')}
+          </h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            Kanban · sprints · timeline · gated phases
+            {t('agile.subtitle')}
           </p>
         </div>
         {live.length > 0 && (
@@ -60,7 +65,7 @@ export default function AgileCard({
             value={projectId ?? ''}
             onChange={(e) => onSelectProject(e.target.value || null)}
             className="h-8 max-w-[150px] rounded-lg bg-ink/40 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-            aria-label="Board project"
+            aria-label={t('agile.boardProjectLabel')}
           >
             {live.map((p) => (
               <option key={p.id} value={p.id}>
@@ -72,15 +77,15 @@ export default function AgileCard({
       </header>
 
       <div className="mt-4 flex gap-1 rounded-xl bg-ink/60 p-1 ring-1 ring-line w-fit">
-        {AGILE_TABS.map((t) => (
+        {AGILE_TABS.map((tb) => (
           <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
+            key={tb.id}
+            onClick={() => setTab(tb.id)}
             className={`press rounded-lg px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors ${
-              tab === t.id ? 'bg-cream/10 text-cream' : 'text-faint hover:text-sage'
+              tab === tb.id ? 'bg-cream/10 text-cream' : 'text-faint hover:text-sage'
             }`}
           >
-            {t.label}
+            {t(tb.label)}
           </button>
         ))}
       </div>

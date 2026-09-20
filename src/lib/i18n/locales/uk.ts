@@ -541,4 +541,29 @@ export const uk: Record<TKey, string> = {
   'cabinet.title': 'Ваш кабінет',
   'cabinet.subtitle': 'Акаунт, синхронізація та підписка — все в одному місці.',
   'cabinet.identity': 'Особисті дані',
+
+  // AgileCard
+  'agile.title': 'Agile',
+  'agile.subtitle': 'Дошка · спринти · таймлайн · поетапні фази',
+  'agile.ariaLabel': 'Agile-дошка та спринти',
+  'agile.boardProjectLabel': 'Проєкт дошки',
+  'agile.tab.board': 'Дошка',
+  'agile.tab.sprints': 'Спринти',
+  'agile.tab.timeline': 'Таймлайн',
+  'agile.tab.waterfall': 'Каскадна',
+
+  // LifeCard
+  'life.title': 'Життя',
+  'life.subtitle': 'Звички, баланс, щоденник та енергія · маленькі щоденні перемоги',
+  'life.ariaLabel': 'Управління життям',
+  'life.tab.habits': 'Звички',
+  'life.tab.balance': 'Баланс',
+  'life.tab.journal': 'Щоденник',
+  'life.tab.energy': 'Енергія',
+
+  // SessionLog
+  'sessionLog.empty':
+    'Сьогодні ще нічого не записано. Завершіть раунд фокусу, і ваш прогрес з’явиться тут.',
+  'sessionLog.deletedArea': 'Видалена область',
+  'sessionLog.focusSession': 'Сесія фокусу',
 };
