@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
+import { useI18n } from '../lib/i18n/LocaleContext';
+import type { TKey } from '../lib/i18n/types';
 
-const STEPS = [
+const STEPS: Array<{ titleKey: TKey; bodyKey: TKey; icon: ReactNode }> = [
   {
-    title: 'One intention at a time',
-    body: "Before each round, name what you're focusing on. Moneo keeps everything else out of the way.",
+    titleKey: 'onboarding.step1.title',
+    bodyKey: 'onboarding.step1.body',
     icon: (
       <svg
         width="26"
@@ -20,8 +22,8 @@ const STEPS = [
     ),
   },
   {
-    title: 'Rounds in, growth out',
-    body: 'Complete focus rounds and watch your growth ring build day after day. Reports, insights and streaks keep you honest.',
+    titleKey: 'onboarding.step2.title',
+    bodyKey: 'onboarding.step2.body',
     icon: (
       <svg
         width="26"
@@ -39,8 +41,8 @@ const STEPS = [
     ),
   },
   {
-    title: 'Plan it, then do it',
-    body: "Pick tonight's top tasks, eat the frog first, and let the Eisenhower matrix sort the rest. Projects, goals and sprints track the bigger picture.",
+    titleKey: 'onboarding.step3.title',
+    bodyKey: 'onboarding.step3.body',
     icon: (
       <svg
         width="26"
@@ -59,8 +61,8 @@ const STEPS = [
     ),
   },
   {
-    title: 'Private by design',
-    body: 'Everything lives on your device first. Sign in when you want cloud sync between devices — your round history stays yours.',
+    titleKey: 'onboarding.step4.title',
+    bodyKey: 'onboarding.step4.body',
     icon: (
       <svg
         width="26"
@@ -81,6 +83,7 @@ const STEPS = [
 ];
 
 export default function OnboardingModal({ onDone }: { onDone: () => void }) {
+  const { t } = useI18n();
   const [step, setStep] = useState(0);
   const s = STEPS[step];
   const last = step === STEPS.length - 1;
@@ -90,16 +93,16 @@ export default function OnboardingModal({ onDone }: { onDone: () => void }) {
       className="backdrop-fade fixed inset-0 z-50 flex items-center justify-center bg-ink/85 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
-      aria-label="Welcome to Moneo"
+      aria-label={t('onboarding.ariaLabel')}
     >
       <div className="dialog-pop card w-full max-w-sm px-6 py-7 text-center">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl text-cream ring-1 ring-line bg-ink/40">
           {s.icon}
         </div>
         <h1 className="mt-4 font-display text-2xl font-bold tracking-tight text-cream">
-          {s.title}
+          {t(s.titleKey)}
         </h1>
-        <p className="mt-2 text-[13px] leading-relaxed text-sage">{s.body}</p>
+        <p className="mt-2 text-[13px] leading-relaxed text-sage">{t(s.bodyKey)}</p>
 
         <div className="mt-6 flex items-center justify-center gap-1.5">
           {STEPS.map((_, i) => (
@@ -120,14 +123,14 @@ export default function OnboardingModal({ onDone }: { onDone: () => void }) {
               onClick={onDone}
               className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px]"
             >
-              Skip
+              {t('onboarding.skip')}
             </button>
           )}
           <button
             onClick={() => (last ? onDone() : setStep(step + 1))}
             className="press btn-accent rounded-lg px-6 py-2 font-display text-[13px] font-bold"
           >
-            {last ? 'Start focusing' : 'Next'}
+            {last ? t('onboarding.start') : t('onboarding.next')}
           </button>
         </div>
       </div>

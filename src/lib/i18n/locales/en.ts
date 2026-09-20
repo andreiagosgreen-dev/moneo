@@ -882,4 +882,22 @@ export const en = {
   'okr.review.bestKr': '  Best KR: {title} {pct}%.',
   'okr.review.needsWork': '  Needs work: {title} {pct}%.',
   'okr.review.cascaded': '  Cascaded: {list}.',
+
+  // OnboardingModal
+  'onboarding.ariaLabel': 'Welcome to Moneo',
+  'onboarding.step1.title': 'One intention at a time',
+  'onboarding.step1.body':
+    "Before each round, name what you're focusing on. Moneo keeps everything else out of the way.",
+  'onboarding.step2.title': 'Rounds in, growth out',
+  'onboarding.step2.body':
+    'Complete focus rounds and watch your growth ring build day after day. Reports, insights and streaks keep you honest.',
+  'onboarding.step3.title': 'Plan it, then do it',
+  'onboarding.step3.body':
+    "Pick tonight's top tasks, eat the frog first, and let the Eisenhower matrix sort the rest. Projects, goals and sprints track the bigger picture.",
+  'onboarding.step4.title': 'Private by design',
+  'onboarding.step4.body':
+    'Everything lives on your device first. Sign in when you want cloud sync between devices — your round history stays yours.',
+  'onboarding.skip': 'Skip',
+  'onboarding.next': 'Next',
+  'onboarding.start': 'Start focusing',
 };

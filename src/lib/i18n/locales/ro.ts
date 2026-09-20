@@ -886,4 +886,22 @@ export const ro: Record<TKey, string> = {
   'okr.review.bestKr': '  Cel mai bun KR: {title} {pct}%.',
   'okr.review.needsWork': '  Are nevoie de lucru: {title} {pct}%.',
   'okr.review.cascaded': '  În cascadă: {list}.',
+
+  // OnboardingModal
+  'onboarding.ariaLabel': 'Bine ai venit la Moneo',
+  'onboarding.step1.title': 'O singură intenție pe rând',
+  'onboarding.step1.body':
+    'Înainte de fiecare tur, numește pe ce te concentrezi. Moneo ține tot restul deoparte.',
+  'onboarding.step2.title': 'Tururi înăuntru, creștere afară',
+  'onboarding.step2.body':
+    'Finalizează tururi de focus și privește inelul de creștere cum se construiește zi de zi. Rapoartele, informațiile și seriile te țin onest.',
+  'onboarding.step3.title': 'Planifică, apoi fă',
+  'onboarding.step3.body':
+    'Alege task-urile principale de diseară, mănâncă broasca prima dată și lasă matricea Eisenhower să sorteze restul. Proiectele, obiectivele și sprinturile urmăresc imaginea de ansamblu.',
+  'onboarding.step4.title': 'Privat prin design',
+  'onboarding.step4.body':
+    'Totul trăiește mai întâi pe dispozitivul tău. Conectează-te când vrei sincronizare în cloud între dispozitive — istoricul turelor tale rămâne al tău.',
+  'onboarding.skip': 'Sari peste',
+  'onboarding.next': 'Următorul',
+  'onboarding.start': 'Începe să te concentrezi',
 };

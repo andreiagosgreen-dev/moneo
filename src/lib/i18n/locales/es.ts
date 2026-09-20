@@ -879,4 +879,22 @@ export const es: Record<TKey, string> = {
   'okr.review.bestKr': '  Mejor KR: {title} {pct}%.',
   'okr.review.needsWork': '  Necesita trabajo: {title} {pct}%.',
   'okr.review.cascaded': '  En cascada: {list}.',
+
+  // OnboardingModal
+  'onboarding.ariaLabel': 'Bienvenido a Moneo',
+  'onboarding.step1.title': 'Una intención a la vez',
+  'onboarding.step1.body':
+    'Antes de cada ronda, nombra en qué te vas a enfocar. Moneo mantiene todo lo demás fuera del camino.',
+  'onboarding.step2.title': 'Rondas dentro, crecimiento fuera',
+  'onboarding.step2.body':
+    'Completa rondas de enfoque y observa cómo tu anillo de crecimiento se construye día tras día. Los informes, ideas y rachas te mantienen honesto.',
+  'onboarding.step3.title': 'Planifícalo, luego hazlo',
+  'onboarding.step3.body':
+    'Elige las tareas principales de esta noche, come la rana primero y deja que la matriz de Eisenhower ordene el resto. Proyectos, objetivos y sprints siguen el panorama general.',
+  'onboarding.step4.title': 'Privado por diseño',
+  'onboarding.step4.body':
+    'Todo vive primero en tu dispositivo. Inicia sesión cuando quieras sincronización en la nube entre dispositivos — tu historial de rondas sigue siendo tuyo.',
+  'onboarding.skip': 'Omitir',
+  'onboarding.next': 'Siguiente',
+  'onboarding.start': 'Empezar a enfocarme',
 };

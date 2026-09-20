@@ -890,4 +890,22 @@ export const de: Record<TKey, string> = {
   'okr.review.bestKr': '  Beste Kennzahl: {title} {pct}%.',
   'okr.review.needsWork': '  Braucht Arbeit: {title} {pct}%.',
   'okr.review.cascaded': '  Kaskadiert: {list}.',
+
+  // OnboardingModal
+  'onboarding.ariaLabel': 'Willkommen bei Moneo',
+  'onboarding.step1.title': 'Eine Absicht nach der anderen',
+  'onboarding.step1.body':
+    'Benenne vor jeder Runde, worauf du dich konzentrierst. Moneo hält alles andere aus dem Weg.',
+  'onboarding.step2.title': 'Runden rein, Wachstum raus',
+  'onboarding.step2.body':
+    'Absolviere Fokus-Runden und beobachte, wie dein Wachstumsring Tag für Tag entsteht. Berichte, Erkenntnisse und Serien halten dich ehrlich.',
+  'onboarding.step3.title': 'Planen, dann tun',
+  'onboarding.step3.body':
+    'Wähle die wichtigsten Aufgaben für heute Abend, iss zuerst den Frosch und lass die Eisenhower-Matrix den Rest sortieren. Projekte, Ziele und Sprints behalten das große Ganze im Blick.',
+  'onboarding.step4.title': 'Privat by Design',
+  'onboarding.step4.body':
+    'Alles lebt zuerst auf deinem Gerät. Melde dich an, wenn du Cloud-Sync zwischen Geräten möchtest — dein Rundenverlauf bleibt deiner.',
+  'onboarding.skip': 'Überspringen',
+  'onboarding.next': 'Weiter',
+  'onboarding.start': 'Fokus starten',
 };
