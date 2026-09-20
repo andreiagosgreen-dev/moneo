@@ -227,6 +227,9 @@ export const es: Record<TKey, string> = {
   'lifemap.tplCount.few': '{n} áreas',
   'lifemap.tplCount.many': '{n} áreas',
   'lifemap.tplCount.other': '{n} áreas',
+  'lifemap.trend.up': '{min} de atención esta semana — ▲ {delta} vs la semana pasada',
+  'lifemap.trend.down': '{min} de atención esta semana — ▼ {delta} vs la semana pasada',
+  'lifemap.trend.flat': '{min} de atención esta semana — igual que la semana pasada',
 
   'settings.langTitle': 'Idioma',
   'settings.langBody':
@@ -1119,4 +1122,10 @@ export const es: Record<TKey, string> = {
   'stats.manual.projectTitle': 'Proyecto (opcional)',
   'stats.manual.noProject': 'Sin proyecto',
   'stats.manual.add': 'Añadir',
+
+  // ReportsCard polish — trend & comparisons
+  'reports.trendLineLabel': 'Tendencia',
+  'reports.trend.title': 'vs los {n} días anteriores',
+  'reports.trend.up': '▲ {pct}%',
+  'reports.trend.down': '▼ {pct}%',
 };

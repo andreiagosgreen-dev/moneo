@@ -555,12 +555,18 @@ export interface AreaAttention {
   minutes: number;
   habitHits: number;
   attended: boolean;
+  /** Minutes attended in the 7 days before this window, for trend comparison. */
+  previousMinutes: number;
 }
 
 export interface WeeklyReview {
   attended: AreaAttention[];
   neglected: LifeMapArea[];
   summary: string;
+  /** Total attended minutes across all areas this week. */
+  totalMinutes: number;
+  /** Same total for the trailing 7 days before this week, for trend comparison. */
+  previousTotalMinutes: number;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -578,25 +584,29 @@ export function weeklyReview(
   i18n: I18n = EN_I18N,
 ): WeeklyReview {
   const start = now - 7 * DAY_MS;
+  const prevStart = start - 7 * DAY_MS;
   const list = Array.isArray(areas) ? areas : [];
-  const inWeek =
-    Array.isArray(history) && Number.isFinite(now)
+  const validHistory = Array.isArray(history) && Number.isFinite(now);
+  const inWindow = (from: number, to: number) =>
+    validHistory
       ? history.filter(
           (s) =>
-            s &&
-            typeof s.at === 'number' &&
-            typeof s.min === 'number' &&
-            s.at >= start &&
-            s.at <= now,
+            s && typeof s.at === 'number' && typeof s.min === 'number' && s.at >= from && s.at < to,
         )
       : [];
+  const inWeek = inWindow(start, now + 1);
+  const inPrevWeek = inWindow(prevStart, start);
   const log = habitLog && typeof habitLog === 'object' ? habitLog : {};
+
+  const minutesFor = (sessions: typeof inWeek, projectIds: Set<string>) =>
+    sessions
+      .filter((s) => s.projectId && projectIds.has(s.projectId))
+      .reduce((sum, s) => sum + s.min, 0);
 
   const rows: AreaAttention[] = list.map((area) => {
     const projectIds = new Set(area.linkedProjectIds);
-    const minutes = inWeek
-      .filter((s) => s.projectId && projectIds.has(s.projectId))
-      .reduce((sum, s) => sum + s.min, 0);
+    const minutes = minutesFor(inWeek, projectIds);
+    const previousMinutes = minutesFor(inPrevWeek, projectIds);
     let habitHits = 0;
     for (const hid of area.linkedHabitIds) {
       const days = log[hid];
@@ -608,7 +618,7 @@ export function weeklyReview(
         if (ts >= start - DAY_MS && ts <= now) habitHits += 1;
       }
     }
-    return { area, minutes, habitHits, attended: minutes > 0 || habitHits > 0 };
+    return { area, minutes, habitHits, attended: minutes > 0 || habitHits > 0, previousMinutes };
   });
 
   const attended = rows
@@ -633,5 +643,7 @@ export function weeklyReview(
     );
     summary = i18n.tp('lifemap.review.mixed', attended.length, { names });
   }
-  return { attended, neglected, summary };
+  const totalMinutes = rows.reduce((sum, r) => sum + r.minutes, 0);
+  const previousTotalMinutes = rows.reduce((sum, r) => sum + r.previousMinutes, 0);
+  return { attended, neglected, summary, totalMinutes, previousTotalMinutes };
 }

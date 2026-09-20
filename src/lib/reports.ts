@@ -47,6 +47,8 @@ export interface ReportSummary {
   avgMinPerDay: number;
   topDay: DayBucket | null;
   topProject: ProjectSlice | null;
+  /** Total minutes in the equivalent period immediately before this range. */
+  previousTotalMin: number;
 }
 
 export interface ReportData {
@@ -82,21 +84,52 @@ interface TaskLike {
 }
 
 /**
- * Returns the day keys for the given range (oldest → newest).
+ * Returns the day keys for the given range (oldest → newest), anchored at
+ * `anchor` (defaults to now). Passing an earlier anchor lets callers walk
+ * back to a prior, equivalent-length period for trend comparisons.
  */
-export function rangeDayKeys(range: RangeKey, timezone: string): string[] {
+export function rangeDayKeys(
+  range: RangeKey,
+  timezone: string,
+  anchor: number = Date.now(),
+): string[] {
   const days = RANGES.find((r) => r.key === range)!.days;
-  const now = Date.now();
   const keys: string[] = [];
   const seen = new Set<string>();
   for (let back = 0; keys.length < days && back <= days * 4; back++) {
-    const key = dayKeyInTz(now - back * 12 * 3600_000, timezone);
+    const key = dayKeyInTz(anchor - back * 12 * 3600_000, timezone);
     if (!seen.has(key)) {
       seen.add(key);
       keys.unshift(key);
     }
   }
   return keys.slice(-days);
+}
+
+/**
+ * Day keys for the equivalent period immediately before `range`, for
+ * week-over-week / month-over-month trend comparisons.
+ */
+function previousRangeDayKeys(range: RangeKey, timezone: string): string[] {
+  const days = RANGES.find((r) => r.key === range)!.days;
+  return rangeDayKeys(range, timezone, Date.now() - days * 24 * 3600_000);
+}
+
+/**
+ * Trailing moving average of minutes, aligned one-to-one with `days`.
+ * Early buckets average over however many days are available so far.
+ */
+export function movingAverage(days: DayBucket[], window: number): number[] {
+  const out: number[] = [];
+  const queue: number[] = [];
+  let sum = 0;
+  for (const d of days) {
+    queue.push(d.min);
+    sum += d.min;
+    if (queue.length > window) sum -= queue.shift()!;
+    out.push(sum / queue.length);
+  }
+  return out;
 }
 
 /**
@@ -206,6 +239,11 @@ export function buildReport(
 ): ReportData {
   const dayKeys = rangeDayKeys(range, timezone);
   const inRange = sessionsInRange(history, dayKeys, timezone);
+  const prevDayKeys = previousRangeDayKeys(range, timezone);
+  const previousTotalMin = sessionsInRange(history, prevDayKeys, timezone).reduce(
+    (sum, s) => sum + s.min,
+    0,
+  );
 
   const projectMap = new Map(projects.map((p) => [p.id, p]));
   const areaMap = new Map(areas.map((a) => [a.id, a]));
@@ -232,7 +270,7 @@ export function buildReport(
     projects: projectSlices,
     areas: areaSlices,
     tasks: taskSlices,
-    summary: { totalMin, sessionCount, avgMinPerDay, topDay, topProject },
+    summary: { totalMin, sessionCount, avgMinPerDay, topDay, topProject, previousTotalMin },
   };
 }
 

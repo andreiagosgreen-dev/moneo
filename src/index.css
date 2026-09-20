@@ -616,6 +616,9 @@ html[data-focusing='true'] .dim-in-focus:focus-within {
     filter 0.18s ease,
     opacity 0.18s ease;
 }
+.map-seg path {
+  transition: d 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
 .map-seg:hover,
 .map-seg:focus-visible {
   transform: translateY(-3px);
@@ -623,6 +626,11 @@ html[data-focusing='true'] .dim-in-focus:focus-within {
 }
 .map-seg:focus {
   outline: none;
+}
+/* Gentle pulse marking the wheel's single suggested next step. */
+.focus-pulse {
+  animation: arcBreathe 2.4s ease-in-out infinite;
+  pointer-events: none;
 }
 
 @keyframes sheetUp {

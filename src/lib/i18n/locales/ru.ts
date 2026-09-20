@@ -226,6 +226,9 @@ export const ru: Record<TKey, string> = {
   'lifemap.tplCount.few': '{n} сферы',
   'lifemap.tplCount.many': '{n} сфер',
   'lifemap.tplCount.other': '{n} сфер',
+  'lifemap.trend.up': '{min} внимания на этой неделе — ▲ {delta} по сравнению с прошлой неделей',
+  'lifemap.trend.down': '{min} внимания на этой неделе — ▼ {delta} по сравнению с прошлой неделей',
+  'lifemap.trend.flat': '{min} внимания на этой неделе — как на прошлой неделе',
 
   'settings.langTitle': 'Язык',
   'settings.langBody': 'Язык интерфейса. Применяется сразу, хранится на этом устройстве.',
@@ -1120,4 +1123,10 @@ export const ru: Record<TKey, string> = {
   'stats.manual.projectTitle': 'Проект (опционально)',
   'stats.manual.noProject': 'Без проекта',
   'stats.manual.add': 'Добавить',
+
+  // ReportsCard polish — trend & comparisons
+  'reports.trendLineLabel': 'Тренд',
+  'reports.trend.title': 'по сравнению с предыдущими {n} днями',
+  'reports.trend.up': '▲ {pct}%',
+  'reports.trend.down': '▼ {pct}%',
 };

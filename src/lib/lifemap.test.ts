@@ -170,4 +170,18 @@ describe('weeklyReview', () => {
   it('never throws on junk', () => {
     expect(weeklyReview(null as never, null as never, null as never, NaN).attended).toEqual([]);
   });
+
+  it('compares this week to the trailing prior week', () => {
+    const areas = [makeArea({ id: 'a', name: 'Work', linkedProjectIds: ['p1'] })];
+    const history = [
+      { at: NOW - DAY, min: 40, projectId: 'p1' }, // this week
+      { at: NOW - 9 * DAY, min: 20, projectId: 'p1' }, // prior week
+      { at: NOW - 40 * DAY, min: 999, projectId: 'p1' }, // outside both windows
+    ];
+    const review = weeklyReview(areas, history, {}, NOW);
+    expect(review.attended[0].minutes).toBe(40);
+    expect(review.attended[0].previousMinutes).toBe(20);
+    expect(review.totalMinutes).toBe(40);
+    expect(review.previousTotalMinutes).toBe(20);
+  });
 });

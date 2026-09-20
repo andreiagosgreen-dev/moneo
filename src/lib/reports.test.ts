@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { rangeDayKeys, buildReport, paretoSplit, RANGES } from './reports';
+import { rangeDayKeys, buildReport, paretoSplit, movingAverage, RANGES } from './reports';
 
 const TZ = 'UTC';
 
@@ -152,5 +152,36 @@ describe('paretoSplit', () => {
   it('handles empty input', () => {
     expect(paretoSplit([])).toEqual({ top: [], rest: [], topShare: 0 });
     expect(paretoSplit([{ min: 0 }]).top).toEqual([]);
+  });
+});
+
+describe('trend fields', () => {
+  const projects = [{ id: 'p1', name: 'Website', color: '#22c55e' }];
+
+  it('computes previousTotalMin for the immediately preceding period', () => {
+    const sessions: SessionLike[] = [
+      { at: dayAt(0), min: 30, projectId: 'p1' },
+      { at: dayAt(10), min: 45, projectId: 'p1' }, // previous week
+      { at: dayAt(40), min: 999, projectId: 'p1' }, // out of both windows
+    ];
+    const report = buildReport(sessions, projects, [], [], 'week', TZ);
+    expect(report.summary.totalMin).toBe(30);
+    expect(report.summary.previousTotalMin).toBe(45);
+  });
+});
+
+describe('movingAverage', () => {
+  it('averages trailing days, growing the window until full', () => {
+    const days = [
+      { key: '1', min: 10 },
+      { key: '2', min: 20 },
+      { key: '3', min: 30 },
+      { key: '4', min: 40 },
+    ];
+    expect(movingAverage(days, 2)).toEqual([10, 15, 25, 35]);
+  });
+
+  it('returns an empty array for no days', () => {
+    expect(movingAverage([], 3)).toEqual([]);
   });
 });

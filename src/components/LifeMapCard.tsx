@@ -15,7 +15,7 @@ import type { Goal } from '../lib/goals';
 import type { Project } from '../lib/projects';
 import type { Habit } from '../lib/habits';
 import { createHabitObject } from '../lib/habits';
-import type { Session } from '../lib/store';
+import { fmtMinutes, type Session } from '../lib/store';
 import { createBlock, weekdayOfKey, type TimeBlock, type Weekday } from '../lib/timeBlocks';
 import { addTaskToDay, IVY_MAX_TASKS, IVY_FREE_MAX_TASKS, type IvyPlan } from '../lib/ivyLee';
 import { dayKeyInTz } from '../lib/timezone';
@@ -229,6 +229,8 @@ export default function LifeMapCard({
               const q0 = polar(100, 100, rD, a0);
               const q1 = polar(100, 100, rD, a1);
               const isSel = selected?.id === a.id;
+              const isFocus = balance.focusArea?.id === a.id;
+              const iconPos = polar(100, 100, R + 9, a0 + (a1 - a0) / 2);
               return (
                 <g
                   key={a.id}
@@ -240,6 +242,16 @@ export default function LifeMapCard({
                     } as CSSProperties
                   }
                 >
+                  {isFocus && (
+                    <circle
+                      className="focus-pulse"
+                      cx={fmt(iconPos.x)}
+                      cy={fmt(iconPos.y)}
+                      r={7}
+                      fill={a.color}
+                      aria-hidden
+                    />
+                  )}
                   <path
                     d={`M 100 100 L ${fmt(p0.x)} ${fmt(p0.y)} A ${fmt(rC)} ${fmt(rC)} 0 0 1 ${fmt(p1.x)} ${fmt(p1.y)} Z`}
                     fill={a.color}
@@ -281,6 +293,17 @@ export default function LifeMapCard({
                     strokeLinecap="round"
                     aria-hidden
                   />
+                  <text
+                    x={fmt(iconPos.x)}
+                    y={fmt(iconPos.y)}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fontSize="9"
+                    pointerEvents="none"
+                    aria-hidden
+                  >
+                    {a.icon}
+                  </text>
                 </g>
               );
             })}
@@ -395,6 +418,31 @@ export default function LifeMapCard({
                 {t('lifemap.reviewTitle')}
               </p>
               <p className="mt-1 text-[13px] leading-relaxed text-cream/90">{review.summary}</p>
+              {(review.totalMinutes > 0 || review.previousTotalMinutes > 0) && (
+                <p
+                  className="mt-1 font-mono text-[11px]"
+                  style={{
+                    color:
+                      review.totalMinutes > review.previousTotalMinutes
+                        ? 'var(--color-mint)'
+                        : review.totalMinutes < review.previousTotalMinutes
+                          ? 'var(--color-tomato)'
+                          : 'var(--color-faint)',
+                  }}
+                >
+                  {review.totalMinutes > review.previousTotalMinutes
+                    ? t('lifemap.trend.up', {
+                        min: fmtMinutes(review.totalMinutes),
+                        delta: fmtMinutes(review.totalMinutes - review.previousTotalMinutes),
+                      })
+                    : review.totalMinutes < review.previousTotalMinutes
+                      ? t('lifemap.trend.down', {
+                          min: fmtMinutes(review.totalMinutes),
+                          delta: fmtMinutes(review.previousTotalMinutes - review.totalMinutes),
+                        })
+                      : t('lifemap.trend.flat', { min: fmtMinutes(review.totalMinutes) })}
+                </p>
+              )}
               {review.neglected.length > 0 && (
                 <ul className="mt-2 space-y-1.5">
                   {review.neglected.slice(0, 3).map((a) => (

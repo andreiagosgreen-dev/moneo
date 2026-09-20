@@ -228,6 +228,9 @@ export const ro: Record<TKey, string> = {
   'lifemap.tplCount.few': '{n} arii',
   'lifemap.tplCount.many': '{n} de arii',
   'lifemap.tplCount.other': '{n} de arii',
+  'lifemap.trend.up': '{min} de atenție săptămâna asta — ▲ {delta} față de săptămâna trecută',
+  'lifemap.trend.down': '{min} de atenție săptămâna asta — ▼ {delta} față de săptămâna trecută',
+  'lifemap.trend.flat': '{min} de atenție săptămâna asta — la fel ca săptămâna trecută',
 
   'settings.langTitle': 'Limbă',
   'settings.langBody': 'Limba interfeței. Se aplică instant, se salvează pe acest dispozitiv.',
@@ -1125,4 +1128,10 @@ export const ro: Record<TKey, string> = {
   'stats.manual.projectTitle': 'Proiect (opțional)',
   'stats.manual.noProject': 'Niciun proiect',
   'stats.manual.add': 'Adaugă',
+
+  // ReportsCard polish — trend & comparisons
+  'reports.trendLineLabel': 'Tendință',
+  'reports.trend.title': 'față de precedentele {n} zile',
+  'reports.trend.up': '▲ {pct}%',
+  'reports.trend.down': '▼ {pct}%',
 };

@@ -7,6 +7,7 @@ import { fmtMinutes } from '../lib/store';
 import {
   buildReport,
   paretoSplit,
+  movingAverage,
   type RangeKey,
   type ReportData,
   type DayBucket,
@@ -108,6 +109,40 @@ function DayChart({ data, timezone }: { data: DayBucket[]; timezone: string }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+const fmt = (n: number) => Math.round(n * 100) / 100;
+
+/** Compact trailing-average sparkline beneath the daily bars — smooths the
+ *  day-to-day noise into a clearer trend than individual bars can show. */
+function TrendLine({ days }: { days: DayBucket[] }) {
+  const { t } = useI18n();
+  if (days.length < 2) return null;
+  const window = days.length <= 8 ? 3 : 7;
+  const avg = movingAverage(days, window);
+  const max = Math.max(1, ...avg);
+  const w = 100;
+  const h = 24;
+  const stepX = w / (days.length - 1);
+  const points = avg.map((v, i) => `${fmt(i * stepX)},${fmt(h - (v / max) * h)}`).join(' ');
+  return (
+    <div className="mt-1.5 flex items-center gap-2">
+      <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.14em] text-faint">
+        {t('reports.trendLineLabel')}
+      </span>
+      <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="h-6 flex-1" aria-hidden>
+        <polyline
+          points={points}
+          fill="none"
+          stroke="var(--accent)"
+          strokeWidth={1.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity={0.8}
+        />
+      </svg>
     </div>
   );
 }
@@ -252,6 +287,12 @@ export default function ReportsCard({
 
   const { summary, days, projects: projSlices, areas: areaSlices } = report;
 
+  const trendPct =
+    summary.previousTotalMin > 0
+      ? Math.round(((summary.totalMin - summary.previousTotalMin) / summary.previousTotalMin) * 100)
+      : null;
+  const rangeDays = range === 'week' ? 7 : 30;
+
   const maxProjMin = projSlices.length > 0 ? projSlices[0].min : 0;
   const maxAreaMin = areaSlices.length > 0 ? areaSlices[0].min : 0;
 
@@ -298,11 +339,24 @@ export default function ReportsCard({
       {/* summary strip */}
       <div className="mt-5 flex flex-wrap gap-4">
         <div>
-          <div
-            className="font-display text-3xl font-extrabold leading-none"
-            style={{ color: 'var(--accent)' }}
-          >
-            {fmtMinutes(summary.totalMin)}
+          <div className="flex items-baseline gap-2">
+            <div
+              className="font-display text-3xl font-extrabold leading-none"
+              style={{ color: 'var(--accent)' }}
+            >
+              {fmtMinutes(summary.totalMin)}
+            </div>
+            {trendPct !== null && trendPct !== 0 && (
+              <span
+                className="font-mono text-[11px] font-bold"
+                style={{ color: trendPct > 0 ? 'var(--color-mint)' : 'var(--color-tomato)' }}
+                title={t('reports.trend.title', { n: String(rangeDays) })}
+              >
+                {trendPct > 0
+                  ? t('reports.trend.up', { pct: String(trendPct) })
+                  : t('reports.trend.down', { pct: String(Math.abs(trendPct)) })}
+              </span>
+            )}
           </div>
           <div className="mt-1 text-[12px] text-sage">{t('reports.totalFocused')}</div>
         </div>
@@ -409,6 +463,7 @@ export default function ReportsCard({
       {breakdown === 'daily' && (
         <div className="mt-2">
           <DayChart data={days} timezone={timezone} />
+          <TrendLine days={days} />
         </div>
       )}
 

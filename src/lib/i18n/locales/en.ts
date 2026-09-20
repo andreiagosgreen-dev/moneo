@@ -230,6 +230,9 @@ export const en = {
   'lifemap.tplCount.few': '{n} areas',
   'lifemap.tplCount.many': '{n} areas',
   'lifemap.tplCount.other': '{n} areas',
+  'lifemap.trend.up': '{min} of attention this week — ▲ {delta} vs last week',
+  'lifemap.trend.down': '{min} of attention this week — ▼ {delta} vs last week',
+  'lifemap.trend.flat': '{min} of attention this week — same as last week',
 
   'settings.langTitle': 'Language',
   'settings.langBody': 'Interface language. Applies instantly, saved on this device.',
@@ -1121,4 +1124,10 @@ export const en = {
   'stats.manual.projectTitle': 'Project (optional)',
   'stats.manual.noProject': 'No project',
   'stats.manual.add': 'Add',
+
+  // ReportsCard polish — trend & comparisons
+  'reports.trendLineLabel': 'Trend',
+  'reports.trend.title': 'vs the previous {n} days',
+  'reports.trend.up': '▲ {pct}%',
+  'reports.trend.down': '▼ {pct}%',
 };
