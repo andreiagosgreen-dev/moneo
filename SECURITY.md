@@ -2,7 +2,9 @@
 
 Defense-in-depth: no single layer (frontend, one rule, one secret) is the
 only protection. The app fails closed, stays updatable, and limits blast
-radius. Last reviewed with the 5A hardening pass.
+radius. Last reviewed with the 5A hardening pass; re-checked against
+Supabase's security/performance advisors on 2026-09-20 (migrations 0007,
+0008 — see "Maintenance" below).
 
 ## Data map
 
@@ -79,6 +81,18 @@ local encryption that does not exist.
   before they can merge; live RLS/billing/deletion E2E still requires a
   staging project (pre-launch item, Week 11).
 - Billing CHECK constraints (`0006`) bound status/plan to known values.
+- Run Supabase's `get_advisors` (security + performance) after any DDL
+  change, not just at launch — it catches things structural tests can't
+  see (e.g. a function accidentally exposed as a public RPC). 2026-09-20
+  pass: `0007` revoked the public/anon/authenticated EXECUTE grant
+  PostgREST had auto-added for `rls_auto_enable()` (an event-trigger
+  function Postgres already refuses to call directly, but the exposed
+  RPC endpoint was still unnecessary surface); `0008` rewrote all 15
+  owner-scoped RLS policies to call `(select auth.uid())` instead of
+  `auth.uid()` directly, so Postgres evaluates it once per query
+  instead of once per row (same access rules, faster at scale). Still
+  open: enable **Leaked Password Protection** in the Supabase dashboard
+  (Authentication → Sign In / Providers) — not settable via SQL/API.
 
 ## Backups & restore
 
