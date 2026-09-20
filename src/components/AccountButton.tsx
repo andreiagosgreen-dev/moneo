@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BrandMark from './BrandMark';
 import AuthForm from './account/AuthForm';
+import GoogleSignInButton from './account/GoogleSignInButton';
 import { useAuth } from '../lib/authProvider';
 import { useI18n } from '../lib/i18n/LocaleContext';
 
@@ -160,8 +161,18 @@ export default function AccountButton() {
             </div>
 
             <div className="mt-5">
-              <AuthForm onAuthenticated={close} />
+              <GoogleSignInButton redirectTo={`${window.location.origin}/login`} />
             </div>
+
+            <div className="my-5 flex items-center gap-3" aria-hidden>
+              <span className="h-px flex-1 bg-line" />
+              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+                {t('auth.orDivider')}
+              </span>
+              <span className="h-px flex-1 bg-line" />
+            </div>
+
+            <AuthForm onAuthenticated={close} />
           </div>
         </div>
       )}
