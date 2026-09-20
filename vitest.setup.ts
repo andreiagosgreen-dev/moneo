@@ -16,11 +16,15 @@ const localStorageMock = {
   },
 };
 
-// Define for global (Node environment)
+// Define for global (Node environment). `configurable: true` so individual
+// test files can still override this with their own `vi.stubGlobal` mock
+// without hitting "Cannot redefine property" (observed to depend on Node
+// version — jsdom/Node builtins are not consistently configurable).
 if (typeof global !== "undefined") {
   Object.defineProperty(global, "localStorage", {
     value: localStorageMock,
     writable: true,
+    configurable: true,
   });
 }
 
@@ -29,6 +33,7 @@ if (typeof window !== "undefined") {
   Object.defineProperty(window, "localStorage", {
     value: localStorageMock,
     writable: true,
+    configurable: true,
   });
 }
 

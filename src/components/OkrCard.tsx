@@ -73,7 +73,9 @@ export default function OkrCard({ objectives, objectivesChange, isPro = false }:
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">OKRs</h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            {isPro ? 'Quarterly goals with measurable results' : `Quarterly goals · free holds ${FREE_OKRS_LIMIT}`}
+            {isPro
+              ? 'Quarterly goals with measurable results'
+              : `Quarterly goals · free holds ${FREE_OKRS_LIMIT}`}
           </p>
         </div>
         <div className="flex items-center gap-2">

@@ -107,7 +107,9 @@ export default function GoalsCard({
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">Goals</h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            {isPro ? 'Big goals, broken into milestones and weeks' : `Big goals, broken down · free holds ${FREE_GOALS_LIMIT}`}
+            {isPro
+              ? 'Big goals, broken into milestones and weeks'
+              : `Big goals, broken down · free holds ${FREE_GOALS_LIMIT}`}
           </p>
         </div>
       </header>

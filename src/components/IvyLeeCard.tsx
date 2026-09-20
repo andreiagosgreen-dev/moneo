@@ -93,7 +93,9 @@ export default function IvyLeeCard({ plans, plansChange, timezone, isPro = false
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">Today's plan</h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            {isPro ? '6 slots · plan tonight, work top-down' : '3 slots · plan tonight, work top-down'}
+            {isPro
+              ? '6 slots · plan tonight, work top-down'
+              : '3 slots · plan tonight, work top-down'}
           </p>
         </div>
         <span className="font-mono text-[11px] text-sage">{dateLabel}</span>

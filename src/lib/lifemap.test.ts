@@ -113,9 +113,7 @@ describe('scoring', () => {
     expect(step.text).toContain('10 minutes for Core');
     expect(step.text).toContain('Move daily.');
     expect(suggestNextStep([])).toBeNull();
-    expect(
-      suggestNextStep([makeArea({ currentScore: 9, desiredScore: 8 })]),
-    ).toBeNull();
+    expect(suggestNextStep([makeArea({ currentScore: 9, desiredScore: 8 })])).toBeNull();
   });
 
   it('balances to a calm center number and sentence', () => {

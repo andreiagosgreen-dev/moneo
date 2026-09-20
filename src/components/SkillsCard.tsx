@@ -52,7 +52,9 @@ export default function SkillsCard({ skills, skillsChange, transitionTip, isPro 
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">Skills</h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            {isPro ? 'What you know · leveled 1–5' : `Know-how inventory · free holds ${FREE_SKILLS_LIMIT}`}
+            {isPro
+              ? 'What you know · leveled 1–5'
+              : `Know-how inventory · free holds ${FREE_SKILLS_LIMIT}`}
           </p>
         </div>
         <span className="font-mono text-[11px] text-sage">{formatLearningDuration(total)}</span>
