@@ -25,6 +25,7 @@ import type { Session } from '../../lib/store';
 import { ChevronIcon, TrashIcon, CopyIcon, ArchiveIcon, PlusIcon } from './icons';
 import type { ProjectRowProps } from './types';
 import TaskRow from './TaskRow';
+import { useI18n } from '../../lib/i18n/LocaleContext';
 
 export default function ProjectRow({
   project,
@@ -40,6 +41,7 @@ export default function ProjectRow({
   onProjectsChange,
   onTasksChange,
 }: ProjectRowProps) {
+  const { t } = useI18n();
   const minutes = getMinutesForProject(project.id, history);
   const timeFormatted = formatProjectDuration(minutes);
   const completion = projectCompletion(tasks, project.id);
@@ -127,7 +129,7 @@ export default function ProjectRow({
             </div>
             <div className="mt-0.5 flex items-center gap-2 text-[11px] text-faint">
               <span className="capitalize">
-                {CATEGORY_LABELS[project.category as ProjectCategory]}
+                {t(CATEGORY_LABELS[project.category as ProjectCategory])}
               </span>
               <span>·</span>
               <span className="font-mono text-sage">{timeFormatted}</span>
@@ -219,7 +221,7 @@ export default function ProjectRow({
                   >
                     {PROJECT_CATEGORIES.map((c) => (
                       <option key={c} value={c}>
-                        {CATEGORY_LABELS[c]}
+                        {t(CATEGORY_LABELS[c])}
                       </option>
                     ))}
                   </select>
