@@ -1,4 +1,5 @@
 import { fmtTimeOfDay, type Session } from '../lib/store';
+import { useI18n } from '../lib/i18n/LocaleContext';
 
 interface Props {
   /** Today's sessions, newest first. */
@@ -8,25 +9,22 @@ interface Props {
 }
 
 export default function SessionLog({ sessions, resolveAreaName }: Props) {
+  const { t } = useI18n();
   if (sessions.length === 0) {
-    return (
-      <p className="mt-3 text-[13px] leading-relaxed text-faint">
-        Nothing logged yet today. Finish a focus round and your progress will show here.
-      </p>
-    );
+    return <p className="mt-3 text-[13px] leading-relaxed text-faint">{t('sessionLog.empty')}</p>;
   }
   return (
     <ul className="nice-scroll mt-2 max-h-36 space-y-1 overflow-y-auto pr-1">
       {sessions.map((s, i) => {
         const area = s.areaId
           ? resolveAreaName
-            ? (resolveAreaName(s.areaId) ?? 'Deleted area')
+            ? (resolveAreaName(s.areaId) ?? t('sessionLog.deletedArea'))
             : null
           : null;
         const label =
           area && s.intention
             ? `${area} · ${s.intention}`
-            : (area ?? s.intention ?? 'Focus session');
+            : (area ?? s.intention ?? t('sessionLog.focusSession'));
         return (
           <li
             key={`${s.at}-${i}`}

@@ -542,4 +542,29 @@ export const ru: Record<TKey, string> = {
   'cabinet.title': 'Ваш кабинет',
   'cabinet.subtitle': 'Аккаунт, синхронизация и подписка — всё в одном месте.',
   'cabinet.identity': 'Личные данные',
+
+  // AgileCard
+  'agile.title': 'Agile',
+  'agile.subtitle': 'Доска · спринты · таймлайн · поэтапные фазы',
+  'agile.ariaLabel': 'Agile-доска и спринты',
+  'agile.boardProjectLabel': 'Проект доски',
+  'agile.tab.board': 'Доска',
+  'agile.tab.sprints': 'Спринты',
+  'agile.tab.timeline': 'Таймлайн',
+  'agile.tab.waterfall': 'Каскадная',
+
+  // LifeCard
+  'life.title': 'Жизнь',
+  'life.subtitle': 'Привычки, баланс, дневник и энергия · маленькие ежедневные победы',
+  'life.ariaLabel': 'Управление жизнью',
+  'life.tab.habits': 'Привычки',
+  'life.tab.balance': 'Баланс',
+  'life.tab.journal': 'Дневник',
+  'life.tab.energy': 'Энергия',
+
+  // SessionLog
+  'sessionLog.empty':
+    'Сегодня пока ничего не записано. Завершите раунд фокуса, и ваш прогресс появится здесь.',
+  'sessionLog.deletedArea': 'Удалённая область',
+  'sessionLog.focusSession': 'Сессия фокуса',
 };

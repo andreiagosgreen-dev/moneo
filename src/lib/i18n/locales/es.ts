@@ -540,4 +540,29 @@ export const es: Record<TKey, string> = {
   'cabinet.title': 'Tu gabinete',
   'cabinet.subtitle': 'Cuenta, sincronización y suscripción — todo en un solo lugar.',
   'cabinet.identity': 'Identidad',
+
+  // AgileCard
+  'agile.title': 'Agile',
+  'agile.subtitle': 'Tablero · sprints · cronograma · fases con puertas',
+  'agile.ariaLabel': 'Tablero y sprints Agile',
+  'agile.boardProjectLabel': 'Proyecto del tablero',
+  'agile.tab.board': 'Tablero',
+  'agile.tab.sprints': 'Sprints',
+  'agile.tab.timeline': 'Cronograma',
+  'agile.tab.waterfall': 'Cascada',
+
+  // LifeCard
+  'life.title': 'Vida',
+  'life.subtitle': 'Hábitos, equilibrio, diario y energía · pequeñas victorias diarias',
+  'life.ariaLabel': 'Gestión de vida',
+  'life.tab.habits': 'Hábitos',
+  'life.tab.balance': 'Equilibrio',
+  'life.tab.journal': 'Diario',
+  'life.tab.energy': 'Energía',
+
+  // SessionLog
+  'sessionLog.empty':
+    'Nada registrado hoy todavía. Termina una ronda de enfoque y tu progreso aparecerá aquí.',
+  'sessionLog.deletedArea': 'Área eliminada',
+  'sessionLog.focusSession': 'Sesión de enfoque',
 };

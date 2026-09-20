@@ -7,6 +7,7 @@ import type { FrogLog } from '../../lib/frog';
 import type { EnergyEntry } from '../../lib/energy';
 import type { Goal } from '../../lib/goals';
 import type { Session } from '../../lib/store';
+import type { TKey } from '../../lib/i18n/types';
 
 export interface LifeCardProps {
   habits: Habit[];
@@ -31,9 +32,9 @@ export interface LifeCardProps {
 
 export type LifeTab = 'habits' | 'balance' | 'journal' | 'energy';
 
-export const LIFE_TABS: Array<{ id: LifeTab; label: string }> = [
-  { id: 'habits', label: 'Habits' },
-  { id: 'balance', label: 'Balance' },
-  { id: 'journal', label: 'Journal' },
-  { id: 'energy', label: 'Energy' },
+export const LIFE_TABS: Array<{ id: LifeTab; label: TKey }> = [
+  { id: 'habits', label: 'life.tab.habits' },
+  { id: 'balance', label: 'life.tab.balance' },
+  { id: 'journal', label: 'life.tab.journal' },
+  { id: 'energy', label: 'life.tab.energy' },
 ];

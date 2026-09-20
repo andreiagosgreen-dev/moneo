@@ -549,4 +549,29 @@ export const ro: Record<TKey, string> = {
   'cabinet.title': 'Cabinetul tău',
   'cabinet.subtitle': 'Cont, sincronizare și abonament — toate într-un singur loc.',
   'cabinet.identity': 'Identitate',
+
+  // AgileCard
+  'agile.title': 'Agile',
+  'agile.subtitle': 'Tablou · sprinturi · cronologie · faze etapizate',
+  'agile.ariaLabel': 'Tablou și sprinturi Agile',
+  'agile.boardProjectLabel': 'Proiect tablou',
+  'agile.tab.board': 'Tablou',
+  'agile.tab.sprints': 'Sprinturi',
+  'agile.tab.timeline': 'Cronologie',
+  'agile.tab.waterfall': 'Cascadă',
+
+  // LifeCard
+  'life.title': 'Viață',
+  'life.subtitle': 'Obiceiuri, echilibru, jurnal și energie · mici victorii zilnice',
+  'life.ariaLabel': 'Management viață',
+  'life.tab.habits': 'Obiceiuri',
+  'life.tab.balance': 'Echilibru',
+  'life.tab.journal': 'Jurnal',
+  'life.tab.energy': 'Energie',
+
+  // SessionLog
+  'sessionLog.empty':
+    'Nimic înregistrat încă azi. Termină un tur de focus și progresul tău va apărea aici.',
+  'sessionLog.deletedArea': 'Arie ștearsă',
+  'sessionLog.focusSession': 'Sesiune de focus',
 };

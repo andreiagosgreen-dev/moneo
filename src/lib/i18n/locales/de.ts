@@ -547,4 +547,29 @@ export const de: Record<TKey, string> = {
   'cabinet.title': 'Dein Bereich',
   'cabinet.subtitle': 'Konto, Synchronisierung und Abo — alles an einem Ort.',
   'cabinet.identity': 'Identität',
+
+  // AgileCard
+  'agile.title': 'Agile',
+  'agile.subtitle': 'Board · Sprints · Timeline · gestufte Phasen',
+  'agile.ariaLabel': 'Agile-Board und Sprints',
+  'agile.boardProjectLabel': 'Board-Projekt',
+  'agile.tab.board': 'Board',
+  'agile.tab.sprints': 'Sprints',
+  'agile.tab.timeline': 'Timeline',
+  'agile.tab.waterfall': 'Wasserfall',
+
+  // LifeCard
+  'life.title': 'Leben',
+  'life.subtitle': 'Gewohnheiten, Balance, Tagebuch und Energie · kleine tägliche Erfolge',
+  'life.ariaLabel': 'Lebensmanagement',
+  'life.tab.habits': 'Gewohnheiten',
+  'life.tab.balance': 'Balance',
+  'life.tab.journal': 'Tagebuch',
+  'life.tab.energy': 'Energie',
+
+  // SessionLog
+  'sessionLog.empty':
+    'Heute noch nichts erfasst. Schließe eine Fokus-Runde ab, und dein Fortschritt erscheint hier.',
+  'sessionLog.deletedArea': 'Gelöschter Bereich',
+  'sessionLog.focusSession': 'Fokus-Sitzung',
 };
