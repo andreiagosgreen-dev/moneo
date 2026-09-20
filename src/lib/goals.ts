@@ -7,16 +7,24 @@
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
 import { projectCompletion, type Task } from './tasks';
+import type { TKey } from './i18n/types';
 
 export type GoalLevel = 'vision' | 'milestone' | 'project' | 'weekly';
 
 export const GOAL_LEVELS: GoalLevel[] = ['vision', 'milestone', 'project', 'weekly'];
 
-export const GOAL_LEVEL_LABELS: Record<GoalLevel, string> = {
-  vision: 'Vision · yearly',
-  milestone: 'Milestone · quarterly',
-  project: 'Project · monthly',
-  weekly: 'Weekly',
+export const GOAL_LEVEL_LABELS: Record<GoalLevel, TKey> = {
+  vision: 'goals.level.vision',
+  milestone: 'goals.level.milestone',
+  project: 'goals.level.project',
+  weekly: 'goals.level.weekly',
+};
+
+export const GOAL_LEVEL_SHORT_LABELS: Record<GoalLevel, TKey> = {
+  vision: 'goals.levelShort.vision',
+  milestone: 'goals.levelShort.milestone',
+  project: 'goals.levelShort.project',
+  weekly: 'goals.levelShort.weekly',
 };
 
 /** Broader → narrower. A parent must sit strictly above its child. */

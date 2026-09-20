@@ -26,7 +26,7 @@ describe('growth source of truth', () => {
       today: 0,
       week: 0,
       stage: 0,
-      stageName: 'Seed',
+      stageName: 'growth.stage.seed',
       progress: 0,
     });
   });

@@ -17,6 +17,7 @@ import SessionLog from './SessionLog';
 import type { Project } from '../lib/projects';
 import { activeProjects } from '../lib/projects';
 import { createManualSession } from '../lib/sessions';
+import { useI18n } from '../lib/i18n/LocaleContext';
 
 interface Props {
   history: Session[];
@@ -66,6 +67,7 @@ export default function StatsCard({
   onClear,
   onHistoryAdd,
 }: Props) {
+  const { t, tp } = useI18n();
   const [confirming, setConfirming] = useState(false);
   const [showManual, setShowManual] = useState(false);
   const [manualMin, setManualMin] = useState('25');
@@ -138,9 +140,11 @@ export default function StatsCard({
   };
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label="Today's focus statistics">
+    <section className="card px-6 py-6 sm:px-7" aria-label={t('stats.ariaLabel')}>
       <header className="flex items-baseline justify-between gap-3">
-        <h2 className="font-display text-xl font-bold tracking-tight text-cream">Today</h2>
+        <h2 className="font-display text-xl font-bold tracking-tight text-cream">
+          {t('stats.title')}
+        </h2>
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
           {new Date().toLocaleDateString([], {
             weekday: 'short',
@@ -159,20 +163,22 @@ export default function StatsCard({
           >
             {today.length}
           </div>
-          <div className="mt-1.5 text-[13px] text-sage">of {settings.dailyGoal} sessions</div>
+          <div className="mt-1.5 text-[13px] text-sage">
+            {t('stats.ofSessions', { n: String(settings.dailyGoal) })}
+          </div>
         </div>
         <div className="mb-0.5 ml-auto flex flex-col items-end gap-2">
           <span className="flex items-center gap-1.5 rounded-full bg-ink/60 py-1.5 pl-2.5 pr-3 font-mono text-[13px] text-cream ring-1 ring-inset ring-line">
             <span className="text-sage">
               <ClockIcon />
             </span>
-            {fmtMinutes(minutesToday)} focused
+            {t('stats.focused', { min: fmtMinutes(minutesToday) })}
           </span>
           <span className="flex items-center gap-1.5 rounded-full bg-ink/60 py-1.5 pl-2.5 pr-3 font-mono text-[13px] text-cream ring-1 ring-inset ring-line">
             <span className="text-tomato">
               <FlameIcon />
             </span>
-            {streak}-day streak
+            {tp('stats.streak', streak)}
           </span>
         </div>
       </div>
@@ -191,15 +197,15 @@ export default function StatsCard({
         </div>
         <p className="mt-1.5 text-[12px] text-faint">
           {today.length >= settings.dailyGoal
-            ? 'Daily goal reached — anything more is extra credit.'
-            : `${settings.dailyGoal - today.length} to go for today's goal`}
+            ? t('stats.goalReached')
+            : tp('stats.goalRemaining', settings.dailyGoal - today.length)}
         </p>
       </div>
 
       {/* 7-day chart */}
       <div className="mt-6">
         <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">
-          Last 7 days
+          {t('stats.last7Days')}
         </h3>
         <div className="mt-3 flex h-24 items-end gap-2">
           {week.rows.map(({ day, min }, i) => {
@@ -209,7 +215,7 @@ export default function StatsCard({
               <div
                 key={day.toISOString()}
                 className="group flex flex-1 flex-col items-center gap-1.5"
-                title={`${fmtMinutes(min)} focused`}
+                title={t('stats.focused', { min: fmtMinutes(min) })}
               >
                 <span
                   className={`font-mono text-[10px] transition-opacity ${isNow ? 'text-cream' : 'text-faint opacity-0 group-hover:opacity-100'}`}
@@ -249,7 +255,7 @@ export default function StatsCard({
             {topIntentions.length > 0 && (
               <div>
                 <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">
-                  Top focus · week
+                  {t('stats.topFocusWeek')}
                 </h3>
                 <ul className="mt-2 space-y-1.5">
                   {topIntentions.map((g) => (
@@ -266,13 +272,13 @@ export default function StatsCard({
             {areaRows.length > 0 && (
               <div>
                 <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">
-                  By area · week
+                  {t('stats.byAreaWeek')}
                 </h3>
                 <ul className="mt-2 space-y-1.5">
                   {areaRows.map((r) => (
                     <li key={r.areaId} className="flex items-baseline gap-3 text-[13px]">
                       <span className="min-w-0 truncate text-cream/90">
-                        {resolveAreaName(liveAreas, r.areaId) ?? 'Deleted area'}
+                        {resolveAreaName(liveAreas, r.areaId) ?? t('stats.deletedArea')}
                       </span>
                       <span className="ml-auto shrink-0 font-mono text-[12px] text-sage">
                         {fmtMinutes(r.min)}
@@ -290,22 +296,22 @@ export default function StatsCard({
       <div className="mt-6 border-t border-line pt-4">
         <div className="flex items-center justify-between">
           <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">
-            Session log
+            {t('stats.sessionLog')}
           </h3>
           <div className="flex items-center gap-1">
             <button
               onClick={() => setShowManual(!showManual)}
               className="press rounded-md px-2 py-1 font-mono text-[11px] text-sage hover:text-cream"
-              title="Log time worked without the timer (meetings, offline work)"
+              title={t('stats.logTimeTitle')}
             >
-              {showManual ? 'Cancel' : '+ Log time'}
+              {showManual ? t('stats.cancel') : t('stats.logTime')}
             </button>
             {clearDisabled ? (
               <span
                 className="rounded-md px-2 py-1 font-mono text-[11px] text-faint"
-                title="Signed-in history is managed through your account"
+                title={t('stats.protectedTitle')}
               >
-                Protected by sync
+                {t('stats.protectedLabel')}
               </span>
             ) : (
               history.length > 0 && (
@@ -317,7 +323,7 @@ export default function StatsCard({
                       : 'text-faint hover:text-sage'
                   }`}
                 >
-                  {confirming ? 'Tap again to confirm' : 'Clear all'}
+                  {confirming ? t('stats.confirmClear') : t('stats.clearAll')}
                 </button>
               )
             )}
@@ -333,8 +339,8 @@ export default function StatsCard({
                 value={manualMin}
                 onChange={(e) => setManualMin(e.target.value)}
                 className="h-9 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title="Minutes (1–480)"
-                placeholder="Minutes"
+                title={t('stats.manual.minutesTitle')}
+                placeholder={t('stats.manual.minutesPlaceholder')}
               />
               <input
                 type="date"
@@ -342,7 +348,7 @@ export default function StatsCard({
                 max={new Date().toISOString().slice(0, 10)}
                 onChange={(e) => setManualDate(e.target.value)}
                 className="h-9 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title="Work date"
+                title={t('stats.manual.dateTitle')}
               />
             </div>
             <div className="flex items-center gap-2">
@@ -350,9 +356,9 @@ export default function StatsCard({
                 value={manualProject}
                 onChange={(e) => setManualProject(e.target.value)}
                 className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title="Project (optional)"
+                title={t('stats.manual.projectTitle')}
               >
-                <option value="">No project</option>
+                <option value="">{t('stats.manual.noProject')}</option>
                 {manualProjects.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
@@ -364,7 +370,7 @@ export default function StatsCard({
                 disabled={Number(manualMin) < 1}
                 className="press btn-accent h-9 shrink-0 rounded-lg px-4 text-sm font-semibold disabled:opacity-40"
               >
-                Add
+                {t('stats.manual.add')}
               </button>
             </div>
           </div>

@@ -6,14 +6,14 @@
  */
 import type { Task, TaskQuadrant } from './tasks';
 import { TASK_QUADRANTS } from './tasks';
+import type { TKey } from './i18n/types';
 
-export const QUADRANT_META: Record<TaskQuadrant, { title: string; action: string; hint: string }> =
-  {
-    q1: { title: 'Do', action: 'Do first', hint: 'Urgent + important' },
-    q2: { title: 'Schedule', action: 'Schedule', hint: 'Not urgent + important' },
-    q3: { title: 'Delegate', action: 'Delegate', hint: 'Urgent + not important' },
-    q4: { title: 'Eliminate', action: 'Eliminate', hint: 'Neither urgent nor important' },
-  };
+export const QUADRANT_META: Record<TaskQuadrant, { title: TKey; action: TKey; hint: TKey }> = {
+  q1: { title: 'matrix.q1.title', action: 'matrix.q1.action', hint: 'matrix.q1.hint' },
+  q2: { title: 'matrix.q2.title', action: 'matrix.q2.action', hint: 'matrix.q2.hint' },
+  q3: { title: 'matrix.q3.title', action: 'matrix.q3.action', hint: 'matrix.q3.hint' },
+  q4: { title: 'matrix.q4.title', action: 'matrix.q4.action', hint: 'matrix.q4.hint' },
+};
 
 /** Due within this window counts as urgent (overdue always counts). */
 export const URGENT_WINDOW_MS = 48 * 60 * 60 * 1000;

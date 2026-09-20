@@ -1,6 +1,7 @@
 /* Project management - extended implementation */
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
+import type { TKey } from './i18n/types';
 
 export type ProjectCategory = 'work' | 'personal' | 'learning' | 'clients';
 
@@ -25,11 +26,11 @@ export interface Project {
 
 export const PROJECT_CATEGORIES: ProjectCategory[] = ['work', 'personal', 'learning', 'clients'];
 
-export const CATEGORY_LABELS: Record<ProjectCategory, string> = {
-  work: 'Work',
-  personal: 'Personal',
-  learning: 'Learning',
-  clients: 'Clients',
+export const CATEGORY_LABELS: Record<ProjectCategory, TKey> = {
+  work: 'projects.category.work',
+  personal: 'projects.category.personal',
+  learning: 'projects.category.learning',
+  clients: 'projects.category.clients',
 };
 
 export const PROJECT_COLORS = [

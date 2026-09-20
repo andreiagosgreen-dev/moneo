@@ -22,8 +22,8 @@ describe('BUILT_IN_SOUNDS', () => {
 });
 
 describe('CUSTOM_SOUND_LABEL', () => {
-  it("is 'Custom'", () => {
-    expect(CUSTOM_SOUND_LABEL).toBe('Custom');
+  it('is the custom sound i18n key', () => {
+    expect(CUSTOM_SOUND_LABEL).toBe('settings.sound.custom');
   });
 });
 

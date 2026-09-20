@@ -27,6 +27,7 @@ import {
 import { ChevronIcon, UndoIcon } from './projects/icons';
 import type { Props } from './projects/types';
 import ProjectRow from './projects/ProjectRow';
+import { useI18n } from '../lib/i18n/LocaleContext';
 
 export default function ProjectsCard({
   projects,
@@ -40,6 +41,7 @@ export default function ProjectsCard({
   onUpgradeClick,
   isPro = false,
 }: Props) {
+  const { t, tp } = useI18n();
   const [showCreate, setShowCreate] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
@@ -118,12 +120,7 @@ export default function ProjectsCard({
   };
 
   const handleDelete = (id: string) => {
-    if (
-      !confirm(
-        'Delete this project? Its tasks will also be removed. (Session history is preserved.)',
-      )
-    )
-      return;
+    if (!confirm(t('projects.deleteConfirm'))) return;
     commitProjects(deleteProject(projects, id));
     commitTasks(tasks.filter((t) => t.projectId !== id));
     if (selectedProjectId === id) onSelectProject(null);
@@ -148,17 +145,19 @@ export default function ProjectsCard({
   };
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label="Projects cabinet">
+    <section className="card px-6 py-6 sm:px-7" aria-label={t('projects.ariaLabel')}>
       <header className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="font-display text-xl font-bold tracking-tight text-cream">Projects</h2>
-          <p className="mt-0.5 text-[11px] text-faint">Track focus time by client or initiative</p>
+          <h2 className="font-display text-xl font-bold tracking-tight text-cream">
+            {t('projects.title')}
+          </h2>
+          <p className="mt-0.5 text-[11px] text-faint">{t('projects.subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
           {history.length > 0 && (
             <button
               onClick={handleExport}
-              title="Download CSV timesheet"
+              title={t('projects.downloadCsv')}
               className="press btn-ghost flex h-8 items-center gap-1.5 rounded-lg px-2.5 font-mono text-[11px] text-sage hover:text-cream"
             >
               <svg
@@ -183,13 +182,13 @@ export default function ProjectsCard({
             onClick={handleToggleTemplates}
             className="press text-[12px] font-semibold text-sage hover:text-cream"
           >
-            {showTemplates ? 'Cancel' : '◇ Template'}
+            {showTemplates ? t('projects.cancel') : t('projects.templateButton')}
           </button>
           <button
             onClick={handleToggleCreate}
             className="press text-[12px] font-semibold text-accent hover:opacity-80"
           >
-            {showCreate ? 'Cancel' : '+ New Project'}
+            {showCreate ? t('projects.cancel') : t('projects.newProject')}
           </button>
         </div>
       </header>
@@ -199,10 +198,10 @@ export default function ProjectsCard({
           <div className="flex items-start justify-between gap-2">
             <div>
               <div className="text-[13px] font-semibold text-cream">
-                Free limit reached ({FREE_PROJECTS_LIMIT} projects)
+                {t('projects.limitReached', { n: String(FREE_PROJECTS_LIMIT) })}
               </div>
               <p className="mt-1 text-[11px] leading-relaxed text-sage">
-                Upgrade to Moneo Pro for unlimited projects, cloud sync, and advanced analytics.
+                {t('projects.limitUpsell')}
               </p>
             </div>
             {onUpgradeClick && (
@@ -210,7 +209,7 @@ export default function ProjectsCard({
                 onClick={onUpgradeClick}
                 className="press btn-accent shrink-0 rounded-lg px-3 py-1.5 font-display text-[12px] font-bold"
               >
-                Upgrade
+                {t('projects.upgrade')}
               </button>
             )}
           </div>
@@ -224,7 +223,7 @@ export default function ProjectsCard({
             value={newProjectName}
             maxLength={50}
             onChange={(e) => setNewProjectName(e.target.value)}
-            placeholder="e.g. Client X App, Thesis, Mobile Redesign"
+            placeholder={t('projects.form.namePlaceholder')}
             className="w-full rounded-lg bg-ink/40 px-3 py-2 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
             onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
             autoFocus
@@ -237,7 +236,7 @@ export default function ProjectsCard({
             >
               {PROJECT_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
-                  {CATEGORY_LABELS[c]}
+                  {t(CATEGORY_LABELS[c])}
                 </option>
               ))}
             </select>
@@ -246,7 +245,7 @@ export default function ProjectsCard({
               disabled={!newProjectName.trim()}
               className="press btn-accent flex h-9 shrink-0 items-center justify-center rounded-lg px-4 text-sm font-semibold disabled:opacity-50"
             >
-              Add
+              {t('projects.form.add')}
             </button>
           </div>
         </div>
@@ -255,14 +254,16 @@ export default function ProjectsCard({
       {showTemplates && (
         <div className="mt-4 space-y-2 rounded-xl border border-line bg-ink/60 p-4">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            Start from a blueprint · {availableTemplates(isPro).length}/{PROJECT_TEMPLATES.length}{' '}
-            available
+            {t('projects.templates.available', {
+              n: String(availableTemplates(isPro).length),
+              total: String(PROJECT_TEMPLATES.length),
+            })}
           </p>
-          {PROJECT_TEMPLATES.map((t) => {
-            const locked = t.pro && !isPro;
+          {PROJECT_TEMPLATES.map((tmpl) => {
+            const locked = tmpl.pro && !isPro;
             return (
               <div
-                key={t.id}
+                key={tmpl.id}
                 className={`rounded-lg px-3 py-2.5 ring-1 ring-inset ${
                   locked ? 'bg-ink/20 ring-line/50' : 'bg-ink/40 ring-line'
                 }`}
@@ -270,45 +271,46 @@ export default function ProjectsCard({
                 <div className="flex items-center gap-2">
                   <span
                     className="h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: t.color }}
+                    style={{ backgroundColor: tmpl.color }}
                     aria-hidden
                   />
                   <div className="min-w-0 flex-1">
-                    <span className="text-[13px] font-semibold text-cream">{t.name}</span>
+                    <span className="text-[13px] font-semibold text-cream">{tmpl.name}</span>
                     <span className="ml-2 font-mono text-[10px] text-faint">
-                      {t.tasks.length} tasks · {t.stack.slice(0, 3).join(' · ')}
+                      {tp('projects.templates.taskCount', tmpl.tasks.length)} ·{' '}
+                      {tmpl.stack.slice(0, 3).join(' · ')}
                     </span>
                   </div>
                   {locked ? (
                     <span
                       className="shrink-0 rounded-md px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-accent ring-1 ring-inset ring-accent/40"
-                      title="Pro template — upgrade to use this blueprint"
+                      title={t('projects.templates.proTitle')}
                     >
                       Pro
                     </span>
                   ) : (
                     <button
-                      onClick={() => handleInstantiate(t.id)}
+                      onClick={() => handleInstantiate(tmpl.id)}
                       className="press shrink-0 rounded-md px-2.5 py-1 font-mono text-[11px] text-cream ring-1 ring-inset ring-line hover:ring-accent"
                     >
-                      Use
+                      {t('projects.templates.use')}
                     </button>
                   )}
                 </div>
-                <p className="mt-1 truncate text-[11px] text-faint" title={t.description}>
-                  {t.description}
+                <p className="mt-1 truncate text-[11px] text-faint" title={tmpl.description}>
+                  {tmpl.description}
                 </p>
                 <details className="mt-1">
                   <summary className="cursor-pointer font-mono text-[10px] text-sage hover:text-cream">
-                    Practices & pitfalls
+                    {t('projects.templates.practicesPitfalls')}
                   </summary>
                   <ul className="mt-1 space-y-0.5">
-                    {t.bestPractices.map((b) => (
+                    {tmpl.bestPractices.map((b) => (
                       <li key={b} className="text-[11px] text-sage">
                         ✓ {b}
                       </li>
                     ))}
-                    {t.pitfalls.map((p) => (
+                    {tmpl.pitfalls.map((p) => (
                       <li key={p} className="text-[11px] text-faint">
                         ✕ {p}
                       </li>
@@ -327,7 +329,7 @@ export default function ProjectsCard({
             type="text"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="Search projects or tags…"
+            placeholder={t('projects.searchPlaceholder')}
             className="w-full rounded-lg bg-ink/40 px-3 py-2 text-[12px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
           />
         </div>
@@ -336,14 +338,12 @@ export default function ProjectsCard({
       <div className="mt-4 space-y-2">
         {projects.length === 0 ? (
           <div className="rounded-xl border border-dashed border-line/60 py-7 text-center">
-            <p className="text-sm text-faint">No projects created yet.</p>
-            <p className="mt-1 text-[11px] text-faint">
-              Create a project to organize and track billable time.
-            </p>
+            <p className="text-sm text-faint">{t('projects.emptyTitle')}</p>
+            <p className="mt-1 text-[11px] text-faint">{t('projects.emptyBody')}</p>
           </div>
         ) : filteredActive.length === 0 ? (
           <div className="rounded-xl border border-dashed border-line/60 py-6 text-center">
-            <p className="text-[12px] text-faint">No projects match "{filter}".</p>
+            <p className="text-[12px] text-faint">{t('projects.noMatch', { filter })}</p>
           </div>
         ) : (
           filteredActive.map((project) => (
@@ -372,7 +372,7 @@ export default function ProjectsCard({
             onClick={() => setShowArchived(!showArchived)}
             className="press flex w-full items-center justify-between py-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint hover:text-sage"
           >
-            <span>Archived ({archived.length})</span>
+            <span>{t('projects.archivedToggle', { n: String(archived.length) })}</span>
             <ChevronIcon open={showArchived} />
           </button>
           {showArchived && (
@@ -397,7 +397,7 @@ export default function ProjectsCard({
                   <button
                     onClick={() => handleArchive(project.id, false)}
                     className="press flex items-center gap-1 rounded p-1 text-[11px] text-faint hover:text-sage"
-                    title="Restore project"
+                    title={t('projects.restoreProject')}
                   >
                     <UndoIcon />
                   </button>

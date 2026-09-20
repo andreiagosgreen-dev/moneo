@@ -1,4 +1,5 @@
 import { dayKey, isToday, lastNDays, type Session } from './store';
+import type { TKey } from './i18n/types';
 
 /**
  * Moneo Growth — cumulative focused work creates persistent visible progress.
@@ -10,16 +11,16 @@ import { dayKey, isToday, lastNDays, type Session } from './store';
 
 export interface GrowthStageDef {
   /** Internal semantic name (not prominent UI copy). */
-  name: string;
+  name: TKey;
   /** Cumulative focused minutes at which this stage begins. */
   min: number;
 }
 
 export const GROWTH_STAGES: GrowthStageDef[] = [
-  { name: 'Seed', min: 0 },
-  { name: 'Sprout', min: 60 },
-  { name: 'Leaf', min: 240 },
-  { name: 'Bloom', min: 600 },
+  { name: 'growth.stage.seed', min: 0 },
+  { name: 'growth.stage.sprout', min: 60 },
+  { name: 'growth.stage.leaf', min: 240 },
+  { name: 'growth.stage.bloom', min: 600 },
 ];
 
 export function getTotalFocusedMinutes(history: Session[]): number {
@@ -59,7 +60,7 @@ export interface GrowthSummary {
   today: number;
   week: number;
   stage: number;
-  stageName: string;
+  stageName: TKey;
   progress: number;
 }
 

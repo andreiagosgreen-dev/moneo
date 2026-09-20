@@ -4,6 +4,7 @@ import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
 import { projectCompletion, type Task } from './tasks';
 import type { Project } from './projects';
 import type { Goal } from './goals';
+import type { TKey } from './i18n/types';
 
 export type SkillCategory =
   'frontend' | 'backend' | 'mobile' | 'devops' | 'data' | 'design' | 'soft' | 'other';
@@ -39,23 +40,23 @@ export const SKILL_CATEGORIES: SkillCategory[] = [
   'other',
 ];
 
-export const CATEGORY_LABELS: Record<SkillCategory, string> = {
-  frontend: 'Frontend',
-  backend: 'Backend',
-  mobile: 'Mobile',
-  devops: 'DevOps',
-  data: 'Data',
-  design: 'Design',
-  soft: 'Soft skills',
-  other: 'Other',
+export const CATEGORY_LABELS: Record<SkillCategory, TKey> = {
+  frontend: 'skills.category.frontend',
+  backend: 'skills.category.backend',
+  mobile: 'skills.category.mobile',
+  devops: 'skills.category.devops',
+  data: 'skills.category.data',
+  design: 'skills.category.design',
+  soft: 'skills.category.soft',
+  other: 'skills.category.other',
 };
 
-export const LEVEL_LABELS: Record<SkillLevel, string> = {
-  1: 'Beginner',
-  2: 'Learning',
-  3: 'Competent',
-  4: 'Proficient',
-  5: 'Expert',
+export const LEVEL_LABELS: Record<SkillLevel, TKey> = {
+  1: 'skills.level.1',
+  2: 'skills.level.2',
+  3: 'skills.level.3',
+  4: 'skills.level.4',
+  5: 'skills.level.5',
 };
 
 /** Free tier tracks a handful of skills; Pro is unlimited. */
