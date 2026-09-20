@@ -173,6 +173,7 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
     init() {
       if (started) return;
       started = true;
+      disposed = false;
       void (async () => {
         let client: AuthClientLike | null = null;
         try {

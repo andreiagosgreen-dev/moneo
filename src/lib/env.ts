@@ -8,10 +8,9 @@
 
 export function readEnv(): Record<string, string | undefined> {
   try {
-    const meta = import.meta as unknown as {
-      env?: Record<string, string | undefined>;
-    };
-    return meta.env ?? {};
+    // Direct `import.meta.env` access (not indirected through a variable)
+    // so Vite's static analysis recognizes and replaces it at build time.
+    return (import.meta.env as unknown as Record<string, string | undefined>) ?? {};
   } catch {
     return {};
   }

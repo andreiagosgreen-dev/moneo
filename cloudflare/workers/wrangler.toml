@@ -13,6 +13,12 @@ routes = [
 # Disable default *.workers.dev URL (optional – set true to keep it)
 workers_dev = false
 
+# Public config (not secret — safe to commit). Real secrets
+# (SUPABASE_SERVICE_ROLE_KEY, LEMON_SQUEEZY_WEBHOOK_SECRET) are set via
+# `wrangler secret put` instead, never here.
+[vars]
+SUPABASE_URL = "https://yvkguiiqojwyosvkxzbt.supabase.co"
+
 # KV namespace for caching
 [[kv_namespaces]]
 binding = "KV_CACHE"
