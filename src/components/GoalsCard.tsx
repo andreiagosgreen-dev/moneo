@@ -20,9 +20,9 @@ import {
 } from '../lib/goals';
 import type { LifeArea } from '../lib/lifeAreas';
 import type { Project } from '../lib/projects';
-import { activeProjects } from '../lib/projects';
+import { activeProjects, createProjectObject } from '../lib/projects';
 import type { Task } from '../lib/tasks';
-import { createTaskObject } from '../lib/tasks';
+import { createTaskObject, tasksForProject } from '../lib/tasks';
 import { addTaskToDay, IVY_MAX_TASKS, IVY_FREE_MAX_TASKS, type IvyPlan } from '../lib/ivyLee';
 import { dayKeyInTz } from '../lib/timezone';
 
@@ -30,6 +30,7 @@ interface Props {
   goals: Goal[];
   goalsChange: (goals: Goal[]) => void;
   projects: Project[];
+  projectsChange: (projects: Project[]) => void;
   tasks: Task[];
   onTasksChange: (tasks: Task[]) => void;
   ivyPlans: IvyPlan[];
@@ -48,6 +49,7 @@ export default function GoalsCard({
   goals,
   goalsChange,
   projects,
+  projectsChange,
   tasks,
   onTasksChange,
   ivyPlans,
@@ -84,20 +86,49 @@ export default function GoalsCard({
     setDraftParent('');
   };
 
+  /** Ensures the goal has a real linked project, creating + persisting one
+   *  (and linking it back onto the goal) if it doesn't yet. Returns the
+   *  project to use, and the up-to-date goals/projects arrays. */
+  const ensureGoalProject = (goal: Goal) => {
+    const existing = goal.projectId && projects.find((p) => p.id === goal.projectId);
+    if (existing) return { project: existing, goals, projects };
+    const project = createProjectObject(goal.title.slice(0, 60), 'personal');
+    const nextProjects = [...projects, project];
+    const nextGoals = updateGoal(goals, goal.id, { projectId: project.id });
+    projectsChange(nextProjects);
+    goalsChange(nextGoals);
+    return { project, goals: nextGoals, projects: nextProjects };
+  };
+
   const generateTasks = (goal: Goal) => {
-    const target =
-      (goal.projectId && liveProjects.find((p) => p.id === goal.projectId)) ?? liveProjects[0];
-    if (!target) return;
+    const { project } = ensureGoalProject(goal);
     const titles = suggestTasksForGoal(goal.title);
     let next = tasks;
     for (const title of titles) {
-      next = [...next, createTaskObject(target.id, title, 'p2')];
+      next = [...next, createTaskObject(project.id, title, 'p2')];
     }
     onTasksChange(next);
   };
 
+  /** Sends a real task toward today's Ivy Lee plan (not a plain string) —
+   *  reuses an existing incomplete task under the goal's project, or
+   *  generates one first, so ticking it done in Today actually completes
+   *  the task and rolls up into the goal's progress. */
   const sendToToday = (goal: Goal) => {
-    const { plans, added } = addTaskToDay(ivyPlans, todayKey, `🎯 ${goal.title}`, maxIvy);
+    const { project } = ensureGoalProject(goal);
+    const openTask = tasksForProject(tasks, project.id).find((t) => t.status !== 'completed');
+    const task =
+      openTask ??
+      createTaskObject(project.id, suggestTasksForGoal(goal.title)[0] ?? goal.title, 'p2');
+    if (!openTask) onTasksChange([...tasks, task]);
+    const { plans, added } = addTaskToDay(
+      ivyPlans,
+      todayKey,
+      task.title,
+      maxIvy,
+      undefined,
+      task.id,
+    );
     if (added) onIvyPlansChange(plans);
   };
 
@@ -452,7 +483,6 @@ function GoalNode({
             <div className="flex flex-wrap items-center gap-1.5">
               <button
                 onClick={() => onGenerate(goal)}
-                disabled={liveProjects.length === 0}
                 className="press rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream disabled:opacity-40"
                 title="Create starter tasks from this goal"
               >

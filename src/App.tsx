@@ -602,6 +602,8 @@ export default function App() {
                         plansChange={setIvyPlans}
                         timezone={auth.timezone}
                         isPro={auth.isPro}
+                        tasks={tasks}
+                        onTasksChange={setTasks}
                       />
                     </div>
                     <div className="reveal" style={{ animationDelay: '130ms' }}>
@@ -670,6 +672,7 @@ export default function App() {
                           goals={goals}
                           goalsChange={setGoals}
                           projects={projects}
+                          projectsChange={setProjects}
                           tasks={tasks}
                           onTasksChange={setTasks}
                           ivyPlans={ivyPlans}
@@ -729,6 +732,8 @@ export default function App() {
                           projectsChange={setProjects}
                           tasks={tasks}
                           tasksChange={setTasks}
+                          goals={goals}
+                          goalsChange={setGoals}
                           ivyPlans={ivyPlans}
                           plansChange={setIvyPlans}
                           blocks={timeBlocks}

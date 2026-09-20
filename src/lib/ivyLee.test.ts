@@ -95,6 +95,22 @@ describe('setDayPlan / addTaskToDay', () => {
     const r = addTaskToDay([], '2026-9-16', '   ');
     expect(r.added).toBe(false);
   });
+
+  it('attaches a linked taskId when given, and round-trips it through storage', () => {
+    const withLink = addTaskToDay([], '2026-9-16', 'Real task', 6, undefined, 'task-123');
+    const plan = planForDay(withLink.plans, '2026-9-16')!;
+    expect(plan.tasks[0].taskId).toBe('task-123');
+    savePlans(withLink.plans);
+    const reloaded = loadPlans();
+    expect(planForDay(reloaded, '2026-9-16')!.tasks[0].taskId).toBe('task-123');
+  });
+
+  it('omits taskId entirely when not given', () => {
+    const r = addTaskToDay([], '2026-9-16', 'Plain text');
+    const plan = planForDay(r.plans, '2026-9-16')!;
+    expect(plan.tasks[0].taskId).toBeUndefined();
+    expect('taskId' in plan.tasks[0]).toBe(false);
+  });
 });
 
 describe('toggle / rename / remove', () => {

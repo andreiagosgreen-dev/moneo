@@ -12,6 +12,7 @@ import { loadAIConsent, saveAIConsent } from '../lib/ai/providers';
 import type { BuiltPath, ClarifyId, PathInput, SkillLevel } from '../lib/ai/types';
 import { createProjectObject, type Project, type ProjectCategory } from '../lib/projects';
 import { createTaskObject, setTaskEstimate, type Task } from '../lib/tasks';
+import { createGoalObject, type Goal } from '../lib/goals';
 import { addTaskToDay, IVY_MAX_TASKS, IVY_FREE_MAX_TASKS, type IvyPlan } from '../lib/ivyLee';
 import { weekdayOfKey, type TimeBlock, type Weekday } from '../lib/timeBlocks';
 import { dayCapacity, nextDayKey } from '../lib/ritual';
@@ -24,6 +25,8 @@ interface Props {
   projectsChange: (projects: Project[]) => void;
   tasks: Task[];
   tasksChange: (tasks: Task[]) => void;
+  goals: Goal[];
+  goalsChange: (goals: Goal[]) => void;
   ivyPlans: IvyPlan[];
   plansChange: (plans: IvyPlan[]) => void;
   blocks: TimeBlock[];
@@ -48,6 +51,8 @@ export default function AiPathCard({
   projectsChange,
   tasks,
   tasksChange,
+  goals,
+  goalsChange,
   ivyPlans,
   plansChange,
   blocks,
@@ -159,11 +164,21 @@ export default function AiPathCard({
       accProjects = [...accProjects, project];
       projectsChange(accProjects);
       summary.push(t('ai.done.project', { name: project.name }));
+
+      // Link a real Goal to the new project so its long-term progress
+      // rolls up through the existing goalProgress() mechanism instead of
+      // disappearing once the plan is approved.
+      const goal = createGoalObject(goals, project.name, 'project');
+      if (goal) goalsChange([...goals, { ...goal, projectId: project.id }]);
     }
 
+    // title → real Task id, so week-drafted Ivy entries (below) can carry
+    // a genuine taskId instead of a plain string.
+    const taskIdByTitle = new Map<string, string>();
     if (projectId) {
       for (const item of planned.slice(0, MAX_DRAFT_TASKS)) {
         const task = createTaskObject(projectId, item.title, item.priority);
+        taskIdByTitle.set(item.title, task.id);
         accTasks = [...accTasks, task];
         accTasks = setTaskEstimate(accTasks, task.id, item.pomodoros * POMODORO_MIN);
       }
@@ -184,7 +199,14 @@ export default function AiPathCard({
         for (const item of day.items) {
           // Estimate straight from the draft (planned carries pomodoros) —
           // never from pre-approval state, which lacks the new tasks.
-          const res = addTaskToDay(acc, key, item.title, maxIvy, item.pomodoros * POMODORO_MIN);
+          const res = addTaskToDay(
+            acc,
+            key,
+            item.title,
+            maxIvy,
+            item.pomodoros * POMODORO_MIN,
+            taskIdByTitle.get(item.title),
+          );
           acc = res.plans;
           if (res.added) placed += 1;
         }
