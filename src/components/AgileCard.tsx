@@ -27,7 +27,7 @@ export default function AgileCard({
   onSelectProject,
   isPro = false,
 }: AgileProps) {
-  const [tab, setTab] = useState<AgileTab>('board');
+  const [tab, setTab] = useState<AgileTab>('timeline');
   const [board, setBoard] = useState<BoardConfig>(loadBoardConfig);
   const live = useMemo(() => activeProjects(projects), [projects]);
   const projectId = selectedProjectId ?? live[0]?.id ?? null;

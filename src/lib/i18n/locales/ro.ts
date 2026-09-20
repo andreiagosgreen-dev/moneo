@@ -5,13 +5,15 @@ export const ro: Record<TKey, string> = {
   'nav.focus': 'Focus',
   'nav.today': 'Astăzi',
   'nav.plan': 'Plan',
+  'nav.assistant': 'Asistent',
   'nav.growth': 'Creștere',
   'nav.map': 'Hartă',
   'nav.projects': 'Proiecte',
   'nav.reports': 'Rapoarte',
   'nav.hint.focus': 'Cronometru, intenție și ziua de azi dintr-o privire',
   'nav.hint.today': 'Plan, broască, matrice, calendar și ritualuri',
-  'nav.hint.plan': 'Obiective, OKR-uri, abilități și asistentul',
+  'nav.hint.plan': 'Obiective, OKR-uri și abilități',
+  'nav.hint.assistant': 'Discută cu asistentul tău AI de planificare',
   'nav.hint.growth': 'Creștere, statistici și semnale AI',
   'nav.hint.map': 'Harta vieții — roata echilibrului și recenzia săptămânii',
   'nav.hint.projects': 'Proiecte, tablou, sprinturi și cronologie',
@@ -479,4 +481,72 @@ export const ro: Record<TKey, string> = {
   'ins.ui.confLabel': 'Încredere',
   'ins.ui.done': '✓ Adăugat',
   'ins.ui.blockLabel': 'Muncă profundă',
+
+  // AuthForm
+  'auth.modeLabel': 'Mod cont',
+  'auth.signIn': 'Conectare',
+  'auth.createAccount': 'Creează cont',
+  'auth.emailLabel': 'Email',
+  'auth.emailPlaceholder': 'tu@exemplu.com',
+  'auth.passwordLabel': 'Parolă',
+  'auth.localFirstNote':
+    'Local-first: sesiunile, intențiile și ariile tale rămân pe acest dispozitiv. Conectarea creează profilul tău Moneo; sincronizarea rămâne opțională — nimic nu se încarcă până nu o activezi.',
+  'auth.continueWithGoogle': 'Continuă cu Google',
+  'auth.orDivider': 'sau',
+
+  // SyncPanel
+  'sync.title': 'Sincronizează-ți datele Moneo',
+  'sync.description':
+    'Istoricul local de focus, ariile, intențiile și setările tale pot fi salvate în cont și sincronizate pe mai multe dispozitive.',
+  'sync.syncNow': 'Sincronizează acum',
+  'sync.notNow': 'Nu acum',
+  'sync.onlyNote':
+    'Doar sesiunile, ariile și setările se sincronizează — schițele de intenție și starea cronometrului nu părăsesc niciodată acest dispozitiv.',
+  'sync.syncing': 'Se sincronizează…',
+  'sync.failed': 'Sincronizare eșuată',
+  'sync.synced': 'Sincronizat',
+  'sync.comparing': 'se compară cu contul tău',
+  'sync.lastSynced': 'Ultima sincronizare {time}',
+  'sync.enabled': 'Sincronizare activă',
+  'sync.failedRetry':
+    'Sincronizare eșuată — datele tale locale sunt în siguranță. Încearcă din nou.',
+  'sync.justNow': 'chiar acum',
+  'sync.minAgo': 'acum {n}m',
+
+  // AccountButton / Cabinet
+  'account.checking': 'Se verifică contul',
+  'account.openAccount': 'Deschide contul',
+  'account.openSyncAccount': 'Deschide sincronizare și cont',
+  'account.defaultName': 'Cont',
+  'account.sync': 'Sincronizare',
+  'account.yourAccount': 'Contul tău',
+  'account.moneoAccount': 'Cont Moneo',
+  'account.signedIn': 'Conectat',
+  'account.syncAcrossDevices': 'Sincronizează-ți focusul pe mai multe dispozitive.',
+  'account.closeDialog': 'Închide fereastra de cont',
+  'account.timezone': 'fus orar',
+  'account.withoutAccountNote':
+    'Fără cont, totul rămâne pe acest dispozitiv. Sincronizarea e opțională și nu încarcă nimic până nu alegi tu.',
+  'account.signOut': 'Deconectare',
+  'account.deleteAccount': 'Șterge contul',
+  'account.deleteConfirmTitle': 'Ștergi contul?',
+  'account.deleteConfirmBody':
+    'Această acțiune șterge definitiv contul tău — nu te vei mai putea conecta — plus toate datele sincronizate (sesiuni, arii, setări, abonament). Nu poate fi anulată.',
+  'account.cancel': 'Anulează',
+  'account.openCabinet': 'Deschide cabinetul meu',
+  'account.subscriptionStatus': 'Abonament',
+  'account.plan.free': 'Gratuit',
+  'account.plan.pro-monthly': 'Pro (Lunar)',
+  'account.plan.pro-yearly': 'Pro (Anual)',
+  'account.renews': 'Se reînnoiește {date}',
+
+  // LoginPage
+  'login.title': 'Bine ai revenit',
+  'login.subtitle': 'Conectează-te ca să-ți sincronizezi focusul pe toate dispozitivele.',
+  'login.backToApp': 'Înapoi la Moneo',
+
+  // CabinetPage
+  'cabinet.title': 'Cabinetul tău',
+  'cabinet.subtitle': 'Cont, sincronizare și abonament — toate într-un singur loc.',
+  'cabinet.identity': 'Identitate',
 };

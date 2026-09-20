@@ -4,13 +4,15 @@ export const de: Record<TKey, string> = {
   'nav.focus': 'Fokus',
   'nav.today': 'Heute',
   'nav.plan': 'Plan',
+  'nav.assistant': 'Assistent',
   'nav.growth': 'Wachstum',
   'nav.map': 'Karte',
   'nav.projects': 'Projekte',
   'nav.reports': 'Berichte',
   'nav.hint.focus': 'Timer, Intention und heute im Überblick',
   'nav.hint.today': 'Plan, Frosch, Matrix, Kalender und Rituale',
-  'nav.hint.plan': 'Ziele, OKRs, Skills und der Assistent',
+  'nav.hint.plan': 'Ziele, OKRs und Skills',
+  'nav.hint.assistant': 'Chatte mit deinem KI-Planungsassistenten',
   'nav.hint.growth': 'Wachstum, Statistiken und KI-Signale',
   'nav.hint.map': 'Lebenskarte — Balance-Rad und Wochenrückblick',
   'nav.hint.projects': 'Projekte, Board, Sprints und Timeline',
@@ -477,4 +479,72 @@ export const de: Record<TKey, string> = {
   'ins.ui.confLabel': 'Konfidenz',
   'ins.ui.done': '✓ Hinzugefügt',
   'ins.ui.blockLabel': 'Deep Work',
+
+  // AuthForm
+  'auth.modeLabel': 'Kontomodus',
+  'auth.signIn': 'Anmelden',
+  'auth.createAccount': 'Konto erstellen',
+  'auth.emailLabel': 'E-Mail',
+  'auth.emailPlaceholder': 'du@beispiel.com',
+  'auth.passwordLabel': 'Passwort',
+  'auth.localFirstNote':
+    'Local-first: Deine Sitzungen, Absichten und Bereiche bleiben auf diesem Gerät. Die Anmeldung erstellt dein Moneo-Profil; die Synchronisierung bleibt optional — nichts wird hochgeladen, bis du sie aktivierst.',
+  'auth.continueWithGoogle': 'Mit Google fortfahren',
+  'auth.orDivider': 'oder',
+
+  // SyncPanel
+  'sync.title': 'Synchronisiere deine Moneo-Daten',
+  'sync.description':
+    'Dein lokaler Fokus-Verlauf, Bereiche, Absichten und Einstellungen können in deinem Konto gespeichert und geräteübergreifend synchronisiert werden.',
+  'sync.syncNow': 'Jetzt synchronisieren',
+  'sync.notNow': 'Nicht jetzt',
+  'sync.onlyNote':
+    'Nur Sitzungen, Bereiche und Einstellungen werden synchronisiert — Absichts-Entwürfe und der Timer-Status verlassen dieses Gerät nie.',
+  'sync.syncing': 'Synchronisiere…',
+  'sync.failed': 'Synchronisierung fehlgeschlagen',
+  'sync.synced': 'Synchronisiert',
+  'sync.comparing': 'Abgleich mit deinem Konto',
+  'sync.lastSynced': 'Zuletzt synchronisiert {time}',
+  'sync.enabled': 'Synchronisierung aktiviert',
+  'sync.failedRetry':
+    'Synchronisierung fehlgeschlagen — deine lokalen Daten sind sicher. Versuche es erneut.',
+  'sync.justNow': 'gerade eben',
+  'sync.minAgo': 'vor {n}m',
+
+  // AccountButton / Cabinet
+  'account.checking': 'Konto wird geprüft',
+  'account.openAccount': 'Konto öffnen',
+  'account.openSyncAccount': 'Synchronisierung und Konto öffnen',
+  'account.defaultName': 'Konto',
+  'account.sync': 'Sync',
+  'account.yourAccount': 'Dein Konto',
+  'account.moneoAccount': 'Moneo-Konto',
+  'account.signedIn': 'Angemeldet',
+  'account.syncAcrossDevices': 'Synchronisiere deinen Fokus geräteübergreifend.',
+  'account.closeDialog': 'Kontofenster schließen',
+  'account.timezone': 'Zeitzone',
+  'account.withoutAccountNote':
+    'Ohne Konto bleibt alles auf diesem Gerät. Die Synchronisierung ist optional und lädt nichts hoch, bis du es wählst.',
+  'account.signOut': 'Abmelden',
+  'account.deleteAccount': 'Konto löschen',
+  'account.deleteConfirmTitle': 'Konto löschen?',
+  'account.deleteConfirmBody':
+    'Dies löscht dein Konto dauerhaft — du kannst dich nicht mehr anmelden — sowie alle synchronisierten Daten (Sitzungen, Bereiche, Einstellungen, Abo). Dies kann nicht rückgängig gemacht werden.',
+  'account.cancel': 'Abbrechen',
+  'account.openCabinet': 'Mein Bereich öffnen',
+  'account.subscriptionStatus': 'Abo',
+  'account.plan.free': 'Kostenlos',
+  'account.plan.pro-monthly': 'Pro (Monatlich)',
+  'account.plan.pro-yearly': 'Pro (Jährlich)',
+  'account.renews': 'Verlängert sich am {date}',
+
+  // LoginPage
+  'login.title': 'Willkommen zurück',
+  'login.subtitle': 'Melde dich an, um deinen Fokus geräteübergreifend zu synchronisieren.',
+  'login.backToApp': 'Zurück zu Moneo',
+
+  // CabinetPage
+  'cabinet.title': 'Dein Bereich',
+  'cabinet.subtitle': 'Konto, Synchronisierung und Abo — alles an einem Ort.',
+  'cabinet.identity': 'Identität',
 };

@@ -4,13 +4,15 @@ export const it: Record<TKey, string> = {
   'nav.focus': 'Focus',
   'nav.today': 'Oggi',
   'nav.plan': 'Piano',
+  'nav.assistant': 'Assistente',
   'nav.growth': 'Crescita',
   'nav.map': 'Mappa',
   'nav.projects': 'Progetti',
   'nav.reports': 'Resoconti',
   'nav.hint.focus': 'Timer, intenzione e oggi a colpo d’occhio',
   'nav.hint.today': 'Piano, rana, matrice, calendario e rituali',
-  'nav.hint.plan': 'Obiettivi, OKR, competenze e assistente',
+  'nav.hint.plan': 'Obiettivi, OKR e competenze',
+  'nav.hint.assistant': 'Chatta con il tuo assistente IA di pianificazione',
   'nav.hint.growth': 'Crescita, statistiche e segnali IA',
   'nav.hint.map': 'Mappa della vita — ruota dell’equilibrio e riepilogo settimanale',
   'nav.hint.projects': 'Progetti, bacheca, sprint e sequenza temporale',
@@ -479,4 +481,71 @@ export const it: Record<TKey, string> = {
   'ins.ui.confLabel': 'Fiducia',
   'ins.ui.done': '✓ Aggiunto',
   'ins.ui.blockLabel': 'Lavoro profondo',
+
+  // AuthForm
+  'auth.modeLabel': 'Modalità account',
+  'auth.signIn': 'Accedi',
+  'auth.createAccount': 'Crea account',
+  'auth.emailLabel': 'Email',
+  'auth.emailPlaceholder': 'tu@esempio.com',
+  'auth.passwordLabel': 'Password',
+  'auth.localFirstNote':
+    'Local-first: le tue sessioni, intenzioni e aree restano su questo dispositivo. L’accesso crea il tuo profilo Moneo; la sincronizzazione resta facoltativa — nulla viene caricato finché non la attivi.',
+  'auth.continueWithGoogle': 'Continua con Google',
+  'auth.orDivider': 'o',
+
+  // SyncPanel
+  'sync.title': 'Sincronizza i tuoi dati Moneo',
+  'sync.description':
+    'La cronologia di focus locale, le aree, le intenzioni e le impostazioni possono essere salvate nel tuo account e sincronizzate tra dispositivi.',
+  'sync.syncNow': 'Sincronizza ora',
+  'sync.notNow': 'Non ora',
+  'sync.onlyNote':
+    'Si sincronizzano solo sessioni, aree e impostazioni — le bozze di intenzione e lo stato del timer non lasciano mai questo dispositivo.',
+  'sync.syncing': 'Sincronizzazione…',
+  'sync.failed': 'Sincronizzazione non riuscita',
+  'sync.synced': 'Sincronizzato',
+  'sync.comparing': 'confronto con il tuo account',
+  'sync.lastSynced': 'Ultima sincronizzazione {time}',
+  'sync.enabled': 'Sincronizzazione attiva',
+  'sync.failedRetry': 'Sincronizzazione non riuscita — i tuoi dati locali sono al sicuro. Riprova.',
+  'sync.justNow': 'adesso',
+  'sync.minAgo': '{n}m fa',
+
+  // AccountButton / Cabinet
+  'account.checking': 'Verifica account in corso',
+  'account.openAccount': 'Apri account',
+  'account.openSyncAccount': 'Apri sincronizzazione e account',
+  'account.defaultName': 'Account',
+  'account.sync': 'Sincronizza',
+  'account.yourAccount': 'Il tuo account',
+  'account.moneoAccount': 'Account Moneo',
+  'account.signedIn': 'Accesso effettuato',
+  'account.syncAcrossDevices': 'Sincronizza il tuo focus tra dispositivi.',
+  'account.closeDialog': 'Chiudi la finestra account',
+  'account.timezone': 'fuso orario',
+  'account.withoutAccountNote':
+    'Senza account, tutto resta su questo dispositivo. La sincronizzazione è facoltativa e non carica nulla finché non lo decidi tu.',
+  'account.signOut': 'Esci',
+  'account.deleteAccount': 'Elimina account',
+  'account.deleteConfirmTitle': 'Eliminare il tuo account?',
+  'account.deleteConfirmBody':
+    'Questo elimina definitivamente il tuo account — non potrai più accedere — oltre a tutti i dati sincronizzati (sessioni, aree, impostazioni, abbonamento). Non può essere annullato.',
+  'account.cancel': 'Annulla',
+  'account.openCabinet': 'Apri il mio spazio',
+  'account.subscriptionStatus': 'Abbonamento',
+  'account.plan.free': 'Gratis',
+  'account.plan.pro-monthly': 'Pro (Mensile)',
+  'account.plan.pro-yearly': 'Pro (Annuale)',
+  'account.renews': 'Si rinnova il {date}',
+
+  // LoginPage
+  'login.title': 'Bentornato',
+  'login.subtitle': 'Accedi per sincronizzare il tuo focus tra dispositivi.',
+  'login.backToApp': 'Torna a Moneo',
+
+  // CabinetPage
+  'cabinet.title': 'Il tuo spazio',
+  'cabinet.subtitle': 'Account, sincronizzazione e abbonamento — tutto in un unico posto.',
+  'cabinet.identity': 'Identità',
 };

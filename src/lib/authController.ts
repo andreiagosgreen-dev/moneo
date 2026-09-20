@@ -53,6 +53,10 @@ export interface AuthClientLike {
     data: { user: RawUser | null; session: unknown };
     error: { message?: string } | null;
   }>;
+  signInWithOAuth(opts: {
+    provider: 'google';
+    options?: { redirectTo?: string };
+  }): Promise<{ data: { url?: string | null }; error: { message?: string } | null }>;
   signOut(): Promise<{ error: { message?: string } | null }>;
 }
 
@@ -83,6 +87,8 @@ export interface AuthController {
   dispose(): void;
   signIn(email: string, password: string): Promise<AuthResult>;
   signUp(email: string, password: string): Promise<AuthResult>;
+  /** Redirects the browser to Google's consent screen; never resolves on success. */
+  signInWithGoogle(redirectTo: string): Promise<AuthResult>;
   signOut(): Promise<void>;
   /** Permanently deletes the account and all associated data. */
   deleteAccount(): Promise<AuthResult>;
@@ -237,6 +243,33 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
           return { ok: true };
         }
         return { ok: false, message: mapAuthError(null) };
+      } catch (e) {
+        return {
+          ok: false,
+          message: mapAuthError(e instanceof Error ? e.message : null),
+        };
+      }
+    },
+
+    async signInWithGoogle(redirectTo) {
+      let client: AuthClientLike | null = null;
+      try {
+        client = await getClient();
+      } catch (e) {
+        return {
+          ok: false,
+          message: mapAuthError(e instanceof Error ? e.message : null),
+        };
+      }
+      if (!client) return { ok: false, message: 'Cloud is not configured on this installation.' };
+      try {
+        const { error } = await client.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo },
+        });
+        if (error) return { ok: false, message: mapAuthError(error.message) };
+        // Success redirects the browser away — nothing left to do here.
+        return { ok: true };
       } catch (e) {
         return {
           ok: false,

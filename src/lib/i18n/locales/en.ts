@@ -9,13 +9,15 @@ export const en = {
   'nav.focus': 'Focus',
   'nav.today': 'Today',
   'nav.plan': 'Plan',
+  'nav.assistant': 'Assistant',
   'nav.growth': 'Growth',
   'nav.map': 'Map',
   'nav.projects': 'Projects',
   'nav.reports': 'Reports',
   'nav.hint.focus': 'Timer, intention and today at a glance',
   'nav.hint.today': 'Plan, frog, matrix, calendar and rituals',
-  'nav.hint.plan': 'Goals, OKRs, skills and the assistant',
+  'nav.hint.plan': 'Goals, OKRs and skills',
+  'nav.hint.assistant': 'Chat with your AI planning companion',
   'nav.hint.growth': 'Growth, stats and AI signals',
   'nav.hint.map': 'Life map — balance wheel and weekly review',
   'nav.hint.projects': 'Projects, board, sprints and timeline',
@@ -478,4 +480,71 @@ export const en = {
   'ins.ui.confLabel': 'Confidence',
   'ins.ui.done': '✓ Added',
   'ins.ui.blockLabel': 'Deep work',
+
+  // AuthForm
+  'auth.modeLabel': 'Account mode',
+  'auth.signIn': 'Sign in',
+  'auth.createAccount': 'Create account',
+  'auth.emailLabel': 'Email',
+  'auth.emailPlaceholder': 'you@example.com',
+  'auth.passwordLabel': 'Password',
+  'auth.localFirstNote':
+    'Local-first: your sessions, intentions and areas stay on this device. Signing in creates your Moneo profile; device sync stays opt-in — nothing is uploaded until you enable it.',
+  'auth.continueWithGoogle': 'Continue with Google',
+  'auth.orDivider': 'or',
+
+  // SyncPanel
+  'sync.title': 'Sync your Moneo data',
+  'sync.description':
+    'Your local focus history, areas, intentions and settings can be saved to your account and synced across devices.',
+  'sync.syncNow': 'Sync now',
+  'sync.notNow': 'Not now',
+  'sync.onlyNote':
+    'Only sessions, areas and settings sync — intention drafts and timer state never leave this device.',
+  'sync.syncing': 'Syncing…',
+  'sync.failed': 'Sync failed',
+  'sync.synced': 'Synced',
+  'sync.comparing': 'comparing with your account',
+  'sync.lastSynced': 'Last synced {time}',
+  'sync.enabled': 'Sync enabled',
+  'sync.failedRetry': 'Sync failed — your local data is safe. Try again.',
+  'sync.justNow': 'just now',
+  'sync.minAgo': '{n}m ago',
+
+  // AccountButton / Cabinet
+  'account.checking': 'Checking account',
+  'account.openAccount': 'Open account',
+  'account.openSyncAccount': 'Open sync and account',
+  'account.defaultName': 'Account',
+  'account.sync': 'Sync',
+  'account.yourAccount': 'Your account',
+  'account.moneoAccount': 'Moneo Account',
+  'account.signedIn': 'Signed in',
+  'account.syncAcrossDevices': 'Sync your focus across devices.',
+  'account.closeDialog': 'Close account dialog',
+  'account.timezone': 'timezone',
+  'account.withoutAccountNote':
+    'Without an account, everything stays on this device. Sync is optional and never uploads anything until you choose to.',
+  'account.signOut': 'Sign out',
+  'account.deleteAccount': 'Delete account',
+  'account.deleteConfirmTitle': 'Delete your account?',
+  'account.deleteConfirmBody':
+    'This permanently deletes your account — you won’t be able to sign in again — plus all synced data (sessions, areas, settings, subscription). This can’t be undone.',
+  'account.cancel': 'Cancel',
+  'account.openCabinet': 'Open my cabinet',
+  'account.subscriptionStatus': 'Subscription',
+  'account.plan.free': 'Free',
+  'account.plan.pro-monthly': 'Pro (Monthly)',
+  'account.plan.pro-yearly': 'Pro (Yearly)',
+  'account.renews': 'Renews {date}',
+
+  // LoginPage
+  'login.title': 'Welcome back',
+  'login.subtitle': 'Sign in to sync your focus across devices.',
+  'login.backToApp': 'Back to Moneo',
+
+  // CabinetPage
+  'cabinet.title': 'Your cabinet',
+  'cabinet.subtitle': 'Account, sync and subscription — all in one place.',
+  'cabinet.identity': 'Identity',
 };

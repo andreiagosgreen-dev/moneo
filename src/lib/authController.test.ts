@@ -69,6 +69,7 @@ function fakeClient(opts?: {
               },
               error: null,
             },
+    signInWithOAuth: async () => ({ data: { url: 'https://example.com/oauth' }, error: null }),
     signOut: async () => ({ error: null }),
   };
   return {

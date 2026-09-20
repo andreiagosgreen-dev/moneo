@@ -28,6 +28,8 @@ const AiPathCard = lazy(() => import('./components/AiPathCard'));
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import HelpPage from './components/HelpPage';
+import LoginPage from './components/LoginPage';
+import CabinetPage from './components/CabinetPage';
 import {
   loadProjects,
   loadSelectedProject,
@@ -437,6 +439,22 @@ export default function App() {
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/help" element={<HelpPage />} />
       <Route
+        path="/login"
+        element={
+          <LocaleProvider locale={locale} onLocaleChange={setLocale}>
+            <LoginPage />
+          </LocaleProvider>
+        }
+      />
+      <Route
+        path="/account"
+        element={
+          <LocaleProvider locale={locale} onLocaleChange={setLocale}>
+            <CabinetPage />
+          </LocaleProvider>
+        }
+      />
+      <Route
         path="*"
         element={
           <LocaleProvider locale={locale} onLocaleChange={setLocale}>
@@ -661,36 +679,6 @@ export default function App() {
                           isPro={auth.isPro}
                         />
                       </div>
-                      <div className="reveal" style={{ animationDelay: '130ms' }}>
-                        <AssistantCard
-                          messages={chatHistory}
-                          messagesChange={setChatHistory}
-                          tasks={tasks}
-                          projects={projects}
-                          history={history}
-                          timezone={auth.timezone}
-                          goals={goals}
-                          energyLog={energyLog}
-                          ivyPlans={ivyPlans}
-                          onIvyPlansChange={setIvyPlans}
-                          selectedProjectId={selectedProjectId}
-                          onTasksChange={setTasks}
-                          isPro={auth.isPro}
-                        />
-                      </div>
-                      <div className="reveal md:col-span-2" style={{ animationDelay: '150ms' }}>
-                        <AiPathCard
-                          projects={projects}
-                          projectsChange={setProjects}
-                          tasks={tasks}
-                          tasksChange={setTasks}
-                          ivyPlans={ivyPlans}
-                          plansChange={setIvyPlans}
-                          blocks={timeBlocks}
-                          timezone={auth.timezone}
-                          isPro={auth.isPro}
-                        />
-                      </div>
                       <Disclosure
                         title={t('today.advPlan')}
                         hint={t('today.advSkillsHint')}
@@ -712,6 +700,42 @@ export default function App() {
                           />
                         </div>
                       </Disclosure>
+                    </main>
+                  </Suspense>
+                )}
+                {tab === 'assistant' && (
+                  <Suspense fallback={<TabFallback label="Assistant" />}>
+                    <main className="mt-2 grid items-start gap-6 md:grid-cols-2">
+                      <div className="reveal" style={{ animationDelay: '90ms' }}>
+                        <AssistantCard
+                          messages={chatHistory}
+                          messagesChange={setChatHistory}
+                          tasks={tasks}
+                          projects={projects}
+                          history={history}
+                          timezone={auth.timezone}
+                          goals={goals}
+                          energyLog={energyLog}
+                          ivyPlans={ivyPlans}
+                          onIvyPlansChange={setIvyPlans}
+                          selectedProjectId={selectedProjectId}
+                          onTasksChange={setTasks}
+                          isPro={auth.isPro}
+                        />
+                      </div>
+                      <div className="reveal md:col-span-2" style={{ animationDelay: '130ms' }}>
+                        <AiPathCard
+                          projects={projects}
+                          projectsChange={setProjects}
+                          tasks={tasks}
+                          tasksChange={setTasks}
+                          ivyPlans={ivyPlans}
+                          plansChange={setIvyPlans}
+                          blocks={timeBlocks}
+                          timezone={auth.timezone}
+                          isPro={auth.isPro}
+                        />
+                      </div>
                     </main>
                   </Suspense>
                 )}
@@ -785,7 +809,7 @@ export default function App() {
                       <Disclosure
                         title={t('today.advPlan')}
                         hint={t('today.advAgileHint')}
-                        defaultOpen={engaged}
+                        defaultOpen={true}
                       >
                         <div className="reveal" style={{ animationDelay: '130ms' }}>
                           <AgileCard
