@@ -93,6 +93,22 @@ local encryption that does not exist.
   instead of once per row (same access rules, faster at scale). Still
   open: enable **Leaked Password Protection** in the Supabase dashboard
   (Authentication → Sign In / Providers) — not settable via SQL/API.
+- **Error monitoring (Sentry, added 2026-09-21)**: `src/lib/sentry.ts`
+  wraps `@sentry/react`, initialized in `main.tsx` from `VITE_SENTRY_DSN`
+  only — unset (local dev, self-hosted builds) means a total no-op, no
+  network calls. No session replay integration: Life Map, journal and
+  energy log stay local-only by design, and replay would undermine that
+  even with text masked. `sendDefaultPii: false`; the only identity
+  attached to an error is the Supabase user id already used app-wide.
+  All cloud-sync failures (`src/lib/cloud/withClient.ts`, the single
+  choke point every repository funnels through) now report to Sentry
+  instead of vanishing silently; a top-level `Sentry.ErrorBoundary`
+  around `<App>` catches render crashes. The DSN is a public client key
+  (not a secret, same class as the Supabase anon key) and is injected
+  at build time the same way as the other `VITE_*` values — see
+  `.github/workflows/ci.yml`'s `deploy` job and `vars.VITE_SENTRY_DSN`.
+  Not yet wired: Cloudflare Worker–side errors (webhook, account
+  deletion) — deferred, needs a separate server-side Sentry SDK/DSN.
 
 ## Backups & restore
 

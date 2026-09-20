@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@lemonsqueezy/lemonsqueezy.js": "^4.0.0",
+    "@sentry/react": "^10.75.0",
     "@supabase/supabase-js": "^2.98.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

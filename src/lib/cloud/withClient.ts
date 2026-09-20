@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseClient } from '../supabase';
+import { captureError } from '../sentry';
 
 /**
  * Shared cloud guard (Roadmap Faza 1.1).
@@ -18,7 +19,8 @@ export async function withClient<T>(
   if (!client) return null;
   try {
     return await fn(client);
-  } catch {
+  } catch (e) {
+    captureError(e, { area: 'cloud-sync' });
     return null;
   }
 }

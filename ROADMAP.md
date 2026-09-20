@@ -108,7 +108,7 @@ pricing page. Those are Etapa 0 below.
 | Workstream | Status | Scope |
 | --- | --- | --- |
 | i18n (RO/EN/ES/FR/IT/RU/UK) | ❌ 0% | react-i18next, extract ~10k lines of UI strings, refactor text generators; RO+EN full, others MT-draft + review. Assistant commands stay EN in v1 |
-| Maintenance & observability | ❌ 0% | Sentry, conversion analytics (signup/upgrade/checkout events), health check, version badge, maintenance-mode flag, Supabase backups |
+| Maintenance & observability | 🟡 25% | Sentry wired for frontend errors + sync failures (2026-09-21, see SECURITY.md); **missing**: worker-side Sentry, conversion analytics, health check, version badge, maintenance-mode flag, Supabase backups |
 | QA / E2E ("virtual tests") | 🟡 35% | 572 unit tests + pgTAP RLS tests + CI exist; **missing**: Playwright E2E on critical flows, staging env, mobile-viewport runs |
 | Security hardening | 🟡 55% | RLS on all tables, HMAC fail-closed webhook done; **missing**: deep security scan, CSP/security headers, worker rate limiting, npm audit + Dependabot, secrets-in-bundle review |
 | Responsive (phones + tablets) | 🟡 50% | Tailwind breakpoints used but never audited; fix narrow screens before E2E |
