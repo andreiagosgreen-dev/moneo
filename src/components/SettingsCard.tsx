@@ -20,6 +20,34 @@ import {
   type ThemeName,
   type UITheme,
 } from '../lib/theme';
+import { useI18n } from '../lib/i18n/LocaleContext';
+import type { TKey } from '../lib/i18n/types';
+
+const THEME_LABELS: Record<ThemeName, TKey> = {
+  dark: 'settings.theme.dark',
+  light: 'settings.theme.light',
+};
+
+const FONT_CHOICE_LABELS: Record<FontChoice, TKey> = {
+  sans: 'settings.font.sans',
+  serif: 'settings.font.serif',
+};
+
+const FONT_SCALE_LABELS: Record<FontScale, TKey> = {
+  normal: 'settings.fontScale.normal',
+  comfort: 'settings.fontScale.comfort',
+  compact: 'settings.fontScale.compact',
+};
+
+const ACCENT_NAME_LABELS: Record<AccentName, TKey> = {
+  auto: 'settings.accentName.auto',
+  tomato: 'settings.accentName.tomato',
+  mint: 'settings.accentName.mint',
+  sky: 'settings.accentName.sky',
+  violet: 'settings.accentName.violet',
+  amber: 'settings.accentName.amber',
+  rose: 'settings.accentName.rose',
+};
 
 interface Props {
   settings: Settings;
@@ -89,6 +117,7 @@ function Stepper({
   accent?: boolean;
   onStep: (field: NumKey, delta: number) => void;
 }) {
+  const { t } = useI18n();
   const { min, max } = LIMITS[field];
   const btn =
     'press btn-ghost flex h-8 w-8 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none';
@@ -108,7 +137,7 @@ function Stepper({
           className={btn}
           onClick={() => onStep(field, -1)}
           disabled={value <= min}
-          aria-label={`Decrease ${label}`}
+          aria-label={t('settings.stepperAria.decrease', { label })}
         >
           <MinusIcon />
         </button>
@@ -120,7 +149,7 @@ function Stepper({
           className={btn}
           onClick={() => onStep(field, 1)}
           disabled={value >= max}
-          aria-label={`Increase ${label}`}
+          aria-label={t('settings.stepperAria.increase', { label })}
         >
           <PlusIcon />
         </button>
@@ -181,6 +210,7 @@ export default function SettingsCard({
   onThemeChange,
   isPro = false,
 }: Props) {
+  const { t } = useI18n();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasCustom, setHasCustom] = useState(false);
 
@@ -228,60 +258,64 @@ export default function SettingsCard({
   };
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label="Timer settings">
+    <section className="card px-6 py-6 sm:px-7" aria-label={t('settings.ariaLabel')}>
       <header className="flex items-baseline justify-between gap-3">
-        <h2 className="font-display text-xl font-bold tracking-tight text-cream">Tune it</h2>
+        <h2 className="font-display text-xl font-bold tracking-tight text-cream">
+          {t('settings.title')}
+        </h2>
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-          Saved locally
+          {t('settings.savedLocally')}
         </span>
       </header>
 
       <div className="mt-3 divide-y divide-line/70">
         <Stepper
-          label="Focus length"
-          hint="One deep-work round"
+          label={t('settings.stepper.focusLength.label')}
+          hint={t('settings.stepper.focusLength.hint')}
           value={settings.focusMin}
-          unit="min"
+          unit={t('settings.unit.min')}
           field="focusMin"
           accent
           onStep={step}
         />
         <Stepper
-          label="Short break"
-          hint="Between focus rounds"
+          label={t('settings.stepper.shortBreak.label')}
+          hint={t('settings.stepper.shortBreak.hint')}
           value={settings.shortMin}
-          unit="min"
+          unit={t('settings.unit.min')}
           field="shortMin"
           onStep={step}
         />
         <Stepper
-          label="Long break"
-          hint="After a full cycle"
+          label={t('settings.stepper.longBreak.label')}
+          hint={t('settings.stepper.longBreak.hint')}
           value={settings.longMin}
-          unit="min"
+          unit={t('settings.unit.min')}
           field="longMin"
           onStep={step}
         />
         <Stepper
-          label="Cycle length"
-          hint="Focus rounds per long break"
+          label={t('settings.stepper.cycleLength.label')}
+          hint={t('settings.stepper.cycleLength.hint')}
           value={settings.longEvery}
-          unit="rnd"
+          unit={t('settings.unit.rnd')}
           field="longEvery"
           onStep={step}
         />
         <Stepper
-          label="Daily goal"
-          hint="Focus sessions per day"
+          label={t('settings.stepper.dailyGoal.label')}
+          hint={t('settings.stepper.dailyGoal.hint')}
           value={settings.dailyGoal}
-          unit="ses"
+          unit={t('settings.unit.ses')}
           field="dailyGoal"
           onStep={step}
         />
         <div className="flex items-center justify-between gap-3 py-3">
           <div className="min-w-0">
-            <div className="text-[14px] font-semibold text-cream/90">Weekly capacity</div>
-            <div className="text-[12px] text-faint">Focus budget for allocation insights</div>
+            <div className="text-[14px] font-semibold text-cream/90">
+              {t('settings.weeklyCapacity.label')}
+            </div>
+            <div className="text-[12px] text-faint">{t('settings.weeklyCapacity.hint')}</div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <button
@@ -290,7 +324,7 @@ export default function SettingsCard({
               }
               className="press btn-ghost flex h-8 w-8 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
               disabled={settings.weeklyCapacityMin <= 60}
-              aria-label="Decrease weekly capacity"
+              aria-label={t('settings.weeklyCapacity.decreaseAria')}
             >
               <MinusIcon />
             </button>
@@ -303,7 +337,7 @@ export default function SettingsCard({
               }
               className="press btn-ghost flex h-8 w-8 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
               disabled={settings.weeklyCapacityMin >= 10080}
-              aria-label="Increase weekly capacity"
+              aria-label={t('settings.weeklyCapacity.increaseAria')}
             >
               <PlusIcon />
             </button>
@@ -313,14 +347,14 @@ export default function SettingsCard({
 
       <div className="mt-2 divide-y divide-line/70 border-t border-line">
         <Toggle
-          label="Auto-start next"
-          hint="Roll straight into the next round"
+          label={t('settings.toggle.autoStart.label')}
+          hint={t('settings.toggle.autoStart.hint')}
           on={settings.autoStart}
           onClick={() => onChange({ autoStart: !settings.autoStart })}
         />
         <Toggle
-          label="Completion chime"
-          hint="Play sound when a round ends"
+          label={t('settings.toggle.chime.label')}
+          hint={t('settings.toggle.chime.hint')}
           on={settings.sound}
           onClick={() => onChange({ sound: !settings.sound })}
         />
@@ -328,8 +362,10 @@ export default function SettingsCard({
           <>
             <div className="flex items-center justify-between gap-3 py-3">
               <div className="min-w-0">
-                <div className="text-[14px] font-semibold text-cream/90">Sound type</div>
-                <div className="text-[12px] text-faint">Choose your notification sound</div>
+                <div className="text-[14px] font-semibold text-cream/90">
+                  {t('settings.soundType.label')}
+                </div>
+                <div className="text-[12px] text-faint">{t('settings.soundType.hint')}</div>
               </div>
               <div className="flex items-center gap-2">
                 <select
@@ -339,10 +375,10 @@ export default function SettingsCard({
                 >
                   {BUILT_IN_SOUNDS.map((s) => (
                     <option key={s} value={s}>
-                      {SOUND_LABELS[s]}
+                      {t(SOUND_LABELS[s])}
                     </option>
                   ))}
-                  <option value="custom">{CUSTOM_SOUND_LABEL}</option>
+                  <option value="custom">{t(CUSTOM_SOUND_LABEL)}</option>
                 </select>
                 <button
                   onClick={() => {
@@ -350,8 +386,8 @@ export default function SettingsCard({
                     playSound(settings.soundType, settings.volume / 100);
                   }}
                   className="press flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-ink/60 text-cream/70 ring-1 ring-inset ring-line hover:text-cream disabled:opacity-40"
-                  aria-label="Preview sound"
-                  title="Preview sound"
+                  aria-label={t('settings.previewSound')}
+                  title={t('settings.previewSound')}
                 >
                   <svg
                     width="16"
@@ -371,9 +407,13 @@ export default function SettingsCard({
             {settings.soundType === 'custom' && (
               <div className="flex items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
-                  <div className="text-[14px] font-semibold text-cream/90">Custom upload</div>
+                  <div className="text-[14px] font-semibold text-cream/90">
+                    {t('settings.customUpload.label')}
+                  </div>
                   <div className="text-[12px] text-faint">
-                    {hasCustom ? 'Your sound is stored on this device.' : 'MP3, WAV, OGG or WebM'}
+                    {hasCustom
+                      ? t('settings.customUpload.stored')
+                      : t('settings.customUpload.formats')}
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
@@ -390,13 +430,13 @@ export default function SettingsCard({
                         onClick={() => handleRemoveCustom()}
                         className="press flex h-9 items-center justify-center rounded-lg bg-ink/60 px-3 text-[12px] font-semibold text-cream/70 ring-1 ring-inset ring-line hover:text-cream"
                       >
-                        Remove
+                        {t('settings.customUpload.remove')}
                       </button>
                       <button
                         onClick={() => playSound('custom', settings.volume / 100)}
                         className="press flex h-9 items-center justify-center rounded-lg bg-ink/60 px-3 text-[12px] font-semibold text-cream/70 ring-1 ring-inset ring-line hover:text-cream"
                       >
-                        Test
+                        {t('settings.customUpload.test')}
                       </button>
                     </>
                   ) : (
@@ -404,7 +444,7 @@ export default function SettingsCard({
                       onClick={() => fileInputRef.current?.click()}
                       className="press flex h-9 items-center justify-center rounded-lg bg-ink/60 px-3 text-[12px] font-semibold text-cream/70 ring-1 ring-inset ring-line hover:text-cream"
                     >
-                      Upload
+                      {t('settings.customUpload.upload')}
                     </button>
                   )}
                 </div>
@@ -412,8 +452,10 @@ export default function SettingsCard({
             )}
             <div className="flex items-center justify-between gap-3 py-3">
               <div className="min-w-0">
-                <div className="text-[14px] font-semibold text-cream/90">Volume</div>
-                <div className="text-[12px] text-faint">Adjust sound volume</div>
+                <div className="text-[14px] font-semibold text-cream/90">
+                  {t('settings.volume.label')}
+                </div>
+                <div className="text-[12px] text-faint">{t('settings.volume.hint')}</div>
               </div>
               <div className="flex items-center gap-3">
                 <input
@@ -430,8 +472,8 @@ export default function SettingsCard({
               </div>
             </div>
             <Toggle
-              label="Browser notifications"
-              hint="Show notification when timer ends"
+              label={t('settings.toggle.browserNotif.label')}
+              hint={t('settings.toggle.browserNotif.hint')}
               on={settings.notifications}
               onClick={() => onChange({ notifications: !settings.notifications })}
             />
@@ -445,11 +487,12 @@ export default function SettingsCard({
 }
 
 function SectionLabel({ text }: { text: string }) {
+  const { t } = useI18n();
   return (
     <div className="flex items-baseline justify-between gap-3 py-3">
       <div className="text-[14px] font-semibold text-cream/90">{text}</div>
       <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-faint">
-        Appearance
+        {t('settings.appearance.badge')}
       </span>
     </div>
   );
@@ -492,29 +535,32 @@ function AppearanceSection({
   onThemeChange: (t: UITheme) => void;
   isPro: boolean;
 }) {
+  const { t } = useI18n();
   const set = (patch: Partial<UITheme>) => onThemeChange({ ...theme, ...patch });
 
   return (
     <div className="mt-2 divide-y divide-line/70 border-t border-line">
-      <SectionLabel text="Theme" />
+      <SectionLabel text={t('settings.appearance.theme')} />
 
       <div className="flex items-center justify-between gap-3 py-3">
         <div className="min-w-0">
-          <div className="text-[14px] font-semibold text-cream/90">Mode</div>
+          <div className="text-[14px] font-semibold text-cream/90">
+            {t('settings.appearance.mode.label')}
+          </div>
           <div className="text-[12px] text-faint">
-            {isPro ? 'Pick a light or dark look' : 'Light mode is part of Moneo Pro'}
+            {isPro ? t('settings.appearance.mode.hintPro') : t('settings.appearance.mode.hintFree')}
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          {THEME_OPTIONS.map((t) => (
+          {THEME_OPTIONS.map((opt) => (
             <Chip
-              key={t}
-              selected={theme.theme === t}
-              disabled={t === 'light' && !isPro}
-              onClick={() => set({ theme: t as ThemeName })}
+              key={opt}
+              selected={theme.theme === opt}
+              disabled={opt === 'light' && !isPro}
+              onClick={() => set({ theme: opt as ThemeName })}
             >
-              {t}
-              {t === 'light' && !isPro && ' · Pro'}
+              {t(THEME_LABELS[opt])}
+              {opt === 'light' && !isPro && t('settings.appearance.proSuffix')}
             </Chip>
           ))}
         </div>
@@ -522,11 +568,13 @@ function AppearanceSection({
 
       <div className="flex items-center justify-between gap-3 py-3">
         <div className="min-w-0">
-          <div className="text-[14px] font-semibold text-cream/90">Accent</div>
+          <div className="text-[14px] font-semibold text-cream/90">
+            {t('settings.appearance.accent.label')}
+          </div>
           <div className="text-[12px] text-faint">
             {isPro
-              ? 'Color of buttons, glow and highlights'
-              : 'Custom accents are part of Moneo Pro'}
+              ? t('settings.appearance.accent.hintPro')
+              : t('settings.appearance.accent.hintFree')}
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
@@ -551,8 +599,10 @@ function AppearanceSection({
                       ? undefined
                       : ACCENT_PRESETS[k as Exclude<AccentName, 'auto'>].accent,
                   }}
-                  title={String(k)}
-                  aria-label={`Accent ${k}`}
+                  title={t(ACCENT_NAME_LABELS[k])}
+                  aria-label={t('settings.appearance.accentAria', {
+                    name: t(ACCENT_NAME_LABELS[k]),
+                  })}
                 >
                   <span
                     className={`flex h-full w-full items-center justify-center rounded-full font-mono text-[9px] font-bold ${
@@ -578,9 +628,11 @@ function AppearanceSection({
 
       <div className="flex items-center justify-between gap-3 py-3">
         <div className="min-w-0">
-          <div className="text-[14px] font-semibold text-cream/90">Display font</div>
+          <div className="text-[14px] font-semibold text-cream/90">
+            {t('settings.appearance.font.label')}
+          </div>
           <div className="text-[12px] text-faint">
-            {isPro ? 'Headline style' : 'Serif headlines are part of Moneo Pro'}
+            {isPro ? t('settings.appearance.font.hintPro') : t('settings.appearance.font.hintFree')}
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -591,8 +643,8 @@ function AppearanceSection({
               disabled={f === 'serif' && !isPro}
               onClick={() => set({ font: f as FontChoice })}
             >
-              {f}
-              {f === 'serif' && !isPro && ' · Pro'}
+              {t(FONT_CHOICE_LABELS[f])}
+              {f === 'serif' && !isPro && t('settings.appearance.proSuffix')}
             </Chip>
           ))}
         </div>
@@ -600,8 +652,10 @@ function AppearanceSection({
 
       <div className="flex items-center justify-between gap-3 py-3">
         <div className="min-w-0">
-          <div className="text-[14px] font-semibold text-cream/90">Text size</div>
-          <div className="text-[12px] text-faint">A comfortable reading fit</div>
+          <div className="text-[14px] font-semibold text-cream/90">
+            {t('settings.appearance.textSize.label')}
+          </div>
+          <div className="text-[12px] text-faint">{t('settings.appearance.textSize.hint')}</div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {FONT_SCALE_OPTIONS.map((s) => (
@@ -610,7 +664,7 @@ function AppearanceSection({
               selected={theme.fontScale === s}
               onClick={() => set({ fontScale: s as FontScale })}
             >
-              {s}
+              {t(FONT_SCALE_LABELS[s])}
             </Chip>
           ))}
         </div>

@@ -4,6 +4,7 @@
  * Built-in sounds are synthesised (no external assets required).
  * Custom sounds are stored in IndexedDB and decoded at play time.
  */
+import type { TKey } from './i18n/types';
 
 export type BuiltInSound = 'bell' | 'gong' | 'piano' | 'birds' | 'gentle' | 'rain' | 'ocean';
 
@@ -19,17 +20,17 @@ export const BUILT_IN_SOUNDS: BuiltInSound[] = [
   'ocean',
 ];
 
-export const SOUND_LABELS: Record<BuiltInSound, string> = {
-  bell: 'Bell',
-  gong: 'Gong',
-  piano: 'Piano',
-  birds: 'Birds',
-  gentle: 'Gentle',
-  rain: 'Rain',
-  ocean: 'Ocean',
+export const SOUND_LABELS: Record<BuiltInSound, TKey> = {
+  bell: 'settings.sound.bell',
+  gong: 'settings.sound.gong',
+  piano: 'settings.sound.piano',
+  birds: 'settings.sound.birds',
+  gentle: 'settings.sound.gentle',
+  rain: 'settings.sound.rain',
+  ocean: 'settings.sound.ocean',
 };
 
-export const CUSTOM_SOUND_LABEL = 'Custom';
+export const CUSTOM_SOUND_LABEL: TKey = 'settings.sound.custom';
 
 /* ------------------------------------------------------------------ */
 /*  AudioContext singleton                                             */
