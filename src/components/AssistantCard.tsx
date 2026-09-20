@@ -20,6 +20,7 @@ import {
   type AssistantTone,
   type ChatMessage,
 } from '../lib/assistant';
+import { useI18n } from '../lib/i18n/LocaleContext';
 
 interface Props {
   messages: ChatMessage[];
@@ -62,6 +63,7 @@ export default function AssistantCard({
   onTasksChange,
   isPro = false,
 }: Props) {
+  const { t } = useI18n();
   const [draft, setDraft] = useState('');
   const [tone, setTone] = useState<AssistantTone>(loadAssistantTone);
   const [speakOn, setSpeakOn] = useState(false);
@@ -147,7 +149,7 @@ export default function AssistantCard({
     if (reply.action?.type === 'add-task') {
       const target = resolveProject(reply.action.projectQuery);
       if (!target) {
-        spoken = 'Create a project first — every task needs a home. Then try again.';
+        spoken = t('assistant.noProjectYet');
         log = appendMessage(log, 'assistant', spoken);
       } else {
         const task = createTaskObject(
@@ -174,7 +176,7 @@ export default function AssistantCard({
         onIvyPlansChange(plans);
         log = appendMessage(log, 'assistant', reply.text);
       } else {
-        spoken = 'Your Ivy Lee list is already full — clear something first.';
+        spoken = t('assistant.ivyFull');
         log = appendMessage(log, 'assistant', spoken);
       }
     } else {
@@ -195,18 +197,20 @@ export default function AssistantCard({
     <section className="card px-6 py-6 sm:px-7" aria-label="AI assistant">
       <header className="flex items-baseline justify-between gap-3">
         <div>
-          <h2 className="font-display text-xl font-bold tracking-tight text-cream">Assistant</h2>
+          <h2 className="font-display text-xl font-bold tracking-tight text-cream">
+            {t('assistant.title')}
+          </h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            {isPro ? 'Ask anything · it creates tasks too' : '2 free quick actions · chat is Pro'}
+            {isPro ? t('assistant.subtitlePro') : t('assistant.subtitleFree')}
           </p>
         </div>
         {messages.length > 0 && (
           <button
             onClick={() => commit([])}
             className="press font-mono text-[11px] text-faint hover:text-cream"
-            title="Clear conversation"
+            title={t('assistant.clearTitle')}
           >
-            Clear
+            {t('assistant.clear')}
           </button>
         )}
       </header>
@@ -221,12 +225,12 @@ export default function AssistantCard({
               saveAssistantTone(next);
             }}
             className="h-7 rounded-lg bg-ink/40 px-2 font-mono text-[11px] text-sage ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-            title="Assistant personality"
-            aria-label="Assistant personality"
+            title={t('assistant.personality')}
+            aria-label={t('assistant.personality')}
           >
-            {ASSISTANT_TONES.map((t) => (
-              <option key={t} value={t}>
-                {TONE_LABELS[t]}
+            {ASSISTANT_TONES.map((toneOption) => (
+              <option key={toneOption} value={toneOption}>
+                {TONE_LABELS[toneOption]}
               </option>
             ))}
           </select>
@@ -237,7 +241,7 @@ export default function AssistantCard({
             speakOn ? 'text-accent ring-accent/50' : 'text-faint ring-line hover:text-cream'
           }`}
           aria-pressed={speakOn}
-          title="Read replies aloud"
+          title={t('assistant.readAloud')}
         >
           {speakOn ? '🔊' : '🔇'}
         </button>
@@ -276,7 +280,7 @@ export default function AssistantCard({
                   ? 'cursor-not-allowed text-faint ring-line/50'
                   : 'text-sage ring-line hover:text-cream hover:ring-accent/50'
               }`}
-              title={locked ? 'Pro quick action — upgrade to unlock' : q.label}
+              title={locked ? t('assistant.proLocked') : q.label}
             >
               {locked ? `🔒 ${q.label}` : q.label}
             </button>
@@ -293,8 +297,8 @@ export default function AssistantCard({
               className={`press flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${
                 listening ? 'text-accent ring-accent/60' : 'text-sage ring-line hover:text-cream'
               } disabled:opacity-60`}
-              title="Voice input"
-              aria-label="Voice input"
+              title={t('assistant.voiceInput')}
+              aria-label={t('assistant.voiceInput')}
             >
               🎙
             </button>
@@ -305,23 +309,21 @@ export default function AssistantCard({
             maxLength={500}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && send(draft)}
-            placeholder='Ask or "add task Draft proposal p1 tomorrow"…'
+            placeholder={t('assistant.placeholder')}
             className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
           />
           <button
             onClick={() => send(draft)}
             disabled={!draft.trim()}
             className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
-            aria-label="Send message"
+            aria-label={t('assistant.send')}
           >
             ↑
           </button>
         </div>
       ) : (
         <div className="mt-3 rounded-xl border border-accent/30 bg-accent/10 p-3.5">
-          <p className="text-[12px] leading-relaxed text-cream">
-            Pro unlocks free-text chat, task creation and goal reviews.
-          </p>
+          <p className="text-[12px] leading-relaxed text-cream">{t('assistant.proUpsell')}</p>
         </div>
       )}
     </section>

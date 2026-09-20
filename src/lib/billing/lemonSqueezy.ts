@@ -4,61 +4,62 @@
  */
 
 import { readEnv } from '../env';
+import type { TKey } from '../i18n/types';
 
 export type Plan = 'free' | 'pro-monthly' | 'pro-yearly';
 
 export interface Pricing {
   id: Plan;
-  name: string;
-  description: string;
+  name: TKey;
+  description: TKey;
   price: string;
   priceMonthly: string;
-  features: string[];
+  features: TKey[];
 }
 
 const PRICING_PLANS: Pricing[] = [
   {
     id: 'free',
-    name: 'Free',
-    description: 'Perfect for getting started',
+    name: 'pricing.plan.free.name',
+    description: 'pricing.plan.free.description',
     price: '$0',
     priceMonthly: '$0',
     features: [
-      'Unlimited focus sessions',
-      '3 projects + task manager',
-      'Ivy Lee planner + daily frog',
-      'Habits, journal & energy',
-      'Local-first, private by design',
+      'pricing.feature.unlimitedSessions',
+      'pricing.feature.threeProjects',
+      'pricing.feature.ivyFrog',
+      'pricing.feature.habitsJournalEnergy',
+      'pricing.feature.localFirst',
     ],
   },
   {
     id: 'pro-monthly',
-    name: 'Pro (Monthly)',
-    description: 'For serious focus practitioners',
+    name: 'pricing.plan.proMonthly.name',
+    description: 'pricing.plan.proMonthly.description',
     price: '$9',
     priceMonthly: '$9',
     features: [
-      'All Free features',
-      'Unlimited projects, goals & OKRs',
-      'Full AI assistant + all insights',
-      'Reports, CSV/PDF export & billable time',
-      'Time blocking, sprints & kanban',
-      'Cloud sync across devices',
-      'Premium themes & customization',
-      'Priority support',
+      'pricing.feature.allFree',
+      'pricing.feature.unlimitedProjects',
+      'pricing.feature.fullAi',
+      'pricing.feature.reportsExport',
+      'pricing.feature.timeBlocking',
+      'pricing.feature.cloudSync',
+      'pricing.feature.premiumThemes',
+      'pricing.feature.prioritySupport',
     ],
   },
   {
     id: 'pro-yearly',
-    name: 'Pro (Yearly)',
-    description: 'Best value - 2 months free',
+    name: 'pricing.plan.proYearly.name',
+    description: 'pricing.plan.proYearly.description',
     price: '$90',
     priceMonthly: '$7.50',
     features: [
-      'All Pro features',
-      '2 months free',
-      'Early access to new features',
-      'Priority support',
+      'pricing.feature.allPro',
+      'pricing.feature.twoMonthsFree',
+      'pricing.feature.earlyAccess',
+      'pricing.feature.prioritySupport',
     ],
   },
 ];

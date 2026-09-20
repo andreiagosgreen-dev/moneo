@@ -3,6 +3,7 @@ import type { Goal, GoalLevel } from '../lib/goals';
 import {
   GOAL_LEVELS,
   GOAL_LEVEL_LABELS,
+  GOAL_LEVEL_SHORT_LABELS,
   FREE_GOALS_LIMIT,
   archivedGoals,
   canParent,
@@ -25,6 +26,7 @@ import type { Task } from '../lib/tasks';
 import { createTaskObject, tasksForProject } from '../lib/tasks';
 import { addTaskToDay, IVY_MAX_TASKS, IVY_FREE_MAX_TASKS, type IvyPlan } from '../lib/ivyLee';
 import { dayKeyInTz } from '../lib/timezone';
+import { useI18n } from '../lib/i18n/LocaleContext';
 
 interface Props {
   goals: Goal[];
@@ -58,6 +60,7 @@ export default function GoalsCard({
   lifeAreas,
   isPro = false,
 }: Props) {
+  const { t, tp } = useI18n();
   const [draft, setDraft] = useState('');
   const [draftLevel, setDraftLevel] = useState<GoalLevel>('project');
   const [draftParent, setDraftParent] = useState('');
@@ -133,30 +136,36 @@ export default function GoalsCard({
   };
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label="Goal hierarchy">
+    <section className="card px-6 py-6 sm:px-7" aria-label={t('goals.ariaLabel')}>
       <header className="flex items-baseline justify-between gap-3">
         <div>
-          <h2 className="font-display text-xl font-bold tracking-tight text-cream">Goals</h2>
+          <h2 className="font-display text-xl font-bold tracking-tight text-cream">
+            {t('goals.title')}
+          </h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
             {isPro
-              ? 'Big goals, broken into milestones and weeks'
-              : `Big goals, broken down · free holds ${FREE_GOALS_LIMIT}`}
+              ? t('goals.subtitlePro')
+              : t('goals.subtitleFree', { n: String(FREE_GOALS_LIMIT) })}
           </p>
         </div>
       </header>
 
       {conflicts.length > 0 && (
         <p className="mt-3 rounded-lg bg-tomato/10 px-3 py-2 font-mono text-[11px] text-tomato ring-1 ring-inset ring-tomato/30">
-          ⚠ {conflicts.length} target-week clash{conflicts.length === 1 ? '' : 'es'}: "
-          {conflicts[0].a.title}" × "{conflicts[0].b.title}" ({conflicts[0].week})
+          ⚠{' '}
+          {tp('goals.conflictWarning', conflicts.length, {
+            a: conflicts[0].a.title,
+            b: conflicts[0].b.title,
+            week: conflicts[0].week,
+          })}
         </p>
       )}
 
       {roots.length === 0 ? (
         <p className="mt-4 rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">
-          Set a yearly vision, break it into milestones.
+          {t('goals.emptyLine1')}
           <br />
-          Progress rolls up automatically.
+          {t('goals.emptyLine2')}
         </p>
       ) : (
         <ul className="mt-4 space-y-2">
@@ -187,7 +196,7 @@ export default function GoalsCard({
               maxLength={80}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && add()}
-              placeholder="e.g. Launch the SaaS…"
+              placeholder={t('goals.form.placeholder')}
               className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
             />
             <select
@@ -197,11 +206,11 @@ export default function GoalsCard({
                 setDraftParent('');
               }}
               className="h-9 shrink-0 rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              aria-label="Goal level"
+              aria-label={t('goals.form.levelAria')}
             >
               {GOAL_LEVELS.map((l) => (
                 <option key={l} value={l}>
-                  {GOAL_LEVEL_LABELS[l]}
+                  {t(GOAL_LEVEL_LABELS[l])}
                 </option>
               ))}
             </select>
@@ -209,7 +218,7 @@ export default function GoalsCard({
               onClick={add}
               disabled={!draft.trim()}
               className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
-              aria-label="Add goal"
+              aria-label={t('goals.form.addAria')}
             >
               +
             </button>
@@ -219,9 +228,9 @@ export default function GoalsCard({
               value={draftParent}
               onChange={(e) => setDraftParent(e.target.value)}
               className="h-9 w-full rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              aria-label="Parent goal (optional)"
+              aria-label={t('goals.form.parentAria')}
             >
-              <option value="">No parent (root)</option>
+              <option value="">{t('goals.form.noParent')}</option>
               {validParents(goals, draftLevel).map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.title}
@@ -234,11 +243,9 @@ export default function GoalsCard({
         !isPro && (
           <div className="mt-3 rounded-xl border border-accent/30 bg-accent/10 p-3.5">
             <p className="text-[12px] leading-relaxed text-cream">
-              Free plan holds up to {FREE_GOALS_LIMIT} goals.
+              {t('goals.capacityLine', { n: String(FREE_GOALS_LIMIT) })}
             </p>
-            <p className="mt-1 font-mono text-[11px] text-faint">
-              Upgrade to Pro for an unlimited hierarchy.
-            </p>
+            <p className="mt-1 font-mono text-[11px] text-faint">{t('goals.capacityUpgrade')}</p>
           </div>
         )
       )}
@@ -249,7 +256,7 @@ export default function GoalsCard({
             onClick={() => setShowArchived(!showArchived)}
             className="press font-mono text-[11px] uppercase tracking-[0.18em] text-faint hover:text-sage"
           >
-            Archived ({archived.length}) {showArchived ? '▴' : '▾'}
+            {t('goals.archivedToggle', { n: String(archived.length) })} {showArchived ? '▴' : '▾'}
           </button>
           {showArchived && (
             <ul className="mt-2 space-y-1">
@@ -263,7 +270,7 @@ export default function GoalsCard({
                     onClick={() => goalsChange(updateGoal(goals, g.id, { archived: false }))}
                     className="press shrink-0 font-mono text-[11px] text-faint hover:text-cream"
                   >
-                    Restore
+                    {t('goals.restore')}
                   </button>
                 </li>
               ))}
@@ -302,6 +309,7 @@ function GoalNode({
   onGenerate,
   onSendToToday,
 }: NodeProps) {
+  const { t } = useI18n();
   const [showDetails, setShowDetails] = useState(false);
   const pct = progressOf.get(goal.id) ?? 0;
   const kids = childrenOf(goals, goal.id).filter((k) => !ancestorIds.includes(k.id));
@@ -327,13 +335,13 @@ function GoalNode({
             {goal.title}
           </button>
           <span className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-faint">
-            {GOAL_LEVEL_LABELS[goal.level].split(' ')[0]}
+            {t(GOAL_LEVEL_SHORT_LABELS[goal.level])}
           </span>
           <span className="shrink-0 font-mono text-[11px] text-sage">{pct}%</span>
           <button
             onClick={() => setShowDetails(!showDetails)}
             className="press shrink-0 rounded p-1 font-mono text-[11px] text-faint hover:text-cream"
-            aria-label={`${showDetails ? 'Hide' : 'Show'} details`}
+            aria-label={showDetails ? t('goals.node.hideDetails') : t('goals.node.showDetails')}
           >
             ⋯
           </button>
@@ -356,9 +364,9 @@ function GoalNode({
                   goalsChange(updateGoal(goals, goal.id, { projectId: e.target.value || null }))
                 }
                 className="h-8 min-w-0 flex-1 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title="Linked project (progress mirrors its tasks)"
+                title={t('goals.node.linkedProjectTitle')}
               >
-                <option value="">No linked project</option>
+                <option value="">{t('goals.node.noProject')}</option>
                 {liveProjects.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
@@ -378,7 +386,7 @@ function GoalNode({
                   )
                 }
                 className="h-8 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title="Target date"
+                title={t('goals.node.targetDateTitle')}
               />
             </div>
             {!goal.projectId && kids.length === 0 && (
@@ -392,14 +400,14 @@ function GoalNode({
                     goalsChange(updateGoal(goals, goal.id, { progress: Number(e.target.value) }))
                   }
                   className="h-1.5 flex-1 accent-[var(--accent)]"
-                  aria-label="Manual progress"
+                  aria-label={t('goals.node.manualProgressAria')}
                 />
                 <span className="font-mono text-[11px] text-sage">{goal.progress ?? 0}%</span>
               </div>
             )}
             {linked && (
               <p className="font-mono text-[10px] text-faint">
-                Progress mirrors “{linked.name}” tasks.
+                {t('goals.node.progressMirrors', { name: linked.name })}
               </p>
             )}
             <div className="flex flex-wrap items-center gap-2">
@@ -409,9 +417,9 @@ function GoalNode({
                   goalsChange(updateGoal(goals, goal.id, { lifeAreaId: e.target.value || null }))
                 }
                 className="h-8 min-w-0 flex-1 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title="Linked life area"
+                title={t('goals.node.lifeAreaTitle')}
               >
-                <option value="">No life area</option>
+                <option value="">{t('goals.node.noLifeArea')}</option>
                 {lifeAreas.map((a) => (
                   <option key={a.id} value={a.id}>
                     {a.label}
@@ -421,12 +429,10 @@ function GoalNode({
               <span
                 className="shrink-0 font-mono text-[10px] text-sage"
                 title={
-                  smart.tips.length > 0
-                    ? smart.tips.join(' ')
-                    : 'SMART: specific, measurable, achievable, relevant, time-bound'
+                  smart.tips.length > 0 ? smart.tips.join(' ') : t('goals.node.smartTipsDefault')
                 }
               >
-                SMART {smart.score}/5
+                {t('goals.node.smartScore', { score: String(smart.score) })}
               </span>
             </div>
             {blockers.length > 0 && (
@@ -435,7 +441,7 @@ function GoalNode({
                   <span
                     key={b.id}
                     className="flex items-center gap-1 rounded-full bg-tomato/15 px-2 py-0.5 font-mono text-[10px] text-tomato"
-                    title="Unfinished dependency"
+                    title={t('goals.node.unfinishedDependency')}
                   >
                     ⛔ {b.title}
                     <button
@@ -449,7 +455,7 @@ function GoalNode({
                         )
                       }
                       className="press hover:text-cream"
-                      aria-label={`Remove dependency ${b.title}`}
+                      aria-label={t('goals.node.removeDependencyAria', { title: b.title })}
                     >
                       ✕
                     </button>
@@ -468,10 +474,10 @@ function GoalNode({
                     );
                   }}
                   className="h-8 min-w-0 flex-1 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                  title="Finish first (dependency)"
-                  aria-label="Add goal dependency"
+                  title={t('goals.node.dependencyTitle')}
+                  aria-label={t('goals.node.addDependencyAria')}
                 >
-                  <option value="">Depends on…</option>
+                  <option value="">{t('goals.node.dependsOn')}</option>
                   {depCandidates.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.title}
@@ -484,32 +490,32 @@ function GoalNode({
               <button
                 onClick={() => onGenerate(goal)}
                 className="press rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream disabled:opacity-40"
-                title="Create starter tasks from this goal"
+                title={t('goals.node.generateTasksTitle')}
               >
-                ⚙ Generate tasks
+                ⚙ {t('goals.node.generateTasks')}
               </button>
               <button
                 onClick={() => onSendToToday(goal)}
                 className="press rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream"
-                title="Add to today's Ivy Lee plan"
+                title={t('goals.node.sendToTodayTitle')}
               >
-                ＋ Today
+                ＋ {t('goals.node.sendToToday')}
               </button>
               <button
                 onClick={() => goalsChange(updateGoal(goals, goal.id, { archived: true }))}
                 className="press rounded-lg px-2.5 py-1.5 text-[11px] text-faint ring-1 ring-inset ring-line hover:text-cream"
               >
-                Archive
+                {t('goals.node.archive')}
               </button>
               <button
                 onClick={() => {
-                  if (confirm(`Delete “${goal.title}”? Children re-attach upward.`)) {
+                  if (confirm(t('goals.node.deleteConfirm', { title: goal.title }))) {
                     goalsChange(deleteGoal(goals, goal.id));
                   }
                 }}
                 className="press ml-auto rounded-lg px-2.5 py-1.5 text-[11px] text-faint ring-1 ring-inset ring-line hover:text-tomato"
               >
-                Delete
+                {t('goals.node.delete')}
               </button>
             </div>
           </div>
