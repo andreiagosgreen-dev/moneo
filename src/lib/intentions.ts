@@ -1,7 +1,7 @@
-import { dayKey, lastNDays, type Session } from "./store";
-import { STORAGE_KEYS } from "./storage/storageKeys";
-import { safeRead, safeWrite } from "./storage/storageAdapter";
-import { dayKeyInTz, trailingWeekDayKeysInTz } from "./timezone";
+import { dayKey, lastNDays, type Session } from './store';
+import { STORAGE_KEYS } from './storage/storageKeys';
+import { safeRead, safeWrite } from './storage/storageAdapter';
+import { dayKeyInTz, trailingWeekDayKeysInTz } from './timezone';
 
 /**
  * Focus Intentions — "what am I focusing on right now?"
@@ -16,7 +16,7 @@ const DRAFT_KEY = STORAGE_KEYS.intentionDraft;
 
 /** Display-level sanitizer: coerce, trim, enforce max. Empty → null. */
 export function sanitizeIntention(raw: unknown): string | null {
-  if (typeof raw !== "string") return null;
+  if (typeof raw !== 'string') return null;
   const t = raw.trim().slice(0, INTENTION_MAX);
   return t.length > 0 ? t : null;
 }
@@ -28,7 +28,7 @@ export function sanitizeIntention(raw: unknown): string | null {
  */
 export function normalizeIntention(raw: unknown): string | null {
   const s = sanitizeIntention(raw);
-  return s === null ? null : s.toLowerCase().replace(/\s+/g, " ");
+  return s === null ? null : s.toLowerCase().replace(/\s+/g, ' ');
 }
 
 export interface IntentionGroup {
@@ -48,9 +48,7 @@ export function groupFocusByIntention(history: Session[]): IntentionGroup[] {
     if (existing) existing.min += s.min;
     else map.set(key, { key, label: s.intention!.trim(), min: s.min });
   }
-  return [...map.values()].sort(
-    (a, b) => b.min - a.min || a.label.localeCompare(b.label),
-  );
+  return [...map.values()].sort((a, b) => b.min - a.min || a.label.localeCompare(b.label));
 }
 
 /**
@@ -66,18 +64,15 @@ export function getWeeklyTopIntentions(
   const week = timezone
     ? new Set(trailingWeekDayKeysInTz(7, timezone))
     : new Set(lastNDays(7).map((d) => dayKey(d)));
-  const keyOf = (ts: number) =>
-    timezone ? dayKeyInTz(ts, timezone) : dayKey(new Date(ts));
-  return groupFocusByIntention(
-    history.filter((s) => week.has(keyOf(s.at))),
-  ).slice(0, limit);
+  const keyOf = (ts: number) => (timezone ? dayKeyInTz(ts, timezone) : dayKey(new Date(ts)));
+  return groupFocusByIntention(history.filter((s) => week.has(keyOf(s.at)))).slice(0, limit);
 }
 
 /* ---------- draft persistence (small UX key) ---------- */
 
 export function loadIntentionDraft(): string {
   const parsed = safeRead<unknown>(DRAFT_KEY);
-  return typeof parsed === "string" ? parsed.slice(0, INTENTION_MAX) : "";
+  return typeof parsed === 'string' ? parsed.slice(0, INTENTION_MAX) : '';
 }
 
 export function saveIntentionDraft(draft: string) {

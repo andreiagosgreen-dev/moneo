@@ -1,5 +1,5 @@
-import type { Settings } from "../store";
-import type { FocusArea } from "../focusAreas";
+import type { Settings } from '../store';
+import type { FocusArea } from '../focusAreas';
 
 /**
  * Deterministic merge planners — PURE functions, no I/O, heavily tested.
@@ -57,6 +57,7 @@ export interface RemoteSettingsRow {
   soundType?: string;
   volume?: number;
   notifications?: boolean;
+  weeklyCapacityMin?: number;
   updatedAt: number;
 }
 
@@ -70,10 +71,7 @@ export interface LocalSession {
 
 /* ---------------- sessions ---------------- */
 
-export function sessionPayloadEqual(
-  a: LocalSession,
-  b: RemoteSessionRow,
-): boolean {
+export function sessionPayloadEqual(a: LocalSession, b: RemoteSessionRow): boolean {
   return (
     a.at === b.at &&
     a.min === b.min &&
@@ -109,7 +107,7 @@ export function planSessionMerge(
   };
   const seenRemote = new Set<string>();
   for (const s of local) {
-    if (typeof s.id !== "string" || s.id.length === 0) continue; // pre-backfill guard
+    if (typeof s.id !== 'string' || s.id.length === 0) continue; // pre-backfill guard
     const r = remoteById.get(s.id);
     if (!r) {
       plan.insertRemote.push(s as LocalSession & { id: string });
@@ -131,10 +129,10 @@ export function planSessionMerge(
 /* ---------------- areas ---------------- */
 
 export type AreaOp =
-  | { kind: "pushInsert"; area: FocusArea }
-  | { kind: "pushUpdate"; area: FocusArea }
-  | { kind: "applyLocal"; remote: RemoteAreaRow }
-  | { kind: "noop" };
+  | { kind: 'pushInsert'; area: FocusArea }
+  | { kind: 'pushUpdate'; area: FocusArea }
+  | { kind: 'applyLocal'; remote: RemoteAreaRow }
+  | { kind: 'noop' };
 
 export interface AreaMergePlan {
   ops: Array<{ areaId: string; op: AreaOp }>;
@@ -153,13 +151,9 @@ const areaStamp = (a: FocusArea): number => a.updatedAt ?? a.createdAt ?? 0;
 const areaCloudKey = (a: FocusArea): string => a.cloudId ?? a.id;
 
 const areaDiffers = (a: FocusArea, r: RemoteAreaRow): boolean =>
-  a.name !== r.name ||
-  typeof a.deletedAt === "number" !== (r.deletedAt !== null);
+  a.name !== r.name || (typeof a.deletedAt === 'number') !== (r.deletedAt !== null);
 
-export function planAreaMerge(
-  local: FocusArea[],
-  remote: RemoteAreaRow[],
-): AreaMergePlan {
+export function planAreaMerge(local: FocusArea[], remote: RemoteAreaRow[]): AreaMergePlan {
   const remoteById = new Map(remote.map((r) => [r.id, r]));
   const plan: AreaMergePlan = {
     ops: [],
@@ -171,7 +165,7 @@ export function planAreaMerge(
   for (const a of local) {
     const r = remoteById.get(areaCloudKey(a));
     if (!r) {
-      plan.ops.push({ areaId: a.id, op: { kind: "pushInsert", area: a } });
+      plan.ops.push({ areaId: a.id, op: { kind: 'pushInsert', area: a } });
       plan.pushInsertCount++;
       continue;
     }
@@ -179,27 +173,27 @@ export function planAreaMerge(
     const rt = r.updatedAt;
     if (lt > rt) {
       if (areaDiffers(a, r)) {
-        plan.ops.push({ areaId: a.id, op: { kind: "pushUpdate", area: a } });
+        plan.ops.push({ areaId: a.id, op: { kind: 'pushUpdate', area: a } });
         plan.pushUpdateCount++;
       } else {
-        plan.ops.push({ areaId: a.id, op: { kind: "noop" } });
+        plan.ops.push({ areaId: a.id, op: { kind: 'noop' } });
         plan.noopCount++;
       }
     } else if (rt > lt) {
       if (areaDiffers(a, r)) {
-        plan.ops.push({ areaId: a.id, op: { kind: "applyLocal", remote: r } });
+        plan.ops.push({ areaId: a.id, op: { kind: 'applyLocal', remote: r } });
         plan.applyLocalCount++;
       } else {
-        plan.ops.push({ areaId: a.id, op: { kind: "noop" } });
+        plan.ops.push({ areaId: a.id, op: { kind: 'noop' } });
         plan.noopCount++;
       }
     } else {
       // Exact tie → remote canonical (deterministic).
       if (areaDiffers(a, r)) {
-        plan.ops.push({ areaId: a.id, op: { kind: "applyLocal", remote: r } });
+        plan.ops.push({ areaId: a.id, op: { kind: 'applyLocal', remote: r } });
         plan.applyLocalCount++;
       } else {
-        plan.ops.push({ areaId: a.id, op: { kind: "noop" } });
+        plan.ops.push({ areaId: a.id, op: { kind: 'noop' } });
         plan.noopCount++;
       }
     }
@@ -208,26 +202,23 @@ export function planAreaMerge(
   return plan;
 }
 
-export function remoteOnlyAreas(
-  local: FocusArea[],
-  remote: RemoteAreaRow[],
-): RemoteAreaRow[] {
+export function remoteOnlyAreas(local: FocusArea[], remote: RemoteAreaRow[]): RemoteAreaRow[] {
   const cloudIds = new Set(local.map(areaCloudKey));
   return remote.filter((r) => !cloudIds.has(r.id));
 }
 
 /* ---------------- settings ---------------- */
 
-export type SettingsMergeOp = "pushLocal" | "applyRemote" | "noop";
+export type SettingsMergeOp = 'pushLocal' | 'applyRemote' | 'noop';
 
 export function planSettingsMerge(
   local: Settings & { updatedAt?: number },
   remote: RemoteSettingsRow | null,
 ): SettingsMergeOp {
-  if (!remote) return "pushLocal";
-  const lt = typeof local.updatedAt === "number" ? local.updatedAt : 0;
+  if (!remote) return 'pushLocal';
+  const lt = typeof local.updatedAt === 'number' ? local.updatedAt : 0;
   const rt = remote.updatedAt;
-  if (lt > rt) return "pushLocal";
-  if (rt > lt) return "applyRemote";
-  return "noop"; // equal — local canonical, nothing to do
+  if (lt > rt) return 'pushLocal';
+  if (rt > lt) return 'applyRemote';
+  return 'noop'; // equal — local canonical, nothing to do
 }

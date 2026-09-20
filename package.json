@@ -8,25 +8,37 @@
     "build": "tsc --noEmit && vite build",
     "build:ci": "tsc --noEmit && vitest run && vite build",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"cloudflare/**/*.ts\" \"*.{js,json,md,yml}\" \"scripts/**/*.mjs\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"cloudflare/**/*.ts\"",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "audit": "npm audit --audit-level=high",
+    "secret-scan": "node scripts/secret-scan.mjs"
   },
   "dependencies": {
     "@lemonsqueezy/lemonsqueezy.js": "^4.0.0",
     "@supabase/supabase-js": "^2.98.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.30.6"
+    "react-router-dom": "^7.18.4"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.1.7",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "jsdom": "^30.0.1",
+    "prettier": "^3.9.7",
+    "sharp": "^0.35.4",
     "tailwindcss": "^4.1.7",
     "typescript": "^5.7.0",
+    "typescript-eslint": "^8.70.0",
     "vite": "^6.3.5",
     "vite-plugin-pwa": "^1.3.0",
     "vitest": "^4.1.11"

@@ -1,17 +1,9 @@
-import {
-  pullAllSessions,
-  pushSessionBatch,
-} from "../cloud/sessionRepository";
-import { pullAreasAll, pushAreaBatch } from "../cloud/areaRepository";
-import { pullSettingsRow, upsertSettings } from "../cloud/settingsRepository";
-import type { SyncLocalIO, SyncRepos } from "./syncEngine";
-import {
-  loadHistory,
-  loadSettings,
-  saveHistory,
-  saveSettings,
-} from "../store";
-import { loadFocusAreas, saveFocusAreas } from "../focusAreas";
+import { pullAllSessions, pushSessionBatch } from '../cloud/sessionRepository';
+import { pullAreasAll, pushAreaBatch } from '../cloud/areaRepository';
+import { pullSettingsRow, upsertSettings } from '../cloud/settingsRepository';
+import type { SyncLocalIO, SyncRepos } from './syncEngine';
+import { loadHistory, loadSettings, saveHistory, saveSettings } from '../store';
+import { loadFocusAreas, saveFocusAreas } from '../focusAreas';
 
 /**
  * Supabase-backed repo adapter. Statically safe to import — the SDK itself

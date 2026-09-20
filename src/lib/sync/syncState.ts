@@ -1,5 +1,5 @@
-import { STORAGE_KEYS } from "../storage/storageKeys";
-import { safeRead, safeWrite } from "../storage/storageAdapter";
+import { STORAGE_KEYS } from '../storage/storageKeys';
+import { safeRead, safeWrite } from '../storage/storageAdapter';
 
 /**
  * Sync metadata (Gate 9) — deliberately separate from user content.
@@ -23,12 +23,11 @@ export interface SyncState {
 
 const KEY = STORAGE_KEYS.syncState;
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function newDeviceId(): string {
   try {
-    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
       return crypto.randomUUID();
     }
   } catch {
@@ -40,7 +39,7 @@ export function newDeviceId(): string {
 }
 
 function isValidDeviceId(v: unknown): v is string {
-  return typeof v === "string" && UUID_RE.test(v);
+  return typeof v === 'string' && UUID_RE.test(v);
 }
 
 const listeners = new Set<() => void>();
@@ -67,25 +66,23 @@ function defaultState(): SyncState {
  *  is regenerated, other fields survive field-by-field validation. */
 export function loadSyncState(): SyncState {
   const parsed = safeRead<Partial<SyncState>>(KEY);
-  if (!parsed || typeof parsed !== "object") {
+  if (!parsed || typeof parsed !== 'object') {
     const fresh = defaultState();
     saveSyncState(fresh);
     return fresh;
   }
   const state: SyncState = {
     version:
-      typeof parsed.version === "number" && Number.isFinite(parsed.version)
+      typeof parsed.version === 'number' && Number.isFinite(parsed.version)
         ? parsed.version
         : SYNC_STATE_VERSION,
     initialized: parsed.initialized === true,
     lastSuccessfulSyncAt:
-      typeof parsed.lastSuccessfulSyncAt === "number" &&
+      typeof parsed.lastSuccessfulSyncAt === 'number' &&
       Number.isFinite(parsed.lastSuccessfulSyncAt)
         ? parsed.lastSuccessfulSyncAt
         : null,
-    deviceId: isValidDeviceId(parsed.deviceId)
-      ? parsed.deviceId
-      : newDeviceId(),
+    deviceId: isValidDeviceId(parsed.deviceId) ? parsed.deviceId : newDeviceId(),
   };
   return state;
 }

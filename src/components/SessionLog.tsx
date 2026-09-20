@@ -1,4 +1,4 @@
-import { fmtTimeOfDay, type Session } from "../lib/store";
+import { fmtTimeOfDay, type Session } from '../lib/store';
 
 interface Props {
   /** Today's sessions, newest first. */
@@ -11,8 +11,7 @@ export default function SessionLog({ sessions, resolveAreaName }: Props) {
   if (sessions.length === 0) {
     return (
       <p className="mt-3 text-[13px] leading-relaxed text-faint">
-        Nothing logged yet today. Finish a focus round and your progress will
-        show here.
+        Nothing logged yet today. Finish a focus round and your progress will show here.
       </p>
     );
   }
@@ -21,13 +20,13 @@ export default function SessionLog({ sessions, resolveAreaName }: Props) {
       {sessions.map((s, i) => {
         const area = s.areaId
           ? resolveAreaName
-            ? resolveAreaName(s.areaId) ?? "Deleted area"
+            ? (resolveAreaName(s.areaId) ?? 'Deleted area')
             : null
           : null;
         const label =
           area && s.intention
             ? `${area} · ${s.intention}`
-            : area ?? s.intention ?? "Focus session";
+            : (area ?? s.intention ?? 'Focus session');
         return (
           <li
             key={`${s.at}-${i}`}
@@ -35,15 +34,11 @@ export default function SessionLog({ sessions, resolveAreaName }: Props) {
           >
             <span
               className="h-1.5 w-1.5 shrink-0 rounded-full"
-              style={{ background: "var(--accent)" }}
+              style={{ background: 'var(--accent)' }}
             />
-            <span className="shrink-0 font-mono text-sage">
-              {fmtTimeOfDay(s.at)}
-            </span>
+            <span className="shrink-0 font-mono text-sage">{fmtTimeOfDay(s.at)}</span>
             <span className="min-w-0 truncate text-cream/90">{label}</span>
-            <span className="ml-auto shrink-0 font-mono text-[12px] text-sage">
-              +{s.min}m
-            </span>
+            <span className="ml-auto shrink-0 font-mono text-[12px] text-sage">+{s.min}m</span>
           </li>
         );
       })}

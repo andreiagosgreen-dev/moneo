@@ -148,12 +148,15 @@
 ### User Journey Complete
 
 #### **1. Setup (One-time)**
+
 User sets Vision Goal:
+
 ```
 "I want to become a grant writer and get $100K in funding"
 ```
 
 AI analyzes and creates Goal Hierarchy:
+
 ```
 Vision: Grant Writer Success ($100K)
 ├─ Milestone 1: Learn Grant Writing (3 months)
@@ -168,22 +171,26 @@ Vision: Grant Writer Success ($100K)
 #### **2. Daily Experience (Automated)**
 
 **Morning:**
+
 - User opens Moneo
 - AI shows: "Today's priority: Complete Section 2 of grant application"
 - Timer auto-set: 25min Pomodoro
 - Task breakdown: "Review 3 grant guidelines → Draft narrative"
 
 **During Work:**
+
 - User runs timer
 - AI monitors progress
 - After 3 sessions: "Great progress! Take a 5-min break"
 - AI suggests: "Next: Draft budget section (20min)"
 
 **Afternoon:**
+
 - AI detects: "You're 20% ahead on weekly goal"
 - AI suggests: "Stretch goal: Start researching next grant"
 
 **Evening:**
+
 - AI review: "You completed 7/8 tasks. Excellent!"
 - AI next day planning: "Tomorrow: Submit application"
 - Learning suggestion: "Watch 10-min grant writing video"
@@ -191,21 +198,25 @@ Vision: Grant Writer Success ($100K)
 #### **3. Technical → Non-Technical Transition**
 
 **Phase 1 (Technical):**
+
 - User: "I want to build a SaaS"
 - AI: "Start with: Build MVP. Focus on: Auth → Database → UI"
 - Tasks: Coding, learning frameworks, deployment
 
 **Phase 2 (Hybrid):**
+
 - User: "MVP is built"
 - AI: "Great! Now: Marketing. Focus on: Content → SEO → Outreach"
 - Tasks: Write blog posts, optimize SEO, post on Reddit
 
 **Phase 3 (Non-Technical):**
+
 - User: "Marketing working"
 - AI: "Excellent! Now: Sales. Focus on: Outreach → Closing → Onboarding"
 - Tasks: Reach prospects, demos, close deals
 
 **Phase 4 (Business Success):**
+
 - User: "First customer signed!"
 - AI: "Amazing! Now: Support. Focus on: Documentation → Help → Retention"
 - Tasks: Write docs, answer tickets, improve onboarding
@@ -213,12 +224,14 @@ Vision: Grant Writer Success ($100K)
 #### **4. Automatic Progression**
 
 **System monitors:**
+
 - Daily task completion rate
 - Weekly goal achievement
 - Project progress percentage
 - Milestone timeline
 
 **System adapts:**
+
 - If ahead: "Stretch goal: Add bonus feature"
 - If behind: "Defer non-critical tasks"
 - If stuck: "I'll restructure this task into smaller steps"
@@ -233,6 +246,7 @@ Vision: Grant Writer Success ($100K)
 **Input:** User's task list + goals + time availability
 
 **Process:**
+
 ```
 For each task:
   1. Calculate Impact Score (1-10)
@@ -240,22 +254,23 @@ For each task:
      - Quick win (2-min rule)? +3
      - Learning new skill? +2
      - Maintaining existing? +1
-     
+
   2. Calculate Effort Score (1-10)
      - 2-min task? 1
      - 1-hour task? 5
      - Full-day task? 10
-     
+
   3. Calculate Priority Score = Impact / Effort
      - High Impact / Low Effort = TOP PRIORITY
      - Low Impact / High Effort = SKIP
-     
+
   4. Sort by Priority Score
   5. Top 20% = Today's Focus
   6. Bottom 80% = Defer or Skip
 ```
 
 **Output:**
+
 ```
 ✅ Do: Learn React (Impact 8, Effort 4, Score 2.0)
 ✅ Do: Build Auth (Impact 7, Effort 5, Score 1.4)
@@ -268,6 +283,7 @@ For each task:
 **Input:** User's current skill level + goal
 
 **Process:**
+
 ```
 1. Identify Skill Gaps
    - Goal requires: React, Node.js, PostgreSQL
@@ -297,6 +313,7 @@ For each task:
 **Input:** Task complexity + user energy level
 
 **Process:**
+
 ```
 Energy Level (User self-reported):
 - High energy: Deep work (2-4h blocks)
@@ -324,6 +341,7 @@ IF energy == LOW:
 ### What Users Experience
 
 **Week 1:**
+
 - User sets goal: "Learn React"
 - AI creates: 3-month breakdown
 - Daily: AI generates 3-5 tasks
@@ -331,24 +349,28 @@ IF energy == LOW:
 - AI celebrates progress
 
 **Month 1:**
+
 - User completes first project
 - AI advances to next project
 - User gains confidence
 - Learning becomes structured
 
 **Month 3:**
+
 - User completes milestone
 - AI celebrates with confetti
 - User feels accomplishment
 - Vision goal: 25% complete
 
 **Month 6:**
+
 - User halfway to vision
 - AI suggests: "Time to transition to non-technical"
 - User seamlessly shifts
 - No interruption in progress
 
 **Year 1:**
+
 - Vision goal achieved
 - AI suggests new vision
 - User celebrates success
@@ -361,28 +383,34 @@ IF energy == LOW:
 ### AI Architecture
 
 **Phase 1 (Current): Rule-Based**
+
 ```typescript
 // Simple heuristics
 function prioritizeTasks(tasks, goals) {
-  return tasks.map(task => ({
-    ...task,
-    score: (task.impact * goal.relevance) / task.effort
-  })).sort((a, b) => b.score - a.score).slice(0, Math.ceil(tasks.length * 0.2));
+  return tasks
+    .map((task) => ({
+      ...task,
+      score: (task.impact * goal.relevance) / task.effort,
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, Math.ceil(tasks.length * 0.2));
 }
 ```
 
 **Phase 2 (Prompt-Based):**
+
 ```typescript
 // User interaction
-const suggestion = await askAI("Given my goal: X and tasks: Y, what should I prioritize today?");
+const suggestion = await askAI('Given my goal: X and tasks: Y, what should I prioritize today?');
 ```
 
 **Phase 3 (AI-Powered):**
+
 ```typescript
 // OpenAI/Anthropic integration
 const analysis = await openai.chat.completions.create({
-  model: "gpt-4",
-  messages: [{ role: "system", content: "You are a productivity coach..." }]
+  model: 'gpt-4',
+  messages: [{ role: 'system', content: 'You are a productivity coach...' }],
 });
 ```
 
@@ -444,6 +472,7 @@ CREATE TABLE tasks (
 ### Onboarding
 
 **First Use:**
+
 1. User: "I want to learn React"
 2. AI: "Great! I'll break this down into manageable steps."
 3. System: Creates 3-month plan with projects
@@ -452,6 +481,7 @@ CREATE TABLE tasks (
 6. User: "Perfect, let's start!"
 
 **Daily Use:**
+
 1. User opens app
 2. AI: "Good morning! Today: Build a Todo app. It teaches components, state, and hooks."
 3. User: Starts timer
@@ -460,6 +490,7 @@ CREATE TABLE tasks (
 6. AI: "Excellent! 25% done on today's tasks."
 
 **Stuck Moment:**
+
 1. User: "I don't understand React state"
 2. AI: "No problem! Let me restructure this."
 3. AI breaks into: "Read one article → Watch 5-min video → Build one simple example"
@@ -468,6 +499,7 @@ CREATE TABLE tasks (
 6. AI: "See? You understand state now. Let's move forward."
 
 **Achievement:**
+
 1. User completes project
 2. System: Confetti animation
 3. AI: "🎉 Amazing! You completed 'Build Todo App'!"
@@ -484,6 +516,7 @@ CREATE TABLE tasks (
 **Goal:** Learn React and build MVP
 
 **AI Plan:**
+
 ```
 Week 1-2: React Basics
   - Day 1-3: Components & Props
@@ -501,6 +534,7 @@ Week 5-6: Build Project
 ```
 
 **Daily Guidance:**
+
 - "Start with simple component - don't over-engineer"
 - "If stuck on state, read one article, then continue"
 - "Today: Focus on functionality, not aesthetics"
@@ -511,6 +545,7 @@ Week 5-6: Build Project
 **Goal:** Market the MVP
 
 **AI Plan:**
+
 ```
 Week 13-14: Content Marketing
   - Write 5 blog posts
@@ -529,6 +564,7 @@ Week 17-18: Outreach
 ```
 
 **Daily Guidance:**
+
 - "You're now in marketing mode. Mindset shift from building to promoting."
 - "Focus on providing value, not selling."
 - "Authentic story > Sales pitch"
@@ -538,6 +574,7 @@ Week 17-18: Outreach
 **Goal: Get 100 users
 
 **AI Plan:**
+
 ```
 Week 45-46: Support
   - Improve documentation
@@ -562,11 +599,13 @@ Week 49-50: Celebration
 ### Visual Language
 
 **Theme:** Professional, calm, focused
+
 - Colors: Dark mode default (dark blue/gray with accent)
 - Accent: Emerald green (success), Amber (warning), Red (alert)
 - Typography: Clean sans-serif for UI, Monospace for code
 
 **Animations:**
+
 - Smooth transitions (300ms)
 - Confetti on achievements
 - Progress bars fill smoothly
@@ -574,6 +613,7 @@ Week 49-50: Celebration
 - Cards slide in/out
 
 **Layout:**
+
 - Single-page application
 - Left sidebar: Navigation (Timer, Projects, Goals, Analytics)
 - Main area: Current view
@@ -582,16 +622,19 @@ Week 49-50: Celebration
 ### Responsive Design
 
 **Desktop (1200px+):**
+
 - 3-column layout
 - AI chat always visible
 - Full analytics dashboard
 
 **Tablet (768-1199px):**
+
 - 2-column layout
 - Collapsible AI chat
 - Optimized analytics
 
 **Mobile (320-767px):**
+
 - Single column
 - Tab navigation
 - Bottom sheet for AI
@@ -602,22 +645,26 @@ Week 49-50: Celebration
 ## 🔮 Future Features (Year 2+)
 
 ### Voice Control
+
 - "Moneo, start a 25-minute focus session"
 - "Moneo, what should I work on today?"
 - "Moneo, add task: write blog post"
 
 ### Calendar Integration
+
 - Sync with Google Calendar
 - Time blocking automatically added
 - Calendar view of scheduled tasks
 
 ### Team Collaboration
+
 - Shared projects
 - Team goals
 - Collaborative AI assistant
 - Team analytics
 
 ### Habit Tracking
+
 - Automatic habit formation
 - Habit stacking with tasks
 - Success rate analytics
@@ -628,17 +675,20 @@ Week 49-50: Celebration
 ## 💰 Business Model Evolution
 
 ### Current (Year 1)
+
 - Free: Basic timer + simple AI
 - Pro: Full AI + projects + goals
 - Teams: Collaboration features
 
 ### Future (Year 2)
+
 - Free: Limited AI usage
 - Pro: Unlimited AI + all features
 - Teams: Enhanced AI + analytics
 - Enterprise: Custom AI models
 
 ### AI Credits
+
 - Free: 50 AI queries/month
 - Pro: Unlimited AI queries
 - Teams: 100 queries/member
@@ -649,11 +699,13 @@ Week 49-50: Celebration
 ## 🎯 Success Metrics
 
 ### Product Success
+
 - **Year 1:** 1,000 users, 50 Pro, AI satisfaction 4.5/5
 - **Year 2:** 5,000 users, 250 Pro, AI satisfaction 4.7/5
 - **Year 3:** 20,000 users, 1,000 Pro, AI satisfaction 4.8/5
 
 ### User Success
+
 - **Time to first goal completion:** 30% faster than manual planning
 - **Goal achievement rate:** 60% (vs 20% without system)
 - **User retention:** 90% (30-day)
@@ -674,12 +726,14 @@ Week 49-50: Celebration
 - **Output:** Goal achieved → New vision set → Journey continues
 
 **No more:**
+
 - "What should I work on today?"
 - "Am I working on the right things?"
 - "How do I break this down?"
 - "Am I making progress?"
 
 **Just:**
+
 - Open Moneo
 - See what AI suggests
 - Start timer
@@ -694,6 +748,7 @@ Week 49-50: Celebration
 **Moneo Final Product:**
 
 An intelligent productivity system that:
+
 1. **Understands** your goals
 2. **Plans** your path automatically
 3. **Prioritizes** using 80/20 rule

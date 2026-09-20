@@ -1,13 +1,19 @@
-import { useAuth } from "../lib/authProvider";
-import {
-  getPricingPlans,
-  initiateCheckout,
-  type Plan,
-} from "../lib/billing/lemonSqueezy";
+import { useAuth } from '../lib/authProvider';
+import { getPricingPlans, initiateCheckout, type Plan } from '../lib/billing/lemonSqueezy';
 
 function CheckIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-emerald-400"
+    >
       <path d="M20 6L9 17l-5-5" />
     </svg>
   );
@@ -24,19 +30,19 @@ function StarIcon() {
 export default function PricingCard() {
   const auth = useAuth();
   const plans = getPricingPlans();
-  const currentPlan: Plan = "free"; // In production, this would come from user's subscription status
+  const currentPlan: Plan = auth.isPro ? (auth.subscription.planId as Plan) : 'free';
 
   const handleSubscribe = (planId: Plan) => {
     if (!auth.user) {
-      alert("Please sign in to upgrade to Pro");
+      alert('Please sign in to upgrade to Pro');
       return;
     }
 
     const checkoutUrl = initiateCheckout(planId, auth.user.userId);
     if (checkoutUrl) {
-      window.open(checkoutUrl, "_blank");
+      window.open(checkoutUrl, '_blank');
     } else {
-      alert("Checkout is not available. Please contact support.");
+      alert('Checkout is not available. Please contact support.');
     }
   };
 
@@ -44,9 +50,7 @@ export default function PricingCard() {
     <div className="rounded-2xl border border-line bg-ink/50 px-5 py-5">
       <div className="flex items-center gap-2">
         <StarIcon />
-        <h3 className="font-display text-[15px] font-bold text-cream">
-          Upgrade to Pro
-        </h3>
+        <h3 className="font-display text-[15px] font-bold text-cream">Upgrade to Pro</h3>
       </div>
       <p className="mt-2 text-[12px] leading-relaxed text-sage">
         Unlock cloud sync, advanced analytics, and more.
@@ -55,25 +59,23 @@ export default function PricingCard() {
       <div className="mt-4 space-y-3">
         {plans.map((plan) => {
           const isCurrent = plan.id === currentPlan;
-          const isPaid = plan.id !== "free";
+          const isPaid = plan.id !== 'free';
 
           return (
             <div
               key={plan.id}
               className={`rounded-xl border p-4 transition-all ${
                 isCurrent
-                  ? "border-accent bg-accent/10"
+                  ? 'border-accent bg-accent/10'
                   : isPaid
-                    ? "border-line hover:border-line/70 bg-ink/30"
-                    : "border-line/50 bg-ink/20"
+                    ? 'border-line hover:border-line/70 bg-ink/30'
+                    : 'border-line/50 bg-ink/20'
               }`}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-display text-sm font-semibold text-cream">
-                      {plan.name}
-                    </h4>
+                    <h4 className="font-display text-sm font-semibold text-cream">{plan.name}</h4>
                     {isCurrent && (
                       <span className="rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-semibold text-accent">
                         Current
@@ -83,10 +85,10 @@ export default function PricingCard() {
                   <p className="mt-1 text-[11px] text-faint">{plan.description}</p>
                   <div className="mt-2 font-display text-lg font-bold text-cream">
                     {plan.price}
-                    {plan.id !== "free" && (
+                    {plan.id !== 'free' && (
                       <span className="text-[11px] font-normal text-sage">
-                        {" "}
-                        /{plan.id === "pro-yearly" ? "year" : "month"}
+                        {' '}
+                        /{plan.id === 'pro-yearly' ? 'year' : 'month'}
                       </span>
                     )}
                   </div>

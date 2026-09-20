@@ -13,17 +13,17 @@
 export function getBrowserTimezone(): string {
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return tz && tz.length > 0 ? tz : "UTC";
+    return tz && tz.length > 0 ? tz : 'UTC';
   } catch {
-    return "UTC";
+    return 'UTC';
   }
 }
 
 /** True when the value is a usable IANA timezone identifier. */
 export function isValidIanaTimezone(value: unknown): value is string {
-  if (typeof value !== "string" || value.length === 0) return false;
+  if (typeof value !== 'string' || value.length === 0) return false;
   try {
-    new Intl.DateTimeFormat("en-US", { timeZone: value });
+    new Intl.DateTimeFormat('en-US', { timeZone: value });
     return true;
   } catch {
     return false;
@@ -35,9 +35,7 @@ export function isValidIanaTimezone(value: unknown): value is string {
  * account timezone when valid, otherwise the browser timezone.
  */
 export function getEffectiveTimezone(accountTimezone?: string | null): string {
-  return isValidIanaTimezone(accountTimezone)
-    ? accountTimezone
-    : getBrowserTimezone();
+  return isValidIanaTimezone(accountTimezone) ? accountTimezone : getBrowserTimezone();
 }
 
 /* ---------- timezone-aware day helpers ----------
@@ -47,15 +45,15 @@ export function getEffectiveTimezone(accountTimezone?: string | null): string {
 
 /** "YYYY-M-D" day key of a timestamp as observed in the given zone. */
 export function dayKeyInTz(ts: number, timezone: string): string {
-  const tz = isValidIanaTimezone(timezone) ? timezone : "UTC";
-  const parts = new Intl.DateTimeFormat("en-US", {
+  const tz = isValidIanaTimezone(timezone) ? timezone : 'UTC';
+  const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: tz,
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
   }).formatToParts(new Date(ts));
-  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "1";
-  return `${get("year")}-${Number(get("month"))}-${Number(get("day"))}`;
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '1';
+  return `${get('year')}-${Number(get('month'))}-${Number(get('day'))}`;
 }
 
 /** True when the timestamp falls on "today" in the given zone. */
@@ -77,10 +75,7 @@ export function minutesForDayKey(
 
 /** Consecutive-day streak ending today-in-zone (grace: empty today may
  *  still extend from yesterday-in-zone). */
-export function currentStreakInTz(
-  history: Array<{ at: number }>,
-  timezone: string,
-): number {
+export function currentStreakInTz(history: Array<{ at: number }>, timezone: string): number {
   const days = new Set(history.map((s) => dayKeyInTz(s.at, timezone)));
   let streak = 0;
   let cursor = Date.now();
