@@ -11,7 +11,8 @@
  * Usage: node scripts/deploy-assets.mjs
  */
 
-import { readdir, stat, existsSync } from 'node:fs';
+import { existsSync } from 'node:fs';
+import { readdir, stat } from 'node:fs/promises';
 import { join, relative, sep, dirname } from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -50,7 +51,7 @@ const files = await walk(DIST);
 
 for (const file of files) {
   const key = relative(DIST, file).split(sep).join('/').replace(/\\/g, '/');
-  const command = `${WRANGLER} r2 object put ${BUCKET}/${key} --file "${file}"`;
+  const command = `${WRANGLER} r2 object put ${BUCKET}/${key} --file "${file}" --remote`;
   console.log(`→ ${key}`);
   execSync(command, { stdio: 'inherit', bigint: false });
 }
