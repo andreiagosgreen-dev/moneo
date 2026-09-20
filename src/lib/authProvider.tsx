@@ -86,6 +86,7 @@ export interface AuthApi extends AuthSnapshot {
   refreshSubscription(): Promise<void>;
   signIn(email: string, password: string): Promise<AuthResult>;
   signUp(email: string, password: string): Promise<AuthResult>;
+  signInWithGoogle(redirectTo: string): Promise<AuthResult>;
   signOut(): Promise<void>;
   deleteAccount(): Promise<AuthResult>;
 }
@@ -115,7 +116,7 @@ export function useAuth(): AuthApi {
     void refreshSubscription();
   }, [refreshSubscription]);
 
-  const { signIn, signUp, signOut, deleteAccount } = controller;
+  const { signIn, signUp, signInWithGoogle, signOut, deleteAccount } = controller;
   return useMemo(
     () => ({
       ...snapshot,
@@ -124,9 +125,19 @@ export function useAuth(): AuthApi {
       refreshSubscription,
       signIn,
       signUp,
+      signInWithGoogle,
       signOut,
       deleteAccount,
     }),
-    [snapshot, subscription, refreshSubscription, signIn, signUp, signOut, deleteAccount],
+    [
+      snapshot,
+      subscription,
+      refreshSubscription,
+      signIn,
+      signUp,
+      signInWithGoogle,
+      signOut,
+      deleteAccount,
+    ],
   );
 }

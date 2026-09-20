@@ -9,12 +9,13 @@ import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
 
 export type NavTab =
-  'focus' | 'today' | 'plan' | 'growth' | 'map' | 'projects' | 'reports' | 'settings';
+  'focus' | 'today' | 'plan' | 'assistant' | 'growth' | 'map' | 'projects' | 'reports' | 'settings';
 
 const NAV_TABS: Array<{ id: Exclude<NavTab, 'settings'>; label: TKey; hint: TKey }> = [
   { id: 'focus', label: 'nav.focus', hint: 'nav.hint.focus' },
   { id: 'today', label: 'nav.today', hint: 'nav.hint.today' },
   { id: 'plan', label: 'nav.plan', hint: 'nav.hint.plan' },
+  { id: 'assistant', label: 'nav.assistant', hint: 'nav.hint.assistant' },
   { id: 'growth', label: 'nav.growth', hint: 'nav.hint.growth' },
   { id: 'map', label: 'nav.map', hint: 'nav.hint.map' },
   { id: 'projects', label: 'nav.projects', hint: 'nav.hint.projects' },

@@ -4,13 +4,15 @@ export const fr: Record<TKey, string> = {
   'nav.focus': 'Focus',
   'nav.today': 'Aujourd’hui',
   'nav.plan': 'Plan',
+  'nav.assistant': 'Assistant',
   'nav.growth': 'Croissance',
   'nav.map': 'Carte',
   'nav.projects': 'Projets',
   'nav.reports': 'Rapports',
   'nav.hint.focus': 'Minuteur, intention et aujourd’hui en un coup d’œil',
   'nav.hint.today': 'Plan, grenouille, matrice, calendrier et rituels',
-  'nav.hint.plan': 'Objectifs, OKR, compétences et assistant',
+  'nav.hint.plan': 'Objectifs, OKR et compétences',
+  'nav.hint.assistant': 'Discutez avec votre assistant IA de planification',
   'nav.hint.growth': 'Croissance, stats et signaux IA',
   'nav.hint.map': 'Carte de vie — roue d’équilibre et revue hebdo',
   'nav.hint.projects': 'Projets, tableau, sprints et chronologie',
@@ -482,4 +484,72 @@ export const fr: Record<TKey, string> = {
   'ins.ui.confLabel': 'Confiance',
   'ins.ui.done': '✓ Ajouté',
   'ins.ui.blockLabel': 'Travail profond',
+
+  // AuthForm
+  'auth.modeLabel': 'Mode du compte',
+  'auth.signIn': 'Se connecter',
+  'auth.createAccount': 'Créer un compte',
+  'auth.emailLabel': 'E-mail',
+  'auth.emailPlaceholder': 'vous@exemple.com',
+  'auth.passwordLabel': 'Mot de passe',
+  'auth.localFirstNote':
+    'Local-first : vos sessions, intentions et zones restent sur cet appareil. La connexion crée votre profil Moneo ; la synchronisation reste facultative — rien n’est envoyé tant que vous ne l’activez pas.',
+  'auth.continueWithGoogle': 'Continuer avec Google',
+  'auth.orDivider': 'ou',
+
+  // SyncPanel
+  'sync.title': 'Synchronisez vos données Moneo',
+  'sync.description':
+    'Votre historique de focus local, vos zones, intentions et paramètres peuvent être enregistrés sur votre compte et synchronisés entre appareils.',
+  'sync.syncNow': 'Synchroniser maintenant',
+  'sync.notNow': 'Pas maintenant',
+  'sync.onlyNote':
+    'Seuls les sessions, zones et paramètres se synchronisent — les brouillons d’intention et l’état du minuteur ne quittent jamais cet appareil.',
+  'sync.syncing': 'Synchronisation…',
+  'sync.failed': 'Échec de la synchronisation',
+  'sync.synced': 'Synchronisé',
+  'sync.comparing': 'comparaison avec votre compte',
+  'sync.lastSynced': 'Dernière synchro {time}',
+  'sync.enabled': 'Synchronisation activée',
+  'sync.failedRetry':
+    'Échec de la synchronisation — vos données locales sont en sécurité. Réessayez.',
+  'sync.justNow': 'à l’instant',
+  'sync.minAgo': 'il y a {n}m',
+
+  // AccountButton / Cabinet
+  'account.checking': 'Vérification du compte',
+  'account.openAccount': 'Ouvrir le compte',
+  'account.openSyncAccount': 'Ouvrir synchro et compte',
+  'account.defaultName': 'Compte',
+  'account.sync': 'Synchro',
+  'account.yourAccount': 'Votre compte',
+  'account.moneoAccount': 'Compte Moneo',
+  'account.signedIn': 'Connecté',
+  'account.syncAcrossDevices': 'Synchronisez votre focus entre appareils.',
+  'account.closeDialog': 'Fermer la fenêtre du compte',
+  'account.timezone': 'fuseau horaire',
+  'account.withoutAccountNote':
+    'Sans compte, tout reste sur cet appareil. La synchronisation est facultative et n’envoie rien tant que vous ne le choisissez pas.',
+  'account.signOut': 'Se déconnecter',
+  'account.deleteAccount': 'Supprimer le compte',
+  'account.deleteConfirmTitle': 'Supprimer votre compte ?',
+  'account.deleteConfirmBody':
+    'Cela supprime définitivement votre compte — vous ne pourrez plus vous reconnecter — ainsi que toutes les données synchronisées (sessions, zones, paramètres, abonnement). Cette action est irréversible.',
+  'account.cancel': 'Annuler',
+  'account.openCabinet': 'Ouvrir mon espace',
+  'account.subscriptionStatus': 'Abonnement',
+  'account.plan.free': 'Gratuit',
+  'account.plan.pro-monthly': 'Pro (Mensuel)',
+  'account.plan.pro-yearly': 'Pro (Annuel)',
+  'account.renews': 'Se renouvelle {date}',
+
+  // LoginPage
+  'login.title': 'Content de vous revoir',
+  'login.subtitle': 'Connectez-vous pour synchroniser votre focus entre appareils.',
+  'login.backToApp': 'Retour à Moneo',
+
+  // CabinetPage
+  'cabinet.title': 'Votre espace',
+  'cabinet.subtitle': 'Compte, synchro et abonnement — tout au même endroit.',
+  'cabinet.identity': 'Identité',
 };

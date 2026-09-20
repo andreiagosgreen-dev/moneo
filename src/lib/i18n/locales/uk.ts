@@ -4,13 +4,15 @@ export const uk: Record<TKey, string> = {
   'nav.focus': 'Фокус',
   'nav.today': 'Сьогодні',
   'nav.plan': 'План',
+  'nav.assistant': 'Асистент',
   'nav.growth': 'Зростання',
   'nav.map': 'Карта',
   'nav.projects': 'Проєкти',
   'nav.reports': 'Звіти',
   'nav.hint.focus': 'Таймер, намір і сьогоднішній день одним поглядом',
   'nav.hint.today': 'План, жаба, матриця, календар і ритуали',
-  'nav.hint.plan': 'Цілі, OKR, навички та асистент',
+  'nav.hint.plan': 'Цілі, OKR і навички',
+  'nav.hint.assistant': 'Спілкуйтеся зі своїм ШІ-асистентом планування',
   'nav.hint.growth': 'Зростання, статистика й сигнали ШІ',
   'nav.hint.map': 'Карта життя — колесо балансу й огляд тижня',
   'nav.hint.projects': 'Проєкти, дошка, спринти й таймлайн',
@@ -472,4 +474,71 @@ export const uk: Record<TKey, string> = {
   'ins.ui.confLabel': 'Впевненість',
   'ins.ui.done': '✓ Додано',
   'ins.ui.blockLabel': 'Глибока робота',
+
+  // AuthForm
+  'auth.modeLabel': 'Режим акаунта',
+  'auth.signIn': 'Увійти',
+  'auth.createAccount': 'Створити акаунт',
+  'auth.emailLabel': 'Email',
+  'auth.emailPlaceholder': 'you@example.com',
+  'auth.passwordLabel': 'Пароль',
+  'auth.localFirstNote':
+    'Local-first: ваші сесії, наміри та області залишаються на цьому пристрої. Вхід створює ваш профіль Moneo; синхронізація залишається опційною — нічого не завантажується, поки ви її не увімкнете.',
+  'auth.continueWithGoogle': 'Продовжити з Google',
+  'auth.orDivider': 'або',
+
+  // SyncPanel
+  'sync.title': 'Синхронізуйте дані Moneo',
+  'sync.description':
+    'Вашу локальну історію фокусу, області, наміри та налаштування можна зберегти в акаунті та синхронізувати між пристроями.',
+  'sync.syncNow': 'Синхронізувати',
+  'sync.notNow': 'Не зараз',
+  'sync.onlyNote':
+    'Синхронізуються лише сесії, області та налаштування — чернетки намірів і стан таймера ніколи не залишають цей пристрій.',
+  'sync.syncing': 'Синхронізація…',
+  'sync.failed': 'Синхронізація не вдалася',
+  'sync.synced': 'Синхронізовано',
+  'sync.comparing': 'порівняння з вашим акаунтом',
+  'sync.lastSynced': 'Остання синхронізація {time}',
+  'sync.enabled': 'Синхронізацію увімкнено',
+  'sync.failedRetry': 'Синхронізація не вдалася — ваші локальні дані в безпеці. Спробуйте ще раз.',
+  'sync.justNow': 'щойно',
+  'sync.minAgo': '{n} хв тому',
+
+  // AccountButton / Cabinet
+  'account.checking': 'Перевірка акаунта',
+  'account.openAccount': 'Відкрити акаунт',
+  'account.openSyncAccount': 'Відкрити синхронізацію та акаунт',
+  'account.defaultName': 'Акаунт',
+  'account.sync': 'Синхронізація',
+  'account.yourAccount': 'Ваш акаунт',
+  'account.moneoAccount': 'Акаунт Moneo',
+  'account.signedIn': 'Ви увійшли',
+  'account.syncAcrossDevices': 'Синхронізуйте фокус між пристроями.',
+  'account.closeDialog': 'Закрити вікно акаунта',
+  'account.timezone': 'часовий пояс',
+  'account.withoutAccountNote':
+    'Без акаунта все залишається на цьому пристрої. Синхронізація опційна і нічого не завантажує, поки ви не вирішите самі.',
+  'account.signOut': 'Вийти',
+  'account.deleteAccount': 'Видалити акаунт',
+  'account.deleteConfirmTitle': 'Видалити ваш акаунт?',
+  'account.deleteConfirmBody':
+    'Це назавжди видалить ваш акаунт — ви більше не зможете увійти — а також усі синхронізовані дані (сесії, області, налаштування, підписку). Цю дію не можна скасувати.',
+  'account.cancel': 'Скасувати',
+  'account.openCabinet': 'Відкрити мій кабінет',
+  'account.subscriptionStatus': 'Підписка',
+  'account.plan.free': 'Безкоштовно',
+  'account.plan.pro-monthly': 'Pro (Щомісячно)',
+  'account.plan.pro-yearly': 'Pro (Щорічно)',
+  'account.renews': 'Поновлення {date}',
+
+  // LoginPage
+  'login.title': 'З поверненням',
+  'login.subtitle': 'Увійдіть, щоб синхронізувати фокус між пристроями.',
+  'login.backToApp': 'Назад до Moneo',
+
+  // CabinetPage
+  'cabinet.title': 'Ваш кабінет',
+  'cabinet.subtitle': 'Акаунт, синхронізація та підписка — все в одному місці.',
+  'cabinet.identity': 'Особисті дані',
 };

@@ -4,13 +4,15 @@ export const ru: Record<TKey, string> = {
   'nav.focus': 'Фокус',
   'nav.today': 'Сегодня',
   'nav.plan': 'План',
+  'nav.assistant': 'Ассистент',
   'nav.growth': 'Рост',
   'nav.map': 'Карта',
   'nav.projects': 'Проекты',
   'nav.reports': 'Отчёты',
   'nav.hint.focus': 'Таймер, намерение и сегодняшний день одним взглядом',
   'nav.hint.today': 'План, лягушка, матрица, календарь и ритуалы',
-  'nav.hint.plan': 'Цели, OKR, навыки и ассистент',
+  'nav.hint.plan': 'Цели, OKR и навыки',
+  'nav.hint.assistant': 'Общайтесь с вашим ИИ-ассистентом планирования',
   'nav.hint.growth': 'Рост, статистика и сигналы ИИ',
   'nav.hint.map': 'Карта жизни — колесо баланса и обзор недели',
   'nav.hint.projects': 'Проекты, доска, спринты и таймлайн',
@@ -472,4 +474,72 @@ export const ru: Record<TKey, string> = {
   'ins.ui.confLabel': 'Уверенность',
   'ins.ui.done': '✓ Добавлено',
   'ins.ui.blockLabel': 'Глубокая работа',
+
+  // AuthForm
+  'auth.modeLabel': 'Режим аккаунта',
+  'auth.signIn': 'Войти',
+  'auth.createAccount': 'Создать аккаунт',
+  'auth.emailLabel': 'Email',
+  'auth.emailPlaceholder': 'you@example.com',
+  'auth.passwordLabel': 'Пароль',
+  'auth.localFirstNote':
+    'Local-first: ваши сессии, намерения и области остаются на этом устройстве. Вход создаёт ваш профиль Moneo; синхронизация остаётся опциональной — ничего не загружается, пока вы её не включите.',
+  'auth.continueWithGoogle': 'Продолжить с Google',
+  'auth.orDivider': 'или',
+
+  // SyncPanel
+  'sync.title': 'Синхронизируйте данные Moneo',
+  'sync.description':
+    'Ваша локальная история фокуса, области, намерения и настройки можно сохранить в аккаунте и синхронизировать между устройствами.',
+  'sync.syncNow': 'Синхронизировать',
+  'sync.notNow': 'Не сейчас',
+  'sync.onlyNote':
+    'Синхронизируются только сессии, области и настройки — черновики намерений и состояние таймера никогда не покидают это устройство.',
+  'sync.syncing': 'Синхронизация…',
+  'sync.failed': 'Синхронизация не удалась',
+  'sync.synced': 'Синхронизировано',
+  'sync.comparing': 'сравнение с вашим аккаунтом',
+  'sync.lastSynced': 'Последняя синхронизация {time}',
+  'sync.enabled': 'Синхронизация включена',
+  'sync.failedRetry':
+    'Синхронизация не удалась — ваши локальные данные в безопасности. Попробуйте снова.',
+  'sync.justNow': 'только что',
+  'sync.minAgo': '{n} мин назад',
+
+  // AccountButton / Cabinet
+  'account.checking': 'Проверка аккаунта',
+  'account.openAccount': 'Открыть аккаунт',
+  'account.openSyncAccount': 'Открыть синхронизацию и аккаунт',
+  'account.defaultName': 'Аккаунт',
+  'account.sync': 'Синхронизация',
+  'account.yourAccount': 'Ваш аккаунт',
+  'account.moneoAccount': 'Аккаунт Moneo',
+  'account.signedIn': 'Вы вошли',
+  'account.syncAcrossDevices': 'Синхронизируйте фокус между устройствами.',
+  'account.closeDialog': 'Закрыть окно аккаунта',
+  'account.timezone': 'часовой пояс',
+  'account.withoutAccountNote':
+    'Без аккаунта всё остаётся на этом устройстве. Синхронизация опциональна и не загружает ничего, пока вы не решите сами.',
+  'account.signOut': 'Выйти',
+  'account.deleteAccount': 'Удалить аккаунт',
+  'account.deleteConfirmTitle': 'Удалить ваш аккаунт?',
+  'account.deleteConfirmBody':
+    'Это навсегда удалит ваш аккаунт — вы больше не сможете войти — а также все синхронизированные данные (сессии, области, настройки, подписку). Это действие нельзя отменить.',
+  'account.cancel': 'Отмена',
+  'account.openCabinet': 'Открыть мой кабинет',
+  'account.subscriptionStatus': 'Подписка',
+  'account.plan.free': 'Бесплатно',
+  'account.plan.pro-monthly': 'Pro (Ежемесячно)',
+  'account.plan.pro-yearly': 'Pro (Ежегодно)',
+  'account.renews': 'Продление {date}',
+
+  // LoginPage
+  'login.title': 'С возвращением',
+  'login.subtitle': 'Войдите, чтобы синхронизировать фокус между устройствами.',
+  'login.backToApp': 'Назад в Moneo',
+
+  // CabinetPage
+  'cabinet.title': 'Ваш кабинет',
+  'cabinet.subtitle': 'Аккаунт, синхронизация и подписка — всё в одном месте.',
+  'cabinet.identity': 'Личные данные',
 };

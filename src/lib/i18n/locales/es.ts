@@ -4,13 +4,15 @@ export const es: Record<TKey, string> = {
   'nav.focus': 'Foco',
   'nav.today': 'Hoy',
   'nav.plan': 'Plan',
+  'nav.assistant': 'Asistente',
   'nav.growth': 'Crecimiento',
   'nav.map': 'Mapa',
   'nav.projects': 'Proyectos',
   'nav.reports': 'Informes',
   'nav.hint.focus': 'Temporizador, intención y hoy de un vistazo',
   'nav.hint.today': 'Plan, rana, matriz, calendario y rituales',
-  'nav.hint.plan': 'Objetivos, OKR, habilidades y asistente',
+  'nav.hint.plan': 'Objetivos, OKR y habilidades',
+  'nav.hint.assistant': 'Chatea con tu asistente de planificación IA',
   'nav.hint.growth': 'Crecimiento, estadísticas y señales de IA',
   'nav.hint.map': 'Mapa de vida — rueda de equilibrio y revisión semanal',
   'nav.hint.projects': 'Proyectos, tablero, sprints y cronograma',
@@ -470,4 +472,72 @@ export const es: Record<TKey, string> = {
   'ins.ui.confLabel': 'Confianza',
   'ins.ui.done': '✓ Añadido',
   'ins.ui.blockLabel': 'Trabajo profundo',
+
+  // AuthForm
+  'auth.modeLabel': 'Modo de cuenta',
+  'auth.signIn': 'Iniciar sesión',
+  'auth.createAccount': 'Crear cuenta',
+  'auth.emailLabel': 'Correo electrónico',
+  'auth.emailPlaceholder': 'tu@ejemplo.com',
+  'auth.passwordLabel': 'Contraseña',
+  'auth.localFirstNote':
+    'Local-first: tus sesiones, intenciones y áreas permanecen en este dispositivo. Iniciar sesión crea tu perfil de Moneo; la sincronización sigue siendo opcional — nada se sube hasta que la actives.',
+  'auth.continueWithGoogle': 'Continuar con Google',
+  'auth.orDivider': 'o',
+
+  // SyncPanel
+  'sync.title': 'Sincroniza tus datos de Moneo',
+  'sync.description':
+    'Tu historial de enfoque local, áreas, intenciones y ajustes se pueden guardar en tu cuenta y sincronizar entre dispositivos.',
+  'sync.syncNow': 'Sincronizar ahora',
+  'sync.notNow': 'Ahora no',
+  'sync.onlyNote':
+    'Solo se sincronizan sesiones, áreas y ajustes — los borradores de intención y el estado del temporizador nunca salen de este dispositivo.',
+  'sync.syncing': 'Sincronizando…',
+  'sync.failed': 'Sincronización fallida',
+  'sync.synced': 'Sincronizado',
+  'sync.comparing': 'comparando con tu cuenta',
+  'sync.lastSynced': 'Última sincronización {time}',
+  'sync.enabled': 'Sincronización activada',
+  'sync.failedRetry':
+    'Sincronización fallida — tus datos locales están a salvo. Inténtalo de nuevo.',
+  'sync.justNow': 'justo ahora',
+  'sync.minAgo': 'hace {n}m',
+
+  // AccountButton / Cabinet
+  'account.checking': 'Verificando cuenta',
+  'account.openAccount': 'Abrir cuenta',
+  'account.openSyncAccount': 'Abrir sincronización y cuenta',
+  'account.defaultName': 'Cuenta',
+  'account.sync': 'Sincronizar',
+  'account.yourAccount': 'Tu cuenta',
+  'account.moneoAccount': 'Cuenta Moneo',
+  'account.signedIn': 'Sesión iniciada',
+  'account.syncAcrossDevices': 'Sincroniza tu enfoque entre dispositivos.',
+  'account.closeDialog': 'Cerrar cuadro de cuenta',
+  'account.timezone': 'zona horaria',
+  'account.withoutAccountNote':
+    'Sin cuenta, todo permanece en este dispositivo. La sincronización es opcional y no sube nada hasta que tú lo decidas.',
+  'account.signOut': 'Cerrar sesión',
+  'account.deleteAccount': 'Eliminar cuenta',
+  'account.deleteConfirmTitle': '¿Eliminar tu cuenta?',
+  'account.deleteConfirmBody':
+    'Esto elimina tu cuenta de forma permanente — no podrás volver a iniciar sesión — además de todos los datos sincronizados (sesiones, áreas, ajustes, suscripción). No se puede deshacer.',
+  'account.cancel': 'Cancelar',
+  'account.openCabinet': 'Abrir mi gabinete',
+  'account.subscriptionStatus': 'Suscripción',
+  'account.plan.free': 'Gratis',
+  'account.plan.pro-monthly': 'Pro (Mensual)',
+  'account.plan.pro-yearly': 'Pro (Anual)',
+  'account.renews': 'Se renueva {date}',
+
+  // LoginPage
+  'login.title': 'Bienvenido de nuevo',
+  'login.subtitle': 'Inicia sesión para sincronizar tu enfoque entre dispositivos.',
+  'login.backToApp': 'Volver a Moneo',
+
+  // CabinetPage
+  'cabinet.title': 'Tu gabinete',
+  'cabinet.subtitle': 'Cuenta, sincronización y suscripción — todo en un solo lugar.',
+  'cabinet.identity': 'Identidad',
 };
