@@ -82,8 +82,6 @@ import {
   loadHistory,
   loadSettings,
   loadSnapshot,
-  showNotification,
-  requestNotificationPermission,
   type Mode,
   type Session,
   type Settings,
@@ -103,20 +101,11 @@ import { runLocalMigrations } from './lib/storage/migrations';
 import { useTimer } from './hooks/useTimer';
 import { useAppPersistence } from './hooks/useAppPersistence';
 import { useDeadlineReminders } from './hooks/useDeadlineReminders';
+import { useAppNotifications } from './hooks/useAppNotifications';
 import { usePlannerState } from './hooks/usePlannerState';
 import { useAuth } from './lib/authProvider';
 import { isTodayInTz } from './lib/timezone';
 import { loadSyncState, onSyncStateChange } from './lib/sync/syncState';
-import {
-  loadNotificationPrefs,
-  saveNotificationPrefs,
-  shouldShowFocusReminder,
-  markReminderShown,
-  shouldShowHabitReminder,
-  markHabitShown,
-  shouldShowDisconnectReminder,
-  markDisconnectShown,
-} from './lib/notificationPrefs';
 
 /* Boot once: restore settings, history and the paused timer position. */
 const BOOT = (() => {
@@ -344,38 +333,7 @@ export default function App() {
   };
   useEffect(() => saveSelectedArea(selectedAreaId), [selectedAreaId]);
 
-  // Request notification permission when notifications are enabled
-  useEffect(() => {
-    if (settings.notifications) {
-      requestNotificationPermission();
-    }
-  }, [settings.notifications]);
-
-  // In-app reminders: check every 30s while the tab is open. Focus reminders
-  // work for everyone; habit + disconnect nudges are Pro notifications.
-  useEffect(() => {
-    const check = () => {
-      let prefs = loadNotificationPrefs();
-      if (shouldShowFocusReminder(prefs)) {
-        prefs = markReminderShown(prefs);
-        saveNotificationPrefs(prefs);
-        showNotification('Time to focus', 'Your focus reminder is due. Start a round!');
-      }
-      if (auth.isPro && shouldShowHabitReminder(prefs)) {
-        prefs = markHabitShown(prefs);
-        saveNotificationPrefs(prefs);
-        showNotification('Habits check-in', "Close out today's habits before bed.");
-      }
-      if (auth.isPro && shouldShowDisconnectReminder(prefs)) {
-        prefs = markDisconnectShown(prefs);
-        saveNotificationPrefs(prefs);
-        showNotification('Time to disconnect', 'Work is done — rest is productive too.');
-      }
-    };
-    check();
-    const id = window.setInterval(check, 30_000);
-    return () => window.clearInterval(id);
-  }, [auth.isPro]);
+  useAppNotifications(settings.notifications, auth.isPro);
   /* ---------- focus areas (CRUD never touches history) ---------- */
 
   const handleCreateArea = (name: string): boolean => {
