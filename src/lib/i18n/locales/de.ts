@@ -753,6 +753,20 @@ export const de: Record<TKey, string> = {
   'calendar.form.cancel': 'Abbrechen',
   'calendar.form.save': 'Block speichern',
   'calendar.colorAria': 'Farbe {c}',
+  'calendar.externalEventUntitled': 'Beschäftigt',
+  'calendar.connect.sectionTitle': 'Google Kalender',
+  'calendar.connect.title': 'Google Kalender verbinden',
+  'calendar.connect.description':
+    'Sieh deine echten Termine und erkenne Konflikte mit deinen Zeitblöcken. Nur Lesezugriff — Moneo ändert deinen Kalender nie.',
+  'calendar.connect.connect': 'Verbinden',
+  'calendar.connect.connecting': 'Verbinde…',
+  'calendar.connect.connectedTitle': 'Verbunden',
+  'calendar.connect.connectedGeneric': 'Google Kalender',
+  'calendar.connect.disconnect': 'Trennen',
+  'calendar.connect.error': 'Etwas ist schiefgelaufen. Bitte versuche es erneut.',
+  'calendar.connect.upsellTitle': 'Sieh deinen echten Kalender neben den Zeitblöcken',
+  'calendar.connect.upsellBody':
+    'Pro verbindet deinen Google Kalender (nur Lesezugriff), damit Moneo Konflikte mit echten Terminen erkennen kann.',
 
   // GoalsCard
   'goals.ariaLabel': 'Zielhierarchie',

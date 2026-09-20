@@ -4,6 +4,7 @@ import BrandMark from './BrandMark';
 import PricingCard from './PricingCard';
 import NotificationsSettings from './NotificationsSettings';
 import SyncPanel from './account/SyncPanel';
+import GoogleCalendarConnect from './account/GoogleCalendarConnect';
 import { useAuth } from '../lib/authProvider';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { SubscriptionInfo } from '../lib/cloud/subscriptionRepository';
@@ -133,6 +134,15 @@ export default function CabinetPage() {
 
         <section className="card px-6 py-5">
           <SyncPanel userId={user.userId} />
+        </section>
+
+        <section className="card px-6 py-5">
+          <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">
+            {t('calendar.connect.sectionTitle')}
+          </h2>
+          <div className="mt-3">
+            <GoogleCalendarConnect isPro={auth.isPro} />
+          </div>
         </section>
 
         <section className="card px-6 py-5">

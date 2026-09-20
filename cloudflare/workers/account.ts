@@ -26,6 +26,7 @@ export const ACCOUNT_DATA_TABLES = [
   'focus_areas',
   'user_settings',
   'subscriptions',
+  'google_calendar_connections',
   'profiles',
 ] as const;
 

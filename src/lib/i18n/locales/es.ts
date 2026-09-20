@@ -744,6 +744,20 @@ export const es: Record<TKey, string> = {
   'calendar.form.cancel': 'Cancelar',
   'calendar.form.save': 'Guardar bloque',
   'calendar.colorAria': 'Color {c}',
+  'calendar.externalEventUntitled': 'Ocupado',
+  'calendar.connect.sectionTitle': 'Google Calendar',
+  'calendar.connect.title': 'Conectar Google Calendar',
+  'calendar.connect.description':
+    'Ve tus eventos reales y detecta conflictos con tus bloques de tiempo. Solo lectura — Moneo nunca edita tu calendario.',
+  'calendar.connect.connect': 'Conectar',
+  'calendar.connect.connecting': 'Conectando…',
+  'calendar.connect.connectedTitle': 'Conectado',
+  'calendar.connect.connectedGeneric': 'Google Calendar',
+  'calendar.connect.disconnect': 'Desconectar',
+  'calendar.connect.error': 'Algo salió mal. Inténtalo de nuevo.',
+  'calendar.connect.upsellTitle': 'Ve tu calendario real junto a los bloques de tiempo',
+  'calendar.connect.upsellBody':
+    'Pro conecta tu Google Calendar (solo lectura) para que Moneo pueda detectar conflictos con reuniones reales.',
 
   // GoalsCard
   'goals.ariaLabel': 'Jerarquía de objetivos',

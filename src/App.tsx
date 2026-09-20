@@ -30,6 +30,7 @@ import TermsOfService from './components/TermsOfService';
 import HelpPage from './components/HelpPage';
 import LoginPage from './components/LoginPage';
 import CabinetPage from './components/CabinetPage';
+import CalendarCallback from './components/CalendarCallback';
 import {
   loadProjects,
   loadSelectedProject,
@@ -103,6 +104,7 @@ import { runLocalMigrations } from './lib/storage/migrations';
 import { useTimer } from './hooks/useTimer';
 import { useAppPersistence } from './hooks/useAppPersistence';
 import { useDeadlineReminders } from './hooks/useDeadlineReminders';
+import { useGoogleCalendarEvents } from './hooks/useGoogleCalendarEvents';
 import { usePlannerState } from './hooks/usePlannerState';
 import { useAuth } from './lib/authProvider';
 import { isTodayInTz } from './lib/timezone';
@@ -314,6 +316,7 @@ export default function App() {
   });
 
   useDeadlineReminders(projects, settings.notifications, auth.isPro);
+  const externalCalendarEvents = useGoogleCalendarEvents(auth.isPro, auth.timezone);
 
   const handleSelectProject = (id: string | null) => {
     setSelectedProjectId(id);
@@ -451,6 +454,14 @@ export default function App() {
         element={
           <LocaleProvider locale={locale} onLocaleChange={setLocale}>
             <CabinetPage />
+          </LocaleProvider>
+        }
+      />
+      <Route
+        path="/account/calendar-callback"
+        element={
+          <LocaleProvider locale={locale} onLocaleChange={setLocale}>
+            <CalendarCallback />
           </LocaleProvider>
         }
       />
@@ -637,6 +648,7 @@ export default function App() {
                           isPro={auth.isPro}
                           blocks={timeBlocks}
                           blocksChange={setTimeBlocks}
+                          externalEvents={externalCalendarEvents}
                         />
                       </div>
                       <div className="reveal md:col-span-2" style={{ animationDelay: '250ms' }}>

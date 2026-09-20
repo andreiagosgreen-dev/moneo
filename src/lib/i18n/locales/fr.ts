@@ -759,6 +759,20 @@ export const fr: Record<TKey, string> = {
   'calendar.form.cancel': 'Annuler',
   'calendar.form.save': 'Enregistrer le bloc',
   'calendar.colorAria': 'Couleur {c}',
+  'calendar.externalEventUntitled': 'Occupé',
+  'calendar.connect.sectionTitle': 'Google Agenda',
+  'calendar.connect.title': 'Connecter Google Agenda',
+  'calendar.connect.description':
+    'Voyez vos événements réels et détectez les conflits avec vos blocs de temps. Lecture seule — Moneo ne modifie jamais votre agenda.',
+  'calendar.connect.connect': 'Connecter',
+  'calendar.connect.connecting': 'Connexion…',
+  'calendar.connect.connectedTitle': 'Connecté',
+  'calendar.connect.connectedGeneric': 'Google Agenda',
+  'calendar.connect.disconnect': 'Déconnecter',
+  'calendar.connect.error': "Une erreur s'est produite. Veuillez réessayer.",
+  'calendar.connect.upsellTitle': 'Voyez votre agenda réel à côté de vos blocs de temps',
+  'calendar.connect.upsellBody':
+    'Pro connecte votre Google Agenda (lecture seule) pour que Moneo détecte les conflits avec vos réunions réelles.',
 
   // GoalsCard
   'goals.ariaLabel': 'Hiérarchie des objectifs',

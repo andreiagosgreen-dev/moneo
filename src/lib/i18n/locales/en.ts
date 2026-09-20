@@ -747,6 +747,20 @@ export const en = {
   'calendar.form.cancel': 'Cancel',
   'calendar.form.save': 'Save block',
   'calendar.colorAria': 'Color {c}',
+  'calendar.externalEventUntitled': 'Busy',
+  'calendar.connect.sectionTitle': 'Google Calendar',
+  'calendar.connect.title': 'Connect Google Calendar',
+  'calendar.connect.description':
+    'See real events and catch conflicts with your time blocks. Read-only — Moneo never edits your calendar.',
+  'calendar.connect.connect': 'Connect',
+  'calendar.connect.connecting': 'Connecting…',
+  'calendar.connect.connectedTitle': 'Connected',
+  'calendar.connect.connectedGeneric': 'Google Calendar',
+  'calendar.connect.disconnect': 'Disconnect',
+  'calendar.connect.error': 'Something went wrong. Please try again.',
+  'calendar.connect.upsellTitle': 'See your real calendar alongside time blocks',
+  'calendar.connect.upsellBody':
+    'Pro connects your Google Calendar (read-only) so Moneo can flag conflicts with real meetings.',
 
   // GoalsCard
   'goals.ariaLabel': 'Goal hierarchy',
