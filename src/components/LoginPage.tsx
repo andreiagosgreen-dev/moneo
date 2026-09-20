@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import BrandMark from './BrandMark';
 import AuthForm from './account/AuthForm';
@@ -38,10 +38,24 @@ export default function LoginPage() {
   const { t } = useI18n();
   const auth = useAuth();
   const navigate = useNavigate();
+  const [googleError, setGoogleError] = useState('');
+  const [googleBusy, setGoogleBusy] = useState(false);
 
   useEffect(() => {
     if (auth.status === 'authenticated') navigate('/', { replace: true });
   }, [auth.status, navigate]);
+
+  const handleGoogle = async () => {
+    if (googleBusy) return;
+    setGoogleBusy(true);
+    setGoogleError('');
+    const res = await auth.signInWithGoogle(`${window.location.origin}/login`);
+    // On success the browser navigates away to Google — nothing left to do.
+    if (!res.ok) {
+      setGoogleBusy(false);
+      setGoogleError(res.message);
+    }
+  };
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
@@ -59,12 +73,18 @@ export default function LoginPage() {
         </div>
 
         <button
-          onClick={() => void auth.signInWithGoogle(`${window.location.origin}/login`)}
-          className="press btn-ghost mt-6 flex h-11 w-full items-center justify-center gap-2.5 rounded-xl border border-line text-sm font-semibold"
+          onClick={() => void handleGoogle()}
+          disabled={googleBusy}
+          className="press btn-ghost mt-6 flex h-11 w-full items-center justify-center gap-2.5 rounded-xl border border-line text-sm font-semibold disabled:opacity-60"
         >
           <GoogleIcon />
           {t('auth.continueWithGoogle')}
         </button>
+        {googleError && (
+          <p role="alert" className="mt-2 text-center text-[12px] font-medium text-tomato">
+            {googleError}
+          </p>
+        )}
 
         <div className="my-5 flex items-center gap-3" aria-hidden>
           <span className="h-px flex-1 bg-line" />
