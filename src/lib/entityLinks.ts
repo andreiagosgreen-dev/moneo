@@ -10,13 +10,7 @@ import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
 
 export type LinkEntityType = 'goal' | 'project' | 'skill' | 'journal' | 'objective';
 
-const LINK_ENTITY_TYPES: LinkEntityType[] = [
-  'goal',
-  'project',
-  'skill',
-  'journal',
-  'objective',
-];
+const LINK_ENTITY_TYPES: LinkEntityType[] = ['goal', 'project', 'skill', 'journal', 'objective'];
 
 export interface EntityLink {
   id: string;
@@ -130,5 +124,7 @@ export function cleanupLinksFor(
   type: LinkEntityType,
   id: string,
 ): EntityLink[] {
-  return links.filter((l) => !((l.aType === type && l.aId === id) || (l.bType === type && l.bId === id)));
+  return links.filter(
+    (l) => !((l.aType === type && l.aId === id) || (l.bType === type && l.bId === id)),
+  );
 }

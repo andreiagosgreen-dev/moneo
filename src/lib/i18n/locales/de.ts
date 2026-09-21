@@ -569,7 +569,8 @@ export const de: Record<TKey, string> = {
   'account.subscriptionStatus': 'Abo',
   'account.manageSubscription': 'Abo verwalten',
   'pricingPage.title': 'Einfache, ehrliche Preise',
-  'pricingPage.subtitle': 'Für das Wesentliche für immer kostenlos. Upgrade, sobald du die Grenzen erreichst.',
+  'pricingPage.subtitle':
+    'Für das Wesentliche für immer kostenlos. Upgrade, sobald du die Grenzen erreichst.',
   'account.plan.free': 'Kostenlos',
   'account.plan.pro-monthly': 'Pro (Monatlich)',
   'account.plan.pro-yearly': 'Pro (Jährlich)',
@@ -830,8 +831,10 @@ export const de: Record<TKey, string> = {
   'goals.node.manualProgressAria': 'Manueller Fortschritt',
   'goals.node.progressMirrors': 'Der Fortschritt spiegelt die Aufgaben von „{name}“.',
   'goals.node.capsuleNoteLabel': 'Zeitkapsel-Notiz',
-  'goals.node.capsuleNotePlaceholder': 'Eine Notiz, die zugestellt wird, wenn das Zieldatum erreicht ist…',
-  'goals.node.capsuleNoteTitle': 'Wird als Benachrichtigung zugestellt, sobald das Zieldatum erreicht ist',
+  'goals.node.capsuleNotePlaceholder':
+    'Eine Notiz, die zugestellt wird, wenn das Zieldatum erreicht ist…',
+  'goals.node.capsuleNoteTitle':
+    'Wird als Benachrichtigung zugestellt, sobald das Zieldatum erreicht ist',
   'goals.node.lifeAreaTitle': 'Verknüpfter Lebensbereich',
   'goals.node.noLifeArea': 'Kein Lebensbereich',
   'goals.node.smartTipsDefault': 'SMART: spezifisch, messbar, erreichbar, relevant, terminiert',
@@ -1124,11 +1127,14 @@ export const de: Record<TKey, string> = {
   'skills.logSession': 'Eine 25-minütige Lernsitzung protokollieren',
   'skills.xpTitle': 'Erfahrungspunkte — wächst mit jeder protokollierten Sitzung',
   'skills.tree.title': 'Fähigkeitenbaum',
-  'skills.tree.subtitle': 'Kategorien als Zweige, Level als Stufen — verknüpfe Fähigkeiten, um Pfade zu zeichnen',
-  'skills.tree.hint': 'Verknüpfe Fähigkeiten miteinander (unten, pro Fähigkeit), um hier einen Pfad zu zeichnen.',
+  'skills.tree.subtitle':
+    'Kategorien als Zweige, Level als Stufen — verknüpfe Fähigkeiten, um Pfade zu zeichnen',
+  'skills.tree.hint':
+    'Verknüpfe Fähigkeiten miteinander (unten, pro Fähigkeit), um hier einen Pfad zu zeichnen.',
   'skills.tree.levelTitle': 'Level {level}',
   'buddy.title': 'Fokus-Buddy',
-  'buddy.subtitle': 'Eine verbundene Person — sie sieht nur deine heutigen Fokus-Minuten, sonst nichts.',
+  'buddy.subtitle':
+    'Eine verbundene Person — sie sieht nur deine heutigen Fokus-Minuten, sonst nichts.',
   'buddy.proOnly': 'Pro-Funktion — upgrade, um dich mit einem Fokus-Buddy zu verbinden.',
   'buddy.error': 'Etwas ist schiefgelaufen. Versuch es erneut.',
   'buddy.invite': 'Buddy einladen',
@@ -1226,8 +1232,10 @@ export const de: Record<TKey, string> = {
   'journal.weekSummary': 'Woche: {min}m · {sessions} Sitzungen · {days}T aktiv',
   'journal.weekSummaryMood': ' · Stimmung {mood}',
   'journal.proUpsell': 'Pro schaltet den Eintragsverlauf und die Wochenreflexion frei.',
-  'agile.timeline.projectRequired': 'Erstelle zuerst ein Projekt — die Zeitleiste lebt bei Projekten.',
-  'agile.timeline.empty': 'Noch keine Aufgaben — füge Aufgaben und Fälligkeiten hinzu, um die Zeitleiste zu sehen.',
+  'agile.timeline.projectRequired':
+    'Erstelle zuerst ein Projekt — die Zeitleiste lebt bei Projekten.',
+  'agile.timeline.empty':
+    'Noch keine Aufgaben — füge Aufgaben und Fälligkeiten hinzu, um die Zeitleiste zu sehen.',
   'agile.timeline.window': '2 Wochen zurück / 4 voraus',
   'agile.timeline.today': 'Heute',
   'agile.timeline.milestone': 'Meilenstein',
@@ -1342,7 +1350,8 @@ export const de: Record<TKey, string> = {
   'sprints.twoWeeks': '2 Wochen',
   'sprints.fourWeeks': '4 Wochen',
   'sprints.create': 'Sprint erstellen',
-  'sprints.empty': 'Noch keine Sprints. Plane oben einen, ziehe Aufgaben rein, schließe ihn für Velocity ab.',
+  'sprints.empty':
+    'Noch keine Sprints. Plane oben einen, ziehe Aufgaben rein, schließe ihn für Velocity ab.',
   'sprints.status.planned': 'geplant',
   'sprints.status.active': 'aktiv',
   'sprints.status.completed': 'abgeschlossen',
@@ -1369,7 +1378,8 @@ export const de: Record<TKey, string> = {
   'taskRow.priority': 'Priorität',
   'taskRow.hideDetailsFor': 'Details für {title} ausblenden',
   'taskRow.showDetailsFor': 'Details für {title} anzeigen',
-  'taskRow.moreInfoTitle': 'Mehr Infos: Meilenstein, Blocker, Wiederholung, Punkte oder Schätzung gesetzt',
+  'taskRow.moreInfoTitle':
+    'Mehr Infos: Meilenstein, Blocker, Wiederholung, Punkte oder Schätzung gesetzt',
   'taskRow.detailsTitle': 'Details: Notizen, Fälligkeit, Wiederholung, Blocker, Unteraufgaben',
   'taskRow.deleteTask': 'Aufgabe {title} löschen',
   'taskRow.deletesSubtasksToo': 'Löscht auch {n} Unteraufgabe(n)',
@@ -1396,7 +1406,8 @@ export const de: Record<TKey, string> = {
   'taskRow.openLink': 'Link {link} in neuem Tab öffnen',
   'taskRow.removeLink': 'Link {link} entfernen',
   'taskRow.attachLinkPlaceholder': 'Link anhängen… (Enter)',
-  'taskRow.suggestTitle': 'Wirkung {impact}/5 × Aufwand {effort}/5 schlägt {suggested} vor (jetzt {current})',
+  'taskRow.suggestTitle':
+    'Wirkung {impact}/5 × Aufwand {effort}/5 schlägt {suggested} vor (jetzt {current})',
   'taskRow.suggestApply': '✨ Schlägt {priority} vor — übernehmen?',
   'taskRow.removeBlocker': 'Blocker {title} entfernen',
   'taskRow.mustCompleteFirst': 'Muss zuerst abgeschlossen werden',
@@ -1433,7 +1444,8 @@ export const de: Record<TKey, string> = {
   'projectRow.archive': 'Archivieren',
   'projectRow.delete': 'Löschen',
   'projectRow.docHeading': 'Projekt-Doc',
-  'projectRow.docPlaceholder': 'Kontext, Entscheidungen, Links — ein kurzes Doc für dieses Projekt…',
+  'projectRow.docPlaceholder':
+    'Kontext, Entscheidungen, Links — ein kurzes Doc für dieses Projekt…',
   'projectRow.tasksHeading': 'Aufgaben',
   'projectRow.bulkSelected': '{n} ausgewählt',
   'projectRow.bulkPriority': 'Priorität setzen',
@@ -1443,7 +1455,8 @@ export const de: Record<TKey, string> = {
   'projectRow.bulkClear': 'Leeren',
   'taskRow.selectForBulk': 'Für Massenaktionen auswählen',
   'weeklyReview.title': 'Wochenrückblick',
-  'weeklyReview.empty': 'Keine Fokus-Sitzungen oder stagnierenden Aufgaben diese Woche — ruhige Woche.',
+  'weeklyReview.empty':
+    'Keine Fokus-Sitzungen oder stagnierenden Aufgaben diese Woche — ruhige Woche.',
   'weeklyReview.header': 'Wochenrückblick — {date}',
   'weeklyReview.bestLine': 'Beste Arbeit diese Woche: {name} ({minutes}min Fokus).',
   'weeklyReview.stagnatingLine': 'Stagniert: {list}.',
@@ -1458,7 +1471,8 @@ export const de: Record<TKey, string> = {
   'projectRow.templatePlaceholder': 'Vorlage…',
   'projectRow.priorityTitle': 'Priorität',
   'projectRow.addTask': 'Aufgabe hinzufügen',
-  'projectRow.noTasksYet': 'Noch keine Aufgaben. Füge eine hinzu und wähle sie im Timer, um Zeit pro Aufgabe zu erfassen.',
+  'projectRow.noTasksYet':
+    'Noch keine Aufgaben. Füge eine hinzu und wähle sie im Timer, um Zeit pro Aufgabe zu erfassen.',
   'linkedItems.heading': 'Verknüpft',
   'linkedItems.type.goal': 'Ziel',
   'linkedItems.type.project': 'Projekt',
@@ -1473,5 +1487,6 @@ export const de: Record<TKey, string> = {
   'graph.ariaLabel': 'Verbindungsgraph',
   'graph.title': 'Graph',
   'graph.subtitle': '{nodes} Knoten · {edges} Verknüpfungen',
-  'graph.empty': 'Noch keine Verbindungen — öffne ein Ziel, Projekt, eine Fähigkeit oder den heutigen Journal-Eintrag und verknüpfe ihn mit etwas.',
+  'graph.empty':
+    'Noch keine Verbindungen — öffne ein Ziel, Projekt, eine Fähigkeit oder den heutigen Journal-Eintrag und verknüpfe ihn mit etwas.',
 };

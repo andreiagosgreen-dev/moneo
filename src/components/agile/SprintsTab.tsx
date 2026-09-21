@@ -327,10 +327,7 @@ function SprintRow({
           <p className="font-mono text-[10px] uppercase tracking-widest text-faint">
             {t('sprints.burndown')}
           </p>
-          <div
-            className="mt-1.5 flex h-12 items-end gap-[3px]"
-            title={t('sprints.burndownTitle')}
-          >
+          <div className="mt-1.5 flex h-12 items-end gap-[3px]" title={t('sprints.burndownTitle')}>
             {series.slice(-21).map((d) => {
               const max = Math.max(1, ...series.map((x) => Math.max(x.actual, x.ideal)));
               return (
@@ -338,7 +335,11 @@ function SprintRow({
                   key={d.dayKey}
                   className="flex-1 rounded-t-sm bg-cream/25"
                   style={{ height: `${Math.max(4, (d.actual / max) * 100)}%` }}
-                  title={t('sprints.burndownBar', { label: d.label, actual: d.actual, ideal: d.ideal })}
+                  title={t('sprints.burndownBar', {
+                    label: d.label,
+                    actual: d.actual,
+                    ideal: d.ideal,
+                  })}
                 />
               );
             })}

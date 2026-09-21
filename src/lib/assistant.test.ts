@@ -301,7 +301,10 @@ describe('respondTo — modify-task intents', () => {
 
   it('asks for clarification when the title is ambiguous', () => {
     const ctx = makeCtx({
-      tasks: [makeTask({ id: 'a', title: 'Write draft' }), makeTask({ id: 'b', title: 'Write email' })],
+      tasks: [
+        makeTask({ id: 'a', title: 'Write draft' }),
+        makeTask({ id: 'b', title: 'Write email' }),
+      ],
     });
     const reply = respondTo('complete write', ctx);
     expect(reply.action).toBeNull();

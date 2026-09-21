@@ -53,8 +53,7 @@ export default function GraphCard({ links, goals, projects, skills, objectives }
 
   const nodes = useMemo<GraphNode[]>(() => {
     const resolveTitle = (type: LinkEntityType, id: string): string => {
-      if (type === 'goal')
-        return goals.find((g) => g.id === id)?.title ?? t('linkedItems.deleted');
+      if (type === 'goal') return goals.find((g) => g.id === id)?.title ?? t('linkedItems.deleted');
       if (type === 'project')
         return projects.find((p) => p.id === id)?.name ?? t('linkedItems.deleted');
       if (type === 'skill')
@@ -68,10 +67,20 @@ export default function GraphCard({ links, goals, projects, skills, objectives }
       const aKey = `${l.aType}:${l.aId}`;
       const bKey = `${l.bType}:${l.bId}`;
       if (!seen.has(aKey)) {
-        seen.set(aKey, { key: aKey, type: l.aType, id: l.aId, title: resolveTitle(l.aType, l.aId) });
+        seen.set(aKey, {
+          key: aKey,
+          type: l.aType,
+          id: l.aId,
+          title: resolveTitle(l.aType, l.aId),
+        });
       }
       if (!seen.has(bKey)) {
-        seen.set(bKey, { key: bKey, type: l.bType, id: l.bId, title: resolveTitle(l.bType, l.bId) });
+        seen.set(bKey, {
+          key: bKey,
+          type: l.bType,
+          id: l.bId,
+          title: resolveTitle(l.bType, l.bId),
+        });
       }
     }
     return Array.from(seen.values());
@@ -169,8 +178,7 @@ export default function GraphCard({ links, goals, projects, skills, objectives }
           <span
             className="h-2 w-2 shrink-0 rounded-full"
             style={{
-              background:
-                TYPE_COLOR[nodes.find((n) => n.key === selected)?.type ?? 'goal'],
+              background: TYPE_COLOR[nodes.find((n) => n.key === selected)?.type ?? 'goal'],
             }}
           />
           <span className="max-w-[260px] truncate">

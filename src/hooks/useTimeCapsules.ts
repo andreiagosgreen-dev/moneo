@@ -21,10 +21,7 @@ export function useTimeCapsules(
     if (due.length === 0) return;
     let next = delivered;
     for (const goal of due) {
-      showNotification(
-        `Time capsule: ${goal.title}`,
-        goal.capsuleNote ?? '',
-      );
+      showNotification(`Time capsule: ${goal.title}`, goal.capsuleNote ?? '');
       next = markCapsuleDelivered(next, goal.id, now);
     }
     if (next !== delivered) saveCapsuleDelivered(next);

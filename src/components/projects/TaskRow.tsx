@@ -370,7 +370,9 @@ export default function TaskRow({
                   ? 'text-accent ring-accent/60'
                   : 'text-faint ring-line hover:text-cream'
               }`}
-              title={task.milestone === true ? t('taskRow.removeMilestone') : t('taskRow.markMilestone')}
+              title={
+                task.milestone === true ? t('taskRow.removeMilestone') : t('taskRow.markMilestone')
+              }
               aria-pressed={task.milestone === true}
             >
               ◆

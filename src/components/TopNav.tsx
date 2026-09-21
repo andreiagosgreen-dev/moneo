@@ -27,14 +27,13 @@ export const PRIMARY_TABS: Array<{ id: Exclude<NavTab, 'settings'>; label: TKey;
   { id: 'assistant', label: 'nav.assistant', hint: 'nav.hint.assistant' },
 ];
 
-export const SECONDARY_TABS: Array<{ id: Exclude<NavTab, 'settings'>; label: TKey; hint: TKey }> =
-  [
-    { id: 'growth', label: 'nav.growth', hint: 'nav.hint.growth' },
-    { id: 'map', label: 'nav.map', hint: 'nav.hint.map' },
-    { id: 'projects', label: 'nav.projects', hint: 'nav.hint.projects' },
-    { id: 'reports', label: 'nav.reports', hint: 'nav.hint.reports' },
-    { id: 'graph', label: 'nav.graph', hint: 'nav.hint.graph' },
-  ];
+export const SECONDARY_TABS: Array<{ id: Exclude<NavTab, 'settings'>; label: TKey; hint: TKey }> = [
+  { id: 'growth', label: 'nav.growth', hint: 'nav.hint.growth' },
+  { id: 'map', label: 'nav.map', hint: 'nav.hint.map' },
+  { id: 'projects', label: 'nav.projects', hint: 'nav.hint.projects' },
+  { id: 'reports', label: 'nav.reports', hint: 'nav.hint.reports' },
+  { id: 'graph', label: 'nav.graph', hint: 'nav.hint.graph' },
+];
 
 interface SearchHit {
   key: string;

@@ -571,7 +571,8 @@ export const ro: Record<TKey, string> = {
   'account.subscriptionStatus': 'Abonament',
   'account.manageSubscription': 'Gestionează abonamentul',
   'pricingPage.title': 'Prețuri simple, oneste',
-  'pricingPage.subtitle': 'Gratuit pentru totdeauna pentru esențial. Fă upgrade când depășești limitele.',
+  'pricingPage.subtitle':
+    'Gratuit pentru totdeauna pentru esențial. Fă upgrade când depășești limitele.',
   'account.plan.free': 'Gratuit',
   'account.plan.pro-monthly': 'Pro (Lunar)',
   'account.plan.pro-yearly': 'Pro (Anual)',
@@ -1014,7 +1015,8 @@ export const ro: Record<TKey, string> = {
   'reports.exportCsv': 'Exportă CSV',
   'reports.exportPdf': 'Exportă PDF',
   'reports.exportPortfolio': 'Exportă portofoliu',
-  'reports.exportPortfolioTitle': 'O pagină de partajat cu proiecte finalizate, goal-uri atinse și skill-uri puternice',
+  'reports.exportPortfolioTitle':
+    'O pagină de partajat cu proiecte finalizate, goal-uri atinse și skill-uri puternice',
   'reports.exportProOnly': 'Exporturile sunt o funcție Pro.',
   'reports.moreDetail': 'Mai multe detalii',
   'reports.moreDetailHint': 'Perspective · alocare · export',
@@ -1118,11 +1120,13 @@ export const ro: Record<TKey, string> = {
   'skills.logSession': 'Înregistrează o sesiune de învățare de 25 de minute',
   'skills.xpTitle': 'Puncte de experiență — crește cu fiecare sesiune înregistrată',
   'skills.tree.title': 'Arbore de skill-uri',
-  'skills.tree.subtitle': 'Categorii ca ramuri, nivel ca trepte — leagă skill-uri ca să desenezi căi',
+  'skills.tree.subtitle':
+    'Categorii ca ramuri, nivel ca trepte — leagă skill-uri ca să desenezi căi',
   'skills.tree.hint': 'Leagă skill-uri între ele (mai jos, per skill) ca să apară o cale aici.',
   'skills.tree.levelTitle': 'Nivel {level}',
   'buddy.title': 'Partener de focus',
-  'buddy.subtitle': 'O singură persoană conectată — vede doar minutele tale de focus de azi, nimic altceva.',
+  'buddy.subtitle':
+    'O singură persoană conectată — vede doar minutele tale de focus de azi, nimic altceva.',
   'buddy.proOnly': 'Funcție Pro — fă upgrade ca să te conectezi cu un partener de focus.',
   'buddy.error': 'Ceva n-a mers bine. Încearcă din nou.',
   'buddy.invite': 'Invită un partener',
@@ -1221,7 +1225,8 @@ export const ro: Record<TKey, string> = {
   'journal.weekSummaryMood': ' · dispoziție {mood}',
   'journal.proUpsell': 'Pro deblochează istoricul intrărilor și reflecția săptămânală.',
   'agile.timeline.projectRequired': 'Creează întâi un proiect — cronologia trăiește pe proiecte.',
-  'agile.timeline.empty': 'Niciun task încă — adaugă task-uri și date scadente ca să vezi cronologia.',
+  'agile.timeline.empty':
+    'Niciun task încă — adaugă task-uri și date scadente ca să vezi cronologia.',
   'agile.timeline.window': '2 săptămâni în urmă / 4 înainte',
   'agile.timeline.today': 'Azi',
   'agile.timeline.milestone': 'Milestone',
@@ -1336,7 +1341,8 @@ export const ro: Record<TKey, string> = {
   'sprints.twoWeeks': '2 săptămâni',
   'sprints.fourWeeks': '4 săptămâni',
   'sprints.create': 'Creează sprint',
-  'sprints.empty': 'Niciun sprint încă. Planifică unul mai sus, adaugă task-uri, închide-l pentru viteză.',
+  'sprints.empty':
+    'Niciun sprint încă. Planifică unul mai sus, adaugă task-uri, închide-l pentru viteză.',
   'sprints.status.planned': 'planificat',
   'sprints.status.active': 'activ',
   'sprints.status.completed': 'finalizat',
@@ -1390,7 +1396,8 @@ export const ro: Record<TKey, string> = {
   'taskRow.openLink': 'Deschide link-ul {link} într-o filă nouă',
   'taskRow.removeLink': 'Elimină link-ul {link}',
   'taskRow.attachLinkPlaceholder': 'Atașează link… (Enter)',
-  'taskRow.suggestTitle': 'Impact {impact}/5 × efort {effort}/5 sugerează {suggested} (acum {current})',
+  'taskRow.suggestTitle':
+    'Impact {impact}/5 × efort {effort}/5 sugerează {suggested} (acum {current})',
   'taskRow.suggestApply': '✨ Sugerează {priority} — aplici?',
   'taskRow.removeBlocker': 'Elimină blocajul {title}',
   'taskRow.mustCompleteFirst': 'Trebuie finalizat primul',
@@ -1452,7 +1459,8 @@ export const ro: Record<TKey, string> = {
   'projectRow.templatePlaceholder': 'Șabl…',
   'projectRow.priorityTitle': 'Prioritate',
   'projectRow.addTask': 'Adaugă task',
-  'projectRow.noTasksYet': 'Niciun task încă. Adaugă unul și selectează-l în timer ca să urmărești timpul pe task.',
+  'projectRow.noTasksYet':
+    'Niciun task încă. Adaugă unul și selectează-l în timer ca să urmărești timpul pe task.',
   'linkedItems.heading': 'Legături',
   'linkedItems.type.goal': 'Obiectiv',
   'linkedItems.type.project': 'Proiect',
@@ -1467,5 +1475,6 @@ export const ro: Record<TKey, string> = {
   'graph.ariaLabel': 'Graful conexiunilor',
   'graph.title': 'Graf',
   'graph.subtitle': '{nodes} noduri · {edges} legături',
-  'graph.empty': 'Nicio conexiune încă — deschide un goal, proiect, abilitate sau intrarea de azi din jurnal și leag-o de ceva.',
+  'graph.empty':
+    'Nicio conexiune încă — deschide un goal, proiect, abilitate sau intrarea de azi din jurnal și leag-o de ceva.',
 };

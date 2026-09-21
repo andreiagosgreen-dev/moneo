@@ -71,7 +71,11 @@ export default function CommandPalette({
 
     for (const tb of ALL_TABS) {
       const title = t('palette.goTo', { section: t(tb.label) });
-      if (q.length > 0 && !title.toLowerCase().includes(q) && !t(tb.label).toLowerCase().includes(q)) {
+      if (
+        q.length > 0 &&
+        !title.toLowerCase().includes(q) &&
+        !t(tb.label).toLowerCase().includes(q)
+      ) {
         continue;
       }
       out.push({ key: `tab-${tb.id}`, kind: 'nav.kind.action', title, run: () => onTab(tb.id) });
@@ -100,13 +104,29 @@ export default function CommandPalette({
       }
       for (const g of goals) {
         if (!g.archived && g.title.toLowerCase().includes(q)) {
-          out.push({ key: `g-${g.id}`, kind: 'nav.kind.goal', title: g.title, run: () => onTab('plan') });
+          out.push({
+            key: `g-${g.id}`,
+            kind: 'nav.kind.goal',
+            title: g.title,
+            run: () => onTab('plan'),
+          });
         }
       }
     }
 
     return out.slice(0, 9);
-  }, [query, tasks, projects, goals, running, t, onTab, onToggleTimer, onSelectProject, onSelectTask]);
+  }, [
+    query,
+    tasks,
+    projects,
+    goals,
+    running,
+    t,
+    onTab,
+    onToggleTimer,
+    onSelectProject,
+    onSelectTask,
+  ]);
 
   useEffect(() => setHighlight(0), [items.length]);
 

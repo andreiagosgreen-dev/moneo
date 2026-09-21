@@ -119,7 +119,8 @@ export default function BalanceTab({
                       {t('balance.linked')}{' '}
                       {linkedIds
                         .map(
-                          (id: string) => live.find((f) => f.id === id)?.name ?? t('balance.deleted'),
+                          (id: string) =>
+                            live.find((f) => f.id === id)?.name ?? t('balance.deleted'),
                         )
                         .join(', ')}
                     </p>

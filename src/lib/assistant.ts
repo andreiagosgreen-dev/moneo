@@ -124,7 +124,10 @@ const WEEKDAYS = [
  * directly for reschedule commands. Never throws; unknown phrases → null.
  */
 export function parseDuePhrase(phrase: string, now: number = Date.now()): number | null {
-  const p = phrase.trim().toLowerCase().replace(/^on\s+/, '');
+  const p = phrase
+    .trim()
+    .toLowerCase()
+    .replace(/^on\s+/, '');
   if (p === 'today' || p === 'tonight') return noonPlusDays(now, 0);
   if (p === 'tomorrow') return noonPlusDays(now, 1);
   if (p === 'next week') return noonPlusDays(now, 7);
@@ -276,7 +279,10 @@ function resolveTaskRef(
   tasks: Task[],
   focusTaskId?: string,
 ): { task: Task | null; ambiguous: Task[] } {
-  const clean = ref.trim().toLowerCase().replace(/^(the|task)\s+/, '');
+  const clean = ref
+    .trim()
+    .toLowerCase()
+    .replace(/^(the|task)\s+/, '');
   const open = tasks.filter((x) => x.status !== 'completed');
   if (/^(it|that|that one|this|this one)$/.test(clean)) {
     const found = focusTaskId ? open.find((x) => x.id === focusTaskId) : undefined;
@@ -407,7 +413,10 @@ export function respondTo(
     if (!task) return notFoundReply(rescheduleMatch[1]);
     const dueAt = parseDuePhrase(rescheduleMatch[2], now);
     if (dueAt === null) {
-      return { text: `Not sure when “${rescheduleMatch[2]}” is — try a date like “friday”.`, action: null };
+      return {
+        text: `Not sure when “${rescheduleMatch[2]}” is — try a date like “friday”.`,
+        action: null,
+      };
     }
     return {
       text: `Moved “${task.title}” to ${new Date(dueAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}.`,
@@ -416,7 +425,9 @@ export function respondTo(
     };
   }
 
-  const priorityMatch = text.match(/^(?:make|set)\s+(.+?)\s+(?:priority\s+)?(?:to\s+)?(p[0-3]|urgent|important|low)$/i);
+  const priorityMatch = text.match(
+    /^(?:make|set)\s+(.+?)\s+(?:priority\s+)?(?:to\s+)?(p[0-3]|urgent|important|low)$/i,
+  );
   if (priorityMatch) {
     const { task, ambiguous } = resolveTaskRef(priorityMatch[1], ctx.tasks, focusTaskId);
     if (ambiguous.length > 0) return ambiguousReply(ambiguous);
@@ -454,7 +465,9 @@ export function respondTo(
     const peakLine =
       peaks.length > 0 ? ` Peak energy ≈ ${peaks[0].hour}:00 — do the frog then.` : '';
     const sprint =
-      ctx.sprints && ctx.selectedProjectId ? activeSprint(ctx.sprints, ctx.selectedProjectId) : null;
+      ctx.sprints && ctx.selectedProjectId
+        ? activeSprint(ctx.sprints, ctx.selectedProjectId)
+        : null;
     const sprintLine = sprint
       ? ` Sprint “${sprint.name}” ends ${new Date(sprint.endAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}.`
       : '';

@@ -34,7 +34,7 @@ export function buildSecurityHeaders(): Record<string, string> {
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob:",
     "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.lemonsqueezy.com https://challenges.cloudflare.com https://*.sentry.io",
-    "frame-src https://challenges.cloudflare.com",
+    'frame-src https://challenges.cloudflare.com',
     "manifest-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",

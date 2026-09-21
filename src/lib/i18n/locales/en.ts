@@ -1010,7 +1010,8 @@ export const en = {
   'reports.exportCsv': 'Export CSV',
   'reports.exportPdf': 'Export PDF',
   'reports.exportPortfolio': 'Export Portfolio',
-  'reports.exportPortfolioTitle': 'A shareable page of completed projects, achieved goals and strong skills',
+  'reports.exportPortfolioTitle':
+    'A shareable page of completed projects, achieved goals and strong skills',
   'reports.exportProOnly': 'Exports are a Pro feature.',
   'reports.moreDetail': 'More detail',
   'reports.moreDetailHint': 'Insights · allocation · export',
@@ -1118,7 +1119,8 @@ export const en = {
   'skills.tree.hint': 'Link skills to each other (below, per skill) to draw a path here.',
   'skills.tree.levelTitle': 'Level {level}',
   'buddy.title': 'Focus buddy',
-  'buddy.subtitle': 'One connected person — they see only your focused minutes today, nothing else.',
+  'buddy.subtitle':
+    'One connected person — they see only your focused minutes today, nothing else.',
   'buddy.proOnly': 'Pro feature — upgrade to pair with a focus buddy.',
   'buddy.error': 'Something went wrong. Try again.',
   'buddy.invite': 'Invite a buddy',
@@ -1386,7 +1388,8 @@ export const en = {
   'taskRow.openLink': 'Open link {link} in a new tab',
   'taskRow.removeLink': 'Remove link {link}',
   'taskRow.attachLinkPlaceholder': 'Attach link… (Enter)',
-  'taskRow.suggestTitle': 'Impact {impact}/5 × effort {effort}/5 suggests {suggested} (now {current})',
+  'taskRow.suggestTitle':
+    'Impact {impact}/5 × effort {effort}/5 suggests {suggested} (now {current})',
   'taskRow.suggestApply': '✨ Suggests {priority} — apply?',
   'taskRow.removeBlocker': 'Remove blocker {title}',
   'taskRow.mustCompleteFirst': 'Must complete first',
@@ -1438,15 +1441,18 @@ export const en = {
   'weeklyReview.bestLine': 'Best work this week: {name} ({minutes}m focused).',
   'weeklyReview.stagnatingLine': 'Stagnating: {list}.',
   'weeklyReview.noStagnation': 'Nothing stagnating — everything open is fresh.',
-  'weeklyReview.decisionOverdue': 'Decision: "{title}" is {days}d overdue — reschedule it or let it go?',
-  'weeklyReview.decisionStale': 'Decision: "{title}" hasn\'t moved in {days}d — reschedule it or let it go?',
+  'weeklyReview.decisionOverdue':
+    'Decision: "{title}" is {days}d overdue — reschedule it or let it go?',
+  'weeklyReview.decisionStale':
+    'Decision: "{title}" hasn\'t moved in {days}d — reschedule it or let it go?',
   'projectRow.addTaskPlaceholder': 'Add a task…',
   'projectRow.templateTitle': 'Start from a task template',
   'projectRow.templateLabel': 'Task template',
   'projectRow.templatePlaceholder': 'Tpl…',
   'projectRow.priorityTitle': 'Priority',
   'projectRow.addTask': 'Add task',
-  'projectRow.noTasksYet': 'No tasks yet. Add a task and select it in the timer to track time per task.',
+  'projectRow.noTasksYet':
+    'No tasks yet. Add a task and select it in the timer to track time per task.',
   'linkedItems.heading': 'Linked',
   'linkedItems.type.goal': 'Goal',
   'linkedItems.type.project': 'Project',
@@ -1461,5 +1467,6 @@ export const en = {
   'graph.ariaLabel': 'Connections graph',
   'graph.title': 'Graph',
   'graph.subtitle': '{nodes} nodes · {edges} links',
-  'graph.empty': 'No connections yet — open a goal, project, skill or today’s journal entry and link it to something.',
+  'graph.empty':
+    'No connections yet — open a goal, project, skill or today’s journal entry and link it to something.',
 };

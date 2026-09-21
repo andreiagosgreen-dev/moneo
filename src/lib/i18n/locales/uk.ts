@@ -563,7 +563,8 @@ export const uk: Record<TKey, string> = {
   'account.subscriptionStatus': 'Підписка',
   'account.manageSubscription': 'Керувати підпискою',
   'pricingPage.title': 'Прості, чесні ціни',
-  'pricingPage.subtitle': 'Безкоштовно назавжди для основного. Оновлюйтесь, коли перевищите ліміти.',
+  'pricingPage.subtitle':
+    'Безкоштовно назавжди для основного. Оновлюйтесь, коли перевищите ліміти.',
   'account.plan.free': 'Безкоштовно',
   'account.plan.pro-monthly': 'Pro (Щомісячно)',
   'account.plan.pro-yearly': 'Pro (Щорічно)',
@@ -1008,7 +1009,8 @@ export const uk: Record<TKey, string> = {
   'reports.exportCsv': 'Експорт CSV',
   'reports.exportPdf': 'Експорт PDF',
   'reports.exportPortfolio': 'Експорт портфоліо',
-  'reports.exportPortfolioTitle': 'Сторінка для поширення із завершеними проєктами, досягнутими цілями та сильними навичками',
+  'reports.exportPortfolioTitle':
+    'Сторінка для поширення із завершеними проєктами, досягнутими цілями та сильними навичками',
   'reports.exportProOnly': 'Експорт — функція Pro.',
   'reports.moreDetail': 'Більше деталей',
   'reports.moreDetailHint': 'Інсайти · розподіл · експорт',
@@ -1112,11 +1114,14 @@ export const uk: Record<TKey, string> = {
   'skills.logSession': 'Записати 25-хвилинну сесію навчання',
   'skills.xpTitle': 'Очки досвіду — зростають з кожною записаною сесією',
   'skills.tree.title': 'Дерево навичок',
-  'skills.tree.subtitle': 'Категорії як гілки, рівень як щаблі — зв’яжіть навички, щоб намалювати шляхи',
-  'skills.tree.hint': 'Зв’яжіть навички між собою (нижче, для кожної навички), щоб тут з’явився шлях.',
+  'skills.tree.subtitle':
+    'Категорії як гілки, рівень як щаблі — зв’яжіть навички, щоб намалювати шляхи',
+  'skills.tree.hint':
+    'Зв’яжіть навички між собою (нижче, для кожної навички), щоб тут з’явився шлях.',
   'skills.tree.levelTitle': 'Рівень {level}',
   'buddy.title': 'Напарник з фокусу',
-  'buddy.subtitle': 'Одна під’єднана людина — бачить лише ваші сьогоднішні хвилини фокусу, більше нічого.',
+  'buddy.subtitle':
+    'Одна під’єднана людина — бачить лише ваші сьогоднішні хвилини фокусу, більше нічого.',
   'buddy.proOnly': 'Функція Pro — оновіться, щоб з’єднатися з напарником з фокусу.',
   'buddy.error': 'Щось пішло не так. Спробуйте ще раз.',
   'buddy.invite': 'Запросити напарника',
@@ -1330,7 +1335,8 @@ export const uk: Record<TKey, string> = {
   'sprints.twoWeeks': '2 тижні',
   'sprints.fourWeeks': '4 тижні',
   'sprints.create': 'Створити спринт',
-  'sprints.empty': 'Поки немає спринтів. Заплануйте вище, додайте завдання, закрийте для швидкості.',
+  'sprints.empty':
+    'Поки немає спринтів. Заплануйте вище, додайте завдання, закрийте для швидкості.',
   'sprints.status.planned': 'заплановано',
   'sprints.status.active': 'активний',
   'sprints.status.completed': 'завершено',
@@ -1384,7 +1390,8 @@ export const uk: Record<TKey, string> = {
   'taskRow.openLink': 'Відкрити посилання {link} у новій вкладці',
   'taskRow.removeLink': 'Видалити посилання {link}',
   'taskRow.attachLinkPlaceholder': 'Додати посилання… (Enter)',
-  'taskRow.suggestTitle': 'Вплив {impact}/5 × зусилля {effort}/5 пропонує {suggested} (зараз {current})',
+  'taskRow.suggestTitle':
+    'Вплив {impact}/5 × зусилля {effort}/5 пропонує {suggested} (зараз {current})',
   'taskRow.suggestApply': '✨ Пропонує {priority} — застосувати?',
   'taskRow.removeBlocker': 'Прибрати блокер {title}',
   'taskRow.mustCompleteFirst': 'Має бути виконано першим',
@@ -1421,7 +1428,8 @@ export const uk: Record<TKey, string> = {
   'projectRow.archive': 'Архівувати',
   'projectRow.delete': 'Видалити',
   'projectRow.docHeading': 'Документ проєкту',
-  'projectRow.docPlaceholder': 'Контекст, рішення, посилання — короткий документ для цього проєкту…',
+  'projectRow.docPlaceholder':
+    'Контекст, рішення, посилання — короткий документ для цього проєкту…',
   'projectRow.tasksHeading': 'Завдання',
   'projectRow.bulkSelected': 'Вибрано: {n}',
   'projectRow.bulkPriority': 'Встановити пріоритет',
@@ -1446,7 +1454,8 @@ export const uk: Record<TKey, string> = {
   'projectRow.templatePlaceholder': 'Шабл…',
   'projectRow.priorityTitle': 'Пріоритет',
   'projectRow.addTask': 'Додати завдання',
-  'projectRow.noTasksYet': 'Поки немає завдань. Додайте одне й оберіть його в таймері, щоб відстежувати час на завдання.',
+  'projectRow.noTasksYet':
+    'Поки немає завдань. Додайте одне й оберіть його в таймері, щоб відстежувати час на завдання.',
   'linkedItems.heading': 'Пов’язано',
   'linkedItems.type.goal': 'Ціль',
   'linkedItems.type.project': 'Проєкт',
@@ -1461,5 +1470,6 @@ export const uk: Record<TKey, string> = {
   'graph.ariaLabel': 'Граф зв’язків',
   'graph.title': 'Граф',
   'graph.subtitle': '{nodes} вузлів · {edges} зв’язків',
-  'graph.empty': 'Поки немає зв’язків — відкрийте ціль, проєкт, навичку або сьогоднішній запис щоденника і пов’яжіть його з чимось.',
+  'graph.empty':
+    'Поки немає зв’язків — відкрийте ціль, проєкт, навичку або сьогоднішній запис щоденника і пов’яжіть його з чимось.',
 };

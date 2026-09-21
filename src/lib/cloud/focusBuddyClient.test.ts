@@ -14,10 +14,7 @@ afterEach(() => {
 
 describe('fail-open behavior', () => {
   it('fetchBuddyStatus falls back to the default on network error or non-ok', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockRejectedValue(new Error('offline')),
-    );
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
     expect(await fetchBuddyStatus('tok')).toEqual(DEFAULT_BUDDY_STATUS);
 
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 500 })));
@@ -36,9 +33,11 @@ describe('happy path', () => {
   it('fetchBuddyStatus parses a paired response with todayMinutes', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ paired: true, todayMinutes: 40 }), { status: 200 }),
-      ),
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ paired: true, todayMinutes: 40 }), { status: 200 }),
+        ),
     );
     expect(await fetchBuddyStatus('tok')).toEqual({ paired: true, todayMinutes: 40 });
   });
@@ -46,9 +45,11 @@ describe('happy path', () => {
   it('inviteBuddy returns the code on success', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ ok: true, code: 'ABCDEFGH' }), { status: 200 }),
-      ),
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ ok: true, code: 'ABCDEFGH' }), { status: 200 }),
+        ),
     );
     expect(await inviteBuddy('tok')).toBe('ABCDEFGH');
   });

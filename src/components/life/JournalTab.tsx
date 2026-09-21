@@ -52,7 +52,11 @@ export default function JournalTab({
         {prompt}
       </p>
 
-      <div className="mt-3 flex items-center gap-1.5" role="group" aria-label={t('journal.moodGroupLabel')}>
+      <div
+        className="mt-3 flex items-center gap-1.5"
+        role="group"
+        aria-label={t('journal.moodGroupLabel')}
+      >
         {([1, 2, 3, 4, 5] as Mood[]).map((m) => (
           <button
             key={m}
@@ -126,7 +130,9 @@ export default function JournalTab({
         >
           {t('journal.saveEntry')}
         </button>
-        {savedTick > 0 && <span className="font-mono text-[11px] text-sage">{t('journal.saved')}</span>}
+        {savedTick > 0 && (
+          <span className="font-mono text-[11px] text-sage">{t('journal.saved')}</span>
+        )}
       </div>
 
       <LinkedItems
@@ -182,9 +188,7 @@ export default function JournalTab({
           )}
         </div>
       )}
-      {!isPro && (
-        <p className="mt-3 font-mono text-[11px] text-faint">{t('journal.proUpsell')}</p>
-      )}
+      {!isPro && <p className="mt-3 font-mono text-[11px] text-faint">{t('journal.proUpsell')}</p>}
     </div>
   );
 }

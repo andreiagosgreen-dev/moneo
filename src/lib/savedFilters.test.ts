@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  applyFilter,
-  createSavedFilter,
-  matchesFilter,
-  removeSavedFilter,
-} from './savedFilters';
+import { applyFilter, createSavedFilter, matchesFilter, removeSavedFilter } from './savedFilters';
 import type { Task } from './tasks';
 
 function makeTask(overrides: Partial<Task> = {}): Task {

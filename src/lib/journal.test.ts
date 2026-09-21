@@ -107,13 +107,13 @@ describe('post-session reflection (Faza 24)', () => {
     let journal = appendSessionReflection({}, '2026-9-16', 'Shipped the login flow');
     expect(journal['2026-9-16'].text).toBe('• Shipped the login flow');
     journal = appendSessionReflection(journal, '2026-9-16', 'Fixed a nasty bug');
-    expect(journal['2026-9-16'].text).toBe(
-      '• Shipped the login flow\n• Fixed a nasty bug',
-    );
+    expect(journal['2026-9-16'].text).toBe('• Shipped the login flow\n• Fixed a nasty bug');
   });
 
   it('is a no-op for blank reflections and leaves other days untouched', () => {
-    const journal = { '2026-9-15': { dayKey: '2026-9-15', gratitude: [], text: 'x', updatedAt: 1 } };
+    const journal = {
+      '2026-9-15': { dayKey: '2026-9-15', gratitude: [], text: 'x', updatedAt: 1 },
+    };
     expect(appendSessionReflection(journal, '2026-9-16', '   ')).toBe(journal);
   });
 });

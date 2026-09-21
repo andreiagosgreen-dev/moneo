@@ -1,0 +1,5 @@
+# Normalize line endings to LF in the repository regardless of the
+# checking-out OS. Without this, Windows checkouts get CRLF (via git's
+# core.autocrlf) while CI (Linux) and Prettier both expect LF, so
+# `prettier --check` fails in CI on files nobody actually changed.
+* text=auto eol=lf

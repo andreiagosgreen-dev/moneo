@@ -141,10 +141,7 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated?: () => 
           />
         </div>
 
-        <TurnstileWidget
-          onToken={setCaptchaToken}
-          onExpire={() => setCaptchaToken(null)}
-        />
+        <TurnstileWidget onToken={setCaptchaToken} onExpire={() => setCaptchaToken(null)} />
 
         {error && (
           <p role="alert" className="text-[12px] font-medium text-tomato">

@@ -150,9 +150,7 @@ export default function SkillTreeCard({ skills, links, onSelect }: Props) {
           );
         })}
       </svg>
-      <p className="mt-1 text-center font-mono text-[10px] text-faint">
-        {t('skills.tree.hint')}
-      </p>
+      <p className="mt-1 text-center font-mono text-[10px] text-faint">{t('skills.tree.hint')}</p>
     </div>
   );
 }

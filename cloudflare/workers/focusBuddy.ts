@@ -225,7 +225,10 @@ export async function handleBuddyStatus(
   const pair = await findPairForUser(supabaseUrl, serviceKey, v.userId, fetchImpl);
   if (!pair) return json({ paired: false }, 200);
   if (pair.status === 'pending') {
-    return json({ paired: false, pendingCode: pair.user_a === v.userId ? pair.invite_code : null }, 200);
+    return json(
+      { paired: false, pendingCode: pair.user_a === v.userId ? pair.invite_code : null },
+      200,
+    );
   }
 
   const buddyId = pair.user_a === v.userId ? pair.user_b : pair.user_a;

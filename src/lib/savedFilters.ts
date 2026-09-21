@@ -84,7 +84,11 @@ export function removeSavedFilter(filters: SavedFilter[], id: string): SavedFilt
 }
 
 /** Pure predicate. Overdue open tasks always satisfy `dueWithinDays`. */
-export function matchesFilter(task: Task, filter: FilterCriteria, now: number = Date.now()): boolean {
+export function matchesFilter(
+  task: Task,
+  filter: FilterCriteria,
+  now: number = Date.now(),
+): boolean {
   if (filter.status && task.status !== filter.status) return false;
   if (filter.priority && task.priority !== filter.priority) return false;
   if (filter.projectId && task.projectId !== filter.projectId) return false;
@@ -96,6 +100,10 @@ export function matchesFilter(task: Task, filter: FilterCriteria, now: number = 
   return true;
 }
 
-export function applyFilter(tasks: Task[], filter: FilterCriteria, now: number = Date.now()): Task[] {
+export function applyFilter(
+  tasks: Task[],
+  filter: FilterCriteria,
+  now: number = Date.now(),
+): Task[] {
   return tasks.filter((t) => matchesFilter(t, filter, now));
 }

@@ -50,11 +50,7 @@ export interface AuthClientLike {
     password: string;
     options?: { captchaToken?: string };
   }): Promise<{ data: { user: RawUser | null }; error: { message?: string } | null }>;
-  signUp(creds: {
-    email: string;
-    password: string;
-    options?: { captchaToken?: string };
-  }): Promise<{
+  signUp(creds: { email: string; password: string; options?: { captchaToken?: string } }): Promise<{
     data: { user: RawUser | null; session: unknown };
     error: { message?: string } | null;
   }>;

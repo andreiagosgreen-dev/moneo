@@ -2,7 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Project } from '../lib/projects';
 import { activeProjects } from '../lib/projects';
 import type { Task, TaskPriority } from '../lib/tasks';
-import { completeTask, createTaskObject, removeTask, setDueAt, setTaskPriority } from '../lib/tasks';
+import {
+  completeTask,
+  createTaskObject,
+  removeTask,
+  setDueAt,
+  setTaskPriority,
+} from '../lib/tasks';
 import type { Session } from '../lib/store';
 import type { Goal } from '../lib/goals';
 import type { Sprint } from '../lib/sprints';

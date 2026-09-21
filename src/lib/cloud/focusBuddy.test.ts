@@ -18,9 +18,7 @@ interface Call {
 }
 
 /** Fake fetch: canned per-URL responses + call recording, mirrors accountDeletion.test.ts. */
-function stubFetch(
-  handler: (url: string, method: string) => { status: number; body: unknown },
-) {
+function stubFetch(handler: (url: string, method: string) => { status: number; body: unknown }) {
   const calls: Call[] = [];
   const fn = (async (url: unknown, init?: { method?: string }) => {
     const u = String(url);
@@ -44,12 +42,15 @@ function authedRequest(path: string, token: string | null, body?: unknown): Requ
 }
 
 /** user-1, Pro, no existing pairing — the happy path for invite/join. */
-function proBackend(extra?: (url: string, method: string) => { status: number; body: unknown } | null) {
+function proBackend(
+  extra?: (url: string, method: string) => { status: number; body: unknown } | null,
+) {
   return stubFetch((url, method) => {
     const custom = extra?.(url, method);
     if (custom) return custom;
     if (url.endsWith('/auth/v1/user')) return { status: 200, body: { id: 'user-1' } };
-    if (url.includes('/rest/v1/subscriptions')) return { status: 200, body: [{ status: 'active' }] };
+    if (url.includes('/rest/v1/subscriptions'))
+      return { status: 200, body: [{ status: 'active' }] };
     if (url.includes('/rest/v1/focus_buddy_pairs') && method === 'GET') {
       return { status: 200, body: [] };
     }
@@ -61,9 +62,9 @@ function proBackend(extra?: (url: string, method: string) => { status: number; b
 describe('handleBuddyInvite', () => {
   it('rejects missing auth and non-Pro users', async () => {
     const { fn } = proBackend();
-    expect((await handleBuddyInvite(authedRequest('/api/buddy/invite', null), ENV, fn)).status).toBe(
-      401,
-    );
+    expect(
+      (await handleBuddyInvite(authedRequest('/api/buddy/invite', null), ENV, fn)).status,
+    ).toBe(401);
 
     const { fn: freeFn } = proBackend((url) =>
       url.includes('subscriptions') ? { status: 200, body: [{ status: 'free' }] } : null,
@@ -85,7 +86,12 @@ describe('handleBuddyInvite', () => {
   it('refuses a second invite when already paired', async () => {
     const { fn } = proBackend((url, method) =>
       url.includes('focus_buddy_pairs') && method === 'GET'
-        ? { status: 200, body: [{ id: 'p1', user_a: 'user-1', user_b: null, invite_code: 'X', status: 'pending' }] }
+        ? {
+            status: 200,
+            body: [
+              { id: 'p1', user_a: 'user-1', user_b: null, invite_code: 'X', status: 'pending' },
+            ],
+          }
         : null,
     );
     const res = await handleBuddyInvite(authedRequest('/api/buddy/invite', 'tok'), ENV, fn);
@@ -99,7 +105,15 @@ describe('handleBuddyJoin', () => {
       if (url.includes('invite_code=eq.ABCDEFGH')) {
         return {
           status: 200,
-          body: [{ id: 'p1', user_a: 'user-2', user_b: null, invite_code: 'ABCDEFGH', status: 'pending' }],
+          body: [
+            {
+              id: 'p1',
+              user_a: 'user-2',
+              user_b: null,
+              invite_code: 'ABCDEFGH',
+              status: 'pending',
+            },
+          ],
         };
       }
       return null;
@@ -122,7 +136,15 @@ describe('handleBuddyJoin', () => {
       url.includes('invite_code=eq.SELFSELF')
         ? {
             status: 200,
-            body: [{ id: 'p1', user_a: 'user-1', user_b: null, invite_code: 'SELFSELF', status: 'pending' }],
+            body: [
+              {
+                id: 'p1',
+                user_a: 'user-1',
+                user_b: null,
+                invite_code: 'SELFSELF',
+                status: 'pending',
+              },
+            ],
           }
         : null,
     );
@@ -139,7 +161,9 @@ describe('handleBuddyStatus', () => {
   it('reports unpaired, pending-with-code, and accepted-with-minutes states', async () => {
     const { fn: unpaired } = proBackend();
     const r1 = await handleBuddyStatus(
-      new Request('https://moneo.bond/api/buddy/status', { headers: { Authorization: 'Bearer tok' } }),
+      new Request('https://moneo.bond/api/buddy/status', {
+        headers: { Authorization: 'Bearer tok' },
+      }),
       ENV,
       unpaired,
     );
@@ -149,12 +173,22 @@ describe('handleBuddyStatus', () => {
       url.includes('focus_buddy_pairs') && method === 'GET'
         ? {
             status: 200,
-            body: [{ id: 'p1', user_a: 'user-1', user_b: null, invite_code: 'MYCODE1', status: 'pending' }],
+            body: [
+              {
+                id: 'p1',
+                user_a: 'user-1',
+                user_b: null,
+                invite_code: 'MYCODE1',
+                status: 'pending',
+              },
+            ],
           }
         : null,
     );
     const r2 = await handleBuddyStatus(
-      new Request('https://moneo.bond/api/buddy/status', { headers: { Authorization: 'Bearer tok' } }),
+      new Request('https://moneo.bond/api/buddy/status', {
+        headers: { Authorization: 'Bearer tok' },
+      }),
       ENV,
       pending,
     );
@@ -164,7 +198,9 @@ describe('handleBuddyStatus', () => {
       if (url.includes('focus_buddy_pairs') && method === 'GET') {
         return {
           status: 200,
-          body: [{ id: 'p1', user_a: 'user-1', user_b: 'buddy-2', invite_code: 'X', status: 'accepted' }],
+          body: [
+            { id: 'p1', user_a: 'user-1', user_b: 'buddy-2', invite_code: 'X', status: 'accepted' },
+          ],
         };
       }
       if (url.includes('focus_sessions')) {
@@ -173,7 +209,9 @@ describe('handleBuddyStatus', () => {
       return null;
     });
     const r3 = await handleBuddyStatus(
-      new Request('https://moneo.bond/api/buddy/status', { headers: { Authorization: 'Bearer tok' } }),
+      new Request('https://moneo.bond/api/buddy/status', {
+        headers: { Authorization: 'Bearer tok' },
+      }),
       ENV,
       accepted,
     );
@@ -197,14 +235,14 @@ describe('config guard', () => {
   it('503s every handler when Supabase env vars are missing', async () => {
     const { fn } = proBackend();
     const empty: FocusBuddyEnv = {};
-    expect((await handleBuddyInvite(authedRequest('/api/buddy/invite', 'tok'), empty, fn)).status).toBe(
-      503,
-    );
+    expect(
+      (await handleBuddyInvite(authedRequest('/api/buddy/invite', 'tok'), empty, fn)).status,
+    ).toBe(503);
     expect((await handleBuddyJoin(authedRequest('/api/buddy/join', 'tok'), empty, fn)).status).toBe(
       503,
     );
-    expect((await handleBuddyUnpair(authedRequest('/api/buddy/unpair', 'tok'), empty, fn)).status).toBe(
-      503,
-    );
+    expect(
+      (await handleBuddyUnpair(authedRequest('/api/buddy/unpair', 'tok'), empty, fn)).status,
+    ).toBe(503);
   });
 });

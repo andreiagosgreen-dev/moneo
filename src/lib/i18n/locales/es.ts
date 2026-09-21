@@ -562,7 +562,8 @@ export const es: Record<TKey, string> = {
   'account.subscriptionStatus': 'Suscripción',
   'account.manageSubscription': 'Gestionar suscripción',
   'pricingPage.title': 'Precios simples y honestos',
-  'pricingPage.subtitle': 'Gratis para siempre para lo básico. Actualiza cuando superes los límites.',
+  'pricingPage.subtitle':
+    'Gratis para siempre para lo básico. Actualiza cuando superes los límites.',
   'account.plan.free': 'Gratis',
   'account.plan.pro-monthly': 'Pro (Mensual)',
   'account.plan.pro-yearly': 'Pro (Anual)',
@@ -1007,7 +1008,8 @@ export const es: Record<TKey, string> = {
   'reports.exportCsv': 'Exportar CSV',
   'reports.exportPdf': 'Exportar PDF',
   'reports.exportPortfolio': 'Exportar portafolio',
-  'reports.exportPortfolioTitle': 'Una página para compartir con proyectos completados, metas logradas y habilidades fuertes',
+  'reports.exportPortfolioTitle':
+    'Una página para compartir con proyectos completados, metas logradas y habilidades fuertes',
   'reports.exportProOnly': 'Las exportaciones son una función Pro.',
   'reports.moreDetail': 'Más detalles',
   'reports.moreDetailHint': 'Perspectivas · asignación · exportar',
@@ -1111,8 +1113,10 @@ export const es: Record<TKey, string> = {
   'skills.logSession': 'Registrar una sesión de aprendizaje de 25 minutos',
   'skills.xpTitle': 'Puntos de experiencia — crece con cada sesión registrada',
   'skills.tree.title': 'Árbol de habilidades',
-  'skills.tree.subtitle': 'Categorías como ramas, nivel como niveles — enlaza habilidades para trazar rutas',
-  'skills.tree.hint': 'Enlaza habilidades entre sí (abajo, por habilidad) para trazar una ruta aquí.',
+  'skills.tree.subtitle':
+    'Categorías como ramas, nivel como niveles — enlaza habilidades para trazar rutas',
+  'skills.tree.hint':
+    'Enlaza habilidades entre sí (abajo, por habilidad) para trazar una ruta aquí.',
   'skills.tree.levelTitle': 'Nivel {level}',
   'buddy.title': 'Compañero de enfoque',
   'buddy.subtitle': 'Una sola persona conectada — solo ve tus minutos de enfoque de hoy, nada más.',
@@ -1214,8 +1218,10 @@ export const es: Record<TKey, string> = {
   'journal.weekSummary': 'Semana: {min}m · {sessions} sesiones · {days}d activos',
   'journal.weekSummaryMood': ' · ánimo {mood}',
   'journal.proUpsell': 'Pro desbloquea el historial de entradas y la reflexión semanal.',
-  'agile.timeline.projectRequired': 'Crea primero un proyecto — la línea de tiempo vive en los proyectos.',
-  'agile.timeline.empty': 'Aún no hay tareas — añade tareas y fechas límite para ver la línea de tiempo.',
+  'agile.timeline.projectRequired':
+    'Crea primero un proyecto — la línea de tiempo vive en los proyectos.',
+  'agile.timeline.empty':
+    'Aún no hay tareas — añade tareas y fechas límite para ver la línea de tiempo.',
   'agile.timeline.window': '2 semanas atrás / 4 adelante',
   'agile.timeline.today': 'Hoy',
   'agile.timeline.milestone': 'Hito',
@@ -1330,7 +1336,8 @@ export const es: Record<TKey, string> = {
   'sprints.twoWeeks': '2 semanas',
   'sprints.fourWeeks': '4 semanas',
   'sprints.create': 'Crear sprint',
-  'sprints.empty': 'Aún no hay sprints. Planifica uno arriba, añade tareas, ciérralo para la velocidad.',
+  'sprints.empty':
+    'Aún no hay sprints. Planifica uno arriba, añade tareas, ciérralo para la velocidad.',
   'sprints.status.planned': 'planificado',
   'sprints.status.active': 'activo',
   'sprints.status.completed': 'completado',
@@ -1384,7 +1391,8 @@ export const es: Record<TKey, string> = {
   'taskRow.openLink': 'Abrir enlace {link} en una pestaña nueva',
   'taskRow.removeLink': 'Eliminar enlace {link}',
   'taskRow.attachLinkPlaceholder': 'Adjuntar enlace… (Enter)',
-  'taskRow.suggestTitle': 'Impacto {impact}/5 × esfuerzo {effort}/5 sugiere {suggested} (ahora {current})',
+  'taskRow.suggestTitle':
+    'Impacto {impact}/5 × esfuerzo {effort}/5 sugiere {suggested} (ahora {current})',
   'taskRow.suggestApply': '✨ Sugiere {priority} — ¿aplicar?',
   'taskRow.removeBlocker': 'Eliminar bloqueo {title}',
   'taskRow.mustCompleteFirst': 'Debe completarse primero',
@@ -1407,7 +1415,8 @@ export const es: Record<TKey, string> = {
   'projectRow.statTasksDone': 'Tareas hechas',
   'projectRow.statBillable': 'Facturable',
   'projectRow.setColor': 'Establecer color {color}',
-  'projectRow.autoDeadlineTitle': 'Sugerir una fecha límite según la velocidad medida (+20% de margen)',
+  'projectRow.autoDeadlineTitle':
+    'Sugerir una fecha límite según la velocidad medida (+20% de margen)',
   'projectRow.auto': 'Auto',
   'projectRow.tagsPlaceholder': 'Etiquetas: cliente, urgente (separadas por comas)',
   'projectRow.billableTitle': 'Trabajo facturable para el cliente',
@@ -1431,7 +1440,8 @@ export const es: Record<TKey, string> = {
   'projectRow.bulkClear': 'Limpiar',
   'taskRow.selectForBulk': 'Seleccionar para acciones en masa',
   'weeklyReview.title': 'Resumen semanal',
-  'weeklyReview.empty': 'Sin sesiones de enfoque ni tareas estancadas esta semana — semana tranquila.',
+  'weeklyReview.empty':
+    'Sin sesiones de enfoque ni tareas estancadas esta semana — semana tranquila.',
   'weeklyReview.header': 'Resumen semanal — {date}',
   'weeklyReview.bestLine': 'Lo mejor de esta semana: {name} ({minutes}min de enfoque).',
   'weeklyReview.stagnatingLine': 'Estancado: {list}.',
@@ -1446,7 +1456,8 @@ export const es: Record<TKey, string> = {
   'projectRow.templatePlaceholder': 'Plant…',
   'projectRow.priorityTitle': 'Prioridad',
   'projectRow.addTask': 'Añadir tarea',
-  'projectRow.noTasksYet': 'Aún no hay tareas. Añade una y selecciónala en el temporizador para registrar tiempo por tarea.',
+  'projectRow.noTasksYet':
+    'Aún no hay tareas. Añade una y selecciónala en el temporizador para registrar tiempo por tarea.',
   'linkedItems.heading': 'Vinculados',
   'linkedItems.type.goal': 'Objetivo',
   'linkedItems.type.project': 'Proyecto',
@@ -1461,5 +1472,6 @@ export const es: Record<TKey, string> = {
   'graph.ariaLabel': 'Grafo de conexiones',
   'graph.title': 'Grafo',
   'graph.subtitle': '{nodes} nodos · {edges} vínculos',
-  'graph.empty': 'Aún no hay conexiones — abre un objetivo, proyecto, habilidad o la entrada de hoy del diario y vincúlalo a algo.',
+  'graph.empty':
+    'Aún no hay conexiones — abre un objetivo, proyecto, habilidad o la entrada de hoy del diario y vincúlalo a algo.',
 };

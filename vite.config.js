@@ -14,7 +14,8 @@ export default defineConfig({
         id: '/',
         name: 'Moneo - Focus Timer',
         short_name: 'Moneo',
-        description: 'A calm focus companion for intentional work, structured breaks, and consistent progress.',
+        description:
+          'A calm focus companion for intentional work, structured breaks, and consistent progress.',
         lang: 'en',
         start_url: '/',
         scope: '/',

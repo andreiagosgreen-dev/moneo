@@ -296,9 +296,7 @@ export default function BoardTab({
           );
         })}
       </div>
-      {!isPro && (
-        <p className="mt-3 font-mono text-[11px] text-faint">{t('board.proUpsell')}</p>
-      )}
+      {!isPro && <p className="mt-3 font-mono text-[11px] text-faint">{t('board.proUpsell')}</p>}
     </div>
   );
 }

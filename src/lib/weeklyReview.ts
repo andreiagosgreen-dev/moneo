@@ -48,10 +48,7 @@ export function weekMinutesByProject(
 }
 
 /** Open tasks that are overdue or untouched for STALE_MS+, worst first. */
-export function stagnatingTasks(
-  tasks: Task[],
-  now: number = Date.now(),
-): StagnatingTask[] {
+export function stagnatingTasks(tasks: Task[], now: number = Date.now()): StagnatingTask[] {
   const out: StagnatingTask[] = [];
   for (const t of tasks) {
     if (t.status === 'completed') continue;
@@ -95,10 +92,10 @@ export function weeklyNarrative(input: WeeklyReviewInput, i18n: I18n = EN_I18N):
     lines.push(t('weeklyReview.stagnatingLine', { list: names.join(', ') }));
     const worst = stale[0];
     lines.push(
-      t(
-        worst.overdue ? 'weeklyReview.decisionOverdue' : 'weeklyReview.decisionStale',
-        { title: worst.task.title, days: String(worst.days) },
-      ),
+      t(worst.overdue ? 'weeklyReview.decisionOverdue' : 'weeklyReview.decisionStale', {
+        title: worst.task.title,
+        days: String(worst.days),
+      }),
     );
   } else {
     lines.push(t('weeklyReview.noStagnation'));

@@ -2,7 +2,13 @@ import { useMemo } from 'react';
 import { type Session } from '../lib/store';
 import type { FocusArea } from '../lib/focusAreas';
 import type { Project } from '../lib/projects';
-import { type Task, tasksForProject, projectCompletion, STATUS_LABELS, TASK_STATUSES } from '../lib/tasks';
+import {
+  type Task,
+  tasksForProject,
+  projectCompletion,
+  STATUS_LABELS,
+  TASK_STATUSES,
+} from '../lib/tasks';
 import { type Goal, goalForProject, goalAncestry } from '../lib/goals';
 import { type Sprint, activeSprint } from '../lib/sprints';
 import { buildReport } from '../lib/reports';
@@ -142,7 +148,10 @@ export default function CommandCenter({
               </p>
               <ul className="mt-1.5 space-y-1">
                 {col.map((x) => (
-                  <li key={x.id} className="truncate rounded-md bg-card/60 px-2 py-1 text-[11px] text-cream/90">
+                  <li
+                    key={x.id}
+                    className="truncate rounded-md bg-card/60 px-2 py-1 text-[11px] text-cream/90"
+                  >
                     {x.title}
                   </li>
                 ))}

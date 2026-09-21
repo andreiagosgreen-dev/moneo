@@ -103,9 +103,7 @@ describe('buildPortfolioData', () => {
 
 describe('buildPortfolioHTML', () => {
   it('never throws and renders empty-state copy for an empty portfolio', () => {
-    const html = buildPortfolioHTML(
-      buildPortfolioData([], [], [], [], []),
-    );
+    const html = buildPortfolioHTML(buildPortfolioData([], [], [], [], []));
     expect(html).toContain('<html');
     expect(html).toContain('Nothing completed yet.');
     expect(html).toContain('No goals fully achieved yet.');

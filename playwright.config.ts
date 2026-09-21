@@ -14,9 +14,13 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? 'github' : 'html',
+  // Vite's dev server compiles routes/modules on first request — a cold
+  // CI run can take longer than the 5s default to render the first paint.
+  expect: { timeout: 15_000 },
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
+    actionTimeout: 15_000,
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },

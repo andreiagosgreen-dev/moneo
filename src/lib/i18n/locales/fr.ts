@@ -574,7 +574,8 @@ export const fr: Record<TKey, string> = {
   'account.subscriptionStatus': 'Abonnement',
   'account.manageSubscription': 'Gérer l’abonnement',
   'pricingPage.title': 'Des tarifs simples et honnêtes',
-  'pricingPage.subtitle': 'Gratuit pour toujours pour l’essentiel. Passez à Pro quand vous dépassez les limites.',
+  'pricingPage.subtitle':
+    'Gratuit pour toujours pour l’essentiel. Passez à Pro quand vous dépassez les limites.',
   'account.plan.free': 'Gratuit',
   'account.plan.pro-monthly': 'Pro (Mensuel)',
   'account.plan.pro-yearly': 'Pro (Annuel)',
@@ -1130,11 +1131,14 @@ export const fr: Record<TKey, string> = {
   'skills.logSession': 'Enregistrer une session d’apprentissage de 25 minutes',
   'skills.xpTitle': 'Points d’expérience — augmente à chaque session enregistrée',
   'skills.tree.title': 'Arbre de compétences',
-  'skills.tree.subtitle': 'Catégories comme branches, niveau comme paliers — reliez des compétences pour tracer des chemins',
-  'skills.tree.hint': 'Reliez des compétences entre elles (ci-dessous, par compétence) pour tracer un chemin ici.',
+  'skills.tree.subtitle':
+    'Catégories comme branches, niveau comme paliers — reliez des compétences pour tracer des chemins',
+  'skills.tree.hint':
+    'Reliez des compétences entre elles (ci-dessous, par compétence) pour tracer un chemin ici.',
   'skills.tree.levelTitle': 'Niveau {level}',
   'buddy.title': 'Partenaire de concentration',
-  'buddy.subtitle': 'Une seule personne connectée — elle ne voit que vos minutes de concentration d’aujourd’hui, rien d’autre.',
+  'buddy.subtitle':
+    'Une seule personne connectée — elle ne voit que vos minutes de concentration d’aujourd’hui, rien d’autre.',
   'buddy.proOnly': 'Fonctionnalité Pro — passez à Pro pour vous jumeler avec un partenaire.',
   'buddy.error': 'Un problème est survenu. Réessayez.',
   'buddy.invite': 'Inviter un partenaire',
@@ -1233,8 +1237,10 @@ export const fr: Record<TKey, string> = {
   'journal.weekSummary': 'Semaine : {min} min · {sessions} sessions · {days} j actifs',
   'journal.weekSummaryMood': ' · humeur {mood}',
   'journal.proUpsell': 'Pro déverrouille l’historique des entrées et la réflexion hebdomadaire.',
-  'agile.timeline.projectRequired': 'Créez d’abord un projet — la frise chronologique vit sur les projets.',
-  'agile.timeline.empty': 'Aucune tâche pour l’instant — ajoutez des tâches et des échéances pour voir la frise.',
+  'agile.timeline.projectRequired':
+    'Créez d’abord un projet — la frise chronologique vit sur les projets.',
+  'agile.timeline.empty':
+    'Aucune tâche pour l’instant — ajoutez des tâches et des échéances pour voir la frise.',
   'agile.timeline.window': '2 semaines avant / 4 après',
   'agile.timeline.today': 'Aujourd’hui',
   'agile.timeline.milestone': 'Jalon',
@@ -1349,7 +1355,8 @@ export const fr: Record<TKey, string> = {
   'sprints.twoWeeks': '2 semaines',
   'sprints.fourWeeks': '4 semaines',
   'sprints.create': 'Créer un sprint',
-  'sprints.empty': 'Aucun sprint pour l’instant. Planifiez-en un ci-dessus, ajoutez des tâches, clôturez-le pour la vélocité.',
+  'sprints.empty':
+    'Aucun sprint pour l’instant. Planifiez-en un ci-dessus, ajoutez des tâches, clôturez-le pour la vélocité.',
   'sprints.status.planned': 'planifié',
   'sprints.status.active': 'actif',
   'sprints.status.completed': 'terminé',
@@ -1376,7 +1383,8 @@ export const fr: Record<TKey, string> = {
   'taskRow.priority': 'Priorité',
   'taskRow.hideDetailsFor': 'Masquer les détails de {title}',
   'taskRow.showDetailsFor': 'Afficher les détails de {title}',
-  'taskRow.moreInfoTitle': 'Plus d’infos : jalon, blocages, récurrence, points ou estimation définis',
+  'taskRow.moreInfoTitle':
+    'Plus d’infos : jalon, blocages, récurrence, points ou estimation définis',
   'taskRow.detailsTitle': 'Détails : notes, échéance, récurrence, blocages, sous-tâches',
   'taskRow.deleteTask': 'Supprimer la tâche {title}',
   'taskRow.deletesSubtasksToo': 'Supprime aussi {n} sous-tâche(s)',
@@ -1403,7 +1411,8 @@ export const fr: Record<TKey, string> = {
   'taskRow.openLink': 'Ouvrir le lien {link} dans un nouvel onglet',
   'taskRow.removeLink': 'Supprimer le lien {link}',
   'taskRow.attachLinkPlaceholder': 'Joindre un lien… (Entrée)',
-  'taskRow.suggestTitle': 'Impact {impact}/5 × effort {effort}/5 suggère {suggested} (actuellement {current})',
+  'taskRow.suggestTitle':
+    'Impact {impact}/5 × effort {effort}/5 suggère {suggested} (actuellement {current})',
   'taskRow.suggestApply': '✨ Suggère {priority} — appliquer ?',
   'taskRow.removeBlocker': 'Retirer le blocage {title}',
   'taskRow.mustCompleteFirst': 'Doit être terminée en premier',
@@ -1426,7 +1435,8 @@ export const fr: Record<TKey, string> = {
   'projectRow.statTasksDone': 'Tâches terminées',
   'projectRow.statBillable': 'Facturable',
   'projectRow.setColor': 'Définir la couleur {color}',
-  'projectRow.autoDeadlineTitle': 'Suggérer une échéance selon la vélocité mesurée (+20 % de marge)',
+  'projectRow.autoDeadlineTitle':
+    'Suggérer une échéance selon la vélocité mesurée (+20 % de marge)',
   'projectRow.auto': 'Auto',
   'projectRow.tagsPlaceholder': 'Étiquettes : client, urgent (séparées par des virgules)',
   'projectRow.billableTitle': 'Travail facturable au client',
@@ -1458,14 +1468,15 @@ export const fr: Record<TKey, string> = {
   'weeklyReview.decisionOverdue':
     'Décision : « {title} » est en retard de {days}j — reprogrammer ou abandonner ?',
   'weeklyReview.decisionStale':
-    'Décision : « {title} » n\'a pas bougé depuis {days}j — reprogrammer ou abandonner ?',
+    "Décision : « {title} » n'a pas bougé depuis {days}j — reprogrammer ou abandonner ?",
   'projectRow.addTaskPlaceholder': 'Ajouter une tâche…',
   'projectRow.templateTitle': 'Démarrer depuis un modèle de tâche',
   'projectRow.templateLabel': 'Modèle de tâche',
   'projectRow.templatePlaceholder': 'Modèle…',
   'projectRow.priorityTitle': 'Priorité',
   'projectRow.addTask': 'Ajouter une tâche',
-  'projectRow.noTasksYet': 'Aucune tâche pour l’instant. Ajoutez-en une et sélectionnez-la dans le minuteur pour suivre le temps par tâche.',
+  'projectRow.noTasksYet':
+    'Aucune tâche pour l’instant. Ajoutez-en une et sélectionnez-la dans le minuteur pour suivre le temps par tâche.',
   'linkedItems.heading': 'Lié',
   'linkedItems.type.goal': 'Objectif',
   'linkedItems.type.project': 'Projet',
@@ -1480,5 +1491,6 @@ export const fr: Record<TKey, string> = {
   'graph.ariaLabel': 'Graphe des connexions',
   'graph.title': 'Graphe',
   'graph.subtitle': '{nodes} nœuds · {edges} liens',
-  'graph.empty': 'Aucune connexion pour l’instant — ouvrez un objectif, un projet, une compétence ou l’entrée du jour du journal et liez-la à quelque chose.',
+  'graph.empty':
+    'Aucune connexion pour l’instant — ouvrez un objectif, un projet, une compétence ou l’entrée du jour du journal et liez-la à quelque chose.',
 };

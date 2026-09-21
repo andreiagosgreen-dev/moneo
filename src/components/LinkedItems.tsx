@@ -58,7 +58,8 @@ export default function LinkedItems({
 
   const resolveTitle = (type: LinkEntityType, id: string): string => {
     if (type === 'goal') return goals.find((g) => g.id === id)?.title ?? t('linkedItems.deleted');
-    if (type === 'project') return projects.find((p) => p.id === id)?.name ?? t('linkedItems.deleted');
+    if (type === 'project')
+      return projects.find((p) => p.id === id)?.name ?? t('linkedItems.deleted');
     if (type === 'skill') return skills.find((s) => s.id === id)?.name ?? t('linkedItems.deleted');
     if (type === 'objective')
       return objectives.find((o) => o.id === id)?.title ?? t('linkedItems.deleted');
@@ -73,11 +74,16 @@ export default function LinkedItems({
 
   const candidatesFor = (type: LinkEntityType): Candidate[] => {
     const linkedIds = new Set(
-      mine.map((l) => otherSide(l, entityType, entityId)).filter((s) => s.type === type).map((s) => s.id),
+      mine
+        .map((l) => otherSide(l, entityType, entityId))
+        .filter((s) => s.type === type)
+        .map((s) => s.id),
     );
     if (type === 'journal') {
       if (linkedIds.has(todayKey)) return [];
-      return [{ id: todayKey, title: t('linkedItems.journalEntryOn', { date: fmtDayKey(todayKey) }) }];
+      return [
+        { id: todayKey, title: t('linkedItems.journalEntryOn', { date: fmtDayKey(todayKey) }) },
+      ];
     }
     const pool =
       type === 'goal'

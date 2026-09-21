@@ -1016,7 +1016,8 @@ export const it: Record<TKey, string> = {
   'reports.exportCsv': 'Esporta CSV',
   'reports.exportPdf': 'Esporta PDF',
   'reports.exportPortfolio': 'Esporta portfolio',
-  'reports.exportPortfolioTitle': 'Una pagina condivisibile con progetti completati, obiettivi raggiunti e competenze forti',
+  'reports.exportPortfolioTitle':
+    'Una pagina condivisibile con progetti completati, obiettivi raggiunti e competenze forti',
   'reports.exportProOnly': 'Le esportazioni sono una funzione Pro.',
   'reports.moreDetail': 'Altri dettagli',
   'reports.moreDetailHint': 'Approfondimenti · allocazione · esportazione',
@@ -1120,11 +1121,14 @@ export const it: Record<TKey, string> = {
   'skills.logSession': 'Registra una sessione di apprendimento di 25 minuti',
   'skills.xpTitle': 'Punti esperienza — cresce a ogni sessione registrata',
   'skills.tree.title': 'Albero delle competenze',
-  'skills.tree.subtitle': 'Categorie come rami, livello come gradini — collega competenze per tracciare percorsi',
-  'skills.tree.hint': 'Collega competenze tra loro (sotto, per competenza) per tracciare un percorso qui.',
+  'skills.tree.subtitle':
+    'Categorie come rami, livello come gradini — collega competenze per tracciare percorsi',
+  'skills.tree.hint':
+    'Collega competenze tra loro (sotto, per competenza) per tracciare un percorso qui.',
   'skills.tree.levelTitle': 'Livello {level}',
   'buddy.title': 'Compagno di focus',
-  'buddy.subtitle': 'Una sola persona collegata — vede solo i tuoi minuti di focus di oggi, nient’altro.',
+  'buddy.subtitle':
+    'Una sola persona collegata — vede solo i tuoi minuti di focus di oggi, nient’altro.',
   'buddy.proOnly': 'Funzione Pro — passa a Pro per abbinarti a un compagno di focus.',
   'buddy.error': 'Qualcosa è andato storto. Riprova.',
   'buddy.invite': 'Invita un compagno',
@@ -1338,7 +1342,8 @@ export const it: Record<TKey, string> = {
   'sprints.twoWeeks': '2 settimane',
   'sprints.fourWeeks': '4 settimane',
   'sprints.create': 'Crea sprint',
-  'sprints.empty': 'Ancora nessuno sprint. Pianificane uno sopra, aggiungi task, chiudilo per la velocità.',
+  'sprints.empty':
+    'Ancora nessuno sprint. Pianificane uno sopra, aggiungi task, chiudilo per la velocità.',
   'sprints.status.planned': 'pianificato',
   'sprints.status.active': 'attivo',
   'sprints.status.completed': 'completato',
@@ -1392,7 +1397,8 @@ export const it: Record<TKey, string> = {
   'taskRow.openLink': 'Apri il link {link} in una nuova scheda',
   'taskRow.removeLink': 'Rimuovi il link {link}',
   'taskRow.attachLinkPlaceholder': 'Allega link… (Invio)',
-  'taskRow.suggestTitle': 'Impatto {impact}/5 × sforzo {effort}/5 suggerisce {suggested} (ora {current})',
+  'taskRow.suggestTitle':
+    'Impatto {impact}/5 × sforzo {effort}/5 suggerisce {suggested} (ora {current})',
   'taskRow.suggestApply': '✨ Suggerisce {priority} — applicare?',
   'taskRow.removeBlocker': 'Rimuovi blocco {title}',
   'taskRow.mustCompleteFirst': 'Deve essere completata prima',
@@ -1415,7 +1421,8 @@ export const it: Record<TKey, string> = {
   'projectRow.statTasksDone': 'Task completati',
   'projectRow.statBillable': 'Fatturabile',
   'projectRow.setColor': 'Imposta colore {color}',
-  'projectRow.autoDeadlineTitle': 'Suggerisci una scadenza dalla velocità misurata (+20% di margine)',
+  'projectRow.autoDeadlineTitle':
+    'Suggerisci una scadenza dalla velocità misurata (+20% di margine)',
   'projectRow.auto': 'Auto',
   'projectRow.tagsPlaceholder': 'Tag: cliente, urgente (separati da virgola)',
   'projectRow.billableTitle': 'Lavoro fatturabile al cliente',
@@ -1439,7 +1446,8 @@ export const it: Record<TKey, string> = {
   'projectRow.bulkClear': 'Pulisci',
   'taskRow.selectForBulk': 'Seleziona per azioni in blocco',
   'weeklyReview.title': 'Riepilogo settimanale',
-  'weeklyReview.empty': 'Nessuna sessione di focus né task stagnanti questa settimana — settimana tranquilla.',
+  'weeklyReview.empty':
+    'Nessuna sessione di focus né task stagnanti questa settimana — settimana tranquilla.',
   'weeklyReview.header': 'Riepilogo settimanale — {date}',
   'weeklyReview.bestLine': 'Il lavoro migliore questa settimana: {name} ({minutes}min di focus).',
   'weeklyReview.stagnatingLine': 'Stagnante: {list}.',
@@ -1454,7 +1462,8 @@ export const it: Record<TKey, string> = {
   'projectRow.templatePlaceholder': 'Modello…',
   'projectRow.priorityTitle': 'Priorità',
   'projectRow.addTask': 'Aggiungi task',
-  'projectRow.noTasksYet': 'Ancora nessun task. Aggiungine uno e selezionalo nel timer per tracciare il tempo per task.',
+  'projectRow.noTasksYet':
+    'Ancora nessun task. Aggiungine uno e selezionalo nel timer per tracciare il tempo per task.',
   'linkedItems.heading': 'Collegati',
   'linkedItems.type.goal': 'Obiettivo',
   'linkedItems.type.project': 'Progetto',
@@ -1469,5 +1478,6 @@ export const it: Record<TKey, string> = {
   'graph.ariaLabel': 'Grafo delle connessioni',
   'graph.title': 'Grafo',
   'graph.subtitle': '{nodes} nodi · {edges} collegamenti',
-  'graph.empty': 'Ancora nessuna connessione — apri un obiettivo, progetto, abilità o la voce di oggi del diario e collegala a qualcosa.',
+  'graph.empty':
+    'Ancora nessuna connessione — apri un obiettivo, progetto, abilità o la voce di oggi del diario e collegala a qualcosa.',
 };

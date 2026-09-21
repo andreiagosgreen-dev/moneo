@@ -109,7 +109,11 @@ export default function SkillsCard({
           {t('skills.emptyLine2')}
         </p>
       ) : (
-        <Disclosure title={t('skills.tree.title')} hint={t('skills.tree.subtitle')} defaultOpen={false}>
+        <Disclosure
+          title={t('skills.tree.title')}
+          hint={t('skills.tree.subtitle')}
+          defaultOpen={false}
+        >
           <SkillTreeCard skills={skills} links={links} onSelect={setOpenId} />
         </Disclosure>
       )}

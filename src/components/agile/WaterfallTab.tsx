@@ -129,7 +129,11 @@ export default function WaterfallTab({ projectId, phases, phasesChange }: Waterf
                     <button
                       onClick={() => phasesChange(setPhaseStatus(phases, p.id, 'done'))}
                       className="press shrink-0 rounded-md px-2 py-1 font-mono text-[11px] text-cream ring-1 ring-inset ring-line hover:ring-accent"
-                      title={p.gate ? t('waterfall.gateTitle', { gate: p.gate }) : t('waterfall.completePhaseTitle')}
+                      title={
+                        p.gate
+                          ? t('waterfall.gateTitle', { gate: p.gate })
+                          : t('waterfall.completePhaseTitle')
+                      }
                     >
                       {t('waterfall.complete')}
                     </button>

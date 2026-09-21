@@ -79,12 +79,12 @@ Traducerea concretă a Concept 6 în cod real, cu date reale — nu machetă.
 
 - **Faza 30 — fix navigare "More ▾":** `src/components/TopNav.tsx` — cele
   8 tab-uri sunt acum 4 primare mereu vizibile (Focus/Today/Plan/Assistant)
-  + un buton "More ▾" fix, în afara zonei de scroll, cu popover pentru
-  Growth/Map/Projects/Reports. Rezolvă bug-ul confirmat: pe ecrane înguste,
-  tab-urile din coadă erau accesibile doar printr-un gest de scroll
-  nedescoperibil (`.no-scrollbar` + `.tabs-scroll`, doar fade cosmetic).
-  Testat manual la 760px lățime — toate cele 8 secțiuni rămân accesibile
-  fără niciun scroll.
+  - un buton "More ▾" fix, în afara zonei de scroll, cu popover pentru
+    Growth/Map/Projects/Reports. Rezolvă bug-ul confirmat: pe ecrane înguste,
+    tab-urile din coadă erau accesibile doar printr-un gest de scroll
+    nedescoperibil (`.no-scrollbar` + `.tabs-scroll`, doar fade cosmetic).
+    Testat manual la 760px lățime — toate cele 8 secțiuni rămân accesibile
+    fără niciun scroll.
 - **Faza 31 — Command Center:** `src/components/CommandCenter.tsx` (nou),
   montat pe ecranul Focus (`App.tsx`) pentru orice cont care nu mai e
   brand-nou (`!showGettingStarted`). Widget-uri cu date 100% reale, zero
@@ -99,7 +99,7 @@ Traducerea concretă a Concept 6 în cod real, cu date reale — nu machetă.
   **Faza 15** de mai jos; chip-ul `⌘K` ține de **Faza 13**; comutatorul de
   vederi (ClickUp) e opțional, neadăugat.
 - Verificat: `npx tsc --noEmit`, `npx vitest run` (732 teste), `npm run
-  build:ci`, plus verificare manuală în browser (proiect + task reale →
+build:ci`, plus verificare manuală în browser (proiect + task reale →
   widget-urile arată exact acele date).
 
 ---
@@ -109,6 +109,7 @@ Traducerea concretă a Concept 6 în cod real, cu date reale — nu machetă.
 Toate independente între ele, se pot face în orice ordine sau în paralel.
 
 ### Faza 13 — Paletă de comenzi globală (`Cmd/Ctrl+K`) — ✅ DONE
+
 - Implementat: `src/components/CommandPalette.tsx` (nou), deschidere
   globală via `Cmd/Ctrl+K` de oriunde (listener în `App.tsx`) + chip vizual
   `⌘K` lângă search-ul din `TopNav.tsx` (exact ce arăta machetă Concept
@@ -127,11 +128,12 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
 - **Sursă:** Linear, Superhuman.
 
 ### Faza 18 — Filtre salvate / Smart Views — ✅ DONE
+
 - Implementat: `src/lib/savedFilters.ts` (`SavedFilter` — nume + criterii
   status/priority/projectId/dueWithinDays, toate opționale, peste câmpuri
   deja existente pe `Task`, zero date noi; `matchesFilter`/`applyFilter`
   pure, `createSavedFilter`/`removeSavedFilter`, plafon `MAX_SAVED_FILTERS
-  = 20`), cheie nouă `moneo:saved-filters`. UI nou
+= 20`), cheie nouă `moneo:saved-filters`. UI nou
   `src/components/SavedFiltersBar.tsx` — chip-uri pentru vederile salvate,
   formular compact de creare, listă plată de task-uri (cross-proiect)
   potrivite, click → selectează proiectul. Montat în `ProjectsCard.tsx`
@@ -142,12 +144,14 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
 - **Sursă:** Todoist.
 
 ### Faza 26 — Time capsule
+
 - Notă atașată unui `Goal`, cu livrare programată la `targetDate`-ul lui.
 - Livrare: notificare in-app (mecanism deja existent,
   `notificationPrefs.ts`/`showNotification`) la data țintă.
 - **Idee proprie.**
 
 ### Faza 27 — Sărbătoriri rare, semnificative — ✅ DONE
+
 - Implementat: `src/lib/celebrations.ts` (`pendingCelebrations()` pur —
   primul Goal finalizat vreodată (global, cel mai vechi după `updatedAt`),
   fiecare Goal nivel `milestone` finalizat (câte unul per goal), praguri
@@ -163,6 +167,7 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
 - **Sursă:** idee proprie — pereche naturală cu Faza 16 (nefăcută încă).
 
 ### Faza 28 — Acțiuni în masă pe task-uri — ✅ DONE
+
 - Implementat: 4 helpere noi pure în `src/lib/tasks.ts`
   (`bulkSetStatus`/`bulkSetPriority`/`bulkSetDueAt`/`bulkMoveToProject`),
   fiecare aplicând funcția single-id existentă într-un `reduce` peste o
@@ -180,6 +185,7 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
 ## Valul 2 — AI Assistant (cel mai mare gol documentat)
 
 ### Faza 15 — AI: asistent mult mai dezvoltat — 🟡 primul increment DONE
+
 - **(1) Intenții de modificare — ✅ DONE**: `src/lib/assistant.ts` —
   `respondTo()` recunoaște acum `complete X` / `mark X as done`,
   `delete X` / `remove X`, `reschedule X to <dată>`, `make X p0` /
@@ -224,6 +230,7 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
   Brain2/Asana AI Teammates (context larg, proactivitate).
 
 ### Faza 22 — Rezumat săptămânal narativ de la AI — ✅ DONE
+
 - Implementat pe modelul deja existent `okrReview()` din `okrs.ts` (text
   generat rule-based peste chei i18n, determinist, fără apel LLM) — nu un
   motor AI nou, ci același pattern reutilizat pentru un domeniu nou:
@@ -238,6 +245,7 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
 - **Sursă:** idee proprie.
 
 ### Faza 24 — Prompt de reflecție automat, post-sesiune — ✅ DONE
+
 - Implementat: `src/lib/journal.ts` (`SESSION_REFLECTION_PROMPTS` +
   `promptForSession()` rotativ pe minut, `appendSessionReflection()` care
   adaugă un bullet la textul zilei, acumulând peste mai multe sesiuni),
@@ -257,6 +265,7 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
 ## Valul 3 — Graf de cunoștințe + Skills (diferențiator major, efort mare)
 
 ### Faza 14 — Linkuri bidirecționale + vedere-graf — ✅ DONE
+
 - Implementat: `src/lib/entityLinks.ts` (edge list centralizată,
   `createLink`/`removeLink`/`linksFor`/`cleanupLinksFor`, 9 teste),
   widget-ul reutilizabil `src/components/LinkedItems.tsx` montat în
@@ -276,6 +285,7 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
 - **Sursă:** Obsidian.
 
 ### Faza 23 — Arbore de skill-uri vizual — ✅ DONE
+
 - Implementat exact cum sugera planul: peste `skills.ts` existent
   (`level`/`category`, neatinse semantic) + infrastructura de linkuri din
   Faza 14 (linkuri skill↔skill, deja posibile prin `LinkedItems` montat
@@ -296,6 +306,7 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
 - **Sursă:** idee proprie + Obsidian.
 
 ### Faza 17 — XP pe skill + recompensă variabilă — ✅ DONE
+
 - Reutilizat mecanismul deja existent de "sesiune alocată unui skill":
   `logLearningMinutes()` din `src/lib/skills.ts`, singurul punct din cod
   unde utilizatorul creditează minute unui skill (butonul "+25m" din
@@ -318,6 +329,7 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
 ## Valul 4 — Conexiuni structurale + design wow
 
 ### Faza 19 — Legătura OKR↔Goals — ✅ DONE
+
 - Implementat prin extinderea infrastructurii de graf din Faza 14, nu prin
   un nou sistem de linkuri paralel: `LinkEntityType` din
   `src/lib/entityLinks.ts` a primit un al 5-lea tip, `'objective'`, alături
@@ -327,7 +339,7 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
   `LinkedItems` pe fiecare `ObjectiveNode` (deci un Objective se poate lega
   liber de Goals, Projects, Skills sau o intrare de jurnal) și curăță
   legăturile la ștergerea unui obiectiv (`cleanupLinksFor(links,
-  'objective', id)`). `GraphCard.tsx` (tab-ul "Graf") arată acum și nodurile
+'objective', id)`). `GraphCard.tsx` (tab-ul "Graf") arată acum și nodurile
   de tip Objective (culoare nouă, roz) în vederea unificată.
   Threading de prop nou (`objectives`) prin `LinkedItems.tsx`,
   `GoalsCard.tsx`/`GoalNode`, `SkillsCard.tsx`, `ProjectsCard.tsx`/
@@ -339,6 +351,7 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
 - **Sursă:** Asana Work Graph.
 
 ### Faza 16 — Design wow: micro-interacțiuni cu sens — ✅ DONE
+
 - Reutilizat exact clasa CSS `.pop`/`@keyframes popRing` deja existentă
   (folosită azi doar de `TimerCard.tsx` la finalul unei sesiuni) — nu s-a
   adăugat animație nouă, ca să rămână coerent cu principiul "calm,
@@ -360,6 +373,7 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
 - Pereche naturală cu Faza 27 (sărbătoriri, deja făcută).
 
 ### Faza 20 — Doc simplu per proiect — ✅ DONE
+
 - Implementat: `Project.doc?: string` nou (`src/lib/projects.ts`, plafon
   `MAX_PROJECT_DOC_LENGTH = 4000`), parsare defensivă în `loadProjects()`,
   `ProjectUpdates.doc` + handling în `updateProject()`. UI: textarea nou
@@ -383,6 +397,7 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
 ## Valul 5 — Investiții mai mari, de luat în calcul separat
 
 ### Faza 25 — Focus buddy minimal — 🟡 cod DONE, pas manual rămas
+
 - Implementat exact cum sugera planul, cu modelul de RLS strict de la
   `google_calendar_connections` (Faza 10): migrare nouă
   `supabase/migrations/0009_focus_buddy.sql` — tabel `focus_buddy_pairs`
@@ -427,6 +442,7 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
 - **Sursă:** idee proprie — variantă redusă de accountability social.
 
 ### Faza 29 — Portofoliu exportabil — ✅ DONE
+
 - Implementat exact cum sugera planul: `src/lib/portfolio.ts` reutilizează
   idiomul `escHtml`/HTML autonom/`printReportHTML` deja existent din
   `export.ts` (Print → Save as PDF din browser, fără librărie nouă de
@@ -443,6 +459,7 @@ Toate independente între ele, se pot face în orice ordine sau în paralel.
 - **Sursă:** idee proprie.
 
 ### Faza 21 — Automatizări simple ("when X then Y") — ✅ DONE
+
 - Ținut STRICT minimal, exact cum cerea planul: **o singură regulă
   built-in**, nu un rule-builder configurabil de utilizator (ar fi
   alunecat spre complexitatea ClickUp/Jira, explicit respinsă). Regula:
@@ -474,6 +491,7 @@ webhook/account/AI), dar **zero CAPTCHA/Turnstile** la signup sau login, și
 separat aici ca să nu se amestece cu munca de "produs premium".
 
 ### 32a. Turnstile pe signup/login — 🟡 partea de cod DONE, rămâne pasul tău
+
 - **Implementat, altfel decât era planificat inițial (mai simplu, mai
   puțin cod nou)**: nu prin Worker propriu — Supabase Auth are suport
   nativ pentru Turnstile (Dashboard → Authentication → Settings → Bot and
@@ -520,6 +538,7 @@ separat aici ca să nu se amestece cu munca de "produs premium".
   am putut testa asta local, fără credențiale Supabase reale în sesiune).
 
 ### 32b. Audit de securitate țintit
+
 - `npm audit` + revizuire Dependabot (deja menționat parțial în
   `SECURITY.md` — de dus până la capăt, nu doar "npm audit, secret-scan"
   generic).
@@ -532,6 +551,7 @@ separat aici ca să nu se amestece cu munca de "produs premium".
   începe direct cu ce e deja în repo.
 
 ### 32c. Observability minimă (Sentry + health checks) — 🟡 partea de cod DONE, rămâne pasul tău
+
 - **`/api/health`** — implementat direct în `cloudflare/workers/index.ts`
   (rută nouă, același model ca `/api/account/delete`/`/api/ai/plan`):
   răspunde public, neautentificat, doar cu prezență/absență
@@ -564,7 +584,7 @@ separat aici ca să nu se amestece cu munca de "produs premium".
   payload, trunchiere mesaj lung), `src/lib/cloud/worker-health.test.ts`
   (3 teste). **Neverificat live** — n-am putut testa `/api/health` sau
   livrarea reală către Sentry fără a rula Worker-ul separat (`wrangler
-  dev`) sau fără un DSN real în sesiune; corectitudinea se bazează pe
+dev`) sau fără un DSN real în sesiune; corectitudinea se bazează pe
   urmarea exactă a API-ului documentat Sentry + pe pattern-ul deja
   funcțional al celorlalte rute din `index.ts`.
 - **Pas manual rămas al tău**: (1) cont Sentry, proiect nou, copiezi DSN-ul
@@ -588,6 +608,7 @@ by design), fie fără text propriu (`Disclosure`, `BrandMark`).
 
 **✅ Gata** (verificat cu `tsc`, `i18n.test.ts` paritate, browser manual
 cu limba schimbată în română — vezi tab-ul Viață din "Mai mult azi"):
+
 - `life/EnergyTab.tsx`, `life/JournalTab.tsx`, `life/HabitsTab.tsx`,
   `life/BalanceTab.tsx` — toate 4 din sub-cardul "Viață".
 - `agile/TimelineTab.tsx` — versiunea actuală (pre-rewrite Faza 11);

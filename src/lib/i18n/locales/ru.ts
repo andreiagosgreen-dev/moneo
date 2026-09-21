@@ -822,7 +822,8 @@ export const ru: Record<TKey, string> = {
   'goals.node.manualProgressAria': 'Ручной прогресс',
   'goals.node.progressMirrors': 'Прогресс отражает задачи «{name}».',
   'goals.node.capsuleNoteLabel': 'Заметка капсулы времени',
-  'goals.node.capsuleNotePlaceholder': 'Заметка, которая будет доставлена по достижении целевой даты…',
+  'goals.node.capsuleNotePlaceholder':
+    'Заметка, которая будет доставлена по достижении целевой даты…',
   'goals.node.capsuleNoteTitle': 'Доставляется как уведомление по достижении целевой даты',
   'goals.node.lifeAreaTitle': 'Связанная сфера жизни',
   'goals.node.noLifeArea': 'Нет сферы жизни',
@@ -1009,7 +1010,8 @@ export const ru: Record<TKey, string> = {
   'reports.exportCsv': 'Экспорт CSV',
   'reports.exportPdf': 'Экспорт PDF',
   'reports.exportPortfolio': 'Экспорт портфолио',
-  'reports.exportPortfolioTitle': 'Страница для публикации с завершёнными проектами, достигнутыми целями и сильными навыками',
+  'reports.exportPortfolioTitle':
+    'Страница для публикации с завершёнными проектами, достигнутыми целями и сильными навыками',
   'reports.exportProOnly': 'Экспорт — функция Pro.',
   'reports.moreDetail': 'Больше деталей',
   'reports.moreDetailHint': 'Инсайты · распределение · экспорт',
@@ -1113,11 +1115,14 @@ export const ru: Record<TKey, string> = {
   'skills.logSession': 'Записать 25-минутную сессию обучения',
   'skills.xpTitle': 'Очки опыта — растут с каждой записанной сессией',
   'skills.tree.title': 'Дерево навыков',
-  'skills.tree.subtitle': 'Категории как ветви, уровень как ступени — свяжите навыки, чтобы провести пути',
-  'skills.tree.hint': 'Свяжите навыки между собой (ниже, для каждого навыка), чтобы здесь появился путь.',
+  'skills.tree.subtitle':
+    'Категории как ветви, уровень как ступени — свяжите навыки, чтобы провести пути',
+  'skills.tree.hint':
+    'Свяжите навыки между собой (ниже, для каждого навыка), чтобы здесь появился путь.',
   'skills.tree.levelTitle': 'Уровень {level}',
   'buddy.title': 'Напарник по фокусу',
-  'buddy.subtitle': 'Один подключённый человек — видит только ваши сегодняшние минуты фокуса, больше ничего.',
+  'buddy.subtitle':
+    'Один подключённый человек — видит только ваши сегодняшние минуты фокуса, больше ничего.',
   'buddy.proOnly': 'Функция Pro — обновитесь, чтобы связаться с напарником по фокусу.',
   'buddy.error': 'Что-то пошло не так. Попробуйте снова.',
   'buddy.invite': 'Пригласить напарника',
@@ -1385,7 +1390,8 @@ export const ru: Record<TKey, string> = {
   'taskRow.openLink': 'Открыть ссылку {link} в новой вкладке',
   'taskRow.removeLink': 'Удалить ссылку {link}',
   'taskRow.attachLinkPlaceholder': 'Прикрепить ссылку… (Enter)',
-  'taskRow.suggestTitle': 'Влияние {impact}/5 × усилие {effort}/5 предлагает {suggested} (сейчас {current})',
+  'taskRow.suggestTitle':
+    'Влияние {impact}/5 × усилие {effort}/5 предлагает {suggested} (сейчас {current})',
   'taskRow.suggestApply': '✨ Предлагает {priority} — применить?',
   'taskRow.removeBlocker': 'Убрать блокер {title}',
   'taskRow.mustCompleteFirst': 'Должна быть выполнена первой',
@@ -1447,7 +1453,8 @@ export const ru: Record<TKey, string> = {
   'projectRow.templatePlaceholder': 'Шабл…',
   'projectRow.priorityTitle': 'Приоритет',
   'projectRow.addTask': 'Добавить задачу',
-  'projectRow.noTasksYet': 'Пока нет задач. Добавьте одну и выберите её в таймере, чтобы отслеживать время по задаче.',
+  'projectRow.noTasksYet':
+    'Пока нет задач. Добавьте одну и выберите её в таймере, чтобы отслеживать время по задаче.',
   'linkedItems.heading': 'Связано',
   'linkedItems.type.goal': 'Цель',
   'linkedItems.type.project': 'Проект',
@@ -1462,5 +1469,6 @@ export const ru: Record<TKey, string> = {
   'graph.ariaLabel': 'Граф связей',
   'graph.title': 'Граф',
   'graph.subtitle': '{nodes} узлов · {edges} связей',
-  'graph.empty': 'Пока нет связей — откройте цель, проект, навык или сегодняшнюю запись дневника и свяжите её с чем-то.',
+  'graph.empty':
+    'Пока нет связей — откройте цель, проект, навык или сегодняшнюю запись дневника и свяжите её с чем-то.',
 };

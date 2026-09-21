@@ -185,9 +185,7 @@ export default function SavedFiltersBar({
                 onClick={() => onSelectProject(task.projectId)}
                 className="press flex w-full items-center justify-between gap-2 rounded-lg bg-ink/40 px-3 py-2 text-left ring-1 ring-inset ring-line hover:ring-accent/40"
               >
-                <span className="min-w-0 flex-1 truncate text-[12px] text-cream">
-                  {task.title}
-                </span>
+                <span className="min-w-0 flex-1 truncate text-[12px] text-cream">{task.title}</span>
                 <span className="shrink-0 font-mono text-[10px] text-faint">
                   {projectName(task.projectId)}
                 </span>

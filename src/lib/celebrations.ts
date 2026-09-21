@@ -12,9 +12,7 @@ import type { Session } from './store';
 
 /** Distinct local calendar days with at least one focus session. */
 export function totalFocusDays(history: Session[]): number {
-  return new Set(
-    history.filter((s) => Number.isFinite(s.at)).map((s) => localDayKey(s.at)),
-  ).size;
+  return new Set(history.filter((s) => Number.isFinite(s.at)).map((s) => localDayKey(s.at))).size;
 }
 
 /** Rare on purpose — crossing any of these is a genuine milestone. */

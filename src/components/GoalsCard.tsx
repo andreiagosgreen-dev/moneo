@@ -442,9 +442,7 @@ function GoalNode({
                 <textarea
                   value={goal.capsuleNote ?? ''}
                   onChange={(e) =>
-                    goalsChange(
-                      updateGoal(goals, goal.id, { capsuleNote: e.target.value || null }),
-                    )
+                    goalsChange(updateGoal(goals, goal.id, { capsuleNote: e.target.value || null }))
                   }
                   placeholder={t('goals.node.capsuleNotePlaceholder')}
                   rows={2}

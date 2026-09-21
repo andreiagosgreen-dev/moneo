@@ -59,7 +59,10 @@ export interface ErrorReportPayload {
 }
 
 /** Pure payload builder — kept separate from the network call for testability. */
-export function buildErrorPayload(error: unknown, environment: 'production' | 'development'): ErrorReportPayload {
+export function buildErrorPayload(
+  error: unknown,
+  environment: 'production' | 'development',
+): ErrorReportPayload {
   const err = error instanceof Error ? error : new Error(String(error));
   return {
     event_id: randomEventId(),

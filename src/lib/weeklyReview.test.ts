@@ -41,7 +41,10 @@ describe('weekMinutesByProject', () => {
       { id: 'c', at: now - 3 * DAY_MS, min: 20, projectId: 'p2' },
       { id: 'd', at: now - 10 * DAY_MS, min: 999, projectId: 'p1' }, // outside window
     ];
-    const projects = [makeProject({ id: 'p1', name: 'Alpha' }), makeProject({ id: 'p2', name: 'Beta' })];
+    const projects = [
+      makeProject({ id: 'p1', name: 'Alpha' }),
+      makeProject({ id: 'p2', name: 'Beta' }),
+    ];
     const ranked = weekMinutesByProject(history, projects, now);
     expect(ranked).toEqual([
       { project: projects[0], minutes: 70 },
@@ -85,7 +88,12 @@ describe('weeklyNarrative', () => {
     const projects = [makeProject({ id: 'p1', name: 'Launch' })];
     const history: Session[] = [{ id: 's1', at: now - DAY_MS, min: 60, projectId: 'p1' }];
     const tasks: Task[] = [
-      makeTask({ id: 't1', title: 'Write docs', dueAt: now - 3 * DAY_MS, updatedAt: now - 3 * DAY_MS }),
+      makeTask({
+        id: 't1',
+        title: 'Write docs',
+        dueAt: now - 3 * DAY_MS,
+        updatedAt: now - 3 * DAY_MS,
+      }),
     ];
     const text = weeklyNarrative({ history, tasks, projects });
     expect(text).toContain('Launch');

@@ -42,9 +42,7 @@ export default function CelebrationOverlay({ celebration, onDone }: Props) {
         <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.18em] text-accent">
           {t('celebration.kicker')}
         </p>
-        <h2 className="mt-1.5 font-display text-xl font-bold tracking-tight text-cream">
-          {title}
-        </h2>
+        <h2 className="mt-1.5 font-display text-xl font-bold tracking-tight text-cream">{title}</h2>
         <button
           onClick={onDone}
           className="press btn-accent mt-6 rounded-lg px-6 py-2 font-display text-[13px] font-bold"
