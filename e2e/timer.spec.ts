@@ -13,10 +13,16 @@ test.describe('focus timer', () => {
     await page.goto('/');
   });
 
-  // Mode tabs render duration inline with no separator in the accessible
-  // name (e.g. "Focus25m"), so match by prefix rather than exact text.
-  const modeTab = (page: import('@playwright/test').Page, prefix: string) =>
-    page.getByRole('tab', { name: new RegExp(`^${prefix}\\d`) });
+  // The mode switcher is its own `role="tablist"` (aria-label "Timer
+  // mode"), separate from the top nav's tablist — both contain a tab
+  // literally named "Focus", so scope to this tablist to disambiguate.
+  // The duration suffix ("25m") is hidden below the `sm:` breakpoint and,
+  // when visible, may or may not have a space before it in the computed
+  // accessible name — so match on the mode word as a prefix, nothing more.
+  const modeTab = (page: import('@playwright/test').Page, mode: string) =>
+    page
+      .getByRole('tablist', { name: 'Timer mode' })
+      .getByRole('tab', { name: new RegExp(`^${mode}`) });
 
   test('loads with Focus mode selected and a start control', async ({ page }) => {
     await expect(modeTab(page, 'Focus')).toBeVisible();
