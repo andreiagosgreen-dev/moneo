@@ -19,6 +19,8 @@ import { saveSprints, type Sprint } from '../lib/sprints';
 import { saveObjectives, type Objective } from '../lib/okrs';
 import { savePhases, type WaterfallPhase } from '../lib/waterfall';
 import { saveTheme, type UITheme } from '../lib/theme';
+import { saveLinks, type EntityLink } from '../lib/entityLinks';
+import { saveSavedFilters, type SavedFilter } from '../lib/savedFilters';
 
 /**
  * Local persistence boundary (Roadmap Faza 1.2).
@@ -50,6 +52,8 @@ export interface PersistedState {
   objectives: Objective[];
   phases: WaterfallPhase[];
   theme: UITheme;
+  links: EntityLink[];
+  savedFilters: SavedFilter[];
 }
 
 export function useAppPersistence(s: PersistedState): void {
@@ -77,6 +81,8 @@ export function useAppPersistence(s: PersistedState): void {
     objectives,
     phases,
     theme,
+    links,
+    savedFilters,
   } = s;
 
   useEffect(() => {
@@ -146,4 +152,10 @@ export function useAppPersistence(s: PersistedState): void {
   useEffect(() => {
     saveTheme(theme);
   }, [theme]);
+  useEffect(() => {
+    saveLinks(links);
+  }, [links]);
+  useEffect(() => {
+    saveSavedFilters(savedFilters);
+  }, [savedFilters]);
 }

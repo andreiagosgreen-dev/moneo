@@ -2,9 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Project } from '../lib/projects';
 import { activeProjects } from '../lib/projects';
 import type { Task, TaskPriority } from '../lib/tasks';
-import { createTaskObject, setDueAt } from '../lib/tasks';
+import { completeTask, createTaskObject, removeTask, setDueAt, setTaskPriority } from '../lib/tasks';
 import type { Session } from '../lib/store';
 import type { Goal } from '../lib/goals';
+import type { Sprint } from '../lib/sprints';
 import { addTaskToDay, IVY_MAX_TASKS, IVY_FREE_MAX_TASKS, type IvyPlan } from '../lib/ivyLee';
 import { dayKeyInTz } from '../lib/timezone';
 import {
@@ -34,6 +35,7 @@ interface Props {
   ivyPlans: IvyPlan[];
   onIvyPlansChange: (plans: IvyPlan[]) => void;
   selectedProjectId: string | null;
+  sprints: Sprint[];
   onTasksChange: (tasks: Task[]) => void;
   isPro?: boolean;
 }
@@ -60,12 +62,14 @@ export default function AssistantCard({
   ivyPlans,
   onIvyPlansChange,
   selectedProjectId,
+  sprints,
   onTasksChange,
   isPro = false,
 }: Props) {
   const { t } = useI18n();
   const [draft, setDraft] = useState('');
   const [tone, setTone] = useState<AssistantTone>(loadAssistantTone);
+  const [focusTaskId, setFocusTaskId] = useState<string | undefined>(undefined);
   const [speakOn, setSpeakOn] = useState(false);
   const [listening, setListening] = useState(false);
   const scrollRef = useRef<HTMLUListElement | null>(null);
@@ -144,7 +148,13 @@ export default function AssistantCard({
     const text = raw.trim();
     if (!text || (!isPro && !isQuickAllowed(text))) return;
     let log = appendMessage(messages, 'user', text);
-    const reply = respondTo(text, { tasks, projects, history, timezone, goals, energyLog }, tone);
+    const reply = respondTo(
+      text,
+      { tasks, projects, history, timezone, goals, energyLog, sprints, selectedProjectId },
+      tone,
+      focusTaskId,
+    );
+    if (reply.contextTaskId !== undefined) setFocusTaskId(reply.contextTaskId);
     let spoken = reply.text;
     if (reply.action?.type === 'add-task') {
       const target = resolveProject(reply.action.projectQuery);
@@ -179,6 +189,19 @@ export default function AssistantCard({
         spoken = t('assistant.ivyFull');
         log = appendMessage(log, 'assistant', spoken);
       }
+    } else if (reply.action?.type === 'complete-task') {
+      const { tasks: next } = completeTask(tasks, reply.action.taskId);
+      onTasksChange(next);
+      log = appendMessage(log, 'assistant', reply.text);
+    } else if (reply.action?.type === 'delete-task') {
+      onTasksChange(removeTask(tasks, reply.action.taskId));
+      log = appendMessage(log, 'assistant', reply.text);
+    } else if (reply.action?.type === 'reschedule-task') {
+      onTasksChange(setDueAt(tasks, reply.action.taskId, reply.action.dueAt));
+      log = appendMessage(log, 'assistant', reply.text);
+    } else if (reply.action?.type === 'reprioritize-task') {
+      onTasksChange(setTaskPriority(tasks, reply.action.taskId, reply.action.priority));
+      log = appendMessage(log, 'assistant', reply.text);
     } else {
       log = appendMessage(log, 'assistant', reply.text);
     }

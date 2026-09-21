@@ -86,6 +86,14 @@ export const STORAGE_KEYS = {
   estimateProfiles: 'moneo:estimate-profiles',
   /** AI standing consent for auto-prepare (Faza 6) — local only, never synced. */
   aiConsent: 'moneo:ai-consent',
+  /** Cross-entity links: goal/project/skill/journal many-to-many edges (Faza 14). */
+  links: 'moneo:links',
+  /** Time capsule delivery log, goalId → delivered-at ms (Faza 26). */
+  capsuleDelivered: 'moneo:capsule-delivered',
+  /** Rare-celebration shown log, celebrationId → true (Faza 27). */
+  celebrationsShown: 'moneo:celebrations-shown',
+  /** Saved task filters / Smart Views (Faza 18). */
+  savedFilters: 'moneo:saved-filters',
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

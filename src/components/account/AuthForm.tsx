@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react';
 import { useI18n } from '../../lib/i18n/LocaleContext';
 import { useAuth } from '../../lib/authProvider';
+import TurnstileWidget from './TurnstileWidget';
+import { getTurnstileSiteKey } from '../../lib/turnstile';
 
 function Spinner() {
   return (
@@ -37,6 +39,8 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated?: () => 
   const [error, setError] = useState('');
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRequired = getTurnstileSiteKey() !== null;
   const emailRef = useRef<HTMLInputElement>(null);
 
   const submit = async () => {
@@ -45,7 +49,9 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated?: () => 
     setError('');
     setNote('');
     const res =
-      tab === 'signin' ? await auth.signIn(email, password) : await auth.signUp(email, password);
+      tab === 'signin'
+        ? await auth.signIn(email, password, captchaToken ?? undefined)
+        : await auth.signUp(email, password, captchaToken ?? undefined);
     setBusy(false);
     if (!res.ok) {
       setError(res.message);
@@ -53,6 +59,7 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated?: () => 
     }
     if (res.note) setNote(res.note);
     setPassword('');
+    setCaptchaToken(null);
     if (res.ok) onAuthenticated?.();
   };
 
@@ -134,6 +141,11 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated?: () => 
           />
         </div>
 
+        <TurnstileWidget
+          onToken={setCaptchaToken}
+          onExpire={() => setCaptchaToken(null)}
+        />
+
         {error && (
           <p role="alert" className="text-[12px] font-medium text-tomato">
             {error}
@@ -147,7 +159,12 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated?: () => 
 
         <button
           onClick={() => void submit()}
-          disabled={busy || email.trim().length === 0 || password.length === 0}
+          disabled={
+            busy ||
+            email.trim().length === 0 ||
+            password.length === 0 ||
+            (captchaRequired && !captchaToken)
+          }
           className="press btn-accent flex h-11 w-full items-center justify-center gap-2 rounded-xl font-display text-[15px] font-bold disabled:opacity-40"
         >
           {busy ? <Spinner /> : null}

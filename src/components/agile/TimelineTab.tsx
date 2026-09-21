@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
 import { ganttRows } from '../../lib/sprints';
 import type { TimelineProps } from './types';
+import { useI18n } from '../../lib/i18n/LocaleContext';
 
 /** Gantt-style timeline: bars from creation to due/completion, today marker. */
 export default function TimelineTab({ projectId, tasks }: TimelineProps) {
+  const { t, tp } = useI18n();
   const now = useMemo(() => Date.now(), []);
   const window = useMemo(
     () => (projectId ? ganttRows(tasks, projectId, now) : null),
@@ -13,14 +15,14 @@ export default function TimelineTab({ projectId, tasks }: TimelineProps) {
   if (!projectId) {
     return (
       <p className="rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] text-faint">
-        Create a project first — the timeline lives on projects.
+        {t('agile.timeline.projectRequired')}
       </p>
     );
   }
   if (!window || window.rows.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] text-faint">
-        No tasks yet — add tasks and set due dates to see the timeline.
+        {t('agile.timeline.empty')}
       </p>
     );
   }
@@ -31,33 +33,35 @@ export default function TimelineTab({ projectId, tasks }: TimelineProps) {
   return (
     <div>
       <p className="font-mono text-[11px] text-faint">
-        {window.rows.length} task{window.rows.length === 1 ? '' : 's'} · 2 weeks back / 4 ahead
+        {tp('agile.timeline.taskCount', window.rows.length)} · {t('agile.timeline.window')}
         {overdueCount > 0 && (
-          <span className="ml-2 font-bold text-tomato">{overdueCount} overdue</span>
+          <span className="ml-2 font-bold text-tomato">
+            {tp('agile.timeline.overdueCount', overdueCount)}
+          </span>
         )}
       </p>
       <div className="relative mt-2 space-y-1.5">
         <div
           className="pointer-events-none absolute bottom-0 top-0 w-px bg-accent/70"
           style={{ left: `calc(128px + (100% - 128px) * ${todayPct / 100})` }}
-          title="Today"
+          title={t('agile.timeline.today')}
         />
-        {window.rows.slice(0, 20).map(({ task: t, start, end, overdue, critical }) => {
+        {window.rows.slice(0, 20).map(({ task: row, start, end, overdue, critical }) => {
           const left = ((start - window.windowStart) / span) * 100;
           const width = Math.max(2, ((end - start) / span) * 100);
-          const done = t.status === 'completed';
+          const done = row.status === 'completed';
           return (
-            <div key={t.id} className="flex items-center gap-2">
+            <div key={row.id} className="flex items-center gap-2">
               <span
                 className="w-[120px] shrink-0 truncate text-[11px] text-cream/80"
-                title={t.title}
+                title={row.title}
               >
-                {t.milestone === true ? (
-                  <span title="Milestone">◆ </span>
+                {row.milestone === true ? (
+                  <span title={t('agile.timeline.milestone')}>◆ </span>
                 ) : (
-                  critical && <span title="On the critical path">⛓ </span>
+                  critical && <span title={t('agile.timeline.criticalPath')}>⛓ </span>
                 )}
-                {t.title}
+                {row.title}
               </span>
               <div className="relative h-4 min-w-0 flex-1 overflow-hidden rounded bg-ink/60 ring-1 ring-inset ring-line/50">
                 <div
@@ -73,14 +77,16 @@ export default function TimelineTab({ projectId, tasks }: TimelineProps) {
                           ? 'var(--accent)'
                           : 'rgb(242 244 249 / 0.28)',
                   }}
-                  title={`${t.title}: ${new Date(start).toLocaleDateString()} → ${new Date(end).toLocaleDateString()}${overdue ? ' (overdue)' : ''}`}
+                  title={`${row.title}: ${new Date(start).toLocaleDateString()} → ${new Date(end).toLocaleDateString()}${overdue ? t('agile.timeline.overdueSuffix') : ''}`}
                 />
               </div>
             </div>
           );
         })}
         {window.rows.length > 20 && (
-          <p className="font-mono text-[10px] text-faint">+{window.rows.length - 20} more</p>
+          <p className="font-mono text-[10px] text-faint">
+            {t('agile.timeline.more', { n: window.rows.length - 20 })}
+          </p>
         )}
       </div>
     </div>

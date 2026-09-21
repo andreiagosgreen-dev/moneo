@@ -13,6 +13,12 @@ import {
   setTaskEstimate,
   loadTasks,
   saveTasks,
+  bulkSetStatus,
+  bulkSetPriority,
+  bulkSetDueAt,
+  bulkMoveToProject,
+  syncParentCompletion,
+  createSubtaskObject,
   type Task,
 } from './tasks';
 
@@ -174,5 +180,67 @@ describe('setTaskEstimate', () => {
     expect(setTaskEstimate(tasks, 't1', 999)[0].estimateMin).toBe(480);
     expect(setTaskEstimate(tasks, 't1', null)[0].estimateMin).toBeUndefined();
     expect(setTaskEstimate(tasks, 'ghost', 25)).toEqual(tasks);
+  });
+});
+
+describe('bulk actions (Faza 28)', () => {
+  const tasks: Task[] = [
+    makeTask({ id: 'a', projectId: 'p1', priority: 'p2', status: 'pending' }),
+    makeTask({ id: 'b', projectId: 'p1', priority: 'p3', status: 'pending' }),
+    makeTask({ id: 'c', projectId: 'p1', priority: 'p2', status: 'pending' }), // not selected
+  ];
+
+  it('bulkSetStatus/bulkSetPriority/bulkSetDueAt touch only the given ids', () => {
+    const statused = bulkSetStatus(tasks, ['a', 'b'], 'in_progress');
+    expect(statused.map((t) => t.status)).toEqual(['in_progress', 'in_progress', 'pending']);
+
+    const prioritized = bulkSetPriority(tasks, ['a', 'b'], 'p0');
+    expect(prioritized.map((t) => t.priority)).toEqual(['p0', 'p0', 'p2']);
+
+    const due = bulkSetDueAt(tasks, ['a', 'b'], 5000);
+    expect(due.map((t) => t.dueAt)).toEqual([5000, 5000, undefined]);
+    expect(bulkSetDueAt(due, ['a'], null)[0].dueAt).toBeUndefined();
+  });
+
+  it('bulkMoveToProject moves each selected task (and subtree) to the target project', () => {
+    const moved = bulkMoveToProject(tasks, ['a', 'b'], 'p2');
+    expect(moved.map((t) => t.projectId)).toEqual(['p2', 'p2', 'p1']);
+  });
+
+  it('is a no-op for an empty id list', () => {
+    expect(bulkSetPriority(tasks, [], 'p0')).toEqual(tasks);
+  });
+});
+
+describe('syncParentCompletion (Faza 21)', () => {
+  it('auto-completes a parent once every subtask is completed', () => {
+    let tasks = [makeTask({ id: 'parent', projectId: 'p1' })];
+    const c1 = createSubtaskObject(tasks, 'parent', 'Sub 1')!;
+    const c2 = createSubtaskObject([...tasks, c1], 'parent', 'Sub 2')!;
+    tasks = [...tasks, c1, c2];
+
+    let next = updateTaskStatus(tasks, c1.id, 'completed');
+    next = syncParentCompletion(next, c1.id);
+    expect(next.find((t) => t.id === 'parent')!.status).not.toBe('completed');
+
+    next = updateTaskStatus(next, c2.id, 'completed');
+    next = syncParentCompletion(next, c2.id);
+    expect(next.find((t) => t.id === 'parent')!.status).toBe('completed');
+  });
+
+  it('re-opens a completed parent when a subtask is reopened', () => {
+    let tasks: Task[] = [
+      makeTask({ id: 'parent', projectId: 'p1', status: 'completed' }),
+      { ...makeTask({ id: 'child', projectId: 'p1', status: 'completed' }), parentId: 'parent' },
+    ];
+    tasks = updateTaskStatus(tasks, 'child', 'pending');
+    tasks = syncParentCompletion(tasks, 'child');
+    expect(tasks.find((t) => t.id === 'parent')!.status).toBe('pending');
+  });
+
+  it('is a no-op for a root task or a task whose parent has no subtasks left', () => {
+    const tasks = [makeTask({ id: 'root', projectId: 'p1' })];
+    expect(syncParentCompletion(tasks, 'root')).toEqual(tasks);
+    expect(syncParentCompletion(tasks, 'ghost')).toEqual(tasks);
   });
 });

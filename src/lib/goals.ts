@@ -48,6 +48,8 @@ export interface Goal {
   blockedBy?: string[];
   /** Target date in epoch ms. */
   targetDate?: number;
+  /** Time capsule (Faza 26): a note delivered as a notification once targetDate arrives. */
+  capsuleNote?: string;
   /** Manual 0-100 progress (used when no children / no linked project). */
   progress?: number;
   archived?: boolean;
@@ -84,6 +86,9 @@ export function loadGoals(): Goal[] {
         : {}),
       ...(typeof g.targetDate === 'number' && Number.isFinite(g.targetDate)
         ? { targetDate: g.targetDate }
+        : {}),
+      ...(typeof g.capsuleNote === 'string' && g.capsuleNote.trim()
+        ? { capsuleNote: g.capsuleNote.slice(0, 500) }
         : {}),
       ...(typeof g.progress === 'number' && Number.isFinite(g.progress)
         ? { progress: Math.min(100, Math.max(0, Math.round(g.progress))) }
@@ -132,6 +137,7 @@ export interface GoalUpdates {
   projectId?: string | null;
   lifeAreaId?: string | null;
   targetDate?: number | null;
+  capsuleNote?: string | null;
   progress?: number | null;
   archived?: boolean;
 }
@@ -158,6 +164,11 @@ export function updateGoal(goals: Goal[], id: string, updates: GoalUpdates): Goa
       if (updates.targetDate !== null && Number.isFinite(updates.targetDate)) {
         next.targetDate = updates.targetDate;
       } else delete next.targetDate;
+    }
+    if (updates.capsuleNote !== undefined) {
+      const trimmed = updates.capsuleNote?.trim();
+      if (trimmed) next.capsuleNote = trimmed.slice(0, 500);
+      else delete next.capsuleNote;
     }
     if (updates.progress !== undefined) {
       if (updates.progress !== null && Number.isFinite(updates.progress)) {
@@ -249,6 +260,25 @@ export function rootGoals(goals: Goal[]): Goal[] {
 
 export function archivedGoals(goals: Goal[]): Goal[] {
   return goals.filter((g) => g.archived).sort((a, b) => b.updatedAt - a.updatedAt);
+}
+
+/** The (unarchived) goal directly linked to a project, if any. */
+export function goalForProject(goals: Goal[], projectId: string): Goal | null {
+  return goals.find((g) => g.projectId === projectId && !g.archived) ?? null;
+}
+
+/** A goal's ancestor chain, broadest first, ending with the goal itself. */
+export function goalAncestry(goals: Goal[], goalId: string): Goal[] {
+  const index = byId(goals);
+  const chain: Goal[] = [];
+  const seen = new Set<string>();
+  let current = index.get(goalId);
+  while (current && !seen.has(current.id)) {
+    seen.add(current.id);
+    chain.unshift(current);
+    current = current.parentId ? index.get(current.parentId) : undefined;
+  }
+  return chain;
 }
 
 /**
@@ -469,4 +499,47 @@ export function goalConflicts(goals: Goal[]): GoalConflict[] {
     }
   }
   return out;
+}
+
+/**
+ * Goals with a capsuleNote set, targetDate reached, not archived, not yet
+ * delivered (Faza 26 — time capsule). Delivered once ever, not day-keyed.
+ */
+export function capsulesDue(
+  goals: Goal[],
+  delivered: Record<string, number>,
+  now: number = Date.now(),
+): Goal[] {
+  if (!Number.isFinite(now)) return [];
+  return goals.filter(
+    (g) =>
+      !g.archived &&
+      typeof g.capsuleNote === 'string' &&
+      g.capsuleNote.trim().length > 0 &&
+      typeof g.targetDate === 'number' &&
+      g.targetDate <= now &&
+      delivered[g.id] === undefined,
+  );
+}
+
+export function loadCapsuleDelivered(): Record<string, number> {
+  const stored = read<Record<string, number>>(STORAGE_KEYS.capsuleDelivered);
+  if (!stored || typeof stored !== 'object') return {};
+  const clean: Record<string, number> = {};
+  for (const [k, v] of Object.entries(stored)) {
+    if (typeof v === 'number' && Number.isFinite(v)) clean[k] = v;
+  }
+  return clean;
+}
+
+export function saveCapsuleDelivered(delivered: Record<string, number>): boolean {
+  return write(STORAGE_KEYS.capsuleDelivered, delivered);
+}
+
+export function markCapsuleDelivered(
+  delivered: Record<string, number>,
+  goalId: string,
+  now: number,
+): Record<string, number> {
+  return { ...delivered, [goalId]: now };
 }

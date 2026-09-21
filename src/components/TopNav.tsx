@@ -9,18 +9,32 @@ import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
 
 export type NavTab =
-  'focus' | 'today' | 'plan' | 'assistant' | 'growth' | 'map' | 'projects' | 'reports' | 'settings';
+  | 'focus'
+  | 'today'
+  | 'plan'
+  | 'assistant'
+  | 'growth'
+  | 'map'
+  | 'projects'
+  | 'reports'
+  | 'graph'
+  | 'settings';
 
-const NAV_TABS: Array<{ id: Exclude<NavTab, 'settings'>; label: TKey; hint: TKey }> = [
+export const PRIMARY_TABS: Array<{ id: Exclude<NavTab, 'settings'>; label: TKey; hint: TKey }> = [
   { id: 'focus', label: 'nav.focus', hint: 'nav.hint.focus' },
   { id: 'today', label: 'nav.today', hint: 'nav.hint.today' },
   { id: 'plan', label: 'nav.plan', hint: 'nav.hint.plan' },
   { id: 'assistant', label: 'nav.assistant', hint: 'nav.hint.assistant' },
-  { id: 'growth', label: 'nav.growth', hint: 'nav.hint.growth' },
-  { id: 'map', label: 'nav.map', hint: 'nav.hint.map' },
-  { id: 'projects', label: 'nav.projects', hint: 'nav.hint.projects' },
-  { id: 'reports', label: 'nav.reports', hint: 'nav.hint.reports' },
 ];
+
+export const SECONDARY_TABS: Array<{ id: Exclude<NavTab, 'settings'>; label: TKey; hint: TKey }> =
+  [
+    { id: 'growth', label: 'nav.growth', hint: 'nav.hint.growth' },
+    { id: 'map', label: 'nav.map', hint: 'nav.hint.map' },
+    { id: 'projects', label: 'nav.projects', hint: 'nav.hint.projects' },
+    { id: 'reports', label: 'nav.reports', hint: 'nav.hint.reports' },
+    { id: 'graph', label: 'nav.graph', hint: 'nav.hint.graph' },
+  ];
 
 interface SearchHit {
   key: string;
@@ -36,15 +50,27 @@ interface Props {
   tasks: Task[];
   projects: Project[];
   goals: Goal[];
+  onOpenPalette: () => void;
 }
 
-export default function TopNav({ tab, onTab, todayText, tasks, projects, goals }: Props) {
+export default function TopNav({
+  tab,
+  onTab,
+  todayText,
+  tasks,
+  projects,
+  goals,
+  onOpenPalette,
+}: Props) {
   const { t } = useI18n();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState(0);
+  const [moreOpen, setMoreOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
+  const moreRef = useRef<HTMLDivElement>(null);
+  const isSecondaryActive = SECONDARY_TABS.some((tb) => tb.id === tab);
 
   const hits: SearchHit[] = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -88,6 +114,7 @@ export default function TopNav({ tab, onTab, todayText, tasks, projects, goals }
   useEffect(() => {
     const onDown = (e: PointerEvent) => {
       if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false);
     };
     window.addEventListener('pointerdown', onDown);
     return () => window.removeEventListener('pointerdown', onDown);
@@ -126,7 +153,7 @@ export default function TopNav({ tab, onTab, todayText, tasks, projects, goals }
           role="tablist"
           aria-label={t('nav.sections')}
         >
-          {NAV_TABS.map((tb) => (
+          {PRIMARY_TABS.map((tb) => (
             <button
               key={tb.id}
               role="tab"
@@ -134,12 +161,60 @@ export default function TopNav({ tab, onTab, todayText, tasks, projects, goals }
               title={t(tb.hint)}
               onClick={() => onTab(tb.id)}
               data-active={tab === tb.id}
-              className="navtab"
+              className="navtab shrink-0"
             >
               {t(tb.label)}
             </button>
           ))}
         </div>
+
+        <div ref={moreRef} className="relative shrink-0">
+          <button
+            role="tab"
+            aria-selected={isSecondaryActive}
+            aria-expanded={moreOpen}
+            aria-label={t('nav.moreLabel')}
+            onClick={() => setMoreOpen((v) => !v)}
+            data-active={isSecondaryActive}
+            className="navtab flex items-center gap-1"
+          >
+            {t('nav.more')}
+            <span className="text-[9px]" aria-hidden>
+              ▾
+            </span>
+          </button>
+          {moreOpen && (
+            <div className="searchpop right-0" role="menu" aria-label={t('nav.moreLabel')}>
+              <div className="flex flex-col gap-0.5 p-1.5">
+                {SECONDARY_TABS.map((tb) => (
+                  <button
+                    key={tb.id}
+                    role="menuitem"
+                    title={t(tb.hint)}
+                    onClick={() => {
+                      onTab(tb.id);
+                      setMoreOpen(false);
+                    }}
+                    className={`rounded-lg px-3 py-2 text-left text-[13px] transition-colors ${
+                      tab === tb.id ? 'bg-cream/10 text-cream' : 'text-cream/90 hover:bg-cream/5'
+                    }`}
+                  >
+                    {t(tb.label)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <button
+          onClick={onOpenPalette}
+          title={t('palette.title')}
+          aria-label={t('palette.title')}
+          className="press hidden shrink-0 items-center gap-1.5 rounded-lg border border-line bg-ink/40 px-2 py-1.5 font-mono text-[10px] text-faint hover:text-cream sm:flex"
+        >
+          ⌘K
+        </button>
 
         <div ref={boxRef} className="relative hidden shrink-0 md:block">
           <input

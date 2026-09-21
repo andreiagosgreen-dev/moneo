@@ -10,13 +10,22 @@ import {
 } from '../../lib/journal';
 import { localDayKey } from '../../lib/projects';
 import type { LifeCardProps } from './types';
+import { useI18n } from '../../lib/i18n/LocaleContext';
+import LinkedItems from '../LinkedItems';
 
 export default function JournalTab({
   journal,
   journalChange,
   history,
+  goals,
+  projects,
+  skills,
+  objectives,
+  links,
+  onLinksChange,
   isPro = false,
 }: LifeCardProps) {
+  const { t } = useI18n();
   const todayKey = localDayKey(Date.now());
   const entry = journal[todayKey];
   const [mood, setMood] = useState<Mood | null>(entry?.mood ?? null);
@@ -43,7 +52,7 @@ export default function JournalTab({
         {prompt}
       </p>
 
-      <div className="mt-3 flex items-center gap-1.5" role="group" aria-label="Mood">
+      <div className="mt-3 flex items-center gap-1.5" role="group" aria-label={t('journal.moodGroupLabel')}>
         {([1, 2, 3, 4, 5] as Mood[]).map((m) => (
           <button
             key={m}
@@ -75,7 +84,7 @@ export default function JournalTab({
               <button
                 onClick={() => setGratitude(gratitude.filter((x) => x !== g))}
                 className="press text-faint hover:text-cream"
-                aria-label={`Remove ${g}`}
+                aria-label={t('journal.removeGratitude', { item: g })}
               >
                 ✕
               </button>
@@ -95,7 +104,7 @@ export default function JournalTab({
                   setGratDraft('');
                 }
               }}
-              placeholder="Grateful for… (max 3)"
+              placeholder={t('journal.gratefulPlaceholder')}
               className="h-8 min-w-0 flex-1 rounded-lg bg-ink/40 px-2.5 text-[12px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
             />
           </div>
@@ -107,7 +116,7 @@ export default function JournalTab({
         maxLength={2000}
         rows={3}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Free reflection…"
+        placeholder={t('journal.reflectionPlaceholder')}
         className="mt-2.5 w-full resize-y rounded-lg bg-ink/40 px-3 py-2.5 text-[13px] leading-relaxed text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
       />
       <div className="mt-2 flex items-center gap-2">
@@ -115,17 +124,33 @@ export default function JournalTab({
           onClick={save}
           className="press btn-accent rounded-lg px-4 py-2 text-sm font-semibold"
         >
-          Save entry
+          {t('journal.saveEntry')}
         </button>
-        {savedTick > 0 && <span className="font-mono text-[11px] text-sage">Saved.</span>}
+        {savedTick > 0 && <span className="font-mono text-[11px] text-sage">{t('journal.saved')}</span>}
       </div>
+
+      <LinkedItems
+        entityType="journal"
+        entityId={todayKey}
+        links={links}
+        onLinksChange={onLinksChange}
+        goals={goals}
+        projects={projects}
+        skills={skills}
+        objectives={objectives}
+      />
 
       {isPro && (
         <div className="mt-4 border-t border-line/60 pt-3">
           {summary && (
             <p className="font-mono text-[11px] leading-relaxed text-faint">
-              Week: {summary.minutes}m · {summary.sessions} sessions · {summary.daysActive}d active
-              {summary.mood !== null && ` · mood ${summary.mood.toFixed(1)}`}
+              {t('journal.weekSummary', {
+                min: summary.minutes,
+                sessions: summary.sessions,
+                days: summary.daysActive,
+              })}
+              {summary.mood !== null &&
+                t('journal.weekSummaryMood', { mood: summary.mood.toFixed(1) })}
             </p>
           )}
           <ul className="mt-2 space-y-1">
@@ -158,9 +183,7 @@ export default function JournalTab({
         </div>
       )}
       {!isPro && (
-        <p className="mt-3 font-mono text-[11px] text-faint">
-          Pro unlocks entry history and the weekly reflection.
-        </p>
+        <p className="mt-3 font-mono text-[11px] text-faint">{t('journal.proUpsell')}</p>
       )}
     </div>
   );

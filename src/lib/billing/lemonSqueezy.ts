@@ -114,6 +114,25 @@ export function buildCheckoutUrl(planId: Plan, userId: string): string | null {
   return `${path}?checkout[custom][user_id]=${encodeURIComponent(userId)}`;
 }
 
+/**
+ * Lemon Squeezy's self-service customer portal (`/billing` on the store's
+ * own domain — the buyer enters their email there for a magic link; no
+ * account id needed client-side). Fails closed the same way
+ * `buildCheckoutUrl` does: a bad/missing base URL returns null rather
+ * than an open redirect.
+ */
+export function buildCustomerPortalUrl(): string | null {
+  const config = getLemonSqueezyConfig();
+  if (!config.checkoutUrl) return null;
+  try {
+    const parsed = new URL(config.checkoutUrl.replace(/\/$/, ''));
+    if (parsed.protocol !== 'https:' || !parsed.hostname) return null;
+    return `${parsed.protocol}//${parsed.host}/billing`;
+  } catch {
+    return null;
+  }
+}
+
 export function getPricingPlans(): Pricing[] {
   return PRICING_PLANS.map((plan) => ({ ...plan }));
 }

@@ -48,8 +48,13 @@ export interface AuthClientLike {
   signInWithPassword(creds: {
     email: string;
     password: string;
+    options?: { captchaToken?: string };
   }): Promise<{ data: { user: RawUser | null }; error: { message?: string } | null }>;
-  signUp(creds: { email: string; password: string }): Promise<{
+  signUp(creds: {
+    email: string;
+    password: string;
+    options?: { captchaToken?: string };
+  }): Promise<{
     data: { user: RawUser | null; session: unknown };
     error: { message?: string } | null;
   }>;
@@ -85,8 +90,8 @@ export interface AuthController {
   init(): void;
   /** Unsubscribes the auth listener; no leaks. */
   dispose(): void;
-  signIn(email: string, password: string): Promise<AuthResult>;
-  signUp(email: string, password: string): Promise<AuthResult>;
+  signIn(email: string, password: string, captchaToken?: string): Promise<AuthResult>;
+  signUp(email: string, password: string, captchaToken?: string): Promise<AuthResult>;
   /** Redirects the browser to Google's consent screen; never resolves on success. */
   signInWithGoogle(redirectTo: string): Promise<AuthResult>;
   signOut(): Promise<void>;
@@ -221,7 +226,7 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
       listeners.clear();
     },
 
-    async signIn(email, password) {
+    async signIn(email, password, captchaToken) {
       let client: AuthClientLike | null = null;
       try {
         client = await getClient();
@@ -236,6 +241,7 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
         const { data, error } = await client.signInWithPassword({
           email: email.trim(),
           password,
+          ...(captchaToken ? { options: { captchaToken } } : {}),
         });
         if (error) return { ok: false, message: mapAuthError(error.message) };
         if (data.user) {
@@ -278,7 +284,7 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
       }
     },
 
-    async signUp(email, password) {
+    async signUp(email, password, captchaToken) {
       let client: AuthClientLike | null = null;
       try {
         client = await getClient();
@@ -293,6 +299,7 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
         const { data, error } = await client.signUp({
           email: email.trim(),
           password,
+          ...(captchaToken ? { options: { captchaToken } } : {}),
         });
         if (error) return { ok: false, message: mapAuthError(error.message) };
         if (data.session && data.user) {

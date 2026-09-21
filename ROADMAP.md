@@ -1,9 +1,11 @@
 # Moneo — Roadmap & Live Status
 
-> **Last audit: 2026-09-17.** Suite: 572 tests / 568 passing / 1 date-sensitive
-> failure (queued for fix, Etapa 0) / 3 skipped. Typecheck, lint, build green.
-> ~3,000 lines of finished work pending commit (Ivy reorder ▲▼, Help center at
-> `/help`, weekly-capacity migration 0005, insights/assistant/energy/goals improvements).
+> **Last audit: 2026-09-21.** Suite: 812 unit tests passing / 3 skipped, plus
+> 18 Playwright E2E tests (chromium + mobile-chrome) newly added. Typecheck,
+> lint, build green. Most of this file below the Money & infrastructure and
+> QA/E2E rows predates the Faza 13-29 feature push and the Etapa-0 fixes
+> in this entry — treat it as historically useful but not re-verified line
+> by line; the two rows above were re-audited against current code today.
 
 **Legend:**
 
@@ -95,12 +97,12 @@ pricing page. Those are Etapa 0 below.
 | --- | --- | --- |
 | Lemon Squeezy webhook (HMAC verify fail-closed, subscription upsert) | ✅ 100% | — |
 | Entitlement checks (isPro → gates across the app) | ✅ 100% | — |
-| **Checkout (variant_id mapping monthly/yearly)** | ❌ 0% | **Launch blocker** — upgrade URL has no product variant; both plans produce the same URL |
-| **Billing portal (manage/cancel)** | ❌ 0% | **Launch blocker** for recurring subscriptions |
-| **Export gating (CSV/PDF on Pro)** | ❌ 0% | Contradicts pricing copy; decide: gate or reword |
-| Public `/pricing` route + comparison table | 🟡 40% | PricingCard exists only inside account dropdown |
-| Premium polish (themes, fonts, onboarding wizard, help center) | 🟡 85% | `/pricing` route, feature-comparison table |
-| CI/CD (lint, typecheck, tests, Cloudflare deploy) | ✅ 100% | Deploy secrets not yet set in GitHub (ops task) |
+| Checkout (variant_id mapping monthly/yearly) | ✅ 100% | `buildCheckoutUrl()` maps distinct variant ids per plan (`lemonSqueezy.ts`) — this row was stale; **still untested with real money**, see Etapa 3 |
+| Billing portal (manage/cancel) | ✅ 100% | "Manage subscription" links to Lemon Squeezy's hosted `/billing` self-service portal (`buildCustomerPortalUrl()`) — no custom UI needed, LS handles the magic-link flow |
+| Export gating (CSV/PDF/Portfolio on Pro) | ✅ 100% | `ReportsCard.tsx` disables all three export buttons for Free, matches pricing copy |
+| Public `/pricing` route + plan comparison | ✅ 100% | `/pricing` reuses `PricingCard` (plan cards *are* the comparison — no separate table component) |
+| Premium polish (themes, fonts, onboarding wizard, help center) | 🟡 90% | `/pricing` route done; still no visual feature-comparison grid if that's wanted beyond the plan cards |
+| CI/CD (lint, typecheck, tests, E2E, Cloudflare deploy) | 🟡 90% | Playwright E2E added and gating `deploy` in CI (`.github/workflows/ci.yml`); deploy secrets still not set in GitHub (ops task) |
 | SEO/launch assets (OG meta, robots, sitemap, icons) | ✅ 100% | — |
 
 ### Pre-launch workstreams (agreed plan, not yet started)
@@ -109,8 +111,8 @@ pricing page. Those are Etapa 0 below.
 | --- | --- | --- |
 | i18n (RO/EN/ES/FR/IT/RU/UK) | ❌ 0% | react-i18next, extract ~10k lines of UI strings, refactor text generators; RO+EN full, others MT-draft + review. Assistant commands stay EN in v1 |
 | Maintenance & observability | ❌ 0% | Sentry, conversion analytics (signup/upgrade/checkout events), health check, version badge, maintenance-mode flag, Supabase backups |
-| QA / E2E ("virtual tests") | 🟡 35% | 572 unit tests + pgTAP RLS tests + CI exist; **missing**: Playwright E2E on critical flows, staging env, mobile-viewport runs |
-| Security hardening | 🟡 55% | RLS on all tables, HMAC fail-closed webhook done; **missing**: deep security scan, CSP/security headers, worker rate limiting, npm audit + Dependabot, secrets-in-bundle review |
+| QA / E2E ("virtual tests") | 🟡 65% | 812 unit tests + pgTAP RLS tests + CI exist; Playwright E2E added (`e2e/`, 4 spec files × chromium + mobile-chrome = 18 tests: timer start/pause/mode-switch, top-nav incl. the "More" overflow menu, Free-tier project-limit gate, public pages `/pricing` `/login` `/privacy` `/terms` `/help`) and wired into CI ahead of `deploy`; **missing**: staging env, a checkout→webhook→Pro E2E (needs live LS test-mode credentials in CI, not attempted), auth E2E (needs a disposable Supabase test user) |
+| Security hardening | 🟡 80% | RLS on all tables, HMAC fail-closed webhook, CSP + security headers on every Worker response (`cloudflare/workers/security.ts`), per-IP rate limiting on `/api/*`, `npm audit` (0 vulnerabilities), Dependabot weekly, secret-scan in CI, no service-role/secret keys in the client bundle (verified 2026-09-21) — all done; **missing**: bot/abuse protection on signup+login (no CAPTCHA/Turnstile, see Faza 32a in `PLAN-INTEGRARE-FAZA13-29.md`), a recurring (not one-off) deep security review cadence |
 | Responsive (phones + tablets) | 🟡 50% | Tailwind breakpoints used but never audited; fix narrow screens before E2E |
 | Beta / trials | ❌ 0% | UAT checklist, 10–20 beta testers + feedback form, optional 7-day Pro trial |
 
@@ -118,28 +120,28 @@ pricing page. Those are Etapa 0 below.
 
 ## 3. Path to Launch (the plan)
 
-### Etapa 0 — Close the code gaps (1–2 days)
+### Etapa 0 — Close the code gaps (1–2 days) — ✅ code-complete, one item still open
 
-1. Fix the date-sensitive Ivy test → commit the pending ~3,000-line package.
-2. Checkout with real Lemon Squeezy `variant_id` mapping (monthly/yearly), tested in test mode.
-3. Billing portal (manage/cancel) in AccountButton.
-4. Gate CSV/PDF export behind Pro (aligns with pricing copy).
-5. Public `/pricing` route with Free-vs-Pro comparison table.
+1. ✅ Ivy reorder / Help center / weekly-capacity migration — shipped in earlier commits.
+2. ✅ Checkout with real Lemon Squeezy `variant_id` mapping (monthly/yearly) — code done; **still not tested in test mode with real Lemon Squeezy config**, that step needs your store credentials.
+3. ✅ Billing portal (manage/cancel) — links to Lemon Squeezy's hosted `/billing` portal from `/account`.
+4. ✅ Gate CSV/PDF/Portfolio export behind Pro.
+5. ✅ Public `/pricing` route with plan cards (Free/Pro-monthly/Pro-yearly, each listing its features).
 
-### Etapa 1 — Premium: multilingual + assistant + maintenance (1.5–2 weeks)
+### Etapa 1 — Premium: multilingual + assistant + maintenance (1.5–2 weeks) — mostly done
 
-6. Assistant premium: modify-task intents, 2–3 turn dialog context, rich dates.
-7. i18n infrastructure + string extraction; RO/EN complete; ES/FR/IT/RU/UK MT-draft.
-8. Responsive audit + fixes (phones/tablets).
-9. Observability: Sentry, conversion analytics, health/version/maintenance mode, backups.
+6. ✅ Assistant premium: modify-task intents, dialog context (focus-task follow-ups), richer date parsing — done in `assistant.ts` (Faza 15). Assistant's own generated replies are still hard-coded English, not yet run through i18n.
+7. ✅ i18n infrastructure + string extraction — all 8 locales (RO/EN/ES/FR/IT/DE/RU/UK) complete across the whole app, not just RO/EN as originally scoped.
+8. ❌ Responsive audit + fixes (phones/tablets) — not done; Tailwind breakpoints exist but unaudited.
+9. ✅ Observability: Sentry (`errorReporting.ts`), `/api/health` check — done (Faza 32c). Conversion analytics, version badge, maintenance-mode flag, Supabase backups still not done.
 
 ### Etapa 2 — QA, debug & security (~1 week)
 
-10. Sentry wired into sync/billing errors; debug mode with verbose sync logs.
-11. Playwright E2E: timer→session→sync, auth, Free/Pro gates, checkout→webhook→Pro.
-12. Staging environment (separate Supabase project + preview deploy), E2E in CI.
-13. Deep security scan + remediation; CSP headers, rate limiting, npm audit, Dependabot.
-14. UAT checklist (desktop + mobile PWA, Chrome/Safari/Firefox); beta testers; decide Pro trial.
+10. ❌ Sentry wired into sync/billing errors specifically; debug mode with verbose sync logs. (Sentry itself is wired app-wide since Faza 32c, but not this specific sync/billing-error focus.)
+11. 🟡 Playwright E2E — timer, top nav, Free-tier gate and public pages done (`e2e/`); auth and checkout→webhook→Pro still need live test credentials, not attempted here.
+12. ❌ Staging environment (separate Supabase project + preview deploy) — not done; E2E in this repo runs against the local dev server, not a staging deploy.
+13. 🟡 Deep security scan + remediation — CSP/rate-limiting/npm audit/Dependabot already done per row 113 above; still no CAPTCHA/Turnstile on signup+login and no recurring review cadence.
+14. ❌ UAT checklist, beta testers, Pro-trial decision — not started; needs real users, which only you can recruit.
 
 ### Etapa 3 — Launch ops (~1 week)
 

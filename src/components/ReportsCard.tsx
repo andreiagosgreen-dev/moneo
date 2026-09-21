@@ -12,6 +12,10 @@ import {
   type DayBucket,
 } from '../lib/reports';
 import { openPoints, pointsVelocity, etaByPoints } from '../lib/tasks';
+import { weeklyNarrative } from '../lib/weeklyReview';
+import { buildPortfolioData, buildPortfolioHTML } from '../lib/portfolio';
+import type { Goal } from '../lib/goals';
+import type { Skill } from '../lib/skills';
 import { billableAmount } from '../lib/projects';
 import {
   exportSessionsToCSV,
@@ -29,9 +33,12 @@ interface Props {
   areas: FocusArea[];
   projects: Project[];
   tasks: Task[];
+  goals: Goal[];
+  skills: Skill[];
   timezone: string;
   /** Weekly focus budget in minutes for allocation insights. */
   capacityMin: number;
+  isPro?: boolean;
 }
 
 type Breakdown = 'daily' | 'projects' | 'areas';
@@ -239,16 +246,25 @@ export default function ReportsCard({
   areas,
   projects,
   tasks,
+  goals,
+  skills,
   timezone,
   capacityMin,
+  isPro = false,
 }: Props) {
-  const { t } = useI18n();
+  const i18n = useI18n();
+  const { t } = i18n;
   const [range, setRange] = useState<RangeKey>('week');
   const [breakdown, setBreakdown] = useState<Breakdown>('daily');
 
   const report: ReportData = useMemo(
     () => buildReport(history, projects, areas, tasks, range, timezone),
     [history, projects, areas, tasks, range, timezone],
+  );
+
+  const narrative = useMemo(
+    () => weeklyNarrative({ history, tasks, projects }, i18n),
+    [history, tasks, projects, i18n],
   );
 
   const { summary, days, projects: projSlices, areas: areaSlices } = report;
@@ -375,6 +391,14 @@ export default function ReportsCard({
         defaultOpen={false}
       >
         <div className="md:col-span-2">
+          <div className="mb-3 rounded-xl border border-line/60 bg-ink/30 px-4 py-3">
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-faint">
+              {t('weeklyReview.title')}
+            </p>
+            <p className="mt-1.5 whitespace-pre-line text-[12px] leading-relaxed text-cream/90">
+              {narrative}
+            </p>
+          </div>
           {/* quick insights */}
           {(summary.topDay || summary.topProject) && (
             <div className="flex flex-wrap gap-x-6 gap-y-1">
@@ -443,16 +467,19 @@ export default function ReportsCard({
             </div>
           )}
 
-          {/* export */}
+          {/* export (Pro) */}
           <div className="mt-4 flex flex-wrap gap-2 border-t border-line/60 pt-4">
             <button
-              onClick={() => exportSessionsToCSV(history, projects, areas, tasks)}
-              className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold"
+              onClick={() => isPro && exportSessionsToCSV(history, projects, areas, tasks)}
+              disabled={!isPro}
+              className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+              title={isPro ? undefined : t('reports.exportProOnly')}
             >
               {t('reports.exportCsv')}
             </button>
             <button
               onClick={() => {
+                if (!isPro) return;
                 const byId = new Map(projects.map((p) => [p.id, p]));
                 const rows: PrintableProjectRow[] = projSlices.map((s) => {
                   const p = byId.get(s.projectId);
@@ -495,12 +522,27 @@ export default function ReportsCard({
                   }),
                 );
               }}
-              className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold"
-              title={t('reports.exportPdfTitle')}
+              disabled={!isPro}
+              className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+              title={isPro ? t('reports.exportPdfTitle') : t('reports.exportProOnly')}
             >
               {t('reports.exportPdf')}
             </button>
+            <button
+              onClick={() => {
+                if (!isPro) return;
+                printReportHTML(
+                  buildPortfolioHTML(buildPortfolioData(projects, tasks, goals, skills, history)),
+                );
+              }}
+              disabled={!isPro}
+              className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+              title={isPro ? t('reports.exportPortfolioTitle') : t('reports.exportProOnly')}
+            >
+              {t('reports.exportPortfolio')}
+            </button>
           </div>
+          {!isPro && <p className="mt-1.5 text-[11px] text-faint">{t('reports.exportProOnly')}</p>}
         </div>
       </Disclosure>
     </section>

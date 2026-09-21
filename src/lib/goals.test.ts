@@ -4,6 +4,7 @@ import {
   FREE_GOALS_LIMIT,
   archivedGoals,
   canParent,
+  capsulesDue,
   childrenOf,
   createGoalObject,
   deleteGoal,
@@ -12,6 +13,7 @@ import {
   goalConflicts,
   goalProgress,
   loadGoals,
+  markCapsuleDelivered,
   rootGoals,
   setGoalBlockedBy,
   smartScore,
@@ -231,5 +233,19 @@ describe('goalConflicts + lifeAreaId', () => {
         done.find((g) => g.id === 'b')!,
       ),
     ).toHaveLength(0);
+  });
+
+  it('finds capsules due once targetDate passes and not yet delivered', () => {
+    const now = 100_000;
+    const goals = [
+      makeGoal({ id: 'a', capsuleNote: 'Hi future me', targetDate: now - 1000 }),
+      makeGoal({ id: 'b', capsuleNote: 'Not yet', targetDate: now + 1000 }),
+      makeGoal({ id: 'c', targetDate: now - 1000 }), // no note
+      makeGoal({ id: 'd', capsuleNote: 'Archived', targetDate: now - 1000, archived: true }),
+    ];
+    expect(capsulesDue(goals, {}, now).map((g) => g.id)).toEqual(['a']);
+    const delivered = markCapsuleDelivered({}, 'a', now);
+    expect(delivered).toEqual({ a: now });
+    expect(capsulesDue(goals, delivered, now)).toHaveLength(0);
   });
 });

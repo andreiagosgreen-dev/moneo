@@ -2,11 +2,14 @@ import { describe, expect, it } from 'vitest';
 
 import {
   JOURNAL_PROMPTS,
+  SESSION_REFLECTION_PROMPTS,
   WEEKLY_REFLECTION_PROMPTS,
+  appendSessionReflection,
   loadJournal,
   loadTimeOff,
   moodAverage,
   promptForDay,
+  promptForSession,
   recentEntries,
   saveJournal,
   saveTimeOff,
@@ -90,6 +93,28 @@ describe('journal', () => {
     expect(summary.sessions).toBe(2);
     expect(summary.daysActive).toBe(1);
     expect(summary.mood).toBe(4);
+  });
+});
+
+describe('post-session reflection (Faza 24)', () => {
+  it('rotates a deterministic prompt by minute', () => {
+    const p = promptForSession(NOW);
+    expect(SESSION_REFLECTION_PROMPTS).toContain(p);
+    expect(promptForSession(NOW)).toBe(p); // stable for the same timestamp
+  });
+
+  it('appends a bullet to the day, accumulating across sessions', () => {
+    let journal = appendSessionReflection({}, '2026-9-16', 'Shipped the login flow');
+    expect(journal['2026-9-16'].text).toBe('• Shipped the login flow');
+    journal = appendSessionReflection(journal, '2026-9-16', 'Fixed a nasty bug');
+    expect(journal['2026-9-16'].text).toBe(
+      '• Shipped the login flow\n• Fixed a nasty bug',
+    );
+  });
+
+  it('is a no-op for blank reflections and leaves other days untouched', () => {
+    const journal = { '2026-9-15': { dayKey: '2026-9-15', gratitude: [], text: 'x', updatedAt: 1 } };
+    expect(appendSessionReflection(journal, '2026-9-16', '   ')).toBe(journal);
   });
 });
 

@@ -21,6 +21,8 @@ export interface Skill {
   targetLevel: SkillLevel;
   /** Manually logged learning minutes (focus sessions stay project-scoped). */
   minutesLogged: number;
+  /** Motivational XP total (Faza 17) — never decreases, no punitive mechanics. */
+  xp: number;
   /** Learning resources: URLs or short notes (max 8, like project tags). */
   resources: string[];
   /** Certification earned for this skill. */
@@ -86,6 +88,7 @@ export function loadSkills(): Skill[] {
         typeof s.minutesLogged === 'number' && Number.isFinite(s.minutesLogged)
           ? Math.max(0, Math.floor(s.minutesLogged))
           : 0,
+      xp: typeof s.xp === 'number' && Number.isFinite(s.xp) ? Math.max(0, Math.floor(s.xp)) : 0,
       resources: Array.isArray(s.resources)
         ? s.resources.filter((r) => typeof r === 'string').slice(0, MAX_RESOURCES)
         : [],
@@ -109,6 +112,7 @@ export function createSkillObject(name: string, category: SkillCategory = 'other
     level: 1,
     targetLevel: 3,
     minutesLogged: 0,
+    xp: 0,
     resources: [],
     createdAt: now,
     updatedAt: now,
@@ -145,13 +149,35 @@ export function deleteSkill(skills: Skill[], id: string): Skill[] {
   return skills.filter((s) => s.id !== id);
 }
 
-/** Add learning minutes (Pomodoro-sized chunks from the UI); ignores junk input. */
-export function logLearningMinutes(skills: Skill[], id: string, minutes: number): Skill[] {
-  if (!Number.isFinite(minutes) || minutes <= 0) return skills;
+/** XP range per logged session (Faza 17) — slightly unpredictable, never punitive. */
+export const XP_MIN_PER_SESSION = 8;
+export const XP_MAX_PER_SESSION = 15;
+
+/** A small random XP award in [XP_MIN_PER_SESSION, XP_MAX_PER_SESSION]. Never negative. */
+export function rollSessionXp(): number {
+  const span = XP_MAX_PER_SESSION - XP_MIN_PER_SESSION;
+  return XP_MIN_PER_SESSION + Math.floor(Math.random() * (span + 1));
+}
+
+/**
+ * Add learning minutes (Pomodoro-sized chunks from the UI) and award a
+ * small, variable XP bonus for the logged session — no punitive mechanics,
+ * XP only ever grows. Ignores junk input.
+ */
+export function logLearningMinutes(
+  skills: Skill[],
+  id: string,
+  minutes: number,
+): { skills: Skill[]; xpGained: number } {
+  if (!Number.isFinite(minutes) || minutes <= 0) return { skills, xpGained: 0 };
   const chunk = Math.min(Math.floor(minutes), 24 * 60);
-  return skills.map((s) =>
-    s.id === id ? { ...s, minutesLogged: s.minutesLogged + chunk, updatedAt: Date.now() } : s,
+  const xpGained = rollSessionXp();
+  const next = skills.map((s) =>
+    s.id === id
+      ? { ...s, minutesLogged: s.minutesLogged + chunk, xp: s.xp + xpGained, updatedAt: Date.now() }
+      : s,
   );
+  return { skills: next, xpGained };
 }
 
 /** Append a resource URL/note; capped at MAX_RESOURCES, deduped. */

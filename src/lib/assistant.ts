@@ -10,11 +10,13 @@ import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
 import { dayKeyInTz, currentStreakInTz } from './timezone';
 import { quadrantCounts, quadrantFocus } from './eisenhower';
 import { pickFrog } from './frog';
-import { goalProgress, rootGoals } from './goals';
+import { goalForProject, goalProgress, rootGoals } from './goals';
 import { peakHours } from './energy';
+import { activeSprint } from './sprints';
 import type { Task, TaskPriority } from './tasks';
 import type { Project } from './projects';
 import type { Goal } from './goals';
+import type { Sprint } from './sprints';
 
 export interface ChatMessage {
   id: string;
@@ -105,6 +107,57 @@ function noonPlusDays(now: number, days: number): number {
   return d.getTime();
 }
 
+const WEEKDAYS = [
+  'sunday',
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+] as const;
+
+/**
+ * Parse a whole natural-language date phrase ("next friday", "the 15th",
+ * "next month") into a local-noon epoch ms. Broader vocabulary than the
+ * inline tail-matcher in `parseTaskCommand` — used there as a fallback and
+ * directly for reschedule commands. Never throws; unknown phrases → null.
+ */
+export function parseDuePhrase(phrase: string, now: number = Date.now()): number | null {
+  const p = phrase.trim().toLowerCase().replace(/^on\s+/, '');
+  if (p === 'today' || p === 'tonight') return noonPlusDays(now, 0);
+  if (p === 'tomorrow') return noonPlusDays(now, 1);
+  if (p === 'next week') return noonPlusDays(now, 7);
+  if (p === 'next month') {
+    const d = new Date(now);
+    d.setHours(12, 0, 0, 0);
+    d.setMonth(d.getMonth() + 1);
+    return d.getTime();
+  }
+  const inDays = p.match(/^in\s+(\d{1,3})\s+days?$/);
+  if (inDays) return noonPlusDays(now, Math.min(365, parseInt(inDays[1], 10)));
+  const wd = p.match(/^(?:next\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)$/);
+  if (wd) {
+    const target = WEEKDAYS.indexOf(wd[1] as (typeof WEEKDAYS)[number]);
+    const cur = new Date(now).getDay();
+    let delta = (target - cur + 7) % 7;
+    // A bare/"next" weekday always means the upcoming one, not today.
+    if (delta === 0) delta = 7;
+    return noonPlusDays(now, delta);
+  }
+  const nth = p.match(/^the\s+(\d{1,2})(?:st|nd|rd|th)?$/);
+  if (nth) {
+    const day = parseInt(nth[1], 10);
+    if (day < 1 || day > 31) return null;
+    const d = new Date(now);
+    d.setHours(12, 0, 0, 0);
+    if (d.getDate() >= day) d.setMonth(d.getMonth() + 1);
+    d.setDate(day);
+    return d.getTime();
+  }
+  return null;
+}
+
 /**
  * Parse "add task X p0 tomorrow for Client" into a structured command.
  * Returns null when the text is not a task-creation request. Never throws.
@@ -133,6 +186,19 @@ export function parseTaskCommand(text: string, now: number = Date.now()): Parsed
       else if (dueMatch[2]) dueAt = noonPlusDays(now, Math.min(365, parseInt(dueMatch[2], 10)));
       rest = rest.slice(0, dueMatch.index).trim();
       continue;
+    }
+    // Broader date vocabulary (weekday names, "the Nth", "next month"),
+    // tried only once the plain-phrase match above misses.
+    const richDueMatch = rest.match(
+      /\s+(?:on\s+)?((?:next\s+)?(?:sunday|monday|tuesday|wednesday|thursday|friday|saturday)|next month|the\s+\d{1,2}(?:st|nd|rd|th)?)\s*$/i,
+    );
+    if (richDueMatch && dueAt === null) {
+      const parsedDue = parseDuePhrase(richDueMatch[1], now);
+      if (parsedDue !== null) {
+        dueAt = parsedDue;
+        rest = rest.slice(0, richDueMatch.index).trim();
+        continue;
+      }
     }
     const projMatch = rest.match(/\s+(?:for|in)\s+([a-z0-9][a-z0-9 _-]*)\s*$/i);
     if (projMatch && projectQuery === null) {
@@ -177,6 +243,9 @@ export interface AssistantContext {
   timezone: string;
   goals: Goal[];
   energyLog?: Array<{ at: number; level: number }>;
+  /** Same data the Command Center surfaces (Faza 31) — makes suggestions contextual, not generic. */
+  sprints?: Sprint[];
+  selectedProjectId?: string | null;
 }
 
 export type AssistantAction =
@@ -188,11 +257,43 @@ export type AssistantAction =
       projectQuery: string | null;
     }
   | { type: 'build-plan'; items: string[] }
+  | { type: 'complete-task'; taskId: string }
+  | { type: 'delete-task'; taskId: string }
+  | { type: 'reschedule-task'; taskId: string; dueAt: number }
+  | { type: 'reprioritize-task'; taskId: string; priority: TaskPriority }
   | null;
 
 export interface AssistantReply {
   text: string;
   action: AssistantAction;
+  /** Task now "in focus" for follow-ups like "make it p0" — caller persists this. */
+  contextTaskId?: string;
+}
+
+/** Resolve "it"/"that one" against the last-referenced task, else fuzzy title match. */
+function resolveTaskRef(
+  ref: string,
+  tasks: Task[],
+  focusTaskId?: string,
+): { task: Task | null; ambiguous: Task[] } {
+  const clean = ref.trim().toLowerCase().replace(/^(the|task)\s+/, '');
+  const open = tasks.filter((x) => x.status !== 'completed');
+  if (/^(it|that|that one|this|this one)$/.test(clean)) {
+    const found = focusTaskId ? open.find((x) => x.id === focusTaskId) : undefined;
+    return { task: found ?? null, ambiguous: [] };
+  }
+  const matches = open.filter((x) => x.title.toLowerCase().includes(clean));
+  if (matches.length === 1) return { task: matches[0], ambiguous: [] };
+  if (matches.length > 1) return { task: null, ambiguous: matches };
+  return { task: null, ambiguous: [] };
+}
+
+function priorityFromToken(token: string): TaskPriority {
+  const t = token.toLowerCase();
+  if (t === 'urgent') return 'p0';
+  if (t === 'important') return 'p1';
+  if (t === 'low') return 'p3';
+  return t as TaskPriority;
 }
 
 export interface QuickAction {
@@ -243,6 +344,7 @@ export function respondTo(
   input: string,
   ctx: AssistantContext,
   tone: AssistantTone = 'concise',
+  focusTaskId?: string,
 ): AssistantReply {
   const text = input.trim();
   const lower = text.toLowerCase();
@@ -261,9 +363,75 @@ export function respondTo(
     };
   }
 
+  const ambiguousReply = (ambiguous: Task[]): AssistantReply => ({
+    text: `I found a few matches — which one? ${ambiguous
+      .slice(0, 3)
+      .map((x) => `“${x.title}”`)
+      .join(', ')}.`,
+    action: null,
+  });
+  const notFoundReply = (ref: string): AssistantReply => ({
+    text: `Couldn't find an open task matching “${ref}”.`,
+    action: null,
+  });
+
+  const completeMatch =
+    text.match(/^mark\s+(.+?)\s+(?:as\s+)?(?:done|complete|completed|finished)$/i) ??
+    text.match(/^(?:complete|finish)\s+(.+)$/i);
+  if (completeMatch) {
+    const { task, ambiguous } = resolveTaskRef(completeMatch[1], ctx.tasks, focusTaskId);
+    if (ambiguous.length > 0) return ambiguousReply(ambiguous);
+    if (!task) return notFoundReply(completeMatch[1]);
+    return {
+      text: `Done — “${task.title}” marked complete. 🎉`,
+      action: { type: 'complete-task', taskId: task.id },
+      contextTaskId: task.id,
+    };
+  }
+
+  const deleteMatch = text.match(/^(?:delete|remove|drop)\s+(?:the\s+)?(?:task\s+)?(.+)$/i);
+  if (deleteMatch) {
+    const { task, ambiguous } = resolveTaskRef(deleteMatch[1], ctx.tasks, focusTaskId);
+    if (ambiguous.length > 0) return ambiguousReply(ambiguous);
+    if (!task) return notFoundReply(deleteMatch[1]);
+    return {
+      text: `Deleted “${task.title}”.`,
+      action: { type: 'delete-task', taskId: task.id },
+    };
+  }
+
+  const rescheduleMatch = text.match(/^(?:reschedule|move|push|postpone)\s+(.+?)\s+to\s+(.+)$/i);
+  if (rescheduleMatch) {
+    const { task, ambiguous } = resolveTaskRef(rescheduleMatch[1], ctx.tasks, focusTaskId);
+    if (ambiguous.length > 0) return ambiguousReply(ambiguous);
+    if (!task) return notFoundReply(rescheduleMatch[1]);
+    const dueAt = parseDuePhrase(rescheduleMatch[2], now);
+    if (dueAt === null) {
+      return { text: `Not sure when “${rescheduleMatch[2]}” is — try a date like “friday”.`, action: null };
+    }
+    return {
+      text: `Moved “${task.title}” to ${new Date(dueAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}.`,
+      action: { type: 'reschedule-task', taskId: task.id, dueAt },
+      contextTaskId: task.id,
+    };
+  }
+
+  const priorityMatch = text.match(/^(?:make|set)\s+(.+?)\s+(?:priority\s+)?(?:to\s+)?(p[0-3]|urgent|important|low)$/i);
+  if (priorityMatch) {
+    const { task, ambiguous } = resolveTaskRef(priorityMatch[1], ctx.tasks, focusTaskId);
+    if (ambiguous.length > 0) return ambiguousReply(ambiguous);
+    if (!task) return notFoundReply(priorityMatch[1]);
+    const priority = priorityFromToken(priorityMatch[2]);
+    return {
+      text: `“${task.title}” is now ${priority.toUpperCase()}.`,
+      action: { type: 'reprioritize-task', taskId: task.id, priority },
+      contextTaskId: task.id,
+    };
+  }
+
   if (/^(hi|hello|hey|help|what can you do|capabilities)\b/.test(lower)) {
     return {
-      text: 'I can prioritize your day (“what should I work on?”), pick your frog, review goals and progress, or create tasks — try “add task Draft proposal p1 tomorrow”.',
+      text: 'I can prioritize your day (“what should I work on?”), pick your frog, review goals and progress, create tasks (“add task Draft proposal p1 tomorrow”), or modify them — “complete X”, “delete X”, “reschedule X to friday”, “make X p0”.',
       action: null,
     };
   }
@@ -285,8 +453,13 @@ export function respondTo(
     const peaks = ctx.energyLog ? peakHours(ctx.energyLog, now, 1) : [];
     const peakLine =
       peaks.length > 0 ? ` Peak energy ≈ ${peaks[0].hour}:00 — do the frog then.` : '';
+    const sprint =
+      ctx.sprints && ctx.selectedProjectId ? activeSprint(ctx.sprints, ctx.selectedProjectId) : null;
+    const sprintLine = sprint
+      ? ` Sprint “${sprint.name}” ends ${new Date(sprint.endAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}.`
+      : '';
     return {
-      text: `Today's plan: ${items.join(' → ')}.${peakLine} Writing it into your Ivy Lee list now.`,
+      text: `Today's plan: ${items.join(' → ')}.${peakLine}${sprintLine} Writing it into your Ivy Lee list now.`,
       action: { type: 'build-plan', items },
     };
   }
@@ -303,8 +476,10 @@ export function respondTo(
   if (/work on|next|should i|prioriti|focus/.test(lower)) {
     const focus = quadrantFocus(ctx.tasks, now);
     if (!focus.task) return { text: focus.headline, action: null };
+    const goal = goalForProject(ctx.goals, focus.task.projectId);
+    const goalLine = goal ? ` Part of “${goal.title}”.` : '';
     return {
-      text: `${focus.headline} Top pick: “${focus.task.title}”.`,
+      text: `${focus.headline} Top pick: “${focus.task.title}”.${goalLine}`,
       action: null,
     };
   }
