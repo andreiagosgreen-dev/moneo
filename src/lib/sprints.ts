@@ -381,3 +381,35 @@ export function ganttRows(
   rows.sort((a, b) => a.start - b.start || a.task.createdAt - b.task.createdAt);
   return { rows, windowStart, windowEnd };
 }
+
+export interface GanttDayLine {
+  /** Local midnight for this day (epoch ms). */
+  at: number;
+  /** JS Date#getDay() (0=Sun..6=Sat), local time. */
+  dow: number;
+  isWeekend: boolean;
+  /** Monday — used to place the week-boundary ruler label. */
+  isWeekStart: boolean;
+}
+
+/**
+ * Local-calendar day boundaries covering [windowStart, windowEnd) for Gantt
+ * ruler gridlines, weekend shading and week-start labels. Steps via
+ * `setDate(+1)` and re-reads local midnight each time rather than adding a
+ * fixed 24h — a fixed increment drifts an hour across a DST transition and
+ * would silently misalign every later gridline. Never throws.
+ */
+export function ganttDayLines(windowStart: number, windowEnd: number): GanttDayLine[] {
+  if (!(windowEnd > windowStart)) return [];
+  const lines: GanttDayLine[] = [];
+  const cursor = new Date(windowStart);
+  cursor.setHours(0, 0, 0, 0);
+  let guard = 0;
+  while (cursor.getTime() < windowEnd && guard++ < 400) {
+    const at = cursor.getTime();
+    const dow = cursor.getDay();
+    lines.push({ at, dow, isWeekend: dow === 0 || dow === 6, isWeekStart: dow === 1 });
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return lines;
+}

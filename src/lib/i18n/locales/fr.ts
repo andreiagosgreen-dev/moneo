@@ -562,6 +562,23 @@ export const fr: Record<TKey, string> = {
   'agile.tab.sprints': 'Sprints',
   'agile.tab.timeline': 'Chronologie',
   'agile.tab.waterfall': 'Cascade',
+  'agile.timeline.projectRequired':
+    "Créez d'abord un projet — la chronologie vit sur les projets.",
+  'agile.timeline.empty':
+    'Pas encore de tâches — ajoutez des tâches et des échéances pour voir la chronologie.',
+  'agile.timeline.window': '2 semaines avant / 4 après',
+  'agile.timeline.today': "Aujourd'hui",
+  'agile.timeline.milestone': 'Jalon',
+  'agile.timeline.criticalPath': 'Sur le chemin critique',
+  'agile.timeline.overdueSuffix': ' (en retard)',
+  'agile.timeline.taskCount.one': '{n} tâche',
+  'agile.timeline.taskCount.few': '{n} tâches',
+  'agile.timeline.taskCount.many': '{n} tâches',
+  'agile.timeline.taskCount.other': '{n} tâches',
+  'agile.timeline.overdueCount.one': '{n} en retard',
+  'agile.timeline.overdueCount.few': '{n} en retard',
+  'agile.timeline.overdueCount.many': '{n} en retard',
+  'agile.timeline.overdueCount.other': '{n} en retard',
 
   // LifeCard
   'life.title': 'Vie',
