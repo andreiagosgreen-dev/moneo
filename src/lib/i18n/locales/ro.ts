@@ -970,6 +970,8 @@ export const ro: Record<TKey, string> = {
   'reports.other': 'Altele',
   'reports.exportCsv': 'Exportă CSV',
   'reports.exportPdf': 'Exportă PDF',
+  'reports.moreDetail': 'Mai multe detalii',
+  'reports.moreDetailHint': 'Perspective · alocare · export',
   'reports.exportPdfTitle': 'Deschide un raport printabil (Print → Salvează ca PDF)',
   'reports.printTitle': 'Raport de focus Moneo',
   'reports.printRangeWeek': 'Ultimele 7 zile',

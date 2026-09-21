@@ -963,6 +963,8 @@ export const es: Record<TKey, string> = {
   'reports.other': 'Otros',
   'reports.exportCsv': 'Exportar CSV',
   'reports.exportPdf': 'Exportar PDF',
+  'reports.moreDetail': 'Más detalles',
+  'reports.moreDetailHint': 'Perspectivas · asignación · exportar',
   'reports.exportPdfTitle': 'Abrir un informe imprimible (Imprimir → Guardar como PDF)',
   'reports.printTitle': 'Informe de enfoque de Moneo',
   'reports.printRangeWeek': 'Últimos 7 días',

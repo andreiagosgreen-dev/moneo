@@ -965,6 +965,8 @@ export const ru: Record<TKey, string> = {
   'reports.other': 'Другое',
   'reports.exportCsv': 'Экспорт CSV',
   'reports.exportPdf': 'Экспорт PDF',
+  'reports.moreDetail': 'Больше деталей',
+  'reports.moreDetailHint': 'Инсайты · распределение · экспорт',
   'reports.exportPdfTitle': 'Открыть отчёт для печати (Печать → Сохранить как PDF)',
   'reports.printTitle': 'Отчёт о фокусе Moneo',
   'reports.printRangeWeek': 'Последние 7 дней',

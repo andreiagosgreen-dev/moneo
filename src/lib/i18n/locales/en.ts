@@ -966,6 +966,8 @@ export const en = {
   'reports.other': 'Other',
   'reports.exportCsv': 'Export CSV',
   'reports.exportPdf': 'Export PDF',
+  'reports.moreDetail': 'More detail',
+  'reports.moreDetailHint': 'Insights · allocation · export',
   'reports.exportPdfTitle': 'Open a printable report (Print → Save as PDF)',
   'reports.printTitle': 'Moneo Focus Report',
   'reports.printRangeWeek': 'Last 7 days',

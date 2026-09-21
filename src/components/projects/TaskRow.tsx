@@ -68,6 +68,12 @@ export default function TaskRow({
     (t) => t.projectId === projectId && t.id !== task.id && !(task.blockedBy ?? []).includes(t.id),
   );
   const overdue = task.dueAt !== undefined && !done && task.dueAt < startOfToday();
+  const hasHiddenBadges =
+    task.milestone === true ||
+    (!done && blockers.length > 0) ||
+    (task.recurrence !== undefined && task.recurrence !== 'none') ||
+    typeof task.points === 'number' ||
+    typeof task.estimateMin === 'number';
 
   const toggle = () => {
     if (done) {
@@ -129,48 +135,8 @@ export default function TaskRow({
           }`}
           title={task.notes ?? task.title}
         >
-          <span className="mr-1.5 font-mono text-[10px] text-faint">{wbs}</span>
-          {task.milestone === true && <span title="Milestone">◆ </span>}
           {task.title}
         </button>
-        {!done && blockers.length > 0 && (
-          <span
-            className="shrink-0 rounded bg-tomato/15 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-tomato"
-            title={`Blocked by: ${gate.blockers.join(', ')}`}
-          >
-            ⛔ {blockers.length}
-          </span>
-        )}
-        {task.recurrence && task.recurrence !== 'none' && (
-          <span
-            className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-sage ring-1 ring-inset ring-line"
-            title={`Repeats ${task.recurrence}`}
-          >
-            ↻ {task.recurrence === 'daily' ? 'D' : 'W'}
-          </span>
-        )}
-        {typeof task.points === 'number' && (
-          <span
-            className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] text-sage ring-1 ring-inset ring-line"
-            title="Story points"
-          >
-            {task.points}pt
-          </span>
-        )}
-        {typeof task.estimateMin === 'number' && (
-          <span
-            className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] text-sage ring-1 ring-inset ring-line"
-            title="Estimated minutes"
-          >
-            ~{task.estimateMin}m
-          </span>
-        )}
-        <span
-          className="shrink-0 font-mono text-[9px] text-faint"
-          title={`Auto complexity ${taskComplexity(task, tasks)}/5 (subtasks, blockers, detail)`}
-        >
-          ~{taskComplexity(task, tasks)}
-        </span>
         {task.dueAt !== undefined && (
           <span
             className={`shrink-0 font-mono text-[10px] ${overdue ? 'font-bold text-tomato' : 'text-faint'}`}
@@ -196,9 +162,15 @@ export default function TaskRow({
           </select>
           <button
             onClick={() => setShowDetails(!showDetails)}
-            className="press rounded p-1 font-mono text-[11px] text-faint hover:text-cream"
+            className={`press rounded p-1 font-mono text-[11px] hover:text-cream ${
+              hasHiddenBadges && !showDetails ? 'text-sage' : 'text-faint'
+            }`}
             aria-label={`${showDetails ? 'Hide' : 'Show'} details for ${task.title}`}
-            title="Details: notes, due date, recurrence, blockers, subtasks"
+            title={
+              hasHiddenBadges && !showDetails
+                ? 'More info: milestone, blockers, recurrence, points or estimate set'
+                : 'Details: notes, due date, recurrence, blockers, subtasks'
+            }
           >
             ⋯
           </button>
@@ -218,6 +190,57 @@ export default function TaskRow({
           className="mb-1 space-y-2 rounded-lg bg-ink/30 px-2.5 py-2.5"
           style={depth > 0 ? { marginLeft: 0 } : undefined}
         >
+          {/* badges moved out of the collapsed row (Faza 12 density pass) */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="font-mono text-[10px] text-faint">{wbs}</span>
+            {task.milestone === true && (
+              <span
+                className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-accent ring-1 ring-inset ring-accent/40"
+                title="Milestone"
+              >
+                ◆ Milestone
+              </span>
+            )}
+            {!done && blockers.length > 0 && (
+              <span
+                className="shrink-0 rounded bg-tomato/15 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-tomato"
+                title={`Blocked by: ${gate.blockers.join(', ')}`}
+              >
+                ⛔ {blockers.length}
+              </span>
+            )}
+            {task.recurrence && task.recurrence !== 'none' && (
+              <span
+                className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-sage ring-1 ring-inset ring-line"
+                title={`Repeats ${task.recurrence}`}
+              >
+                ↻ {task.recurrence === 'daily' ? 'D' : 'W'}
+              </span>
+            )}
+            {typeof task.points === 'number' && (
+              <span
+                className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] text-sage ring-1 ring-inset ring-line"
+                title="Story points"
+              >
+                {task.points}pt
+              </span>
+            )}
+            {typeof task.estimateMin === 'number' && (
+              <span
+                className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] text-sage ring-1 ring-inset ring-line"
+                title="Estimated minutes"
+              >
+                ~{task.estimateMin}m
+              </span>
+            )}
+            <span
+              className="shrink-0 font-mono text-[9px] text-faint"
+              title={`Auto complexity ${taskComplexity(task, tasks)}/5 (subtasks, blockers, detail)`}
+            >
+              ~{taskComplexity(task, tasks)}
+            </span>
+          </div>
+
           {/* status + due + recurrence */}
           <div className="flex flex-wrap items-center gap-2">
             <select
