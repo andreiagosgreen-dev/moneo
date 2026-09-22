@@ -21,7 +21,8 @@ test.describe('mono navigation', () => {
     await expect(page.getByText("Today's plan")).toBeVisible();
 
     await page.getByRole('tab', { name: 'Projects', exact: true }).click();
-    await expect(page.getByRole('button', { name: '+ New Project' })).toBeVisible();
+    // Empty state repeats the header CTA, so there are two — either proves the swap.
+    await expect(page.getByRole('button', { name: '+ New Project' }).first()).toBeVisible();
   });
 
   test('Graph is reachable (rail on desktop, More on mobile)', async ({ page, isMobile }) => {
@@ -35,6 +36,8 @@ test.describe('mono navigation', () => {
   });
 
   test('the command palette opens with Ctrl+K and navigates', async ({ page }) => {
+    // Wait for the app shell (and its window keydown listener) before the shortcut.
+    await expect(page.locator('.atm-time').first()).toBeVisible();
     await page.keyboard.press('Control+k');
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
