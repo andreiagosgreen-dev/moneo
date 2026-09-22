@@ -11,9 +11,13 @@ export default function PrivacyPolicy() {
         </p>
         <ul className="list-disc pl-5 mb-2 space-y-1">
           <li>Focus session data (duration, timestamps, intentions, focus areas)</li>
-          <li>Settings and preferences</li>
+          <li>Focus areas and settings</li>
           <li>Device identifier for sync purposes</li>
         </ul>
+        <p className="mb-2">
+          Cloud sync covers only focus sessions, focus areas and settings. Projects, tasks,
+          plans, time blocks, goals, habits, journal and energy entries stay on your device.
+        </p>
       </section>
 
       <section className="mb-6">
@@ -39,7 +43,7 @@ export default function PrivacyPolicy() {
         <ul className="list-disc pl-5 mb-2 space-y-1">
           <li>Access your data at any time</li>
           <li>Delete your account and all associated data</li>
-          <li>Export your data</li>
+          <li>Export your data (CSV/PDF export is a Pro feature)</li>
           <li>Disable cloud sync to keep data only locally</li>
         </ul>
       </section>

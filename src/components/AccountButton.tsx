@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import BrandMark from './BrandMark';
 import PricingCard from './PricingCard';
+import ManageSubscriptionButton from './ManageSubscriptionButton';
 import NotificationsSettings from './NotificationsSettings';
 import { useAuth } from '../lib/authProvider';
 import { loadSyncState, onSyncStateChange } from '../lib/sync/syncState';
@@ -106,11 +107,10 @@ function SyncPanel({ userId, onClose }: { userId: string; onClose: () => void })
       });
       setPhase('idle');
       if (!outcome.ok) {
-        setLastError(
-          outcome.stage === 'pull' || outcome.stage === 'push'
-            ? 'Sync failed — your local data is safe. Try again.'
-            : (outcome.error ?? 'Sync failed.'),
-        );
+        // Always surface the engine message — pull/push used to hide it behind a
+        // generic line, which made ops failures (bad anon key, missing migrations)
+        // look like a mysterious "Sync failed".
+        setLastError(outcome.error ?? 'Sync failed — your local data is safe.');
       }
     },
     [userId],
@@ -129,10 +129,12 @@ function SyncPanel({ userId, onClose }: { userId: string; onClose: () => void })
   if (!syncState.initialized) {
     return (
       <div className="rounded-xl border border-line bg-ink/50 px-4 py-4">
-        <h3 className="font-display text-[15px] font-bold text-cream">Sync your Moneo data</h3>
+        <h3 className="font-display text-[15px] font-bold text-cream">
+          Sync sessions, areas &amp; settings
+        </h3>
         <p className="mt-1.5 text-[12px] leading-relaxed text-sage">
-          Your local focus history, areas, intentions and settings can be saved to your account and
-          synced across devices.
+          Focus sessions, focus areas and settings can sync to your account across devices.
+          Projects, tasks, plans and the rest stay on this device.
         </p>
         {lastError && (
           <p role="alert" className="mt-2 text-[12px] font-medium text-tomato">
@@ -156,8 +158,8 @@ function SyncPanel({ userId, onClose }: { userId: string; onClose: () => void })
           </button>
         </div>
         <p className="mt-2.5 text-[11px] leading-relaxed text-faint">
-          Only sessions, areas and settings sync — intention drafts and timer state never leave this
-          device.
+          Only focus sessions, focus areas and settings sync — projects, tasks, plans, intention
+          drafts and timer state never leave this device.
         </p>
       </div>
     );
@@ -303,7 +305,9 @@ export default function AccountButton() {
                     {authenticated ? 'Your account' : 'Moneo Account'}
                   </h2>
                   <p className="mt-1 text-[12px] text-faint">
-                    {authenticated ? 'Signed in' : 'Sync your focus across devices.'}
+                    {authenticated
+                      ? 'Signed in'
+                      : 'Optional sync for sessions, areas & settings.'}
                   </p>
                 </div>
               </div>
@@ -329,6 +333,7 @@ export default function AccountButton() {
                 </div>
                 <SyncPanel userId={auth.user!.userId} onClose={close} />
                 <PricingCard />
+                {auth.subscription.planId !== 'free' && <ManageSubscriptionButton />}
                 <NotificationsSettings />
                 <p className="text-[12px] leading-relaxed text-faint">
                   Without an account, everything stays on this device. Sync is optional and never

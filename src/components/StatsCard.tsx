@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { fmtMinutes, type Session, type Settings } from '../lib/store';
+import { type Session, type Settings } from '../lib/store';
 import { getWeeklyTopIntentions } from '../lib/intentions';
 import {
   activeAreas,
@@ -17,6 +17,7 @@ import SessionLog from './SessionLog';
 import type { Project } from '../lib/projects';
 import { activeProjects } from '../lib/projects';
 import { createManualSession } from '../lib/sessions';
+import { useI18n } from '../lib/i18n/LocaleContext';
 
 interface Props {
   history: Session[];
@@ -72,6 +73,7 @@ export default function StatsCard({
   const [manualDate, setManualDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [manualProject, setManualProject] = useState('');
   const timer = useRef<number | null>(null);
+  const { t, tp, tag, fmtDur, fmtNum } = useI18n();
   useEffect(
     () => () => {
       if (timer.current) window.clearTimeout(timer.current);
@@ -138,47 +140,61 @@ export default function StatsCard({
   };
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label="Today's focus statistics">
+    <section className="card overflow-hidden px-6 py-6 sm:px-7" aria-label={t('stats.aria')}>
       <header className="flex items-baseline justify-between gap-3">
-        <h2 className="font-display text-xl font-bold tracking-tight text-cream">Today</h2>
+        <h2 className="font-display text-xl font-bold tracking-tight text-cream">
+          {t('stats.title')}
+        </h2>
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-          {new Date().toLocaleDateString([], {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-          })}
+          {(() => {
+            try {
+              return new Date().toLocaleDateString(tag, {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+              });
+            } catch {
+              return new Date().toLocaleDateString([], {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+              });
+            }
+          })()}
         </span>
       </header>
 
       {/* headline numbers */}
-      <div className="mt-5 flex items-end gap-5">
-        <div>
+      <div className="mt-6 flex items-end gap-5">
+        <div className="min-w-0">
           <div
             className="font-display text-6xl font-extrabold leading-none tracking-tight"
             style={{ color: 'var(--accent)' }}
           >
-            {today.length}
+            {fmtNum(today.length)}
           </div>
-          <div className="mt-1.5 text-[13px] text-sage">of {settings.dailyGoal} sessions</div>
+          <div className="mt-1.5 text-[13px] text-sage">
+            {t('stats.ofSessions', { n: fmtNum(settings.dailyGoal) })}
+          </div>
         </div>
-        <div className="mb-0.5 ml-auto flex flex-col items-end gap-2">
-          <span className="flex items-center gap-1.5 rounded-full bg-ink/60 py-1.5 pl-2.5 pr-3 font-mono text-[13px] text-cream ring-1 ring-inset ring-line">
+        <div className="mb-0.5 ml-auto flex min-w-0 flex-col items-end gap-2">
+          <span className="flex max-w-full items-center gap-1.5 rounded-full bg-ink/60 py-1.5 pl-2.5 pr-3 font-mono text-[13px] text-cream ring-1 ring-inset ring-line">
             <span className="text-sage">
               <ClockIcon />
             </span>
-            {fmtMinutes(minutesToday)} focused
+            {fmtDur(minutesToday)} {t('stats.focused')}
           </span>
-          <span className="flex items-center gap-1.5 rounded-full bg-ink/60 py-1.5 pl-2.5 pr-3 font-mono text-[13px] text-cream ring-1 ring-inset ring-line">
+          <span className="flex max-w-full items-center gap-1.5 rounded-full bg-ink/60 py-1.5 pl-2.5 pr-3 font-mono text-[13px] text-cream ring-1 ring-inset ring-line">
             <span className="text-tomato">
               <FlameIcon />
             </span>
-            {streak}-day streak
+            {tp('stats.streak', streak)}
           </span>
         </div>
       </div>
 
       {/* goal progress */}
-      <div className="mt-4">
+      <div className="mt-6">
         <div className="h-2 overflow-hidden rounded-full bg-ink/80 ring-1 ring-line">
           <div
             className="h-full rounded-full transition-all duration-700 ease-out"
@@ -189,32 +205,32 @@ export default function StatsCard({
             }}
           />
         </div>
-        <p className="mt-1.5 text-[12px] text-faint">
+        <p className="mt-2 text-[12px] text-faint">
           {today.length >= settings.dailyGoal
-            ? 'Daily goal reached — anything more is extra credit.'
-            : `${settings.dailyGoal - today.length} to go for today's goal`}
+            ? t('stats.goalDone')
+            : t('stats.toGo', { n: fmtNum(settings.dailyGoal - today.length) })}
         </p>
       </div>
 
       {/* 7-day chart */}
-      <div className="mt-6">
+      <div className="mt-7">
         <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">
-          Last 7 days
+          {t('stats.last7')}
         </h3>
-        <div className="mt-3 flex h-24 items-end gap-2">
+        <div className="stats-week-chart mt-4">
           {week.rows.map(({ day, min }, i) => {
             const isNow = isTodayInTz(day.getTime(), timezone);
             const h = min === 0 ? 4 : Math.max(10, (min / week.max) * 100);
             return (
               <div
                 key={day.toISOString()}
-                className="group flex flex-1 flex-col items-center gap-1.5"
-                title={`${fmtMinutes(min)} focused`}
+                className="stats-week-col group"
+                title={t('cal.pip', { dur: fmtDur(min) })}
               >
                 <span
-                  className={`font-mono text-[10px] transition-opacity ${isNow ? 'text-cream' : 'text-faint opacity-0 group-hover:opacity-100'}`}
+                  className={`stats-week-label font-mono text-[10px] transition-opacity ${isNow ? 'text-cream' : 'text-faint opacity-0 group-hover:opacity-100'}`}
                 >
-                  {min > 0 ? fmtMinutes(min) : '—'}
+                  {min > 0 ? fmtDur(min) : '—'}
                 </span>
                 <div className="flex w-full flex-1 items-end">
                   <div
@@ -232,9 +248,15 @@ export default function StatsCard({
                   />
                 </div>
                 <span
-                  className={`font-mono text-[10px] uppercase ${isNow ? 'font-bold text-cream' : 'text-faint'}`}
+                  className={`stats-week-label font-mono text-[10px] uppercase ${isNow ? 'font-bold text-cream' : 'text-faint'}`}
                 >
-                  {day.toLocaleDateString([], { weekday: 'narrow' })}
+                  {(() => {
+                    try {
+                      return day.toLocaleDateString(tag, { weekday: 'narrow' });
+                    } catch {
+                      return day.toLocaleDateString([], { weekday: 'narrow' });
+                    }
+                  })()}
                 </span>
               </div>
             );
@@ -244,19 +266,19 @@ export default function StatsCard({
 
       {/* weekly insights — derived, compact, never per-tick */}
       {(topIntentions.length > 0 || areaRows.length > 0) && (
-        <div className="mt-6 border-t border-line pt-4">
+        <div className="mt-7 border-t border-line pt-5">
           <div className="grid gap-4 sm:grid-cols-2">
             {topIntentions.length > 0 && (
               <div>
                 <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">
-                  Top focus · week
+                  {t('stats.topWeek')}
                 </h3>
                 <ul className="mt-2 space-y-1.5">
                   {topIntentions.map((g) => (
                     <li key={g.key} className="flex items-baseline gap-3 text-[13px]">
                       <span className="min-w-0 truncate text-cream/90">{g.label}</span>
                       <span className="ml-auto shrink-0 font-mono text-[12px] text-sage">
-                        {fmtMinutes(g.min)}
+                        {fmtDur(g.min)}
                       </span>
                     </li>
                   ))}
@@ -266,16 +288,16 @@ export default function StatsCard({
             {areaRows.length > 0 && (
               <div>
                 <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">
-                  By area · week
+                  {t('stats.byArea')}
                 </h3>
                 <ul className="mt-2 space-y-1.5">
                   {areaRows.map((r) => (
                     <li key={r.areaId} className="flex items-baseline gap-3 text-[13px]">
                       <span className="min-w-0 truncate text-cream/90">
-                        {resolveAreaName(liveAreas, r.areaId) ?? 'Deleted area'}
+                        {resolveAreaName(liveAreas, r.areaId) ?? t('stats.deletedArea')}
                       </span>
                       <span className="ml-auto shrink-0 font-mono text-[12px] text-sage">
-                        {fmtMinutes(r.min)}
+                        {fmtDur(r.min)}
                       </span>
                     </li>
                   ))}
@@ -287,25 +309,25 @@ export default function StatsCard({
       )}
 
       {/* today's log */}
-      <div className="mt-6 border-t border-line pt-4">
-        <div className="flex items-center justify-between">
+      <div className="mt-7 border-t border-line pt-5">
+        <div className="flex items-center justify-between gap-2">
           <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">
-            Session log
+            {t('stats.log')}
           </h3>
           <div className="flex items-center gap-1">
             <button
               onClick={() => setShowManual(!showManual)}
               className="press rounded-md px-2 py-1 font-mono text-[11px] text-sage hover:text-cream"
-              title="Log time worked without the timer (meetings, offline work)"
+              title={t('stats.logTitle')}
             >
-              {showManual ? 'Cancel' : '+ Log time'}
+              {showManual ? t('cal.cancel') : t('stats.logTime')}
             </button>
             {clearDisabled ? (
               <span
                 className="rounded-md px-2 py-1 font-mono text-[11px] text-faint"
-                title="Signed-in history is managed through your account"
+                title={t('stats.syncTitle')}
               >
-                Protected by sync
+                {t('stats.protected')}
               </span>
             ) : (
               history.length > 0 && (
@@ -317,7 +339,7 @@ export default function StatsCard({
                       : 'text-faint hover:text-sage'
                   }`}
                 >
-                  {confirming ? 'Tap again to confirm' : 'Clear all'}
+                  {confirming ? t('stats.confirmClear') : t('stats.clear')}
                 </button>
               )
             )}
@@ -333,8 +355,8 @@ export default function StatsCard({
                 value={manualMin}
                 onChange={(e) => setManualMin(e.target.value)}
                 className="h-9 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title="Minutes (1–480)"
-                placeholder="Minutes"
+                title={t('stats.minutesTitle')}
+                placeholder={t('stats.minutes')}
               />
               <input
                 type="date"
@@ -342,7 +364,7 @@ export default function StatsCard({
                 max={new Date().toISOString().slice(0, 10)}
                 onChange={(e) => setManualDate(e.target.value)}
                 className="h-9 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title="Work date"
+                title={t('stats.dateTitle')}
               />
             </div>
             <div className="flex items-center gap-2">
@@ -350,9 +372,9 @@ export default function StatsCard({
                 value={manualProject}
                 onChange={(e) => setManualProject(e.target.value)}
                 className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title="Project (optional)"
+                title={t('stats.projTitle')}
               >
-                <option value="">No project</option>
+                <option value="">{t('timer.noProject')}</option>
                 {manualProjects.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
@@ -364,7 +386,7 @@ export default function StatsCard({
                 disabled={Number(manualMin) < 1}
                 className="press btn-accent h-9 shrink-0 rounded-lg px-4 text-sm font-semibold disabled:opacity-40"
               >
-                Add
+                {t('stats.add')}
               </button>
             </div>
           </div>

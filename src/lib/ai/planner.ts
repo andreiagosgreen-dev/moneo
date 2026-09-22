@@ -55,7 +55,7 @@ export function neededInputs(input: PathInput): ClarifyId[] {
 export function resolveInput(input: PathInput): ResolvedPathInput {
   return {
     text: input.text.trim(),
-    horizonMonths: Math.min(24, Math.max(1, Math.round(input.horizonMonths ?? 6))),
+    horizonMonths: Math.min(480, Math.max(1, Math.round(input.horizonMonths ?? 6))),
     level: input.level ?? 'beginner',
     hoursPerWeek: Math.min(40, Math.max(1, Math.round(input.hoursPerWeek ?? 5))),
   };

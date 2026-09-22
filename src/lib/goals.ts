@@ -7,24 +7,83 @@
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
 import { projectCompletion, type Task } from './tasks';
+import { createI18n, type I18n } from './i18n';
 
-export type GoalLevel = 'vision' | 'milestone' | 'project' | 'weekly';
+/** Default English translator — keeps helpers usable without a provider. */
+const EN_I18N = createI18n('en');
 
-export const GOAL_LEVELS: GoalLevel[] = ['vision', 'milestone', 'project', 'weekly'];
+export type GoalLevel =
+  | 'life'
+  | 'years10'
+  | 'years5'
+  | 'years3'
+  | 'vision'
+  | 'milestone'
+  | 'project'
+  | 'weekly'
+  | 'daily';
+
+export const GOAL_LEVELS: GoalLevel[] = [
+  'life',
+  'years10',
+  'years5',
+  'years3',
+  'vision',
+  'milestone',
+  'project',
+  'weekly',
+  'daily',
+];
 
 export const GOAL_LEVEL_LABELS: Record<GoalLevel, string> = {
-  vision: 'Vision · yearly',
-  milestone: 'Milestone · quarterly',
-  project: 'Project · monthly',
-  weekly: 'Weekly',
+  life: 'Life',
+  years10: '10 years',
+  years5: '5 years',
+  years3: '3 years',
+  vision: '1 year',
+  milestone: 'Quarter',
+  project: 'Month',
+  weekly: 'Week',
+  daily: 'Day',
+};
+
+/** Translation keys mirroring GOAL_LEVEL_LABELS (UI renders via t()). */
+export const GOAL_LEVEL_KEYS: Record<GoalLevel, string> = {
+  life: 'goal.level.life',
+  years10: 'goal.level.years10',
+  years5: 'goal.level.years5',
+  years3: 'goal.level.years3',
+  vision: 'goal.level.vision',
+  milestone: 'goal.level.milestone',
+  project: 'goal.level.project',
+  weekly: 'goal.level.weekly',
+  daily: 'goal.level.daily',
+};
+
+/** Short badge keys (first word of each level). */
+export const GOAL_SHORT_KEYS: Record<GoalLevel, string> = {
+  life: 'goal.short.life',
+  years10: 'goal.short.years10',
+  years5: 'goal.short.years5',
+  years3: 'goal.short.years3',
+  vision: 'goal.short.vision',
+  milestone: 'goal.short.milestone',
+  project: 'goal.short.project',
+  weekly: 'goal.short.weekly',
+  daily: 'goal.short.daily',
 };
 
 /** Broader → narrower. A parent must sit strictly above its child. */
 const LEVEL_RANK: Record<GoalLevel, number> = {
-  vision: 0,
-  milestone: 1,
-  project: 2,
-  weekly: 3,
+  life: 0,
+  years10: 1,
+  years5: 2,
+  years3: 3,
+  vision: 4,
+  milestone: 5,
+  project: 6,
+  weekly: 7,
+  daily: 8,
 };
 
 export interface Goal {
@@ -396,7 +455,7 @@ export interface SmartCheck {
  * action verb → specific, date words/date → time-bound, length bounds →
  * achievable, non-blank → relevant. Never throws.
  */
-export function smartScore(title: string): SmartCheck {
+export function smartScore(title: string, i18n: I18n = EN_I18N): SmartCheck {
   const text = title.trim();
   const specific =
     /^(launch|ship|write|build|learn|run|save|grow|finish|publish|release|complete|create|earn|lose|read)\b/i.test(
@@ -411,9 +470,9 @@ export function smartScore(title: string): SmartCheck {
     );
   const parts = [specific, measurable, achievable, relevant, timeBound];
   const tips: string[] = [];
-  if (!specific) tips.push('Start with an action verb + object (“Launch …”, “Write …”).');
-  if (!measurable) tips.push('Add a number (“$10k”, “3x/week”).');
-  if (!timeBound) tips.push('Add a when (“by Q3”, “in June”).');
+  if (!specific) tips.push(i18n.t('goal.tip.specific'));
+  if (!measurable) tips.push(i18n.t('goal.tip.measurable'));
+  if (!timeBound) tips.push(i18n.t('goal.tip.timeBound'));
   return {
     specific,
     measurable,

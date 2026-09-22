@@ -32,8 +32,8 @@ export interface LifeCardProps {
 export type LifeTab = 'habits' | 'balance' | 'journal' | 'energy';
 
 export const LIFE_TABS: Array<{ id: LifeTab; label: string }> = [
-  { id: 'habits', label: 'Habits' },
-  { id: 'balance', label: 'Balance' },
-  { id: 'journal', label: 'Journal' },
-  { id: 'energy', label: 'Energy' },
+  { id: 'habits', label: 'life.tab.habits' },
+  { id: 'balance', label: 'life.tab.balance' },
+  { id: 'journal', label: 'life.tab.journal' },
+  { id: 'energy', label: 'life.tab.energy' },
 ];

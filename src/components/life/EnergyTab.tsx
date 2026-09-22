@@ -9,6 +9,7 @@ import {
 } from '../../lib/energy';
 import { localDayKey } from '../../lib/projects';
 import type { LifeCardProps } from './types';
+import { useI18n } from '../../lib/i18n/LocaleContext';
 
 export default function EnergyTab({
   energyLog,
@@ -18,12 +19,17 @@ export default function EnergyTab({
 }: LifeCardProps) {
   const [level, setLevel] = useState(7);
   const now = useMemo(() => Date.now(), []);
-  const peak = useMemo(() => (isPro ? predictPeak(energyLog, now) : null), [energyLog, isPro, now]);
-  const rest = useMemo(() => breakAdvice(history, now), [history, now]);
+  const i18n = useI18n();
+  const { t, tp, fmtNum } = i18n;
+  const peak = useMemo(
+    () => (isPro ? predictPeak(energyLog, now) : null),
+    [energyLog, isPro, now],
+  );
+  const rest = useMemo(() => breakAdvice(history, now, i18n), [history, now, i18n]);
   const peaks = useMemo(() => (isPro ? peakHours(energyLog, now, 3) : []), [energyLog, isPro, now]);
   const advice = useMemo(
-    () => (isPro ? energyAdvice(energyLog, now) : null),
-    [energyLog, isPro, now],
+    () => (isPro ? energyAdvice(energyLog, now, i18n) : null),
+    [energyLog, isPro, now, i18n],
   );
   const todayCount = energyLog.filter((e) => localDayKey(e.at) === localDayKey(now)).length;
 
@@ -37,7 +43,7 @@ export default function EnergyTab({
           value={level}
           onChange={(e) => setLevel(Number(e.target.value))}
           className="h-1.5 flex-1 accent-[var(--accent)]"
-          aria-label="Energy level 1-10"
+          aria-label={t('life.e.level')}
         />
         <span className="w-8 shrink-0 text-center font-display text-xl font-bold text-cream">
           {level}
@@ -46,11 +52,11 @@ export default function EnergyTab({
           onClick={() => energyLogChange(logEnergy(energyLog, level))}
           className="press btn-accent shrink-0 rounded-lg px-4 py-2 text-sm font-semibold"
         >
-          Log
+          {t('life.e.log')}
         </button>
       </div>
-      <p className="mt-1.5 font-mono text-[11px] text-faint">
-        {todayCount} check-in{todayCount === 1 ? '' : 's'} today · 1 drained → 10 wired
+      <p className="mt-1.5 text-[11px] text-faint">
+        {tp('life.e.count', todayCount)}
       </p>
       {rest && (
         <p className="mt-2 rounded-lg bg-tomato/10 px-3 py-2 text-[12px] leading-relaxed text-cream ring-1 ring-inset ring-tomato/30">
@@ -58,8 +64,8 @@ export default function EnergyTab({
         </p>
       )}
       {isPro && peak && (
-        <p className="mt-2 font-mono text-[11px] text-sage">
-          Expected peak today ≈ {formatHour(peak.hour)} (avg {peak.avg.toFixed(1)})
+        <p className="mt-2 text-[11px] text-sage">
+          {t('life.e.peak', { hour: formatHour(peak.hour), avg: peak.avg.toFixed(1) })}
         </p>
       )}
 
@@ -71,8 +77,8 @@ export default function EnergyTab({
               {peaks.map((p) => (
                 <span
                   key={p.hour}
-                  className="rounded-full bg-ink/60 px-2.5 py-1 font-mono text-[11px] text-sage ring-1 ring-inset ring-line"
-                  title={`${p.samples} samples, avg ${p.avg.toFixed(1)}`}
+                  className="rounded-full bg-ink/60 px-2.5 py-1 text-[11px] text-sage ring-1 ring-inset ring-line"
+                  title={t('life.e.samples', { n: fmtNum(p.samples), avg: p.avg.toFixed(1) })}
                 >
                   ⚡ {formatHour(p.hour)} · {p.avg.toFixed(1)}
                 </span>
@@ -81,9 +87,7 @@ export default function EnergyTab({
           )}
         </div>
       ) : (
-        <p className="mt-3 font-mono text-[11px] text-faint">
-          Pro reveals your peak hours and scheduling advice.
-        </p>
+        <p className="mt-3 text-[11px] text-faint">{t('life.e.pro')}</p>
       )}
     </div>
   );

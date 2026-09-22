@@ -6,6 +6,10 @@
  */
 import type { Task, TaskQuadrant } from './tasks';
 import { TASK_QUADRANTS } from './tasks';
+import { createI18n, type I18n } from './i18n';
+
+/** Default English translator — keeps helpers usable without a provider. */
+const EN_I18N = createI18n('en');
 
 export const QUADRANT_META: Record<TaskQuadrant, { title: string; action: string; hint: string }> =
   {
@@ -14,6 +18,14 @@ export const QUADRANT_META: Record<TaskQuadrant, { title: string; action: string
     q3: { title: 'Delegate', action: 'Delegate', hint: 'Urgent + not important' },
     q4: { title: 'Eliminate', action: 'Eliminate', hint: 'Neither urgent nor important' },
   };
+
+/** Translation keys for quadrant chrome (UI renders via t()). */
+export const QUADRANT_TEXT_KEYS: Record<TaskQuadrant, { title: string; action: string; hint: string }> = {
+  q1: { title: 'matrix.q1t', action: 'matrix.q1a', hint: 'matrix.q1h' },
+  q2: { title: 'matrix.q2t', action: 'matrix.q2a', hint: 'matrix.q2h' },
+  q3: { title: 'matrix.q3t', action: 'matrix.q3a', hint: 'matrix.q3h' },
+  q4: { title: 'matrix.q4t', action: 'matrix.q4a', hint: 'matrix.q4h' },
+};
 
 /** Due within this window counts as urgent (overdue always counts). */
 export const URGENT_WINDOW_MS = 48 * 60 * 60 * 1000;
@@ -105,17 +117,21 @@ function topTask(candidates: Task[]): Task | null {
  * Daily "what to focus on": Q1 first, then Q2 deep work, then Q3, else prune Q4.
  * Never throws.
  */
-export function quadrantFocus(tasks: Task[], now: number = Date.now()): QuadrantFocus {
+export function quadrantFocus(
+  tasks: Task[],
+  now: number = Date.now(),
+  i18n: I18n = EN_I18N,
+): QuadrantFocus {
   const order: TaskQuadrant[] = ['q1', 'q2', 'q3', 'q4'];
   const headlines: Record<TaskQuadrant, string> = {
-    q1: 'Clear the urgent + important first.',
-    q2: 'No fires — invest in deep work.',
-    q3: 'Delegate or timebox these.',
-    q4: 'Nothing pressing — prune or park Q4.',
+    q1: i18n.t('matrix.head.q1'),
+    q2: i18n.t('matrix.head.q2'),
+    q3: i18n.t('matrix.head.q3'),
+    q4: i18n.t('matrix.head.q4'),
   };
   for (const q of order) {
     const inQ = tasksInQuadrant(tasks, q, now);
     if (inQ.length > 0) return { quadrant: q, headline: headlines[q], task: topTask(inQ) };
   }
-  return { quadrant: null, headline: 'Board clear — plan tomorrow.', task: null };
+  return { quadrant: null, headline: i18n.t('matrix.head.clear'), task: null };
 }

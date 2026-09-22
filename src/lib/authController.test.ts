@@ -144,6 +144,33 @@ describe('auth state machine', () => {
     expect(c.getSnapshot().status).toBe('anonymous');
   });
 
+  it('loading → anonymous when getSession hangs past the boot deadline', async () => {
+    vi.useFakeTimers();
+    const hanging: AuthClientLike = {
+      getSession: () => new Promise(() => {}),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),
+      signInWithPassword: async () => ({ data: { user: null }, error: null }),
+      signUp: async () => ({ data: { user: null, session: null }, error: null }),
+      signOut: async () => ({ error: null }),
+    };
+    const c = createAuthController(deps(hanging));
+    c.init();
+    expect(c.getSnapshot().status).toBe('loading');
+    await vi.advanceTimersByTimeAsync(4_000);
+    expect(c.getSnapshot().status).toBe('anonymous');
+    vi.useRealTimers();
+  });
+
+  it('StrictMode remount (dispose then init) still settles to anonymous', async () => {
+    const { client } = fakeClient({ sessionUser: null });
+    const c = createAuthController(deps(client));
+    c.init();
+    c.dispose();
+    c.init();
+    await flush();
+    expect(c.getSnapshot().status).toBe('anonymous');
+  });
+
   it('loading → authenticated exposes only userId and email', async () => {
     // Simulates a raw provider payload carrying fields Moneo must never surface.
     const rawWireUser = {

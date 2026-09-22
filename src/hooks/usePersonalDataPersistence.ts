@@ -52,7 +52,7 @@ export interface PersistedState {
   theme: UITheme;
 }
 
-export function useAppPersistence(s: PersistedState): void {
+export function usePersonalDataPersistence(s: PersistedState): void {
   const {
     settings,
     history,

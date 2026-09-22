@@ -9,6 +9,8 @@ export default defineConfig([
       'dist/**',
       'node_modules/**',
       'coverage/**',
+      // Nested tool worktrees (audit copies of the repo) are never linted.
+      '.claude/**',
       'cloudflare/workers/index.ts',
       // Compiled worker artifact (from `tsc` build in cloudflare/workers).
       'cloudflare/workers/**/*.js',
@@ -19,12 +21,13 @@ export default defineConfig([
   {
     files: ['scripts/**/*.mjs'],
     languageOptions: {
-      globals: {
-        process: 'readonly',
-        console: 'readonly',
-        URL: 'readonly',
-        Buffer: 'readonly',
-      },
+        globals: {
+          process: 'readonly',
+          console: 'readonly',
+          URL: 'readonly',
+          Buffer: 'readonly',
+          fetch: 'readonly',
+        },
     },
   },
   {

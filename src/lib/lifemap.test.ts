@@ -44,7 +44,7 @@ describe('templates', () => {
   it('instantiates fresh ids every time', () => {
     const first = instantiateTemplate('balanced');
     const second = instantiateTemplate('balanced');
-    expect(first).toHaveLength(6);
+    expect(first).toHaveLength(8);
     expect(first[0].id).not.toBe(second[0].id);
     expect(first[0].linkedGoalIds).toEqual([]);
   });

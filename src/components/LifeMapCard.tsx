@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   LIFE_MAP_TEMPLATES,
   createLifeMapArea,
@@ -11,6 +11,17 @@ import {
   weeklyReview,
   type LifeMapArea,
 } from '../lib/lifemap';
+import {
+  buildWheelAssistPrompt,
+  labelPoint,
+  polarPoint,
+  radarPolygon,
+  ruleBasedWheelCoach,
+  scoreRadius,
+  spokeAngle,
+  type WheelAssistMode,
+} from '../lib/lifeRadar';
+import { isLibreAiConfigured, libreAssist } from '../lib/ai/ollama';
 import type { Goal } from '../lib/goals';
 import type { Project } from '../lib/projects';
 import type { Habit } from '../lib/habits';
@@ -38,12 +49,10 @@ interface Props {
   isPro?: boolean;
 }
 
-function polar(cx: number, cy: number, r: number, deg: number) {
-  const rad = ((deg - 90) * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-}
-
-const fmt = (n: number) => Math.round(n * 100) / 100;
+const CX = 140;
+const CY = 140;
+const OUTER_R = 92;
+const VIEW = 280;
 
 export default function LifeMapCard({
   areas,
@@ -66,6 +75,8 @@ export default function LifeMapCard({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftName, setDraftName] = useState('');
   const [blockedNote, setBlockedNote] = useState('');
+  const [assistBusy, setAssistBusy] = useState(false);
+  const [assistNote, setAssistNote] = useState('');
   // Mobile bottom sheet: tapping a segment opens details as a sheet (<md).
   const [sheetOpen, setSheetOpen] = useState(false);
   const selectArea = (id: string) => {
@@ -150,6 +161,32 @@ export default function LifeMapCard({
     setSelectedId(fresh[0]?.id ?? null);
   };
 
+  const setCurrentScore = (id: string, score: number) => {
+    areasChange(updateLifeMapArea(areas, id, { currentScore: score }));
+  };
+
+  const askAssist = async (mode: WheelAssistMode) => {
+    if (assistBusy) return;
+    setAssistBusy(true);
+    setAssistNote('');
+    const fallback = ruleBasedWheelCoach(areas, mode, i18n);
+    try {
+      if (isLibreAiConfigured()) {
+        const prompt = buildWheelAssistPrompt(areas, mode);
+        const libre = await libreAssist(prompt, `Locale: ${i18n.locale}. Wheel of Life scores.`);
+        if (libre.ok) {
+          setAssistNote(libre.text);
+          return;
+        }
+        setAssistNote(`${t('lifemap.assist.offline')}\n\n${fallback}`);
+        return;
+      }
+      setAssistNote(fallback);
+    } finally {
+      setAssistBusy(false);
+    }
+  };
+
   // ---- empty state: template builder (<2 min to first map) ----
   if (areas.length === 0) {
     return (
@@ -186,9 +223,20 @@ export default function LifeMapCard({
   }
 
   const n = areas.length;
-  const stepDeg = 360 / n;
-  const gapDeg = Math.min(4, stepDeg * 0.12);
-  const R = 88;
+  const currentPoly = radarPolygon(
+    areas.map((a) => a.currentScore),
+    CX,
+    CY,
+    OUTER_R,
+  );
+  const desiredPoly = radarPolygon(
+    areas.map((a) => a.desiredScore),
+    CX,
+    CY,
+    OUTER_R,
+  );
+  const ringScores = [2, 4, 6, 8, 10];
+  const focusName = balance.focusArea?.name ?? step?.area.name;
 
   return (
     <section className="card px-6 py-6 sm:px-7" aria-label={t('lifemap.title')}>
@@ -210,88 +258,175 @@ export default function LifeMapCard({
         </button>
       </header>
 
+      <p className="mt-2 text-[12px] leading-relaxed text-sage">{t('lifemap.radar.rateHint')}</p>
+      {focusName && (
+        <p className="mt-1 text-[12px] leading-relaxed text-cream/90">
+          {t('lifemap.radar.raise', { name: focusName })}
+        </p>
+      )}
+
       {/* wheel + detail: stacked on mobile, map left / action right on desktop */}
-      <div className="mt-2 grid items-start gap-5 md:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]">
-        <div className="relative mx-auto w-full max-w-[320px]">
-          <svg
-            viewBox="0 0 200 200"
-            className="w-full"
-            role="img"
-            aria-label={`${balance.score} — ${balance.insight}`}
+      <div className="mt-3 grid items-start gap-5 md:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]">
+        <div className="relative mx-auto w-full max-w-[360px]">
+          <div
+            className="rounded-2xl px-2 py-3"
+            style={{
+              background: 'var(--mono-raised, color-mix(in oklab, var(--color-card2) 92%, transparent))',
+              boxShadow: 'var(--mono-sh-card, 0 8px 24px -8px rgb(0 0 0 / 0.25))',
+            }}
           >
-            {areas.map((a, i) => {
-              const a0 = i * stepDeg + gapDeg / 2;
-              const a1 = (i + 1) * stepDeg - gapDeg / 2;
-              const rC = 22 + (a.currentScore / 10) * (R - 22);
-              const rD = 22 + (a.desiredScore / 10) * (R - 22);
-              const p0 = polar(100, 100, rC, a0);
-              const p1 = polar(100, 100, rC, a1);
-              const q0 = polar(100, 100, rD, a0);
-              const q1 = polar(100, 100, rD, a1);
-              const isSel = selected?.id === a.id;
-              return (
-                <g
-                  key={a.id}
-                  className="map-seg"
-                  style={
-                    {
-                      animationDelay: `${Math.min(i * 70, 560)}ms`,
-                      '--seg-glow': a.color,
-                    } as CSSProperties
-                  }
-                >
-                  <path
-                    d={`M 100 100 L ${fmt(p0.x)} ${fmt(p0.y)} A ${fmt(rC)} ${fmt(rC)} 0 0 1 ${fmt(p1.x)} ${fmt(p1.y)} Z`}
-                    fill={a.color}
-                    opacity={0.07}
-                    aria-hidden
-                    pointerEvents="none"
-                  />
-                  <path
-                    d={`M 100 100 L ${fmt(p0.x)} ${fmt(p0.y)} A ${fmt(rC)} ${fmt(rC)} 0 0 1 ${fmt(p1.x)} ${fmt(p1.y)} Z`}
-                    fill={a.color}
-                    fillOpacity={0.3 + 0.55 * (a.importance / 5)}
-                    stroke={isSel ? '#f2f4f9' : 'transparent'}
-                    strokeWidth={isSel ? 2 : 0}
-                    className="cursor-pointer"
-                    opacity={isSel ? 1 : 0.92}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={t('lifemap.areaAria', {
-                      icon: a.icon,
-                      name: a.name,
-                      cur: a.currentScore,
-                      des: a.desiredScore,
-                      imp: a.importance,
-                      intention: a.intention,
-                    })}
-                    onClick={() => selectArea(a.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        selectArea(a.id);
-                      }
-                    }}
-                  />
-                  <path
-                    d={`M ${fmt(q0.x)} ${fmt(q0.y)} A ${fmt(rD)} ${fmt(rD)} 0 0 1 ${fmt(q1.x)} ${fmt(q1.y)}`}
+            <svg
+              viewBox={`0 0 ${VIEW} ${VIEW}`}
+              className="w-full"
+              role="img"
+              aria-label={`${balance.score} — ${balance.insight}`}
+            >
+              <defs>
+                <radialGradient id="lifeRadarFill" cx="50%" cy="50%" r="65%">
+                  <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.08" />
+                </radialGradient>
+              </defs>
+              {/* concentric guide rings */}
+              {ringScores.map((s) => {
+                const r = scoreRadius(s, OUTER_R);
+                return (
+                  <circle
+                    key={s}
+                    cx={CX}
+                    cy={CY}
+                    r={r}
                     fill="none"
-                    stroke="rgb(242 244 249 / 0.75)"
-                    strokeWidth={1.6}
-                    strokeLinecap="round"
-                    aria-hidden
+                    stroke="var(--color-line)"
+                    strokeOpacity={s === 10 ? 0.55 : 0.28}
+                    strokeWidth={s === 10 ? 1.25 : 1}
                   />
-                </g>
-              );
-            })}
-          </svg>
-          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="font-display text-4xl font-extrabold leading-none text-cream">
-              {balance.score}
-            </span>
-            <span className="mt-1 max-w-[150px] text-[11px] leading-snug text-sage">
+                );
+              })}
+              {/* spokes */}
+              {areas.map((a, i) => {
+                const tip = polarPoint(CX, CY, OUTER_R, spokeAngle(i, n));
+                return (
+                  <line
+                    key={`spoke-${a.id}`}
+                    x1={CX}
+                    y1={CY}
+                    x2={tip.x}
+                    y2={tip.y}
+                    stroke="var(--color-line)"
+                    strokeOpacity={0.35}
+                    strokeWidth={1}
+                  />
+                );
+              })}
+              {/* desired outline */}
+              <polygon
+                points={desiredPoly}
+                fill="none"
+                stroke="rgb(242 244 249 / 0.45)"
+                strokeWidth={1.4}
+                strokeDasharray="4 3"
+                strokeLinejoin="round"
+              />
+              {/* current satisfaction fill */}
+              <polygon
+                points={currentPoly}
+                fill="url(#lifeRadarFill)"
+                stroke="var(--accent)"
+                strokeWidth={2}
+                strokeLinejoin="round"
+                className="radar-poly"
+              />
+              {/* vertices + labels */}
+              {areas.map((a, i) => {
+                const ang = spokeAngle(i, n);
+                const pt = polarPoint(CX, CY, scoreRadius(a.currentScore, OUTER_R), ang);
+                const lbl = labelPoint(i, n, CX, CY, OUTER_R, 22);
+                const isSel = selected?.id === a.id;
+                const isFocus = balance.focusArea?.id === a.id;
+                return (
+                  <g key={a.id} className="radar-node">
+                    <circle
+                      cx={pt.x}
+                      cy={pt.y}
+                      r={isSel ? 6.5 : 5}
+                      fill={a.color}
+                      stroke={isSel || isFocus ? 'var(--color-cream, #f2f4f9)' : 'transparent'}
+                      strokeWidth={isSel || isFocus ? 2 : 0}
+                      className="cursor-pointer"
+                      role="button"
+                      tabIndex={0}
+                      aria-label={t('lifemap.areaAria', {
+                        icon: a.icon,
+                        name: a.name,
+                        cur: a.currentScore,
+                        des: a.desiredScore,
+                        imp: a.importance,
+                        intention: a.intention,
+                      })}
+                      onClick={() => selectArea(a.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          selectArea(a.id);
+                        }
+                      }}
+                    />
+                    <text
+                      x={lbl.x}
+                      y={lbl.y}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      className="pointer-events-none select-none"
+                      fill={isFocus ? 'var(--accent)' : 'var(--color-sage, #9aa3b5)'}
+                      fontSize={10}
+                      fontFamily="var(--mono-font-mono, ui-monospace, monospace)"
+                    >
+                      {a.icon}
+                    </text>
+                  </g>
+                );
+              })}
+              {/* center score */}
+              <circle cx={CX} cy={CY} r={28} fill="var(--color-ink, #0f1218)" fillOpacity={0.55} />
+              <text
+                x={CX}
+                y={CY - 4}
+                textAnchor="middle"
+                fill="var(--color-cream, #f2f4f9)"
+                fontSize={22}
+                fontWeight={800}
+                fontFamily="var(--mono-font-display, Georgia, serif)"
+              >
+                {balance.score}
+              </text>
+              <text
+                x={CX}
+                y={CY + 14}
+                textAnchor="middle"
+                fill="var(--color-sage, #9aa3b5)"
+                fontSize={8}
+                fontFamily="var(--mono-font-mono, ui-monospace, monospace)"
+              >
+                /100
+              </text>
+            </svg>
+            <div className="mt-1 flex items-center justify-center gap-4 font-mono text-[10px] text-faint">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="inline-block h-2 w-2 rounded-sm" style={{ background: 'var(--accent)' }} />
+                {t('lifemap.radar.legendNow')}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span
+                  className="inline-block h-0 w-4 border-t border-dashed"
+                  style={{ borderColor: 'rgb(242 244 249 / 0.55)' }}
+                />
+                {t('lifemap.radar.legendWant')}
+              </span>
+            </div>
+            <p className="mx-auto mt-2 max-w-[240px] text-center text-[11px] leading-snug text-sage">
               {balance.insight}
-            </span>
+            </p>
           </div>
           <ul className="sr-only">
             {areas.map((a) => (
@@ -301,10 +436,90 @@ export default function LifeMapCard({
               </li>
             ))}
           </ul>
+
+          {/* quick 1–10 rate */}
+          <div className="mt-3 space-y-2">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+              {t('lifemap.quickRate')}
+            </p>
+            {areas.map((a) => {
+              const isFocus = balance.focusArea?.id === a.id;
+              return (
+                <div
+                  key={a.id}
+                  className={`rounded-xl px-3 py-2 ring-1 ring-inset ${
+                    isFocus ? 'ring-accent/40 bg-accent/5' : 'ring-line bg-ink/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={() => selectArea(a.id)}
+                      className="press min-w-0 truncate text-left text-[13px] font-medium text-cream/90"
+                    >
+                      <span
+                        className="mr-1.5 inline-block h-2 w-2 rounded-full align-middle"
+                        style={{ backgroundColor: a.color }}
+                      />
+                      {a.icon} {a.name}
+                    </button>
+                    <span className="shrink-0 font-mono text-[11px] text-sage">
+                      {a.currentScore}
+                      <span className="text-faint"> /10</span>
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={1}
+                    max={10}
+                    value={a.currentScore}
+                    onChange={(e) => setCurrentScore(a.id, Number(e.target.value))}
+                    className="mt-1.5 h-1.5 w-full accent-[var(--accent)]"
+                    aria-label={t('lifemap.scoreNow', { name: a.name })}
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* right column: next action + detail on desktop, review below */}
         <div className="min-w-0 md:pt-1">
+          {/* assistant */}
+          <div
+            className="rounded-xl px-3.5 py-3 ring-1 ring-inset ring-line"
+            style={{
+              background: 'var(--mono-raised, color-mix(in oklab, var(--color-card2) 88%, transparent))',
+              boxShadow: 'var(--mono-sh-card, none)',
+            }}
+          >
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+              {t('lifemap.assist.title')}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                disabled={assistBusy}
+                onClick={() => void askAssist('reflect')}
+                className="press rounded-lg px-3 py-1.5 font-mono text-[11px] text-sage ring-1 ring-inset ring-line hover:text-cream disabled:opacity-40"
+              >
+                {assistBusy ? t('lifemap.assist.loading') : t('lifemap.assist.reflect')}
+              </button>
+              <button
+                type="button"
+                disabled={assistBusy}
+                onClick={() => void askAssist('action')}
+                className="press btn-accent rounded-lg px-3 py-1.5 font-mono text-[11px] font-bold disabled:opacity-40"
+              >
+                {assistBusy ? t('lifemap.assist.loading') : t('lifemap.assist.action')}
+              </button>
+            </div>
+            {assistNote && (
+              <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-cream/90">
+                {assistNote}
+              </p>
+            )}
+          </div>
           {/* detail panel — inline card on desktop, bottom sheet on mobile */}
           {selected && (
             <>
@@ -317,10 +532,10 @@ export default function LifeMapCard({
               )}
               <div
                 aria-label={`${selected.icon} ${selected.name}`}
-                className={`px-4 py-3.5 ring-1 ring-inset ring-line ${
+                className={`mt-3 px-4 py-3.5 ring-1 ring-inset ring-line ${
                   sheetOpen
-                    ? 'sheet-up glass fixed inset-x-3 bottom-3 z-50 rounded-2xl md:static md:rounded-xl md:bg-ink/40'
-                    : 'mt-4 hidden rounded-xl bg-ink/40 md:mt-0 md:block'
+                    ? 'sheet-up glass fixed inset-x-3 bottom-3 z-50 mt-0 rounded-2xl md:static md:rounded-xl md:bg-ink/40'
+                    : 'hidden rounded-xl bg-ink/40 md:block'
                 }`}
               >
                 <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-line md:hidden" aria-hidden />

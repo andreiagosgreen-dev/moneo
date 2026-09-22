@@ -38,8 +38,8 @@
 
 ```
 Product: Moneo Pro
-  Variant: Monthly ($9/month)
-  Variant: Annual ($90/year - $7.50/month)
+  Variant: Monthly ($5.99/month)
+  Variant: Annual ($59.99/year - $5.00/month)
 
 Product: Moneo Teams (Future)
   Variant: Monthly ($29/month)

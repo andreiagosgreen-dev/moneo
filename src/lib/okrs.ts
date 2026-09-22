@@ -6,6 +6,10 @@
  */
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
+import { createI18n, type I18n } from './i18n';
+
+/** Default English translator — keeps helpers usable without a provider. */
+const EN_I18N = createI18n('en');
 
 export interface KeyResult {
   id: string;
@@ -311,27 +315,37 @@ export function overallOkrProgress(objectives: Objective[], period?: string): nu
  * Quarterly review text (Roadmap 7.3 automation): headline + per-objective
  * lines calling out the strongest and weakest key results. Never throws.
  */
-export function okrReview(objectives: Objective[], period?: string): string {
+export function okrReview(
+  objectives: Objective[],
+  period?: string,
+  i18n: I18n = EN_I18N,
+): string {
   const roots = rootObjectives(objectives, period);
-  const label = period ?? 'all periods';
-  if (roots.length === 0) return `OKR review (${label}): no objectives yet.`;
-  const lines = [`OKR review (${label}): ${overallOkrProgress(objectives, period)}% overall.`];
+  const label = period ?? i18n.t('okr.rev.all');
+  if (roots.length === 0) return i18n.t('okr.rev.empty', { label });
+  const lines = [i18n.t('okr.rev.head', { label, pct: overallOkrProgress(objectives, period) })];
   for (const o of roots) {
     const pct = objectiveProgress(objectives, o.id);
-    lines.push(`- ${o.title}: ${pct}%`);
+    lines.push(i18n.t('okr.rev.row', { title: o.title, pct }));
     const ranked = o.keyResults.slice().sort((a, b) => krProgress(a) - krProgress(b));
     if (ranked.length > 0) {
       const best = ranked[ranked.length - 1];
       const worst = ranked[0];
-      lines.push(`  Best KR: ${best.title} ${Math.round(krProgress(best) * 100)}%.`);
+      lines.push(
+        i18n.t('okr.rev.best', { title: best.title, pct: Math.round(krProgress(best) * 100) }),
+      );
       if (worst.id !== best.id) {
-        lines.push(`  Needs work: ${worst.title} ${Math.round(krProgress(worst) * 100)}%.`);
+        lines.push(
+          i18n.t('okr.rev.worst', { title: worst.title, pct: Math.round(krProgress(worst) * 100) }),
+        );
       }
     }
     const kids = childrenOf(objectives, o.id);
     if (kids.length > 0) {
       lines.push(
-        `  Cascaded: ${kids.map((k) => `${k.title} ${objectiveProgress(objectives, k.id)}%`).join('; ')}.`,
+        i18n.t('okr.rev.cascade', {
+          items: kids.map((k) => `${k.title} ${objectiveProgress(objectives, k.id)}%`).join('; '),
+        }),
       );
     }
   }

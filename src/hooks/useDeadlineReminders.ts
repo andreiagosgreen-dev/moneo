@@ -9,6 +9,7 @@ import {
 } from '../lib/projects';
 import { loadNotificationPrefs } from '../lib/notificationPrefs';
 import { showNotification } from '../lib/store';
+import type { Translate } from './useTimer';
 
 /**
  * Deadline reminders (Roadmap Faza 1.2): one browser notice per project
@@ -19,6 +20,7 @@ export function useDeadlineReminders(
   projects: Project[],
   notificationsEnabled: boolean,
   isPro: boolean,
+  t: Translate,
 ): void {
   useEffect(() => {
     if (!isPro || !notificationsEnabled) return;
@@ -33,11 +35,11 @@ export function useDeadlineReminders(
       if (next[project.id] === dayKey) continue;
       const hours = Math.max(1, Math.round(msLeft / 3600000));
       showNotification(
-        `Deadline approaching: ${project.name}`,
-        `Due in ~${hours}h. Finish strong — open Moneo to plan the last push.`,
+        t('notif.dl.title', { name: project.name }),
+        t('notif.dl.body', { n: hours }),
       );
       next = markDeadlineReminded(next, project.id, dayKey);
     }
     if (next !== reminded) saveDeadlineReminders(next);
-  }, [projects, notificationsEnabled, isPro]);
+  }, [projects, notificationsEnabled, isPro, t]);
 }

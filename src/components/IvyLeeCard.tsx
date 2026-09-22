@@ -15,6 +15,7 @@ import {
   type IvyTask,
 } from '../lib/ivyLee';
 import { dayKeyInTz } from '../lib/timezone';
+import { useI18n } from '../lib/i18n/LocaleContext';
 
 interface Props {
   plans: IvyPlan[];
@@ -58,6 +59,7 @@ function TrashIcon() {
 }
 
 export default function IvyLeeCard({ plans, plansChange, timezone, isPro = false }: Props) {
+  const { t, tag, fmtNum } = useI18n();
   const [draft, setDraft] = useState('');
   const todayKey = dayKeyInTz(Date.now(), timezone);
   const maxTasks = isPro ? IVY_MAX_TASKS : IVY_FREE_MAX_TASKS;
@@ -78,22 +80,28 @@ export default function IvyLeeCard({ plans, plansChange, timezone, isPro = false
 
   const dateLabel = useMemo(() => {
     const [y, m, d] = todayKey.split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString([], {
-      weekday: 'long',
-      month: 'short',
-      day: 'numeric',
-    });
-  }, [todayKey]);
+    try {
+      return new Date(y, m - 1, d).toLocaleDateString(tag, {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+      });
+    } catch {
+      return todayKey;
+    }
+  }, [todayKey, tag]);
 
   const atCapacity = total >= maxTasks;
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label="Ivy Lee daily plan">
+    <section className="card px-6 py-6 sm:px-7" aria-label={t('ivy.aria')}>
       <header className="flex items-baseline justify-between gap-3">
         <div>
-          <h2 className="font-display text-xl font-bold tracking-tight text-cream">Today's plan</h2>
+          <h2 className="font-display text-xl font-bold tracking-tight text-cream">
+            {t('ivy.title')}
+          </h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            {isPro ? '6 slots · plan tonight, work top-down' : '3 slots · plan tonight, work top-down'}
+            {t('ivy.sub', { n: maxTasks })}
           </p>
         </div>
         <span className="font-mono text-[11px] text-sage">{dateLabel}</span>
@@ -104,7 +112,7 @@ export default function IvyLeeCard({ plans, plansChange, timezone, isPro = false
         <div className="mt-4">
           <div className="flex items-baseline justify-between">
             <span className="font-mono text-[12px] text-cream">
-              {done}/{total} done
+              {t('ivy.progress', { done: fmtNum(done), total: fmtNum(total) })}
             </span>
             <span className="font-mono text-[11px] text-faint">{pct}%</span>
           </div>
@@ -141,9 +149,9 @@ export default function IvyLeeCard({ plans, plansChange, timezone, isPro = false
 
       {total === 0 && (
         <p className="mt-4 rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">
-          Pick the {maxTasks} most important things for today, in order.
+          {t('ivy.emptyA', { n: maxTasks })}
           <br />
-          Work the list top to bottom.
+          {t('ivy.emptyB')}
         </p>
       )}
 
@@ -156,14 +164,15 @@ export default function IvyLeeCard({ plans, plansChange, timezone, isPro = false
             maxLength={120}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && add()}
-            placeholder={total === 0 ? 'Most important task…' : 'Add next task…'}
+            placeholder={t(total === 0 ? 'ivy.phFirst' : 'ivy.phNext')}
+            aria-label={t('ivy.add')}
             className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
           />
           <button
             onClick={add}
             disabled={!draft.trim()}
             className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
-            aria-label="Add task"
+            aria-label={t('ivy.add')}
           >
             +
           </button>
@@ -172,11 +181,9 @@ export default function IvyLeeCard({ plans, plansChange, timezone, isPro = false
         !isPro && (
           <div className="mt-3 rounded-xl border border-accent/30 bg-accent/10 p-3.5">
             <div className="text-[13px] font-semibold text-cream">
-              Free plan limits the list to {IVY_FREE_MAX_TASKS} tasks
+              {t('ivy.capTitle', { n: IVY_FREE_MAX_TASKS })}
             </div>
-            <p className="mt-1 text-[11px] leading-relaxed text-sage">
-              Upgrade to Moneo Pro for all 6 Ivy Lee slots and weekly success analytics.
-            </p>
+            <p className="mt-1 text-[11px] leading-relaxed text-sage">{t('ivy.capBody')}</p>
           </div>
         )
       )}
@@ -185,9 +192,9 @@ export default function IvyLeeCard({ plans, plansChange, timezone, isPro = false
       {isPro
         ? analytics.activeDays > 0 && (
             <div className="mt-4 grid grid-cols-3 gap-2 border-t border-line/60 pt-4">
-              <Stat label="7-day rate" value={`${Math.round(analytics.average * 100)}%`} accent />
-              <Stat label="Perfect days" value={String(analytics.perfectDays)} />
-              <Stat label="Active days" value={String(analytics.activeDays)} />
+              <Stat label={t('ivy.stat.rate')} value={`${Math.round(analytics.average * 100)}%`} accent />
+              <Stat label={t('ivy.stat.perfect')} value={String(analytics.perfectDays)} />
+              <Stat label={t('ivy.stat.active')} value={String(analytics.activeDays)} />
             </div>
           )
         : analytics.activeDays > 0 && (
@@ -196,8 +203,7 @@ export default function IvyLeeCard({ plans, plansChange, timezone, isPro = false
                 <span className="font-semibold text-sage">
                   {Math.round(analytics.average * 100)}%
                 </span>{' '}
-                completion across recent days · <span className="text-accent">Pro</span> unlocks
-                weekly analytics
+                {t('ivy.teaserRest')}
               </p>
             </div>
           )}
@@ -226,6 +232,7 @@ function IvyRow({
   disableUp: boolean;
   disableDown: boolean;
 }) {
+  const { t } = useI18n();
   const [text, setText] = useState(task.text);
   const committed = useRef(task.text);
 
@@ -260,7 +267,7 @@ function IvyRow({
             ? 'bg-accent text-on-accent ring-accent'
             : 'bg-ink/60 text-transparent ring-line hover:text-sage'
         }`}
-        aria-label={task.done ? 'Mark incomplete' : 'Mark complete'}
+        aria-label={t(task.done ? 'ivy.markOff' : 'ivy.markOn')}
       >
         <CheckIcon />
       </button>
@@ -284,8 +291,8 @@ function IvyRow({
         value={typeof task.estimateMin === 'number' ? task.estimateMin : ''}
         onChange={(e) => onEstimate(e.target.value === '' ? null : Number(e.target.value))}
         className="h-7 shrink-0 rounded-md bg-ink/60 px-1 font-mono text-[10px] text-faint ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-        title="Time estimate — feeds the overcommit check"
-        aria-label={`Estimate for ${task.text}`}
+        title={t('ivy.estTitle')}
+        aria-label={t('ivy.estAria', { task: task.text })}
       >
         <option value="">—</option>
         {[15, 25, 50, 90].map((m) => (
@@ -296,8 +303,8 @@ function IvyRow({
       </select>
       <button
         onClick={onRemove}
-        className="press shrink-0 rounded p-1 text-faint opacity-0 transition-opacity hover:text-tomato focus:opacity-100 group-hover:opacity-100"
-        aria-label={`Delete task ${task.text}`}
+          className="press shrink-0 rounded p-1 text-faint opacity-0 transition-opacity hover:text-tomato focus:opacity-100 group-hover:opacity-100"
+          aria-label={t('ivy.delTask', { task: task.text })}
       >
         <TrashIcon />
       </button>
@@ -305,16 +312,16 @@ function IvyRow({
         <button
           onClick={() => onMove(-1)}
           disabled={disableUp}
-          className="press rounded px-1 font-mono text-[10px] leading-none text-faint hover:text-cream disabled:opacity-30"
-          aria-label={`Move ${task.text} up`}
+            className="press rounded px-1 font-mono text-[10px] leading-none text-faint hover:text-cream disabled:opacity-30"
+            aria-label={t('ivy.moveUp', { task: task.text })}
         >
           ▲
         </button>
         <button
           onClick={() => onMove(1)}
           disabled={disableDown}
-          className="press rounded px-1 font-mono text-[10px] leading-none text-faint hover:text-cream disabled:opacity-30"
-          aria-label={`Move ${task.text} down`}
+            className="press rounded px-1 font-mono text-[10px] leading-none text-faint hover:text-cream disabled:opacity-30"
+            aria-label={t('ivy.moveDown', { task: task.text })}
         >
           ▼
         </button>

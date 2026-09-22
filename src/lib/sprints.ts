@@ -7,6 +7,10 @@ import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
 import { localDayKey } from './projects';
 import { taskPoints, criticalChain, type Task, type TaskStatus } from './tasks';
+import { createI18n, type I18n } from './i18n';
+
+/** Default English translator — keeps helpers usable without a provider. */
+const EN_I18N = createI18n('en');
 
 export type WipLimits = Partial<Record<TaskStatus, number>>;
 
@@ -313,13 +317,13 @@ export function standup(sprint: Sprint, tasks: Task[]): Standup {
   };
 }
 
-export function formatStandup(standup: Standup): string {
-  const section = (label: string, items: string[]) =>
-    `${label}: ${items.length > 0 ? items.join('; ') : '—'}`;
+export function formatStandup(standup: Standup, i18n: I18n = EN_I18N): string {
+  const section = (key: string, items: string[]) =>
+    `${i18n.t(key as never)}: ${items.length > 0 ? items.join('; ') : i18n.t('agile.su.none')}`;
   return [
-    section('Yesterday', standup.done),
-    section('Today', standup.today),
-    section('Blocked', standup.blocked),
+    section('agile.su.yesterday', standup.done),
+    section('agile.su.today', standup.today),
+    section('agile.su.blocked', standup.blocked),
   ].join('\n');
 }
 

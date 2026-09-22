@@ -5,6 +5,10 @@
  */
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
+import { createI18n, type I18n } from './i18n';
+
+/** Default English translator — keeps helpers usable without a provider. */
+const EN_I18N = createI18n('en');
 
 export interface EnergyEntry {
   id: string;
@@ -108,18 +112,21 @@ export function peakHours(
 }
 
 /** Scheduling advice from measured peaks (null until enough data). */
-export function energyAdvice(entries: EnergyEntry[], now: number = Date.now()): string | null {
+export function energyAdvice(
+  entries: EnergyEntry[],
+  now: number = Date.now(),
+  i18n: I18n = EN_I18N,
+): string | null {
   if (entries.length < MIN_SAMPLES_FOR_ADVICE) {
-    return 'Log energy a few times a day — peaks appear after ~5 check-ins.';
+    return i18n.t('life.e.needMore');
   }
   const peaks = peakHours(entries, now, 1);
-  if (peaks.length === 0) return 'Log energy at different hours to reveal your peak.';
+  if (peaks.length === 0) return i18n.t('life.e.spread');
   const h = peaks[0].hour;
   const label = `${h}:00`;
-  if (peaks[0].avg >= 7) return `Peak focus around ${label} — protect it for deep work.`;
-  if (peaks[0].avg <= 4)
-    return `Energy runs low (best ~${label}) — plan lighter tasks and more breaks.`;
-  return `Steadiest around ${label} — schedule demanding work there.`;
+  if (peaks[0].avg >= 7) return i18n.t('life.e.high', { label });
+  if (peaks[0].avg <= 4) return i18n.t('life.e.low', { label });
+  return i18n.t('life.e.steady', { label });
 }
 
 export function formatHour(hour: number): string {
@@ -146,6 +153,7 @@ export function predictPeak(
 export function breakAdvice(
   history: Array<{ at: number; min: number }>,
   now: number = Date.now(),
+  i18n: I18n = EN_I18N,
 ): string | null {
   if (!Number.isFinite(now)) return null;
   const windowStart = now - 2 * 60 * 60 * 1000;
@@ -165,7 +173,7 @@ export function breakAdvice(
     }
   }
   if (rested) return null;
-  return `You've focused ${total}m in 2h with no real break — take 10 minutes off.`;
+  return i18n.t('life.e.pushed', { total: i18n.fmtNum(total) });
 }
 
 /** Mean level over the trailing window (null when no check-ins). */
@@ -189,6 +197,7 @@ export function energyMean(
 export function restAdvice(
   history: Array<{ at: number; min: number }>,
   now: number = Date.now(),
+  i18n: I18n = EN_I18N,
 ): string | null {
   const dayHas = (offset: number): boolean => {
     const d = new Date(now - offset * 24 * 60 * 60 * 1000);
@@ -205,13 +214,13 @@ export function restAdvice(
   let active = 0;
   while (dayHas(active) && active < 30) active += 1;
   if (active >= 6) {
-    return `${active} active days in a row — schedule a real day off before the streak schedules you.`;
+    return i18n.t('life.e.streak', { n: i18n.fmtNum(active) });
   }
   if (active === 0) {
     let idle = 0;
     while (!dayHas(idle + 1) && idle < 30) idle += 1;
     if (idle >= 3 && history.length > 0) {
-      return 'Three quiet days — a single 25-minute round restarts the engine.';
+      return i18n.t('life.e.quiet');
     }
   }
   return null;

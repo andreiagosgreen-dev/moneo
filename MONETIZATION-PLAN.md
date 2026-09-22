@@ -193,7 +193,7 @@
 **Pricing:**
 
 - **Free Tier:** Pomodoro timer + 3 projects + basic stats
-- **Pro Tier ($9/month):** All features + unlimited projects + AI + reports + calendar
+- **Pro Tier ($5.99/month):** All features + unlimited projects + AI + reports + calendar
 - **Teams Tier ($29/month):** (Later - Phase 4)
 
 **Marketing Channels:**
@@ -245,8 +245,8 @@
 - **Signups:** 500 (10% conversion)
 - **Free users:** 450
 - **Pro users:** 50 (10% conversion to Pro)
-- **Revenue:** 50 × $9 = $450/month
-- **Annualized:** $5,400/year
+- **Revenue:** 50 × $5.99 = $299.50/month
+- **Annualized:** $3,594/year
 
 ### **Month 2-3**
 
@@ -254,8 +254,8 @@
 - **Signups:** 1,000
 - **Free users:** 900
 - **Pro users:** 100
-- **Revenue:** 100 × $9 = $900/month
-- **Annualized:** $10,800/year
+- **Revenue:** 100 × $5.99 = $599/month
+- **Annualized:** $7,188/year
 
 ### **Month 4-6**
 
@@ -263,8 +263,8 @@
 - **Signups:** 2,000
 - **Free users:** 1,800
 - **Pro users:** 200
-- **Revenue:** 200 × $9 = $1,800/month
-- **Annualized:** $21,600/year
+- **Revenue:** 200 × $5.99 = $1,198/month
+- **Annualized:** $14,376/year
 
 ---
 
@@ -322,13 +322,13 @@
 ### **Price Anchoring**
 
 - Free: $0 (Timer + 3 projects)
-- Pro: $9/month (All features)
+- Pro: $5.99/month (All features)
 - Teams: $29/month (Coming soon)
 
 ### **Psychological Pricing**
 
-- $9 is "single digit" perception
-- Annual discount: $90/year ($7.50/month)
+- $5.99 is "single digit" perception
+- Annual discount: $59.99/year ($5.00/month)
 - Monthly flexibility: Pay as you go
 
 ### **Value Proposition**
@@ -363,21 +363,21 @@
 
 - 500 signups
 - 50 Pro users
-- $450/month revenue
+- $299.50/month revenue
 - Positive launch feedback
 
 ### **Month 3 Success**
 
 - 1,000 signups
 - 100 Pro users
-- $900/month revenue
+- $599/month revenue
 - 10% MoM growth
 
 ### **Month 6 Success**
 
 - 2,000 signups
 - 200 Pro users
-- $1,800/month revenue
+- $1,198/month revenue
 - Sustainable growth
 
 ---
@@ -468,9 +468,9 @@
 
 **Target Revenue:**
 
-- Month 1: $450/month
-- Month 3: $900/month
-- Month 6: $1,800/month
+- Month 1: $299.50/month
+- Month 3: $599/month
+- Month 6: $1,198/month
 
 **Key Insight:**
 Don't build the full 18-month vision before monetizing. Build the top 7 monetizable features first, launch, start making money, then build the rest.

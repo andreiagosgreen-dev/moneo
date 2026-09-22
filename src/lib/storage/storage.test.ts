@@ -34,6 +34,7 @@ describe('centralized storage keys', () => {
       ivyPlans: 'moneo:ivy-plans',
       timeBlocks: 'moneo:time-blocks',
       theme: 'moneo:ui-theme',
+      atmosphere: 'moneo:atmosphere',
       onboardingSeen: 'moneo:onboarding-seen',
       skills: 'moneo:skills',
       deadlineReminders: 'moneo:deadline-reminders',
@@ -57,6 +58,7 @@ describe('centralized storage keys', () => {
       locale: 'moneo:locale',
       estimateProfiles: 'moneo:estimate-profiles',
       aiConsent: 'moneo:ai-consent',
+      advancedPlanning: 'moneo:advanced-planning',
     });
   });
 });

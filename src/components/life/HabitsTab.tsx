@@ -15,6 +15,20 @@ import {
 } from '../../lib/habits';
 import { localDayKey } from '../../lib/projects';
 import type { LifeCardProps } from './types';
+import { useI18n } from '../../lib/i18n/LocaleContext';
+import type { TKey } from '../../lib/i18n/types';
+
+/** Template name → translation key (created habits carry the shown name). */
+const TEMPLATE_KEYS: Record<string, TKey> = {
+  'Morning pages': 'life.tpl.habit.pages',
+  'Exercise 20 min': 'life.tpl.habit.exercise',
+  'Read 10 pages': 'life.tpl.habit.read',
+  'Meditate 10 min': 'life.tpl.habit.meditate',
+  'Inbox zero': 'life.tpl.habit.inbox',
+  'Strength training': 'life.tpl.habit.strength',
+  'Weekly review': 'life.tpl.habit.review',
+  'Call family': 'life.tpl.habit.family',
+};
 
 export default function HabitsTab({
   habits,
@@ -26,6 +40,7 @@ export default function HabitsTab({
   const [draft, setDraft] = useState('');
   const [freq, setFreq] = useState<HabitFrequency>('daily');
   const [showTemplates, setShowTemplates] = useState(false);
+  const { t, fmtNum } = useI18n();
   const now = Date.now();
   const todayKey = localDayKey(now);
   const active = useMemo(() => activeHabits(habits), [habits]);
@@ -46,9 +61,9 @@ export default function HabitsTab({
     <div>
       {active.length === 0 ? (
         <p className="rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">
-          Small daily wins compound.
+          {t('life.hab.emptyA')}
           <br />
-          Start from a template below.
+          {t('life.hab.emptyB')}
         </p>
       ) : (
         <ul className="space-y-1.5">
@@ -72,7 +87,7 @@ export default function HabitsTab({
                         ? 'bg-accent text-on-accent ring-accent'
                         : 'bg-ink/60 text-transparent ring-line hover:text-sage'
                     }`}
-                    aria-label={doneToday ? `Unmark ${h.name}` : `Complete ${h.name} today`}
+                    aria-label={t(doneToday ? 'life.hab.undo' : 'life.hab.do', { name: h.name })}
                     aria-pressed={doneToday}
                   >
                     <svg
@@ -95,9 +110,11 @@ export default function HabitsTab({
                       {h.name}
                     </span>
                     <span className="ml-2 font-mono text-[10px] text-faint">
-                      {h.frequency === 'weekly' ? `${h.targetPerWeek}x/week` : 'daily'}
-                      {stackName ? ` · after ${stackName}` : ''}
-                      {!due && !doneToday ? ' · done for now' : ''}
+                      {h.frequency === 'weekly'
+                        ? t('life.hab.perWeek', { n: fmtNum(h.targetPerWeek) })
+                        : t('life.hab.daily')}
+                      {stackName ? ` · ${t('life.hab.after', { name: stackName })}` : ''}
+                      {!due && !doneToday ? ` · ${t('life.hab.paused')}` : ''}
                     </span>
                   </div>
                   {h.frequency === 'weekly' && (
@@ -109,8 +126,8 @@ export default function HabitsTab({
                         )
                       }
                       className="h-6 shrink-0 rounded bg-ink/60 px-1 font-mono text-[10px] text-faint ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                      title="Weekly target"
-                      aria-label={`Weekly target for ${h.name}`}
+                      title={t('life.hab.target')}
+                      aria-label={t('life.hab.targetAria', { name: h.name })}
                     >
                       {[1, 2, 3, 4, 5, 6, 7].map((n) => (
                         <option key={n} value={n}>
@@ -120,28 +137,28 @@ export default function HabitsTab({
                     </select>
                   )}
                   {isPro && streak > 1 && (
-                    <span className="shrink-0 font-mono text-[11px] text-sage" title="Streak">
-                      🔥{streak}
+                    <span className="shrink-0 font-mono text-[11px] text-sage" title={t('life.hab.streak')}>
+                      🔥{fmtNum(streak)}
                     </span>
                   )}
                   {isPro && rate !== null && (
                     <span
                       className="shrink-0 font-mono text-[10px] text-faint"
-                      title="30-day success rate"
+                      title={t('life.hab.rate')}
                     >
                       {Math.round(rate * 100)}%
                     </span>
                   )}
                   <button
                     onClick={() => {
-                      if (confirm(`Delete habit “${h.name}”? Its log goes too.`)) {
+                      if (confirm(t('life.hab.confirm', { name: h.name }))) {
                         const { habits: nextH, log: nextL } = deleteHabit(habits, habitLog, h.id);
                         habitsChange(nextH);
                         commitLog(nextL);
                       }
                     }}
                     className="press shrink-0 rounded p-1 text-faint hover:text-tomato"
-                    aria-label={`Delete ${h.name}`}
+                    aria-label={t('life.hab.del', { name: h.name })}
                   >
                     ✕
                   </button>
@@ -161,23 +178,24 @@ export default function HabitsTab({
               maxLength={80}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && draft.trim() && add(draft, freq)}
-              placeholder="e.g. Read 10 pages…"
+              placeholder={t('life.hab.ph')}
+              aria-label={t('life.hab.add')}
               className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
             />
             <select
               value={freq}
               onChange={(e) => setFreq(e.target.value as HabitFrequency)}
               className="h-9 shrink-0 rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              aria-label="Frequency"
+              aria-label={t('life.hab.freq')}
             >
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
+              <option value="daily">{t('life.hab.dailyOpt')}</option>
+              <option value="weekly">{t('life.hab.weeklyOpt')}</option>
             </select>
             <button
               onClick={() => draft.trim() && add(draft, freq)}
               disabled={!draft.trim()}
               className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
-              aria-label="Add habit"
+              aria-label={t('life.hab.add')}
             >
               +
             </button>
@@ -186,17 +204,17 @@ export default function HabitsTab({
             onClick={() => setShowTemplates(!showTemplates)}
             className="press mt-2 font-mono text-[11px] text-sage hover:text-cream"
           >
-            {showTemplates ? '▴ Hide templates' : '▾ Start from a template'}
+            {t(showTemplates ? 'life.hab.hideTpl' : 'life.hab.showTpl')}
           </button>
           {showTemplates && (
             <div className="mt-2 flex flex-wrap gap-1.5">
-              {HABIT_TEMPLATES.map((t) => (
+              {HABIT_TEMPLATES.map((tpl) => (
                 <button
-                  key={t.name}
-                  onClick={() => add(t.name, t.frequency, t.targetPerWeek)}
+                  key={tpl.name}
+                  onClick={() => add(t(TEMPLATE_KEYS[tpl.name] ?? 'life.hab.add'), tpl.frequency, tpl.targetPerWeek)}
                   className="press rounded-full px-3 py-1.5 font-mono text-[11px] text-sage ring-1 ring-inset ring-line hover:text-cream hover:ring-accent/50"
                 >
-                  + {t.name}
+                  + {t(TEMPLATE_KEYS[tpl.name] ?? 'life.hab.add')}
                 </button>
               ))}
             </div>
@@ -206,11 +224,9 @@ export default function HabitsTab({
         !isPro && (
           <div className="mt-3 rounded-xl border border-accent/30 bg-accent/10 p-3.5">
             <p className="text-[12px] leading-relaxed text-cream">
-              Free plan tracks up to {FREE_HABITS_LIMIT} habits.
+              {t('life.hab.cap', { n: FREE_HABITS_LIMIT })}
             </p>
-            <p className="mt-1 font-mono text-[11px] text-faint">
-              Upgrade to Pro for unlimited habits, streaks and success analytics.
-            </p>
+            <p className="mt-1 font-mono text-[11px] text-faint">{t('life.hab.capBody')}</p>
           </div>
         )
       )}

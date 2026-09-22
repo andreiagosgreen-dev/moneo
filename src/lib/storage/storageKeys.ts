@@ -40,6 +40,8 @@ export const STORAGE_KEYS = {
   timeBlocks: 'moneo:time-blocks',
   /** Appearance preferences (Premium Polish, Week 10). */
   theme: 'moneo:ui-theme',
+  /** Focus atmosphere: hartie, sanctuar, clar, ritual. Local only. */
+  atmosphere: 'moneo:atmosphere',
   /** First-run onboarding dismissed flag (Premium Polish, Week 10). */
   onboardingSeen: 'moneo:onboarding-seen',
   /** Technical skills inventory (Roadmap Phase 1.2). */
@@ -86,6 +88,8 @@ export const STORAGE_KEYS = {
   estimateProfiles: 'moneo:estimate-profiles',
   /** AI standing consent for auto-prepare (Faza 6) — local only, never synced. */
   aiConsent: 'moneo:ai-consent',
+  /** Advanced planning visibility (Kanban/Sprints/Gantt/Waterfall) — local only. */
+  advancedPlanning: 'moneo:advanced-planning',
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

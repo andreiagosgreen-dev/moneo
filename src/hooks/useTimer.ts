@@ -19,6 +19,9 @@ import {
 } from '../lib/timerEngine';
 import { assembleSession } from '../lib/sessions';
 import { armRoundFocus, type FocusArea } from '../lib/focusAreas';
+import type { TKey, Vars } from '../lib/i18n/types';
+
+export type Translate = (key: TKey, vars?: Vars) => string;
 
 /**
  * Countdown engine + chrome (Roadmap Faza 1.2).
@@ -57,6 +60,8 @@ export interface UseTimerOptions {
   /** Receives a completed focus session for the caller to record. */
   onSession: (entry: Session) => void;
   initial: TimerInitial;
+  /** Locale-aware string lookup for browser notifications + announcements. */
+  t: Translate;
 }
 
 export function useTimer({
@@ -65,6 +70,7 @@ export function useTimer({
   getContext,
   onSession,
   initial,
+  t,
 }: UseTimerOptions) {
   const [mode, setMode] = useState<Mode>(initial.mode);
   const [total, setTotal] = useState(initial.total);
@@ -90,8 +96,10 @@ export function useTimer({
   const roundProjectIdRef = useRef<string | null>(initial.roundProjectId);
   const roundTaskIdRef = useRef<string | null>(initial.roundTaskId);
   const contextRef = useRef(getContext);
+  const tRef = useRef(t);
   modeRef.current = mode;
   settingsRef.current = settings;
+  tRef.current = t;
   cycleRef.current = cycle;
   totalRef.current = total;
   remainingRef.current = remaining;
@@ -167,13 +175,14 @@ export function useTimer({
 
     // Show browser notification if enabled
     if (s.notifications) {
-      const title = m === 'focus' ? 'Focus session complete' : 'Break over';
+      const tr = tRef.current;
+      const title = m === 'focus' ? tr('notif.done.focusT') : tr('notif.done.breakT');
       const body =
         m === 'focus'
           ? res.mode === 'long'
-            ? 'Long break time'
-            : 'Short break time'
-          : 'Ready to focus';
+            ? tr('notif.done.longB')
+            : tr('notif.done.shortB')
+          : tr('notif.done.readyB');
       showNotification(title, body);
     }
     setFlashKey((k) => k + 1);
@@ -189,11 +198,11 @@ export function useTimer({
     setAnnounce(
       m === 'focus'
         ? res.mode === 'long'
-          ? 'Focus session complete. Long break.'
-          : 'Focus session complete. Short break.'
+          ? `${tRef.current('notif.done.focusT')}. ${tRef.current('notif.done.longB')}.`
+          : `${tRef.current('notif.done.focusT')}. ${tRef.current('notif.done.shortB')}.`
         : s.autoStart
-          ? 'Break over. Focus started.'
-          : 'Break over. Ready to focus.',
+          ? `${tRef.current('notif.done.breakT')}. ${tRef.current('notif.done.startedB')}.`
+          : `${tRef.current('notif.done.breakT')}. ${tRef.current('notif.done.readyB')}.`,
     );
     gotoMode(res.mode, s.autoStart);
   };

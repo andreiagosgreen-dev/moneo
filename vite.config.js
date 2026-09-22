@@ -9,12 +9,13 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['*.svg', '*.png', '*.jpg', '*.jpeg'],
+      includeAssets: ['*.svg', '*.png', '*.jpg', '*.jpeg', '*.ico', 'brand/*.png'],
       manifest: {
         id: '/',
         name: 'Moneo - Focus Timer',
         short_name: 'Moneo',
-        description: 'A calm focus companion for intentional work, structured breaks, and consistent progress.',
+        description:
+          'A calm focus companion for intentional work, structured breaks, and consistent progress.',
         lang: 'en',
         start_url: '/',
         scope: '/',
@@ -91,6 +92,31 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          const norm = id.replace(/\\/g, '/');
+          if (
+            norm.includes('@lemonsqueezy/lemonsqueezy.js') ||
+            norm.includes('/src/lib/billing/')
+          ) {
+            return 'billing';
+          }
+          if (norm.includes('/src/lib/assistant.ts') || norm.includes('/src/lib/ai/')) {
+            return 'ai-assistant';
+          }
+          if (norm.includes('/src/components/CalendarCard.tsx')) {
+            return 'calendar';
+          }
+          if (norm.includes('node_modules')) {
+            return 'vendor';
+          }
+          return null;
+        },
+      },
+    },
+  },
   server: {
     host: '0.0.0.0',
     port: 3000,

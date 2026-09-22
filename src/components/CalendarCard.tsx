@@ -15,7 +15,7 @@ import {
   type Weekday,
 } from '../lib/timeBlocks';
 import { dayKeyInTz } from '../lib/timezone';
-import { fmtMinutes } from '../lib/store';
+import { useI18n } from '../lib/i18n/LocaleContext';
 
 interface Props {
   history: Session[];
@@ -30,15 +30,8 @@ const SCALE_START = 6 * 60; // 06:00
 const SCALE_END = 22 * 60; // 22:00
 const SCALE_TOTAL = SCALE_END - SCALE_START;
 
-const WEEKDAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const WEEKDAY_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-function fmtHM(min: number): string {
-  return `${String(Math.floor(min / 60) % 24).padStart(2, '0')}:${String(min % 60).padStart(
-    2,
-    '0',
-  )}`;
-}
+const WEEKDAY_FALLBACK_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const WEEKDAY_FALLBACK_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 function TrashIcon() {
   return (
@@ -67,6 +60,24 @@ export default function CalendarCard({
 }: Props) {
   const [adding, setAdding] = useState(false);
   const [view, setView] = useState<'week' | 'list'>('week');
+  const { t, tp, tag, fmtDur, fmtClock } = useI18n();
+
+  /** Locale weekday names (Jan 4 2026 was a Sunday). */
+  const weekdayName = (wd: number, style: 'short' | 'long'): string => {
+    try {
+      return new Intl.DateTimeFormat(tag, { weekday: style }).format(new Date(2026, 0, 4 + wd));
+    } catch {
+      return (style === 'short' ? WEEKDAY_FALLBACK_SHORT : WEEKDAY_FALLBACK_FULL)[wd] ?? '';
+    }
+  };
+  const fmtDayNum = (key: string): string => {
+    const [y, m, d] = key.split('-').map(Number);
+    try {
+      return new Date(y, m - 1, d).toLocaleDateString(tag, { day: 'numeric', month: 'numeric' });
+    } catch {
+      return key.split('-').slice(1).join('/');
+    }
+  };
 
   const [label, setLabel] = useState('');
   const [weekday, setWeekday] = useState<Weekday>(() =>
@@ -115,38 +126,40 @@ export default function CalendarCard({
   );
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label="Time blocking calendar">
+    <section className="card px-5 py-5 sm:px-6" aria-label={t('cal.aria')}>
       <header className="flex items-baseline justify-between gap-3">
         <div>
-          <h2 className="font-display text-xl font-bold tracking-tight text-cream">This week</h2>
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            {isPro ? 'Recurring windows · green % is adherence' : 'Time blocks · read-only in Free'}
+          <h2 className="font-display text-xl font-bold tracking-tight text-cream">
+            {t('cal.title')}
+          </h2>
+          <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.14em] text-faint">
+            {t(isPro ? 'cal.subPro' : 'cal.subFree')}
           </p>
         </div>
-        <span className="font-mono text-[11px] text-sage">{weekLabel(weekKeys)}</span>
+        <span className="text-[11px] tabular-nums text-sage">{weekLabel(weekKeys, tag)}</span>
       </header>
 
       {/* view toggle + conflict banner */}
       <div className="mt-3 flex items-center gap-2">
-        <div className="flex gap-1 rounded-xl bg-ink/60 p-1 ring-1 ring-line w-fit">
+        <div className="flex min-w-0 max-w-full flex-wrap gap-1 rounded-xl bg-ink/60 p-1 ring-1 ring-line">
           {(['week', 'list'] as const).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`press rounded-lg px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors ${
+              className={`press shrink-0 rounded-lg px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] transition-colors ${
                 view === v ? 'bg-cream/10 text-cream' : 'text-faint hover:text-sage'
               }`}
             >
-              {v === 'week' ? 'Week' : 'List'}
+              {t(v === 'week' ? 'cal.week' : 'cal.list')}
             </button>
           ))}
         </div>
         {conflicted.size > 0 && (
           <span
-            className="font-mono text-[10px] font-bold text-tomato"
-            title="Overlapping blocks share a weekday — shrink one to resolve"
+            className="text-[10px] font-bold text-tomato"
+            title={t('cal.overlapTitle')}
           >
-            ⚠ {conflicted.size} overlap{conflicted.size === 1 ? '' : 's'}
+            ⚠ {tp('cal.overlaps', conflicted.size)}
           </span>
         )}
       </div>
@@ -170,10 +183,10 @@ export default function CalendarCard({
                       isToday ? 'text-accent' : 'text-cream/80'
                     }`}
                   >
-                    {WEEKDAY_SHORT[wd]}
+                    {weekdayName(wd, 'short')}
                   </div>
                   <div className="font-mono text-[10px] text-faint">
-                    {key.split('-').slice(1).join('/')}
+                    {fmtDayNum(key)}
                   </div>
                   {ad.plannedMin > 0 && (
                     <div
@@ -186,7 +199,10 @@ export default function CalendarCard({
                               ? 'var(--color-sky)'
                               : 'var(--color-tomato)',
                       }}
-                      title={`${fmtMinutes(ad.actualMin)} of ${fmtMinutes(ad.plannedMin)} planned focused`}
+                      title={t('cal.adherence', {
+                        actual: fmtDur(ad.actualMin),
+                        planned: fmtDur(ad.plannedMin),
+                      })}
                     >
                       {ad.pct}%
                     </div>
@@ -217,7 +233,7 @@ export default function CalendarCard({
                           height: `${(Math.min(dur, 60) / SCALE_TOTAL) * 100}%`,
                           background: 'rgb(var(--accent-rgb) / 0.5)',
                         }}
-                        title={`${fmtMinutes(s.min)} focused`}
+                        title={t('cal.pip', { dur: fmtDur(s.min) })}
                       />
                     );
                   })}
@@ -235,23 +251,30 @@ export default function CalendarCard({
                           background: `${b.color}2e`,
                           border: `1px solid ${b.color}99`,
                         }}
-                        title={`${b.label} · ${fmtHM(b.startMin)}–${fmtHM(b.endMin)}${conflicted.has(b.id) ? ' · OVERLAPS another block' : ''}`}
+                        title={t('cal.blockTitle', {
+                          label: b.label,
+                          a: fmtClock(b.startMin),
+                          b: fmtClock(b.endMin),
+                          overlap: conflicted.has(b.id) ? t('cal.overlapSuffix') : '',
+                        })}
                       >
                         <div
                           className="truncate text-[10px] font-semibold leading-tight"
                           style={{ color: b.color }}
                         >
-                          {conflicted.has(b.id) && <span title="Overlaps another block">⚠ </span>}
+                          {conflicted.has(b.id) && (
+                            <span title={t('cal.overlapShort')}>⚠ </span>
+                          )}
                           {b.label}
                         </div>
                         <div className="font-mono text-[8px] leading-tight opacity-70">
-                          {fmtHM(b.startMin)}–{fmtHM(b.endMin)}
+                          {fmtClock(b.startMin)}–{fmtClock(b.endMin)}
                         </div>
                         {isPro && (
                           <button
                             onClick={() => commit(deleteBlock(blocks, b.id))}
                             className="press absolute right-0.5 top-0.5 rounded p-0.5 text-[10px] text-cream/40 hover:text-tomato"
-                            aria-label={`Delete block ${b.label}`}
+                            aria-label={t('cal.delBlock', { label: b.label })}
                           >
                             <TrashIcon />
                           </button>
@@ -262,7 +285,7 @@ export default function CalendarCard({
 
                   {!anyBlocks && (
                     <p className="absolute inset-0 flex items-center justify-center px-2 text-center font-mono text-[10px] text-faint">
-                      {isPro ? 'Add a block to plan focus' : 'No blocks yet'}
+                      {t(isPro ? 'cal.emptyPro' : 'cal.emptyFree')}
                     </p>
                   )}
                 </div>
@@ -278,32 +301,41 @@ export default function CalendarCard({
             const daySessions = history.filter((s) => dayKeyInTz(s.at, timezone) === key);
             const dayBlocks = blocksForWeekday(blocks, wd as Weekday);
             const [y, m, d] = key.split('-').map(Number);
-            const label = new Date(y, m - 1, d).toLocaleDateString([], {
-              weekday: 'short',
-              month: 'short',
-              day: 'numeric',
-            });
+            const label = (() => {
+              try {
+                return new Date(y, m - 1, d).toLocaleDateString(tag, {
+                  weekday: 'short',
+                  month: 'short',
+                  day: 'numeric',
+                });
+              } catch {
+                return key;
+              }
+            })();
             return (
               <li
                 key={key}
-                className="rounded-xl bg-ink/40 px-3.5 py-2.5 ring-1 ring-inset ring-line"
+                className="rounded-xl bg-ink/40 px-3 py-2 ring-1 ring-inset ring-line"
               >
-                <div className="flex items-baseline justify-between gap-2">
+                <div className="flex items-baseline justify-between gap-3">
                   <span className="text-[13px] font-semibold text-cream">
                     {label}
                     {key === todayKey && (
-                      <span className="ml-2 rounded-full bg-accent/20 px-2 py-0.5 font-mono text-[9px] font-bold uppercase text-accent">
-                        Today
+                      <span className="ml-2 rounded-full bg-accent/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-accent">
+                        {t('cal.today')}
                       </span>
                     )}
                   </span>
-                  <span className="shrink-0 font-mono text-[11px] text-sage">
+                  <span className="shrink-0 text-[11px] tabular-nums text-sage">
                     {dayBlocks.length > 0 ? (
                       <>
-                        {dayBlocks.length} block{dayBlocks.length === 1 ? '' : 's'}
+                        {tp('cal.blocks', dayBlocks.length)}
                         {ad.plannedMin > 0 && (
                           <span className="ml-1.5 text-faint">
-                            {ad.pct}% · {daySessions.length} sessions
+                            {t('cal.dayMeta', {
+                              pct: ad.pct,
+                              sessions: tp('cal.sessions', daySessions.length),
+                            })}
                           </span>
                         )}
                       </>
@@ -321,15 +353,17 @@ export default function CalendarCard({
                           style={{ backgroundColor: b.color }}
                         />
                         <span className="font-mono text-[11px] text-faint">
-                          {fmtHM(b.startMin)}–{fmtHM(b.endMin)}
+                          {fmtClock(b.startMin)}–{fmtClock(b.endMin)}
                         </span>
                         <span className="min-w-0 flex-1 truncate text-cream/90">
-                          {conflicted.has(b.id) && <span title="Overlaps another block">⚠ </span>}
+                          {conflicted.has(b.id) && (
+                            <span title={t('cal.overlapShort')}>⚠ </span>
+                          )}
                           {b.label}
                         </span>
                         {b.projectId && (
                           <span className="shrink-0 font-mono text-[10px] text-faint">
-                            {projects.find((p) => p.id === b.projectId)?.name ?? 'Deleted'}
+                            {projects.find((p) => p.id === b.projectId)?.name ?? t('cal.deleted')}
                           </span>
                         )}
                       </li>
@@ -348,8 +382,7 @@ export default function CalendarCard({
           <>
             {draftOverlap && (
               <p className="mt-3 rounded-lg bg-tomato/10 px-3 py-2 font-mono text-[11px] text-tomato ring-1 ring-inset ring-tomato/30">
-                ⚠ Overlaps an existing block on {WEEKDAY_FULL[weekday]} — saving anyway will flag
-                both.
+                {t('cal.overlapWarn', { day: weekdayName(weekday, 'long') })}
               </p>
             )}
             <AddBlockForm
@@ -366,6 +399,7 @@ export default function CalendarCard({
               projectId={projectId}
               setProjectId={setProjectId}
               projects={projects}
+              dayNames={[0, 1, 2, 3, 4, 5, 6].map((wd) => weekdayName(wd, 'long'))}
               onCancel={() => setAdding(false)}
               onSave={add}
             />
@@ -375,18 +409,13 @@ export default function CalendarCard({
             onClick={() => setAdding(true)}
             className="press btn-ghost mt-4 w-full rounded-lg py-2 font-mono text-[12px] font-semibold"
           >
-            + Add time block
+            {t('cal.add')}
           </button>
         )
       ) : (
         <div className="mt-4 rounded-xl border border-accent/30 bg-accent/10 p-3.5">
-          <div className="text-[13px] font-semibold text-cream">
-            Plan your week with time blocks
-          </div>
-          <p className="mt-1 text-[11px] leading-relaxed text-sage">
-            Recurring focus windows, adherence scores, and project-linked schedules are part of
-            Moneo Pro.
-          </p>
+          <div className="text-[13px] font-semibold text-cream">{t('cal.upTitle')}</div>
+          <p className="mt-1 text-[11px] leading-relaxed text-sage">{t('cal.upBody')}</p>
         </div>
       )}
     </section>
@@ -395,13 +424,18 @@ export default function CalendarCard({
 
 const hourLines = Array.from({ length: SCALE_TOTAL / 60 + 1 }, (_, i) => SCALE_START + i * 60);
 
-function weekLabel(keys: string[]): string {
+function weekLabel(keys: string[], tag: string): string {
   if (keys.length < 7) return '';
   const [y, m, d] = keys[0].split('-').map(Number);
   const [ey, em, ed] = keys[6].split('-').map(Number);
-  const a = new Date(y, m - 1, d).toLocaleDateString([], { month: 'short', day: 'numeric' });
-  const b = new Date(ey, em - 1, ed).toLocaleDateString([], { month: 'short', day: 'numeric' });
-  return `${a} – ${b}`;
+  const opts = { month: 'short', day: 'numeric' } as const;
+  try {
+    const a = new Date(y, m - 1, d).toLocaleDateString(tag, opts);
+    const b = new Date(ey, em - 1, ed).toLocaleDateString(tag, opts);
+    return `${a} – ${b}`;
+  } catch {
+    return `${m}/${d} – ${em}/${ed}`;
+  }
 }
 
 function AddBlockForm({
@@ -418,6 +452,7 @@ function AddBlockForm({
   projectId,
   setProjectId,
   projects,
+  dayNames,
   onCancel,
   onSave,
 }: {
@@ -434,9 +469,11 @@ function AddBlockForm({
   projectId: string;
   setProjectId: (v: string) => void;
   projects: Project[];
+  dayNames: string[];
   onCancel: () => void;
   onSave: () => void;
 }) {
+  const { t, fmtClock } = useI18n();
   const minutes = () => {
     const out: number[] = [];
     for (let h = 5; h < 24; h++) {
@@ -453,19 +490,22 @@ function AddBlockForm({
         maxLength={40}
         onChange={(e) => setLabel(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && onSave()}
-        placeholder="e.g. Deep work, Client calls…"
+        placeholder={t('cal.ph')}
+        aria-label={t('cal.nameAria')}
         className="w-full rounded-lg bg-ink/40 px-3 py-2 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
         autoFocus
       />
       <div className="grid grid-cols-2 gap-2">
         <label className="flex flex-col gap-1">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-faint">Day</span>
+          <span className="font-mono text-[10px] uppercase tracking-wider text-faint">
+            {t('cal.day')}
+          </span>
           <select
             value={weekday}
             onChange={(e) => setWeekday(Number(e.target.value) as Weekday)}
             className="rounded-lg bg-ink/40 px-2 py-1.5 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
           >
-            {WEEKDAY_FULL.map((d, i) => (
+            {dayNames.map((d, i) => (
               <option key={d} value={i}>
                 {d}
               </option>
@@ -473,13 +513,15 @@ function AddBlockForm({
           </select>
         </label>
         <label className="flex flex-col gap-1">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-faint">Project</span>
+          <span className="font-mono text-[10px] uppercase tracking-wider text-faint">
+            {t('cal.project')}
+          </span>
           <select
             value={projectId}
             onChange={(e) => setProjectId(e.target.value)}
             className="rounded-lg bg-ink/40 px-2 py-1.5 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
           >
-            <option value="">None</option>
+            <option value="">{t('cal.none')}</option>
             {projects.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}
@@ -490,7 +532,9 @@ function AddBlockForm({
       </div>
       <div className="grid grid-cols-2 gap-2">
         <label className="flex flex-col gap-1">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-faint">Start</span>
+          <span className="font-mono text-[10px] uppercase tracking-wider text-faint">
+            {t('cal.start')}
+          </span>
           <select
             value={startMin}
             onChange={(e) => setStartMin(Number(e.target.value))}
@@ -498,13 +542,15 @@ function AddBlockForm({
           >
             {minutes().map((m) => (
               <option key={m} value={m}>
-                {fmtHM(m)}
+                {fmtClock(m)}
               </option>
             ))}
           </select>
         </label>
         <label className="flex flex-col gap-1">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-faint">End</span>
+          <span className="font-mono text-[10px] uppercase tracking-wider text-faint">
+            {t('cal.end')}
+          </span>
           <select
             value={Math.max(endMin, startMin + 30)}
             onChange={(e) => setEndMin(Number(e.target.value))}
@@ -514,7 +560,7 @@ function AddBlockForm({
               .filter((m) => m > startMin)
               .map((m) => (
                 <option key={m} value={m}>
-                  {fmtHM(m)}
+                  {fmtClock(m)}
                 </option>
               ))}
           </select>
@@ -529,7 +575,7 @@ function AddBlockForm({
               color === c ? 'ring-cream/70 scale-110' : 'ring-transparent'
             }`}
             style={{ background: c }}
-            aria-label={`Color ${c}`}
+            aria-label={t('cal.colorAria', { c })}
           />
         ))}
       </div>
@@ -538,14 +584,14 @@ function AddBlockForm({
           onClick={onCancel}
           className="press btn-ghost rounded-lg px-3 py-1.5 font-mono text-[12px]"
         >
-          Cancel
+          {t('cal.cancel')}
         </button>
         <button
           onClick={onSave}
           disabled={!label.trim()}
           className="press btn-accent rounded-lg px-4 py-1.5 font-display text-[13px] font-bold disabled:opacity-40"
         >
-          Save block
+          {t('cal.save')}
         </button>
       </div>
     </div>

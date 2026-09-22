@@ -22,6 +22,14 @@ export const GROWTH_STAGES: GrowthStageDef[] = [
   { name: 'Bloom', min: 600 },
 ];
 
+/** Translation keys for stage names, in stage order (UI renders via t()). */
+export const GROWTH_STAGE_KEYS: string[] = [
+  'growth.stage.seed',
+  'growth.stage.sprout',
+  'growth.stage.leaf',
+  'growth.stage.bloom',
+];
+
 export function getTotalFocusedMinutes(history: Session[]): number {
   return history.reduce((sum, s) => sum + Math.max(0, s.min), 0);
 }

@@ -1,11 +1,19 @@
 import { useMemo, useState } from 'react';
-import { balanceReport, burnoutGauge, resetLifeAreas, updateLifeArea } from '../../lib/lifeAreas';
+import {
+  AREA_LABEL_KEYS,
+  balanceReport,
+  burnoutGauge,
+  resetLifeAreas,
+  updateLifeArea,
+} from '../../lib/lifeAreas';
 import { moodAverage } from '../../lib/journal';
 import { energyMean, restAdvice } from '../../lib/energy';
 import { frogStats } from '../../lib/frog';
 import { activeAreas } from '../../lib/focusAreas';
 import { toggleTimeOff } from '../../lib/journal';
 import type { LifeCardProps } from './types';
+import { useI18n } from '../../lib/i18n/LocaleContext';
+import type { TKey } from '../../lib/i18n/types';
 
 export default function BalanceTab({
   lifeAreas,
@@ -22,29 +30,40 @@ export default function BalanceTab({
 }: LifeCardProps) {
   const [linkingId, setLinkingId] = useState<string | null>(null);
   const [offDate, setOffDate] = useState('');
+  const i18n = useI18n();
+  const { t, fmtNum } = i18n;
   const live = useMemo(() => activeAreas(focusAreas), [focusAreas]);
   const report = useMemo(
-    () => balanceReport(lifeAreas, history, Date.now(), 7),
-    [lifeAreas, history],
+    () => balanceReport(lifeAreas, history, Date.now(), 7, i18n),
+    [lifeAreas, history, i18n],
   );
   const burnout = useMemo(() => {
     const stats = frogStats(frogLog);
-    return burnoutGauge({
-      overtime: report.overtime,
-      mood: moodAverage(journal),
-      energy: energyMean(energyLog),
-      frogSkipRate: stats.days >= 3 ? stats.skipped / stats.days : null,
-    });
-  }, [report.overtime, journal, energyLog, frogLog]);
-  const rest = useMemo(() => restAdvice(history), [history]);
+    return burnoutGauge(
+      {
+        overtime: report.overtime,
+        mood: moodAverage(journal),
+        energy: energyMean(energyLog),
+        frogSkipRate: stats.days >= 3 ? stats.skipped / stats.days : null,
+      },
+      i18n,
+    );
+  }, [report.overtime, journal, energyLog, frogLog, i18n]);
+  const rest = useMemo(() => restAdvice(history, Date.now(), i18n), [history, i18n]);
+  const levelLabel =
+    burnout.level === 'high'
+      ? t('life.bo.high')
+      : burnout.level === 'guarded'
+        ? t('life.bo.guarded')
+        : t('life.bo.low');
 
   return (
     <div>
       <div className="flex items-baseline gap-3">
         <span className="font-display text-4xl font-extrabold" style={{ color: 'var(--accent)' }}>
-          {report.score}
+          {fmtNum(report.score)}
         </span>
-        <span className="text-[12px] text-sage">balance score · trailing 7 days</span>
+        <span className="text-[12px] text-sage">{t('life.bal.score')}</span>
       </div>
       <p className="mt-1.5 text-[13px] leading-relaxed text-cream/90">{report.advice}</p>
       {rest && (
@@ -61,18 +80,20 @@ export default function BalanceTab({
                 ? 'bg-accent/10 text-cream ring-accent/30'
                 : 'bg-ink/40 text-sage ring-line'
           }`}
-          title={burnout.reasons.join(' · ') || 'No warning signals'}
+          title={burnout.reasons.join(' · ') || t('life.bo.noWarn')}
         >
           {burnout.level === 'low'
-            ? '✅ Burnout check: all clear.'
-            : `⚠ Burnout: ${burnout.level} — ${burnout.reasons.join(' · ')}`}
+            ? t('life.bal.clear')
+            : t('life.bal.burnout', { level: levelLabel, reasons: burnout.reasons.join(' · ') })}
         </p>
       )}
 
       <ul className="mt-3 space-y-2">
         {report.areas.map((a) => {
-          const linkedIds = lifeAreas.find((x) => x.id === a.id)?.linkedAreaIds ?? [];
+          const source = lifeAreas.find((x) => x.id === a.id);
+          const linkedIds = source?.linkedAreaIds ?? [];
           const areaGoals = goals.filter((g) => !g.archived && g.lifeAreaId === a.id);
+          const areaLabel = source ? t(AREA_LABEL_KEYS[source.key] as TKey) : a.label;
           return (
             <li
               key={a.id}
@@ -84,7 +105,7 @@ export default function BalanceTab({
                     className="h-2.5 w-2.5 shrink-0 rounded-full"
                     style={{ backgroundColor: a.color }}
                   />
-                  <span className="truncate">{a.label}</span>
+                  <span className="truncate">{areaLabel}</span>
                 </span>
                 <span className="shrink-0 font-mono text-[11px] text-sage">
                   {Math.round(a.actualPct)}% <span className="text-faint">/ {a.targetPct}%</span>
@@ -102,7 +123,7 @@ export default function BalanceTab({
               {areaGoals.length > 0 && (
                 <p
                   className="mt-1.5 font-mono text-[10px] text-sage"
-                  title="Goals in this life area"
+                  title={t('life.bal.goalsTitle')}
                 >
                   🎯 {areaGoals.map((g) => g.title).join(' · ')}
                 </p>
@@ -111,9 +132,9 @@ export default function BalanceTab({
                 <div className="mt-2 border-t border-line/60 pt-2">
                   {linkedIds.length > 0 && (
                     <p className="font-mono text-[10px] text-faint">
-                      Linked:{' '}
+                      {t('life.bal.linked')}{' '}
                       {linkedIds
-                        .map((id: string) => live.find((f) => f.id === id)?.name ?? 'Deleted')
+                        .map((id: string) => live.find((f) => f.id === id)?.name ?? t('life.bal.deleted'))
                         .join(', ')}
                     </p>
                   )}
@@ -147,7 +168,7 @@ export default function BalanceTab({
                         onClick={() => setLinkingId(null)}
                         className="press font-mono text-[10px] text-faint hover:text-cream"
                       >
-                        Done
+                        {t('life.bal.done')}
                       </button>
                     </div>
                   ) : (
@@ -155,12 +176,12 @@ export default function BalanceTab({
                       onClick={() => setLinkingId(a.id)}
                       className="press mt-1 font-mono text-[10px] text-sage hover:text-cream"
                     >
-                      Link focus areas…
+                      {t('life.bal.link')}
                     </button>
                   )}
                   {isPro && (
                     <div className="mt-2 flex items-center gap-2">
-                      <span className="font-mono text-[10px] text-faint">Target</span>
+                      <span className="font-mono text-[10px] text-faint">{t('life.bal.target')}</span>
                       <input
                         type="range"
                         min={0}
@@ -173,7 +194,7 @@ export default function BalanceTab({
                           )
                         }
                         className="h-1.5 flex-1 accent-[var(--accent)]"
-                        aria-label={`${a.label} target percent`}
+                        aria-label={t('life.bal.targetAria', { label: areaLabel })}
                       />
                       <span className="font-mono text-[10px] text-sage">{a.targetPct}%</span>
                     </div>
@@ -185,7 +206,7 @@ export default function BalanceTab({
                   onClick={() => setLinkingId(a.id)}
                   className="press mt-1.5 font-mono text-[10px] text-sage hover:text-cream"
                 >
-                  Link focus areas…
+                  {t('life.bal.link')}
                 </button>
               )}
             </li>
@@ -194,23 +215,23 @@ export default function BalanceTab({
       </ul>
       {report.unassignedMin > 0 && (
         <p className="mt-2 font-mono text-[11px] text-faint">
-          {report.unassignedMin}m unassigned (sessions outside linked areas).
+          {t('life.bal.unassigned', { n: fmtNum(report.unassignedMin) })}
         </p>
       )}
       <div className="mt-2 flex items-center justify-between">
-        {!isPro && <p className="font-mono text-[11px] text-faint">Pro unlocks custom targets.</p>}
+        {!isPro && <p className="font-mono text-[11px] text-faint">{t('life.bal.proTargets')}</p>}
         <button
           onClick={() => {
-            if (confirm('Reset life areas to defaults?')) lifeAreasChange(resetLifeAreas());
+            if (confirm(t('life.bal.resetConfirm'))) lifeAreasChange(resetLifeAreas());
           }}
           className="press ml-auto font-mono text-[11px] text-faint hover:text-cream"
         >
-          Reset defaults
+          {t('life.bal.reset')}
         </button>
       </div>
       <div className="mt-3 border-t border-line/60 pt-3">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-          Days off · {timeOff.length}
+          {t('life.bal.daysOff', { n: fmtNum(timeOff.length) })}
         </p>
         <div className="mt-2 flex items-center gap-2">
           <input
@@ -218,7 +239,7 @@ export default function BalanceTab({
             value={offDate}
             onChange={(e) => setOffDate(e.target.value)}
             className="h-8 rounded-lg bg-ink/40 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-            aria-label="Day off"
+            aria-label={t('life.bal.dayOff')}
           />
           <button
             onClick={() => {
@@ -230,7 +251,7 @@ export default function BalanceTab({
             disabled={!offDate}
             className="press h-8 shrink-0 rounded-lg px-3 text-[12px] text-sage ring-1 ring-inset ring-line hover:text-cream disabled:opacity-40"
           >
-            Add
+            {t('life.bal.add')}
           </button>
         </div>
         {timeOff.length > 0 && (
@@ -244,7 +265,7 @@ export default function BalanceTab({
                 <button
                   onClick={() => timeOffChange(toggleTimeOff(timeOff, day))}
                   className="press text-faint hover:text-tomato"
-                  aria-label={`Remove ${day}`}
+                  aria-label={t('life.bal.remove', { day })}
                 >
                   ✕
                 </button>

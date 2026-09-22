@@ -5,31 +5,36 @@ import HabitsTab from './life/HabitsTab';
 import BalanceTab from './life/BalanceTab';
 import JournalTab from './life/JournalTab';
 import EnergyTab from './life/EnergyTab';
+import { useI18n } from '../lib/i18n/LocaleContext';
+import type { TKey } from '../lib/i18n/types';
 
 export default function LifeCard(props: LifeCardProps) {
+  const { t } = useI18n();
   const [tab, setTab] = useState<LifeTab>('habits');
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label="Life management">
+    <section className="card min-w-0 px-5 py-5 sm:px-6" aria-label={t('life.aria')}>
       <header className="flex items-baseline justify-between gap-3">
-        <div>
-          <h2 className="font-display text-xl font-bold tracking-tight text-cream">Life</h2>
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            Habits, balance, journal and energy · small daily wins
+        <div className="min-w-0">
+          <h2 className="font-display text-xl font-bold tracking-tight text-cream">
+            {t('life.title')}
+          </h2>
+          <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.14em] text-faint">
+            {t('life.sub')}
           </p>
         </div>
       </header>
 
-      <div className="mt-4 flex gap-1 rounded-xl bg-ink/60 p-1 ring-1 ring-line w-fit">
-        {LIFE_TABS.map((t) => (
+      <div className="mt-3 flex min-w-0 max-w-full flex-wrap gap-1 rounded-xl bg-ink/60 p-1 ring-1 ring-line">
+        {LIFE_TABS.map((tb) => (
           <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`press rounded-lg px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors ${
-              tab === t.id ? 'bg-cream/10 text-cream' : 'text-faint hover:text-sage'
+            key={tb.id}
+            onClick={() => setTab(tb.id)}
+            className={`press shrink-0 rounded-lg px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] transition-colors ${
+              tab === tb.id ? 'bg-cream/10 text-cream' : 'text-faint hover:text-sage'
             }`}
           >
-            {t.label}
+            {t(tb.label as TKey)}
           </button>
         ))}
       </div>

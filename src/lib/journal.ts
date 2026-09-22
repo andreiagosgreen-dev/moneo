@@ -5,6 +5,10 @@
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
 import { localDayKey } from './projects';
+import { createI18n, type I18n } from './i18n';
+
+/** Default English translator — keeps helpers usable without a provider. */
+const EN_I18N = createI18n('en');
 
 export type Mood = 1 | 2 | 3 | 4 | 5;
 
@@ -14,6 +18,15 @@ export const MOOD_LABELS: Record<Mood, string> = {
   3: 'Okay',
   4: 'Good',
   5: 'Great',
+};
+
+/** Translation keys mirroring MOOD_LABELS (UI renders via t()). */
+export const MOOD_KEYS: Record<Mood, string> = {
+  1: 'life.mood.1',
+  2: 'life.mood.2',
+  3: 'life.mood.3',
+  4: 'life.mood.4',
+  5: 'life.mood.5',
 };
 
 export const JOURNAL_PROMPTS: string[] = [
@@ -32,6 +45,19 @@ export const WEEKLY_REFLECTION_PROMPTS: string[] = [
   'What will you do differently next week?',
 ];
 
+/** Translation keys mirroring the prompt lists, in the same order. */
+export const JOURNAL_PROMPT_KEYS: string[] = [
+  'life.prompt.0',
+  'life.prompt.1',
+  'life.prompt.2',
+  'life.prompt.3',
+  'life.prompt.4',
+  'life.prompt.5',
+  'life.prompt.6',
+];
+
+export const WEEKLY_PROMPT_KEYS: string[] = ['life.rprompt.0', 'life.rprompt.1', 'life.rprompt.2'];
+
 export const MAX_GRATITUDE = 3;
 export const MAX_ENTRY_LENGTH = 2000;
 
@@ -46,10 +72,18 @@ export interface JournalEntry {
 export type Journal = Record<string, JournalEntry>;
 
 /** Deterministic daily prompt, rotating by day. Never throws. */
-export function promptForDay(at: number = Date.now()): string {
+export function promptForDay(at: number = Date.now(), i18n: I18n = EN_I18N): string {
+  const key = promptKeyForDay(at);
+  const text = i18n.t(key as never);
+  return text || JOURNAL_PROMPTS[0];
+}
+
+/** Frame id of the daily prompt — UI translates with its own translator. */
+export function promptKeyForDay(at: number = Date.now()): string {
   const dayIndex = Math.floor(at / (24 * 60 * 60 * 1000));
-  return JOURNAL_PROMPTS[
-    ((dayIndex % JOURNAL_PROMPTS.length) + JOURNAL_PROMPTS.length) % JOURNAL_PROMPTS.length
+  return JOURNAL_PROMPT_KEYS[
+    ((dayIndex % JOURNAL_PROMPT_KEYS.length) + JOURNAL_PROMPT_KEYS.length) %
+      JOURNAL_PROMPT_KEYS.length
   ];
 }
 

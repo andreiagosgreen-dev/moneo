@@ -81,6 +81,30 @@ export const STATUS_LABELS: Record<TaskStatus, string> = {
   completed: 'Done',
 };
 
+/** Translation keys mirroring STATUS_LABELS (UI renders via t()). */
+export const STATUS_KEYS: Record<TaskStatus, string> = {
+  pending: 'task.status.pending',
+  in_progress: 'task.status.in_progress',
+  blocked: 'task.status.blocked',
+  completed: 'task.status.completed',
+};
+
+/** Translation keys for recurrence options (UI renders via t()). */
+export const RECURRENCE_KEYS: Record<TaskRecurrence, string> = {
+  none: 'task.rec.none',
+  daily: 'task.rec.daily',
+  weekly: 'task.rec.weekly',
+};
+
+/** Translation keys for task template names/titles (selected text is localized). */
+export const TASK_TEMPLATE_KEYS: Record<string, { name: string; title: string }> = {
+  Bug: { name: 'task.tpl.bug', title: 'task.tplT.bug' },
+  Feature: { name: 'task.tpl.feature', title: 'task.tplT.feature' },
+  Chore: { name: 'task.tpl.chore', title: 'task.tplT.chore' },
+  Spike: { name: 'task.tpl.spike', title: 'task.tplT.spike' },
+  Urgent: { name: 'task.tpl.urgent', title: 'task.tplT.urgent' },
+};
+
 export const PRIORITY_LABELS: Record<TaskPriority, string> = {
   p0: 'P0',
   p1: 'P1',

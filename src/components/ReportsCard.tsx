@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { type Session } from '../lib/store';
 import type { FocusArea } from '../lib/focusAreas';
 import type { Project } from '../lib/projects';
 import type { Task } from '../lib/tasks';
-import { fmtMinutes } from '../lib/store';
 import {
   buildReport,
   paretoSplit,
@@ -21,6 +21,7 @@ import {
   type PrintableDayRow,
 } from '../lib/export';
 import { isTodayInTz } from '../lib/timezone';
+import { useI18n } from '../lib/i18n/LocaleContext';
 
 interface Props {
   history: Session[];
@@ -30,6 +31,10 @@ interface Props {
   timezone: string;
   /** Weekly focus budget in minutes for allocation insights. */
   capacityMin: number;
+  /** Active Pro subscription — CSV/PDF export is Pro-gated. Defaults to Free. */
+  isPro?: boolean;
+  /** Optional upgrade handler (e.g. open checkout); falls back to /pricing. */
+  onUpgradeClick?: () => void;
 }
 
 type Breakdown = 'daily' | 'projects' | 'areas';
@@ -56,27 +61,44 @@ function Tab({
 }
 
 function DayChart({ data, timezone }: { data: DayBucket[]; timezone: string }) {
+  const { tag, fmtDur } = useI18n();
   const max = Math.max(1, ...data.map((d) => d.min));
   return (
-    <div className="mt-4 flex items-end gap-1" style={{ height: 140 }}>
+    <div
+      className="mt-4 flex items-end gap-1.5 rounded-xl bg-ink/25 px-3 pt-3 pb-2 ring-1 ring-line"
+      style={{ height: 148 }}
+    >
       {data.map((d, i) => {
         const pct = d.min === 0 ? 0 : Math.max(4, (d.min / max) * 100);
         const [y, m, dd] = d.key.split('-').map(Number);
         const date = new Date(y, m - 1, dd);
         const isToday = isTodayInTz(date.getTime(), timezone);
-        const weekday = date.toLocaleDateString([], { weekday: 'narrow' });
+        const weekday = (() => {
+          try {
+            return date.toLocaleDateString(tag, { weekday: 'narrow' });
+          } catch {
+            return date.toLocaleDateString([], { weekday: 'narrow' });
+          }
+        })();
+        const fullDate = (() => {
+          try {
+            return date.toLocaleDateString(tag, { month: 'short', day: 'numeric' });
+          } catch {
+            return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+          }
+        })();
         return (
           <div
             key={d.key}
             className="group flex flex-1 flex-col items-center gap-1"
-            title={`${date.toLocaleDateString([], { month: 'short', day: 'numeric' })}: ${fmtMinutes(d.min)}`}
+            title={`${fullDate}: ${fmtDur(d.min)}`}
           >
             <span
               className={`font-mono text-[9px] transition-opacity ${
-                isToday ? 'text-cream' : 'text-faint opacity-0 group-hover:opacity-100'
+                isToday ? 'text-cream' : 'text-sage opacity-0 group-hover:opacity-100'
               }`}
             >
-              {d.min > 0 ? fmtMinutes(d.min) : ''}
+              {d.min > 0 ? fmtDur(d.min) : ''}
             </span>
             <div className="flex w-full flex-1 items-end">
               <div
@@ -87,15 +109,17 @@ function DayChart({ data, timezone }: { data: DayBucket[]; timezone: string }) {
                   background: isToday
                     ? 'linear-gradient(180deg, var(--accent), var(--accent-deep))'
                     : d.min > 0
-                      ? 'rgb(242 244 249 / 0.14)'
-                      : 'rgb(242 244 249 / 0.04)',
-                  boxShadow: isToday ? '0 0 12px rgb(var(--accent-rgb) / 0.4)' : 'none',
+                      ? 'color-mix(in oklab, var(--mono-fg) 22%, transparent)'
+                      : 'color-mix(in oklab, var(--mono-fg) 8%, transparent)',
+                  boxShadow: isToday
+                    ? '0 0 12px color-mix(in oklab, var(--accent) 40%, transparent)'
+                    : 'none',
                 }}
               />
             </div>
             <span
-              className={`font-mono text-[9px] uppercase ${
-                isToday ? 'font-bold text-cream' : 'text-faint'
+              className={`font-mono text-[10px] uppercase ${
+                isToday ? 'font-bold text-cream' : 'text-sage'
               }`}
             >
               {data.length <= 8
@@ -120,9 +144,10 @@ function HorizontalBar({
   totalMin: number;
   maxMin: number;
 }) {
+  const { t, fmtDur, fmtNum } = useI18n();
   if (slices.length === 0) {
     return (
-      <p className="mt-4 text-center font-mono text-[12px] text-faint">No data in this range.</p>
+      <p className="mt-4 text-center font-mono text-[12px] text-faint">{t('rep.noData')}</p>
     );
   }
   return (
@@ -135,8 +160,8 @@ function HorizontalBar({
             <div className="flex items-baseline justify-between gap-2">
               <span className="truncate text-[13px] text-cream/90">{s.name}</span>
               <span className="shrink-0 font-mono text-[12px] text-sage">
-                {fmtMinutes(s.min)}
-                <span className="ml-1 text-faint">({pct}%)</span>
+                {fmtDur(s.min)}
+                <span className="ml-1 text-faint">({fmtNum(pct)}%)</span>
               </span>
             </div>
             <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink/80 ring-1 ring-line/50">
@@ -158,13 +183,17 @@ function HorizontalBar({
 
 /** 80/20 callout: the vital few projects holding ~80% of the time. */
 function ParetoNote({ slices }: { slices: Array<{ name: string; min: number }> }) {
+  const { tp, fmtNum } = useI18n();
   const { top, topShare } = paretoSplit(slices);
   if (top.length === 0 || top.length >= slices.length) return null;
+  const names = top.map((s) => s.name).join(', ');
+  const text = tp('rep.pareto', top.length, { names, pct: fmtNum(Math.round(topShare * 100)) });
+  const [before, after] = text.split(names);
   return (
     <p className="mt-3 rounded-lg bg-ink/40 px-3 py-2 font-mono text-[11px] leading-relaxed text-sage ring-1 ring-inset ring-line">
-      ⚖ 80/20: <span className="font-bold text-cream">{top.map((s) => s.name).join(', ')}</span>{' '}
-      hold{top.length === 1 ? 's' : ''} ~{Math.round(topShare * 100)}% of your time — protect{' '}
-      {top.length === 1 ? 'it' : 'them'} first.
+      {before}
+      <span className="font-bold text-cream">{names}</span>
+      {after ?? ''}
     </p>
   );
 }
@@ -176,6 +205,7 @@ function DonutChart({
   slices: Array<{ name: string; color: string; min: number }>;
   totalMin: number;
 }) {
+  const { t, fmtNum } = useI18n();
   if (slices.length === 0 || totalMin === 0) return null;
   const R = 36;
   const C = 2 * Math.PI * R;
@@ -214,14 +244,14 @@ function DonutChart({
           <div key={i} className="flex items-center gap-2 text-[12px]">
             <span className="inline-block h-2 w-2 rounded-full" style={{ background: a.color }} />
             <span className="text-cream/80">{a.name}</span>
-            <span className="font-mono text-faint">{Math.round((a.min / totalMin) * 100)}%</span>
+            <span className="font-mono text-faint">{fmtNum(Math.round((a.min / totalMin) * 100))}%</span>
           </div>
         ))}
         {otherMin > 0 && (
           <div className="flex items-center gap-2 text-[12px]">
             <span className="inline-block h-2 w-2 rounded-full bg-faint" />
-            <span className="text-cream/80">Other</span>
-            <span className="font-mono text-faint">{Math.round((otherMin / totalMin) * 100)}%</span>
+            <span className="text-cream/80">{t('rep.other')}</span>
+            <span className="font-mono text-faint">{fmtNum(Math.round((otherMin / totalMin) * 100))}%</span>
           </div>
         )}
       </div>
@@ -236,9 +266,14 @@ export default function ReportsCard({
   tasks,
   timezone,
   capacityMin,
+  isPro = false,
+  onUpgradeClick,
 }: Props) {
   const [range, setRange] = useState<RangeKey>('week');
   const [breakdown, setBreakdown] = useState<Breakdown>('daily');
+  const [showExportUpsell, setShowExportUpsell] = useState(false);
+  const i18n = useI18n();
+  const { t, fmtDur, fmtNum, tag } = i18n;
 
   const report: ReportData = useMemo(
     () => buildReport(history, projects, areas, tasks, range, timezone),
@@ -254,10 +289,13 @@ export default function ReportsCard({
     const open = openPoints(tasks);
     const vel = pointsVelocity(tasks);
     const at = etaByPoints(open, vel);
-    return at !== null
-      ? new Date(at).toLocaleDateString([], { month: 'short', day: 'numeric' })
-      : null;
-  }, [tasks]);
+    if (at === null) return null;
+    try {
+      return new Date(at).toLocaleDateString(tag, { month: 'short', day: 'numeric' });
+    } catch {
+      return new Date(at).toLocaleDateString([], { month: 'short', day: 'numeric' });
+    }
+  }, [tasks, tag]);
 
   const projectBarData = projSlices.map((p) => ({
     name: p.name,
@@ -271,21 +309,21 @@ export default function ReportsCard({
   }));
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label="Reports and analytics">
+    <section className="card px-6 py-6 sm:px-7" aria-label={t('rep.aria')}>
       {/* header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-display text-xl font-bold tracking-tight text-cream">Reports</h2>
-          <p className="mt-1 text-[12px] text-faint">
-            Where every minute went — and what it earned.
-          </p>
+          <h2 className="font-display text-xl font-bold tracking-tight text-cream">
+            {t('rep.title')}
+          </h2>
+          <p className="mt-1 text-[12px] text-sage">{t('rep.sub')}</p>
         </div>
         <div className="flex gap-1 rounded-xl bg-ink/60 p-1 ring-1 ring-line">
           <Tab active={range === 'week'} onClick={() => setRange('week')}>
-            7 days
+            {t('rep.range.week')}
           </Tab>
           <Tab active={range === 'month'} onClick={() => setRange('month')}>
-            30 days
+            {t('rep.range.month')}
           </Tab>
         </div>
       </div>
@@ -297,24 +335,26 @@ export default function ReportsCard({
             className="font-display text-3xl font-extrabold leading-none"
             style={{ color: 'var(--accent)' }}
           >
-            {fmtMinutes(summary.totalMin)}
+            {fmtDur(summary.totalMin)}
           </div>
-          <div className="mt-1 text-[12px] text-sage">total focused</div>
+          <div className="mt-1 text-[12px] text-sage">{t('rep.total')}</div>
         </div>
         <div className="ml-auto text-right">
-          <div className="font-mono text-[22px] font-bold text-cream">{summary.sessionCount}</div>
-          <div className="mt-1 text-[12px] text-sage">sessions</div>
+          <div className="font-mono text-[22px] font-bold text-cream">
+            {fmtNum(summary.sessionCount)}
+          </div>
+          <div className="mt-1 text-[12px] text-sage">{t('rep.sessions')}</div>
         </div>
         <div className="text-right">
           <div className="font-mono text-[22px] font-bold text-cream">
-            {fmtMinutes(summary.avgMinPerDay)}
+            {fmtDur(summary.avgMinPerDay)}
           </div>
-          <div className="mt-1 text-[12px] text-sage">avg / day</div>
+          <div className="mt-1 text-[12px] text-sage">{t('rep.avg')}</div>
         </div>
         {eta && (
-          <div className="text-right" title="From pointed tasks at measured velocity">
+          <div className="text-right" title={t('rep.etaTitle')}>
             <div className="font-mono text-[22px] font-bold text-cream">{eta}</div>
-            <div className="mt-1 text-[12px] text-sage">open work ETA</div>
+            <div className="mt-1 text-[12px] text-sage">{t('rep.eta')}</div>
           </div>
         )}
       </div>
@@ -324,25 +364,29 @@ export default function ReportsCard({
         <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t border-line/60 pt-3">
           {summary.topDay && summary.topDay.min > 0 && (
             <span className="text-[12px] text-sage">
-              Best day:{' '}
+              {t('rep.bestDay')}{' '}
               <span className="font-semibold text-cream">
                 {(() => {
                   const [y, m, d] = summary.topDay.key.split('-').map(Number);
-                  return new Date(y, m - 1, d).toLocaleDateString([], {
-                    weekday: 'short',
-                    month: 'short',
-                    day: 'numeric',
-                  });
+                  try {
+                    return new Date(y, m - 1, d).toLocaleDateString(tag, {
+                      weekday: 'short',
+                      month: 'short',
+                      day: 'numeric',
+                    });
+                  } catch {
+                    return summary.topDay.key;
+                  }
                 })()}
               </span>{' '}
-              ({fmtMinutes(summary.topDay.min)})
+              ({fmtDur(summary.topDay.min)})
             </span>
           )}
           {summary.topProject && (
             <span className="text-[12px] text-sage">
-              Top project:{' '}
+              {t('rep.topProject')}{' '}
               <span className="font-semibold text-cream">{summary.topProject.name}</span> (
-              {fmtMinutes(summary.topProject.min)})
+              {fmtDur(summary.topProject.min)})
             </span>
           )}
         </div>
@@ -352,12 +396,15 @@ export default function ReportsCard({
       {capacityMin > 0 && summary.totalMin > 0 && (
         <div className="mt-4 border-t border-line/60 pt-3">
           <div className="flex items-baseline justify-between gap-2">
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-              Allocation
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-sage">
+              {t('rep.alloc')}
             </span>
             <span className="font-mono text-[11px] text-sage">
-              {fmtMinutes(summary.totalMin)} of {fmtMinutes(capacityMin)} budget (
-              {Math.round((summary.totalMin / capacityMin) * 100)}%)
+              {t('rep.budget', {
+                total: fmtDur(summary.totalMin),
+                cap: fmtDur(capacityMin),
+                pct: fmtNum(Math.round((summary.totalMin / capacityMin) * 100)),
+              })}
             </span>
           </div>
           <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-ink/80 ring-1 ring-line">
@@ -370,27 +417,27 @@ export default function ReportsCard({
             />
           </div>
           <p className="mt-1.5 text-[12px] text-sage">
-            Top share:{' '}
+            {t('rep.topShare')}{' '}
             <span className="font-semibold text-cream">
               {projectBarData.length > 0
                 ? `${projectBarData[0].name} (${Math.round((projectBarData[0].min / summary.totalMin) * 100)}%)`
                 : '—'}
             </span>{' '}
-            · tune the budget in Settings → Weekly capacity
+            {t('rep.tune')}
           </p>
         </div>
       )}
 
       {/* breakdown tabs */}
-      <div className="mt-5 flex gap-1 rounded-xl bg-ink/60 p-1 ring-1 ring-line w-fit">
+      <div className="mt-5 flex min-w-0 max-w-full flex-wrap gap-1 rounded-xl bg-ink/60 p-1 ring-1 ring-line">
         <Tab active={breakdown === 'daily'} onClick={() => setBreakdown('daily')}>
-          Daily
+          {t('rep.tab.daily')}
         </Tab>
         <Tab active={breakdown === 'projects'} onClick={() => setBreakdown('projects')}>
-          Projects
+          {t('rep.tab.projects')}
         </Tab>
         <Tab active={breakdown === 'areas'} onClick={() => setBreakdown('areas')}>
-          Areas
+          {t('rep.tab.areas')}
         </Tab>
       </div>
 
@@ -428,13 +475,26 @@ export default function ReportsCard({
       {/* export */}
       <div className="mt-6 flex flex-wrap gap-2 border-t border-line/60 pt-4">
         <button
-          onClick={() => exportSessionsToCSV(history, projects, areas, tasks)}
-          className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold"
+          onClick={() =>
+            exportSessionsToCSV(history, projects, areas, tasks, i18n, {
+              isPro,
+              onBlocked: () => setShowExportUpsell(true),
+            })
+          }
+          className="press btn-accent rounded-lg px-4 py-2.5 font-mono text-[12px] font-semibold"
+          title={isPro ? undefined : t('rep.exportProTitle')}
         >
-          Export CSV
+          {t('rep.csv')}
+          {!isPro && <span aria-hidden> · Pro</span>}
         </button>
         <button
           onClick={() => {
+            const gate = { isPro, onBlocked: () => setShowExportUpsell(true) } as const;
+            // Pre-check so Free users get the upsell without a popup attempt.
+            if (!isPro) {
+              gate.onBlocked();
+              return;
+            }
             const byId = new Map(projects.map((p) => [p.id, p]));
             const rows: PrintableProjectRow[] = projSlices.map((s) => {
               const p = byId.get(s.projectId);
@@ -449,39 +509,90 @@ export default function ReportsCard({
               .filter((d) => d.min > 0)
               .map((d) => {
                 const [y, m, dd] = d.key.split('-').map(Number);
-                return {
-                  label: new Date(y, m - 1, dd).toLocaleDateString([], {
+                let label = d.key;
+                try {
+                  label = new Date(y, m - 1, dd).toLocaleDateString(tag, {
                     weekday: 'short',
                     month: 'short',
                     day: 'numeric',
-                  }),
-                  min: d.min,
-                };
+                  });
+                } catch {
+                  /* keep raw key */
+                }
+                return { label, min: d.min };
               });
-            printReportHTML(
-              buildPrintableReportHTML({
-                title: 'Moneo Focus Report',
-                rangeLabel: range === 'week' ? 'Last 7 days' : 'Last 30 days',
-                generatedAt: new Date().toLocaleDateString([], {
+            const nowLabel = (() => {
+              try {
+                return new Date().toLocaleDateString(tag, {
                   month: 'short',
                   day: 'numeric',
                   year: 'numeric',
-                }),
-                totalMin: summary.totalMin,
-                sessionCount: summary.sessionCount,
-                avgMinPerDay: summary.avgMinPerDay,
-                totalBillable: rows.reduce((sum, r) => sum + r.amount, 0),
-                projects: rows,
-                days: dayRows,
-              }),
+                });
+              } catch {
+                return new Date().toLocaleDateString([], {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                });
+              }
+            })();
+            printReportHTML(
+              buildPrintableReportHTML(
+                {
+                  title: t('rep.docTitle'),
+                  rangeLabel: t(range === 'week' ? 'rep.rangeLabel.week' : 'rep.rangeLabel.month'),
+                  generatedAt: nowLabel,
+                  totalMin: summary.totalMin,
+                  sessionCount: summary.sessionCount,
+                  avgMinPerDay: summary.avgMinPerDay,
+                  totalBillable: rows.reduce((sum, r) => sum + r.amount, 0),
+                  projects: rows,
+                  days: dayRows,
+                },
+                i18n,
+              ),
+              gate,
             );
           }}
-          className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold"
-          title="Open a printable report (Print → Save as PDF)"
+          className="press btn-ghost rounded-lg px-4 py-2.5 font-mono text-[12px] font-semibold"
+          title={isPro ? t('rep.pdfTitle') : t('rep.exportProTitle')}
         >
-          Export PDF
+          {t('rep.pdf')}
+          {!isPro && <span aria-hidden> · Pro</span>}
         </button>
       </div>
+      {showExportUpsell && !isPro && (
+        <div
+          role="alert"
+          className="mt-3 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3"
+        >
+          <p className="text-[13px] font-semibold text-cream">{t('rep.exportProTitle')}</p>
+          <p className="mt-1 text-[12px] leading-relaxed text-sage">{t('rep.exportProBody')}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {onUpgradeClick ? (
+              <button
+                onClick={onUpgradeClick}
+                className="press btn-accent rounded-lg px-4 py-2 font-mono text-[12px] font-semibold"
+              >
+                {t('pay.upgrade')}
+              </button>
+            ) : (
+              <Link
+                to="/pricing"
+                className="press btn-accent rounded-lg px-4 py-2 font-mono text-[12px] font-semibold"
+              >
+                {t('pay.upgrade')}
+              </Link>
+            )}
+            <button
+              onClick={() => setShowExportUpsell(false)}
+              className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px] font-semibold"
+            >
+              {t('cal.cancel')}
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

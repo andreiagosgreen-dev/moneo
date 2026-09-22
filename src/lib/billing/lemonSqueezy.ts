@@ -1,11 +1,19 @@
 /**
  * Lemon Squeezy integration for Moneo billing.
- * Uses checkout URLs for subscription management.
+ * Checkout URLs + customer-portal session helper. Display copy
+ * (names, prices, features) lives in pricingConfig — this module
+ * never hardcodes marketing text.
  */
 
 import { readEnv } from '../env';
+import { en } from '../i18n/locales/en';
+import {
+  PRICING_PLANS_DISPLAY,
+  PRO_PRICES,
+  type PlanId,
+} from './pricingConfig';
 
-export type Plan = 'free' | 'pro-monthly' | 'pro-yearly';
+export type Plan = PlanId;
 
 export interface Pricing {
   id: Plan;
@@ -16,52 +24,24 @@ export interface Pricing {
   features: string[];
 }
 
-const PRICING_PLANS: Pricing[] = [
-  {
-    id: 'free',
-    name: 'Free',
-    description: 'Perfect for getting started',
-    price: '$0',
-    priceMonthly: '$0',
-    features: [
-      'Unlimited focus sessions',
-      '3 projects + task manager',
-      'Ivy Lee planner + daily frog',
-      'Habits, journal & energy',
-      'Local-first, private by design',
-    ],
-  },
-  {
-    id: 'pro-monthly',
-    name: 'Pro (Monthly)',
-    description: 'For serious focus practitioners',
-    price: '$9',
-    priceMonthly: '$9',
-    features: [
-      'All Free features',
-      'Unlimited projects, goals & OKRs',
-      'Full AI assistant + all insights',
-      'Reports, CSV/PDF export & billable time',
-      'Time blocking, sprints & kanban',
-      'Cloud sync across devices',
-      'Premium themes & customization',
-      'Priority support',
-    ],
-  },
-  {
-    id: 'pro-yearly',
-    name: 'Pro (Yearly)',
-    description: 'Best value - 2 months free',
-    price: '$90',
-    priceMonthly: '$7.50',
-    features: [
-      'All Pro features',
-      '2 months free',
-      'Early access to new features',
-      'Priority support',
-    ],
-  },
-];
+/**
+ * Backward-compatible English snapshot of the canonical pricing config.
+ * Descriptions/features resolve through the en dict so the config's TKeys
+ * stay the single source (no duplicated literals here).
+ */
+export function getPricingPlans(): Pricing[] {
+  return PRICING_PLANS_DISPLAY.map((plan) => ({
+    id: plan.id,
+    name: plan.name,
+    description: en[plan.descKey] ?? plan.id,
+    price: plan.price,
+    priceMonthly:
+      plan.id === 'pro-yearly'
+        ? PRO_PRICES.yearlyMonthly
+        : plan.price,
+    features: plan.featureKeys.map((k) => en[k] ?? k),
+  }));
+}
 
 export function getLemonSqueezyConfig(): {
   storeId: string | null;
@@ -91,13 +71,13 @@ function variantForPlan(planId: Plan): string | null {
  * Checkout URL for a paid plan. Uses the plan's distinct variant id so
  * monthly and yearly open different checkouts; the user id is URL-encoded
  * so the webhook can attribute the subscription. Null when billing is not
- * configured (free plan or missing env). The configured base must be a
- * real https: URL — anything else fails closed instead of open-redirecting
- * the buyer (Faza 5A).
+ * configured (free plan, missing store/base/variant, or non-https base).
+ * Fail-closed: never invent a buy URL or open-redirect the buyer (Faza 5A).
  */
 export function buildCheckoutUrl(planId: Plan, userId: string): string | null {
   const config = getLemonSqueezyConfig();
-  if (planId === 'free' || !config.checkoutUrl || !config.storeId) {
+  const variant = variantForPlan(planId);
+  if (planId === 'free' || !config.checkoutUrl || !config.storeId || !variant) {
     return null;
   }
   let base: string;
@@ -108,13 +88,7 @@ export function buildCheckoutUrl(planId: Plan, userId: string): string | null {
   } catch {
     return null;
   }
-  const variant = variantForPlan(planId);
-  const path = variant ? `${base}/buy/${variant}` : base;
-  return `${path}?checkout[custom][user_id]=${encodeURIComponent(userId)}`;
-}
-
-export function getPricingPlans(): Pricing[] {
-  return PRICING_PLANS.map((plan) => ({ ...plan }));
+  return `${base}/buy/${variant}?checkout[custom][user_id]=${encodeURIComponent(userId)}`;
 }
 
 export function initiateCheckout(planId: Plan, userId: string): string | null {
@@ -123,4 +97,61 @@ export function initiateCheckout(planId: Plan, userId: string): string | null {
 
 export function getProPlanCheckoutUrl(userId: string): string | null {
   return initiateCheckout('pro-monthly', userId);
+}
+
+/* ---------------- Customer Portal (self-serve billing) ---------------- */
+
+export interface CustomerPortalResult {
+  ok: boolean;
+  url: string | null;
+}
+
+function isHttpsUrl(value: unknown): value is string {
+  if (typeof value !== 'string' || value.length === 0) return false;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'https:' && parsed.hostname.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Ask the same-origin Worker for a Lemon Squeezy Customer Portal URL and
+ * open cancel/upgrade/downgrade there — never a custom billing mutation.
+ * The browser only presents the Supabase access token it already holds;
+ * the Lemon Squeezy API key stays server-side. Fail-closed: null means
+ * "unavailable", never a guessed URL.
+ */
+export async function requestCustomerPortalUrl(
+  getAccessToken: () => Promise<string | null>,
+  fetchFn: typeof fetch = fetch,
+): Promise<CustomerPortalResult> {
+  try {
+    const token = await getAccessToken();
+    if (!token) return { ok: false, url: null };
+    const res = await fetchFn('/api/billing/portal', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return { ok: false, url: null };
+    const body = (await res.json()) as { url?: unknown };
+    const url = body?.url;
+    return isHttpsUrl(url) ? { ok: true, url } : { ok: false, url: null };
+  } catch {
+    return { ok: false, url: null };
+  }
+}
+
+/** Resolve the Supabase access token for the portal call. Null when offline. */
+export async function getSupabaseAccessToken(): Promise<string | null> {
+  try {
+    const { getSupabaseClient } = await import('../supabase');
+    const client = await getSupabaseClient();
+    if (!client) return null;
+    const { data } = await client.auth.getSession();
+    const token = data?.session?.access_token;
+    return typeof token === 'string' && token.length > 0 ? token : null;
+  } catch {
+    return null;
+  }
 }

@@ -9,11 +9,23 @@ import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
  * - `data-font` / `data-font-scale` on <html> swap families + base size.
  * Custom accents are applied via CSS attribute selectors (kept after the
  * mode rules so a chosen accent always wins over mode defaults).
+ *
+ * Pro fonts set `--mono-font-display` / `--mono-font-body` via `data-font`
+ * (see mono/pro-fonts.css) without touching atmosphere color tokens.
  */
 
 export type ThemeName = 'dark' | 'light';
 export type AccentName = 'auto' | 'tomato' | 'mint' | 'sky' | 'violet' | 'amber' | 'rose';
-export type FontChoice = 'sans' | 'serif';
+/** App default stack (Literata + Inter). Everything else is Pro-gated. */
+export type FontChoice =
+  | 'default'
+  | 'inter'
+  | 'literata'
+  | 'source-serif'
+  | 'cal-sans'
+  | 'jetbrains'
+  | 'fraunces'
+  | 'dm-sans';
 export type FontScale = 'normal' | 'comfort' | 'compact';
 
 export interface UITheme {
@@ -24,9 +36,9 @@ export interface UITheme {
 }
 
 export const DEFAULT_THEME: UITheme = {
-  theme: 'dark',
+  theme: 'light',
   accent: 'auto',
-  font: 'sans',
+  font: 'default',
   fontScale: 'normal',
 };
 
@@ -44,16 +56,46 @@ export const ACCENT_PRESETS: Record<
 };
 
 export const THEME_OPTIONS: ThemeName[] = ['dark', 'light'];
-export const FONT_OPTIONS: FontChoice[] = ['sans', 'serif'];
+export const FONT_OPTIONS: FontChoice[] = [
+  'default',
+  'inter',
+  'literata',
+  'source-serif',
+  'cal-sans',
+  'jetbrains',
+  'fraunces',
+  'dm-sans',
+];
 export const FONT_SCALE_OPTIONS: FontScale[] = ['normal', 'comfort', 'compact'];
 
 const THEMES: ThemeName[] = ['dark', 'light'];
 const ACCENTS: AccentName[] = ['auto', 'tomato', 'mint', 'sky', 'violet', 'amber', 'rose'];
-const FONTS: FontChoice[] = ['sans', 'serif'];
+const FONTS: FontChoice[] = FONT_OPTIONS;
 const SCALES: FontScale[] = ['normal', 'comfort', 'compact'];
+
+/** Legacy values from the sans/serif picker — map into the named pack. */
+const LEGACY_FONTS: Record<string, FontChoice> = {
+  sans: 'default',
+  serif: 'literata',
+};
 
 function pick<T extends string>(v: unknown, allowed: T[], fallback: T): T {
   return typeof v === 'string' && (allowed as string[]).includes(v) ? (v as T) : fallback;
+}
+
+function pickFont(v: unknown): FontChoice {
+  if (typeof v === 'string' && v in LEGACY_FONTS) return LEGACY_FONTS[v]!;
+  return pick(v, FONTS, DEFAULT_THEME.font);
+}
+
+/** Free keeps the default app stack; every named pack is Pro. */
+export function isProFont(font: FontChoice): boolean {
+  return font !== 'default';
+}
+
+/** What actually paints: Pro fonts only apply while the subscription is active. */
+export function resolveFont(font: FontChoice, isPro: boolean): FontChoice {
+  return isPro || !isProFont(font) ? font : 'default';
 }
 
 export function loadTheme(): UITheme {
@@ -62,7 +104,7 @@ export function loadTheme(): UITheme {
   return {
     theme: pick(stored.theme, THEMES, DEFAULT_THEME.theme),
     accent: pick(stored.accent, ACCENTS, DEFAULT_THEME.accent),
-    font: pick(stored.font, FONTS, DEFAULT_THEME.font),
+    font: pickFont(stored.font),
     fontScale: pick(stored.fontScale, SCALES, DEFAULT_THEME.fontScale),
   };
 }
@@ -71,11 +113,14 @@ export function saveTheme(t: UITheme): boolean {
   return write(STORAGE_KEYS.theme, t);
 }
 
-/** Applies theme/font attributes to <html> and accent to the given wrapper. */
-export function applyTheme(t: UITheme, accentRoot: HTMLElement | null): void {
+/**
+ * Applies theme/font attributes to <html> and accent to the given wrapper.
+ * `isPro` gates which font pack is written to `data-font` (stored choice stays).
+ */
+export function applyTheme(t: UITheme, accentRoot: HTMLElement | null, isPro = false): void {
   const root = document.documentElement;
   root.dataset.theme = t.theme;
-  root.dataset.font = t.font;
+  root.dataset.font = resolveFont(t.font, isPro);
   root.dataset.fontScale = t.fontScale;
   if (accentRoot) {
     accentRoot.dataset.accent = t.accent;

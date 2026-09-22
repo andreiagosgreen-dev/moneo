@@ -26,6 +26,8 @@ export interface AIEnv {
   SUPABASE_SERVICE_ROLE_KEY?: string;
   AI_API_KEY?: string;
   AI_MODEL?: string;
+  /** Optional OpenAI-compatible base URL (server-only). */
+  AI_BASE_URL?: string;
 }
 
 const aiLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
@@ -49,7 +51,7 @@ export function validateAIRequest(body: unknown): ValidAIRequest {
   if (!goal) return { ok: false, reason: 'Missing goal' };
   if (goal.length > 500) return { ok: false, reason: 'Goal too long' };
   const horizonMonths = typeof rec.horizonMonths === 'number' ? Math.round(rec.horizonMonths) : NaN;
-  if (!Number.isInteger(horizonMonths) || horizonMonths < 1 || horizonMonths > 24) {
+  if (!Number.isInteger(horizonMonths) || horizonMonths < 1 || horizonMonths > 480) {
     return { ok: false, reason: 'Bad horizonMonths' };
   }
   const hoursPerWeek = typeof rec.hoursPerWeek === 'number' ? Math.round(rec.hoursPerWeek) : NaN;
@@ -122,8 +124,80 @@ export async function handleAIPlan(
   if (!env.AI_API_KEY) {
     return api({ error: 'AI provider not configured', configured: false }, 501);
   }
-  // PROVIDER ADAPTER GOES HERE: call the model server-side with
-  // { goal, horizonMonths, hoursPerWeek } only, tool-constrained output,
-  // timeout + per-user cost cap, then return { path }.
-  return api({ error: 'AI provider not wired', configured: true }, 501);
+
+  const base = (env.AI_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '');
+  const model = env.AI_MODEL || 'gpt-4o-mini';
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 25_000);
+    const res = await fetchImpl(`${base}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${env.AI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0.2,
+        response_format: { type: 'json_object' },
+        messages: [
+          {
+            role: 'system',
+            content:
+              'Return JSON only: {"tasks":[{"title":string,"pomodoros":number,"priority":"p1"|"p2"|"p3"}]}. Max 20 tasks. No prose.',
+          },
+          {
+            role: 'user',
+            content: `Goal: ${valid.goal}\nHorizon months: ${valid.horizonMonths}\nHours/week: ${valid.hoursPerWeek}`,
+          },
+        ],
+      }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) return api({ error: 'AI provider error', configured: true }, 502);
+    const data = (await res.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
+    const rawContent = data?.choices?.[0]?.message?.content ?? '';
+    let parsed: { tasks?: Array<{ title?: string; pomodoros?: number; priority?: string }> };
+    try {
+      parsed = JSON.parse(rawContent);
+    } catch {
+      return api({ error: 'AI bad payload', configured: true }, 502);
+    }
+    const tasks = Array.isArray(parsed.tasks)
+      ? parsed.tasks
+          .filter((t) => t && typeof t.title === 'string' && t.title.trim())
+          .slice(0, 20)
+          .map((t, i) => ({
+            draftId: `ai-${i + 1}`,
+            milestoneId: 'm1',
+            title: String(t.title).trim().slice(0, 120),
+            pomodoros: Math.min(8, Math.max(1, Math.round(Number(t.pomodoros) || 1))),
+            priority: t.priority === 'p1' || t.priority === 'p3' ? t.priority : 'p2',
+          }))
+      : [];
+    if (tasks.length === 0) return api({ error: 'AI empty plan', configured: true }, 502);
+    return api(
+      {
+        path: {
+          goal: valid.goal,
+          kind: 'general',
+          horizonMonths: valid.horizonMonths,
+          level: 'beginner',
+          hoursPerWeek: valid.hoursPerWeek,
+          phases: [{ id: 'p1', index: 1, months: [1, Math.min(3, valid.horizonMonths!)], outcome: valid.goal }],
+          milestones: [{ id: 'm1', phaseId: 'p1', title: valid.goal }],
+          tasks,
+          totalPomodoros: tasks.reduce((n, t) => n + t.pomodoros, 0),
+          fitsCapacity: true,
+          assumptions: [],
+        },
+      },
+      200,
+    );
+  } catch {
+    return api({ error: 'AI provider unreachable', configured: true }, 502);
+  }
 }
