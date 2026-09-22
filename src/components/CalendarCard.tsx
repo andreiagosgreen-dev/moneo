@@ -18,6 +18,8 @@ import { dayKeyInTz } from '../lib/timezone';
 import { fmtMinutes } from '../lib/store';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
+import { conflictedBlockIdsFromEvents } from '../lib/calendarConflicts';
+import type { ExternalCalendarEvent } from '../lib/googleCalendar';
 
 interface Props {
   history: Session[];
@@ -26,6 +28,8 @@ interface Props {
   isPro?: boolean;
   blocks: TimeBlock[];
   blocksChange: (blocks: TimeBlock[]) => void;
+  /** Real Google Calendar events (Faza 10), read-only — never editable here. */
+  externalEvents?: ExternalCalendarEvent[];
 }
 
 const SCALE_START = 6 * 60; // 06:00
@@ -82,6 +86,7 @@ export default function CalendarCard({
   isPro = false,
   blocks,
   blocksChange,
+  externalEvents = [],
 }: Props) {
   const { t, tp } = useI18n();
   const [adding, setAdding] = useState(false);
@@ -127,7 +132,15 @@ export default function CalendarCard({
   }, [history, blocks, weekKeys, timezone]);
 
   const anyBlocks = blocks.length > 0;
-  const conflicted = useMemo(() => conflictedBlockIds(blocks), [blocks]);
+  const eventConflicts = useMemo(
+    () => conflictedBlockIdsFromEvents(blocks, externalEvents, timezone),
+    [blocks, externalEvents, timezone],
+  );
+  const conflicted = useMemo(() => {
+    const ids = conflictedBlockIds(blocks);
+    for (const id of eventConflicts) ids.add(id);
+    return ids;
+  }, [blocks, eventConflicts]);
   const draftOverlap = useMemo(
     () => blocksForWeekday(blocks, weekday).some((b) => startMin < b.endMin && endMin > b.startMin),
     [blocks, weekday, startMin, endMin],
@@ -245,6 +258,30 @@ export default function CalendarCard({
                       />
                     );
                   })}
+
+                  {/* external calendar events (read-only, Faza 10) */}
+                  {externalEvents
+                    .filter((ev) => !ev.allDay && dayKeyInTz(ev.startsAt, timezone) === key)
+                    .map((ev) => {
+                      const mod = minuteOfDayInTz(ev.startsAt, timezone);
+                      if (mod < SCALE_START || mod > SCALE_END) return null;
+                      const durMin = Math.max(4, (ev.endsAt - ev.startsAt) / 60000);
+                      return (
+                        <div
+                          key={ev.id}
+                          className="pointer-events-none absolute left-1 right-1 overflow-hidden rounded-md border border-dashed border-faint/50 bg-ink/50 px-1.5 py-1"
+                          style={{
+                            top: `${((mod - SCALE_START) / SCALE_TOTAL) * 100}%`,
+                            height: `${(Math.min(durMin, SCALE_TOTAL) / SCALE_TOTAL) * 100}%`,
+                          }}
+                          title={ev.title}
+                        >
+                          <div className="truncate text-[10px] font-medium leading-tight text-faint">
+                            {ev.title || t('calendar.externalEventUntitled')}
+                          </div>
+                        </div>
+                      );
+                    })}
 
                   {/* blocks */}
                   {blocksForWeekday(blocks, wd as Weekday).map((b) => {

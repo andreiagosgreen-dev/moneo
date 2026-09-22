@@ -808,6 +808,20 @@ export const ro: Record<TKey, string> = {
   'calendar.form.cancel': 'Anulează',
   'calendar.form.save': 'Salvează blocul',
   'calendar.colorAria': 'Culoare {c}',
+  'calendar.externalEventUntitled': 'Ocupat',
+  'calendar.connect.sectionTitle': 'Google Calendar',
+  'calendar.connect.title': 'Conectează Google Calendar',
+  'calendar.connect.description':
+    'Vezi evenimentele reale și detectează conflictele cu blocurile tale de timp. Doar citire — Moneo nu-ți modifică niciodată calendarul.',
+  'calendar.connect.connect': 'Conectează',
+  'calendar.connect.connecting': 'Se conectează…',
+  'calendar.connect.connectedTitle': 'Conectat',
+  'calendar.connect.connectedGeneric': 'Google Calendar',
+  'calendar.connect.disconnect': 'Deconectează',
+  'calendar.connect.error': 'A apărut o problemă. Încearcă din nou.',
+  'calendar.connect.upsellTitle': 'Vezi calendarul real alături de blocurile de timp',
+  'calendar.connect.upsellBody':
+    'Pro îți conectează Google Calendar (doar citire) ca Moneo să poată semnala conflictele cu întâlnirile reale.',
 
   // GoalsCard
   'goals.ariaLabel': 'Ierarhia obiectivelor',
