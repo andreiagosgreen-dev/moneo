@@ -597,7 +597,8 @@ export const ro: Record<TKey, string> = {
   'agile.tab.sprints': 'Sprinturi',
   'agile.tab.timeline': 'Cronologie',
   'agile.tab.waterfall': 'Cascadă',
-  'agile.timeline.projectRequired': 'Creează mai întâi un proiect — cronologia trăiește pe proiecte.',
+  'agile.timeline.projectRequired':
+    'Creează mai întâi un proiect — cronologia trăiește pe proiecte.',
   'agile.timeline.empty': 'Niciun task încă — adaugă task-uri și termene ca să vezi cronologia.',
   'agile.timeline.window': '2 săptămâni în urmă / 4 înainte',
   'agile.timeline.today': 'Astăzi',

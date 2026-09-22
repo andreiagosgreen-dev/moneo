@@ -595,8 +595,7 @@ export const de: Record<TKey, string> = {
   'agile.tab.sprints': 'Sprints',
   'agile.tab.timeline': 'Timeline',
   'agile.tab.waterfall': 'Wasserfall',
-  'agile.timeline.projectRequired':
-    'Erstelle zuerst ein Projekt — die Timeline lebt in Projekten.',
+  'agile.timeline.projectRequired': 'Erstelle zuerst ein Projekt — die Timeline lebt in Projekten.',
   'agile.timeline.empty':
     'Noch keine Aufgaben — füge Aufgaben und Fälligkeitstermine hinzu, um die Timeline zu sehen.',
   'agile.timeline.window': '2 Wochen zurück / 4 voraus',

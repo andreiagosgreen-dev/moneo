@@ -588,8 +588,10 @@ export const es: Record<TKey, string> = {
   'agile.tab.sprints': 'Sprints',
   'agile.tab.timeline': 'Cronograma',
   'agile.tab.waterfall': 'Cascada',
-  'agile.timeline.projectRequired': 'Crea primero un proyecto — la línea de tiempo vive en los proyectos.',
-  'agile.timeline.empty': 'Aún no hay tareas — añade tareas y fechas límite para ver la línea de tiempo.',
+  'agile.timeline.projectRequired':
+    'Crea primero un proyecto — la línea de tiempo vive en los proyectos.',
+  'agile.timeline.empty':
+    'Aún no hay tareas — añade tareas y fechas límite para ver la línea de tiempo.',
   'agile.timeline.window': '2 semanas atrás / 4 adelante',
   'agile.timeline.today': 'Hoy',
   'agile.timeline.milestone': 'Hito',

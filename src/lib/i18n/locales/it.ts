@@ -595,10 +595,8 @@ export const it: Record<TKey, string> = {
   'agile.tab.sprints': 'Sprint',
   'agile.tab.timeline': 'Sequenza',
   'agile.tab.waterfall': 'Waterfall',
-  'agile.timeline.projectRequired':
-    'Crea prima un progetto — la timeline vive sui progetti.',
-  'agile.timeline.empty':
-    'Ancora nessun task — aggiungi task e scadenze per vedere la timeline.',
+  'agile.timeline.projectRequired': 'Crea prima un progetto — la timeline vive sui progetti.',
+  'agile.timeline.empty': 'Ancora nessun task — aggiungi task e scadenze per vedere la timeline.',
   'agile.timeline.window': '2 settimane fa / 4 avanti',
   'agile.timeline.today': 'Oggi',
   'agile.timeline.milestone': 'Traguardo',

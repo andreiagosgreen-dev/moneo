@@ -600,8 +600,7 @@ export const fr: Record<TKey, string> = {
   'agile.tab.sprints': 'Sprints',
   'agile.tab.timeline': 'Chronologie',
   'agile.tab.waterfall': 'Cascade',
-  'agile.timeline.projectRequired':
-    "Créez d'abord un projet — la chronologie vit sur les projets.",
+  'agile.timeline.projectRequired': "Créez d'abord un projet — la chronologie vit sur les projets.",
   'agile.timeline.empty':
     'Pas encore de tâches — ajoutez des tâches et des échéances pour voir la chronologie.',
   'agile.timeline.window': '2 semaines avant / 4 après',
