@@ -20,24 +20,28 @@ export default function Disclosure({ title, hint, defaultOpen, children }: Props
       <button
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="press flex w-full items-center gap-3 border-t border-line/60 pt-5 text-left"
+        className="press flex w-full items-center gap-3 border-t border-line/60 pt-6 text-left"
       >
         <span
           aria-hidden
-          className={`shrink-0 font-mono text-[12px] text-faint transition-transform duration-200 ${
+          className={`shrink-0 font-mono text-[13px] text-sage transition-transform duration-200 ${
             open ? 'rotate-90' : ''
           }`}
         >
           ▸
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block font-display text-[16px] font-bold tracking-tight text-cream">
+          <span className="block font-display text-[17px] font-bold tracking-tight text-cream">
             {title}
           </span>
-          {hint && <span className="mt-0.5 block text-[12px] text-faint">{hint}</span>}
+          {hint && <span className="mt-1 block text-[13px] text-sage">{hint}</span>}
         </span>
       </button>
-      {open && <div className="mt-5 grid items-start gap-6 md:grid-cols-2">{children}</div>}
+      {open && (
+        <div className="mt-5 grid min-w-0 items-start gap-6 md:grid-cols-2 [&>*]:min-w-0">
+          {children}
+        </div>
+      )}
     </div>
   );
 }

@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 import type { Skill, SkillCategory, SkillLevel } from '../lib/skills';
 import {
   SKILL_CATEGORIES,
-  CATEGORY_LABELS,
-  LEVEL_LABELS,
+  CATEGORY_KEYS,
+  LEVEL_KEYS,
   FREE_SKILLS_LIMIT,
   createSkillObject,
   updateSkill,
@@ -12,7 +12,6 @@ import {
   addResource,
   skillProgress,
   totalLearningMinutes,
-  formatLearningDuration,
 } from '../lib/skills';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import { cleanupLinksFor, type EntityLink } from '../lib/entityLinks';
@@ -22,6 +21,7 @@ import type { Objective } from '../lib/okrs';
 import LinkedItems from './LinkedItems';
 import SkillTreeCard from './SkillTreeCard';
 import Disclosure from './Disclosure';
+import type { TKey } from '../lib/i18n/types';
 
 interface Props {
   skills: Skill[];
@@ -48,7 +48,6 @@ export default function SkillsCard({
   objectives,
   isPro = false,
 }: Props) {
-  const { t } = useI18n();
   const [draft, setDraft] = useState('');
   const [draftCategory, setDraftCategory] = useState<SkillCategory>('frontend');
   const [openId, setOpenId] = useState<string | null>(null);
@@ -63,6 +62,8 @@ export default function SkillsCard({
     skillsChange(next);
     setXpFlash((f) => ({ ...f, [skillId]: xpGained }));
   };
+  const i18n = useI18n();
+  const { t, fmtDur, fmtNum } = i18n;
 
   const total = useMemo(() => totalLearningMinutes(skills), [skills]);
   const atCapacity = !isPro && skills.length >= FREE_SKILLS_LIMIT;
@@ -81,19 +82,17 @@ export default function SkillsCard({
   };
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label={t('skills.ariaLabel')}>
+    <section className="card px-6 py-6 sm:px-7" aria-label={t('skill.aria')}>
       <header className="flex items-baseline justify-between gap-3">
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">
-            {t('skills.title')}
+            {t('skill.title')}
           </h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            {isPro
-              ? t('skills.subtitlePro')
-              : t('skills.subtitleFree', { n: String(FREE_SKILLS_LIMIT) })}
+            {isPro ? t('skill.subPro') : t('skill.subFree', { n: fmtNum(FREE_SKILLS_LIMIT) })}
           </p>
         </div>
-        <span className="font-mono text-[11px] text-sage">{formatLearningDuration(total)}</span>
+        <span className="font-mono text-[11px] text-sage">{fmtDur(total)}</span>
       </header>
 
       {transitionTip && (
@@ -104,9 +103,9 @@ export default function SkillsCard({
 
       {skills.length === 0 ? (
         <p className="mt-4 rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">
-          {t('skills.emptyLine1')}
+          {t('skill.emptyA')}
           <br />
-          {t('skills.emptyLine2')}
+          {t('skill.emptyB')}
         </p>
       ) : (
         <Disclosure
@@ -131,13 +130,13 @@ export default function SkillsCard({
                   <button
                     onClick={() => setOpenId(expanded ? null : skill.id)}
                     className="min-w-0 flex-1 truncate text-left text-sm font-semibold text-cream hover:text-accent"
-                    title={t('skills.showDetails')}
+                    title={t('skill.showDetails')}
                   >
-                    {skill.certified && <span aria-label={t('skills.certified')}>★ </span>}
+                    {skill.certified && <span aria-label={t('skill.certified')}>★ </span>}
                     {skill.name}
                   </button>
                   <span className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-faint">
-                    {t(CATEGORY_LABELS[skill.category])}
+                    {t(CATEGORY_KEYS[skill.category] as TKey)}
                   </span>
                   <button
                     onClick={() => {
@@ -145,7 +144,7 @@ export default function SkillsCard({
                       onLinksChange(cleanupLinksFor(links, 'skill', skill.id));
                     }}
                     className="shrink-0 rounded-md px-1.5 py-0.5 font-mono text-[11px] text-faint hover:text-cream"
-                    aria-label={t('skills.deleteAria', { name: skill.name })}
+                    aria-label={t('skill.del', { name: skill.name })}
                   >
                     ✕
                   </button>
@@ -156,7 +155,7 @@ export default function SkillsCard({
                   <div
                     className="flex items-center gap-1"
                     role="group"
-                    aria-label={t('skills.currentLevel')}
+                    aria-label={t('skill.levelGroup')}
                   >
                     {LEVELS.map((lv) => (
                       <button
@@ -172,11 +171,8 @@ export default function SkillsCard({
                             ? 'bg-accent ring-accent'
                             : 'bg-ink ring-line hover:ring-accent/60'
                         }`}
-                        title={t('skills.levelTitle', {
-                          level: String(lv),
-                          name: t(LEVEL_LABELS[lv]),
-                        })}
-                        aria-label={t('skills.setLevelAria', { level: String(lv) })}
+                        title={t('skill.levelTitle', { n: lv, label: t(LEVEL_KEYS[lv] as TKey) })}
+                        aria-label={t('skill.levelSet', { n: lv })}
                       />
                     ))}
                   </div>
@@ -186,10 +182,10 @@ export default function SkillsCard({
                       levelFlash[skill.id] ? 'pop' : ''
                     }`}
                   >
-                    {t(LEVEL_LABELS[skill.level])}
+                    {t(LEVEL_KEYS[skill.level] as TKey)}
                   </span>
                   <span className="ml-auto font-mono text-[11px] text-faint">
-                    → {t(LEVEL_LABELS[skill.targetLevel])}
+                    → {t(LEVEL_KEYS[skill.targetLevel] as TKey)}
                   </span>
                   <select
                     value={skill.targetLevel}
@@ -201,7 +197,7 @@ export default function SkillsCard({
                       )
                     }
                     className="h-7 rounded-md bg-ink/60 px-1 font-mono text-[11px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                    aria-label={t('skills.targetLevel')}
+                    aria-label={t('skill.target')}
                   >
                     {LEVELS.map((lv) => (
                       <option key={lv} value={lv}>
@@ -223,7 +219,7 @@ export default function SkillsCard({
                     />
                   </div>
                   <span className="font-mono text-[10px] text-faint">
-                    {formatLearningDuration(skill.minutesLogged)}
+                    {fmtDur(skill.minutesLogged)}
                   </span>
                   <span
                     key={xpFlash[skill.id] ?? 0}
@@ -237,7 +233,7 @@ export default function SkillsCard({
                   <button
                     onClick={() => logSession(skill.id)}
                     className="press shrink-0 rounded-md px-2 py-0.5 font-mono text-[11px] text-cream ring-1 ring-inset ring-line hover:ring-accent"
-                    title={t('skills.logSession')}
+                    title={t('skill.logTitle')}
                   >
                     +25m
                   </button>
@@ -250,9 +246,7 @@ export default function SkillsCard({
                         ? 'text-accent ring-accent/60'
                         : 'text-faint ring-line hover:text-cream'
                     }`}
-                    title={
-                      skill.certified ? t('skills.removeCertification') : t('skills.markCertified')
-                    }
+                    title={t(skill.certified ? 'skill.certOn' : 'skill.certOff')}
                     aria-pressed={skill.certified === true}
                   >
                     ★
@@ -263,7 +257,7 @@ export default function SkillsCard({
                 {expanded && (
                   <div className="mt-2.5 border-t border-line/60 pt-2.5">
                     {skill.resources.length === 0 ? (
-                      <p className="font-mono text-[11px] text-faint">{t('skills.noResources')}</p>
+                      <p className="font-mono text-[11px] text-faint">{t('skill.noRes')}</p>
                     ) : (
                       <ul className="space-y-1">
                         {skill.resources.map((r) => (
@@ -284,14 +278,14 @@ export default function SkillsCard({
                         maxLength={200}
                         onChange={(e) => setResourceDraft(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && addOpenResource()}
-                        placeholder={t('skills.resourcePlaceholder')}
+                        placeholder={t('skill.resPh')}
                         className="h-8 min-w-0 flex-1 rounded-lg bg-ink/60 px-2.5 font-mono text-[11px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
                       />
                       <button
                         onClick={addOpenResource}
                         disabled={!resourceDraft.trim()}
                         className="press btn-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg font-display text-base font-bold disabled:opacity-40"
-                        aria-label={t('skills.addResourceAria')}
+                        aria-label={t('skill.resAdd')}
                       >
                         +
                       </button>
@@ -323,22 +317,18 @@ export default function SkillsCard({
             maxLength={60}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && add()}
-            placeholder={
-              skills.length === 0
-                ? t('skills.form.placeholderFirst')
-                : t('skills.form.placeholderNext')
-            }
+            placeholder={t(skills.length === 0 ? 'skill.phFirst' : 'skill.phNext')}
             className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
           />
           <select
             value={draftCategory}
             onChange={(e) => setDraftCategory(e.target.value as SkillCategory)}
             className="h-9 shrink-0 rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-            aria-label={t('skills.form.categoryAria')}
+            aria-label={t('skill.cat')}
           >
             {SKILL_CATEGORIES.map((c) => (
               <option key={c} value={c}>
-                {t(CATEGORY_LABELS[c])}
+                {t(CATEGORY_KEYS[c] as TKey)}
               </option>
             ))}
           </select>
@@ -346,7 +336,7 @@ export default function SkillsCard({
             onClick={add}
             disabled={!draft.trim()}
             className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
-            aria-label={t('skills.form.addAria')}
+            aria-label={t('skill.add')}
           >
             +
           </button>
@@ -355,9 +345,9 @@ export default function SkillsCard({
         !isPro && (
           <div className="mt-3 rounded-xl border border-accent/30 bg-accent/10 p-3.5">
             <p className="text-[12px] leading-relaxed text-cream">
-              {t('skills.capacityLine', { n: String(FREE_SKILLS_LIMIT) })}
+              {t('skill.cap', { n: fmtNum(FREE_SKILLS_LIMIT) })}
             </p>
-            <p className="mt-1 font-mono text-[11px] text-faint">{t('skills.capacityUpgrade')}</p>
+            <p className="mt-1 font-mono text-[11px] text-faint">{t('skill.capBody')}</p>
           </div>
         )
       )}

@@ -2,33 +2,43 @@ import { test, expect } from '@playwright/test';
 import { skipOnboarding } from './helpers';
 
 /**
- * Top-level navigation, including the "More" overflow menu (Faza 30 —
- * the exact fix that made every tab reachable without a horizontal
- * scroll gesture). Confirms each primary/secondary tab actually swaps
- * the rendered section, not just the active-tab styling.
+ * Mono navigation: a left rail on desktop, a compact bottom bar + "More"
+ * overflow on mobile. Confirms each destination actually swaps the
+ * rendered section, not just the active-tab styling.
  */
-test.describe('top navigation', () => {
+test.describe('mono navigation', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page);
     await page.goto('/');
   });
 
-  test('primary tabs switch sections', async ({ page }) => {
-    await page.getByRole('tab', { name: 'Plan' }).click();
-    await expect(page.getByRole('tab', { name: 'Plan' })).toHaveAttribute('aria-selected', 'true');
-
+  test('core tabs switch sections', async ({ page }) => {
     await page.getByRole('tab', { name: 'Today', exact: true }).click();
     await expect(page.getByRole('tab', { name: 'Today', exact: true })).toHaveAttribute(
       'aria-selected',
       'true',
     );
+    await expect(page.getByText("Today's plan")).toBeVisible();
+
+    await page.getByRole('tab', { name: 'Projects', exact: true }).click();
+    await expect(page.getByRole('button', { name: '+ New Project' })).toBeVisible();
   });
 
-  test('the More menu reaches Projects and Reports', async ({ page }) => {
-    await page.getByRole('tab', { name: 'More sections' }).click();
-    await expect(page.getByRole('menu')).toBeVisible();
+  test('Graph is reachable (rail on desktop, More on mobile)', async ({ page, isMobile }) => {
+    if (isMobile) {
+      await page.getByRole('tab', { name: 'More', exact: true }).click();
+      await page.locator('.mono-more-item', { hasText: 'Graph' }).click();
+    } else {
+      await page.getByRole('tab', { name: 'Graph', exact: true }).click();
+    }
+    await expect(page.getByRole('heading', { name: 'Graph' })).toBeVisible();
+  });
 
-    await page.getByRole('menuitem', { name: /Projects/i }).click();
-    await expect(page.getByText(/project/i).first()).toBeVisible();
+  test('the command palette opens with Ctrl+K and navigates', async ({ page }) => {
+    await page.keyboard.press('Control+k');
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await dialog.getByText('Go to Reports').click();
+    await expect(page.getByRole('heading', { name: 'Reports' }).first()).toBeVisible();
   });
 });

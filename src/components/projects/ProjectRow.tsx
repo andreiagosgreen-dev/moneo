@@ -3,10 +3,9 @@ import type { ProjectCategory, ProjectStats } from '../../lib/projects';
 import {
   PROJECT_COLORS,
   PROJECT_CATEGORIES,
-  CATEGORY_LABELS,
+  PROJECT_CATEGORY_KEYS,
   updateProject,
   getMinutesForProject,
-  formatProjectDuration,
   billableAmount,
   formatBillable,
   parseTags,
@@ -14,6 +13,7 @@ import {
 } from '../../lib/projects';
 import type { TaskPriority } from '../../lib/tasks';
 import {
+  TASK_TEMPLATE_KEYS,
   createTaskObject,
   rootTasks,
   suggestDeadline,
@@ -30,6 +30,7 @@ import type { ProjectRowProps } from './types';
 import TaskRow from './TaskRow';
 import { useI18n } from '../../lib/i18n/LocaleContext';
 import LinkedItems from '../LinkedItems';
+import type { TKey } from '../../lib/i18n/types';
 
 export default function ProjectRow({
   project,
@@ -51,9 +52,10 @@ export default function ProjectRow({
   skills,
   objectives,
 }: ProjectRowProps) {
-  const { t } = useI18n();
   const minutes = getMinutesForProject(project.id, history);
-  const timeFormatted = formatProjectDuration(minutes);
+  const i18n = useI18n();
+  const { t, tag, fmtDur, tp } = i18n;
+  const timeFormatted = fmtDur(minutes);
   const completion = projectCompletion(tasks, project.id);
   const projectTasks = rootTasks(tasks, project.id);
 
@@ -159,13 +161,13 @@ export default function ProjectRow({
               <span className="truncate text-sm font-semibold text-cream">{project.name}</span>
               {isSelected && (
                 <span className="shrink-0 rounded-full bg-accent/20 px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-accent">
-                  {t('projectRow.active')}
+                  {t('proj.active')}
                 </span>
               )}
             </div>
             <div className="mt-0.5 flex items-center gap-2 text-[11px] text-faint">
               <span className="capitalize">
-                {t(CATEGORY_LABELS[project.category as ProjectCategory])}
+                {t(PROJECT_CATEGORY_KEYS[project.category as ProjectCategory] as TKey)}
               </span>
               <span>·</span>
               <span className="font-mono text-sage">{timeFormatted}</span>
@@ -173,7 +175,10 @@ export default function ProjectRow({
                 <>
                   <span>·</span>
                   <span className="font-mono">
-                    {t('projectRow.taskCount', { done: completion.done, total: completion.total })}
+                    {tp('proj.tasks', completion.total, {
+                      done: completion.done,
+                      total: completion.total,
+                    })}
                   </span>
                 </>
               )}
@@ -200,12 +205,8 @@ export default function ProjectRow({
               onToggleExpand(project.id);
             }}
             className="press flex h-7 w-7 items-center justify-center rounded-lg text-faint hover:text-cream"
-            title={isExpanded ? t('projectRow.collapse') : t('projectRow.expand')}
-            aria-label={
-              isExpanded
-                ? t('projectRow.collapseFor', { name: project.name })
-                : t('projectRow.expandFor', { name: project.name })
-            }
+            title={t(isExpanded ? 'proj.collapse' : 'proj.expand')}
+            aria-label={`${t(isExpanded ? 'proj.collapse' : 'proj.expand')} ${project.name}`}
           >
             <ChevronIcon open={isExpanded} />
           </button>
@@ -216,19 +217,19 @@ export default function ProjectRow({
         <div className="border-t border-line/60 px-3.5 pb-4 pt-3">
           {/* stats mini-panel */}
           <div className="grid grid-cols-3 gap-2">
-            <Stat label={t('projectRow.statTime')} value={timeFormatted} accent />
+            <Stat label={t('proj.stat.time')} value={timeFormatted} accent />
             <Stat
-              label={t('projectRow.statSessions')}
+              label={t('proj.stat.sessions')}
               value={String(projectStats(history, project.id).sessions)}
             />
             <Stat
-              label={t('projectRow.statTasksDone')}
+              label={t('proj.stat.done')}
               value={`${completion.done}/${completion.total || '—'}`}
             />
             {project.billable === true && (
               <Stat
-                label={t('projectRow.statBillable')}
-                value={formatBillable(billableAmount(project, minutes))}
+                label={t('proj.stat.billable')}
+                value={formatBillable(billableAmount(project, minutes), tag)}
                 accent
               />
             )}
@@ -255,7 +256,7 @@ export default function ProjectRow({
                         editColor === c ? 'scale-110 ring-2 ring-cream/70' : 'hover:scale-105'
                       }`}
                       style={{ backgroundColor: c }}
-                      aria-label={t('projectRow.setColor', { color: c })}
+                      aria-label={t('proj.colorAria', { c })}
                     />
                   ))}
                 </div>
@@ -267,7 +268,7 @@ export default function ProjectRow({
                   >
                     {PROJECT_CATEGORIES.map((c) => (
                       <option key={c} value={c}>
-                        {t(CATEGORY_LABELS[c])}
+                        {t(PROJECT_CATEGORY_KEYS[c] as TKey)}
                       </option>
                     ))}
                   </select>
@@ -284,9 +285,9 @@ export default function ProjectRow({
                         if (eta) setEditDeadline(new Date(eta).toISOString().slice(0, 10));
                       }}
                       className="press h-[42px] shrink-0 rounded-lg px-2.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream"
-                      title={t('projectRow.autoDeadlineTitle')}
+                      title={t('proj.etaTitle')}
                     >
-                      {t('projectRow.auto')}
+                      {t('proj.auto')}
                     </button>
                   </div>
                 </div>
@@ -294,7 +295,7 @@ export default function ProjectRow({
                   type="text"
                   value={editTags}
                   onChange={(e) => setEditTags(e.target.value)}
-                  placeholder={t('projectRow.tagsPlaceholder')}
+                  placeholder={t('proj.tagsPh')}
                   className="w-full rounded-lg bg-ink/40 px-3 py-2 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
                 />
                 <div className="flex items-center gap-2">
@@ -304,7 +305,7 @@ export default function ProjectRow({
                       editBillable ? 'bg-accent' : 'bg-line/50'
                     }`}
                     aria-pressed={editBillable}
-                    title={t('projectRow.billableTitle')}
+                    title={t('proj.billTitle')}
                   >
                     <div
                       className={`h-5 w-5 rounded-full bg-cream transition-transform ${
@@ -312,16 +313,16 @@ export default function ProjectRow({
                       }`}
                     />
                   </button>
-                  <span className="text-[12px] text-sage">{t('projectRow.billable')}</span>
+                  <span className="text-[12px] text-sage">{t('proj.billable')}</span>
                   {editBillable && (
                     <input
                       type="number"
                       min={1}
                       value={editRate}
                       onChange={(e) => setEditRate(e.target.value)}
-                      placeholder={t('projectRow.perHourPlaceholder')}
+                      placeholder={t('proj.ratePh')}
                       className="h-9 w-28 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
-                      title={t('projectRow.hourlyRateTitle')}
+                      title={t('proj.rateTitle')}
                     />
                   )}
                 </div>
@@ -330,13 +331,13 @@ export default function ProjectRow({
                     onClick={() => setEditing(false)}
                     className="press rounded-lg px-3 py-1.5 text-[12px] text-faint hover:text-cream"
                   >
-                    {t('projectRow.cancel')}
+                    {t('cal.cancel')}
                   </button>
                   <button
                     onClick={saveEdit}
                     className="press btn-accent rounded-lg px-3 py-1.5 text-[12px] font-semibold"
                   >
-                    {t('projectRow.save')}
+                    {t('proj.save')}
                   </button>
                 </div>
               </div>
@@ -359,25 +360,25 @@ export default function ProjectRow({
                   }}
                   className="press rounded-lg bg-ink/60 px-2.5 py-1.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream"
                 >
-                  {t('projectRow.edit')}
+                  {t('proj.edit')}
                 </button>
                 <button
                   onClick={() => onClone(project.id)}
                   className="press flex items-center gap-1.5 rounded-lg bg-ink/60 px-2.5 py-1.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream"
                 >
-                  <CopyIcon /> {t('projectRow.duplicate')}
+                  <CopyIcon /> {t('proj.clone')}
                 </button>
                 <button
                   onClick={() => onArchive(project.id, true)}
                   className="press flex items-center gap-1.5 rounded-lg bg-ink/60 px-2.5 py-1.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream"
                 >
-                  <ArchiveIcon /> {t('projectRow.archive')}
+                  <ArchiveIcon /> {t('proj.archive')}
                 </button>
                 <button
                   onClick={() => onDelete(project.id)}
                   className="press ml-auto flex items-center gap-1.5 rounded-lg bg-ink/60 px-2.5 py-1.5 text-[11px] font-semibold text-faint ring-1 ring-inset ring-line hover:text-tomato"
                 >
-                  <TrashIcon /> {t('projectRow.delete')}
+                  <TrashIcon /> {t('proj.delete')}
                 </button>
               </div>
             )}
@@ -414,7 +415,7 @@ export default function ProjectRow({
           {/* tasks */}
           <div className="mt-3">
             <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
-              {t('projectRow.tasksHeading')}
+              {t('proj.taskSection')}
             </div>
             <div className="mt-1.5 flex items-center gap-2">
               <input
@@ -423,26 +424,27 @@ export default function ProjectRow({
                 maxLength={120}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addTask()}
-                placeholder={t('projectRow.addTaskPlaceholder')}
+                placeholder={t('proj.taskPh')}
                 className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
               />
               <select
                 value=""
                 onChange={(e) => {
+                  const keys = TASK_TEMPLATE_KEYS[e.target.value];
                   const tpl = TASK_TEMPLATES.find((x) => x.name === e.target.value);
-                  if (tpl) {
-                    setNewTaskTitle(tpl.title);
+                  if (tpl && keys) {
+                    setNewTaskTitle(t(keys.title as TKey));
                     setNewTaskPriority(tpl.priority);
                   }
                 }}
                 className="h-9 shrink-0 rounded-lg bg-ink/40 px-2 text-[12px] text-faint ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title={t('projectRow.templateTitle')}
-                aria-label={t('projectRow.templateLabel')}
+                title={t('proj.tplTitle')}
+                aria-label={t('proj.tplAria')}
               >
-                <option value="">{t('projectRow.templatePlaceholder')}</option>
+                <option value="">{t('proj.tplNone')}</option>
                 {TASK_TEMPLATES.map((tpl) => (
                   <option key={tpl.name} value={tpl.name}>
-                    {tpl.name}
+                    {t(TASK_TEMPLATE_KEYS[tpl.name]?.name as TKey)}
                   </option>
                 ))}
               </select>
@@ -450,7 +452,7 @@ export default function ProjectRow({
                 value={newTaskPriority}
                 onChange={(e) => setNewTaskPriority(e.target.value as TaskPriority)}
                 className="h-9 rounded-lg bg-ink/40 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title={t('projectRow.priorityTitle')}
+                title={t('proj.priTitle')}
               >
                 {(['p0', 'p1', 'p2'] as const).map((p) => (
                   <option key={p} value={p}>
@@ -462,7 +464,7 @@ export default function ProjectRow({
                 onClick={addTask}
                 disabled={!newTaskTitle.trim()}
                 className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg disabled:opacity-40"
-                aria-label={t('projectRow.addTask')}
+                aria-label={t('proj.addTask')}
               >
                 <PlusIcon />
               </button>
@@ -532,7 +534,7 @@ export default function ProjectRow({
             <div className="mt-2 space-y-1">
               {projectTasks.length === 0 ? (
                 <p className="rounded-lg bg-ink/30 px-3 py-2.5 text-[11px] text-faint">
-                  {t('projectRow.noTasksYet')}
+                  {t('proj.noTasks')}
                 </p>
               ) : (
                 projectTasks.map((task, ti) => (

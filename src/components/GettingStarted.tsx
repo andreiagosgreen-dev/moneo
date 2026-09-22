@@ -1,18 +1,19 @@
-import type { NavTab } from './TopNav';
+import type { MonoTab } from '../mono/MonoNav';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
 
 interface Props {
-  onGo: (t: NavTab) => void;
+  onGo: (t: MonoTab) => void;
 }
 
-const STEPS: Array<{ n: string; title: TKey; body: TKey; cta: TKey; tab: NavTab }> = [
+/** Focus-first path: intention → session; step 3 is a soft Pro note (stays on Focus). */
+const STEPS: Array<{ n: string; title: TKey; body: TKey; cta: TKey; tab: MonoTab }> = [
   { n: '1', title: 'getting.s1t', body: 'getting.s1b', cta: 'getting.s1c', tab: 'focus' },
-  { n: '2', title: 'getting.s2t', body: 'getting.s2b', cta: 'getting.s2c', tab: 'today' },
-  { n: '3', title: 'getting.s3t', body: 'getting.s3b', cta: 'getting.s3c', tab: 'reports' },
+  { n: '2', title: 'getting.s2t', body: 'getting.s2b', cta: 'getting.s2c', tab: 'focus' },
+  { n: '3', title: 'getting.s3t', body: 'getting.s3b', cta: 'getting.s3c', tab: 'focus' },
 ];
 
-/** First-run guide, shown only while the workspace is still empty. */
+/** First-run guide, shown only while the workspace is still empty (light atmospheres). */
 export default function GettingStarted({ onGo }: Props) {
   const { t } = useI18n();
   return (

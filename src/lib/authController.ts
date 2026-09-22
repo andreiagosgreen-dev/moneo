@@ -115,6 +115,23 @@ export function mapAuthError(raw: string | undefined | null): string {
   return 'Something went wrong. Please try again.';
 }
 
+/** Race a promise against a hard deadline; reject on timeout so callers can degrade. */
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error('timeout')), ms);
+    promise.then(
+      (v) => {
+        clearTimeout(t);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(t);
+        reject(e);
+      },
+    );
+  });
+}
+
 export function createAuthController(deps: AuthControllerDeps): AuthController {
   let snapshot: AuthSnapshot = {
     status: 'loading',
@@ -125,6 +142,8 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
   let subscription: { unsubscribe(): void } | null = null;
   let started = false;
   let disposed = false;
+  /** Invalidates in-flight init after dispose (React StrictMode remount). */
+  let bootEpoch = 0;
   // Profile bootstrap runs once per user id, never per event.
   const profileEnsuredFor = new Set<string>();
 
@@ -181,33 +200,36 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
       if (started) return;
       started = true;
       disposed = false;
+      const run = bootEpoch;
       void (async () => {
+        const alive = () => !disposed && run === bootEpoch;
         let client: AuthClientLike | null = null;
         try {
           client = await getClient();
         } catch {
-          if (!disposed) emit(anonymous());
+          if (alive()) emit(anonymous());
           return;
         }
-        if (disposed) return;
+        if (!alive()) return;
         if (!client) {
           emit(anonymous());
           return;
         }
         try {
           subscription = client.onAuthStateChange((_event, session) => {
-            if (disposed) return;
+            if (!alive()) return;
             const user = session?.user ?? null;
             if (user) void applyAuthenticated(user);
             else emit(anonymous());
           }).data.subscription;
-          const { data } = await client.getSession();
-          if (disposed) return;
+          // Never leave the UI on "Checking account" if the network hangs.
+          const { data } = await withTimeout(client.getSession(), 4_000);
+          if (!alive()) return;
           const user = data?.session?.user ?? null;
           if (user) await applyAuthenticated(user);
           else emit(anonymous());
         } catch {
-          if (!disposed) emit(anonymous());
+          if (alive()) emit(anonymous());
         }
       })();
     },
@@ -215,6 +237,7 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
     dispose() {
       disposed = true;
       started = false;
+      bootEpoch += 1;
       if (subscription) {
         subscription.unsubscribe();
         subscription = null;

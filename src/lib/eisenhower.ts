@@ -1,3 +1,4 @@
+import type { TKey } from './i18n/types';
 /* Eisenhower Matrix (Roadmap Phase 3.1) — urgent/important triage.
  *
  * Every task has an *effective* quadrant: the manual override when the user
@@ -6,13 +7,27 @@
  */
 import type { Task, TaskQuadrant } from './tasks';
 import { TASK_QUADRANTS } from './tasks';
-import type { TKey } from './i18n/types';
+import { createI18n, type I18n } from './i18n';
+
+/** Default English translator — keeps helpers usable without a provider. */
+const EN_I18N = createI18n('en');
 
 export const QUADRANT_META: Record<TaskQuadrant, { title: TKey; action: TKey; hint: TKey }> = {
   q1: { title: 'matrix.q1.title', action: 'matrix.q1.action', hint: 'matrix.q1.hint' },
   q2: { title: 'matrix.q2.title', action: 'matrix.q2.action', hint: 'matrix.q2.hint' },
   q3: { title: 'matrix.q3.title', action: 'matrix.q3.action', hint: 'matrix.q3.hint' },
   q4: { title: 'matrix.q4.title', action: 'matrix.q4.action', hint: 'matrix.q4.hint' },
+};
+
+/** Translation keys for quadrant chrome (UI renders via t()). */
+export const QUADRANT_TEXT_KEYS: Record<
+  TaskQuadrant,
+  { title: string; action: string; hint: string }
+> = {
+  q1: { title: 'matrix.q1t', action: 'matrix.q1a', hint: 'matrix.q1h' },
+  q2: { title: 'matrix.q2t', action: 'matrix.q2a', hint: 'matrix.q2h' },
+  q3: { title: 'matrix.q3t', action: 'matrix.q3a', hint: 'matrix.q3h' },
+  q4: { title: 'matrix.q4t', action: 'matrix.q4a', hint: 'matrix.q4h' },
 };
 
 /** Due within this window counts as urgent (overdue always counts). */
@@ -105,17 +120,21 @@ function topTask(candidates: Task[]): Task | null {
  * Daily "what to focus on": Q1 first, then Q2 deep work, then Q3, else prune Q4.
  * Never throws.
  */
-export function quadrantFocus(tasks: Task[], now: number = Date.now()): QuadrantFocus {
+export function quadrantFocus(
+  tasks: Task[],
+  now: number = Date.now(),
+  i18n: I18n = EN_I18N,
+): QuadrantFocus {
   const order: TaskQuadrant[] = ['q1', 'q2', 'q3', 'q4'];
   const headlines: Record<TaskQuadrant, string> = {
-    q1: 'Clear the urgent + important first.',
-    q2: 'No fires — invest in deep work.',
-    q3: 'Delegate or timebox these.',
-    q4: 'Nothing pressing — prune or park Q4.',
+    q1: i18n.t('matrix.head.q1'),
+    q2: i18n.t('matrix.head.q2'),
+    q3: i18n.t('matrix.head.q3'),
+    q4: i18n.t('matrix.head.q4'),
   };
   for (const q of order) {
     const inQ = tasksInQuadrant(tasks, q, now);
     if (inQ.length > 0) return { quadrant: q, headline: headlines[q], task: topTask(inQ) };
   }
-  return { quadrant: null, headline: 'Board clear — plan tomorrow.', task: null };
+  return { quadrant: null, headline: i18n.t('matrix.head.clear'), task: null };
 }

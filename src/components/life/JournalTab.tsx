@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
-  MOOD_LABELS,
-  WEEKLY_REFLECTION_PROMPTS,
+  MOOD_KEYS,
+  WEEKLY_PROMPT_KEYS,
   promptForDay,
   recentEntries,
   upsertEntry,
@@ -12,6 +12,7 @@ import { localDayKey } from '../../lib/projects';
 import type { LifeCardProps } from './types';
 import { useI18n } from '../../lib/i18n/LocaleContext';
 import LinkedItems from '../LinkedItems';
+import type { TKey } from '../../lib/i18n/types';
 
 export default function JournalTab({
   journal,
@@ -25,7 +26,6 @@ export default function JournalTab({
   onLinksChange,
   isPro = false,
 }: LifeCardProps) {
-  const { t } = useI18n();
   const todayKey = localDayKey(Date.now());
   const entry = journal[todayKey];
   const [mood, setMood] = useState<Mood | null>(entry?.mood ?? null);
@@ -33,8 +33,10 @@ export default function JournalTab({
   const [gratDraft, setGratDraft] = useState('');
   const [text, setText] = useState(entry?.text ?? '');
   const [savedTick, setSavedTick] = useState(0);
+  const i18n = useI18n();
+  const { t, tp, fmtNum, fmtDur } = i18n;
 
-  const prompt = useMemo(() => promptForDay(Date.now()), []);
+  const prompt = useMemo(() => promptForDay(Date.now(), i18n), [i18n]);
   const recent = useMemo(() => (isPro ? recentEntries(journal, 7) : []), [journal, isPro]);
   const summary = useMemo(
     () => (isPro ? weeklySummary(history, journal) : null),
@@ -52,11 +54,7 @@ export default function JournalTab({
         {prompt}
       </p>
 
-      <div
-        className="mt-3 flex items-center gap-1.5"
-        role="group"
-        aria-label={t('journal.moodGroupLabel')}
-      >
+      <div className="mt-3 flex items-center gap-1.5" role="group" aria-label={t('life.j.mood')}>
         {([1, 2, 3, 4, 5] as Mood[]).map((m) => (
           <button
             key={m}
@@ -66,14 +64,14 @@ export default function JournalTab({
                 ? 'bg-accent/20 text-cream ring-accent/60'
                 : 'text-faint ring-line hover:text-cream'
             }`}
-            title={MOOD_LABELS[m]}
+            title={t(MOOD_KEYS[m] as TKey)}
             aria-pressed={mood === m}
           >
             {m}
           </button>
         ))}
         <span className="ml-1 w-14 shrink-0 font-mono text-[10px] text-faint">
-          {mood ? MOOD_LABELS[mood] : '—'}
+          {mood ? t(MOOD_KEYS[mood] as TKey) : '—'}
         </span>
       </div>
 
@@ -88,7 +86,7 @@ export default function JournalTab({
               <button
                 onClick={() => setGratitude(gratitude.filter((x) => x !== g))}
                 className="press text-faint hover:text-cream"
-                aria-label={t('journal.removeGratitude', { item: g })}
+                aria-label={t('life.j.remove', { g })}
               >
                 ✕
               </button>
@@ -108,7 +106,7 @@ export default function JournalTab({
                   setGratDraft('');
                 }
               }}
-              placeholder={t('journal.gratefulPlaceholder')}
+              placeholder={t('life.j.gratefulPh')}
               className="h-8 min-w-0 flex-1 rounded-lg bg-ink/40 px-2.5 text-[12px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
             />
           </div>
@@ -120,7 +118,7 @@ export default function JournalTab({
         maxLength={2000}
         rows={3}
         onChange={(e) => setText(e.target.value)}
-        placeholder={t('journal.reflectionPlaceholder')}
+        placeholder={t('life.j.freePh')}
         className="mt-2.5 w-full resize-y rounded-lg bg-ink/40 px-3 py-2.5 text-[13px] leading-relaxed text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
       />
       <div className="mt-2 flex items-center gap-2">
@@ -128,10 +126,10 @@ export default function JournalTab({
           onClick={save}
           className="press btn-accent rounded-lg px-4 py-2 text-sm font-semibold"
         >
-          {t('journal.saveEntry')}
+          {t('life.j.save')}
         </button>
         {savedTick > 0 && (
-          <span className="font-mono text-[11px] text-sage">{t('journal.saved')}</span>
+          <span className="font-mono text-[11px] text-sage">{t('life.j.saved')}</span>
         )}
       </div>
 
@@ -150,19 +148,21 @@ export default function JournalTab({
         <div className="mt-4 border-t border-line/60 pt-3">
           {summary && (
             <p className="font-mono text-[11px] leading-relaxed text-faint">
-              {t('journal.weekSummary', {
-                min: summary.minutes,
-                sessions: summary.sessions,
-                days: summary.daysActive,
+              {t('life.j.week', {
+                dur: fmtDur(summary.minutes),
+                sessions: tp('life.j.sessions', summary.sessions),
+                days: t('life.j.daysActive', { n: fmtNum(summary.daysActive) }),
+                mood:
+                  summary.mood !== null
+                    ? t('life.j.moodPart', { mood: summary.mood.toFixed(1) })
+                    : '',
               })}
-              {summary.mood !== null &&
-                t('journal.weekSummaryMood', { mood: summary.mood.toFixed(1) })}
             </p>
           )}
           <ul className="mt-2 space-y-1">
-            {WEEKLY_REFLECTION_PROMPTS.map((q) => (
-              <li key={q} className="text-[12px] text-sage">
-                → {q}
+            {WEEKLY_PROMPT_KEYS.map((qk) => (
+              <li key={qk} className="text-[12px] text-sage">
+                → {t(qk as TKey)}
               </li>
             ))}
           </ul>
@@ -177,7 +177,7 @@ export default function JournalTab({
                     <span className="font-mono text-[10px] text-faint">{e.dayKey}</span>
                     {e.mood !== undefined && (
                       <span className="font-mono text-[10px] text-sage">
-                        {e.mood}/5 · {MOOD_LABELS[e.mood]}
+                        {e.mood}/5 · {t(MOOD_KEYS[e.mood] as TKey)}
                       </span>
                     )}
                   </div>
@@ -188,7 +188,7 @@ export default function JournalTab({
           )}
         </div>
       )}
-      {!isPro && <p className="mt-3 font-mono text-[11px] text-faint">{t('journal.proUpsell')}</p>}
+      {!isPro && <p className="mt-3 font-mono text-[11px] text-faint">{t('life.j.pro')}</p>}
     </div>
   );
 }

@@ -23,7 +23,7 @@ import {
   impactEffort,
   syncParentCompletion,
 } from '../../lib/tasks';
-import { PRIORITY_LABELS, STATUS_LABELS, TASK_RECURRENCES, TASK_POINTS } from '../../lib/tasks';
+import { PRIORITY_LABELS, STATUS_KEYS, TASK_RECURRENCES, TASK_POINTS } from '../../lib/tasks';
 import { TrashIcon } from './icons';
 import type { TaskRowProps } from './types';
 import { openExternal, safeExternalUrl } from '../../lib/links';
@@ -36,14 +36,26 @@ function startOfToday(): number {
   return d.getTime();
 }
 
-function formatDue(dueAt: number): string {
-  return new Date(dueAt).toLocaleDateString([], { month: 'short', day: 'numeric' });
+function formatDue(dueAt: number, tag: string): string {
+  try {
+    return new Date(dueAt).toLocaleDateString(tag, { month: 'short', day: 'numeric' });
+  } catch {
+    return new Date(dueAt).toLocaleDateString([], { month: 'short', day: 'numeric' });
+  }
 }
 
-const RECURRENCE_KEY: Record<TaskRecurrence, TKey> = {
-  none: 'taskRow.recurrence.once',
-  daily: 'taskRow.recurrence.daily',
-  weekly: 'taskRow.recurrence.weekly',
+function formatDueLong(dueAt: number, tag: string): string {
+  try {
+    return new Date(dueAt).toLocaleDateString(tag);
+  } catch {
+    return new Date(dueAt).toLocaleDateString();
+  }
+}
+
+const RECURRENCE_LABELS: Record<TaskRecurrence, string> = {
+  none: 'task.rec.none',
+  daily: 'task.rec.daily',
+  weekly: 'task.rec.weekly',
 };
 
 /** Recursive task row: nesting, blockers, recurrence, due dates, notes. */
@@ -58,12 +70,12 @@ export default function TaskRow({
   selectedIds,
   onToggleSelect,
 }: TaskRowProps) {
-  const { t, tp } = useI18n();
   const [showDetails, setShowDetails] = useState(false);
   const [subDraft, setSubDraft] = useState('');
   const [blockerPick, setBlockerPick] = useState('');
   const [linkDraft, setLinkDraft] = useState('');
   const [completeFlash, setCompleteFlash] = useState(0);
+  const { t, tp, tag, fmtNum, fmtDur } = useI18n();
 
   const done = task.status === 'completed';
   const gate = canComplete(task, tasks);
@@ -132,11 +144,9 @@ export default function TaskRow({
               ? 'bg-accent text-on-accent ring-accent'
               : 'bg-ink/60 text-transparent ring-line hover:text-sage'
           }`}
-          aria-label={done ? t('taskRow.markIncomplete') : t('taskRow.markComplete')}
+          aria-label={t(done ? 'task.markOff' : 'task.markOn')}
           title={
-            !done && !gate.ok
-              ? t('taskRow.blockedByList', { names: gate.blockers.join(', ') })
-              : undefined
+            !done && !gate.ok ? t('task.blockedBy', { names: gate.blockers.join(', ') }) : undefined
           }
         >
           <svg
@@ -159,14 +169,54 @@ export default function TaskRow({
           }`}
           title={task.notes ?? task.title}
         >
+          <span className="mr-1.5 font-mono text-[10px] text-faint">{wbs}</span>
+          {task.milestone === true && <span title={t('task.milestoneHint')}>◆ </span>}
           {task.title}
         </button>
+        {!done && blockers.length > 0 && (
+          <span
+            className="shrink-0 rounded bg-tomato/15 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-tomato"
+            title={t('task.blockedBy', { names: gate.blockers.join(', ') })}
+          >
+            ⛔ {fmtNum(blockers.length)}
+          </span>
+        )}
+        {task.recurrence && task.recurrence !== 'none' && (
+          <span
+            className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-sage ring-1 ring-inset ring-line"
+            title={t('task.repeats', { rec: t(RECURRENCE_LABELS[task.recurrence] as TKey) })}
+          >
+            ↻ {t(task.recurrence === 'daily' ? 'task.recD' : 'task.recW')}
+          </span>
+        )}
+        {typeof task.points === 'number' && (
+          <span
+            className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] text-sage ring-1 ring-inset ring-line"
+            title={t('task.points')}
+          >
+            {t('task.pts', { n: fmtNum(task.points) })}
+          </span>
+        )}
+        {typeof task.estimateMin === 'number' && (
+          <span
+            className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] text-sage ring-1 ring-inset ring-line"
+            title={t('task.est')}
+          >
+            ~{fmtNum(task.estimateMin)}m
+          </span>
+        )}
+        <span
+          className="shrink-0 font-mono text-[9px] text-faint"
+          title={t('task.complex', { n: fmtNum(taskComplexity(task, tasks)) })}
+        >
+          ~{fmtNum(taskComplexity(task, tasks))}
+        </span>
         {task.dueAt !== undefined && (
           <span
             className={`shrink-0 font-mono text-[10px] ${overdue ? 'font-bold text-tomato' : 'text-faint'}`}
-            title={new Date(task.dueAt).toLocaleDateString()}
+            title={formatDueLong(task.dueAt, tag)}
           >
-            {formatDue(task.dueAt)}
+            {formatDue(task.dueAt, tag)}
           </span>
         )}
         <div className="ml-auto flex shrink-0 items-center gap-1">
@@ -189,15 +239,9 @@ export default function TaskRow({
             className={`press rounded p-1 font-mono text-[11px] hover:text-cream ${
               hasHiddenBadges && !showDetails ? 'text-sage' : 'text-faint'
             }`}
-            aria-label={
-              showDetails
-                ? t('taskRow.hideDetailsFor', { title: task.title })
-                : t('taskRow.showDetailsFor', { title: task.title })
-            }
+            aria-label={t(showDetails ? 'task.hideD' : 'task.showD', { title: task.title })}
             title={
-              hasHiddenBadges && !showDetails
-                ? t('taskRow.moreInfoTitle')
-                : t('taskRow.detailsTitle')
+              hasHiddenBadges && !showDetails ? t('taskRow.moreInfoTitle') : t('task.detailsTitle')
             }
           >
             ⋯
@@ -205,10 +249,10 @@ export default function TaskRow({
           <button
             onClick={() => onTasksChange(removeTask(tasks, task.id))}
             className="press rounded p-1 text-faint hover:text-tomato"
-            aria-label={t('taskRow.deleteTask', { title: task.title })}
+            aria-label={t('task.del', { title: task.title })}
             title={
               children.length > 0
-                ? t('taskRow.deletesSubtasksToo', { n: children.length })
+                ? tp('task.delSubs', children.length, { n: fmtNum(children.length) })
                 : undefined
             }
           >
@@ -244,7 +288,9 @@ export default function TaskRow({
             {task.recurrence && task.recurrence !== 'none' && (
               <span
                 className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-sage ring-1 ring-inset ring-line"
-                title={t('taskRow.repeats', { recurrence: t(RECURRENCE_KEY[task.recurrence]) })}
+                title={t('taskRow.repeats', {
+                  recurrence: t(RECURRENCE_LABELS[task.recurrence] as TKey),
+                })}
               >
                 ↻ {task.recurrence === 'daily' ? 'D' : 'W'}
               </span>
@@ -281,14 +327,14 @@ export default function TaskRow({
                 onTasksChange(updateTaskStatus(tasks, task.id, e.target.value as TaskStatus))
               }
               className="h-8 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              title={t('taskRow.workflowStatus')}
+              title={t('task.statusTitle')}
             >
               {(['pending', 'in_progress', 'blocked'] as const).map((s) => (
                 <option key={s} value={s}>
-                  {STATUS_LABELS[s]}
+                  {t(STATUS_KEYS[s] as TKey)}
                 </option>
               ))}
-              <option value="completed">{STATUS_LABELS.completed}</option>
+              <option value="completed">{t(STATUS_KEYS.completed as TKey)}</option>
             </select>
             <input
               type="date"
@@ -303,7 +349,7 @@ export default function TaskRow({
                 )
               }
               className="h-8 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              title={t('taskRow.dueDate')}
+              title={t('task.dueTitle')}
             />
             <select
               value={task.recurrence ?? 'none'}
@@ -311,11 +357,11 @@ export default function TaskRow({
                 onTasksChange(setRecurrence(tasks, task.id, e.target.value as TaskRecurrence))
               }
               className="h-8 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              title={t('taskRow.recurrenceTitle')}
+              title={t('task.recTitle')}
             >
               {TASK_RECURRENCES.map((r) => (
                 <option key={r} value={r}>
-                  {t(RECURRENCE_KEY[r])}
+                  {t(RECURRENCE_LABELS[r] as TKey)}
                 </option>
               ))}
             </select>
@@ -331,12 +377,12 @@ export default function TaskRow({
                 )
               }
               className="h-8 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              title={t('taskRow.storyPoints')}
+              title={t('task.ptsTitle')}
             >
-              <option value="">{t('taskRow.noPoints')}</option>
+              <option value="">{t('task.noPts')}</option>
               {TASK_POINTS.map((p) => (
                 <option key={p} value={p}>
-                  {t('taskRow.pointsOption', { n: p })}
+                  {t('task.pts', { n: fmtNum(p) })}
                 </option>
               ))}
             </select>
@@ -352,12 +398,12 @@ export default function TaskRow({
                 )
               }
               className="h-8 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              title={t('taskRow.timeEstimateTitle')}
+              title={t('task.estTitle')}
             >
-              <option value="">{t('taskRow.noEstimate')}</option>
+              <option value="">{t('task.noEst')}</option>
               {[15, 25, 50, 90, 120].map((m) => (
                 <option key={m} value={m}>
-                  {t('taskRow.estimateSuffix', { n: m })}
+                  ~{fmtDur(m)}
                 </option>
               ))}
             </select>
@@ -370,9 +416,7 @@ export default function TaskRow({
                   ? 'text-accent ring-accent/60'
                   : 'text-faint ring-line hover:text-cream'
               }`}
-              title={
-                task.milestone === true ? t('taskRow.removeMilestone') : t('taskRow.markMilestone')
-              }
+              title={t(task.milestone === true ? 'task.msOn' : 'task.msOff')}
               aria-pressed={task.milestone === true}
             >
               ◆
@@ -390,7 +434,7 @@ export default function TaskRow({
                 onTasksChange(setNotes(tasks, task.id, e.target.value));
               }
             }}
-            placeholder={t('taskRow.notesPlaceholder')}
+            placeholder={t('task.notesPh')}
             className="w-full resize-y rounded-lg bg-ink/50 px-2.5 py-2 text-[12px] leading-relaxed text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
           />
 
@@ -410,7 +454,7 @@ export default function TaskRow({
                       <button
                         onClick={() => openExternal(safe)}
                         className="press shrink-0 text-faint hover:text-cream"
-                        aria-label={t('taskRow.openLink', { link: l })}
+                        aria-label={t('task.openLink', { l })}
                         title={safe}
                       >
                         ↗
@@ -419,7 +463,7 @@ export default function TaskRow({
                     <button
                       onClick={() => onTasksChange(removeTaskLink(tasks, task.id, l))}
                       className="press shrink-0 text-faint hover:text-tomato"
-                      aria-label={t('taskRow.removeLink', { link: l })}
+                      aria-label={t('task.delLink', { l })}
                     >
                       ✕
                     </button>
@@ -440,7 +484,7 @@ export default function TaskRow({
                   setLinkDraft('');
                 }
               }}
-              placeholder={t('taskRow.attachLinkPlaceholder')}
+              placeholder={t('task.linkPh')}
               className="h-8 min-w-0 flex-1 rounded-lg bg-ink/50 px-2.5 font-mono text-[11px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
             />
           </div>
@@ -449,14 +493,14 @@ export default function TaskRow({
             <button
               onClick={() => onTasksChange(setTaskPriority(tasks, task.id, ie.suggested))}
               className="press w-fit rounded-lg bg-ink/50 px-2.5 py-1.5 font-mono text-[11px] text-sage ring-1 ring-inset ring-line hover:text-cream"
-              title={t('taskRow.suggestTitle', {
-                impact: ie.impact,
-                effort: ie.effort,
-                suggested: ie.suggested.toUpperCase(),
-                current: task.priority.toUpperCase(),
+              title={t('task.suggestTitle', {
+                i: ie.impact,
+                e: ie.effort,
+                s: ie.suggested.toUpperCase(),
+                now: task.priority.toUpperCase(),
               })}
             >
-              {t('taskRow.suggestApply', { priority: ie.suggested.toUpperCase() })}
+              {t('task.suggest', { s: ie.suggested.toUpperCase() })}
             </button>
           )}
 
@@ -481,7 +525,7 @@ export default function TaskRow({
                         )
                       }
                       className="press hover:text-cream"
-                      aria-label={t('taskRow.removeBlocker', { title: b.title })}
+                      aria-label={t('task.delBlocker', { title: b.title })}
                     >
                       ✕
                     </button>
@@ -495,9 +539,9 @@ export default function TaskRow({
                   value={blockerPick}
                   onChange={(e) => setBlockerPick(e.target.value)}
                   className="h-8 min-w-0 flex-1 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                  title={t('taskRow.mustCompleteFirst')}
+                  title={t('task.mustFirst')}
                 >
-                  <option value="">{t('taskRow.blockedByPlaceholder')}</option>
+                  <option value="">{t('task.blockedByPh')}</option>
                   {candidates.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.title}
@@ -509,7 +553,7 @@ export default function TaskRow({
                   disabled={!blockerPick}
                   className="press h-8 shrink-0 rounded-lg px-2.5 text-[12px] text-sage ring-1 ring-inset ring-line hover:text-cream disabled:opacity-40"
                 >
-                  {t('taskRow.add')}
+                  {t('proj.add')}
                 </button>
               </div>
             )}
@@ -524,21 +568,21 @@ export default function TaskRow({
                 maxLength={120}
                 onChange={(e) => setSubDraft(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addSubtask()}
-                placeholder={t('taskRow.addSubtaskPlaceholder')}
+                placeholder={t('task.subPh')}
                 className="h-8 min-w-0 flex-1 rounded-lg bg-ink/50 px-2.5 text-[12px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
               />
               <button
                 onClick={addSubtask}
                 disabled={!subDraft.trim()}
                 className="press btn-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg font-display text-base font-bold disabled:opacity-40"
-                aria-label={t('taskRow.addSubtask')}
+                aria-label={t('task.subAdd')}
               >
                 +
               </button>
             </div>
           ) : (
             <p className="font-mono text-[10px] text-faint">
-              {tp('taskRow.maxNestingDepth', children.length)}
+              {tp('task.maxDepth', children.length, { n: fmtNum(children.length) })}
             </p>
           )}
         </div>

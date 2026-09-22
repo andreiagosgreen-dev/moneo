@@ -148,9 +148,9 @@ export default function InsightsCard({
   };
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label={t('ins.ui.title')}>
+    <section className="card overflow-hidden px-6 py-6 sm:px-7" aria-label={t('ins.ui.title')}>
       <header className="flex items-center justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">
             {t('ins.ui.title')}
           </h2>
@@ -159,7 +159,7 @@ export default function InsightsCard({
           </p>
         </div>
         <span
-          className="rounded-full bg-ink/60 px-3 py-1 font-mono text-[11px] text-sage ring-1 ring-line"
+          className="shrink-0 rounded-full bg-ink/60 px-3 py-1 font-mono text-[11px] text-sage ring-1 ring-line"
           title={t('ins.ui.localTitle')}
         >
           {t('ins.ui.local')}
@@ -169,7 +169,7 @@ export default function InsightsCard({
       {insights.length === 0 && !lockedCount ? (
         <p className="mt-5 text-[13px] leading-relaxed text-faint">{t('ins.ui.empty')}</p>
       ) : (
-        <ul className="mt-4 space-y-3">
+        <ul className="mt-5 space-y-3">
           {insights.map((ins) => (
             <InsightRow
               key={ins.id}
@@ -183,9 +183,9 @@ export default function InsightsCard({
       )}
 
       {!isPro && lockedCount > 0 && (
-        <div className="mt-4 rounded-xl border border-line bg-ink/60 p-3.5">
+        <div className="mt-4 rounded-xl border border-line bg-ink/60 p-4">
           <div className="flex items-start justify-between gap-2">
-            <div>
+            <div className="min-w-0">
               <div className="text-[13px] font-semibold text-cream">
                 {tp('ins.ui.locked', lockedCount)}
               </div>
@@ -217,8 +217,8 @@ function InsightRow({
         ? t('ins.conf.medium')
         : t('ins.conf.low');
   return (
-    <li className="group rounded-xl border border-line/70 bg-ink/40 p-3.5 transition-colors hover:border-line">
-      <div className="flex items-start gap-3">
+    <li className="insight-row group">
+      <div className="flex items-start gap-3 pr-6">
         <span
           className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-accent/15 font-mono text-[13px] text-accent"
           aria-hidden
@@ -226,8 +226,8 @@ function InsightRow({
           {KIND_ICON[insight.kind]}
         </span>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <h3 className="text-[13px] font-semibold text-cream">{insight.title}</h3>
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="min-w-0 text-[13px] font-semibold text-cream">{insight.title}</h3>
             {insight.tier === 'pro' && (
               <span className="rounded-full bg-accent/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-accent">
                 Pro
@@ -244,8 +244,8 @@ function InsightRow({
               {confLabel}
             </span>
           </div>
-          <p className="mt-1 text-[12px] leading-relaxed text-sage">{insight.body}</p>
-          <details className="mt-1.5">
+          <p className="mt-1.5 text-[12px] leading-relaxed text-sage">{insight.body}</p>
+          <details className="mt-2">
             <summary className="cursor-pointer font-mono text-[10px] text-faint hover:text-sage">
               {t('ins.ui.why')}
             </summary>
@@ -255,7 +255,7 @@ function InsightRow({
             </p>
           </details>
           {insight.cta.type !== 'none' && (
-            <div className="mt-2">
+            <div className="mt-2.5">
               {acted ? (
                 <span className="font-mono text-[11px] font-semibold text-mint">
                   {t('ins.ui.done')}
@@ -271,14 +271,14 @@ function InsightRow({
             </div>
           )}
         </div>
-        <button
-          onClick={onDismiss}
-          aria-label={t('ins.ui.dismiss', { title: insight.title })}
-          className="press shrink-0 rounded-md px-1.5 py-0.5 font-mono text-[13px] text-faint opacity-0 transition-opacity hover:text-sage focus:opacity-100 group-hover:opacity-100"
-        >
-          ×
-        </button>
       </div>
+      <button
+        onClick={onDismiss}
+        aria-label={t('ins.ui.dismiss', { title: insight.title })}
+        className="insight-row-dismiss press rounded-md px-1.5 py-0.5 font-mono text-[13px] text-faint opacity-0 transition-opacity hover:text-sage focus:opacity-100 group-hover:opacity-100"
+      >
+        ×
+      </button>
     </li>
   );
 }

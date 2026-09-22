@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import type { Task, TaskStatus } from '../../lib/tasks';
 import {
   TASK_STATUSES,
-  STATUS_LABELS,
+  STATUS_KEYS,
   tasksForProject,
   updateTaskStatus,
   completeTask,
@@ -11,6 +11,7 @@ import {
 } from '../../lib/tasks';
 import type { BoardProps } from './types';
 import { useI18n } from '../../lib/i18n/LocaleContext';
+import type { TKey } from '../../lib/i18n/types';
 const STATUS_ORDER: TaskStatus[] = ['pending', 'in_progress', 'blocked', 'completed'];
 
 export default function BoardTab({
@@ -21,7 +22,7 @@ export default function BoardTab({
   commitBoard,
   isPro,
 }: BoardProps) {
-  const { t } = useI18n();
+  const { t, fmtNum } = useI18n();
   const scoped = useMemo(
     () => (projectId ? tasksForProject(tasks, projectId) : []),
     [tasks, projectId],
@@ -52,9 +53,9 @@ export default function BoardTab({
 
   if (!projectId) {
     return (
-      <p className="rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] text-faint">
-        {t('board.projectRequired')}
-      </p>
+      <div className="empty-panel">
+        <p className="text-[13px] text-sage">{t('agile.board.none')}</p>
+      </div>
     );
   }
 
@@ -98,11 +99,18 @@ export default function BoardTab({
       <div className="flex items-center justify-between gap-2">
         {isPro && flow ? (
           <p className="font-mono text-[11px] text-faint">
-            {t('board.doneWeek', { n: flow.throughput })}
-            {flow.avgCycle !== null &&
-              t('board.avgCycle', {
-                d: flow.avgCycle < 1 ? t('board.lessThanOneDay') : `${flow.avgCycle.toFixed(1)}d`,
-              })}
+            {t('agile.flow', {
+              n: fmtNum(flow.throughput),
+              avg:
+                flow.avgCycle !== null
+                  ? t('agile.flowAvg', {
+                      avg:
+                        flow.avgCycle < 1
+                          ? t('agile.ltDay')
+                          : t('agile.days', { n: flow.avgCycle.toFixed(1) }),
+                    })
+                  : '',
+            })}
           </p>
         ) : (
           <span />
@@ -115,15 +123,15 @@ export default function BoardTab({
               : 'text-faint ring-line hover:text-cream'
           }`}
           aria-pressed={lanes === 'priority'}
-          title={t('board.lanesTitle')}
+          title={t('agile.lanesTitle')}
         >
-          {t('board.lanes', { state: lanes === 'off' ? t('board.lanesOff') : 'P0–P3' })}
+          {t('agile.lanes', { mode: lanes === 'off' ? t('agile.lanesOff') : 'P0–P3' })}
         </button>
       </div>
       {isPro && (
         <details className="mt-2">
           <summary className="cursor-pointer font-mono text-[10px] text-faint hover:text-cream">
-            {t('board.settingsSummary')}
+            {t('agile.boardSettings')}
           </summary>
           <div className="mt-1.5 space-y-1">
             {TASK_STATUSES.map((s) => (
@@ -138,9 +146,9 @@ export default function BoardTab({
                     else delete columnLabels[s];
                     commitBoard({ ...board, columnLabels });
                   }}
-                  placeholder={STATUS_LABELS[s]}
+                  placeholder={t(STATUS_KEYS[s] as TKey)}
                   className="h-7 min-w-0 flex-1 rounded-lg bg-ink/50 px-2 font-mono text-[11px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
-                  aria-label={t('board.labelFor', { status: STATUS_LABELS[s] })}
+                  aria-label={t('agile.colLabel', { name: t(STATUS_KEYS[s] as TKey) })}
                 />
                 <button
                   onClick={() => {
@@ -155,9 +163,9 @@ export default function BoardTab({
                       : 'text-faint ring-line hover:text-cream'
                   }`}
                   aria-pressed={board.hidden.includes(s)}
-                  title={board.hidden.includes(s) ? t('board.showColumn') : t('board.hideColumn')}
+                  title={t(board.hidden.includes(s) ? 'agile.colShow' : 'agile.colHide')}
                 >
-                  {board.hidden.includes(s) ? t('board.hidden') : t('board.hide')}
+                  {t(board.hidden.includes(s) ? 'agile.hidden' : 'agile.hide')}
                 </button>
               </div>
             ))}
@@ -188,7 +196,7 @@ export default function BoardTab({
             >
               <div className="flex items-baseline justify-between gap-2">
                 <span className="text-[12px] font-bold text-cream">
-                  {board.columnLabels[status] ?? STATUS_LABELS[status]}{' '}
+                  {board.columnLabels[status] ?? t(STATUS_KEYS[status] as TKey)}{' '}
                   <span
                     className={`font-mono text-[11px] ${over ? 'font-bold text-tomato' : 'text-faint'}`}
                   >
@@ -214,13 +222,13 @@ export default function BoardTab({
                     }}
                     placeholder={t('board.wip')}
                     className="h-6 w-14 rounded bg-ink/60 px-1.5 font-mono text-[10px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
-                    title={t('board.wipLimitTitle')}
+                    title={t('agile.wipTitle')}
                   />
                 )}
               </div>
               {over && (
                 <p className="mt-1 font-mono text-[10px] font-bold text-tomato">
-                  {t('board.wipExceeded')}
+                  {t('agile.wipOver')}
                 </p>
               )}
               <ul className="mt-1.5 space-y-1">
@@ -252,29 +260,29 @@ export default function BoardTab({
                             onClick={() => move(card, -1)}
                             disabled={card.status === 'pending'}
                             className="press shrink-0 rounded px-1 font-mono text-[12px] text-faint hover:text-cream disabled:opacity-30"
-                            aria-label={t('board.moveBack')}
+                            aria-label={t('agile.back')}
                           >
                             ‹
                           </button>
                           <span
                             className="min-w-0 flex-1 truncate text-[12px] text-cream/90"
-                            title={t('board.dragHint', { title: card.title })}
+                            title={t('agile.dragHint', { title: card.title })}
                           >
                             {isPro && critical.has(card.id) && (
-                              <span title={t('board.criticalPath')}>⛓ </span>
+                              <span title={t('agile.critical')}>⛓ </span>
                             )}
                             {card.title}
                           </span>
                           {typeof card.points === 'number' && (
                             <span className="shrink-0 font-mono text-[10px] text-faint">
-                              {t('board.points', { n: card.points })}
+                              {t('task.pts', { n: fmtNum(card.points) })}
                             </span>
                           )}
                           <button
                             onClick={() => move(card, 1)}
                             disabled={card.status === 'completed'}
                             className="press shrink-0 rounded px-1 font-mono text-[12px] text-faint hover:text-cream disabled:opacity-30"
-                            aria-label={t('board.moveForward')}
+                            aria-label={t('agile.fwd')}
                           >
                             ›
                           </button>
@@ -285,18 +293,18 @@ export default function BoardTab({
                 ))}
                 {lanes === 'off' && col.length > 6 && (
                   <li className="font-mono text-[10px] text-faint">
-                    {t('board.more', { n: col.length - 6 })}
+                    {t('agile.more', { n: fmtNum(col.length - 6) })}
                   </li>
                 )}
                 {col.length === 0 && (
-                  <li className="font-mono text-[10px] text-faint">{t('board.emptyColumn')}</li>
+                  <li className="font-mono text-[10px] text-faint">{t('agile.emptyCol')}</li>
                 )}
               </ul>
             </div>
           );
         })}
       </div>
-      {!isPro && <p className="mt-3 font-mono text-[11px] text-faint">{t('board.proUpsell')}</p>}
+      {!isPro && <p className="mt-3 font-mono text-[11px] text-faint">{t('agile.proBox')}</p>}
     </div>
   );
 }

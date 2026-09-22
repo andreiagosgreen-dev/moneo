@@ -6,8 +6,21 @@
  */
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
+import { createI18n, type I18n } from './i18n';
+
+/** Default English translator — keeps helpers usable without a provider. */
+const EN_I18N = createI18n('en');
 
 export type LifeAreaKey = 'health' | 'relationships' | 'learning' | 'work' | 'finance';
+
+/** Translation keys for the five default area labels (UI renders via t()). */
+export const AREA_LABEL_KEYS: Record<LifeAreaKey, string> = {
+  health: 'life.area.health',
+  relationships: 'life.area.relationships',
+  learning: 'life.area.learning',
+  work: 'life.area.work',
+  finance: 'life.area.finance',
+};
 
 export interface LifeArea {
   id: string;
@@ -138,6 +151,7 @@ export function balanceReport(
   history: Array<{ areaId?: string; min: number; at: number }>,
   now: number = Date.now(),
   days = 7,
+  i18n: I18n = EN_I18N,
 ): BalanceReport {
   const windowStart = now - Math.max(1, days) * 24 * 60 * 60 * 1000;
   const inWindow = history.filter(
@@ -177,12 +191,11 @@ export function balanceReport(
   const workAlloc = workArea ? allocations.find((a) => a.id === workArea.id)! : null;
   const overtime = workAlloc !== null && workAlloc.actualPct > workAlloc.targetPct + 10;
 
-  let advice = 'Balanced week — keep the rhythm.';
-  if (totalMin === 0) advice = 'No focus time logged — link Focus Areas to see balance.';
-  else if (overtime && neglected)
-    advice = `Work is crowding out ${neglected.label} — protect one block for it tomorrow.`;
-  else if (overtime) advice = 'Work overshoots its share — schedule a hard stop.';
-  else if (neglected) advice = `${neglected.label} is under-served — give it the next open block.`;
+  let advice = i18n.t('life.areas.balanced');
+  if (totalMin === 0) advice = i18n.t('life.areas.empty');
+  else if (overtime && neglected) advice = i18n.t('life.areas.crowd', { label: neglected.label });
+  else if (overtime) advice = i18n.t('life.areas.over');
+  else if (neglected) advice = i18n.t('life.areas.under', { label: neglected.label });
 
   return {
     totalMin,
@@ -216,20 +229,20 @@ export interface BurnoutGauge {
  * Rule-based burnout read from combined signals. Needs at least two
  * weak signals for guarded, four points for high. Never throws.
  */
-export function burnoutGauge(input: BurnoutInput): BurnoutGauge {
+export function burnoutGauge(input: BurnoutInput, i18n: I18n = EN_I18N): BurnoutGauge {
   let score = 0;
   const reasons: string[] = [];
   if (input.overtime) {
     score += 2;
-    reasons.push('Work overshoots its share');
+    reasons.push(i18n.t('life.bo.r.over'));
   }
   if (input.mood !== null && Number.isFinite(input.mood) && input.mood < 2.5) {
     score += 2;
-    reasons.push('Mood running low');
+    reasons.push(i18n.t('life.bo.r.mood'));
   }
   if (input.energy !== null && Number.isFinite(input.energy) && input.energy < 4) {
     score += 1;
-    reasons.push('Energy running low');
+    reasons.push(i18n.t('life.bo.r.energy'));
   }
   if (
     input.frogSkipRate !== null &&
@@ -237,7 +250,7 @@ export function burnoutGauge(input: BurnoutInput): BurnoutGauge {
     input.frogSkipRate > 0.5
   ) {
     score += 1;
-    reasons.push('Frogs keep slipping');
+    reasons.push(i18n.t('life.bo.r.frog'));
   }
   return {
     level: score >= 4 ? 'high' : score >= 2 ? 'guarded' : 'low',

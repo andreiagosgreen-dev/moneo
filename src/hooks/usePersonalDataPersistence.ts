@@ -56,7 +56,7 @@ export interface PersistedState {
   savedFilters: SavedFilter[];
 }
 
-export function useAppPersistence(s: PersistedState): void {
+export function usePersonalDataPersistence(s: PersistedState): void {
   const {
     settings,
     history,

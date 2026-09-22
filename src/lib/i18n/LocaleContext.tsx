@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react';
-import { createI18n, saveLocale, type I18n, type Locale } from './index';
+import { createI18n, saveLocale, type Dictionary, type I18n, type Locale } from './index';
 
 interface LocaleValue extends I18n {
   setLocale: (locale: Locale) => void;
@@ -9,15 +9,17 @@ const Ctx = createContext<LocaleValue | null>(null);
 
 export function LocaleProvider({
   locale,
+  dictionary,
   onLocaleChange,
   children,
 }: {
   locale: Locale;
+  dictionary?: Dictionary;
   onLocaleChange: (locale: Locale) => void;
   children: ReactNode;
 }) {
   const value = useMemo<LocaleValue>(() => {
-    const i18n = createI18n(locale);
+    const i18n = createI18n(locale, dictionary);
     return {
       ...i18n,
       setLocale: (next: Locale) => {
@@ -25,7 +27,7 @@ export function LocaleProvider({
         onLocaleChange(next);
       },
     };
-  }, [locale, onLocaleChange]);
+  }, [locale, dictionary, onLocaleChange]);
 
   useEffect(() => {
     document.documentElement.lang = value.tag;

@@ -9,7 +9,6 @@ import type { Goal } from '../../lib/goals';
 import type { Project } from '../../lib/projects';
 import type { Skill } from '../../lib/skills';
 import type { Session } from '../../lib/store';
-import type { TKey } from '../../lib/i18n/types';
 import type { EntityLink } from '../../lib/entityLinks';
 import type { Objective } from '../../lib/okrs';
 
@@ -41,7 +40,7 @@ export interface LifeCardProps {
 
 export type LifeTab = 'habits' | 'balance' | 'journal' | 'energy';
 
-export const LIFE_TABS: Array<{ id: LifeTab; label: TKey }> = [
+export const LIFE_TABS: Array<{ id: LifeTab; label: string }> = [
   { id: 'habits', label: 'life.tab.habits' },
   { id: 'balance', label: 'life.tab.balance' },
   { id: 'journal', label: 'life.tab.journal' },

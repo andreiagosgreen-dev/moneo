@@ -1,0 +1,92 @@
+/**
+ * Mono design tokens (V1 Mono prototype).
+ *
+ * Parallel layer: `--mono-*` variables coexist with the legacy theme tokens,
+ * so old screens keep rendering while screens migrate to Mono one by one.
+ * Light is the default; `[data-theme='dark']` carries the Mono dark palette
+ * (paper-becomes-ink inversion: the session card stays the memorised block).
+ */
+
+:root {
+  --mono-bg: #fafaf9;
+  --mono-bg-2: #f2f2f1;
+  --mono-surface: #ffffff;
+  --mono-raised: #ffffff;
+  --mono-panel: #f2f2f1;
+  --mono-ink: #16181d;
+  --mono-ink-2: #1f2127;
+  --mono-on-ink: #ffffff;
+  --mono-on-ink-muted: rgba(255, 255, 255, 0.78);
+  --mono-on-ink-faint: rgba(255, 255, 255, 0.58);
+  --mono-fg: #1e1e1e;
+  --mono-fg-2: #0f0f0f;
+  --mono-muted: #4a4a4a;
+  --mono-muted-2: #5e5e5e;
+  --mono-border: rgba(34, 42, 53, 0.1);
+  --mono-border-2: rgba(34, 42, 53, 0.2);
+  --mono-accent: #2563eb;
+  --mono-accent-2: #1d4ed8;
+  --mono-accent-soft: rgba(37, 99, 235, 0.1);
+  --mono-success: #15803d;
+  --mono-danger: #b42318;
+
+  --mono-r-card: 18px;
+  --mono-r-btn: 12px;
+  --mono-r-pill: 999px;
+  --mono-sh-card:
+    0 1px 2px rgba(19, 19, 22, 0.04), 0 8px 24px -8px rgba(19, 19, 22, 0.12),
+    0 0 0 1px rgba(34, 42, 53, 0.08);
+  --mono-sh-pop: 0 16px 40px -12px rgba(19, 19, 22, 0.3), 0 0 0 1px rgba(34, 42, 53, 0.08);
+  --mono-sh-ink: 0 18px 40px -18px rgba(19, 19, 22, 0.55), 0 0 0 1px rgba(19, 19, 22, 0.6);
+
+  --mono-dur: 150ms;
+  --mono-ease: cubic-bezier(0.2, 0, 0, 1);
+
+  --mono-font-display: 'Cal Sans', 'Inter', system-ui, sans-serif;
+  --mono-font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Tabular labels inherit body; atmospheres may refine via atmosphere-type.css */
+  --mono-font-mono: var(--mono-font-body);
+  /* Legacy aliases — keep in sync for index.css / older card styles */
+  --font-display: var(--mono-font-display);
+  --font-body: var(--mono-font-body);
+  --font-mono: var(--mono-font-mono);
+  --mono-nav-bg: rgba(255, 255, 255, 0.92);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --mono-bg: #131416;
+  --mono-bg-2: #1c1e22;
+  --mono-surface: #202329;
+  --mono-raised: #262a32;
+  --mono-panel: #1c1e22;
+  --mono-ink: #ededeb;
+  --mono-ink-2: #e2e2df;
+  --mono-on-ink: #16181d;
+  --mono-on-ink-muted: rgba(22, 24, 29, 0.78);
+  --mono-on-ink-faint: rgba(22, 24, 29, 0.58);
+  --mono-fg: #efefed;
+  --mono-fg-2: #ffffff;
+  --mono-muted: #b4b9bf;
+  --mono-muted-2: #9aa1a9;
+  --mono-border: rgba(255, 255, 255, 0.1);
+  --mono-border-2: rgba(255, 255, 255, 0.2);
+  --mono-accent: #5e8bff;
+  --mono-accent-2: #8bacff;
+  --mono-accent-soft: rgba(94, 139, 255, 0.16);
+  --mono-success: #4ade80;
+  --mono-danger: #f87171;
+
+  --mono-sh-card:
+    0 1px 2px rgba(0, 0, 0, 0.35), 0 12px 36px -10px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  --mono-sh-pop: 0 16px 40px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --mono-sh-ink: 0 18px 40px -18px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  --mono-nav-bg: rgba(32, 35, 41, 0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --mono-dur: 0.001ms;
+  }
+}

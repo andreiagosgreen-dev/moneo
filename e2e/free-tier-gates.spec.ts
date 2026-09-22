@@ -12,18 +12,17 @@ test.describe('Free-tier project limit', () => {
     await skipOnboarding(page);
     await page.goto('/');
 
-    await page.getByRole('tab', { name: 'More sections' }).click();
-    await page.getByRole('menuitem', { name: /Projects/i }).click();
+    await page.getByRole('tab', { name: 'Projects', exact: true }).click();
 
     for (let i = 1; i <= 3; i++) {
-      await page.getByRole('button', { name: '+ New Project' }).click();
+      await page.getByRole('button', { name: '+ New Project' }).first().click();
       const nameInput = page.getByPlaceholder('e.g. Client X App, Thesis, Mobile Redesign');
       await nameInput.fill(`Project ${i}`);
       await page.getByRole('button', { name: 'Add', exact: true }).click();
       await expect(nameInput).toHaveCount(0);
     }
 
-    await page.getByRole('button', { name: '+ New Project' }).click();
+    await page.getByRole('button', { name: '+ New Project' }).first().click();
     await expect(page.getByText('Free limit reached (3 projects)')).toBeVisible();
     await expect(page.getByPlaceholder('e.g. Client X App, Thesis, Mobile Redesign')).toHaveCount(
       0,

@@ -1,16 +1,12 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-display: 'Sora', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'Spline Sans Mono', ui-monospace, SFMono-Regular, monospace;
-
-  --color-ink: #08090d;
-  --color-pine: #0d111a;
-  --color-card: #10141e;
-  --color-card2: #151b28;
-  --color-line: #262f47;
-  --color-cream: #f5f6fb;
+  --color-ink: #0f1117;
+  --color-pine: #131824;
+  --color-card: #161c29;
+  --color-card2: #1a2233;
+  --color-line: #263049;
+  --color-cream: #f2f4f9;
   --color-sage: #9aa7bd;
   --color-faint: #7c8aa6;
   --color-tomato: #f07167;
@@ -21,10 +17,14 @@
   --color-sky-deep: #4f7dd6;
 }
 
-/* Bridge the runtime accent vars (--accent set by data-mode / data-accent)
- * into real Tailwind color utilities, so text-accent, bg-accent/*,
- * ring-accent/* etc. resolve dynamically instead of being dead classes. */
+/* Runtime theme bridges: accent + Mono fonts (shared across atmospheres).
+ * font-sans / font-display / font-mono follow --mono-font-* from atmosphere-type.css.
+ * Atmospheres change colors only; type stays identical. */
 @theme inline {
+  --font-sans: var(--mono-font-body);
+  --font-display: var(--mono-font-display);
+  --font-mono: var(--mono-font-mono);
+  --font-body: var(--mono-font-body);
   --color-accent: var(--accent);
   --color-accent-deep: var(--accent-deep);
   --color-on-accent: var(--on-accent);
@@ -126,16 +126,18 @@ html[data-theme='light'] body {
 }
 
 [data-theme='light'] .card {
-  box-shadow:
+  box-shadow: var(
+    --mono-sh-card,
     0 1px 0 rgb(255 255 255 / 0.7) inset,
-    0 16px 40px -24px rgb(19 26 38 / 0.22);
+    0 16px 40px -24px rgb(19 26 38 / 0.22)
+  );
 }
 
 [data-theme='light'] .btn-ghost {
-  background: rgb(19 26 38 / 0.03);
+  background: var(--color-card2);
 }
 [data-theme='light'] .btn-ghost:hover {
-  background: rgb(var(--accent-rgb) / 0.1);
+  background: color-mix(in oklab, var(--accent) 10%, var(--color-card2));
 }
 
 [data-theme='light'] .kbd {
@@ -154,11 +156,9 @@ html[data-theme='light'] body {
   background: rgb(237 240 245 / 0.82);
 }
 
-/* ---------- font options (Premium Polish) ---------- */
-html[data-font='serif'] {
-  --font-display: 'Instrument Serif', 'Playfair Display', Georgia, serif;
-  --font-body: 'Instrument Sans', Georgia, serif;
-}
+/* ---------- font options (Premium Polish) ----------
+ * Named Pro packs live in mono/pro-fonts.css (loaded after atmosphere-type)
+ * so they win over the shared Literata+Inter defaults without touching colors. */
 
 html[data-font-scale='comfort'] {
   font-size: 16.5px;
@@ -183,7 +183,7 @@ body {
     linear-gradient(165deg, #0c0e15 0%, #06070a 45%, #08090d 100%);
   background-attachment: fixed;
   color: var(--color-cream);
-  font-family: var(--font-body);
+  font-family: var(--mono-font-body, var(--font-body));
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -259,20 +259,15 @@ body {
 /* ---------- cards & controls ---------- */
 .card {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  border-radius: 22px;
-  border: 1px solid var(--color-line);
-  background:
-    linear-gradient(160deg, rgb(var(--accent-rgb) / 0.07), transparent 42%),
-    linear-gradient(180deg, var(--color-card2), var(--color-card));
-  box-shadow:
-    0 1px 0 rgb(255 255 255 / 0.06) inset,
-    0 0 0 1px rgb(0 0 0 / 0.3),
-    0 24px 48px -28px rgb(0 0 0 / 0.8);
+  border-radius: 20px;
+  border: 0;
+  background: var(--color-card);
+  box-shadow: var(
+    --mono-sh-card,
+    0 1px 0 rgb(255 255 255 / 0.05) inset,
+    0 24px 48px -28px rgb(0 0 0 / 0.65)
+  );
   transition:
-    border-color 0.3s ease,
     box-shadow 0.3s ease,
     background 0.6s ease;
 }
@@ -292,24 +287,11 @@ body {
   pointer-events: none;
 }
 .card:hover {
-  border-color: color-mix(in oklab, var(--color-line) 55%, var(--color-cream));
-  box-shadow:
-    0 1px 0 rgb(255 255 255 / 0.07) inset,
-    0 0 0 1px rgb(0 0 0 / 0.3),
-    0 28px 56px -28px rgb(0 0 0 / 0.85);
-}
-
-/* ---------- accentuated headings (Premium Polish) ---------- */
-h1,
-h2,
-h3 {
-  letter-spacing: -0.012em;
-  text-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
-}
-[data-theme='light'] h1,
-[data-theme='light'] h2,
-[data-theme='light'] h3 {
-  text-shadow: none;
+  box-shadow: var(
+    --mono-sh-card,
+    0 1px 0 rgb(255 255 255 / 0.06) inset,
+    0 28px 56px -28px rgb(0 0 0 / 0.7)
+  );
 }
 
 .press {
@@ -336,7 +318,7 @@ h3 {
   background: var(--accent);
   color: var(--on-accent);
   box-shadow:
-    0 10px 28px -10px rgb(var(--accent-rgb) / 0.65),
+    0 10px 28px -10px color-mix(in oklab, var(--accent) 55%, transparent),
     0 1px 0 rgb(255 255 255 / 0.25) inset;
   transition:
     transform 0.14s ease,
@@ -348,7 +330,7 @@ h3 {
   background: color-mix(in oklab, var(--accent) 88%, white);
   transform: translateY(-1px);
   box-shadow:
-    0 14px 34px -10px rgb(var(--accent-rgb) / 0.75),
+    0 14px 34px -10px color-mix(in oklab, var(--accent) 65%, transparent),
     0 1px 0 rgb(255 255 255 / 0.25) inset;
 }
 .btn-accent:active {
@@ -357,17 +339,29 @@ h3 {
 
 .btn-ghost {
   border: 1px solid var(--color-line);
-  color: var(--color-sage);
-  background: rgb(255 255 255 / 0.02);
+  color: var(--color-cream);
+  background: var(--color-card2);
+  font-weight: 600;
 }
 .btn-ghost:hover {
   color: var(--color-cream);
-  border-color: rgb(var(--accent-rgb) / 0.45);
-  background: rgb(var(--accent-rgb) / 0.08);
+  border-color: color-mix(in oklab, var(--accent) 45%, var(--color-line));
+  background: color-mix(in oklab, var(--accent) 12%, var(--color-card2));
+}
+
+/* Pricing lists: high-contrast benefit names on every atmosphere
+ * (tokens cascade via --color-* / --accent; avoid hardcoded emerald/yellow). */
+.pricing-surface .pricing-feature-list {
+  margin-block-start: 1rem;
+}
+.pricing-surface .pricing-feature-list > li > span {
+  color: var(--color-cream);
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .kbd {
-  font-family: var(--font-mono);
+  font-family: var(--mono-font-mono, var(--font-mono));
   font-size: 10px;
   padding: 2px 6px;
   border-radius: 6px;
@@ -391,7 +385,7 @@ h3 {
   position: relative;
   border-radius: 10px;
   padding: 7px 13px;
-  font-family: var(--font-body);
+  font-family: var(--mono-font-body, var(--font-body));
   font-size: 13px;
   font-weight: 600;
   color: var(--color-faint);
@@ -444,8 +438,10 @@ button:focus-visible {
 }
 
 /* ---------- brand ---------- */
-.brand-mark .mark-accent {
-  transition: fill 0.6s ease;
+.brand-mark {
+  display: block;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 /* ---------- growth ---------- */
@@ -642,6 +638,25 @@ html[data-focusing='true'] .dim-in-focus:focus-within {
   filter: drop-shadow(0 6px 14px rgb(0 0 0 / 0.45)) drop-shadow(0 0 12px var(--seg-glow));
 }
 .map-seg:focus {
+  outline: none;
+}
+
+.radar-poly {
+  transition:
+    opacity 0.35s ease,
+    stroke-width 0.2s ease;
+}
+.radar-node circle {
+  transition:
+    r 0.18s ease,
+    stroke-width 0.18s ease,
+    filter 0.18s ease;
+}
+.radar-node circle:hover,
+.radar-node circle:focus-visible {
+  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--accent) 55%, transparent));
+}
+.radar-node circle:focus {
   outline: none;
 }
 

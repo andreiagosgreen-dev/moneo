@@ -13,6 +13,7 @@
 
 import { handleAccountDelete } from './account';
 import { classifySubscriptionEvent } from './billing';
+import { handleCustomerPortal } from './portal';
 import { handleAIPlan } from './ai';
 import {
   handleCalendarConnect,
@@ -73,6 +74,7 @@ export interface Env {
   SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
   LEMON_SQUEEZY_WEBHOOK_SECRET?: string;
+  LEMON_SQUEEZY_API_KEY?: string;
   AI_API_KEY?: string;
   AI_MODEL?: string;
   /** Comma-separated list of allowed front-end origins. */
@@ -165,6 +167,12 @@ export default {
     // the caller's JWT, verified server-side against Supabase Auth.
     if (url.pathname === '/api/account/delete') {
       return handleAccountDelete(request, env);
+    }
+
+    // Customer Portal session for self-serve cancel/upgrade/downgrade.
+    // Same-origin, JWT-gated; the Lemon Squeezy API key never leaves the Worker.
+    if (url.pathname === '/api/billing/portal') {
+      return handleCustomerPortal(request, env);
     }
 
     // Server-side AI planner (Faza 6): JWT-gated, rate-limited, audited.

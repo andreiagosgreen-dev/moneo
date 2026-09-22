@@ -320,7 +320,7 @@ describe('respondTo — modify-task intents', () => {
 
   it('resolves "it" against the focus task from a prior turn', () => {
     const ctx = makeCtx({ tasks: [makeTask({ id: 'a', title: 'Ship the release' })] });
-    const reply = respondTo('make it p0', ctx, 'concise', 'a');
+    const reply = respondTo('make it p0', ctx, 'concise', undefined, 'a');
     expect(reply.action).toEqual({ type: 'reprioritize-task', taskId: 'a', priority: 'p0' });
   });
 });

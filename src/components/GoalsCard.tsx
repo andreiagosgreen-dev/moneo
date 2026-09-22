@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 import type { Goal, GoalLevel } from '../lib/goals';
 import {
   GOAL_LEVELS,
-  GOAL_LEVEL_LABELS,
-  GOAL_LEVEL_SHORT_LABELS,
+  GOAL_LEVEL_KEYS,
+  GOAL_SHORT_KEYS,
   FREE_GOALS_LIMIT,
   archivedGoals,
   canParent,
@@ -19,7 +19,7 @@ import {
   suggestTasksForGoal,
   updateGoal,
 } from '../lib/goals';
-import type { LifeArea } from '../lib/lifeAreas';
+import { AREA_LABEL_KEYS, type LifeArea } from '../lib/lifeAreas';
 import type { Project } from '../lib/projects';
 import { activeProjects, createProjectObject } from '../lib/projects';
 import type { Task } from '../lib/tasks';
@@ -31,6 +31,8 @@ import { cleanupLinksFor, type EntityLink } from '../lib/entityLinks';
 import type { Skill } from '../lib/skills';
 import type { Objective } from '../lib/okrs';
 import LinkedItems from './LinkedItems';
+import { horizonToGoalLevel, type PlanningHorizon } from '../lib/horizons';
+import type { TKey } from '../lib/i18n/types';
 
 interface Props {
   goals: Goal[];
@@ -72,14 +74,21 @@ export default function GoalsCard({
   objectives,
   isPro = false,
 }: Props) {
-  const { t, tp } = useI18n();
   const [draft, setDraft] = useState('');
   const [draftLevel, setDraftLevel] = useState<GoalLevel>('project');
+  const [horizonFilter] = useState<PlanningHorizon | 'all'>('all');
   const [draftParent, setDraftParent] = useState('');
   const [showArchived, setShowArchived] = useState(false);
+  const i18n = useI18n();
+  const { t, tp, fmtNum } = i18n;
 
   const liveProjects = useMemo(() => activeProjects(projects), [projects]);
   const roots = useMemo(() => rootGoals(goals), [goals]);
+  const visibleRoots = useMemo(() => {
+    if (horizonFilter === 'all') return roots;
+    const level = horizonToGoalLevel(horizonFilter);
+    return roots.filter((g) => g.level === level);
+  }, [roots, horizonFilter]);
   const archived = useMemo(() => archivedGoals(goals), [goals]);
   const progressOf = useMemo(() => {
     const map = new Map<string, number>();
@@ -148,24 +157,21 @@ export default function GoalsCard({
   };
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label={t('goals.ariaLabel')}>
+    <section className="card flex h-full flex-col px-6 py-6 sm:px-7" aria-label={t('goal.aria')}>
       <header className="flex items-baseline justify-between gap-3">
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">
-            {t('goals.title')}
+            {t('goal.title')}
           </h2>
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            {isPro
-              ? t('goals.subtitlePro')
-              : t('goals.subtitleFree', { n: String(FREE_GOALS_LIMIT) })}
+          <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.14em] text-sage">
+            {isPro ? t('goal.subPro') : t('goal.subFree', { n: fmtNum(FREE_GOALS_LIMIT) })}
           </p>
         </div>
       </header>
 
       {conflicts.length > 0 && (
         <p className="mt-3 rounded-lg bg-tomato/10 px-3 py-2 font-mono text-[11px] text-tomato ring-1 ring-inset ring-tomato/30">
-          ⚠{' '}
-          {tp('goals.conflictWarning', conflicts.length, {
+          {tp('goal.clash', conflicts.length, {
             a: conflicts[0].a.title,
             b: conflicts[0].b.title,
             week: conflicts[0].week,
@@ -174,14 +180,16 @@ export default function GoalsCard({
       )}
 
       {roots.length === 0 ? (
-        <p className="mt-4 rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">
-          {t('goals.emptyLine1')}
-          <br />
-          {t('goals.emptyLine2')}
-        </p>
+        <div className="empty-panel mt-4">
+          <p className="text-[13px] leading-relaxed text-sage">
+            {t('goal.emptyA')}
+            <br />
+            {t('goal.emptyB')}
+          </p>
+        </div>
       ) : (
         <ul className="mt-4 space-y-2">
-          {roots.map((g) => (
+          {visibleRoots.map((g) => (
             <GoalNode
               key={g.id}
               goal={g}
@@ -212,7 +220,8 @@ export default function GoalsCard({
               maxLength={80}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && add()}
-              placeholder={t('goals.form.placeholder')}
+              placeholder={t('goal.ph')}
+              aria-label={t('goal.add')}
               className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
             />
             <select
@@ -222,11 +231,11 @@ export default function GoalsCard({
                 setDraftParent('');
               }}
               className="h-9 shrink-0 rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              aria-label={t('goals.form.levelAria')}
+              aria-label={t('goal.level')}
             >
               {GOAL_LEVELS.map((l) => (
                 <option key={l} value={l}>
-                  {t(GOAL_LEVEL_LABELS[l])}
+                  {t(GOAL_LEVEL_KEYS[l] as TKey)}
                 </option>
               ))}
             </select>
@@ -234,7 +243,7 @@ export default function GoalsCard({
               onClick={add}
               disabled={!draft.trim()}
               className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
-              aria-label={t('goals.form.addAria')}
+              aria-label={t('goal.add')}
             >
               +
             </button>
@@ -244,9 +253,9 @@ export default function GoalsCard({
               value={draftParent}
               onChange={(e) => setDraftParent(e.target.value)}
               className="h-9 w-full rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              aria-label={t('goals.form.parentAria')}
+              aria-label={t('goal.parent')}
             >
-              <option value="">{t('goals.form.noParent')}</option>
+              <option value="">{t('goal.noParent')}</option>
               {validParents(goals, draftLevel).map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.title}
@@ -259,9 +268,9 @@ export default function GoalsCard({
         !isPro && (
           <div className="mt-3 rounded-xl border border-accent/30 bg-accent/10 p-3.5">
             <p className="text-[12px] leading-relaxed text-cream">
-              {t('goals.capacityLine', { n: String(FREE_GOALS_LIMIT) })}
+              {t('goal.cap', { n: fmtNum(FREE_GOALS_LIMIT) })}
             </p>
-            <p className="mt-1 font-mono text-[11px] text-faint">{t('goals.capacityUpgrade')}</p>
+            <p className="mt-1 font-mono text-[11px] text-faint">{t('goal.capBody')}</p>
           </div>
         )
       )}
@@ -272,7 +281,7 @@ export default function GoalsCard({
             onClick={() => setShowArchived(!showArchived)}
             className="press font-mono text-[11px] uppercase tracking-[0.18em] text-faint hover:text-sage"
           >
-            {t('goals.archivedToggle', { n: String(archived.length) })} {showArchived ? '▴' : '▾'}
+            {t('goal.archived', { n: fmtNum(archived.length) })} {showArchived ? '▴' : '▾'}
           </button>
           {showArchived && (
             <ul className="mt-2 space-y-1">
@@ -286,7 +295,7 @@ export default function GoalsCard({
                     onClick={() => goalsChange(updateGoal(goals, g.id, { archived: false }))}
                     className="press shrink-0 font-mono text-[11px] text-faint hover:text-cream"
                   >
-                    {t('goals.restore')}
+                    {t('goal.restore')}
                   </button>
                 </li>
               ))}
@@ -333,12 +342,13 @@ function GoalNode({
   skills,
   objectives,
 }: NodeProps) {
-  const { t } = useI18n();
   const [showDetails, setShowDetails] = useState(false);
+  const i18n = useI18n();
+  const { t } = i18n;
   const pct = progressOf.get(goal.id) ?? 0;
   const kids = childrenOf(goals, goal.id).filter((k) => !ancestorIds.includes(k.id));
   const linked = goal.projectId ? liveProjects.find((p) => p.id === goal.projectId) : null;
-  const smart = useMemo(() => smartScore(goal.title), [goal.title]);
+  const smart = useMemo(() => smartScore(goal.title, i18n), [goal.title, i18n]);
   const blockers = useMemo(() => goalBlockers(goals, tasks, goal), [goals, tasks, goal]);
   const depCandidates = useMemo(
     () =>
@@ -359,13 +369,13 @@ function GoalNode({
             {goal.title}
           </button>
           <span className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-faint">
-            {t(GOAL_LEVEL_SHORT_LABELS[goal.level])}
+            {t(GOAL_SHORT_KEYS[goal.level] as TKey)}
           </span>
           <span className="shrink-0 font-mono text-[11px] text-sage">{pct}%</span>
           <button
             onClick={() => setShowDetails(!showDetails)}
             className="press shrink-0 rounded p-1 font-mono text-[11px] text-faint hover:text-cream"
-            aria-label={showDetails ? t('goals.node.hideDetails') : t('goals.node.showDetails')}
+            aria-label={t(showDetails ? 'goal.hideDetails' : 'goal.showDetails')}
           >
             ⋯
           </button>
@@ -388,9 +398,9 @@ function GoalNode({
                   goalsChange(updateGoal(goals, goal.id, { projectId: e.target.value || null }))
                 }
                 className="h-8 min-w-0 flex-1 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title={t('goals.node.linkedProjectTitle')}
+                title={t('goal.linkTitle')}
               >
-                <option value="">{t('goals.node.noProject')}</option>
+                <option value="">{t('goal.noProject')}</option>
                 {liveProjects.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
@@ -410,7 +420,7 @@ function GoalNode({
                   )
                 }
                 className="h-8 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title={t('goals.node.targetDateTitle')}
+                title={t('goal.targetDate')}
               />
             </div>
             {!goal.projectId && kids.length === 0 && (
@@ -424,14 +434,14 @@ function GoalNode({
                     goalsChange(updateGoal(goals, goal.id, { progress: Number(e.target.value) }))
                   }
                   className="h-1.5 flex-1 accent-[var(--accent)]"
-                  aria-label={t('goals.node.manualProgressAria')}
+                  aria-label={t('goal.manual')}
                 />
                 <span className="font-mono text-[11px] text-sage">{goal.progress ?? 0}%</span>
               </div>
             )}
             {linked && (
               <p className="font-mono text-[10px] text-faint">
-                {t('goals.node.progressMirrors', { name: linked.name })}
+                {t('goal.mirrors', { name: linked.name })}
               </p>
             )}
             {goal.targetDate && (
@@ -459,20 +469,18 @@ function GoalNode({
                   goalsChange(updateGoal(goals, goal.id, { lifeAreaId: e.target.value || null }))
                 }
                 className="h-8 min-w-0 flex-1 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title={t('goals.node.lifeAreaTitle')}
+                title={t('goal.areaTitle')}
               >
-                <option value="">{t('goals.node.noLifeArea')}</option>
+                <option value="">{t('goal.noArea')}</option>
                 {lifeAreas.map((a) => (
                   <option key={a.id} value={a.id}>
-                    {a.label}
+                    {t(AREA_LABEL_KEYS[a.key] as TKey)}
                   </option>
                 ))}
               </select>
               <span
                 className="shrink-0 font-mono text-[10px] text-sage"
-                title={
-                  smart.tips.length > 0 ? smart.tips.join(' ') : t('goals.node.smartTipsDefault')
-                }
+                title={smart.tips.length > 0 ? smart.tips.join(' ') : t('goal.smartFull')}
               >
                 {t('goals.node.smartScore', { score: String(smart.score) })}
               </span>
@@ -483,7 +491,7 @@ function GoalNode({
                   <span
                     key={b.id}
                     className="flex items-center gap-1 rounded-full bg-tomato/15 px-2 py-0.5 font-mono text-[10px] text-tomato"
-                    title={t('goals.node.unfinishedDependency')}
+                    title={t('goal.depTitle')}
                   >
                     ⛔ {b.title}
                     <button
@@ -497,7 +505,7 @@ function GoalNode({
                         )
                       }
                       className="press hover:text-cream"
-                      aria-label={t('goals.node.removeDependencyAria', { title: b.title })}
+                      aria-label={t('goal.depRemove', { title: b.title })}
                     >
                       ✕
                     </button>
@@ -516,10 +524,10 @@ function GoalNode({
                     );
                   }}
                   className="h-8 min-w-0 flex-1 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                  title={t('goals.node.dependencyTitle')}
-                  aria-label={t('goals.node.addDependencyAria')}
+                  title={t('goal.depFirst')}
+                  aria-label={t('goal.depAdd')}
                 >
-                  <option value="">{t('goals.node.dependsOn')}</option>
+                  <option value="">{t('goal.depends')}</option>
                   {depCandidates.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.title}
@@ -532,33 +540,33 @@ function GoalNode({
               <button
                 onClick={() => onGenerate(goal)}
                 className="press rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream disabled:opacity-40"
-                title={t('goals.node.generateTasksTitle')}
+                title={t('goal.genTitle')}
               >
-                ⚙ {t('goals.node.generateTasks')}
+                {t('goal.gen')}
               </button>
               <button
                 onClick={() => onSendToToday(goal)}
                 className="press rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream"
-                title={t('goals.node.sendToTodayTitle')}
+                title={t('goal.todayTitle')}
               >
-                ＋ {t('goals.node.sendToToday')}
+                {t('goal.today')}
               </button>
               <button
                 onClick={() => goalsChange(updateGoal(goals, goal.id, { archived: true }))}
                 className="press rounded-lg px-2.5 py-1.5 text-[11px] text-faint ring-1 ring-inset ring-line hover:text-cream"
               >
-                {t('goals.node.archive')}
+                {t('goal.archive')}
               </button>
               <button
                 onClick={() => {
-                  if (confirm(t('goals.node.deleteConfirm', { title: goal.title }))) {
+                  if (confirm(t('goal.delConfirm', { title: goal.title }))) {
                     goalsChange(deleteGoal(goals, goal.id));
                     onLinksChange(cleanupLinksFor(links, 'goal', goal.id));
                   }
                 }}
                 className="press ml-auto rounded-lg px-2.5 py-1.5 text-[11px] text-faint ring-1 ring-inset ring-line hover:text-tomato"
               >
-                {t('goals.node.delete')}
+                {t('goal.delete')}
               </button>
             </div>
             <LinkedItems

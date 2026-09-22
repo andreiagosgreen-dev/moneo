@@ -1,16 +1,10 @@
 import { STORAGE_KEYS } from '../storage/storageKeys';
 import { safeRead as read, safeWrite as write } from '../storage/storageAdapter';
 import { en } from './locales/en';
-import { ro } from './locales/ro';
-import { ru } from './locales/ru';
-import { uk } from './locales/uk';
-import { de } from './locales/de';
-import { it } from './locales/it';
-import { fr } from './locales/fr';
-import { es } from './locales/es';
 import type { Locale, TKey, Vars } from './types';
 
 export type { Locale, TKey, Vars };
+export { en } from './locales/en';
 
 export const LOCALES: Array<{ id: Locale; native: string; tag: string }> = [
   { id: 'en', native: 'English', tag: 'en-US' },
@@ -23,7 +17,8 @@ export const LOCALES: Array<{ id: Locale; native: string; tag: string }> = [
   { id: 'es', native: 'Español', tag: 'es-ES' },
 ];
 
-const DICTS: Record<Locale, Record<TKey, string>> = { en, ro, ru, uk, de, it, fr, es };
+/** A translation dictionary keyed by the canonical English key set. */
+export type Dictionary = Record<TKey, string>;
 
 export function isLocale(v: unknown): v is Locale {
   return (
@@ -39,14 +34,67 @@ export function isLocale(v: unknown): v is Locale {
   );
 }
 
-/** Saved choice, local only (never synced — see Faza 5 spec). */
+const NAVIGATOR_LOCALE_MAP: Record<string, Locale> = {
+  en: 'en',
+  ro: 'ro',
+  ru: 'ru',
+  uk: 'uk',
+  de: 'de',
+  it: 'it',
+  fr: 'fr',
+  es: 'es',
+};
+
+function detectNavigatorLocale(): Locale | null {
+  if (typeof navigator === 'undefined') return null;
+  const tag = (navigator.language ?? '').toLowerCase();
+  if (!tag) return null;
+  // Prefer exact tag (e.g. "ro-ro" -> "ro"), then two-letter prefix.
+  const exact = NAVIGATOR_LOCALE_MAP[tag];
+  if (exact) return exact;
+  const prefix = tag.split('-')[0];
+  if (!prefix) return null;
+  return NAVIGATOR_LOCALE_MAP[prefix] ?? null;
+}
+
+/** Saved choice, local only (never synced — see Faza 5 spec).
+ * Falls back to the browser language when there is no saved preference. */
 export function loadLocale(): Locale {
   const stored = read<unknown>(STORAGE_KEYS.locale);
-  return isLocale(stored) ? stored : 'en';
+  if (isLocale(stored)) return stored;
+  return detectNavigatorLocale() ?? 'en';
 }
 
 export function saveLocale(locale: Locale): boolean {
   return write(STORAGE_KEYS.locale, locale);
+}
+
+/** Load a locale dictionary on demand. English is bundled synchronously;
+ * other locales are fetched as separate chunks. */
+export async function loadDictionary(locale: Locale): Promise<Dictionary> {
+  try {
+    switch (locale) {
+      case 'en':
+        return en;
+      case 'ro':
+        return (await import('./locales/ro')).ro;
+      case 'ru':
+        return (await import('./locales/ru')).ru;
+      case 'uk':
+        return (await import('./locales/uk')).uk;
+      case 'de':
+        return (await import('./locales/de')).de;
+      case 'it':
+        return (await import('./locales/it')).it;
+      case 'fr':
+        return (await import('./locales/fr')).fr;
+      case 'es':
+        return (await import('./locales/es')).es;
+    }
+  } catch {
+    /* keep English fallback */
+  }
+  return en;
 }
 
 function interp(template: string, vars?: Vars): string {
@@ -75,9 +123,8 @@ export interface I18n {
   fmtNum: (n: number) => string;
 }
 
-export function createI18n(locale: Locale): I18n {
-  const dict = DICTS[locale] ?? en;
-  const d = dict as Record<string, string>;
+export function createI18n(locale: Locale, dictionary: Dictionary = en): I18n {
+  const d = dictionary as Record<string, string>;
   const e = en as Record<string, string>;
   const tag = LOCALES.find((l) => l.id === locale)?.tag ?? 'en-US';
 

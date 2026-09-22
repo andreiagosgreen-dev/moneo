@@ -58,11 +58,10 @@ export default function SyncPanel({
       });
       setPhase('idle');
       if (!outcome.ok) {
-        setLastError(
-          outcome.stage === 'pull' || outcome.stage === 'push'
-            ? t('sync.failedRetry')
-            : (outcome.error ?? t('sync.failed')),
-        );
+        // Always surface the engine message — pull/push used to hide it behind a
+        // generic line, which made ops failures (bad anon key, missing migrations)
+        // look like a mysterious "Sync failed".
+        setLastError(outcome.error ?? t('sync.failedRetry'));
       }
     },
     [userId, t],

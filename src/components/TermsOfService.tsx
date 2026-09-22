@@ -16,7 +16,7 @@ export default function TermsOfService() {
         <h2 className="text-lg font-semibold mb-2">2. Service Description</h2>
         <p className="mb-2">
           Moneo is a focus timer application that helps users track productivity sessions, manage
-          focus areas, and optionally sync data across devices.
+          focus areas, and optionally sync focus sessions, focus areas and settings across devices.
         </p>
       </section>
 
@@ -34,8 +34,9 @@ export default function TermsOfService() {
       <section className="mb-6">
         <h2 className="text-lg font-semibold mb-2">4. Data and Content</h2>
         <p className="mb-2">
-          You retain ownership of your data. Moneo provides tools to export and delete your data
-          upon request. Cloud sync features use Supabase infrastructure, subject to their terms.
+          You retain ownership of your data. Moneo provides tools to export (CSV/PDF export is a Pro
+          feature) and delete your data upon request. Cloud sync covers focus sessions, focus areas
+          and settings via Supabase infrastructure, subject to their terms.
         </p>
       </section>
 

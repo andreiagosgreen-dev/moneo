@@ -69,7 +69,7 @@ export default function IvyLeeCard({
   tasks,
   onTasksChange,
 }: Props) {
-  const { t } = useI18n();
+  const { t, tag, fmtNum } = useI18n();
   const [draft, setDraft] = useState('');
   const todayKey = dayKeyInTz(Date.now(), timezone);
   const maxTasks = isPro ? IVY_MAX_TASKS : IVY_FREE_MAX_TASKS;
@@ -90,12 +90,16 @@ export default function IvyLeeCard({
 
   const dateLabel = useMemo(() => {
     const [y, m, d] = todayKey.split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString([], {
-      weekday: 'long',
-      month: 'short',
-      day: 'numeric',
-    });
-  }, [todayKey]);
+    try {
+      return new Date(y, m - 1, d).toLocaleDateString(tag, {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+      });
+    } catch {
+      return todayKey;
+    }
+  }, [todayKey, tag]);
 
   const atCapacity = total >= maxTasks;
 
@@ -114,14 +118,14 @@ export default function IvyLeeCard({
   };
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label={t('ivy.ariaLabel')}>
+    <section className="card px-6 py-6 sm:px-7" aria-label={t('ivy.aria')}>
       <header className="flex items-baseline justify-between gap-3">
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">
             {t('ivy.title')}
           </h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            {isPro ? t('ivy.subtitlePro') : t('ivy.subtitleFree')}
+            {t('ivy.sub', { n: maxTasks })}
           </p>
         </div>
         <span className="font-mono text-[11px] text-sage">{dateLabel}</span>
@@ -132,7 +136,7 @@ export default function IvyLeeCard({
         <div className="mt-4">
           <div className="flex items-baseline justify-between">
             <span className="font-mono text-[12px] text-cream">
-              {t('ivy.doneCount', { done: String(done), total: String(total) })}
+              {t('ivy.progress', { done: fmtNum(done), total: fmtNum(total) })}
             </span>
             <span className="font-mono text-[11px] text-faint">{pct}%</span>
           </div>
@@ -169,9 +173,9 @@ export default function IvyLeeCard({
 
       {total === 0 && (
         <p className="mt-4 rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">
-          {t('ivy.emptyLine1', { n: String(maxTasks) })}
+          {t('ivy.emptyA', { n: maxTasks })}
           <br />
-          {t('ivy.emptyLine2')}
+          {t('ivy.emptyB')}
         </p>
       )}
 
@@ -184,14 +188,15 @@ export default function IvyLeeCard({
             maxLength={120}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && add()}
-            placeholder={total === 0 ? t('ivy.placeholderFirst') : t('ivy.placeholderNext')}
+            placeholder={t(total === 0 ? 'ivy.phFirst' : 'ivy.phNext')}
+            aria-label={t('ivy.add')}
             className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
           />
           <button
             onClick={add}
             disabled={!draft.trim()}
             className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
-            aria-label={t('ivy.addAria')}
+            aria-label={t('ivy.add')}
           >
             +
           </button>
@@ -200,9 +205,9 @@ export default function IvyLeeCard({
         !isPro && (
           <div className="mt-3 rounded-xl border border-accent/30 bg-accent/10 p-3.5">
             <div className="text-[13px] font-semibold text-cream">
-              {t('ivy.capacityLine', { n: String(IVY_FREE_MAX_TASKS) })}
+              {t('ivy.capTitle', { n: IVY_FREE_MAX_TASKS })}
             </div>
-            <p className="mt-1 text-[11px] leading-relaxed text-sage">{t('ivy.capacityUpgrade')}</p>
+            <p className="mt-1 text-[11px] leading-relaxed text-sage">{t('ivy.capBody')}</p>
           </div>
         )
       )}
@@ -216,8 +221,8 @@ export default function IvyLeeCard({
                 value={`${Math.round(analytics.average * 100)}%`}
                 accent
               />
-              <Stat label={t('ivy.stat.perfectDays')} value={String(analytics.perfectDays)} />
-              <Stat label={t('ivy.stat.activeDays')} value={String(analytics.activeDays)} />
+              <Stat label={t('ivy.stat.perfect')} value={String(analytics.perfectDays)} />
+              <Stat label={t('ivy.stat.active')} value={String(analytics.activeDays)} />
             </div>
           )
         : analytics.activeDays > 0 && (
@@ -226,8 +231,7 @@ export default function IvyLeeCard({
                 <span className="font-semibold text-sage">
                   {Math.round(analytics.average * 100)}%
                 </span>{' '}
-                {t('ivy.freeAnalytics.prefix')} <span className="text-accent">Pro</span>{' '}
-                {t('ivy.freeAnalytics.suffix')}
+                {t('ivy.teaserRest')}
               </p>
             </div>
           )}
@@ -291,7 +295,7 @@ function IvyRow({
             ? 'bg-accent text-on-accent ring-accent'
             : 'bg-ink/60 text-transparent ring-line hover:text-sage'
         }`}
-        aria-label={task.done ? t('ivy.row.markIncomplete') : t('ivy.row.markComplete')}
+        aria-label={t(task.done ? 'ivy.markOff' : 'ivy.markOn')}
       >
         <CheckIcon />
       </button>
@@ -315,8 +319,8 @@ function IvyRow({
         value={typeof task.estimateMin === 'number' ? task.estimateMin : ''}
         onChange={(e) => onEstimate(e.target.value === '' ? null : Number(e.target.value))}
         className="h-7 shrink-0 rounded-md bg-ink/60 px-1 font-mono text-[10px] text-faint ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-        title={t('ivy.row.estimateTitle')}
-        aria-label={t('ivy.row.estimateAria', { text: task.text })}
+        title={t('ivy.estTitle')}
+        aria-label={t('ivy.estAria', { task: task.text })}
       >
         <option value="">—</option>
         {[15, 25, 50, 90].map((m) => (
@@ -328,7 +332,7 @@ function IvyRow({
       <button
         onClick={onRemove}
         className="press shrink-0 rounded p-1 text-faint opacity-0 transition-opacity hover:text-tomato focus:opacity-100 group-hover:opacity-100"
-        aria-label={t('ivy.row.deleteAria', { text: task.text })}
+        aria-label={t('ivy.delTask', { task: task.text })}
       >
         <TrashIcon />
       </button>
@@ -337,7 +341,7 @@ function IvyRow({
           onClick={() => onMove(-1)}
           disabled={disableUp}
           className="press rounded px-1 font-mono text-[10px] leading-none text-faint hover:text-cream disabled:opacity-30"
-          aria-label={t('ivy.row.moveUpAria', { text: task.text })}
+          aria-label={t('ivy.moveUp', { task: task.text })}
         >
           ▲
         </button>
@@ -345,7 +349,7 @@ function IvyRow({
           onClick={() => onMove(1)}
           disabled={disableDown}
           className="press rounded px-1 font-mono text-[10px] leading-none text-faint hover:text-cream disabled:opacity-30"
-          aria-label={t('ivy.row.moveDownAria', { text: task.text })}
+          aria-label={t('ivy.moveDown', { task: task.text })}
         >
           ▼
         </button>
