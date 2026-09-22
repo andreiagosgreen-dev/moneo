@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   MAX_WEBHOOK_BODY_BYTES,
   buildSecurityHeaders,
+  canonicalRedirect,
   clientIp,
   createDeduper,
   createRateLimiter,
@@ -88,5 +89,18 @@ describe('clientIp + body guard', () => {
     expect(declaredBodyTooLarge(req({ 'content-length': 'junk' }), MAX_WEBHOOK_BODY_BYTES)).toBe(
       false,
     );
+  });
+});
+
+describe('canonicalRedirect', () => {
+  it('sends www to the apex over https, keeping path and query', () => {
+    expect(canonicalRedirect(new URL('http://www.moneo.bond/pricing?x=1'))).toBe(
+      'https://moneo.bond/pricing?x=1',
+    );
+  });
+
+  it('leaves the apex and other hosts alone', () => {
+    expect(canonicalRedirect(new URL('https://moneo.bond/'))).toBeNull();
+    expect(canonicalRedirect(new URL('http://localhost:8787/'))).toBeNull();
   });
 });

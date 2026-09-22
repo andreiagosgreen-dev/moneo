@@ -34,6 +34,7 @@ import {
   createRateLimiter,
   declaredBodyTooLarge,
   mergeHeaders,
+  canonicalRedirect,
 } from './security';
 
 /** Best-effort per-isolate guards (see security.ts for the caveat). */
@@ -108,6 +109,13 @@ function corsFor(request: Request, env: Env): Record<string, string> | null {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    const canonical = canonicalRedirect(url);
+    if (canonical) {
+      return new Response(null, {
+        status: 301,
+        headers: mergeHeaders(SEC, { Location: canonical }),
+      });
+    }
     const cors = corsFor(request, env);
 
     // Preflight for the allowed origin only.
