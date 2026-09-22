@@ -16,6 +16,14 @@ import {
   sprintsForProject,
 } from '../../lib/sprints';
 import type { SprintsProps } from './types';
+import { useI18n } from '../../lib/i18n/LocaleContext';
+
+const SPRINT_STATUS_KEY = {
+  planned: 'sprints.status.planned',
+  active: 'sprints.status.active',
+  completed: 'sprints.status.completed',
+} as const;
+
 export default function SprintsTab({
   projectId,
   tasks,
@@ -24,6 +32,7 @@ export default function SprintsTab({
   sprintsChange,
   isPro,
 }: SprintsProps) {
+  const { t } = useI18n();
   const [name, setName] = useState('');
   const [length, setLength] = useState(14);
   const [addingTo, setAddingTo] = useState<string | null>(null);
@@ -44,7 +53,7 @@ export default function SprintsTab({
   if (!projectId) {
     return (
       <p className="rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] text-faint">
-        Create a project first — sprints live on projects.
+        {t('sprints.projectRequired')}
       </p>
     );
   }
@@ -64,8 +73,8 @@ export default function SprintsTab({
   return (
     <div>
       {vel !== null && (
-        <p className="font-mono text-[11px] text-faint" title="Avg done-points, last 3 sprints">
-          Velocity {vel} pts/sprint
+        <p className="font-mono text-[11px] text-faint" title={t('sprints.velocityTitle')}>
+          {t('sprints.velocity', { n: vel })}
         </p>
       )}
       <div className="mt-2 flex items-center gap-2">
@@ -75,23 +84,23 @@ export default function SprintsTab({
           maxLength={80}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && create()}
-          placeholder="Sprint name…"
+          placeholder={t('sprints.namePlaceholder')}
           className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
         />
         <select
           value={length}
           onChange={(e) => setLength(Number(e.target.value))}
           className="h-9 shrink-0 rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-          aria-label="Sprint length"
+          aria-label={t('sprints.lengthLabel')}
         >
-          <option value={7}>1 week</option>
-          <option value={14}>2 weeks</option>
-          <option value={28}>4 weeks</option>
+          <option value={7}>{t('sprints.oneWeek')}</option>
+          <option value={14}>{t('sprints.twoWeeks')}</option>
+          <option value={28}>{t('sprints.fourWeeks')}</option>
         </select>
         <button
           onClick={create}
           className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold"
-          aria-label="Create sprint"
+          aria-label={t('sprints.create')}
         >
           +
         </button>
@@ -99,7 +108,7 @@ export default function SprintsTab({
 
       {scoped.length === 0 ? (
         <p className="mt-3 rounded-xl border border-dashed border-line/60 px-4 py-4 text-center text-[12px] text-faint">
-          No sprints yet. Plan one above, pull tasks in, close it for velocity.
+          {t('sprints.empty')}
         </p>
       ) : (
         <ul className="mt-3 space-y-2">
@@ -148,6 +157,7 @@ function SprintRow({
   setAddingTo,
   isPro,
 }: SprintRowProps) {
+  const { t } = useI18n();
   const [retro, setRetro] = useState(sprint.retro ?? '');
   const pts = sprintPoints(sprint, tasks);
   const members = useMemo(() => {
@@ -176,20 +186,20 @@ function SprintRow({
       <div className="flex items-center gap-2">
         <span
           className={`h-2 w-2 shrink-0 rounded-full ${sprint.status === 'active' ? 'bg-accent' : sprint.status === 'completed' ? 'bg-sage' : 'bg-line'}`}
-          title={sprint.status}
+          title={t(SPRINT_STATUS_KEY[sprint.status])}
         />
         <span className="min-w-0 flex-1 truncate text-sm font-semibold text-cream">
           {sprint.name}
         </span>
         <span className="shrink-0 font-mono text-[11px] text-sage">
-          {pts.done}/{pts.total}pt · {pts.pct}%
+          {t('sprints.pointsProgress', { done: pts.done, total: pts.total, pct: pts.pct })}
         </span>
         {sprint.status === 'planned' && (
           <button
             onClick={() => sprintsChange(updateSprint(sprints, sprint.id, { status: 'active' }))}
             className="press shrink-0 rounded-md px-2 py-1 font-mono text-[11px] text-cream ring-1 ring-inset ring-line hover:ring-accent"
           >
-            Start
+            {t('sprints.start')}
           </button>
         )}
         {sprint.status === 'active' && (
@@ -197,17 +207,17 @@ function SprintRow({
             onClick={() => sprintsChange(updateSprint(sprints, sprint.id, { status: 'completed' }))}
             className="press shrink-0 rounded-md px-2 py-1 font-mono text-[11px] text-cream ring-1 ring-inset ring-line hover:ring-accent"
           >
-            Close
+            {t('sprints.close')}
           </button>
         )}
         <button
           onClick={() => {
-            if (confirm(`Delete sprint “${sprint.name}”? Tasks stay.`)) {
+            if (confirm(t('sprints.confirmDelete', { name: sprint.name }))) {
               sprintsChange(deleteSprint(sprints, sprint.id));
             }
           }}
           className="press shrink-0 rounded p-1 text-faint hover:text-tomato"
-          aria-label={`Delete ${sprint.name}`}
+          aria-label={t('sprints.delete', { name: sprint.name })}
         >
           ✕
         </button>
@@ -225,23 +235,26 @@ function SprintRow({
 
       {members.length > 0 && (
         <ul className="mt-2 space-y-1">
-          {members.map((t) => (
-            <li key={t.id} className="flex items-center gap-2 rounded-lg bg-ink/50 px-2 py-1.5">
+          {members.map((member) => (
+            <li
+              key={member.id}
+              className="flex items-center gap-2 rounded-lg bg-ink/50 px-2 py-1.5"
+            >
               <button
                 onClick={() => {
                   const next =
-                    t.status === 'completed'
-                      ? updateTaskStatus(tasks, t.id, 'pending')
-                      : completeTask(tasks, t.id).tasks;
+                    member.status === 'completed'
+                      ? updateTaskStatus(tasks, member.id, 'pending')
+                      : completeTask(tasks, member.id).tasks;
                   onTasksChange(next);
                 }}
                 className={`press flex shrink-0 items-center justify-center rounded ring-1 ring-inset ${
-                  t.status === 'completed'
+                  member.status === 'completed'
                     ? 'bg-accent text-on-accent ring-accent'
                     : 'bg-ink/60 text-transparent ring-line'
                 }`}
                 style={{ width: 18, height: 18 }}
-                aria-label={`Toggle ${t.title}`}
+                aria-label={t('sprints.toggle', { title: member.title })}
               >
                 <svg
                   width="10"
@@ -257,15 +270,17 @@ function SprintRow({
                 </svg>
               </button>
               <span
-                className={`min-w-0 flex-1 truncate text-[12px] text-cream/90 ${t.status === 'completed' ? 'line-through opacity-60' : ''}`}
+                className={`min-w-0 flex-1 truncate text-[12px] text-cream/90 ${member.status === 'completed' ? 'line-through opacity-60' : ''}`}
               >
-                {t.title}
+                {member.title}
               </span>
-              <span className="shrink-0 font-mono text-[10px] text-faint">{taskPoints(t)}pt</span>
+              <span className="shrink-0 font-mono text-[10px] text-faint">
+                {t('sprints.points', { n: taskPoints(member) })}
+              </span>
               <button
-                onClick={() => sprintsChange(removeTaskFromSprint(sprints, sprint.id, t.id))}
+                onClick={() => sprintsChange(removeTaskFromSprint(sprints, sprint.id, member.id))}
                 className="press shrink-0 rounded px-1 font-mono text-[11px] text-faint hover:text-tomato"
-                aria-label={`Pull ${t.title} out of sprint`}
+                aria-label={t('sprints.pullOut', { title: member.title })}
               >
                 ✕
               </button>
@@ -277,15 +292,17 @@ function SprintRow({
       {addingTo === sprint.id ? (
         <div className="mt-2 space-y-1">
           {candidates.length === 0 ? (
-            <p className="font-mono text-[10px] text-faint">Every project task is already in.</p>
+            <p className="font-mono text-[10px] text-faint">{t('sprints.allTasksIn')}</p>
           ) : (
-            candidates.slice(0, 8).map((t) => (
+            candidates.slice(0, 8).map((candidate) => (
               <button
-                key={t.id}
-                onClick={() => sprintsChange(addTasksToSprint(sprints, tasks, sprint.id, [t.id]))}
+                key={candidate.id}
+                onClick={() =>
+                  sprintsChange(addTasksToSprint(sprints, tasks, sprint.id, [candidate.id]))
+                }
                 className="press block w-full truncate rounded-lg bg-ink/50 px-2.5 py-1.5 text-left text-[12px] text-sage ring-1 ring-inset ring-line hover:text-cream"
               >
-                + {t.title}
+                + {candidate.title}
               </button>
             ))
           )}
@@ -293,7 +310,7 @@ function SprintRow({
             onClick={() => setAddingTo(null)}
             className="press font-mono text-[10px] text-faint hover:text-cream"
           >
-            Done
+            {t('sprints.done')}
           </button>
         </div>
       ) : (
@@ -301,19 +318,16 @@ function SprintRow({
           onClick={() => setAddingTo(sprint.id)}
           className="press mt-2 font-mono text-[11px] text-sage hover:text-cream"
         >
-          + Pull tasks in
+          {t('sprints.pullTasksIn')}
         </button>
       )}
 
       {isPro && series.length > 1 && (
         <div className="mt-2.5 border-t border-line/60 pt-2">
           <p className="font-mono text-[10px] uppercase tracking-widest text-faint">
-            Burndown · remaining pts
+            {t('sprints.burndown')}
           </p>
-          <div
-            className="mt-1.5 flex h-12 items-end gap-[3px]"
-            title="Actual (bars) vs ideal (line)"
-          >
+          <div className="mt-1.5 flex h-12 items-end gap-[3px]" title={t('sprints.burndownTitle')}>
             {series.slice(-21).map((d) => {
               const max = Math.max(1, ...series.map((x) => Math.max(x.actual, x.ideal)));
               return (
@@ -321,7 +335,11 @@ function SprintRow({
                   key={d.dayKey}
                   className="flex-1 rounded-t-sm bg-cream/25"
                   style={{ height: `${Math.max(4, (d.actual / max) * 100)}%` }}
-                  title={`${d.label}: ${d.actual} left (ideal ${d.ideal})`}
+                  title={t('sprints.burndownBar', {
+                    label: d.label,
+                    actual: d.actual,
+                    ideal: d.ideal,
+                  })}
                 />
               );
             })}
@@ -331,12 +349,14 @@ function SprintRow({
 
       <div className="mt-2.5 border-t border-line/60 pt-2">
         <div className="flex items-center justify-between">
-          <p className="font-mono text-[10px] uppercase tracking-widest text-faint">Standup</p>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-faint">
+            {t('sprints.standup')}
+          </p>
           <button
             onClick={copyStandup}
             className="press font-mono text-[10px] text-sage hover:text-cream"
           >
-            Copy
+            {t('sprints.copy')}
           </button>
         </div>
         <pre className="mt-1 whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-sage">
@@ -354,7 +374,7 @@ function SprintRow({
             sprintsChange(updateSprint(sprints, sprint.id, { retro: retro.trim() || null }));
           }
         }}
-        placeholder="Retro notes… (saved on blur)"
+        placeholder={t('sprints.retroPlaceholder')}
         className="mt-2 w-full resize-y rounded-lg bg-ink/50 px-2.5 py-2 text-[12px] leading-relaxed text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
       />
     </li>

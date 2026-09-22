@@ -22,9 +22,16 @@ build/
 # Wrangler local state
 .wrangler
 
+# Playwright E2E output
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
 # Worker build artifact (tsc output inside cloudflare/workers)
 cloudflare/workers/*.js
 cloudflare/workers/*.d.ts
 
 # agent tooling state (never commit)
 .mimosa/
+.claude/scheduled_tasks.lock

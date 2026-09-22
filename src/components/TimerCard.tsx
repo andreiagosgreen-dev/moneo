@@ -733,16 +733,14 @@ export default function TimerCard({
             style={{ color: 'var(--accent)' }}
           >
             <span
-              className={`relative inline-block h-1.5 w-1.5 rounded-full ${running ? 'ping-dot' : ''}`}
+              className="relative inline-block h-1.5 w-1.5 rounded-full"
               style={{ background: 'var(--accent)', color: 'var(--accent)' }}
             />
             {statusLabel}
           </span>
           <div className="mt-2 font-mono font-medium tabular-nums leading-none tracking-tight text-cream [font-size:clamp(4.2rem,17vw,7.5rem)]">
             {mm}
-            <span className={running ? 'colon-run' : ''} style={{ opacity: 0.55 }}>
-              :
-            </span>
+            <span style={{ opacity: 0.55 }}>:</span>
             {ss}
           </div>
           <p className="mt-3 hidden text-sm text-sage sm:block">{meta.tagline}</p>

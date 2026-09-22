@@ -9,11 +9,14 @@ import {
   formatLearningDuration,
   loadSkills,
   logLearningMinutes,
+  rollSessionXp,
   skillProgress,
   skillsByCategory,
   totalLearningMinutes,
   transitionAdvice,
   updateSkill,
+  XP_MIN_PER_SESSION,
+  XP_MAX_PER_SESSION,
 } from './skills';
 
 describe('skills', () => {
@@ -57,12 +60,15 @@ describe('skills', () => {
     expect(deleteSkill([a, b], a.id)).toHaveLength(1);
   });
 
-  it('logs learning minutes and rejects junk input', () => {
+  it('logs learning minutes, rejects junk input, and never awards XP for junk', () => {
     const s = createSkillObject('Rust', 'backend');
-    const logged = logLearningMinutes([s], s.id, 25);
+    const { skills: logged, xpGained } = logLearningMinutes([s], s.id, 25);
     expect(logged[0].minutesLogged).toBe(25);
-    expect(logLearningMinutes(logged, s.id, -5)).toBe(logged);
-    expect(logLearningMinutes(logged, s.id, Number.NaN)).toBe(logged);
+    expect(xpGained).toBeGreaterThanOrEqual(XP_MIN_PER_SESSION);
+    expect(xpGained).toBeLessThanOrEqual(XP_MAX_PER_SESSION);
+    expect(logged[0].xp).toBe(xpGained);
+    expect(logLearningMinutes(logged, s.id, -5)).toEqual({ skills: logged, xpGained: 0 });
+    expect(logLearningMinutes(logged, s.id, Number.NaN)).toEqual({ skills: logged, xpGained: 0 });
   });
 
   it('adds resources deduped and capped', () => {
@@ -146,5 +152,27 @@ describe('skills', () => {
       ]),
     ).toBeNull();
     expect(transitionAdvice(skills.slice(0, 2), tasks, projects, [])).toBeNull();
+  });
+
+  it('rollSessionXp is always in range, never punitive', () => {
+    for (let i = 0; i < 50; i++) {
+      const xp = rollSessionXp();
+      expect(xp).toBeGreaterThanOrEqual(XP_MIN_PER_SESSION);
+      expect(xp).toBeLessThanOrEqual(XP_MAX_PER_SESSION);
+      expect(Number.isInteger(xp)).toBe(true);
+    }
+  });
+
+  it('logLearningMinutes never decreases xp across repeated logs', () => {
+    let s = createSkillObject('Go', 'backend');
+    let list = [s];
+    let lastXp = 0;
+    for (let i = 0; i < 5; i++) {
+      const res = logLearningMinutes(list, s.id, 25);
+      list = res.skills;
+      s = list[0];
+      expect(s.xp).toBeGreaterThan(lastXp);
+      lastXp = s.xp;
+    }
   });
 });

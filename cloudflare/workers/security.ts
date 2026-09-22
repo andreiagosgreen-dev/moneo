@@ -19,16 +19,22 @@ export const MAX_WEBHOOK_BODY_BYTES = 1_000_000;
  * stylesheets + font files, self/data/blob images, Supabase + Lemon
  * Squeezy connections. Microphone is deliberately NOT denied — voice
  * input (Web Speech API) is a feature. Custom-domain self-hosted
- * Supabase needs its host added to connect-src.
+ * Supabase needs its host added to connect-src. Cloudflare Turnstile
+ * (Faza 32a, optional bot protection on signup/login) needs its script
+ * origin allowed and renders its challenge in an iframe, hence frame-src.
+ * Sentry (Faza 32c, error-only reporting) posts directly from the
+ * browser to its ingest host — optional, only active with a configured
+ * DSN, hence connect-src rather than a hard requirement anywhere else.
  */
 export function buildSecurityHeaders(): Record<string, string> {
   const csp = [
     "default-src 'self'",
-    "script-src 'self'",
+    "script-src 'self' https://challenges.cloudflare.com",
     "style-src 'self' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob:",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.lemonsqueezy.com",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.lemonsqueezy.com https://challenges.cloudflare.com https://*.sentry.io",
+    'frame-src https://challenges.cloudflare.com',
     "manifest-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",

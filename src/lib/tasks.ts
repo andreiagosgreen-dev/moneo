@@ -762,3 +762,53 @@ export function criticalChain(tasks: Task[], projectId: string): Task[] {
   }
   return longest;
 }
+
+/* ---------------- bulk actions (Faza 28) — apply one op to many ids ---------------- */
+
+export function bulkSetStatus(tasks: Task[], ids: string[], status: TaskStatus): Task[] {
+  return ids.reduce((acc, id) => updateTaskStatus(acc, id, status), tasks);
+}
+
+export function bulkSetPriority(tasks: Task[], ids: string[], priority: TaskPriority): Task[] {
+  return ids.reduce((acc, id) => setTaskPriority(acc, id, priority), tasks);
+}
+
+export function bulkSetDueAt(tasks: Task[], ids: string[], dueAt: number | null): Task[] {
+  return ids.reduce((acc, id) => setDueAt(acc, id, dueAt), tasks);
+}
+
+/** Moves each task (and its subtree) to `projectId`, one at a time via `moveTask`. */
+export function bulkMoveToProject(tasks: Task[], ids: string[], projectId: string): Task[] {
+  return ids.reduce((acc, id) => moveTask(acc, id, projectId), tasks);
+}
+
+/* ---------------- simple automations (Faza 21) — "when X then Y", strictly minimal ---------------- */
+
+/**
+ * "When all subtasks of a task are completed, mark it completed too — and
+ * un-complete it if one is reopened." Walks up the parent chain (a task's
+ * own change can flip its parent, which can flip its grandparent, ...).
+ * Call this after any status change; a no-op parent-less task or one with
+ * no subtasks returns `tasks` unchanged. Never throws.
+ */
+export function syncParentCompletion(tasks: Task[], changedTaskId: string): Task[] {
+  let current = tasks;
+  let cursor = byId(tasks).get(changedTaskId)?.parentId;
+  const visited = new Set<string>();
+  while (cursor && !visited.has(cursor)) {
+    visited.add(cursor);
+    const parent = byId(current).get(cursor);
+    if (!parent) break;
+    const siblings = subtasksOf(current, parent.id);
+    const allDone = siblings.length > 0 && siblings.every((s) => s.status === 'completed');
+    if (allDone && parent.status !== 'completed') {
+      current = updateTaskStatus(current, parent.id, 'completed');
+    } else if (!allDone && parent.status === 'completed') {
+      current = updateTaskStatus(current, parent.id, 'pending');
+    } else {
+      break; // nothing changed at this level — chain stops propagating
+    }
+    cursor = parent.parentId;
+  }
+  return current;
+}
