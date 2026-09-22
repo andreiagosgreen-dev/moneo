@@ -12,15 +12,13 @@ test.describe('public pages', () => {
 
     await page.goto('/pricing');
     await expect(page.getByRole('heading', { name: /pricing/i })).toBeVisible();
-    // Free/Pro-monthly/Pro-yearly render as three separate price elements;
-    // "$9" is also a substring of "$90", so assert the full set together
-    // rather than one ambiguous getByText('$9') call.
+    // Free/Pro-monthly/Pro-yearly render as three separate price elements —
+    // match the real Lemon Squeezy prices ($5.99/mo, $59.99/yr), not
+    // placeholders, so this test catches drift between the two again.
     const prices = await page.locator('.font-display.text-lg.font-bold.text-cream').allInnerTexts();
     expect(prices.some((p) => p.trim().startsWith('$0'))).toBe(true);
-    expect(prices.some((p) => p.trim().startsWith('$9') && !p.trim().startsWith('$90'))).toBe(
-      true,
-    );
-    expect(prices.some((p) => p.trim().startsWith('$90'))).toBe(true);
+    expect(prices.some((p) => p.trim().startsWith('$5.99'))).toBe(true);
+    expect(prices.some((p) => p.trim().startsWith('$59.99'))).toBe(true);
 
     await page.getByRole('link', { name: /back to moneo/i }).click();
     await expect(page).toHaveURL('/');

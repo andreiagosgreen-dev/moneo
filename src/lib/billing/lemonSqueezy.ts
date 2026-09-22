@@ -36,8 +36,8 @@ const PRICING_PLANS: Pricing[] = [
     id: 'pro-monthly',
     name: 'pricing.plan.proMonthly.name',
     description: 'pricing.plan.proMonthly.description',
-    price: '$9',
-    priceMonthly: '$9',
+    price: '$5.99',
+    priceMonthly: '$5.99',
     features: [
       'pricing.feature.allFree',
       'pricing.feature.unlimitedProjects',
@@ -53,8 +53,8 @@ const PRICING_PLANS: Pricing[] = [
     id: 'pro-yearly',
     name: 'pricing.plan.proYearly.name',
     description: 'pricing.plan.proYearly.description',
-    price: '$90',
-    priceMonthly: '$7.50',
+    price: '$59.99',
+    priceMonthly: '$5.00',
     features: [
       'pricing.feature.allPro',
       'pricing.feature.twoMonthsFree',
