@@ -61,11 +61,11 @@ describe('buildCheckoutUrl', () => {
     );
   });
 
-  it('falls back to the base checkout when a variant id is missing', () => {
-    configureEnv({ store: 's1', base: BASE });
-    expect(buildCheckoutUrl('pro-monthly', 'user-1')).toBe(
-      `${BASE}?checkout[custom][user_id]=user-1`,
-    );
+  it('fails closed when the plan variant id is missing', () => {
+    configureEnv({ store: 's1', base: BASE, yearly: '222' });
+    expect(buildCheckoutUrl('pro-monthly', 'user-1')).toBeNull();
+    configureEnv({ store: 's1', base: BASE, monthly: '111' });
+    expect(buildCheckoutUrl('pro-yearly', 'user-1')).toBeNull();
   });
 
   it('returns null for free or unconfigured billing', () => {

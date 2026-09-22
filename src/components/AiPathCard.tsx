@@ -37,7 +37,7 @@ interface Props {
 type Mode = 'goal' | 'sprint';
 type Step = 'input' | 'questions' | 'roadmap' | 'done';
 
-const HORIZONS = [1, 3, 6, 12];
+const HORIZONS = [1, 3, 6, 12, 36, 60, 120, 480];
 const LEVELS: SkillLevel[] = ['beginner', 'intermediate', 'advanced'];
 
 /**
@@ -239,15 +239,15 @@ export default function AiPathCard({
 
   return (
     <section className="card px-6 py-6 sm:px-7" aria-label={t('ai.title')}>
-      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">
+      <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent">
         {t('ai.kicker')}
       </p>
-      <h2 className="mt-1.5 font-display text-xl font-bold tracking-tight text-cream">
+      <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-cream">
         {t('ai.title')}
       </h2>
-      <p className="mt-1 text-[12px] leading-relaxed text-faint">{t('ai.subtitle')}</p>
+      <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-sage">{t('ai.subtitle')}</p>
 
-      <div className="mt-3 flex gap-1.5" role="group" aria-label={t('ai.modeAria')}>
+      <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label={t('ai.modeAria')}>
         {(['goal', 'sprint'] as Mode[]).map((m) => (
           <button
             key={m}
@@ -256,10 +256,10 @@ export default function AiPathCard({
               reset();
             }}
             aria-pressed={mode === m}
-            className={`press rounded-lg px-3 py-1.5 font-mono text-[11px] font-semibold ring-1 ring-inset ${
+            className={`press rounded-lg px-3.5 py-2 text-[12px] font-semibold ring-1 ring-inset ${
               mode === m
-                ? 'bg-accent/10 text-cream ring-accent/50'
-                : 'text-faint ring-line hover:text-cream'
+                ? 'btn-accent ring-transparent'
+                : 'bg-ink/30 text-cream ring-line hover:ring-accent/50'
             }`}
           >
             {t(m === 'goal' ? 'ai.modeGoal' : 'ai.modeSprint')}
@@ -310,7 +310,11 @@ export default function AiPathCard({
                         : 'text-faint ring-line hover:text-cream'
                     }`}
                   >
-                    {tp('ai.q.months', h)}
+                    {h >= 480
+                      ? t('ai.q.life')
+                      : h >= 12
+                        ? tp('ai.q.years', Math.round(h / 12))
+                        : tp('ai.q.months', h)}
                   </button>
                 ))}
               </div>

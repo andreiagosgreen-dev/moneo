@@ -35,7 +35,7 @@ interface DepArrow {
  * for this pass, see plan Faza 11).
  */
 export default function TimelineTab({ projectId, tasks }: TimelineProps) {
-  const { t, tp } = useI18n();
+  const { t, tp, tag } = useI18n();
   const now = useMemo(() => Date.now(), []);
   const win = useMemo(
     () => (projectId ? ganttRows(tasks, projectId, now) : null),
@@ -80,16 +80,16 @@ export default function TimelineTab({ projectId, tasks }: TimelineProps) {
 
   if (!projectId) {
     return (
-      <p className="rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] text-faint">
-        {t('agile.timeline.projectRequired')}
-      </p>
+      <div className="empty-panel">
+        <p className="text-[13px] text-sage">{t('agile.tl.none')}</p>
+      </div>
     );
   }
   if (!win || win.rows.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] text-faint">
-        {t('agile.timeline.empty')}
-      </p>
+      <div className="empty-panel">
+        <p className="text-[13px] text-sage">{t('agile.tl.empty')}</p>
+      </div>
     );
   }
 
@@ -104,9 +104,7 @@ export default function TimelineTab({ projectId, tasks }: TimelineProps) {
       <p className="font-mono text-[11px] text-faint">
         {tp('agile.timeline.taskCount', rows.length)} · {t('agile.timeline.window')}
         {overdueCount > 0 && (
-          <span className="ml-2 font-bold text-tomato">
-            {tp('agile.timeline.overdueCount', overdueCount)}
-          </span>
+          <span className="ml-2 font-bold text-tomato">{tp('agile.tl.overdue', overdueCount)}</span>
         )}
       </p>
 
@@ -244,7 +242,7 @@ export default function TimelineTab({ projectId, tasks }: TimelineProps) {
                               ? 'var(--accent)'
                               : 'rgb(242 244 249 / 0.28)',
                       }}
-                      title={`${rt.title}: ${new Date(start).toLocaleDateString()} → ${new Date(end).toLocaleDateString()}${overdue ? t('agile.timeline.overdueSuffix') : ''}`}
+                      title={`${rt.title}: ${new Date(start).toLocaleDateString(tag)} → ${new Date(end).toLocaleDateString(tag)}${overdue ? t('agile.timeline.overdueSuffix') : ''}`}
                     />
                     {rowCompletion != null && (
                       <div

@@ -4,6 +4,9 @@ import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 import { useTimer, type UseTimerOptions } from './useTimer';
 import { DEFAULT_SETTINGS, type Session } from '../lib/store';
+import { createI18n } from '../lib/i18n';
+
+const enT = createI18n('en').t;
 
 // Enables React 18 act() flushing outside RTL.
 (globalThis as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT = true;
@@ -33,6 +36,7 @@ function baseOptions(overrides?: Partial<UseTimerOptions>): UseTimerOptions {
       roundProjectId: null,
       roundTaskId: null,
     },
+    t: enT,
     ...overrides,
   };
 }

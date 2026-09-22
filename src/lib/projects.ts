@@ -37,6 +37,14 @@ export const CATEGORY_LABELS: Record<ProjectCategory, TKey> = {
   clients: 'projects.category.clients',
 };
 
+/** Translation keys mirroring CATEGORY_LABELS (UI renders via t()). */
+export const PROJECT_CATEGORY_KEYS: Record<ProjectCategory, string> = {
+  work: 'proj.cat.work',
+  personal: 'proj.cat.personal',
+  learning: 'proj.cat.learning',
+  clients: 'proj.cat.clients',
+};
+
 export const PROJECT_COLORS = [
   '#ef4444', // red
   '#f97316', // orange
@@ -261,8 +269,12 @@ export function billableAmount(project: Project, minutes: number): number {
   return (minutes / 60) * project.hourlyRate;
 }
 
-export function formatBillable(amount: number): string {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+export function formatBillable(amount: number, tag = 'en-US'): string {
+  try {
+    return new Intl.NumberFormat(tag, { style: 'currency', currency: 'USD' }).format(amount);
+  } catch {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+  }
 }
 
 /* ---------- deadline reminders (Roadmap 2.4) ---------- */

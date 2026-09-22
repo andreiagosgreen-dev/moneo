@@ -10,22 +10,17 @@ import {
 } from '../../lib/waterfall';
 import type { WaterfallProps } from './types';
 import { useI18n } from '../../lib/i18n/LocaleContext';
-
-const STATUS_KEY = {
-  todo: 'waterfall.status.todo',
-  active: 'waterfall.status.active',
-  done: 'waterfall.status.done',
-} as const;
+import type { TKey } from '../../lib/i18n/types';
 
 /** Sequential phases with gates: strict todo → active → done. */
 export default function WaterfallTab({ projectId, phases, phasesChange }: WaterfallProps) {
-  const { t } = useI18n();
   const [name, setName] = useState('');
   const [gate, setGate] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editGate, setEditGate] = useState('');
   const [editRisk, setEditRisk] = useState('');
+  const { t } = useI18n();
   const scoped = useMemo(
     () => (projectId ? phasesForProject(phases, projectId) : []),
     [phases, projectId],
@@ -34,9 +29,9 @@ export default function WaterfallTab({ projectId, phases, phasesChange }: Waterf
 
   if (!projectId) {
     return (
-      <p className="rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] text-faint">
-        {t('waterfall.projectRequired')}
-      </p>
+      <div className="empty-panel">
+        <p className="text-[13px] text-sage">{t('agile.wf.none')}</p>
+      </div>
     );
   }
 
@@ -64,13 +59,13 @@ export default function WaterfallTab({ projectId, phases, phasesChange }: Waterf
       </div>
 
       {scoped.length === 0 ? (
-        <div className="mt-3 rounded-xl border border-dashed border-line/60 px-4 py-5 text-center">
-          <p className="text-[12px] text-faint">{t('waterfall.empty')}</p>
+        <div className="empty-panel mt-3">
+          <p className="text-[13px] text-sage">{t('agile.wf.empty')}</p>
           <button
             onClick={() => phasesChange(seedStarterPhases(phases, projectId))}
             className="press btn-accent mt-2 rounded-lg px-4 py-2 text-sm font-semibold"
           >
-            {t('waterfall.startClassicPipeline')}
+            {t('agile.wf.seed')}
           </button>
         </div>
       ) : (
@@ -91,7 +86,7 @@ export default function WaterfallTab({ projectId, phases, phasesChange }: Waterf
                       ? 'bg-ink ring-accent'
                       : 'bg-ink ring-line'
                 }`}
-                title={t(STATUS_KEY[p.status])}
+                title={t(`agile.st.${p.status}` as TKey)}
               />
               <div className="min-w-0 flex-1 rounded-xl bg-ink/40 px-3 py-2 ring-1 ring-inset ring-line">
                 <div className="flex items-center gap-2">
@@ -107,8 +102,8 @@ export default function WaterfallTab({ projectId, phases, phasesChange }: Waterf
                       setEditRisk(p.risk ?? '');
                     }}
                     className="press shrink-0 rounded p-1 font-mono text-[10px] text-faint hover:text-cream"
-                    aria-label={t('waterfall.edit', { name: p.name })}
-                    title={t('waterfall.editTitle')}
+                    aria-label={t('agile.wf.edit', { name: p.name })}
+                    title={t('agile.wf.editTitle')}
                   >
                     ✎
                   </button>
@@ -118,11 +113,11 @@ export default function WaterfallTab({ projectId, phases, phasesChange }: Waterf
                       className="press shrink-0 rounded-md px-2 py-1 font-mono text-[11px] text-cream ring-1 ring-inset ring-line hover:ring-accent"
                       title={
                         scoped.slice(0, i).every((x) => x.status === 'done')
-                          ? t('waterfall.startPhaseTitle')
-                          : t('waterfall.finishEarlierFirst')
+                          ? t('agile.wf.startTitle')
+                          : t('agile.wf.startBlocked')
                       }
                     >
-                      {t('waterfall.start')}
+                      {t('agile.wf.start')}
                     </button>
                   )}
                   {p.status === 'active' && (
@@ -131,33 +126,33 @@ export default function WaterfallTab({ projectId, phases, phasesChange }: Waterf
                       className="press shrink-0 rounded-md px-2 py-1 font-mono text-[11px] text-cream ring-1 ring-inset ring-line hover:ring-accent"
                       title={
                         p.gate
-                          ? t('waterfall.gateTitle', { gate: p.gate })
-                          : t('waterfall.completePhaseTitle')
+                          ? t('agile.wf.gateTitle', { gate: p.gate })
+                          : t('agile.wf.completeTitle')
                       }
                     >
-                      {t('waterfall.complete')}
+                      {t('agile.wf.complete')}
                     </button>
                   )}
                   <button
                     onClick={() => {
-                      if (confirm(t('waterfall.confirmDelete', { name: p.name }))) {
+                      if (confirm(t('agile.wf.delConfirm', { name: p.name }))) {
                         phasesChange(deletePhase(phases, p.id));
                       }
                     }}
                     className="press shrink-0 rounded p-1 font-mono text-[10px] text-faint hover:text-tomato"
-                    aria-label={t('waterfall.delete', { name: p.name })}
+                    aria-label={t('agile.wf.del', { name: p.name })}
                   >
                     ✕
                   </button>
                 </div>
                 {p.gate && (
                   <p className="mt-0.5 font-mono text-[10px] text-faint">
-                    {t('waterfall.gateLine', { gate: p.gate })}
+                    {t('agile.wf.gate', { gate: p.gate })}
                   </p>
                 )}
                 {p.risk && (
                   <p className="mt-0.5 font-mono text-[10px] text-tomato">
-                    {t('waterfall.riskLine', { risk: p.risk })}
+                    {t('agile.wf.risk', { risk: p.risk })}
                   </p>
                 )}
                 {editingId === p.id && (
@@ -167,7 +162,7 @@ export default function WaterfallTab({ projectId, phases, phasesChange }: Waterf
                       value={editName}
                       maxLength={80}
                       onChange={(e) => setEditName(e.target.value)}
-                      placeholder={t('waterfall.phaseNamePlaceholder')}
+                      placeholder={t('agile.wf.namePh')}
                       className="h-8 w-full rounded-lg bg-ink/50 px-2.5 text-[12px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
                     />
                     <input
@@ -175,7 +170,7 @@ export default function WaterfallTab({ projectId, phases, phasesChange }: Waterf
                       value={editGate}
                       maxLength={200}
                       onChange={(e) => setEditGate(e.target.value)}
-                      placeholder={t('waterfall.exitGatePlaceholder')}
+                      placeholder={t('agile.wf.gatePh')}
                       className="h-8 w-full rounded-lg bg-ink/50 px-2.5 text-[12px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
                     />
                     <input
@@ -183,7 +178,7 @@ export default function WaterfallTab({ projectId, phases, phasesChange }: Waterf
                       value={editRisk}
                       maxLength={200}
                       onChange={(e) => setEditRisk(e.target.value)}
-                      placeholder={t('waterfall.topRiskPlaceholder')}
+                      placeholder={t('agile.wf.riskPh')}
                       className="h-8 w-full rounded-lg bg-ink/50 px-2.5 text-[12px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
                     />
                     <div className="flex justify-end gap-1.5">
@@ -191,7 +186,7 @@ export default function WaterfallTab({ projectId, phases, phasesChange }: Waterf
                         onClick={() => setEditingId(null)}
                         className="press rounded-lg px-2.5 py-1.5 text-[11px] text-faint hover:text-cream"
                       >
-                        {t('waterfall.cancel')}
+                        {t('cal.cancel')}
                       </button>
                       <button
                         onClick={() => {
@@ -206,7 +201,7 @@ export default function WaterfallTab({ projectId, phases, phasesChange }: Waterf
                         }}
                         className="press btn-accent rounded-lg px-3 py-1.5 text-[12px] font-semibold"
                       >
-                        {t('waterfall.save')}
+                        {t('proj.save')}
                       </button>
                     </div>
                   </div>
@@ -224,7 +219,7 @@ export default function WaterfallTab({ projectId, phases, phasesChange }: Waterf
           maxLength={80}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && add()}
-          placeholder={t('waterfall.phaseNameEllipsisPlaceholder')}
+          placeholder={t('agile.wf.namePhAdd')}
           className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
         />
         <input
@@ -233,14 +228,14 @@ export default function WaterfallTab({ projectId, phases, phasesChange }: Waterf
           maxLength={200}
           onChange={(e) => setGate(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && add()}
-          placeholder={t('waterfall.exitGatePlaceholder')}
+          placeholder={t('agile.wf.gatePh')}
           className="h-9 w-32 shrink-0 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
         />
         <button
           onClick={add}
           disabled={!name.trim()}
           className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
-          aria-label={t('waterfall.addPhase')}
+          aria-label={t('agile.wf.add')}
         >
           +
         </button>

@@ -1,10 +1,14 @@
+import type { TKey } from './i18n/types';
 /* Technical skills tracking (Roadmap Phase 1.2) — local-first, additive. */
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
 import { projectCompletion, type Task } from './tasks';
 import type { Project } from './projects';
 import type { Goal } from './goals';
-import type { TKey } from './i18n/types';
+import { createI18n, type I18n } from './i18n';
+
+/** Default English translator — keeps helpers usable without a provider. */
+const EN_I18N = createI18n('en');
 
 export type SkillCategory =
   'frontend' | 'backend' | 'mobile' | 'devops' | 'data' | 'design' | 'soft' | 'other';
@@ -59,6 +63,27 @@ export const LEVEL_LABELS: Record<SkillLevel, TKey> = {
   3: 'skills.level.3',
   4: 'skills.level.4',
   5: 'skills.level.5',
+};
+
+/** Translation keys mirroring CATEGORY_LABELS (UI renders via t()). */
+export const CATEGORY_KEYS: Record<SkillCategory, string> = {
+  frontend: 'skill.cat.frontend',
+  backend: 'skill.cat.backend',
+  mobile: 'skill.cat.mobile',
+  devops: 'skill.cat.devops',
+  data: 'skill.cat.data',
+  design: 'skill.cat.design',
+  soft: 'skill.cat.soft',
+  other: 'skill.cat.other',
+};
+
+/** Translation keys mirroring LEVEL_LABELS (UI renders via t()). */
+export const LEVEL_KEYS: Record<SkillLevel, string> = {
+  1: 'skill.level.1',
+  2: 'skill.level.2',
+  3: 'skill.level.3',
+  4: 'skill.level.4',
+  5: 'skill.level.5',
 };
 
 /** Free tier tracks a handful of skills; Pro is unlimited. */
@@ -236,6 +261,7 @@ export function transitionAdvice(
   tasks: Task[],
   projects: Project[],
   goals: Goal[],
+  i18n: I18n = EN_I18N,
 ): string | null {
   if (skills.length < 3) return null;
   const top = skills
@@ -254,5 +280,8 @@ export function transitionAdvice(
       !g.archived && /market|sales|business|client|customer|brand|launch|revenue/i.test(g.title),
   );
   if (hasBusiness) return null;
-  return `Your top skills (${top.map((s) => s.name).join(', ')}) are solid and ${shipped} projects shipped work — time to add a business goal (marketing, sales, clients) alongside the technical ones.`;
+  return i18n.t('skill.tr.advice', {
+    names: top.map((s) => s.name).join(', '),
+    n: shipped,
+  });
 }

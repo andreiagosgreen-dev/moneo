@@ -12,13 +12,15 @@ test.describe('public pages', () => {
 
     await page.goto('/pricing');
     await expect(page.getByRole('heading', { name: /pricing/i })).toBeVisible();
-    // Free/Pro-monthly/Pro-yearly render as three separate price elements —
-    // match the real Lemon Squeezy prices ($5.99/mo, $59.99/yr), not
+    // Match the real Lemon Squeezy prices ($5.99/mo, $59.99/yr), not
     // placeholders, so this test catches drift between the two again.
-    const prices = await page.locator('.font-display.text-lg.font-bold.text-cream').allInnerTexts();
-    expect(prices.some((p) => p.trim().startsWith('$0'))).toBe(true);
-    expect(prices.some((p) => p.trim().startsWith('$5.99'))).toBe(true);
-    expect(prices.some((p) => p.trim().startsWith('$59.99'))).toBe(true);
+    for (const plan of ['Free', 'Pro (Monthly)', 'Pro (Yearly)']) {
+      await expect(page.getByRole('heading', { name: plan, exact: true })).toBeVisible();
+    }
+    const body = await page.locator('body').innerText();
+    expect(body).toContain('$0');
+    expect(body).toContain('$5.99');
+    expect(body).toContain('$59.99');
 
     await page.getByRole('link', { name: /back to moneo/i }).click();
     await expect(page).toHaveURL('/');

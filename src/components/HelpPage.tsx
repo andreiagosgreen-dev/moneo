@@ -1,80 +1,42 @@
 import { Link } from 'react-router-dom';
+import { useI18n } from '../lib/i18n/LocaleContext';
+import type { TKey } from '../lib/i18n/types';
 
-const SECTIONS: Array<{ title: string; body: string }> = [
-  {
-    title: 'Timer',
-    body: 'Pick Focus, Short or Long. Set an intention, choose an area, project and task, then press Space. Sessions credit automatically to everything selected.',
-  },
-  {
-    title: 'Ivy Lee + Frog + Matrix',
-    body: 'Plan up to 6 tasks nightly (Free: 3) and reorder with ▲▼. The Frog card picks your hardest task. The Matrix auto-sorts by urgency/importance; Pro can override quadrants.',
-  },
-  {
-    title: 'Calendar',
-    body: 'Recurring weekly blocks with adherence %. Overlapping blocks get a ⚠ flag. Switch Week/List views. Creating blocks is Pro.',
-  },
-  {
-    title: 'Projects & tasks',
-    body: 'Projects hold tasks with status, P0–P3, subtasks (3 levels, WBS-numbered), blockers, recurrence, due dates, notes, links, points and milestones. Templates jump-start new projects.',
-  },
-  {
-    title: 'Agile',
-    body: 'Board: drag cards between columns, WIP limits and flow metrics (Pro). Sprints: plan 1–4 weeks, burndown, velocity, auto standup, retros. Timeline: Gantt with critical path. Waterfall: gated sequential phases.',
-  },
-  {
-    title: 'Goals & OKRs',
-    body: 'Goals cascade Vision → Weekly with auto rollup; generate starter tasks or send one to today’s plan. OKRs track quarterly key results with sliders.',
-  },
-  {
-    title: 'AI path',
-    body: 'Plan tab: describe a goal or skill, answer up to 3 questions, review the visual draft, then approve. At most one project and 20 tasks per approval; week drafts never overfill a day. Runs 100% on-device; auto-prepare is opt-in. After sessions, 4-tap feedback tunes future estimates.',
-  },
-  {
-    title: 'Assistant',
-    body: 'Ask “what should I work on?” or type “add task Draft proposal p1 tomorrow for Client”. Free gets 2 quick actions; Pro unlocks full chat.',
-  },
-  {
-    title: 'Reports',
-    body: '7/30-day breakdowns by project and area, 80/20 callout, CSV export and printable PDF with billable totals.',
-  },
-  {
-    title: 'Life map',
-    body: 'Map tab: score 5–9 life areas Now vs Want, weighted by importance. The wheel shows balance and the biggest gap; one 10-minute step lands in today’s plan. Weekly review shows what got attention. Start from a template (Balanced, Student, Freelancer, Founder, Recovery) or blank. Local-only: never synced, never emailed.',
-  },
-  {
-    title: 'Life',
-    body: 'Habits with streaks and evening reminders. Balance scores real time across 5 life areas. Journal with mood and gratitude. Energy check-ins reveal peak hours (Pro).',
-  },
-  {
-    title: 'Skills & billing',
-    body: 'Track skill levels 1–5 with resources. Mark projects billable with an hourly rate — amounts appear in stats, reports and PDF exports.',
-  },
-  {
-    title: 'Privacy & data',
-    body: 'Everything lives on your device first (localStorage). Sign in to sync via Supabase. Export CSV anytime; clearing history is locked while sync is on.',
-  },
+const SECTIONS: Array<{ titleKey: TKey; bodyKey: TKey }> = [
+  { titleKey: 'help.s.timer.t', bodyKey: 'help.s.timer.b' },
+  { titleKey: 'help.s.today.t', bodyKey: 'help.s.today.b' },
+  { titleKey: 'help.s.calendar.t', bodyKey: 'help.s.calendar.b' },
+  { titleKey: 'help.s.projects.t', bodyKey: 'help.s.projects.b' },
+  { titleKey: 'help.s.agile.t', bodyKey: 'help.s.agile.b' },
+  { titleKey: 'help.s.goals.t', bodyKey: 'help.s.goals.b' },
+  { titleKey: 'help.s.aipath.t', bodyKey: 'help.s.aipath.b' },
+  { titleKey: 'help.s.assistant.t', bodyKey: 'help.s.assistant.b' },
+  { titleKey: 'help.s.reports.t', bodyKey: 'help.s.reports.b' },
+  { titleKey: 'help.s.lifemap.t', bodyKey: 'help.s.lifemap.b' },
+  { titleKey: 'help.s.life.t', bodyKey: 'help.s.life.b' },
+  { titleKey: 'help.s.skills.t', bodyKey: 'help.s.skills.b' },
+  { titleKey: 'help.s.privacy.t', bodyKey: 'help.s.privacy.b' },
 ];
 
 export default function HelpPage() {
+  const { t } = useI18n();
   return (
     <div className="relative z-10 mx-auto max-w-2xl px-4 pb-10 pt-10 sm:px-6">
       <Link to="/" className="press font-mono text-[12px] text-sage hover:text-cream">
-        ← Back to Moneo
+        {t('help.back')}
       </Link>
       <h1 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-cream">
-        Help center
+        {t('help.title')}
       </h1>
-      <p className="mt-2 text-[13px] leading-relaxed text-sage">
-        Every card in one page. Nothing here leaves your device.
-      </p>
+      <p className="mt-2 text-[13px] leading-relaxed text-sage">{t('help.sub')}</p>
       <div className="mt-6 space-y-3">
         {SECTIONS.map((s) => (
           <section
-            key={s.title}
+            key={s.titleKey}
             className="rounded-xl bg-ink/40 px-5 py-4 ring-1 ring-inset ring-line"
           >
-            <h2 className="font-display text-[16px] font-bold text-cream">{s.title}</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-sage">{s.body}</p>
+            <h2 className="font-display text-[16px] font-bold text-cream">{t(s.titleKey)}</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-sage">{t(s.bodyKey)}</p>
           </section>
         ))}
       </div>

@@ -32,6 +32,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build:ci
+      - run: node scripts/perf-budget.mjs
 
   e2e:
     name: E2E (Playwright)
@@ -68,7 +69,10 @@ jobs:
   deploy:
     name: Deploy (Cloudflare)
     needs: [lint, typecheck-test-build, e2e]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # Production releases are manual: push to main keeps running CI checks,
+    # deploying requires an explicit workflow_dispatch + `production` approval.
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    environment: production
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -103,3 +107,5 @@ jobs:
       - name: Deploy Worker
         run: npx wrangler deploy
         working-directory: cloudflare/workers
+      - name: Verify DNS + edge after deploy
+        run: node scripts/check-dns.mjs

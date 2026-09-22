@@ -13,6 +13,10 @@ import { pickFrog } from './frog';
 import { goalForProject, goalProgress, rootGoals } from './goals';
 import { peakHours } from './energy';
 import { activeSprint } from './sprints';
+import { createI18n, type I18n } from './i18n';
+
+/** Default English translator — keeps helpers usable without a provider. */
+const EN_I18N = createI18n('en');
 import type { Task, TaskPriority } from './tasks';
 import type { Project } from './projects';
 import type { Goal } from './goals';
@@ -36,6 +40,13 @@ export const TONE_LABELS: Record<AssistantTone, string> = {
   concise: 'Concise',
   encouraging: 'Encouraging',
   direct: 'Drill sergeant',
+};
+
+/** Translation keys mirroring TONE_LABELS (UI renders via t()). */
+export const TONE_KEYS: Record<AssistantTone, string> = {
+  concise: 'assist.tone.concise',
+  encouraging: 'assist.tone.encouraging',
+  direct: 'assist.tone.direct',
 };
 
 /** Never throws. Falls back to concise on junk. */
@@ -317,6 +328,19 @@ export const QUICK_ACTIONS: QuickAction[] = [
   { label: 'Add a task…', message: 'Add task ', pro: true },
 ];
 
+/**
+ * Translation keys for quick-action labels, by English message.
+ * Messages stay English — they are commands the parser understands.
+ */
+export const QUICK_LABEL_KEYS: Record<string, string> = {
+  'What should I work on?': 'assist.q.work',
+  'Pick my frog': 'assist.q.frog',
+  'Plan my day': 'assist.q.plan',
+  'How am I doing today?': 'assist.q.progress',
+  'Review my goals': 'assist.q.goals',
+  'Add task ': 'assist.q.add',
+};
+
 function todayMinutes(history: AssistantContext['history'], timezone: string): number {
   const key = dayKeyInTz(Date.now(), timezone);
   return history
@@ -332,16 +356,17 @@ export function motivationLine(
   history: AssistantContext['history'],
   timezone: string,
   tone: AssistantTone = 'concise',
+  i18n: I18n = EN_I18N,
 ): string {
   const streak = currentStreakInTz(history, timezone);
   const min = todayMinutes(history, timezone);
   let base: string;
-  if (streak >= 7) base = `${streak}-day streak — you're undeniable. Protect it with one round.`;
-  else if (streak >= 3) base = `${streak} days in a row — momentum is real. Keep it alive.`;
-  else if (min > 0) base = `${min}m already today — good start. One more round?`;
-  else base = 'Fresh page. One 25-minute round and the day is already a win.';
-  if (tone === 'encouraging') return `${base} I believe in you — go get it. 💪`;
-  if (tone === 'direct') return `${base} No excuses. Timer on.`;
+  if (streak >= 7) base = i18n.t('assist.m.streak7', { n: streak });
+  else if (streak >= 3) base = i18n.t('assist.m.streak3', { n: streak });
+  else if (min > 0) base = i18n.t('assist.m.today', { n: i18n.fmtNum(min) });
+  else base = i18n.t('assist.m.fresh');
+  if (tone === 'encouraging') return `${base} ${i18n.t('assist.m.enc')}`;
+  if (tone === 'direct') return `${base} ${i18n.t('assist.m.direct')}`;
   return base;
 }
 
@@ -350,6 +375,7 @@ export function respondTo(
   input: string,
   ctx: AssistantContext,
   tone: AssistantTone = 'concise',
+  i18n: I18n = EN_I18N,
   focusTaskId?: string,
 ): AssistantReply {
   const text = input.trim();
@@ -358,13 +384,23 @@ export function respondTo(
 
   const parsed = parseTaskCommand(text, now);
   if (parsed) {
-    const where = parsed.projectQuery ? ` for ${parsed.projectQuery}` : '';
+    const where = parsed.projectQuery ? i18n.t('assist.r.for', { q: parsed.projectQuery }) : '';
     const when =
       parsed.dueAt !== null
-        ? `, due ${new Date(parsed.dueAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}`
+        ? i18n.t('assist.r.due', {
+            date: new Date(parsed.dueAt).toLocaleDateString(i18n.tag, {
+              month: 'short',
+              day: 'numeric',
+            }),
+          })
         : '';
     return {
-      text: `On it — creating “${parsed.title}” (${parsed.priority.toUpperCase()}${when})${where}.`,
+      text: i18n.t('assist.r.created', {
+        title: parsed.title,
+        pri: parsed.priority.toUpperCase(),
+        when,
+        where,
+      }),
       action: { type: 'add-task', ...parsed },
     };
   }
@@ -441,10 +477,7 @@ export function respondTo(
   }
 
   if (/^(hi|hello|hey|help|what can you do|capabilities)\b/.test(lower)) {
-    return {
-      text: 'I can prioritize your day (“what should I work on?”), pick your frog, review goals and progress, create tasks (“add task Draft proposal p1 tomorrow”), or modify them — “complete X”, “delete X”, “reschedule X to friday”, “make X p0”.',
-      action: null,
-    };
+    return { text: i18n.t('assist.r.help'), action: null };
   }
 
   const frog = pickFrog(ctx.tasks, ctx.projects, now);
@@ -459,11 +492,10 @@ export function respondTo(
     );
     if (openGoal && items.length < 3) items.push(`🎯 ${openGoal.title}`);
     if (items.length === 0) {
-      return { text: 'Nothing open — enjoy the clear board, or add a task first.', action: null };
+      return { text: i18n.t('assist.r.empty'), action: null };
     }
     const peaks = ctx.energyLog ? peakHours(ctx.energyLog, now, 1) : [];
-    const peakLine =
-      peaks.length > 0 ? ` Peak energy ≈ ${peaks[0].hour}:00 — do the frog then.` : '';
+    const peakLine = peaks.length > 0 ? i18n.t('assist.r.peak', { hour: peaks[0].hour }) : '';
     const sprint =
       ctx.sprints && ctx.selectedProjectId
         ? activeSprint(ctx.sprints, ctx.selectedProjectId)
@@ -472,27 +504,26 @@ export function respondTo(
       ? ` Sprint “${sprint.name}” ends ${new Date(sprint.endAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}.`
       : '';
     return {
-      text: `Today's plan: ${items.join(' → ')}.${peakLine}${sprintLine} Writing it into your Ivy Lee list now.`,
+      text: i18n.t('assist.r.plan', { items: items.join(' → '), peak: peakLine + sprintLine }),
       action: { type: 'build-plan', items },
     };
   }
 
   if (/frog/.test(lower)) {
-    if (!frog)
-      return { text: 'No frogs left — every task is done. Enjoy the clear pond.', action: null };
+    if (!frog) return { text: i18n.t('assist.r.nofrog'), action: null };
     return {
-      text: `Today's frog: “${frog.title}” (${frog.priority.toUpperCase()}). Eat it first — everything after feels easy.`,
+      text: i18n.t('assist.r.frog', { title: frog.title, pri: frog.priority.toUpperCase() }),
       action: null,
     };
   }
 
   if (/work on|next|should i|prioriti|focus/.test(lower)) {
-    const focus = quadrantFocus(ctx.tasks, now);
+    const focus = quadrantFocus(ctx.tasks, now, i18n);
     if (!focus.task) return { text: focus.headline, action: null };
     const goal = goalForProject(ctx.goals, focus.task.projectId);
     const goalLine = goal ? ` Part of “${goal.title}”.` : '';
     return {
-      text: `${focus.headline} Top pick: “${focus.task.title}”.${goalLine}`,
+      text: `${focus.headline} ${i18n.t('assist.r.next', { title: focus.task.title })}${goalLine}`,
       action: null,
     };
   }
@@ -500,28 +531,32 @@ export function respondTo(
   if (/matrix|eisenhower|quadrant|urgent/.test(lower)) {
     const c = quadrantCounts(ctx.tasks, now);
     const total = c.q1 + c.q2 + c.q3 + c.q4;
-    if (total === 0)
-      return { text: 'Your matrix is empty — add tasks to projects first.', action: null };
+    if (total === 0) return { text: i18n.t('assist.r.matrixEmpty'), action: null };
     return {
-      text: `Matrix: ${c.q1} do-first, ${c.q2} to schedule, ${c.q3} to delegate, ${c.q4} to eliminate. ${
-        c.q1 > 0
-          ? 'Clear Q1 before anything else.'
-          : c.q2 > 0
-            ? 'No fires — protect time for Q2 deep work.'
-            : 'Nothing urgent — prune Q4.'
-      }`,
+      text: i18n.t('assist.r.matrix', {
+        q1: c.q1,
+        q2: c.q2,
+        q3: c.q3,
+        q4: c.q4,
+        tail: i18n.t(
+          c.q1 > 0
+            ? 'assist.r.matrix.q1'
+            : c.q2 > 0
+              ? 'assist.r.matrix.q2'
+              : 'assist.r.matrix.rest',
+        ),
+      }),
       action: null,
     };
   }
 
   if (/goal/.test(lower)) {
     const roots = rootGoals(ctx.goals);
-    if (roots.length === 0)
-      return { text: 'No goals yet — create a vision and break it into milestones.', action: null };
+    if (roots.length === 0) return { text: i18n.t('assist.r.noGoals'), action: null };
     const lines = roots
       .slice(0, 3)
       .map((g) => `“${g.title}” ${goalProgress(ctx.goals, ctx.tasks, g.id)}%`);
-    return { text: `Goals: ${lines.join(' · ')}.`, action: null };
+    return { text: i18n.t('assist.r.goals', { lines: lines.join(' · ') }), action: null };
   }
 
   if (/progress|report|summar|how am i|stats|streak|doing/.test(lower)) {
@@ -531,20 +566,24 @@ export function respondTo(
     ).length;
     const streak = currentStreakInTz(ctx.history, ctx.timezone);
     return {
-      text: `Today: ${sessions} session${sessions === 1 ? '' : 's'}, ${min} focused minutes, ${streak}-day streak. ${
-        min >= 100 ? 'Strong day — protect the streak.' : 'Room to grow — one more 25-minute round?'
-      }`,
+      text: i18n.t('assist.r.progress', {
+        sess: i18n.tp('assist.r.sess', sessions),
+        min: i18n.fmtNum(min),
+        streak: streak,
+        tail: i18n.t(min >= 100 ? 'assist.r.strong' : 'assist.r.room'),
+      }),
       action: null,
     };
   }
 
   return {
-    text:
+    text: i18n.t(
       tone === 'direct'
-        ? 'Unclear. Say “what should I work on?”, “pick my frog”, or “add task …”. Now.'
+        ? 'assist.r.vague.direct'
         : tone === 'encouraging'
-          ? 'Hmm, not sure I got that — but I believe in you! Try “what should I work on?”, “pick my frog”, or create with “add task …”. 💪'
-          : 'I can prioritize (“what should I work on?”), pick your frog, review goals or progress — or create a task with “add task …”.',
+          ? 'assist.r.vague.enc'
+          : 'assist.r.vague.conc',
+    ),
     action: null,
   };
 }

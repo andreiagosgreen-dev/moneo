@@ -60,7 +60,10 @@ describe('detectKind + neededInputs', () => {
       level: 'beginner',
       hoursPerWeek: 5,
     });
-    expect(resolveInput({ text: 'x', horizonMonths: 99, hoursPerWeek: 99 }).horizonMonths).toBe(24);
+    expect(resolveInput({ text: 'x', horizonMonths: 99, hoursPerWeek: 99 }).horizonMonths).toBe(99);
+    expect(resolveInput({ text: 'x', horizonMonths: 999, hoursPerWeek: 99 }).horizonMonths).toBe(
+      480,
+    );
   });
 });
 

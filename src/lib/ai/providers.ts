@@ -25,7 +25,7 @@ export interface ProviderResult {
 }
 
 export interface PlannerProvider {
-  readonly id: 'local' | 'worker';
+  readonly id: 'local' | 'worker' | 'ollama';
   buildPath(input: PathInput): Promise<ProviderResult>;
 }
 

@@ -1,7 +1,11 @@
 import type { Session } from './store';
-import { fmtMinutes } from './store';
 import type { Project } from './projects';
 import { formatBillable } from './projects';
+import { createI18n, type I18n } from './i18n';
+import { canExportSessions, canPrintReport } from './billing/pricingConfig';
+
+/** Default English translator — keeps exports usable without a provider. */
+const EN_I18N = createI18n('en');
 import type { FocusArea } from './focusAreas';
 import type { Task } from './tasks';
 
@@ -13,20 +17,21 @@ export function generateSessionsCSV(
   projects: Project[],
   areas: FocusArea[],
   tasks: Task[] = [],
+  i18n: I18n = EN_I18N,
 ): string {
   const projectMap = new Map(projects.map((p) => [p.id, p]));
   const areaMap = new Map(areas.map((a) => [a.id, a]));
   const taskMap = new Map(tasks.map((t) => [t.id, t]));
 
   const headers = [
-    'Date',
-    'Time',
-    'Duration (min)',
-    'Project',
-    'Category',
-    'Focus Area',
-    'Task',
-    'Intention',
+    i18n.t('rep.csv.h.date'),
+    i18n.t('rep.csv.h.time'),
+    i18n.t('rep.csv.h.duration'),
+    i18n.t('rep.csv.h.project'),
+    i18n.t('rep.csv.h.category'),
+    i18n.t('rep.csv.h.area'),
+    i18n.t('rep.csv.h.task'),
+    i18n.t('rep.csv.h.intention'),
   ];
 
   const escapeCsv = (val: string | null | undefined): string => {
@@ -52,7 +57,7 @@ export function generateSessionsCSV(
         dateStr,
         timeStr,
         s.min.toString(),
-        escapeCsv(proj ? proj.name : 'Unassigned'),
+        escapeCsv(proj ? proj.name : i18n.t('rep.csv.unassigned')),
         escapeCsv(proj ? proj.category : ''),
         escapeCsv(area ? area.name : ''),
         escapeCsv(task ? task.title : ''),
@@ -64,15 +69,34 @@ export function generateSessionsCSV(
 }
 
 /**
+ * Gate options for Pro-only exports. Fail-closed: missing/anonymous callers
+ * are treated as Free and blocked with `onBlocked` (upsell) instead of a file.
+ */
+export interface ExportGate {
+  /** True only for an active Pro subscription (server truth via useAuth). */
+  isPro?: boolean;
+  /** Called when a Free user is blocked — the UI shows an upsell prompt. */
+  onBlocked?: () => void;
+}
+
+/**
  * Triggers a browser download of the CSV timesheet.
+ * Pro-gated: Free users are blocked (returns false, no file generated).
+ * Returns true only when the download was actually triggered.
  */
 export function exportSessionsToCSV(
   history: Session[],
   projects: Project[],
   areas: FocusArea[],
   tasks: Task[] = [],
-): void {
-  const csvContent = generateSessionsCSV(history, projects, areas, tasks);
+  i18n: I18n = EN_I18N,
+  gate?: ExportGate,
+): boolean {
+  if (!canExportSessions(gate?.isPro ?? false)) {
+    gate?.onBlocked?.();
+    return false;
+  }
+  const csvContent = generateSessionsCSV(history, projects, areas, tasks, i18n);
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -82,6 +106,7 @@ export function exportSessionsToCSV(
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+  return true;
 }
 
 /* ---------------- printable PDF report (Roadmap 2.4) ----------------
@@ -124,22 +149,24 @@ function escHtml(s: string): string {
 }
 
 /** Pure: builds a self-contained printable HTML document. Never throws. */
-export function buildPrintableReportHTML(r: PrintableReport): string {
+export function buildPrintableReportHTML(r: PrintableReport, i18n: I18n = EN_I18N): string {
+  const dur = (min: number) => i18n.fmtDur(min);
+  const money = (amount: number) => formatBillable(amount, i18n.tag);
   const projectRows = r.projects
     .map(
       (p) =>
         `<tr><td><span class="dot" style="background:${escHtml(p.color)}"></span>${escHtml(
           p.name,
-        )}</td><td class="num">${fmtMinutes(p.min)}</td><td class="num">${
-          p.amount > 0 ? escHtml(formatBillable(p.amount)) : '—'
+        )}</td><td class="num">${dur(p.min)}</td><td class="num">${
+          p.amount > 0 ? escHtml(money(p.amount)) : '—'
         }</td></tr>`,
     )
     .join('');
   const dayRows = r.days
-    .map((d) => `<tr><td>${escHtml(d.label)}</td><td class="num">${fmtMinutes(d.min)}</td></tr>`)
+    .map((d) => `<tr><td>${escHtml(d.label)}</td><td class="num">${dur(d.min)}</td></tr>`)
     .join('');
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${i18n.locale}">
 <head>
 <meta charset="utf-8" />
 <title>${escHtml(r.title)}</title>
@@ -162,26 +189,32 @@ export function buildPrintableReportHTML(r: PrintableReport): string {
 </head>
 <body>
 <h1>${escHtml(r.title)}</h1>
-<p class="meta">${escHtml(r.rangeLabel)} · generated ${escHtml(r.generatedAt)}</p>
+<p class="meta">${escHtml(r.rangeLabel)} · ${i18n.t('rep.doc.generated')} ${escHtml(r.generatedAt)}</p>
 <div class="stats">
-  <div class="stat"><b>${escHtml(fmtMinutes(r.totalMin))}</b><span>total focused</span></div>
-  <div class="stat"><b>${r.sessionCount}</b><span>sessions</span></div>
-  <div class="stat"><b>${escHtml(fmtMinutes(r.avgMinPerDay))}</b><span>avg / day</span></div>
-  <div class="stat"><b>${escHtml(formatBillable(r.totalBillable))}</b><span>billable</span></div>
+  <div class="stat"><b>${escHtml(dur(r.totalMin))}</b><span>${i18n.t('rep.doc.total')}</span></div>
+  <div class="stat"><b>${r.sessionCount}</b><span>${i18n.t('rep.doc.sessions')}</span></div>
+  <div class="stat"><b>${escHtml(dur(r.avgMinPerDay))}</b><span>${i18n.t('rep.doc.avg')}</span></div>
+  <div class="stat"><b>${escHtml(money(r.totalBillable))}</b><span>${i18n.t('rep.doc.billable')}</span></div>
 </div>
-<h2>By project</h2>
-<table><thead><tr><th>Project</th><th class="num">Time</th><th class="num">Billable</th></tr></thead><tbody>${projectRows}</tbody></table>
-<h2>By day</h2>
-<table><thead><tr><th>Day</th><th class="num">Time</th></tr></thead><tbody>${dayRows}</tbody></table>
+<h2>${i18n.t('rep.doc.byProject')}</h2>
+<table><thead><tr><th>${i18n.t('rep.doc.project')}</th><th class="num">${i18n.t('rep.doc.time')}</th><th class="num">${i18n.t('rep.doc.billableCol')}</th></tr></thead><tbody>${projectRows}</tbody></table>
+<h2>${i18n.t('rep.doc.byDay')}</h2>
+<table><thead><tr><th>${i18n.t('rep.doc.day')}</th><th class="num">${i18n.t('rep.doc.time')}</th></tr></thead><tbody>${dayRows}</tbody></table>
 </body>
 </html>`;
 }
 
 /**
  * Opens the printable report and triggers the browser print dialog
- * (Print → Save as PDF). Returns false outside a browser popup context.
+ * (Print → Save as PDF). Pro-gated like CSV: Free users are blocked
+ * (returns false, no window opened). Returns false outside a browser popup
+ * context.
  */
-export function printReportHTML(html: string): boolean {
+export function printReportHTML(html: string, gate?: ExportGate): boolean {
+  if (!canPrintReport(gate?.isPro ?? false)) {
+    gate?.onBlocked?.();
+    return false;
+  }
   try {
     if (typeof window === 'undefined' || typeof document === 'undefined') return false;
     const w = window.open('', '_blank', 'width=900,height=700');

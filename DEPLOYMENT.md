@@ -29,6 +29,48 @@ Complete deployment instructions for Moneo with Cloudflare, Supabase, and Docker
 - wrangler CLI: `npm install -g wrangler`
 - Docker (optional, for local testing)
 
+### GitHub Actions Secrets (production release)
+
+Configure in **Settings → Secrets and variables → Actions** (all repository
+secrets unless noted):
+
+| Secret / Variable                      | Used by                   | Notes                                             |
+| -------------------------------------- | ------------------------- | ------------------------------------------------- |
+| `CLOUDFLARE_ACCOUNT_ID`                | `ci.yml` deploy           | R2 upload + worker deploy                         |
+| `CLOUDFLARE_API_TOKEN`                 | `ci.yml` deploy           | Scoped: Workers + R2 + KV                         |
+| `VITE_SUPABASE_URL`                    | build (baked into SPA)    | Production project URL (public value, kept tidy)  |
+| `VITE_SUPABASE_ANON_KEY`               | build                     | Anon key only — never the service-role key        |
+| `VITE_LEMONSQUEEZY_STORE_ID`           | build                     |                                                   |
+| `VITE_LEMONSQUEEZY_CHECKOUT_URL`       | build                     | https checkout base                               |
+| `VITE_LEMONSQUEEZY_MONTHLY_VARIANT_ID` | build                     |                                                   |
+| `VITE_LEMONSQUEEZY_YEARLY_VARIANT_ID`  | build                     |                                                   |
+| `SUPABASE_ACCESS_TOKEN`                | `supabase-migrations.yml` | Personal/service access token, `SUPABASE_DB` role |
+| `SUPABASE_STAGING_PROJECT_REF`         | `supabase-migrations.yml` | The second (staging) Supabase project             |
+| `SUPABASE_PRODUCTION_PROJECT_REF`      | `supabase-migrations.yml` | The live project                                  |
+
+Server-side secrets (service-role key, Lemon Squeezy webhook secret + API key,
+AI key) live **only** in Cloudflare Worker secrets (`wrangler secret put` in
+`cloudflare/workers`) — never in GitHub.
+
+Environment protection: create a GitHub **environment** named `production`
+(Settings → Environments) with required reviewers. The deploy job and the
+production migration job both require approval there, and the migration
+workflow guarantees staging is pushed before production.
+
+Release procedure:
+
+1. Run **Supabase migrations** (workflow_dispatch) with `dry_run=true` and
+   `target=staging` — review the pending list (0001-0005 today, plus any new
+   ones).
+2. Re-run with `dry_run=false`: the workflow pushes to **staging** first;
+   approve the `production` environment gate to let it push to production.
+3. UAT (docs/UAT.md) — at minimum the critical flows against staging.
+4. Run **CI** (workflow_dispatch) on main: build → R2 assets → worker deploy →
+   post-deploy DNS check.
+5. **DNS + edge health** workflow (runs every 6 h + after each deploy) must be
+   green: resolves `moneo.bond`, served through Cloudflare, `/`,
+   `/manifest.webmanifest` and `/sw.js` all 200.
+
 ---
 
 ## Supabase Setup

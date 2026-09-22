@@ -1,0 +1,68 @@
+/**
+ * Pro font packs. Atmosphere colors stay untouched — only type stacks swap.
+ * Specificity beats atmosphere-type.css (`html` / `.atm-root`) so a chosen
+ * pack wins while `data-font` is set. `default` leaves the shared Literata+Inter stack.
+ */
+
+html[data-font='inter'],
+html[data-font='inter'] .atm-root {
+  --mono-font-display: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono-font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+}
+
+html[data-font='literata'],
+html[data-font='literata'] .atm-root {
+  --mono-font-display: 'Literata', Georgia, 'Palatino Linotype', serif;
+  --mono-font-body: 'Literata', Georgia, 'Palatino Linotype', serif;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+}
+
+html[data-font='source-serif'],
+html[data-font='source-serif'] .atm-root {
+  --mono-font-display: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --mono-font-body: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+}
+
+html[data-font='cal-sans'],
+html[data-font='cal-sans'] .atm-root {
+  --mono-font-display: 'Cal Sans', 'Inter', system-ui, sans-serif;
+  --mono-font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+}
+
+html[data-font='jetbrains'],
+html[data-font='jetbrains'] .atm-root {
+  --mono-font-display: 'JetBrains Mono', ui-monospace, monospace;
+  --mono-font-body: 'JetBrains Mono', ui-monospace, monospace;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+}
+
+html[data-font='fraunces'],
+html[data-font='fraunces'] .atm-root {
+  --mono-font-display: 'Fraunces', Georgia, 'Palatino Linotype', serif;
+  --mono-font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+}
+
+html[data-font='dm-sans'],
+html[data-font='dm-sans'] .atm-root {
+  --mono-font-display: 'DM Sans', 'Inter', system-ui, sans-serif;
+  --mono-font-body: 'DM Sans', 'Inter', system-ui, sans-serif;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+}

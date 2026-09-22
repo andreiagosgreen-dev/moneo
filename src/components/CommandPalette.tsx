@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { NavTab } from './TopNav';
-import { PRIMARY_TABS, SECONDARY_TABS } from './TopNav';
+import { MONO_NAV_ITEMS, type MonoTab } from '../mono/MonoNav';
 import type { Task } from '../lib/tasks';
 import type { Project } from '../lib/projects';
 import type { Goal } from '../lib/goals';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
 
-const ALL_TABS = [...PRIMARY_TABS, ...SECONDARY_TABS];
+const ALL_TABS = MONO_NAV_ITEMS;
 
 interface PaletteItem {
   key: string;
@@ -19,7 +18,7 @@ interface PaletteItem {
 interface Props {
   open: boolean;
   onClose: () => void;
-  onTab: (t: NavTab) => void;
+  onTab: (t: MonoTab) => void;
   tasks: Task[];
   projects: Project[];
   goals: Goal[];

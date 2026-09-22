@@ -45,13 +45,13 @@ export default function OkrCard({
   skills,
   isPro = false,
 }: Props) {
-  const i18n = useI18n();
-  const { t } = i18n;
   const [draft, setDraft] = useState('');
   const [draftParent, setDraftParent] = useState('');
   const [period, setPeriod] = useState<string>('');
   const [showArchived, setShowArchived] = useState(false);
   const [review, setReview] = useState<string | null>(null);
+  const i18n = useI18n();
+  const { t, fmtNum } = i18n;
 
   const periods = useMemo(() => okrPeriods(objectives), [objectives]);
   const activePeriod = period || currentPeriod();
@@ -90,14 +90,14 @@ export default function OkrCard({
   const validParents = objectives.filter((o) => !o.archived);
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label={t('okr.ariaLabel')}>
+    <section className="card px-6 py-6 sm:px-7" aria-label={t('okr.aria')}>
       <header className="flex items-baseline justify-between gap-3">
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">
             {t('okr.title')}
           </h2>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            {isPro ? t('okr.subtitlePro') : t('okr.subtitleFree', { n: String(FREE_OKRS_LIMIT) })}
+            {isPro ? t('okr.subPro') : t('okr.subFree', { n: fmtNum(FREE_OKRS_LIMIT) })}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -109,14 +109,14 @@ export default function OkrCard({
             className="press rounded-md px-2 py-1 font-mono text-[11px] text-sage ring-1 ring-inset ring-line hover:text-cream"
             title={t('okr.reviewTitle')}
           >
-            {t('okr.reviewButton')}
+            {t('okr.review')}
           </button>
           {periods.length > 1 && (
             <select
               value={period}
               onChange={(e) => setPeriod(e.target.value)}
               className="h-8 rounded-lg bg-ink/40 px-2 font-mono text-[11px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              aria-label={t('okr.periodFilterAria')}
+              aria-label={t('okr.periodFilter')}
             >
               <option value="">{t('okr.allPeriods')}</option>
               {periods.map((p) => (
@@ -133,7 +133,7 @@ export default function OkrCard({
         <div className="mt-3 rounded-xl bg-ink/40 px-4 py-3 ring-1 ring-inset ring-line">
           <div className="flex items-center justify-between">
             <p className="font-mono text-[10px] uppercase tracking-widest text-faint">
-              {t('okr.reviewPanelTitle')}
+              {t('okr.reviewHead')}
             </p>
             <button
               onClick={async () => {
@@ -162,9 +162,9 @@ export default function OkrCard({
 
       {roots.length === 0 ? (
         <p className="mt-4 rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">
-          {t('okr.emptyLine1')}
+          {t('okr.emptyA')}
           <br />
-          {t('okr.emptyLine2')}
+          {t('okr.emptyB')}
         </p>
       ) : (
         <ul className="mt-4 space-y-2">
@@ -195,14 +195,14 @@ export default function OkrCard({
               maxLength={120}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && add()}
-              placeholder={t('okr.form.placeholder')}
+              placeholder={t('okr.ph')}
               className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
             />
             <button
               onClick={add}
               disabled={!draft.trim()}
               className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
-              aria-label={t('okr.form.addAria')}
+              aria-label={t('okr.add')}
             >
               +
             </button>
@@ -212,9 +212,9 @@ export default function OkrCard({
               value={draftParent}
               onChange={(e) => setDraftParent(e.target.value)}
               className="h-9 w-full rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              aria-label={t('okr.form.parentAria')}
+              aria-label={t('okr.parent')}
             >
-              <option value="">{t('okr.form.noParent', { period: activePeriod })}</option>
+              <option value="">{t('okr.noParent', { period: activePeriod })}</option>
               {validParents.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.title}
@@ -227,9 +227,9 @@ export default function OkrCard({
         !isPro && (
           <div className="mt-3 rounded-xl border border-accent/30 bg-accent/10 p-3.5">
             <p className="text-[12px] leading-relaxed text-cream">
-              {t('okr.capacityLine', { n: String(FREE_OKRS_LIMIT) })}
+              {t('okr.cap', { n: fmtNum(FREE_OKRS_LIMIT) })}
             </p>
-            <p className="mt-1 font-mono text-[11px] text-faint">{t('okr.capacityUpgrade')}</p>
+            <p className="mt-1 font-mono text-[11px] text-faint">{t('okr.capBody')}</p>
           </div>
         )
       )}
@@ -240,7 +240,7 @@ export default function OkrCard({
             onClick={() => setShowArchived(!showArchived)}
             className="press font-mono text-[11px] uppercase tracking-[0.18em] text-faint hover:text-sage"
           >
-            {t('okr.archivedToggle', { n: String(archived.length) })} {showArchived ? '▴' : '▾'}
+            {t('okr.archived', { n: fmtNum(archived.length) })} {showArchived ? '▴' : '▾'}
           </button>
           {showArchived && (
             <ul className="mt-2 space-y-1">
@@ -295,11 +295,11 @@ function ObjectiveNode({
   projects,
   skills,
 }: NodeProps) {
-  const { t } = useI18n();
   const [showDetails, setShowDetails] = useState(false);
   const [krTitle, setKrTitle] = useState('');
   const [krTarget, setKrTarget] = useState('100');
   const [krUnit, setKrUnit] = useState('%');
+  const { t } = useI18n();
   const pct = progressOf.get(o.id) ?? 0;
   const kids = childrenOf(objectives, o.id).filter((k) => !ancestorIds.includes(k.id));
 
@@ -326,7 +326,7 @@ function ObjectiveNode({
           <button
             onClick={() => setShowDetails(!showDetails)}
             className="press shrink-0 rounded p-1 font-mono text-[11px] text-faint hover:text-cream"
-            aria-label={showDetails ? t('okr.node.hideDetails') : t('okr.node.showDetails')}
+            aria-label={t(showDetails ? 'okr.hideDetails' : 'okr.showDetails')}
           >
             ⋯
           </button>
@@ -370,16 +370,16 @@ function ObjectiveNode({
                         )
                       }
                       className="h-1.5 flex-1 accent-[var(--accent)]"
-                      aria-label={t('okr.node.krProgressAria', { title: k.title })}
+                      aria-label={t('okr.krProgress', { title: k.title })}
                     />
                     <button
                       onClick={() => {
-                        if (confirm(t('okr.node.removeKrConfirm', { title: k.title }))) {
+                        if (confirm(t('okr.krConfirm', { title: k.title }))) {
                           objectivesChange(removeKeyResult(objectives, o.id, k.id));
                         }
                       }}
                       className="press shrink-0 rounded p-0.5 font-mono text-[10px] text-faint hover:text-tomato"
-                      aria-label={t('okr.node.removeKrAria', { title: k.title })}
+                      aria-label={t('okr.krRemove', { title: k.title })}
                     >
                       ✕
                     </button>
@@ -399,7 +399,8 @@ function ObjectiveNode({
                 maxLength={120}
                 onChange={(e) => setKrTitle(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addKr()}
-                placeholder={t('okr.node.krPlaceholder')}
+                placeholder={t('okr.krPh')}
+                aria-label={t('okr.krAdd')}
                 className="h-8 min-w-0 flex-1 rounded-lg bg-ink/60 px-2.5 text-[12px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
               />
               <input
@@ -408,7 +409,8 @@ function ObjectiveNode({
                 value={krTarget}
                 onChange={(e) => setKrTarget(e.target.value)}
                 className="h-8 w-20 shrink-0 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title={t('okr.node.targetTitle')}
+                title={t('okr.krTarget')}
+                aria-label={t('okr.krTarget')}
               />
               <input
                 type="text"
@@ -416,14 +418,14 @@ function ObjectiveNode({
                 maxLength={12}
                 onChange={(e) => setKrUnit(e.target.value)}
                 className="h-8 w-14 shrink-0 rounded-lg bg-ink/60 px-2 font-mono text-[12px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
-                title={t('okr.node.unitTitle')}
+                title={t('okr.krUnit')}
                 placeholder="%"
               />
               <button
                 onClick={addKr}
                 disabled={!krTitle.trim()}
                 className="press btn-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg font-display text-base font-bold disabled:opacity-40"
-                aria-label={t('okr.node.addKrAria')}
+                aria-label={t('okr.krAdd')}
               >
                 +
               </button>
@@ -435,18 +437,18 @@ function ObjectiveNode({
                 }
                 className="press rounded-lg px-2.5 py-1.5 text-[11px] text-faint ring-1 ring-inset ring-line hover:text-cream"
               >
-                {t('okr.node.archive')}
+                {t('okr.archive')}
               </button>
               <button
                 onClick={() => {
-                  if (confirm(t('okr.node.deleteConfirm', { title: o.title }))) {
+                  if (confirm(t('okr.delConfirm', { title: o.title }))) {
                     objectivesChange(deleteObjective(objectives, o.id));
                     onLinksChange(cleanupLinksFor(links, 'objective', o.id));
                   }
                 }}
                 className="press ml-auto rounded-lg px-2.5 py-1.5 text-[11px] text-faint ring-1 ring-inset ring-line hover:text-tomato"
               >
-                {t('okr.node.delete')}
+                {t('okr.delete')}
               </button>
             </div>
 

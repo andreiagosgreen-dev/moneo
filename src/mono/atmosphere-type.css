@@ -1,0 +1,42 @@
+/**
+ * Shared type system for EVERY atmosphere.
+ * Themes may only change colors (--mono-bg, --mono-fg, accents…).
+ * Fonts, weights, and tracking stay identical so the app never
+ * reshapes when you switch skins.
+ */
+
+html,
+.atm-root {
+  --mono-font-display: 'Literata', Georgia, 'Palatino Linotype', serif;
+  --mono-font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+  --mono-h1-weight: 600;
+  --mono-h1-tracking: -0.02em;
+  --mono-h2-weight: 600;
+  --mono-h2-tracking: -0.015em;
+  --mono-h3-weight: 600;
+  --mono-eyebrow-tracking: 0.09em;
+  --mono-btn-weight: 600;
+  --mono-btn-tracking: -0.005em;
+  --atm-time-weight: 500;
+  --atm-time-tracking: -0.03em;
+  --mono-body-lh: 1.45;
+}
+
+html,
+.atm-root,
+body,
+.mono,
+.mono * {
+  font-family: var(--mono-font-body);
+}
+
+.mono-h1,
+.mono-h2,
+.mono-h3,
+.atm-time,
+.mono-rail-name {
+  font-family: var(--mono-font-display);
+}

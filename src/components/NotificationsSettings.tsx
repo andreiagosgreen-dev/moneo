@@ -26,14 +26,14 @@ export default function NotificationsSettings() {
   const enableReminders = async () => {
     const perm = await requestNotificationPermission();
     if (perm === 'granted' && prefs.focusReminder) {
-      showNotification(t('notif.focusReminderTitle'), t('notif.focusReminderBody'));
+      showNotification(t('notif.test.on'), t('notif.test.body'));
     }
   };
 
   if (!auth.user) {
     return (
       <div className="rounded-xl border border-line bg-ink/50 px-4 py-3">
-        <p className="text-[12px] text-sage">{t('notif.signInPrompt')}</p>
+        <p className="text-[12px] text-sage">{t('notif.signin')}</p>
       </div>
     );
   }
@@ -41,15 +41,15 @@ export default function NotificationsSettings() {
   return (
     <div className="rounded-xl border border-line bg-ink/50 px-4 py-4">
       <h3 className="font-display text-[15px] font-bold text-cream">{t('notif.title')}</h3>
-      <p className="mt-1 text-[12px] leading-relaxed text-sage">{t('notif.subtitle')}</p>
+      <p className="mt-1 text-[12px] leading-relaxed text-sage">{t('notif.sub')}</p>
 
       <div className="mt-4 space-y-3">
         <label className="flex items-center justify-between gap-3">
           <div>
-            <div className="text-sm font-semibold text-cream">{t('notif.dailySummary.label')}</div>
-            <div className="text-[11px] text-faint">{t('notif.dailySummary.desc')}</div>
+            <div className="text-sm font-semibold text-cream">{t('notif.daily')}</div>
+            <div className="text-[11px] text-faint">{t('notif.dailyBody')}</div>
             {!isEmailConfigured() && (
-              <div className="mt-1 text-[11px] text-faint">{t('notif.emailNotConfigured')}</div>
+              <div className="mt-1 text-[11px] text-faint">{t('notif.noMail')}</div>
             )}
           </div>
           <button
@@ -69,8 +69,8 @@ export default function NotificationsSettings() {
 
         <label className="flex items-center justify-between gap-3">
           <div>
-            <div className="text-sm font-semibold text-cream">{t('notif.focusReminder.label')}</div>
-            <div className="text-[11px] text-faint">{t('notif.focusReminder.desc')}</div>
+            <div className="text-sm font-semibold text-cream">{t('notif.focus')}</div>
+            <div className="text-[11px] text-faint">{t('notif.focusBody')}</div>
           </div>
           <button
             onClick={() => {
@@ -93,7 +93,7 @@ export default function NotificationsSettings() {
         {prefs.focusReminder && (
           <div>
             <label className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">
-              {t('notif.reminderTime')}
+              {t('notif.time')}
             </label>
             <input
               type="time"
@@ -106,8 +106,8 @@ export default function NotificationsSettings() {
 
         <label className="flex items-center justify-between gap-3">
           <div>
-            <div className="text-sm font-semibold text-cream">{t('notif.habitCheckin.label')}</div>
-            <div className="text-[11px] text-faint">{t('notif.habitCheckin.desc')}</div>
+            <div className="text-sm font-semibold text-cream">{t('notif.habit')}</div>
+            <div className="text-[11px] text-faint">{t('notif.habitBody')}</div>
           </div>
           <button
             onClick={() => update({ habitReminders: !prefs.habitReminders })}
@@ -140,8 +140,8 @@ export default function NotificationsSettings() {
 
         <label className="flex items-center justify-between gap-3">
           <div>
-            <div className="text-sm font-semibold text-cream">{t('notif.disconnect.label')}</div>
-            <div className="text-[11px] text-faint">{t('notif.disconnect.desc')}</div>
+            <div className="text-sm font-semibold text-cream">{t('notif.disconnect')}</div>
+            <div className="text-[11px] text-faint">{t('notif.disconnectBody')}</div>
           </div>
           <button
             onClick={() => update({ disconnectReminders: !prefs.disconnectReminders })}
@@ -173,8 +173,8 @@ export default function NotificationsSettings() {
         )}
         <label className="flex items-center justify-between gap-3">
           <div>
-            <div className="text-sm font-semibold text-cream">{t('notif.deadline.label')}</div>
-            <div className="text-[11px] text-faint">{t('notif.deadline.desc')}</div>
+            <div className="text-sm font-semibold text-cream">{t('notif.deadline')}</div>
+            <div className="text-[11px] text-faint">{t('notif.deadlineBody')}</div>
           </div>
           <button
             onClick={() => update({ deadlineReminders: !prefs.deadlineReminders })}
