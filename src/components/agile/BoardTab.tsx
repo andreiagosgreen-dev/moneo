@@ -7,8 +7,10 @@ import {
   updateTaskStatus,
   completeTask,
   criticalChain,
+  syncParentCompletion,
 } from '../../lib/tasks';
 import type { BoardProps } from './types';
+import { useI18n } from '../../lib/i18n/LocaleContext';
 const STATUS_ORDER: TaskStatus[] = ['pending', 'in_progress', 'blocked', 'completed'];
 
 export default function BoardTab({
@@ -19,6 +21,7 @@ export default function BoardTab({
   commitBoard,
   isPro,
 }: BoardProps) {
+  const { t } = useI18n();
   const scoped = useMemo(
     () => (projectId ? tasksForProject(tasks, projectId) : []),
     [tasks, projectId],
@@ -50,7 +53,7 @@ export default function BoardTab({
   if (!projectId) {
     return (
       <p className="rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] text-faint">
-        Create a project first — the board lives on projects.
+        {t('board.projectRequired')}
       </p>
     );
   }
@@ -65,9 +68,9 @@ export default function BoardTab({
   const moveTo = (task: Task, status: TaskStatus) => {
     if (status === task.status) return;
     if (status === 'completed') {
-      onTasksChange(completeTask(tasks, task.id).tasks);
+      onTasksChange(syncParentCompletion(completeTask(tasks, task.id).tasks, task.id));
     } else {
-      onTasksChange(updateTaskStatus(tasks, task.id, status));
+      onTasksChange(syncParentCompletion(updateTaskStatus(tasks, task.id, status), task.id));
     }
   };
 
@@ -95,9 +98,11 @@ export default function BoardTab({
       <div className="flex items-center justify-between gap-2">
         {isPro && flow ? (
           <p className="font-mono text-[11px] text-faint">
-            {flow.throughput} done / 7d
+            {t('board.doneWeek', { n: flow.throughput })}
             {flow.avgCycle !== null &&
-              ` · avg cycle ${flow.avgCycle < 1 ? '<1d' : `${flow.avgCycle.toFixed(1)}d`}`}
+              t('board.avgCycle', {
+                d: flow.avgCycle < 1 ? t('board.lessThanOneDay') : `${flow.avgCycle.toFixed(1)}d`,
+              })}
           </p>
         ) : (
           <span />
@@ -110,15 +115,15 @@ export default function BoardTab({
               : 'text-faint ring-line hover:text-cream'
           }`}
           aria-pressed={lanes === 'priority'}
-          title="Group cards by priority swimlanes"
+          title={t('board.lanesTitle')}
         >
-          Lanes: {lanes === 'off' ? 'off' : 'P0–P3'}
+          {t('board.lanes', { state: lanes === 'off' ? t('board.lanesOff') : 'P0–P3' })}
         </button>
       </div>
       {isPro && (
         <details className="mt-2">
           <summary className="cursor-pointer font-mono text-[10px] text-faint hover:text-cream">
-            Board settings · labels & hidden columns
+            {t('board.settingsSummary')}
           </summary>
           <div className="mt-1.5 space-y-1">
             {TASK_STATUSES.map((s) => (
@@ -135,7 +140,7 @@ export default function BoardTab({
                   }}
                   placeholder={STATUS_LABELS[s]}
                   className="h-7 min-w-0 flex-1 rounded-lg bg-ink/50 px-2 font-mono text-[11px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
-                  aria-label={`Label for ${STATUS_LABELS[s]}`}
+                  aria-label={t('board.labelFor', { status: STATUS_LABELS[s] })}
                 />
                 <button
                   onClick={() => {
@@ -150,9 +155,9 @@ export default function BoardTab({
                       : 'text-faint ring-line hover:text-cream'
                   }`}
                   aria-pressed={board.hidden.includes(s)}
-                  title={board.hidden.includes(s) ? 'Show column' : 'Hide column'}
+                  title={board.hidden.includes(s) ? t('board.showColumn') : t('board.hideColumn')}
                 >
-                  {board.hidden.includes(s) ? 'Hidden' : 'Hide'}
+                  {board.hidden.includes(s) ? t('board.hidden') : t('board.hide')}
                 </button>
               </div>
             ))}
@@ -207,15 +212,15 @@ export default function BoardTab({
                       else wipLimits[status] = v;
                       commitBoard({ ...board, wipLimits });
                     }}
-                    placeholder="WIP"
+                    placeholder={t('board.wip')}
                     className="h-6 w-14 rounded bg-ink/60 px-1.5 font-mono text-[10px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
-                    title="WIP limit (Pro)"
+                    title={t('board.wipLimitTitle')}
                   />
                 )}
               </div>
               {over && (
                 <p className="mt-1 font-mono text-[10px] font-bold text-tomato">
-                  WIP exceeded — finish something first.
+                  {t('board.wipExceeded')}
                 </p>
               )}
               <ul className="mt-1.5 space-y-1">
@@ -227,49 +232,49 @@ export default function BoardTab({
                       </p>
                     )}
                     <ul className="space-y-1">
-                      {group.items.map((t) => (
+                      {group.items.map((card) => (
                         <li
-                          key={t.id}
+                          key={card.id}
                           draggable
                           onDragStart={(e) => {
-                            e.dataTransfer.setData('text/plain', t.id);
-                            setDragId(t.id);
+                            e.dataTransfer.setData('text/plain', card.id);
+                            setDragId(card.id);
                           }}
                           onDragEnd={() => {
                             setDragId(null);
                             setDragOver(null);
                           }}
                           className={`flex cursor-grab items-center gap-1.5 rounded-lg bg-ink/50 px-2 py-1.5 active:cursor-grabbing ${
-                            dragId === t.id ? 'opacity-50' : ''
+                            dragId === card.id ? 'opacity-50' : ''
                           }`}
                         >
                           <button
-                            onClick={() => move(t, -1)}
-                            disabled={t.status === 'pending'}
+                            onClick={() => move(card, -1)}
+                            disabled={card.status === 'pending'}
                             className="press shrink-0 rounded px-1 font-mono text-[12px] text-faint hover:text-cream disabled:opacity-30"
-                            aria-label="Move back"
+                            aria-label={t('board.moveBack')}
                           >
                             ‹
                           </button>
                           <span
                             className="min-w-0 flex-1 truncate text-[12px] text-cream/90"
-                            title={`${t.title} · drag to another column`}
+                            title={t('board.dragHint', { title: card.title })}
                           >
-                            {isPro && critical.has(t.id) && (
-                              <span title="On the critical path">⛓ </span>
+                            {isPro && critical.has(card.id) && (
+                              <span title={t('board.criticalPath')}>⛓ </span>
                             )}
-                            {t.title}
+                            {card.title}
                           </span>
-                          {typeof t.points === 'number' && (
+                          {typeof card.points === 'number' && (
                             <span className="shrink-0 font-mono text-[10px] text-faint">
-                              {t.points}pt
+                              {t('board.points', { n: card.points })}
                             </span>
                           )}
                           <button
-                            onClick={() => move(t, 1)}
-                            disabled={t.status === 'completed'}
+                            onClick={() => move(card, 1)}
+                            disabled={card.status === 'completed'}
                             className="press shrink-0 rounded px-1 font-mono text-[12px] text-faint hover:text-cream disabled:opacity-30"
-                            aria-label="Move forward"
+                            aria-label={t('board.moveForward')}
                           >
                             ›
                           </button>
@@ -279,21 +284,19 @@ export default function BoardTab({
                   </li>
                 ))}
                 {lanes === 'off' && col.length > 6 && (
-                  <li className="font-mono text-[10px] text-faint">+{col.length - 6} more</li>
+                  <li className="font-mono text-[10px] text-faint">
+                    {t('board.more', { n: col.length - 6 })}
+                  </li>
                 )}
                 {col.length === 0 && (
-                  <li className="font-mono text-[10px] text-faint">Empty — drop cards here</li>
+                  <li className="font-mono text-[10px] text-faint">{t('board.emptyColumn')}</li>
                 )}
               </ul>
             </div>
           );
         })}
       </div>
-      {!isPro && (
-        <p className="mt-3 font-mono text-[11px] text-faint">
-          Pro adds WIP limits, flow metrics and critical-path flags.
-        </p>
-      )}
+      {!isPro && <p className="mt-3 font-mono text-[11px] text-faint">{t('board.proUpsell')}</p>}
     </div>
   );
 }

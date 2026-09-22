@@ -12,15 +12,15 @@ export default function BrandMark({ size = 30 }: { size?: number }) {
       fill="none"
       aria-hidden
       className="brand-mark"
+      style={{ filter: 'drop-shadow(0 0 6px rgb(var(--accent-rgb) / 0.45))' }}
     >
       {/* open orbital ring */}
       <circle
         cx="16"
         cy="16"
         r="10.5"
-        stroke="#eef1e8"
-        strokeOpacity="0.9"
-        strokeWidth="2.4"
+        stroke="#fbfcff"
+        strokeWidth="2.8"
         strokeLinecap="round"
         strokeDasharray="55 11"
         transform="rotate(-15 16 16)"
@@ -28,13 +28,13 @@ export default function BrandMark({ size = 30 }: { size?: number }) {
       {/* continuous M stroke */}
       <path
         d="M11 20.5V12.8L16 17.3L21 12.8V20.5"
-        stroke="#eef1e8"
-        strokeWidth="2.4"
+        stroke="#fbfcff"
+        strokeWidth="2.8"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       {/* the round in progress — tinted by the active mode */}
-      <circle className="mark-accent" cx="23.4" cy="8.6" r="2.1" fill="var(--accent)" />
+      <circle className="mark-accent" cx="23.4" cy="8.6" r="2.3" fill="var(--accent)" />
     </svg>
   );
 }

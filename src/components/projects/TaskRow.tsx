@@ -21,11 +21,14 @@ import {
   setTaskPriority,
   taskComplexity,
   impactEffort,
+  syncParentCompletion,
 } from '../../lib/tasks';
 import { PRIORITY_LABELS, STATUS_LABELS, TASK_RECURRENCES, TASK_POINTS } from '../../lib/tasks';
 import { TrashIcon } from './icons';
 import type { TaskRowProps } from './types';
 import { openExternal, safeExternalUrl } from '../../lib/links';
+import { useI18n } from '../../lib/i18n/LocaleContext';
+import type { TKey } from '../../lib/i18n/types';
 
 function startOfToday(): number {
   const d = new Date();
@@ -37,10 +40,10 @@ function formatDue(dueAt: number): string {
   return new Date(dueAt).toLocaleDateString([], { month: 'short', day: 'numeric' });
 }
 
-const RECURRENCE_LABELS: Record<TaskRecurrence, string> = {
-  none: 'Once',
-  daily: 'Daily',
-  weekly: 'Weekly',
+const RECURRENCE_KEY: Record<TaskRecurrence, TKey> = {
+  none: 'taskRow.recurrence.once',
+  daily: 'taskRow.recurrence.daily',
+  weekly: 'taskRow.recurrence.weekly',
 };
 
 /** Recursive task row: nesting, blockers, recurrence, due dates, notes. */
@@ -52,11 +55,15 @@ export default function TaskRow({
   wbs,
   ancestorIds,
   onTasksChange,
+  selectedIds,
+  onToggleSelect,
 }: TaskRowProps) {
+  const { t, tp } = useI18n();
   const [showDetails, setShowDetails] = useState(false);
   const [subDraft, setSubDraft] = useState('');
   const [blockerPick, setBlockerPick] = useState('');
   const [linkDraft, setLinkDraft] = useState('');
+  const [completeFlash, setCompleteFlash] = useState(0);
 
   const done = task.status === 'completed';
   const gate = canComplete(task, tasks);
@@ -68,14 +75,21 @@ export default function TaskRow({
     (t) => t.projectId === projectId && t.id !== task.id && !(task.blockedBy ?? []).includes(t.id),
   );
   const overdue = task.dueAt !== undefined && !done && task.dueAt < startOfToday();
+  const hasHiddenBadges =
+    task.milestone === true ||
+    (!done && blockers.length > 0) ||
+    (task.recurrence !== undefined && task.recurrence !== 'none') ||
+    typeof task.points === 'number' ||
+    typeof task.estimateMin === 'number';
 
   const toggle = () => {
     if (done) {
-      onTasksChange(updateTaskStatus(tasks, task.id, 'pending'));
+      onTasksChange(syncParentCompletion(updateTaskStatus(tasks, task.id, 'pending'), task.id));
       return;
     }
     const { tasks: next } = completeTask(tasks, task.id);
-    onTasksChange(next);
+    onTasksChange(syncParentCompletion(next, task.id));
+    setCompleteFlash((k) => k + 1); // one-shot pop — meaningful confirmation, not a loop (Faza 16)
   };
 
   const addSubtask = () => {
@@ -98,16 +112,32 @@ export default function TaskRow({
           done ? 'opacity-55' : ''
         } ${depth > 0 ? 'border-l-2 border-line/60' : ''}`}
       >
+        {onToggleSelect && (
+          <input
+            type="checkbox"
+            checked={selectedIds?.has(task.id) ?? false}
+            onChange={() => onToggleSelect(task.id)}
+            aria-label={t('taskRow.selectForBulk')}
+            className="h-4 w-4 shrink-0 accent-[var(--accent)]"
+          />
+        )}
         <button
+          key={completeFlash}
           onClick={toggle}
           disabled={!done && !gate.ok}
           className={`press flex h-5 w-5 shrink-0 items-center justify-center rounded-md ring-1 ring-inset disabled:cursor-not-allowed disabled:opacity-40 ${
+            done && completeFlash > 0 ? 'pop' : ''
+          } ${
             done
               ? 'bg-accent text-on-accent ring-accent'
               : 'bg-ink/60 text-transparent ring-line hover:text-sage'
           }`}
-          aria-label={done ? 'Mark incomplete' : 'Mark complete'}
-          title={!done && !gate.ok ? `Blocked by: ${gate.blockers.join(', ')}` : undefined}
+          aria-label={done ? t('taskRow.markIncomplete') : t('taskRow.markComplete')}
+          title={
+            !done && !gate.ok
+              ? t('taskRow.blockedByList', { names: gate.blockers.join(', ') })
+              : undefined
+          }
         >
           <svg
             width="11"
@@ -129,48 +159,8 @@ export default function TaskRow({
           }`}
           title={task.notes ?? task.title}
         >
-          <span className="mr-1.5 font-mono text-[10px] text-faint">{wbs}</span>
-          {task.milestone === true && <span title="Milestone">◆ </span>}
           {task.title}
         </button>
-        {!done && blockers.length > 0 && (
-          <span
-            className="shrink-0 rounded bg-tomato/15 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-tomato"
-            title={`Blocked by: ${gate.blockers.join(', ')}`}
-          >
-            ⛔ {blockers.length}
-          </span>
-        )}
-        {task.recurrence && task.recurrence !== 'none' && (
-          <span
-            className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-sage ring-1 ring-inset ring-line"
-            title={`Repeats ${task.recurrence}`}
-          >
-            ↻ {task.recurrence === 'daily' ? 'D' : 'W'}
-          </span>
-        )}
-        {typeof task.points === 'number' && (
-          <span
-            className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] text-sage ring-1 ring-inset ring-line"
-            title="Story points"
-          >
-            {task.points}pt
-          </span>
-        )}
-        {typeof task.estimateMin === 'number' && (
-          <span
-            className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] text-sage ring-1 ring-inset ring-line"
-            title="Estimated minutes"
-          >
-            ~{task.estimateMin}m
-          </span>
-        )}
-        <span
-          className="shrink-0 font-mono text-[9px] text-faint"
-          title={`Auto complexity ${taskComplexity(task, tasks)}/5 (subtasks, blockers, detail)`}
-        >
-          ~{taskComplexity(task, tasks)}
-        </span>
         {task.dueAt !== undefined && (
           <span
             className={`shrink-0 font-mono text-[10px] ${overdue ? 'font-bold text-tomato' : 'text-faint'}`}
@@ -186,7 +176,7 @@ export default function TaskRow({
               onTasksChange(setTaskPriority(tasks, task.id, e.target.value as TaskPriority))
             }
             className="rounded bg-ink/50 px-1.5 py-1 font-mono text-[10px] text-faint ring-1 ring-inset ring-line"
-            title="Priority"
+            title={t('taskRow.priority')}
           >
             {(['p0', 'p1', 'p2', 'p3'] as const).map((p) => (
               <option key={p} value={p}>
@@ -196,17 +186,31 @@ export default function TaskRow({
           </select>
           <button
             onClick={() => setShowDetails(!showDetails)}
-            className="press rounded p-1 font-mono text-[11px] text-faint hover:text-cream"
-            aria-label={`${showDetails ? 'Hide' : 'Show'} details for ${task.title}`}
-            title="Details: notes, due date, recurrence, blockers, subtasks"
+            className={`press rounded p-1 font-mono text-[11px] hover:text-cream ${
+              hasHiddenBadges && !showDetails ? 'text-sage' : 'text-faint'
+            }`}
+            aria-label={
+              showDetails
+                ? t('taskRow.hideDetailsFor', { title: task.title })
+                : t('taskRow.showDetailsFor', { title: task.title })
+            }
+            title={
+              hasHiddenBadges && !showDetails
+                ? t('taskRow.moreInfoTitle')
+                : t('taskRow.detailsTitle')
+            }
           >
             ⋯
           </button>
           <button
             onClick={() => onTasksChange(removeTask(tasks, task.id))}
             className="press rounded p-1 text-faint hover:text-tomato"
-            aria-label={`Delete task ${task.title}`}
-            title={children.length > 0 ? `Deletes ${children.length} subtask(s) too` : undefined}
+            aria-label={t('taskRow.deleteTask', { title: task.title })}
+            title={
+              children.length > 0
+                ? t('taskRow.deletesSubtasksToo', { n: children.length })
+                : undefined
+            }
           >
             <TrashIcon />
           </button>
@@ -218,6 +222,57 @@ export default function TaskRow({
           className="mb-1 space-y-2 rounded-lg bg-ink/30 px-2.5 py-2.5"
           style={depth > 0 ? { marginLeft: 0 } : undefined}
         >
+          {/* badges moved out of the collapsed row (Faza 12 density pass) */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="font-mono text-[10px] text-faint">{wbs}</span>
+            {task.milestone === true && (
+              <span
+                className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-accent ring-1 ring-inset ring-accent/40"
+                title={t('taskRow.milestone')}
+              >
+                ◆ {t('taskRow.milestone')}
+              </span>
+            )}
+            {!done && blockers.length > 0 && (
+              <span
+                className="shrink-0 rounded bg-tomato/15 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-tomato"
+                title={t('taskRow.blockedByList', { names: gate.blockers.join(', ') })}
+              >
+                ⛔ {blockers.length}
+              </span>
+            )}
+            {task.recurrence && task.recurrence !== 'none' && (
+              <span
+                className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-sage ring-1 ring-inset ring-line"
+                title={t('taskRow.repeats', { recurrence: t(RECURRENCE_KEY[task.recurrence]) })}
+              >
+                ↻ {task.recurrence === 'daily' ? 'D' : 'W'}
+              </span>
+            )}
+            {typeof task.points === 'number' && (
+              <span
+                className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] text-sage ring-1 ring-inset ring-line"
+                title={t('taskRow.storyPoints')}
+              >
+                {t('taskRow.pointsSuffix', { n: task.points })}
+              </span>
+            )}
+            {typeof task.estimateMin === 'number' && (
+              <span
+                className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] text-sage ring-1 ring-inset ring-line"
+                title={t('taskRow.estimatedMinutes')}
+              >
+                {t('taskRow.estimateSuffix', { n: task.estimateMin })}
+              </span>
+            )}
+            <span
+              className="shrink-0 font-mono text-[9px] text-faint"
+              title={t('taskRow.complexityTitle', { n: taskComplexity(task, tasks) })}
+            >
+              ~{taskComplexity(task, tasks)}
+            </span>
+          </div>
+
           {/* status + due + recurrence */}
           <div className="flex flex-wrap items-center gap-2">
             <select
@@ -226,7 +281,7 @@ export default function TaskRow({
                 onTasksChange(updateTaskStatus(tasks, task.id, e.target.value as TaskStatus))
               }
               className="h-8 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              title="Workflow status"
+              title={t('taskRow.workflowStatus')}
             >
               {(['pending', 'in_progress', 'blocked'] as const).map((s) => (
                 <option key={s} value={s}>
@@ -248,7 +303,7 @@ export default function TaskRow({
                 )
               }
               className="h-8 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              title="Due date"
+              title={t('taskRow.dueDate')}
             />
             <select
               value={task.recurrence ?? 'none'}
@@ -256,11 +311,11 @@ export default function TaskRow({
                 onTasksChange(setRecurrence(tasks, task.id, e.target.value as TaskRecurrence))
               }
               className="h-8 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              title="Recurrence"
+              title={t('taskRow.recurrenceTitle')}
             >
               {TASK_RECURRENCES.map((r) => (
                 <option key={r} value={r}>
-                  {RECURRENCE_LABELS[r]}
+                  {t(RECURRENCE_KEY[r])}
                 </option>
               ))}
             </select>
@@ -276,12 +331,12 @@ export default function TaskRow({
                 )
               }
               className="h-8 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              title="Story points"
+              title={t('taskRow.storyPoints')}
             >
-              <option value="">— pt</option>
+              <option value="">{t('taskRow.noPoints')}</option>
               {TASK_POINTS.map((p) => (
                 <option key={p} value={p}>
-                  {p} pt
+                  {t('taskRow.pointsOption', { n: p })}
                 </option>
               ))}
             </select>
@@ -297,12 +352,12 @@ export default function TaskRow({
                 )
               }
               className="h-8 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              title="Time estimate (used by the morning ritual)"
+              title={t('taskRow.timeEstimateTitle')}
             >
-              <option value="">— est</option>
+              <option value="">{t('taskRow.noEstimate')}</option>
               {[15, 25, 50, 90, 120].map((m) => (
                 <option key={m} value={m}>
-                  ~{m}m
+                  {t('taskRow.estimateSuffix', { n: m })}
                 </option>
               ))}
             </select>
@@ -315,7 +370,9 @@ export default function TaskRow({
                   ? 'text-accent ring-accent/60'
                   : 'text-faint ring-line hover:text-cream'
               }`}
-              title={task.milestone === true ? 'Remove milestone' : 'Mark as milestone'}
+              title={
+                task.milestone === true ? t('taskRow.removeMilestone') : t('taskRow.markMilestone')
+              }
               aria-pressed={task.milestone === true}
             >
               ◆
@@ -333,7 +390,7 @@ export default function TaskRow({
                 onTasksChange(setNotes(tasks, task.id, e.target.value));
               }
             }}
-            placeholder="Notes… (saved on blur)"
+            placeholder={t('taskRow.notesPlaceholder')}
             className="w-full resize-y rounded-lg bg-ink/50 px-2.5 py-2 text-[12px] leading-relaxed text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
           />
 
@@ -353,7 +410,7 @@ export default function TaskRow({
                       <button
                         onClick={() => openExternal(safe)}
                         className="press shrink-0 text-faint hover:text-cream"
-                        aria-label={`Open link ${l} in a new tab`}
+                        aria-label={t('taskRow.openLink', { link: l })}
                         title={safe}
                       >
                         ↗
@@ -362,7 +419,7 @@ export default function TaskRow({
                     <button
                       onClick={() => onTasksChange(removeTaskLink(tasks, task.id, l))}
                       className="press shrink-0 text-faint hover:text-tomato"
-                      aria-label={`Remove link ${l}`}
+                      aria-label={t('taskRow.removeLink', { link: l })}
                     >
                       ✕
                     </button>
@@ -383,7 +440,7 @@ export default function TaskRow({
                   setLinkDraft('');
                 }
               }}
-              placeholder="Attach link… (Enter)"
+              placeholder={t('taskRow.attachLinkPlaceholder')}
               className="h-8 min-w-0 flex-1 rounded-lg bg-ink/50 px-2.5 font-mono text-[11px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
             />
           </div>
@@ -392,9 +449,14 @@ export default function TaskRow({
             <button
               onClick={() => onTasksChange(setTaskPriority(tasks, task.id, ie.suggested))}
               className="press w-fit rounded-lg bg-ink/50 px-2.5 py-1.5 font-mono text-[11px] text-sage ring-1 ring-inset ring-line hover:text-cream"
-              title={`Impact ${ie.impact}/5 × effort ${ie.effort}/5 suggests ${ie.suggested.toUpperCase()} (now ${task.priority.toUpperCase()})`}
+              title={t('taskRow.suggestTitle', {
+                impact: ie.impact,
+                effort: ie.effort,
+                suggested: ie.suggested.toUpperCase(),
+                current: task.priority.toUpperCase(),
+              })}
             >
-              ✨ Suggests {ie.suggested.toUpperCase()} — apply?
+              {t('taskRow.suggestApply', { priority: ie.suggested.toUpperCase() })}
             </button>
           )}
 
@@ -419,7 +481,7 @@ export default function TaskRow({
                         )
                       }
                       className="press hover:text-cream"
-                      aria-label={`Remove blocker ${b.title}`}
+                      aria-label={t('taskRow.removeBlocker', { title: b.title })}
                     >
                       ✕
                     </button>
@@ -433,9 +495,9 @@ export default function TaskRow({
                   value={blockerPick}
                   onChange={(e) => setBlockerPick(e.target.value)}
                   className="h-8 min-w-0 flex-1 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                  title="Must complete first"
+                  title={t('taskRow.mustCompleteFirst')}
                 >
-                  <option value="">Blocked by…</option>
+                  <option value="">{t('taskRow.blockedByPlaceholder')}</option>
                   {candidates.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.title}
@@ -447,7 +509,7 @@ export default function TaskRow({
                   disabled={!blockerPick}
                   className="press h-8 shrink-0 rounded-lg px-2.5 text-[12px] text-sage ring-1 ring-inset ring-line hover:text-cream disabled:opacity-40"
                 >
-                  Add
+                  {t('taskRow.add')}
                 </button>
               </div>
             )}
@@ -462,21 +524,21 @@ export default function TaskRow({
                 maxLength={120}
                 onChange={(e) => setSubDraft(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addSubtask()}
-                placeholder="Add a subtask…"
+                placeholder={t('taskRow.addSubtaskPlaceholder')}
                 className="h-8 min-w-0 flex-1 rounded-lg bg-ink/50 px-2.5 text-[12px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
               />
               <button
                 onClick={addSubtask}
                 disabled={!subDraft.trim()}
                 className="press btn-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg font-display text-base font-bold disabled:opacity-40"
-                aria-label="Add subtask"
+                aria-label={t('taskRow.addSubtask')}
               >
                 +
               </button>
             </div>
           ) : (
             <p className="font-mono text-[10px] text-faint">
-              Max nesting depth ({children.length} subtask{children.length === 1 ? '' : 's'}).
+              {tp('taskRow.maxNestingDepth', children.length)}
             </p>
           )}
         </div>
@@ -493,6 +555,8 @@ export default function TaskRow({
           wbs={`${wbs}.${ci + 1}`}
           ancestorIds={[...ancestorIds, task.id]}
           onTasksChange={onTasksChange}
+          selectedIds={selectedIds}
+          onToggleSelect={onToggleSelect}
         />
       ))}
     </div>

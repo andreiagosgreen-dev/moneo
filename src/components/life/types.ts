@@ -6,8 +6,12 @@ import type { Journal } from '../../lib/journal';
 import type { FrogLog } from '../../lib/frog';
 import type { EnergyEntry } from '../../lib/energy';
 import type { Goal } from '../../lib/goals';
+import type { Project } from '../../lib/projects';
+import type { Skill } from '../../lib/skills';
 import type { Session } from '../../lib/store';
 import type { TKey } from '../../lib/i18n/types';
+import type { EntityLink } from '../../lib/entityLinks';
+import type { Objective } from '../../lib/okrs';
 
 export interface LifeCardProps {
   habits: Habit[];
@@ -25,6 +29,11 @@ export interface LifeCardProps {
   energyLog: EnergyEntry[];
   energyLogChange: (entries: EnergyEntry[]) => void;
   goals: Goal[];
+  projects: Project[];
+  skills: Skill[];
+  objectives: Objective[];
+  links: EntityLink[];
+  onLinksChange: (links: EntityLink[]) => void;
   history: Session[];
   timezone: string;
   isPro?: boolean;

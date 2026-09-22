@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   buildCheckoutUrl,
+  buildCustomerPortalUrl,
   getLemonSqueezyConfig,
   getPricingPlans,
   initiateCheckout,
@@ -87,6 +88,22 @@ describe('buildCheckoutUrl', () => {
     expect(buildCheckoutUrl('pro-monthly', 'user-1')).toBeNull();
     configureEnv({ store: 's1', base: 'not a url', monthly: '111', yearly: '222' });
     expect(buildCheckoutUrl('pro-monthly', 'user-1')).toBeNull();
+  });
+});
+
+describe('buildCustomerPortalUrl', () => {
+  it('derives the /billing path from the store domain', () => {
+    configureEnv({ store: 's1', base: BASE });
+    expect(buildCustomerPortalUrl()).toBe('https://moneo.lemonsqueezy.com/billing');
+  });
+
+  it('returns null when unconfigured or the base is unsafe', () => {
+    configureEnv({});
+    expect(buildCustomerPortalUrl()).toBeNull();
+    configureEnv({ store: 's1', base: 'http://evil.test/checkout' });
+    expect(buildCustomerPortalUrl()).toBeNull();
+    configureEnv({ store: 's1', base: 'not a url' });
+    expect(buildCustomerPortalUrl()).toBeNull();
   });
 });
 

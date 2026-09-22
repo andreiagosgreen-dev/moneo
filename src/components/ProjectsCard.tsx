@@ -17,6 +17,7 @@ import {
 } from '../lib/projects';
 import type { Task } from '../lib/tasks';
 import { saveTasks } from '../lib/tasks';
+import { cleanupLinksFor } from '../lib/entityLinks';
 import { exportSessionsToCSV } from '../lib/export';
 import {
   PROJECT_TEMPLATES,
@@ -27,6 +28,7 @@ import {
 import { ChevronIcon, UndoIcon } from './projects/icons';
 import type { Props } from './projects/types';
 import ProjectRow from './projects/ProjectRow';
+import SavedFiltersBar from './SavedFiltersBar';
 import { useI18n } from '../lib/i18n/LocaleContext';
 
 export default function ProjectsCard({
@@ -38,8 +40,15 @@ export default function ProjectsCard({
   onSelectProject,
   onProjectsChange,
   onTasksChange,
+  links,
+  onLinksChange,
+  goals,
+  skills,
+  objectives,
   onUpgradeClick,
   isPro = false,
+  savedFilters,
+  onSavedFiltersChange,
 }: Props) {
   const { t, tp } = useI18n();
   const [showCreate, setShowCreate] = useState(false);
@@ -123,6 +132,7 @@ export default function ProjectsCard({
     if (!confirm(t('projects.deleteConfirm'))) return;
     commitProjects(deleteProject(projects, id));
     commitTasks(tasks.filter((t) => t.projectId !== id));
+    onLinksChange(cleanupLinksFor(links, 'project', id));
     if (selectedProjectId === id) onSelectProject(null);
     if (expandedId === id) setExpandedId(null);
   };
@@ -332,6 +342,13 @@ export default function ProjectsCard({
             placeholder={t('projects.searchPlaceholder')}
             className="w-full rounded-lg bg-ink/40 px-3 py-2 text-[12px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
           />
+          <SavedFiltersBar
+            filters={savedFilters}
+            filtersChange={onSavedFiltersChange}
+            tasks={tasks}
+            projects={active}
+            onSelectProject={onSelectProject}
+          />
         </div>
       )}
 
@@ -361,6 +378,12 @@ export default function ProjectsCard({
               onClone={handleClone}
               onProjectsChange={commitProjects}
               onTasksChange={commitTasks}
+              links={links}
+              onLinksChange={onLinksChange}
+              goals={goals}
+              allProjects={projects}
+              skills={skills}
+              objectives={objectives}
             />
           ))
         )}

@@ -32,6 +32,14 @@ export const WEEKLY_REFLECTION_PROMPTS: string[] = [
   'What will you do differently next week?',
 ];
 
+/** Post-session reflection prompts (Faza 24) — short, session-scoped, not daily. */
+export const SESSION_REFLECTION_PROMPTS: string[] = [
+  'What did you just work on?',
+  'How did that session go, in one sentence?',
+  "What's the next small step?",
+  'Anything worth remembering from this session?',
+];
+
 export const MAX_GRATITUDE = 3;
 export const MAX_ENTRY_LENGTH = 2000;
 
@@ -51,6 +59,31 @@ export function promptForDay(at: number = Date.now()): string {
   return JOURNAL_PROMPTS[
     ((dayIndex % JOURNAL_PROMPTS.length) + JOURNAL_PROMPTS.length) % JOURNAL_PROMPTS.length
   ];
+}
+
+/** Deterministic post-session prompt, rotating by minute so it varies session to session. */
+export function promptForSession(at: number = Date.now()): string {
+  const idx = Math.floor(at / 60000);
+  const n = SESSION_REFLECTION_PROMPTS.length;
+  return SESSION_REFLECTION_PROMPTS[((idx % n) + n) % n];
+}
+
+/**
+ * Append a post-session reflection to a day's free-text entry as a bullet
+ * line (a day's text is a single field; multiple sessions accumulate).
+ * Pure. Never throws.
+ */
+export function appendSessionReflection(
+  journal: Journal,
+  dayKey: string,
+  reflection: string,
+): Journal {
+  const trimmed = reflection.trim();
+  if (!trimmed) return journal;
+  const prevText = journal[dayKey]?.text ?? '';
+  const bullet = `• ${trimmed.slice(0, 280)}`;
+  const text = prevText.trim() ? `${prevText}\n${bullet}` : bullet;
+  return upsertEntry(journal, dayKey, { text });
 }
 
 function isMood(v: unknown): v is Mood {

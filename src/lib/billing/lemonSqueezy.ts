@@ -36,8 +36,8 @@ const PRICING_PLANS: Pricing[] = [
     id: 'pro-monthly',
     name: 'pricing.plan.proMonthly.name',
     description: 'pricing.plan.proMonthly.description',
-    price: '$9',
-    priceMonthly: '$9',
+    price: '$5.99',
+    priceMonthly: '$5.99',
     features: [
       'pricing.feature.allFree',
       'pricing.feature.unlimitedProjects',
@@ -53,8 +53,8 @@ const PRICING_PLANS: Pricing[] = [
     id: 'pro-yearly',
     name: 'pricing.plan.proYearly.name',
     description: 'pricing.plan.proYearly.description',
-    price: '$90',
-    priceMonthly: '$7.50',
+    price: '$59.99',
+    priceMonthly: '$5.00',
     features: [
       'pricing.feature.allPro',
       'pricing.feature.twoMonthsFree',
@@ -112,6 +112,25 @@ export function buildCheckoutUrl(planId: Plan, userId: string): string | null {
   const variant = variantForPlan(planId);
   const path = variant ? `${base}/buy/${variant}` : base;
   return `${path}?checkout[custom][user_id]=${encodeURIComponent(userId)}`;
+}
+
+/**
+ * Lemon Squeezy's self-service customer portal (`/billing` on the store's
+ * own domain — the buyer enters their email there for a magic link; no
+ * account id needed client-side). Fails closed the same way
+ * `buildCheckoutUrl` does: a bad/missing base URL returns null rather
+ * than an open redirect.
+ */
+export function buildCustomerPortalUrl(): string | null {
+  const config = getLemonSqueezyConfig();
+  if (!config.checkoutUrl) return null;
+  try {
+    const parsed = new URL(config.checkoutUrl.replace(/\/$/, ''));
+    if (parsed.protocol !== 'https:' || !parsed.hostname) return null;
+    return `${parsed.protocol}//${parsed.host}/billing`;
+  } catch {
+    return null;
+  }
 }
 
 export function getPricingPlans(): Pricing[] {

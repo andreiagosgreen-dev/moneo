@@ -20,12 +20,16 @@ import {
   projectCompletion,
   PRIORITY_LABELS,
   TASK_TEMPLATES,
+  bulkSetPriority,
+  bulkSetDueAt,
+  bulkMoveToProject,
 } from '../../lib/tasks';
 import type { Session } from '../../lib/store';
 import { ChevronIcon, TrashIcon, CopyIcon, ArchiveIcon, PlusIcon } from './icons';
 import type { ProjectRowProps } from './types';
 import TaskRow from './TaskRow';
 import { useI18n } from '../../lib/i18n/LocaleContext';
+import LinkedItems from '../LinkedItems';
 
 export default function ProjectRow({
   project,
@@ -40,6 +44,12 @@ export default function ProjectRow({
   onClone,
   onProjectsChange,
   onTasksChange,
+  links,
+  onLinksChange,
+  goals,
+  allProjects,
+  skills,
+  objectives,
 }: ProjectRowProps) {
   const { t } = useI18n();
   const minutes = getMinutesForProject(project.id, history);
@@ -60,7 +70,10 @@ export default function ProjectRow({
     typeof project.hourlyRate === 'number' ? String(project.hourlyRate) : '',
   );
 
+  const [docDraft, setDocDraft] = useState(project.doc ?? '');
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
+  const [bulkMoveTarget, setBulkMoveTarget] = useState('');
   const [newTaskPriority, setNewTaskPriority] = useState<TaskPriority>('p2');
 
   const saveEdit = () => {
@@ -90,6 +103,29 @@ export default function ProjectRow({
     const task = createTaskObject(project.id, newTaskTitle, newTaskPriority);
     onTasksChange([...tasks, task]);
     setNewTaskTitle('');
+  };
+
+  const toggleSelectTask = (id: string) =>
+    setSelectedTaskIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const selectedIdsArr = Array.from(selectedTaskIds);
+  const clearSelection = () => setSelectedTaskIds(new Set());
+  const bulkApplyPriority = (priority: TaskPriority) => {
+    onTasksChange(bulkSetPriority(tasks, selectedIdsArr, priority));
+  };
+  const bulkApplyDueAt = (dueAt: number | null) => {
+    onTasksChange(bulkSetDueAt(tasks, selectedIdsArr, dueAt));
+  };
+  const bulkApplyMove = () => {
+    if (!bulkMoveTarget) return;
+    onTasksChange(bulkMoveToProject(tasks, selectedIdsArr, bulkMoveTarget));
+    clearSelection();
+    setBulkMoveTarget('');
   };
 
   return (
@@ -123,7 +159,7 @@ export default function ProjectRow({
               <span className="truncate text-sm font-semibold text-cream">{project.name}</span>
               {isSelected && (
                 <span className="shrink-0 rounded-full bg-accent/20 px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-accent">
-                  Active
+                  {t('projectRow.active')}
                 </span>
               )}
             </div>
@@ -137,19 +173,19 @@ export default function ProjectRow({
                 <>
                   <span>·</span>
                   <span className="font-mono">
-                    {completion.done}/{completion.total} tasks
+                    {t('projectRow.taskCount', { done: completion.done, total: completion.total })}
                   </span>
                 </>
               )}
             </div>
             {project.tags.length > 0 && (
               <div className="mt-1 flex flex-wrap gap-1">
-                {project.tags.map((t) => (
+                {project.tags.map((tag) => (
                   <span
-                    key={t}
+                    key={tag}
                     className="rounded-full bg-ink/70 px-1.5 py-0.5 font-mono text-[9px] text-faint"
                   >
-                    #{t}
+                    #{tag}
                   </span>
                 ))}
               </div>
@@ -164,8 +200,12 @@ export default function ProjectRow({
               onToggleExpand(project.id);
             }}
             className="press flex h-7 w-7 items-center justify-center rounded-lg text-faint hover:text-cream"
-            title={isExpanded ? 'Collapse' : 'Expand'}
-            aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${project.name}`}
+            title={isExpanded ? t('projectRow.collapse') : t('projectRow.expand')}
+            aria-label={
+              isExpanded
+                ? t('projectRow.collapseFor', { name: project.name })
+                : t('projectRow.expandFor', { name: project.name })
+            }
           >
             <ChevronIcon open={isExpanded} />
           </button>
@@ -176,12 +216,18 @@ export default function ProjectRow({
         <div className="border-t border-line/60 px-3.5 pb-4 pt-3">
           {/* stats mini-panel */}
           <div className="grid grid-cols-3 gap-2">
-            <Stat label="Time" value={timeFormatted} accent />
-            <Stat label="Sessions" value={String(projectStats(history, project.id).sessions)} />
-            <Stat label="Tasks done" value={`${completion.done}/${completion.total || '—'}`} />
+            <Stat label={t('projectRow.statTime')} value={timeFormatted} accent />
+            <Stat
+              label={t('projectRow.statSessions')}
+              value={String(projectStats(history, project.id).sessions)}
+            />
+            <Stat
+              label={t('projectRow.statTasksDone')}
+              value={`${completion.done}/${completion.total || '—'}`}
+            />
             {project.billable === true && (
               <Stat
-                label="Billable"
+                label={t('projectRow.statBillable')}
                 value={formatBillable(billableAmount(project, minutes))}
                 accent
               />
@@ -209,7 +255,7 @@ export default function ProjectRow({
                         editColor === c ? 'scale-110 ring-2 ring-cream/70' : 'hover:scale-105'
                       }`}
                       style={{ backgroundColor: c }}
-                      aria-label={`Set color ${c}`}
+                      aria-label={t('projectRow.setColor', { color: c })}
                     />
                   ))}
                 </div>
@@ -238,9 +284,9 @@ export default function ProjectRow({
                         if (eta) setEditDeadline(new Date(eta).toISOString().slice(0, 10));
                       }}
                       className="press h-[42px] shrink-0 rounded-lg px-2.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream"
-                      title="Suggest a deadline from measured velocity (+20% buffer)"
+                      title={t('projectRow.autoDeadlineTitle')}
                     >
-                      Auto
+                      {t('projectRow.auto')}
                     </button>
                   </div>
                 </div>
@@ -248,7 +294,7 @@ export default function ProjectRow({
                   type="text"
                   value={editTags}
                   onChange={(e) => setEditTags(e.target.value)}
-                  placeholder="Tags: client, urgent (comma separated)"
+                  placeholder={t('projectRow.tagsPlaceholder')}
                   className="w-full rounded-lg bg-ink/40 px-3 py-2 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
                 />
                 <div className="flex items-center gap-2">
@@ -258,7 +304,7 @@ export default function ProjectRow({
                       editBillable ? 'bg-accent' : 'bg-line/50'
                     }`}
                     aria-pressed={editBillable}
-                    title="Billable client work"
+                    title={t('projectRow.billableTitle')}
                   >
                     <div
                       className={`h-5 w-5 rounded-full bg-cream transition-transform ${
@@ -266,16 +312,16 @@ export default function ProjectRow({
                       }`}
                     />
                   </button>
-                  <span className="text-[12px] text-sage">Billable</span>
+                  <span className="text-[12px] text-sage">{t('projectRow.billable')}</span>
                   {editBillable && (
                     <input
                       type="number"
                       min={1}
                       value={editRate}
                       onChange={(e) => setEditRate(e.target.value)}
-                      placeholder="$/hour"
+                      placeholder={t('projectRow.perHourPlaceholder')}
                       className="h-9 w-28 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
-                      title="Hourly rate (USD)"
+                      title={t('projectRow.hourlyRateTitle')}
                     />
                   )}
                 </div>
@@ -284,13 +330,13 @@ export default function ProjectRow({
                     onClick={() => setEditing(false)}
                     className="press rounded-lg px-3 py-1.5 text-[12px] text-faint hover:text-cream"
                   >
-                    Cancel
+                    {t('projectRow.cancel')}
                   </button>
                   <button
                     onClick={saveEdit}
                     className="press btn-accent rounded-lg px-3 py-1.5 text-[12px] font-semibold"
                   >
-                    Save
+                    {t('projectRow.save')}
                   </button>
                 </div>
               </div>
@@ -313,34 +359,62 @@ export default function ProjectRow({
                   }}
                   className="press rounded-lg bg-ink/60 px-2.5 py-1.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream"
                 >
-                  Edit
+                  {t('projectRow.edit')}
                 </button>
                 <button
                   onClick={() => onClone(project.id)}
                   className="press flex items-center gap-1.5 rounded-lg bg-ink/60 px-2.5 py-1.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream"
                 >
-                  <CopyIcon /> Duplicate
+                  <CopyIcon /> {t('projectRow.duplicate')}
                 </button>
                 <button
                   onClick={() => onArchive(project.id, true)}
                   className="press flex items-center gap-1.5 rounded-lg bg-ink/60 px-2.5 py-1.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream"
                 >
-                  <ArchiveIcon /> Archive
+                  <ArchiveIcon /> {t('projectRow.archive')}
                 </button>
                 <button
                   onClick={() => onDelete(project.id)}
                   className="press ml-auto flex items-center gap-1.5 rounded-lg bg-ink/60 px-2.5 py-1.5 text-[11px] font-semibold text-faint ring-1 ring-inset ring-line hover:text-tomato"
                 >
-                  <TrashIcon /> Delete
+                  <TrashIcon /> {t('projectRow.delete')}
                 </button>
               </div>
             )}
           </div>
 
+          <div className="mt-3">
+            <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+              {t('projectRow.docHeading')}
+            </div>
+            <textarea
+              value={docDraft}
+              onChange={(e) => setDocDraft(e.target.value)}
+              onBlur={() =>
+                onProjectsChange(updateProject(allProjects, project.id, { doc: docDraft || null }))
+              }
+              placeholder={t('projectRow.docPlaceholder')}
+              rows={3}
+              maxLength={4000}
+              className="mt-1.5 w-full resize-y rounded-lg bg-ink/40 px-3 py-2 text-[12px] leading-relaxed text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
+            />
+          </div>
+
+          <LinkedItems
+            entityType="project"
+            entityId={project.id}
+            links={links}
+            onLinksChange={onLinksChange}
+            goals={goals}
+            projects={allProjects}
+            skills={skills}
+            objectives={objectives}
+          />
+
           {/* tasks */}
           <div className="mt-3">
             <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
-              Tasks
+              {t('projectRow.tasksHeading')}
             </div>
             <div className="mt-1.5 flex items-center gap-2">
               <input
@@ -349,26 +423,26 @@ export default function ProjectRow({
                 maxLength={120}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addTask()}
-                placeholder="Add a task…"
+                placeholder={t('projectRow.addTaskPlaceholder')}
                 className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
               />
               <select
                 value=""
                 onChange={(e) => {
-                  const tpl = TASK_TEMPLATES.find((t) => t.name === e.target.value);
+                  const tpl = TASK_TEMPLATES.find((x) => x.name === e.target.value);
                   if (tpl) {
                     setNewTaskTitle(tpl.title);
                     setNewTaskPriority(tpl.priority);
                   }
                 }}
                 className="h-9 shrink-0 rounded-lg bg-ink/40 px-2 text-[12px] text-faint ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title="Start from a task template"
-                aria-label="Task template"
+                title={t('projectRow.templateTitle')}
+                aria-label={t('projectRow.templateLabel')}
               >
-                <option value="">Tpl…</option>
-                {TASK_TEMPLATES.map((t) => (
-                  <option key={t.name} value={t.name}>
-                    {t.name}
+                <option value="">{t('projectRow.templatePlaceholder')}</option>
+                {TASK_TEMPLATES.map((tpl) => (
+                  <option key={tpl.name} value={tpl.name}>
+                    {tpl.name}
                   </option>
                 ))}
               </select>
@@ -376,7 +450,7 @@ export default function ProjectRow({
                 value={newTaskPriority}
                 onChange={(e) => setNewTaskPriority(e.target.value as TaskPriority)}
                 className="h-9 rounded-lg bg-ink/40 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                title="Priority"
+                title={t('projectRow.priorityTitle')}
               >
                 {(['p0', 'p1', 'p2'] as const).map((p) => (
                   <option key={p} value={p}>
@@ -388,16 +462,77 @@ export default function ProjectRow({
                 onClick={addTask}
                 disabled={!newTaskTitle.trim()}
                 className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg disabled:opacity-40"
-                aria-label="Add task"
+                aria-label={t('projectRow.addTask')}
               >
                 <PlusIcon />
               </button>
             </div>
 
+            {selectedTaskIds.size > 0 && (
+              <div className="mt-2 flex flex-wrap items-center gap-1.5 rounded-lg bg-accent/10 p-2 ring-1 ring-inset ring-accent/30">
+                <span className="font-mono text-[11px] text-accent">
+                  {t('projectRow.bulkSelected', { n: selectedTaskIds.size })}
+                </span>
+                <select
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value) bulkApplyPriority(e.target.value as TaskPriority);
+                  }}
+                  className="h-8 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+                  title={t('projectRow.bulkPriority')}
+                >
+                  <option value="">{t('projectRow.bulkPriority')}</option>
+                  {(['p0', 'p1', 'p2', 'p3'] as const).map((p) => (
+                    <option key={p} value={p}>
+                      {PRIORITY_LABELS[p]}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="date"
+                  onChange={(e) =>
+                    bulkApplyDueAt(
+                      e.target.value ? new Date(e.target.value + 'T12:00:00').getTime() : null,
+                    )
+                  }
+                  className="h-8 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+                  title={t('projectRow.bulkReschedule')}
+                />
+                <select
+                  value={bulkMoveTarget}
+                  onChange={(e) => setBulkMoveTarget(e.target.value)}
+                  className="h-8 min-w-0 max-w-[140px] rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+                  title={t('projectRow.bulkMove')}
+                >
+                  <option value="">{t('projectRow.bulkMove')}</option>
+                  {allProjects
+                    .filter((p) => p.id !== project.id && !p.archived)
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                </select>
+                <button
+                  onClick={bulkApplyMove}
+                  disabled={!bulkMoveTarget}
+                  className="press btn-accent rounded-lg px-3 py-1.5 font-display text-[12px] font-bold disabled:opacity-40"
+                >
+                  {t('projectRow.bulkApplyMove')}
+                </button>
+                <button
+                  onClick={clearSelection}
+                  className="press ml-auto rounded-lg px-2 py-1.5 font-mono text-[11px] text-faint hover:text-cream"
+                >
+                  {t('projectRow.bulkClear')}
+                </button>
+              </div>
+            )}
+
             <div className="mt-2 space-y-1">
               {projectTasks.length === 0 ? (
                 <p className="rounded-lg bg-ink/30 px-3 py-2.5 text-[11px] text-faint">
-                  No tasks yet. Add a task and select it in the timer to track time per task.
+                  {t('projectRow.noTasksYet')}
                 </p>
               ) : (
                 projectTasks.map((task, ti) => (
@@ -410,6 +545,8 @@ export default function ProjectRow({
                     wbs={String(ti + 1)}
                     ancestorIds={[]}
                     onTasksChange={onTasksChange}
+                    selectedIds={selectedTaskIds}
+                    onToggleSelect={toggleSelectTask}
                   />
                 ))
               )}
