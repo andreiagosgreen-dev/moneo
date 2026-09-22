@@ -139,3 +139,15 @@ export function declaredBodyTooLarge(request: Request, maxBytes: number): boolea
   const n = Number(declared);
   return Number.isFinite(n) && n > maxBytes;
 }
+
+/**
+ * Canonical host redirect: www.moneo.bond → moneo.bond (301), preserving
+ * path and query. Returns null for any other host so the caller carries on.
+ */
+export function canonicalRedirect(url: URL): string | null {
+  if (!url.hostname.startsWith('www.')) return null;
+  const target = new URL(url.toString());
+  target.hostname = url.hostname.slice(4);
+  target.protocol = 'https:';
+  return target.toString();
+}

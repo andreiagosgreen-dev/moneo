@@ -8,6 +8,8 @@ compatibility_date = "2024-09-01"
 # instead of looking for an origin server (which caused the 522).
 routes = [
   { pattern = "moneo.bond", custom_domain = true },
+  # www has a proxied DNS record; the worker 301s it to the apex.
+  { pattern = "www.moneo.bond/*", zone_name = "moneo.bond" },
 ]
 
 # Disable default *.workers.dev URL (optional – set true to keep it)
