@@ -9,7 +9,7 @@
 
 ### 0.1. Stare Git (important înainte de orice)
 
-- **Sursa de adevăr este `origin/main`.** Totul e integrat acolo: PR #25 (Turnstile + Sentry + redirect www), PR #26 (Mono Focus peste main), PR #37 (fix teste E2E).
+- **Sursa de adevăr este `origin/main`.** Totul e integrat acolo: PR #25 (Turnstile + Sentry + redirect www), PR #26 (Mono Focus peste main), PR #37 (fix teste E2E), PR #38 (`AGENTS.md` + acest §0).
 - Branch-ul `feat/mono-launch` este **complet inclus** în `main` (prin PR #26). Nu mai lucra pe el și **nu-l face merge din nou** — ar readuce ~700 de conflicte.
 - Branch-ul local `main` vechi (cu commit-urile `86ccb0e…2b7ee8b`) a fost comprimat pe GitHub în commit-uri squash. **Nu face `git pull` pe un `main` local vechi** — creează un merge cu conflicte în 100+ fișiere. Aliniere sigură:
   ```
@@ -65,6 +65,21 @@ Rescrise pentru Mono: timer (preseturi 5/25/45, Start → Pause → Resume, ceas
 
 `npx prettier --check "src/**/*.{ts,tsx,css}" "cloudflare/**/*.ts"` · `npm run lint` · `npx tsc --noEmit` · `npx vitest run` (944 teste la 22.09) · `npm run build` · `node scripts/perf-budget.mjs` · `npm run secret-scan`.
 
+### 0.8. Decizii produs din sesiunea Cursor (22.09) — nu le redeschide fără motiv
+
+- **Atmosfere = doar culori.** Există ~20 de atmosfere (`src/mono/atmosphere.ts`, default `ritual`). **Același layout Focus pe toate**; nu reintroduce ramuri JSX pe layout (hartie/ritual/țărm etc.). Tokenii `--mono-*` pe `.atm-root[data-atmosphere]` + font cascade pe `html` / Tailwind `@theme`.
+- **Prețuri Pro în UI:** `$5.99` / lună, `$59.99` / an (`pricingConfig.ts`). Copy Pro trebuie să fie onest (sync = sesiuni + arii + setări; atmosferele Focus rămân free; fonturi Pro în Setări).
+- **Fonturi Pro:** picker în Setări, gated pe `auth.isPro` (`data-font` → `--mono-font-*`). Free = stack Implicit. Nu confunda cu atmosferele.
+- **Brand:** `public/brand/` (logo 1200, mark, header Lemon 1600×300, cover Monthly/Yearly), favicon în `index.html` + PWA. Magazin Lemon: `https://moneo.lemonsqueezy.com`.
+- **Dev server:** Vite pe **port 3000** (`vite.config.js`), nu 5173. După schimbări în `.env.local` → **restart complet** Vite (HMR nu reîncarcă env).
+- **Sync:** nu e bug de engine dacă lipsește env valid; UI arată `outcome.error`. Scope: `focus_sessions` + `focus_areas` + `user_settings`. Proiecte/goals/etc. rămân local.
+- **Ghid ops:** `OPS-LAUNCH.md` (pas cu pas) + `LAUNCH-9.md` (checklist scurt).
+- **PR-uri Mono vechi:** `feat/mono-launch` / #24 nu se mai unesc pe main — conținutul e în #26.
+
+### 0.9. Prima replică recomandată în chat Cursor
+
+> Citește `AGENTS.md` și `HANDOFF.md` §0 înainte să începi.
+
 ---
 
 ## 1. Ce este Moneo
@@ -75,7 +90,7 @@ Companion de focus + planificare, local-first (React 18 + TypeScript + Vite 6 + 
 
 | Comandă                          | Rol                                                             |
 | -------------------------------- | --------------------------------------------------------------- |
-| `npm run dev`                    | server local → http://localhost:5173                            |
+| `npm run dev`                    | server local → http://localhost:3000                            |
 | `npm run build:ci`               | **POARTA obligatorie:** `tsc` + toate testele + build producție |
 | `npm run lint`                   | **POARTA obligatorie:** eslint pe tot repo-ul                   |
 | `npx prettier --write <fișiere>` | formatare înainte de commit                                     |
