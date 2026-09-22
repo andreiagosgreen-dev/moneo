@@ -801,6 +801,20 @@ export const uk: Record<TKey, string> = {
   'calendar.form.cancel': 'Скасувати',
   'calendar.form.save': 'Зберегти блок',
   'calendar.colorAria': 'Колір {c}',
+  'calendar.externalEventUntitled': 'Зайнято',
+  'calendar.connect.sectionTitle': 'Google Календар',
+  'calendar.connect.title': 'Підключити Google Календар',
+  'calendar.connect.description':
+    'Перегляньте реальні події та виявляйте конфлікти з вашими блоками часу. Лише читання — Moneo ніколи не змінює ваш календар.',
+  'calendar.connect.connect': 'Підключити',
+  'calendar.connect.connecting': 'Підключення…',
+  'calendar.connect.connectedTitle': 'Підключено',
+  'calendar.connect.connectedGeneric': 'Google Календар',
+  'calendar.connect.disconnect': 'Відключити',
+  'calendar.connect.error': 'Щось пішло не так. Спробуйте ще раз.',
+  'calendar.connect.upsellTitle': 'Перегляньте свій справжній календар поруч із блоками часу',
+  'calendar.connect.upsellBody':
+    'Pro підключає ваш Google Календар (лише читання), щоб Moneo міг виявляти конфлікти зі справжніми зустрічами.',
 
   // GoalsCard
   'goals.ariaLabel': 'Ієрархія цілей',

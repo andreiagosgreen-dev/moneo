@@ -15,6 +15,12 @@ import { handleAccountDelete } from './account';
 import { classifySubscriptionEvent } from './billing';
 import { handleAIPlan } from './ai';
 import {
+  handleCalendarConnect,
+  handleCalendarDisconnect,
+  handleCalendarEvents,
+  handleCalendarStatus,
+} from './calendar';
+import {
   handleBuddyInvite,
   handleBuddyJoin,
   handleBuddyStatus,
@@ -33,6 +39,9 @@ import {
 /** Best-effort per-isolate guards (see security.ts for the caveat). */
 const webhookLimiter = createRateLimiter({ windowMs: 60_000, max: 30 });
 const accountLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
+/** Connect/disconnect are rare; events is polled more often while viewing the calendar. */
+const calendarLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
+const calendarEventsLimiter = createRateLimiter({ windowMs: 60_000, max: 20 });
 const buddyLimiter = createRateLimiter({ windowMs: 60_000, max: 20 });
 /** Webhook replay window: same (event, subscription) applies once per hour. */
 const webhookDeduper = createDeduper(3_600_000);
@@ -67,6 +76,9 @@ export interface Env {
   AI_MODEL?: string;
   /** Comma-separated list of allowed front-end origins. */
   CORS_ORIGINS?: string;
+  /** Reused from the existing Google Sign-In OAuth client — not a new app. */
+  GOOGLE_CLIENT_ID?: string;
+  GOOGLE_CLIENT_SECRET?: string;
 }
 
 const DEFAULT_ALLOWED_ORIGINS = 'https://moneo.bond';
@@ -108,9 +120,16 @@ export default {
 
     // Faza 5A: per-IP rate limits on state-changing APIs (429 + Retry-After).
     if (url.pathname.startsWith('/api/')) {
-      const isAccount = url.pathname === '/api/account/delete';
-      const isBuddy = url.pathname.startsWith('/api/buddy/');
-      const limiter = isAccount ? accountLimiter : isBuddy ? buddyLimiter : webhookLimiter;
+      const limiter =
+        url.pathname === '/api/account/delete'
+          ? accountLimiter
+          : url.pathname === '/api/calendar/events'
+            ? calendarEventsLimiter
+            : url.pathname.startsWith('/api/calendar/')
+              ? calendarLimiter
+              : url.pathname.startsWith('/api/buddy/')
+                ? buddyLimiter
+                : webhookLimiter;
       if (!limiter(`${clientIp(request)}:${url.pathname}`)) {
         return new Response(JSON.stringify({ error: 'Too many requests' }), {
           status: 429,
@@ -144,6 +163,21 @@ export default {
     // Fail-closed without AI_API_KEY; the browser never holds a model key.
     if (url.pathname === '/api/ai/plan') {
       return handleAIPlan(request, env);
+    }
+
+    // Read-only Google Calendar integration (Faza 10). Identity from JWT
+    // only; the refresh token never reaches the client.
+    if (url.pathname === '/api/calendar/connect') {
+      return handleCalendarConnect(request, env);
+    }
+    if (url.pathname === '/api/calendar/status') {
+      return handleCalendarStatus(request, env);
+    }
+    if (url.pathname === '/api/calendar/events') {
+      return handleCalendarEvents(request, env);
+    }
+    if (url.pathname === '/api/calendar/disconnect') {
+      return handleCalendarDisconnect(request, env);
     }
 
     // Focus buddy (Faza 25): one paired user sees only the other's

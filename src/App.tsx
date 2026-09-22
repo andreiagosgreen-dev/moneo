@@ -33,6 +33,7 @@ import TermsOfService from './components/TermsOfService';
 import HelpPage from './components/HelpPage';
 import LoginPage from './components/LoginPage';
 import CabinetPage from './components/CabinetPage';
+import CalendarCallback from './components/CalendarCallback';
 import PricingPage from './components/PricingPage';
 import {
   loadProjects,
@@ -109,6 +110,7 @@ import { useTimer } from './hooks/useTimer';
 import { useAppPersistence } from './hooks/useAppPersistence';
 import { useDeadlineReminders } from './hooks/useDeadlineReminders';
 import { useAppNotifications } from './hooks/useAppNotifications';
+import { useGoogleCalendarEvents } from './hooks/useGoogleCalendarEvents';
 import { useTimeCapsules } from './hooks/useTimeCapsules';
 import { useCelebrations } from './hooks/useCelebrations';
 import CelebrationOverlay from './components/CelebrationOverlay';
@@ -327,6 +329,7 @@ export default function App() {
   });
 
   useDeadlineReminders(projects, settings.notifications, auth.isPro);
+  const externalCalendarEvents = useGoogleCalendarEvents(auth.isPro, auth.timezone);
   useTimeCapsules(goals, settings.notifications, auth.isPro);
   const celebrations = useCelebrations(goals, tasks, history);
 
@@ -446,6 +449,14 @@ export default function App() {
         element={
           <LocaleProvider locale={locale} onLocaleChange={setLocale}>
             <CabinetPage />
+          </LocaleProvider>
+        }
+      />
+      <Route
+        path="/account/calendar-callback"
+        element={
+          <LocaleProvider locale={locale} onLocaleChange={setLocale}>
+            <CalendarCallback />
           </LocaleProvider>
         }
       />
@@ -678,6 +689,7 @@ export default function App() {
                           isPro={auth.isPro}
                           blocks={timeBlocks}
                           blocksChange={setTimeBlocks}
+                          externalEvents={externalCalendarEvents}
                         />
                       </div>
                       <div className="reveal md:col-span-2" style={{ animationDelay: '250ms' }}>
