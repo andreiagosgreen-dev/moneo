@@ -21,6 +21,12 @@ import {
   handleCalendarStatus,
 } from './calendar';
 import {
+  handleBuddyInvite,
+  handleBuddyJoin,
+  handleBuddyStatus,
+  handleBuddyUnpair,
+} from './focusBuddy';
+import {
   MAX_WEBHOOK_BODY_BYTES,
   buildSecurityHeaders,
   clientIp,
@@ -36,10 +42,23 @@ const accountLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
 /** Connect/disconnect are rare; events is polled more often while viewing the calendar. */
 const calendarLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
 const calendarEventsLimiter = createRateLimiter({ windowMs: 60_000, max: 20 });
+const buddyLimiter = createRateLimiter({ windowMs: 60_000, max: 20 });
 /** Webhook replay window: same (event, subscription) applies once per hour. */
 const webhookDeduper = createDeduper(3_600_000);
 
 const SEC = buildSecurityHeaders();
+
+/** Presence-only env summary for /api/health. Never throws, never leaks values. */
+export function buildHealthBody(env: Env): { ok: true; env: Record<string, boolean> } {
+  return {
+    ok: true,
+    env: {
+      supabase: Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY),
+      lemonSqueezy: Boolean(env.LEMON_SQUEEZY_WEBHOOK_SECRET),
+      ai: Boolean(env.AI_API_KEY),
+    },
+  };
+}
 
 function api(body: Record<string, unknown>, status: number): Response {
   return new Response(JSON.stringify(body), {
@@ -108,7 +127,9 @@ export default {
             ? calendarEventsLimiter
             : url.pathname.startsWith('/api/calendar/')
               ? calendarLimiter
-              : webhookLimiter;
+              : url.pathname.startsWith('/api/buddy/')
+                ? buddyLimiter
+                : webhookLimiter;
       if (!limiter(`${clientIp(request)}:${url.pathname}`)) {
         return new Response(JSON.stringify({ error: 'Too many requests' }), {
           status: 429,
@@ -118,6 +139,12 @@ export default {
           }),
         });
       }
+    }
+
+    // Health check (Faza 32c): public, unauthenticated, presence-only —
+    // never leaks secret values, just whether each integration is wired.
+    if (url.pathname === '/api/health') {
+      return api(buildHealthBody(env), 200);
     }
 
     // Webhook endpoint for Lemon Squeezy billing events (server-to-server,
@@ -152,6 +179,13 @@ export default {
     if (url.pathname === '/api/calendar/disconnect') {
       return handleCalendarDisconnect(request, env);
     }
+
+    // Focus buddy (Faza 25): one paired user sees only the other's
+    // today-focused minutes, never a feed or history. Pro-gated server-side.
+    if (url.pathname === '/api/buddy/invite') return handleBuddyInvite(request, env);
+    if (url.pathname === '/api/buddy/join') return handleBuddyJoin(request, env);
+    if (url.pathname === '/api/buddy/unpair') return handleBuddyUnpair(request, env);
+    if (url.pathname === '/api/buddy/status') return handleBuddyStatus(request, env);
 
     // Determine file path from URL
     let filePath = url.pathname;

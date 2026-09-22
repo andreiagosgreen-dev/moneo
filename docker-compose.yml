@@ -5,8 +5,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      # Vite inlines these into the JS bundle during `npm run build` inside
+      # the image build — passing them as container `environment:` instead
+      # is a no-op, since the build already finished before the container
+      # ever starts. Read from a local .env (see .env.example) via compose's
+      # own variable substitution.
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+        VITE_LEMONSQUEEZY_STORE_ID: ${VITE_LEMONSQUEEZY_STORE_ID}
+        VITE_LEMONSQUEEZY_CHECKOUT_URL: ${VITE_LEMONSQUEEZY_CHECKOUT_URL}
+        VITE_LEMONSQUEEZY_MONTHLY_VARIANT_ID: ${VITE_LEMONSQUEEZY_MONTHLY_VARIANT_ID}
+        VITE_LEMONSQUEEZY_YEARLY_VARIANT_ID: ${VITE_LEMONSQUEEZY_YEARLY_VARIANT_ID}
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN}
     ports:
       - '80:80'
-    environment:
-      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
-      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}

@@ -15,22 +15,54 @@ import {
   formatLearningDuration,
 } from '../lib/skills';
 import { useI18n } from '../lib/i18n/LocaleContext';
+import { cleanupLinksFor, type EntityLink } from '../lib/entityLinks';
+import type { Goal } from '../lib/goals';
+import type { Project } from '../lib/projects';
+import type { Objective } from '../lib/okrs';
+import LinkedItems from './LinkedItems';
+import SkillTreeCard from './SkillTreeCard';
+import Disclosure from './Disclosure';
 
 interface Props {
   skills: Skill[];
   skillsChange: (skills: Skill[]) => void;
   transitionTip?: string | null;
+  links: EntityLink[];
+  onLinksChange: (links: EntityLink[]) => void;
+  goals: Goal[];
+  projects: Project[];
+  objectives: Objective[];
   isPro?: boolean;
 }
 
 const LEVELS: SkillLevel[] = [1, 2, 3, 4, 5];
 
-export default function SkillsCard({ skills, skillsChange, transitionTip, isPro = false }: Props) {
+export default function SkillsCard({
+  skills,
+  skillsChange,
+  transitionTip,
+  links,
+  onLinksChange,
+  goals,
+  projects,
+  objectives,
+  isPro = false,
+}: Props) {
   const { t } = useI18n();
   const [draft, setDraft] = useState('');
   const [draftCategory, setDraftCategory] = useState<SkillCategory>('frontend');
   const [openId, setOpenId] = useState<string | null>(null);
   const [resourceDraft, setResourceDraft] = useState('');
+  /** One-shot level-up flash per skill (Faza 16) — meaningful, not a loop. */
+  const [levelFlash, setLevelFlash] = useState<Record<string, number>>({});
+  /** Last XP gain per skill, for the "+N XP" one-shot flash (Faza 17). */
+  const [xpFlash, setXpFlash] = useState<Record<string, number>>({});
+
+  const logSession = (skillId: string) => {
+    const { skills: next, xpGained } = logLearningMinutes(skills, skillId, 25);
+    skillsChange(next);
+    setXpFlash((f) => ({ ...f, [skillId]: xpGained }));
+  };
 
   const total = useMemo(() => totalLearningMinutes(skills), [skills]);
   const atCapacity = !isPro && skills.length >= FREE_SKILLS_LIMIT;
@@ -77,6 +109,15 @@ export default function SkillsCard({ skills, skillsChange, transitionTip, isPro 
           {t('skills.emptyLine2')}
         </p>
       ) : (
+        <Disclosure
+          title={t('skills.tree.title')}
+          hint={t('skills.tree.subtitle')}
+          defaultOpen={false}
+        >
+          <SkillTreeCard skills={skills} links={links} onSelect={setOpenId} />
+        </Disclosure>
+      )}
+      {skills.length > 0 && (
         <ul className="mt-4 space-y-2.5">
           {skills.map((skill) => {
             const pct = Math.round(skillProgress(skill) * 100);
@@ -99,7 +140,10 @@ export default function SkillsCard({ skills, skillsChange, transitionTip, isPro 
                     {t(CATEGORY_LABELS[skill.category])}
                   </span>
                   <button
-                    onClick={() => skillsChange(deleteSkill(skills, skill.id))}
+                    onClick={() => {
+                      skillsChange(deleteSkill(skills, skill.id));
+                      onLinksChange(cleanupLinksFor(links, 'skill', skill.id));
+                    }}
                     className="shrink-0 rounded-md px-1.5 py-0.5 font-mono text-[11px] text-faint hover:text-cream"
                     aria-label={t('skills.deleteAria', { name: skill.name })}
                   >
@@ -117,7 +161,12 @@ export default function SkillsCard({ skills, skillsChange, transitionTip, isPro 
                     {LEVELS.map((lv) => (
                       <button
                         key={lv}
-                        onClick={() => skillsChange(updateSkill(skills, skill.id, { level: lv }))}
+                        onClick={() => {
+                          if (lv > skill.level) {
+                            setLevelFlash((f) => ({ ...f, [skill.id]: (f[skill.id] ?? 0) + 1 }));
+                          }
+                          skillsChange(updateSkill(skills, skill.id, { level: lv }));
+                        }}
                         className={`press h-3.5 w-3.5 rounded-full ring-1 ring-inset transition-colors ${
                           lv <= skill.level
                             ? 'bg-accent ring-accent'
@@ -131,7 +180,12 @@ export default function SkillsCard({ skills, skillsChange, transitionTip, isPro 
                       />
                     ))}
                   </div>
-                  <span className="font-mono text-[11px] text-sage">
+                  <span
+                    key={levelFlash[skill.id] ?? 0}
+                    className={`font-mono text-[11px] text-sage ${
+                      levelFlash[skill.id] ? 'pop' : ''
+                    }`}
+                  >
                     {t(LEVEL_LABELS[skill.level])}
                   </span>
                   <span className="ml-auto font-mono text-[11px] text-faint">
@@ -171,8 +225,17 @@ export default function SkillsCard({ skills, skillsChange, transitionTip, isPro 
                   <span className="font-mono text-[10px] text-faint">
                     {formatLearningDuration(skill.minutesLogged)}
                   </span>
+                  <span
+                    key={xpFlash[skill.id] ?? 0}
+                    className={`font-mono text-[10px] text-accent ${
+                      xpFlash[skill.id] ? 'pop' : ''
+                    }`}
+                    title={t('skills.xpTitle')}
+                  >
+                    {skill.xp} XP
+                  </span>
                   <button
-                    onClick={() => skillsChange(logLearningMinutes(skills, skill.id, 25))}
+                    onClick={() => logSession(skill.id)}
                     className="press shrink-0 rounded-md px-2 py-0.5 font-mono text-[11px] text-cream ring-1 ring-inset ring-line hover:ring-accent"
                     title={t('skills.logSession')}
                   >
@@ -233,6 +296,16 @@ export default function SkillsCard({ skills, skillsChange, transitionTip, isPro 
                         +
                       </button>
                     </div>
+                    <LinkedItems
+                      entityType="skill"
+                      entityId={skill.id}
+                      links={links}
+                      onLinksChange={onLinksChange}
+                      goals={goals}
+                      projects={projects}
+                      skills={skills}
+                      objectives={objectives}
+                    />
                   </div>
                 )}
               </li>

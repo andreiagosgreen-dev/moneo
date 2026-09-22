@@ -18,14 +18,33 @@ import {
   updateObjective,
 } from '../lib/okrs';
 import { useI18n } from '../lib/i18n/LocaleContext';
+import { cleanupLinksFor, type EntityLink } from '../lib/entityLinks';
+import type { Goal } from '../lib/goals';
+import type { Project } from '../lib/projects';
+import type { Skill } from '../lib/skills';
+import LinkedItems from './LinkedItems';
 
 interface Props {
   objectives: Objective[];
   objectivesChange: (objectives: Objective[]) => void;
+  links: EntityLink[];
+  onLinksChange: (links: EntityLink[]) => void;
+  goals: Goal[];
+  projects: Project[];
+  skills: Skill[];
   isPro?: boolean;
 }
 
-export default function OkrCard({ objectives, objectivesChange, isPro = false }: Props) {
+export default function OkrCard({
+  objectives,
+  objectivesChange,
+  links,
+  onLinksChange,
+  goals,
+  projects,
+  skills,
+  isPro = false,
+}: Props) {
   const i18n = useI18n();
   const { t } = i18n;
   const [draft, setDraft] = useState('');
@@ -157,6 +176,11 @@ export default function OkrCard({ objectives, objectivesChange, isPro = false }:
               objectivesChange={objectivesChange}
               progressOf={progressOf}
               ancestorIds={[]}
+              links={links}
+              onLinksChange={onLinksChange}
+              goals={goals}
+              projects={projects}
+              skills={skills}
             />
           ))}
         </ul>
@@ -252,6 +276,11 @@ interface NodeProps {
   objectivesChange: (objectives: Objective[]) => void;
   progressOf: Map<string, number>;
   ancestorIds: string[];
+  links: EntityLink[];
+  onLinksChange: (links: EntityLink[]) => void;
+  goals: Goal[];
+  projects: Project[];
+  skills: Skill[];
 }
 
 function ObjectiveNode({
@@ -260,6 +289,11 @@ function ObjectiveNode({
   objectivesChange,
   progressOf,
   ancestorIds,
+  links,
+  onLinksChange,
+  goals,
+  projects,
+  skills,
 }: NodeProps) {
   const { t } = useI18n();
   const [showDetails, setShowDetails] = useState(false);
@@ -407,6 +441,7 @@ function ObjectiveNode({
                 onClick={() => {
                   if (confirm(t('okr.node.deleteConfirm', { title: o.title }))) {
                     objectivesChange(deleteObjective(objectives, o.id));
+                    onLinksChange(cleanupLinksFor(links, 'objective', o.id));
                   }
                 }}
                 className="press ml-auto rounded-lg px-2.5 py-1.5 text-[11px] text-faint ring-1 ring-inset ring-line hover:text-tomato"
@@ -414,6 +449,17 @@ function ObjectiveNode({
                 {t('okr.node.delete')}
               </button>
             </div>
+
+            <LinkedItems
+              entityType="objective"
+              entityId={o.id}
+              links={links}
+              onLinksChange={onLinksChange}
+              goals={goals}
+              projects={projects}
+              skills={skills}
+              objectives={objectives}
+            />
           </div>
         )}
       </div>
@@ -427,6 +473,11 @@ function ObjectiveNode({
               objectivesChange={objectivesChange}
               progressOf={progressOf}
               ancestorIds={[...ancestorIds, o.id]}
+              links={links}
+              onLinksChange={onLinksChange}
+              goals={goals}
+              projects={projects}
+              skills={skills}
             />
           ))}
         </ul>

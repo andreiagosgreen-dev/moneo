@@ -281,7 +281,7 @@ AI-ul trebuie să fie un **asistent de execuție**, nu doar un chat. Primește u
 5. Construiește un curriculum de învățare: ce se învață, în ce ordine, ce se practică și cum se validează progresul.
 6. Planifică realist după capacitate, calendar, energie și WIP; nu umple ziua artificial.
 7. Replanifică după fiecare review: ce s-a terminat, ce este blocat, ce se mută, ce trebuie eliminat.
-8. Explică *de ce* recomandă următoarea acțiune și cât contribuie aceasta la obiectiv.
+8. Explică _de ce_ recomandă următoarea acțiune și cât contribuie aceasta la obiectiv.
 
 ### Rolul de coach și motivator
 

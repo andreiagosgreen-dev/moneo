@@ -5,9 +5,11 @@ import PricingCard from './PricingCard';
 import NotificationsSettings from './NotificationsSettings';
 import SyncPanel from './account/SyncPanel';
 import GoogleCalendarConnect from './account/GoogleCalendarConnect';
+import FocusBuddy from './account/FocusBuddy';
 import { useAuth } from '../lib/authProvider';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { SubscriptionInfo } from '../lib/cloud/subscriptionRepository';
+import { buildCustomerPortalUrl } from '../lib/billing/lemonSqueezy';
 
 function Spinner() {
   return (
@@ -43,6 +45,7 @@ export default function CabinetPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const portalUrl = buildCustomerPortalUrl();
 
   const planLabel = (id: SubscriptionInfo['planId']) => {
     if (id === 'pro-monthly') return t('account.plan.pro-monthly');
@@ -127,6 +130,16 @@ export default function CabinetPage() {
               </span>
             )}
           </div>
+          {auth.subscription.isPro && portalUrl && (
+            <a
+              href={portalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="press btn-ghost mt-3 inline-block rounded-lg px-4 py-2 font-mono text-[12px] font-semibold"
+            >
+              {t('account.manageSubscription')}
+            </a>
+          )}
           <div className="mt-4">
             <PricingCard />
           </div>
@@ -143,6 +156,10 @@ export default function CabinetPage() {
           <div className="mt-3">
             <GoogleCalendarConnect isPro={auth.isPro} />
           </div>
+        </section>
+
+        <section className="card px-6 py-5">
+          <FocusBuddy isPro={auth.subscription.isPro} />
         </section>
 
         <section className="card px-6 py-5">

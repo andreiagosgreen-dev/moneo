@@ -9,17 +9,40 @@ import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
 
 export type NavTab =
-  'focus' | 'today' | 'plan' | 'assistant' | 'growth' | 'map' | 'projects' | 'reports' | 'settings';
+  | 'focus'
+  | 'today'
+  | 'plan'
+  | 'assistant'
+  | 'growth'
+  | 'map'
+  | 'projects'
+  | 'reports'
+  | 'graph'
+  | 'settings';
 
-const NAV_TABS: Array<{ id: Exclude<NavTab, 'settings'>; label: TKey; hint: TKey }> = [
-  { id: 'focus', label: 'nav.focus', hint: 'nav.hint.focus' },
-  { id: 'today', label: 'nav.today', hint: 'nav.hint.today' },
-  { id: 'plan', label: 'nav.plan', hint: 'nav.hint.plan' },
-  { id: 'assistant', label: 'nav.assistant', hint: 'nav.hint.assistant' },
-  { id: 'growth', label: 'nav.growth', hint: 'nav.hint.growth' },
-  { id: 'map', label: 'nav.map', hint: 'nav.hint.map' },
-  { id: 'projects', label: 'nav.projects', hint: 'nav.hint.projects' },
-  { id: 'reports', label: 'nav.reports', hint: 'nav.hint.reports' },
+export const PRIMARY_TABS: Array<{
+  id: Exclude<NavTab, 'settings'>;
+  label: TKey;
+  hint: TKey;
+  icon: string;
+}> = [
+  { id: 'focus', label: 'nav.focus', hint: 'nav.hint.focus', icon: '🎯' },
+  { id: 'today', label: 'nav.today', hint: 'nav.hint.today', icon: '☀️' },
+  { id: 'plan', label: 'nav.plan', hint: 'nav.hint.plan', icon: '🧭' },
+  { id: 'assistant', label: 'nav.assistant', hint: 'nav.hint.assistant', icon: '✨' },
+];
+
+export const SECONDARY_TABS: Array<{
+  id: Exclude<NavTab, 'settings'>;
+  label: TKey;
+  hint: TKey;
+  icon: string;
+}> = [
+  { id: 'growth', label: 'nav.growth', hint: 'nav.hint.growth', icon: '🌱' },
+  { id: 'map', label: 'nav.map', hint: 'nav.hint.map', icon: '🗺️' },
+  { id: 'projects', label: 'nav.projects', hint: 'nav.hint.projects', icon: '📁' },
+  { id: 'reports', label: 'nav.reports', hint: 'nav.hint.reports', icon: '📊' },
+  { id: 'graph', label: 'nav.graph', hint: 'nav.hint.graph', icon: '🔗' },
 ];
 
 interface SearchHit {
@@ -36,15 +59,27 @@ interface Props {
   tasks: Task[];
   projects: Project[];
   goals: Goal[];
+  onOpenPalette: () => void;
 }
 
-export default function TopNav({ tab, onTab, todayText, tasks, projects, goals }: Props) {
+export default function TopNav({
+  tab,
+  onTab,
+  todayText,
+  tasks,
+  projects,
+  goals,
+  onOpenPalette,
+}: Props) {
   const { t } = useI18n();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState(0);
+  const [moreOpen, setMoreOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
+  const moreRef = useRef<HTMLDivElement>(null);
+  const isSecondaryActive = SECONDARY_TABS.some((tb) => tb.id === tab);
 
   const hits: SearchHit[] = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -63,7 +98,7 @@ export default function TopNav({ tab, onTab, todayText, tasks, projects, goals }
         out.push({ key: `g-${g.id}`, kind: 'nav.kind.goal', title: g.title });
       }
     }
-    return out.slice(0, 6);
+    return out.slice(0, 12);
   }, [query, tasks, projects, goals]);
 
   useEffect(() => setHighlight(0), [hits.length]);
@@ -88,6 +123,7 @@ export default function TopNav({ tab, onTab, todayText, tasks, projects, goals }
   useEffect(() => {
     const onDown = (e: PointerEvent) => {
       if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false);
     };
     window.addEventListener('pointerdown', onDown);
     return () => window.removeEventListener('pointerdown', onDown);
@@ -106,13 +142,13 @@ export default function TopNav({ tab, onTab, todayText, tasks, projects, goals }
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:gap-4 sm:px-6">
         <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label={t('nav.home')}>
           <span
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-line bg-card2/80"
-            style={{ boxShadow: '0 8px 24px -8px rgb(var(--accent-rgb) / 0.45)' }}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-card2/80"
+            style={{ boxShadow: '0 8px 24px -8px rgb(var(--accent-rgb) / 0.55)' }}
           >
-            <BrandMark />
+            <BrandMark size={26} />
           </span>
           <span className="hidden flex-col leading-none min-[420px]:flex">
-            <span className="font-display text-[17px] font-extrabold tracking-tight text-cream">
+            <span className="font-display text-[18px] font-extrabold tracking-tight text-cream">
               Moneo
             </span>
             <span className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.24em] text-faint">
@@ -126,7 +162,7 @@ export default function TopNav({ tab, onTab, todayText, tasks, projects, goals }
           role="tablist"
           aria-label={t('nav.sections')}
         >
-          {NAV_TABS.map((tb) => (
+          {PRIMARY_TABS.map((tb) => (
             <button
               key={tb.id}
               role="tab"
@@ -134,12 +170,66 @@ export default function TopNav({ tab, onTab, todayText, tasks, projects, goals }
               title={t(tb.hint)}
               onClick={() => onTab(tb.id)}
               data-active={tab === tb.id}
-              className="navtab"
+              className="navtab shrink-0"
             >
+              <span aria-hidden className="mr-1.5">
+                {tb.icon}
+              </span>
               {t(tb.label)}
             </button>
           ))}
         </div>
+
+        <div ref={moreRef} className="relative shrink-0">
+          <button
+            role="tab"
+            aria-selected={isSecondaryActive}
+            aria-expanded={moreOpen}
+            aria-label={t('nav.moreLabel')}
+            onClick={() => setMoreOpen((v) => !v)}
+            data-active={isSecondaryActive}
+            className="navtab flex items-center gap-1"
+          >
+            {t('nav.more')}
+            <span className="text-[9px]" aria-hidden>
+              ▾
+            </span>
+          </button>
+          {moreOpen && (
+            <div className="searchpop right-0" role="menu" aria-label={t('nav.moreLabel')}>
+              <div className="flex flex-col gap-0.5 p-1.5">
+                {SECONDARY_TABS.map((tb) => (
+                  <button
+                    key={tb.id}
+                    role="menuitem"
+                    title={t(tb.hint)}
+                    onClick={() => {
+                      onTab(tb.id);
+                      setMoreOpen(false);
+                    }}
+                    className={`rounded-lg px-3 py-2 text-left text-[13px] transition-colors ${
+                      tab === tb.id ? 'bg-cream/10 text-cream' : 'text-cream/90 hover:bg-cream/5'
+                    }`}
+                  >
+                    <span aria-hidden className="mr-1.5">
+                      {tb.icon}
+                    </span>
+                    {t(tb.label)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <button
+          onClick={onOpenPalette}
+          title={t('palette.title')}
+          aria-label={t('palette.title')}
+          className="press hidden shrink-0 items-center gap-1.5 rounded-lg border border-line bg-ink/40 px-2 py-1.5 font-mono text-[10px] text-faint hover:text-cream sm:flex"
+        >
+          ⌘K
+        </button>
 
         <div ref={boxRef} className="relative hidden shrink-0 md:block">
           <input

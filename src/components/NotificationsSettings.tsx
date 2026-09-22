@@ -190,6 +190,27 @@ export default function NotificationsSettings() {
             />
           </button>
         </label>
+        <label className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-sm font-semibold text-cream">
+              {t('notif.sessionReflection.label')}
+            </div>
+            <div className="text-[11px] text-faint">{t('notif.sessionReflection.desc')}</div>
+          </div>
+          <button
+            onClick={() => update({ sessionReflection: !prefs.sessionReflection })}
+            className={`press h-6 w-11 rounded-full transition-colors ${
+              prefs.sessionReflection ? 'bg-accent' : 'bg-line/50'
+            }`}
+            aria-pressed={prefs.sessionReflection}
+          >
+            <div
+              className={`h-5 w-5 rounded-full bg-cream transition-transform ${
+                prefs.sessionReflection ? 'translate-x-5' : 'translate-x-0.5'
+              }`}
+            />
+          </button>
+        </label>
       </div>
 
       {savedFlash && <p className="mt-3 text-[12px] font-medium text-sage">{t('notif.saved')}</p>}

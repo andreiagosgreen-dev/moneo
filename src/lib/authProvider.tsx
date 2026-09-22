@@ -38,9 +38,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const controller = useMemo<AuthController>(
     () =>
       createAuthController({
-        // The Supabase client satisfies AuthClientLike structurally at
-        // runtime; the cast bridges its wider generic signatures.
-        clientFactory: async () => (await getSupabaseClient()) as unknown as AuthClientLike | null,
+        // `signInWithPassword`/`signUp`/`getSession`/`onAuthStateChange` live
+        // on the client's `.auth` sub-object, not the top-level client — the
+        // cast bridges its wider generic signatures to AuthClientLike.
+        clientFactory: async () =>
+          ((await getSupabaseClient())?.auth ?? null) as unknown as AuthClientLike | null,
         ensureProfile: (userId, timezone) => ensureProfile(userId, timezone),
         getProfileTimezone: (userId) => getProfileTimezone(userId),
         // Same-origin Worker endpoint (serves the frontend in production).
@@ -84,8 +86,8 @@ export interface AuthApi extends AuthSnapshot {
   isPro: boolean;
   subscription: SubscriptionInfo;
   refreshSubscription(): Promise<void>;
-  signIn(email: string, password: string): Promise<AuthResult>;
-  signUp(email: string, password: string): Promise<AuthResult>;
+  signIn(email: string, password: string, captchaToken?: string): Promise<AuthResult>;
+  signUp(email: string, password: string, captchaToken?: string): Promise<AuthResult>;
   signInWithGoogle(redirectTo: string): Promise<AuthResult>;
   signOut(): Promise<void>;
   deleteAccount(): Promise<AuthResult>;

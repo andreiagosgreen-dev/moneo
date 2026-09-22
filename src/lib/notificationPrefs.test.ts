@@ -31,6 +31,7 @@ describe('saveNotificationPrefs', () => {
       habitTime: '20:00',
       disconnectReminders: false,
       disconnectTime: '18:00',
+      sessionReflection: true,
     };
     const ok = saveNotificationPrefs(prefs);
     expect(ok).toBe(true);
@@ -49,6 +50,7 @@ describe('saveNotificationPrefs', () => {
       habitTime: 'bad',
       disconnectReminders: true,
       disconnectTime: '25:00',
+      sessionReflection: true,
     });
     const loaded = loadNotificationPrefs();
     expect(loaded.reminderTime).toBe(DEFAULT_NOTIFICATION_PREFS.reminderTime);
@@ -132,6 +134,7 @@ describe('markReminderShown', () => {
       habitTime: '20:00',
       disconnectReminders: true,
       disconnectTime: '18:00',
+      sessionReflection: true,
     };
     const marked = markReminderShown(prefs, now);
     expect(marked.dailySummary).toBe(true);

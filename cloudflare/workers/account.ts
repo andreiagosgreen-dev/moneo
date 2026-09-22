@@ -97,6 +97,22 @@ export async function deleteUserRows(
       );
       if (!res.ok) return false;
     }
+    // focus_buddy_pairs (Faza 25) has no single user_id column — a user can
+    // be on either side of the pairing — so it needs its own OR filter.
+    const buddyRes = await fetchImpl(
+      `${supabaseUrl}/rest/v1/focus_buddy_pairs?or=(user_a.eq.${encodeURIComponent(
+        userId,
+      )},user_b.eq.${encodeURIComponent(userId)})`,
+      {
+        method: 'DELETE',
+        headers: {
+          apikey: serviceKey,
+          Authorization: `Bearer ${serviceKey}`,
+          Prefer: 'return=minimal',
+        },
+      },
+    );
+    if (!buddyRes.ok) return false;
     return true;
   } catch {
     return false;

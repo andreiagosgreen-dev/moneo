@@ -15,6 +15,7 @@ import {
 } from '../../lib/habits';
 import { localDayKey } from '../../lib/projects';
 import type { LifeCardProps } from './types';
+import { useI18n } from '../../lib/i18n/LocaleContext';
 
 export default function HabitsTab({
   habits,
@@ -23,6 +24,7 @@ export default function HabitsTab({
   habitLogChange,
   isPro = false,
 }: LifeCardProps) {
+  const { t } = useI18n();
   const [draft, setDraft] = useState('');
   const [freq, setFreq] = useState<HabitFrequency>('daily');
   const [showTemplates, setShowTemplates] = useState(false);
@@ -46,9 +48,9 @@ export default function HabitsTab({
     <div>
       {active.length === 0 ? (
         <p className="rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">
-          Small daily wins compound.
+          {t('habits.emptyLine1')}
           <br />
-          Start from a template below.
+          {t('habits.emptyLine2')}
         </p>
       ) : (
         <ul className="space-y-1.5">
@@ -72,7 +74,11 @@ export default function HabitsTab({
                         ? 'bg-accent text-on-accent ring-accent'
                         : 'bg-ink/60 text-transparent ring-line hover:text-sage'
                     }`}
-                    aria-label={doneToday ? `Unmark ${h.name}` : `Complete ${h.name} today`}
+                    aria-label={
+                      doneToday
+                        ? t('habits.unmark', { name: h.name })
+                        : t('habits.completeToday', { name: h.name })
+                    }
                     aria-pressed={doneToday}
                   >
                     <svg
@@ -95,9 +101,11 @@ export default function HabitsTab({
                       {h.name}
                     </span>
                     <span className="ml-2 font-mono text-[10px] text-faint">
-                      {h.frequency === 'weekly' ? `${h.targetPerWeek}x/week` : 'daily'}
-                      {stackName ? ` · after ${stackName}` : ''}
-                      {!due && !doneToday ? ' · done for now' : ''}
+                      {h.frequency === 'weekly'
+                        ? t('habits.timesPerWeek', { n: h.targetPerWeek })
+                        : t('habits.daily')}
+                      {stackName ? t('habits.stackAfter', { name: stackName }) : ''}
+                      {!due && !doneToday ? t('habits.doneForNow') : ''}
                     </span>
                   </div>
                   {h.frequency === 'weekly' && (
@@ -109,8 +117,8 @@ export default function HabitsTab({
                         )
                       }
                       className="h-6 shrink-0 rounded bg-ink/60 px-1 font-mono text-[10px] text-faint ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-                      title="Weekly target"
-                      aria-label={`Weekly target for ${h.name}`}
+                      title={t('habits.weeklyTarget')}
+                      aria-label={t('habits.weeklyTargetFor', { name: h.name })}
                     >
                       {[1, 2, 3, 4, 5, 6, 7].map((n) => (
                         <option key={n} value={n}>
@@ -120,28 +128,31 @@ export default function HabitsTab({
                     </select>
                   )}
                   {isPro && streak > 1 && (
-                    <span className="shrink-0 font-mono text-[11px] text-sage" title="Streak">
+                    <span
+                      className="shrink-0 font-mono text-[11px] text-sage"
+                      title={t('habits.streak')}
+                    >
                       🔥{streak}
                     </span>
                   )}
                   {isPro && rate !== null && (
                     <span
                       className="shrink-0 font-mono text-[10px] text-faint"
-                      title="30-day success rate"
+                      title={t('habits.successRate')}
                     >
                       {Math.round(rate * 100)}%
                     </span>
                   )}
                   <button
                     onClick={() => {
-                      if (confirm(`Delete habit “${h.name}”? Its log goes too.`)) {
+                      if (confirm(t('habits.confirmDelete', { name: h.name }))) {
                         const { habits: nextH, log: nextL } = deleteHabit(habits, habitLog, h.id);
                         habitsChange(nextH);
                         commitLog(nextL);
                       }
                     }}
                     className="press shrink-0 rounded p-1 text-faint hover:text-tomato"
-                    aria-label={`Delete ${h.name}`}
+                    aria-label={t('habits.delete', { name: h.name })}
                   >
                     ✕
                   </button>
@@ -161,23 +172,23 @@ export default function HabitsTab({
               maxLength={80}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && draft.trim() && add(draft, freq)}
-              placeholder="e.g. Read 10 pages…"
+              placeholder={t('habits.namePlaceholder')}
               className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
             />
             <select
               value={freq}
               onChange={(e) => setFreq(e.target.value as HabitFrequency)}
               className="h-9 shrink-0 rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              aria-label="Frequency"
+              aria-label={t('habits.frequency')}
             >
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
+              <option value="daily">{t('habits.dailyOption')}</option>
+              <option value="weekly">{t('habits.weekly')}</option>
             </select>
             <button
               onClick={() => draft.trim() && add(draft, freq)}
               disabled={!draft.trim()}
               className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
-              aria-label="Add habit"
+              aria-label={t('habits.add')}
             >
               +
             </button>
@@ -186,17 +197,17 @@ export default function HabitsTab({
             onClick={() => setShowTemplates(!showTemplates)}
             className="press mt-2 font-mono text-[11px] text-sage hover:text-cream"
           >
-            {showTemplates ? '▴ Hide templates' : '▾ Start from a template'}
+            {showTemplates ? t('habits.hideTemplates') : t('habits.startFromTemplate')}
           </button>
           {showTemplates && (
             <div className="mt-2 flex flex-wrap gap-1.5">
-              {HABIT_TEMPLATES.map((t) => (
+              {HABIT_TEMPLATES.map((tpl) => (
                 <button
-                  key={t.name}
-                  onClick={() => add(t.name, t.frequency, t.targetPerWeek)}
+                  key={tpl.name}
+                  onClick={() => add(tpl.name, tpl.frequency, tpl.targetPerWeek)}
                   className="press rounded-full px-3 py-1.5 font-mono text-[11px] text-sage ring-1 ring-inset ring-line hover:text-cream hover:ring-accent/50"
                 >
-                  + {t.name}
+                  + {tpl.name}
                 </button>
               ))}
             </div>
@@ -206,11 +217,9 @@ export default function HabitsTab({
         !isPro && (
           <div className="mt-3 rounded-xl border border-accent/30 bg-accent/10 p-3.5">
             <p className="text-[12px] leading-relaxed text-cream">
-              Free plan tracks up to {FREE_HABITS_LIMIT} habits.
+              {t('habits.freeLimit', { n: FREE_HABITS_LIMIT })}
             </p>
-            <p className="mt-1 font-mono text-[11px] text-faint">
-              Upgrade to Pro for unlimited habits, streaks and success analytics.
-            </p>
+            <p className="mt-1 font-mono text-[11px] text-faint">{t('habits.proUpsell')}</p>
           </div>
         )
       )}

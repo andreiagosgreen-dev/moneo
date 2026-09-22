@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import BrandMark from './BrandMark';
 import AuthForm from './account/AuthForm';
@@ -124,58 +125,61 @@ export default function AccountButton() {
         )}
       </button>
 
-      {open && !authenticated && (
-        <div
-          className="backdrop-fade fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-ink/70 p-4 sm:items-center"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) close();
-          }}
-        >
+      {open &&
+        !authenticated &&
+        createPortal(
           <div
-            ref={dialogRef}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="account-dialog-title"
-            className="card dialog-pop my-8 w-full max-w-sm px-6 py-6"
+            className="backdrop-fade fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-ink/70 p-4 sm:items-center"
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget) close();
+            }}
           >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <BrandMark size={26} />
-                <div>
-                  <h2
-                    id="account-dialog-title"
-                    className="font-display text-lg font-bold leading-none tracking-tight text-cream"
-                  >
-                    {t('account.moneoAccount')}
-                  </h2>
-                  <p className="mt-1 text-[12px] text-faint">{t('account.syncAcrossDevices')}</p>
+            <div
+              ref={dialogRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="account-dialog-title"
+              className="card dialog-pop my-8 w-full max-w-sm px-6 py-6"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <BrandMark size={26} />
+                  <div>
+                    <h2
+                      id="account-dialog-title"
+                      className="font-display text-lg font-bold leading-none tracking-tight text-cream"
+                    >
+                      {t('account.moneoAccount')}
+                    </h2>
+                    <p className="mt-1 text-[12px] text-faint">{t('account.syncAcrossDevices')}</p>
+                  </div>
                 </div>
+                <button
+                  onClick={close}
+                  className="press btn-ghost flex h-8 w-8 items-center justify-center rounded-lg"
+                  aria-label={t('account.closeDialog')}
+                >
+                  <CloseIcon />
+                </button>
               </div>
-              <button
-                onClick={close}
-                className="press btn-ghost flex h-8 w-8 items-center justify-center rounded-lg"
-                aria-label={t('account.closeDialog')}
-              >
-                <CloseIcon />
-              </button>
-            </div>
 
-            <div className="mt-5">
-              <GoogleSignInButton redirectTo={`${window.location.origin}/login`} />
-            </div>
+              <div className="mt-5">
+                <GoogleSignInButton redirectTo={`${window.location.origin}/login`} />
+              </div>
 
-            <div className="my-5 flex items-center gap-3" aria-hidden>
-              <span className="h-px flex-1 bg-line" />
-              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-                {t('auth.orDivider')}
-              </span>
-              <span className="h-px flex-1 bg-line" />
-            </div>
+              <div className="my-5 flex items-center gap-3" aria-hidden>
+                <span className="h-px flex-1 bg-line" />
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+                  {t('auth.orDivider')}
+                </span>
+                <span className="h-px flex-1 bg-line" />
+              </div>
 
-            <AuthForm onAuthenticated={close} />
-          </div>
-        </div>
-      )}
+              <AuthForm onAuthenticated={close} />
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

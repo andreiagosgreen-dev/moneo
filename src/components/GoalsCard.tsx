@@ -27,6 +27,10 @@ import { createTaskObject, tasksForProject } from '../lib/tasks';
 import { addTaskToDay, IVY_MAX_TASKS, IVY_FREE_MAX_TASKS, type IvyPlan } from '../lib/ivyLee';
 import { dayKeyInTz } from '../lib/timezone';
 import { useI18n } from '../lib/i18n/LocaleContext';
+import { cleanupLinksFor, type EntityLink } from '../lib/entityLinks';
+import type { Skill } from '../lib/skills';
+import type { Objective } from '../lib/okrs';
+import LinkedItems from './LinkedItems';
 
 interface Props {
   goals: Goal[];
@@ -39,6 +43,10 @@ interface Props {
   onIvyPlansChange: (plans: IvyPlan[]) => void;
   timezone: string;
   lifeAreas: LifeArea[];
+  links: EntityLink[];
+  onLinksChange: (links: EntityLink[]) => void;
+  skills: Skill[];
+  objectives: Objective[];
   isPro?: boolean;
 }
 
@@ -58,6 +66,10 @@ export default function GoalsCard({
   onIvyPlansChange,
   timezone,
   lifeAreas,
+  links,
+  onLinksChange,
+  skills,
+  objectives,
   isPro = false,
 }: Props) {
   const { t, tp } = useI18n();
@@ -182,6 +194,10 @@ export default function GoalsCard({
               ancestorIds={[]}
               onGenerate={generateTasks}
               onSendToToday={sendToToday}
+              links={links}
+              onLinksChange={onLinksChange}
+              skills={skills}
+              objectives={objectives}
             />
           ))}
         </ul>
@@ -295,6 +311,10 @@ interface NodeProps {
   ancestorIds: string[];
   onGenerate: (goal: Goal) => void;
   onSendToToday: (goal: Goal) => void;
+  links: EntityLink[];
+  onLinksChange: (links: EntityLink[]) => void;
+  skills: Skill[];
+  objectives: Objective[];
 }
 
 function GoalNode({
@@ -308,6 +328,10 @@ function GoalNode({
   ancestorIds,
   onGenerate,
   onSendToToday,
+  links,
+  onLinksChange,
+  skills,
+  objectives,
 }: NodeProps) {
   const { t } = useI18n();
   const [showDetails, setShowDetails] = useState(false);
@@ -410,6 +434,24 @@ function GoalNode({
                 {t('goals.node.progressMirrors', { name: linked.name })}
               </p>
             )}
+            {goal.targetDate && (
+              <div className="space-y-1">
+                <label className="font-mono text-[10px] text-faint">
+                  {t('goals.node.capsuleNoteLabel')}
+                </label>
+                <textarea
+                  value={goal.capsuleNote ?? ''}
+                  onChange={(e) =>
+                    goalsChange(updateGoal(goals, goal.id, { capsuleNote: e.target.value || null }))
+                  }
+                  placeholder={t('goals.node.capsuleNotePlaceholder')}
+                  rows={2}
+                  maxLength={500}
+                  className="w-full resize-none rounded-lg bg-ink/60 px-2 py-1.5 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+                  title={t('goals.node.capsuleNoteTitle')}
+                />
+              </div>
+            )}
             <div className="flex flex-wrap items-center gap-2">
               <select
                 value={goal.lifeAreaId ?? ''}
@@ -511,6 +553,7 @@ function GoalNode({
                 onClick={() => {
                   if (confirm(t('goals.node.deleteConfirm', { title: goal.title }))) {
                     goalsChange(deleteGoal(goals, goal.id));
+                    onLinksChange(cleanupLinksFor(links, 'goal', goal.id));
                   }
                 }}
                 className="press ml-auto rounded-lg px-2.5 py-1.5 text-[11px] text-faint ring-1 ring-inset ring-line hover:text-tomato"
@@ -518,6 +561,16 @@ function GoalNode({
                 {t('goals.node.delete')}
               </button>
             </div>
+            <LinkedItems
+              entityType="goal"
+              entityId={goal.id}
+              links={links}
+              onLinksChange={onLinksChange}
+              goals={goals}
+              projects={liveProjects}
+              skills={skills}
+              objectives={objectives}
+            />
           </div>
         )}
       </div>
@@ -536,6 +589,10 @@ function GoalNode({
               ancestorIds={[...ancestorIds, goal.id]}
               onGenerate={onGenerate}
               onSendToToday={onSendToToday}
+              links={links}
+              onLinksChange={onLinksChange}
+              skills={skills}
+              objectives={objectives}
             />
           ))}
         </ul>
