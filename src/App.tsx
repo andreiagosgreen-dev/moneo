@@ -523,6 +523,7 @@ export default function App() {
               />
               <div className="bg-grid" aria-hidden />
               <div className="bg-grain" aria-hidden />
+              <div className="bg-vignette" aria-hidden />
               <p role="status" aria-live="polite" className="sr-only">
                 {announce}
               </p>
@@ -624,7 +625,7 @@ export default function App() {
                   </main>
                 )}
                 {tab === 'today' && (
-                  <main className="mt-4 grid items-start gap-6 md:grid-cols-2 md:gap-8">
+                  <main className="mt-4 grid items-stretch gap-6 md:grid-cols-2 md:gap-8">
                     <div className="reveal md:col-span-2" style={{ animationDelay: '60ms' }}>
                       <div className="card flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3.5 sm:px-5 sm:py-4">
                         <span
@@ -752,7 +753,7 @@ export default function App() {
                 )}
                 {tab === 'plan' && (
                   <Suspense fallback={<TabFallback label="Plan" />}>
-                    <main className="mt-2 grid items-start gap-6 md:grid-cols-2">
+                    <main className="mt-2 grid items-stretch gap-6 md:grid-cols-2">
                       <div className="reveal" style={{ animationDelay: '90ms' }}>
                         <GoalsCard
                           goals={goals}
@@ -808,7 +809,7 @@ export default function App() {
                 )}
                 {tab === 'assistant' && (
                   <Suspense fallback={<TabFallback label="Assistant" />}>
-                    <main className="mt-2 grid items-start gap-6 md:grid-cols-2">
+                    <main className="mt-2 grid items-stretch gap-6 md:grid-cols-2">
                       <div className="reveal" style={{ animationDelay: '90ms' }}>
                         <AssistantCard
                           messages={chatHistory}
@@ -847,7 +848,7 @@ export default function App() {
                 )}
                 {tab === 'growth' && (
                   <Suspense fallback={<TabFallback label="Growth" />}>
-                    <main className="mt-2 grid items-start gap-6 md:grid-cols-2">
+                    <main className="mt-2 grid items-stretch gap-6 md:grid-cols-2">
                       <div className="reveal" style={{ animationDelay: '90ms' }}>
                         <GrowthCard history={history} />
                       </div>
@@ -889,7 +890,7 @@ export default function App() {
                 )}
                 {tab === 'map' && (
                   <Suspense fallback={<TabFallback label="Map" />}>
-                    <main className="mt-4 grid items-start gap-6 md:grid-cols-2">
+                    <main className="mt-4 grid items-stretch gap-6 md:grid-cols-2">
                       <div className="reveal md:col-span-2" style={{ animationDelay: '90ms' }}>
                         {lifeMapCard}
                       </div>
@@ -898,7 +899,7 @@ export default function App() {
                 )}
                 {tab === 'projects' && (
                   <Suspense fallback={<TabFallback label="Projects" />}>
-                    <main className="mt-2 grid items-start gap-6 md:grid-cols-2">
+                    <main className="mt-2 grid items-stretch gap-6 md:grid-cols-2">
                       <div className="reveal" style={{ animationDelay: '90ms' }}>
                         <ProjectsCard
                           projects={projects}
@@ -944,7 +945,7 @@ export default function App() {
                 )}
                 {tab === 'reports' && (
                   <Suspense fallback={<TabFallback label="Reports" />}>
-                    <main className="mt-2 grid items-start gap-6 md:grid-cols-2">
+                    <main className="mt-2 grid items-stretch gap-6 md:grid-cols-2">
                       <div className="reveal" style={{ animationDelay: '90ms' }}>
                         <ReportsCard
                           history={history}
@@ -963,7 +964,7 @@ export default function App() {
                 )}
                 {tab === 'graph' && (
                   <Suspense fallback={<TabFallback label="Graph" />}>
-                    <main className="mt-2 grid items-start gap-6">
+                    <main className="mt-2 grid items-stretch gap-6">
                       <div className="reveal" style={{ animationDelay: '90ms' }}>
                         <GraphCard
                           links={links}
@@ -978,7 +979,7 @@ export default function App() {
                 )}
                 {tab === 'settings' && (
                   <Suspense fallback={<TabFallback label="Settings" />}>
-                    <main className="mt-2 grid items-start gap-6 md:grid-cols-2">
+                    <main className="mt-2 grid items-stretch gap-6 md:grid-cols-2">
                       <div className="reveal" style={{ animationDelay: '90ms' }}>
                         <SettingsCard
                           settings={settings}

@@ -5,12 +5,12 @@
   --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'Spline Sans Mono', ui-monospace, SFMono-Regular, monospace;
 
-  --color-ink: #0f1117;
-  --color-pine: #131824;
-  --color-card: #161c29;
-  --color-card2: #1a2233;
-  --color-line: #263049;
-  --color-cream: #f2f4f9;
+  --color-ink: #08090d;
+  --color-pine: #0d111a;
+  --color-card: #10141e;
+  --color-card2: #151b28;
+  --color-line: #262f47;
+  --color-cream: #f5f6fb;
   --color-sage: #9aa7bd;
   --color-faint: #7c8aa6;
   --color-tomato: #f07167;
@@ -176,10 +176,19 @@ body,
 body {
   margin: 0;
   background-color: var(--color-ink);
+  background-image:
+    radial-gradient(120% 70% at 50% -12%, rgb(var(--accent-rgb) / 0.1), transparent 60%),
+    radial-gradient(90% 70% at 100% 105%, rgb(70 30 90 / 0.16), transparent 65%),
+    radial-gradient(80% 60% at 0% 100%, rgb(20 40 70 / 0.18), transparent 65%),
+    linear-gradient(165deg, #0c0e15 0%, #06070a 45%, #08090d 100%);
+  background-attachment: fixed;
   color: var(--color-cream);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+}
+[data-theme='light'] body {
+  background-image: none;
 }
 
 ::selection {
@@ -201,18 +210,30 @@ body {
 }
 .bg-glow-focus {
   background:
-    radial-gradient(42% 38% at 18% 12%, rgb(245 165 36 / 0.15), transparent 70%),
-    radial-gradient(34% 32% at 85% 82%, rgb(245 165 36 / 0.09), transparent 70%);
+    radial-gradient(42% 38% at 18% 12%, rgb(245 165 36 / 0.2), transparent 70%),
+    radial-gradient(34% 32% at 85% 82%, rgb(245 165 36 / 0.12), transparent 70%);
 }
 .bg-glow-short {
   background:
-    radial-gradient(42% 38% at 18% 12%, rgb(62 207 142 / 0.13), transparent 70%),
-    radial-gradient(34% 32% at 85% 82%, rgb(62 207 142 / 0.08), transparent 70%);
+    radial-gradient(42% 38% at 18% 12%, rgb(62 207 142 / 0.17), transparent 70%),
+    radial-gradient(34% 32% at 85% 82%, rgb(62 207 142 / 0.1), transparent 70%);
 }
 .bg-glow-long {
   background:
-    radial-gradient(42% 38% at 18% 12%, rgb(122 165 255 / 0.14), transparent 70%),
-    radial-gradient(34% 32% at 85% 82%, rgb(122 165 255 / 0.08), transparent 70%);
+    radial-gradient(42% 38% at 18% 12%, rgb(122 165 255 / 0.18), transparent 70%),
+    radial-gradient(34% 32% at 85% 82%, rgb(122 165 255 / 0.1), transparent 70%);
+}
+
+/* Soft edge vignette — always on, deepens the frame for a lit-stage feel */
+.bg-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(120% 100% at 50% 35%, transparent 55%, rgb(0 0 0 / 0.45) 100%);
+}
+[data-theme='light'] .bg-vignette {
+  display: none;
 }
 
 .bg-grain {
@@ -238,24 +259,57 @@ body {
 /* ---------- cards & controls ---------- */
 .card {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   border-radius: 22px;
   border: 1px solid var(--color-line);
   background:
-    linear-gradient(160deg, rgb(var(--accent-rgb) / 0.05), transparent 42%),
+    linear-gradient(160deg, rgb(var(--accent-rgb) / 0.07), transparent 42%),
     linear-gradient(180deg, var(--color-card2), var(--color-card));
   box-shadow:
-    0 1px 0 rgb(255 255 255 / 0.05) inset,
-    0 24px 48px -28px rgb(0 0 0 / 0.65);
+    0 1px 0 rgb(255 255 255 / 0.06) inset,
+    0 0 0 1px rgb(0 0 0 / 0.3),
+    0 24px 48px -28px rgb(0 0 0 / 0.8);
   transition:
     border-color 0.3s ease,
     box-shadow 0.3s ease,
     background 0.6s ease;
 }
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  border-radius: 22px 22px 0 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(var(--accent-rgb) / 0.35) 35%,
+    rgb(var(--accent-rgb) / 0.35) 65%,
+    transparent
+  );
+  pointer-events: none;
+}
 .card:hover {
   border-color: color-mix(in oklab, var(--color-line) 55%, var(--color-cream));
   box-shadow:
-    0 1px 0 rgb(255 255 255 / 0.06) inset,
-    0 28px 56px -28px rgb(0 0 0 / 0.7);
+    0 1px 0 rgb(255 255 255 / 0.07) inset,
+    0 0 0 1px rgb(0 0 0 / 0.3),
+    0 28px 56px -28px rgb(0 0 0 / 0.85);
+}
+
+/* ---------- accentuated headings (Premium Polish) ---------- */
+h1,
+h2,
+h3 {
+  letter-spacing: -0.012em;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
+}
+[data-theme='light'] h1,
+[data-theme='light'] h2,
+[data-theme='light'] h3 {
+  text-shadow: none;
 }
 
 .press {

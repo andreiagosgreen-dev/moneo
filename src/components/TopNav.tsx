@@ -20,19 +20,29 @@ export type NavTab =
   | 'graph'
   | 'settings';
 
-export const PRIMARY_TABS: Array<{ id: Exclude<NavTab, 'settings'>; label: TKey; hint: TKey }> = [
-  { id: 'focus', label: 'nav.focus', hint: 'nav.hint.focus' },
-  { id: 'today', label: 'nav.today', hint: 'nav.hint.today' },
-  { id: 'plan', label: 'nav.plan', hint: 'nav.hint.plan' },
-  { id: 'assistant', label: 'nav.assistant', hint: 'nav.hint.assistant' },
+export const PRIMARY_TABS: Array<{
+  id: Exclude<NavTab, 'settings'>;
+  label: TKey;
+  hint: TKey;
+  icon: string;
+}> = [
+  { id: 'focus', label: 'nav.focus', hint: 'nav.hint.focus', icon: '🎯' },
+  { id: 'today', label: 'nav.today', hint: 'nav.hint.today', icon: '☀️' },
+  { id: 'plan', label: 'nav.plan', hint: 'nav.hint.plan', icon: '🧭' },
+  { id: 'assistant', label: 'nav.assistant', hint: 'nav.hint.assistant', icon: '✨' },
 ];
 
-export const SECONDARY_TABS: Array<{ id: Exclude<NavTab, 'settings'>; label: TKey; hint: TKey }> = [
-  { id: 'growth', label: 'nav.growth', hint: 'nav.hint.growth' },
-  { id: 'map', label: 'nav.map', hint: 'nav.hint.map' },
-  { id: 'projects', label: 'nav.projects', hint: 'nav.hint.projects' },
-  { id: 'reports', label: 'nav.reports', hint: 'nav.hint.reports' },
-  { id: 'graph', label: 'nav.graph', hint: 'nav.hint.graph' },
+export const SECONDARY_TABS: Array<{
+  id: Exclude<NavTab, 'settings'>;
+  label: TKey;
+  hint: TKey;
+  icon: string;
+}> = [
+  { id: 'growth', label: 'nav.growth', hint: 'nav.hint.growth', icon: '🌱' },
+  { id: 'map', label: 'nav.map', hint: 'nav.hint.map', icon: '🗺️' },
+  { id: 'projects', label: 'nav.projects', hint: 'nav.hint.projects', icon: '📁' },
+  { id: 'reports', label: 'nav.reports', hint: 'nav.hint.reports', icon: '📊' },
+  { id: 'graph', label: 'nav.graph', hint: 'nav.hint.graph', icon: '🔗' },
 ];
 
 interface SearchHit {
@@ -88,7 +98,7 @@ export default function TopNav({
         out.push({ key: `g-${g.id}`, kind: 'nav.kind.goal', title: g.title });
       }
     }
-    return out.slice(0, 6);
+    return out.slice(0, 12);
   }, [query, tasks, projects, goals]);
 
   useEffect(() => setHighlight(0), [hits.length]);
@@ -132,13 +142,13 @@ export default function TopNav({
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:gap-4 sm:px-6">
         <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label={t('nav.home')}>
           <span
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-line bg-card2/80"
-            style={{ boxShadow: '0 8px 24px -8px rgb(var(--accent-rgb) / 0.45)' }}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-card2/80"
+            style={{ boxShadow: '0 8px 24px -8px rgb(var(--accent-rgb) / 0.55)' }}
           >
-            <BrandMark />
+            <BrandMark size={26} />
           </span>
           <span className="hidden flex-col leading-none min-[420px]:flex">
-            <span className="font-display text-[17px] font-extrabold tracking-tight text-cream">
+            <span className="font-display text-[18px] font-extrabold tracking-tight text-cream">
               Moneo
             </span>
             <span className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.24em] text-faint">
@@ -162,6 +172,9 @@ export default function TopNav({
               data-active={tab === tb.id}
               className="navtab shrink-0"
             >
+              <span aria-hidden className="mr-1.5">
+                {tb.icon}
+              </span>
               {t(tb.label)}
             </button>
           ))}
@@ -198,6 +211,9 @@ export default function TopNav({
                       tab === tb.id ? 'bg-cream/10 text-cream' : 'text-cream/90 hover:bg-cream/5'
                     }`}
                   >
+                    <span aria-hidden className="mr-1.5">
+                      {tb.icon}
+                    </span>
                     {t(tb.label)}
                   </button>
                 ))}

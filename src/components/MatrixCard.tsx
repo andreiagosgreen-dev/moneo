@@ -61,9 +61,9 @@ export default function MatrixCard({ tasks, history, onTasksChange, isPro = fals
       )}
 
       {total === 0 ? (
-        <p className="mt-4 rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">
-          {t('matrix.empty')}
-        </p>
+        <div className="mt-4 flex flex-1 items-center justify-center rounded-xl border border-dashed border-line/60 px-4 py-5">
+          <p className="text-center text-[12px] leading-relaxed text-faint">{t('matrix.empty')}</p>
+        </div>
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
           {TASK_QUADRANTS.map((q: TaskQuadrant) => {
