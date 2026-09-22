@@ -7,6 +7,7 @@ import {
   createSprintObject,
   deleteSprint,
   formatStandup,
+  ganttDayLines,
   loadBoardConfig,
   loadSprints,
   pruneSprintTasks,
@@ -147,5 +148,40 @@ describe('sprint math', () => {
     expect(loaded.wipLimits).toEqual({ pending: 3 });
     expect(loaded.columnLabels).toEqual({ pending: 'Todo', in_progress: 'Doing' });
     expect(loaded.hidden).toEqual(['blocked']);
+  });
+});
+
+describe('ganttDayLines', () => {
+  it('returns one entry per calendar day touched by the range, including a partial last day', () => {
+    const start = new Date(2026, 8, 14, 10, 0).getTime(); // Mon Sep 14 2026, 10:00
+    const end = start + 4 * DAY; // Fri Sep 18 2026, 10:00 — touches 5 calendar days
+    const lines = ganttDayLines(start, end);
+    expect(lines).toHaveLength(5);
+    expect(lines.map((l) => l.dow)).toEqual([1, 2, 3, 4, 5]); // Mon..Fri
+    expect(lines[0].isWeekStart).toBe(true);
+    expect(lines.slice(1).every((l) => !l.isWeekStart)).toBe(true);
+  });
+
+  it('flags weekend days', () => {
+    const start = new Date(2026, 8, 18, 0, 0).getTime(); // Fri Sep 18 2026
+    const end = start + 3 * DAY;
+    const lines = ganttDayLines(start, end);
+    expect(lines.map((l) => l.isWeekend)).toEqual([false, true, true]); // Fri, Sat, Sun
+  });
+
+  it('produces exactly one entry per calendar day over a long range (no skip/duplicate across any DST transition the runtime observes)', () => {
+    const start = new Date(2026, 0, 1, 12, 0).getTime();
+    const end = start + 400 * DAY;
+    const lines = ganttDayLines(start, end);
+    const dateStrings = lines.map((l) => new Date(l.at).toDateString());
+    expect(new Set(dateStrings).size).toBe(dateStrings.length);
+    for (let i = 1; i < lines.length; i++) {
+      expect(lines[i].dow).toBe((lines[i - 1].dow + 1) % 7);
+    }
+  });
+
+  it('returns empty for a degenerate or empty window', () => {
+    expect(ganttDayLines(1000, 1000)).toEqual([]);
+    expect(ganttDayLines(2000, 1000)).toEqual([]);
   });
 });

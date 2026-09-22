@@ -25,6 +25,8 @@ export interface NotificationPrefs {
   disconnectReminders: boolean;
   disconnectTime: string; // "HH:MM"
   lastDisconnectDay?: string;
+  /** Short reflection prompt after a completed focus session (Faza 24). */
+  sessionReflection: boolean;
 }
 
 export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
@@ -36,6 +38,7 @@ export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
   habitTime: '20:00',
   disconnectReminders: false,
   disconnectTime: '18:00',
+  sessionReflection: true,
 };
 
 const PREFS_KEY = STORAGE_KEYS.notificationPrefs;
@@ -84,6 +87,10 @@ export function loadNotificationPrefs(): NotificationPrefs {
     ...(typeof stored.lastDisconnectDay === 'string'
       ? { lastDisconnectDay: stored.lastDisconnectDay }
       : {}),
+    sessionReflection:
+      typeof stored.sessionReflection === 'boolean'
+        ? stored.sessionReflection
+        : DEFAULT_NOTIFICATION_PREFS.sessionReflection,
   };
 }
 

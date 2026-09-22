@@ -20,9 +20,13 @@ export interface Project {
   billable?: boolean;
   /** Hourly rate in USD for billable projects. */
   hourlyRate?: number;
+  /** Short project doc — context/decisions, beyond per-task notes (Faza 20). */
+  doc?: string;
   createdAt: number;
   updatedAt: number;
 }
+
+export const MAX_PROJECT_DOC_LENGTH = 4000;
 
 export const PROJECT_CATEGORIES: ProjectCategory[] = ['work', 'personal', 'learning', 'clients'];
 
@@ -67,6 +71,9 @@ export function loadProjects(): Project[] {
       ...(p.billable === true ? { billable: true as const } : {}),
       ...(typeof p.hourlyRate === 'number' && Number.isFinite(p.hourlyRate) && p.hourlyRate > 0
         ? { hourlyRate: p.hourlyRate }
+        : {}),
+      ...(typeof p.doc === 'string' && p.doc.trim()
+        ? { doc: p.doc.slice(0, MAX_PROJECT_DOC_LENGTH) }
         : {}),
       createdAt: typeof p.createdAt === 'number' ? p.createdAt : Date.now(),
       updatedAt: typeof p.updatedAt === 'number' ? p.updatedAt : Date.now(),
@@ -117,6 +124,7 @@ export interface ProjectUpdates {
   archived?: boolean;
   billable?: boolean;
   hourlyRate?: number | null; // null removes the rate
+  doc?: string | null; // null removes the doc
 }
 
 /** Apply updates to an existing project; returns the updated project when found. */
@@ -145,6 +153,11 @@ export function updateProject(projects: Project[], id: string, updates: ProjectU
       )
         next.hourlyRate = updates.hourlyRate;
       else delete next.hourlyRate;
+    }
+    if (updates.doc !== undefined) {
+      const trimmed = updates.doc?.trim();
+      if (trimmed) next.doc = trimmed.slice(0, MAX_PROJECT_DOC_LENGTH);
+      else delete next.doc;
     }
     return next;
   });

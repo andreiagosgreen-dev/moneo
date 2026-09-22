@@ -108,10 +108,15 @@ describe('handleAccountDelete', () => {
 
     const urls = calls.map((c) => c.url);
     expect(urls[0]).toBe('https://xyz.supabase.co/auth/v1/user');
-    // Data tables in FK-safe order, all scoped to the TOKEN identity.
-    const deletes = urls.slice(1, -1);
+    // Data tables in FK-safe order, all scoped to the TOKEN identity, plus
+    // the focus_buddy_pairs OR-filter cleanup (Faza 25 — no single user_id
+    // column there), then the final auth-user delete.
+    const deletes = urls.slice(1, -2);
     expect(deletes).toEqual(
       [...ACCOUNT_DATA_TABLES].map((t) => `https://xyz.supabase.co/rest/v1/${t}?user_id=eq.user-1`),
+    );
+    expect(urls[urls.length - 2]).toBe(
+      'https://xyz.supabase.co/rest/v1/focus_buddy_pairs?or=(user_a.eq.user-1,user_b.eq.user-1)',
     );
     expect(urls[urls.length - 1]).toBe('https://xyz.supabase.co/auth/v1/admin/users/user-1');
     expect(urls.some((u) => u.includes('victim'))).toBe(false);

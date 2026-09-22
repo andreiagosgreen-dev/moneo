@@ -3,6 +3,8 @@ import { Routes, Route, Link } from 'react-router-dom';
 import TimerCard from './components/TimerCard';
 import TopNav, { type NavTab } from './components/TopNav';
 import GettingStarted from './components/GettingStarted';
+import CommandCenter from './components/CommandCenter';
+import CommandPalette from './components/CommandPalette';
 import TabFallback from './components/TabFallback';
 import IvyLeeCard from './components/IvyLeeCard';
 import CalendarCard from './components/CalendarCard';
@@ -25,11 +27,13 @@ const SkillsCard = lazy(() => import('./components/SkillsCard'));
 const LifeMapCard = lazy(() => import('./components/LifeMapCard'));
 const LanguageCard = lazy(() => import('./components/LanguageCard'));
 const AiPathCard = lazy(() => import('./components/AiPathCard'));
+const GraphCard = lazy(() => import('./components/GraphCard'));
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import HelpPage from './components/HelpPage';
 import LoginPage from './components/LoginPage';
 import CabinetPage from './components/CabinetPage';
+import PricingPage from './components/PricingPage';
 import {
   loadProjects,
   loadSelectedProject,
@@ -55,8 +59,11 @@ import { loadEnergyLog, type EnergyEntry } from './lib/energy';
 import { loadSprints, type Sprint } from './lib/sprints';
 import { loadObjectives, type Objective } from './lib/okrs';
 import { loadPhases, type WaterfallPhase } from './lib/waterfall';
+import { loadLinks, type EntityLink } from './lib/entityLinks';
+import { loadSavedFilters, type SavedFilter } from './lib/savedFilters';
 import MorningRitual from './components/MorningRitual';
 import ShutdownRitual from './components/ShutdownRitual';
+import PostSessionReflection from './components/PostSessionReflection';
 import { OvercommitWarning } from './components/OvercommitWarning';
 import { createI18n, loadLocale, type Locale } from './lib/i18n';
 import { LocaleProvider } from './lib/i18n/LocaleContext';
@@ -102,10 +109,14 @@ import { useTimer } from './hooks/useTimer';
 import { useAppPersistence } from './hooks/useAppPersistence';
 import { useDeadlineReminders } from './hooks/useDeadlineReminders';
 import { useAppNotifications } from './hooks/useAppNotifications';
+import { useTimeCapsules } from './hooks/useTimeCapsules';
+import { useCelebrations } from './hooks/useCelebrations';
+import CelebrationOverlay from './components/CelebrationOverlay';
 import { usePlannerState } from './hooks/usePlannerState';
 import { useAuth } from './lib/authProvider';
 import { isTodayInTz } from './lib/timezone';
 import { loadSyncState, onSyncStateChange } from './lib/sync/syncState';
+import { loadNotificationPrefs } from './lib/notificationPrefs';
 
 /* Boot once: restore settings, history and the paused timer position. */
 const BOOT = (() => {
@@ -137,6 +148,8 @@ const BOOT = (() => {
   const sprints = loadSprints();
   const objectives = loadObjectives();
   const phases = loadPhases();
+  const links = loadLinks();
+  const savedFilters = loadSavedFilters();
   const selectedProjectId = loadSelectedProject(projects);
   // Round metadata is captured at arming time; boot arms the current round.
   const roundMeta =
@@ -172,6 +185,8 @@ const BOOT = (() => {
     sprints,
     objectives,
     phases,
+    links,
+    savedFilters,
     selectedProjectId,
     roundIntention: roundMeta.intention,
     roundAreaId: roundMeta.areaId,
@@ -207,10 +222,14 @@ export default function App() {
   const [sprints, setSprints] = useState<Sprint[]>(BOOT.sprints);
   const [objectives, setObjectives] = useState<Objective[]>(BOOT.objectives);
   const [phases, setPhases] = useState<WaterfallPhase[]>(BOOT.phases);
+  const [links, setLinks] = useState<EntityLink[]>(BOOT.links);
+  const [savedFilters, setSavedFilters] = useState<SavedFilter[]>(BOOT.savedFilters);
   const [theme, setTheme] = useState<UITheme>(loadTheme);
   const [showOnboarding, setShowOnboarding] = useState(() => !loadOnboardingSeen());
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(BOOT.selectedProjectId);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [reflectionSession, setReflectionSession] = useState<Session | null>(null);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const [locale, setLocale] = useState<Locale>(loadLocale);
   // Faza 6 estimate learner: self-persisted profiles (not part of sync state).
   const [estProfiles, setEstProfiles] = useState<EstimateProfiles>(loadEstimateProfiles);
@@ -244,7 +263,10 @@ export default function App() {
       selectedProjectId,
       selectedTaskId,
     }),
-    onSession: (entry) => setHistory((h) => [...h, entry]),
+    onSession: (entry) => {
+      setHistory((h) => [...h, entry]);
+      if (loadNotificationPrefs().sessionReflection) setReflectionSession(entry);
+    },
     initial: {
       mode: BOOT.mode,
       total: BOOT.total,
@@ -300,9 +322,24 @@ export default function App() {
     objectives,
     phases,
     theme,
+    links,
+    savedFilters,
   });
 
   useDeadlineReminders(projects, settings.notifications, auth.isPro);
+  useTimeCapsules(goals, settings.notifications, auth.isPro);
+  const celebrations = useCelebrations(goals, tasks, history);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setPaletteOpen((v) => !v);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const handleSelectProject = (id: string | null) => {
     setSelectedProjectId(id);
@@ -413,6 +450,14 @@ export default function App() {
         }
       />
       <Route
+        path="/pricing"
+        element={
+          <LocaleProvider locale={locale} onLocaleChange={setLocale}>
+            <PricingPage />
+          </LocaleProvider>
+        }
+      />
+      <Route
         path="*"
         element={
           <LocaleProvider locale={locale} onLocaleChange={setLocale}>
@@ -437,6 +482,7 @@ export default function App() {
               />
               <div className="bg-grid" aria-hidden />
               <div className="bg-grain" aria-hidden />
+              <div className="bg-vignette" aria-hidden />
               <p role="status" aria-live="polite" className="sr-only">
                 {announce}
               </p>
@@ -448,6 +494,26 @@ export default function App() {
                 tasks={tasks}
                 projects={projects}
                 goals={goals}
+                onOpenPalette={() => setPaletteOpen(true)}
+              />
+              <CommandPalette
+                open={paletteOpen}
+                onClose={() => setPaletteOpen(false)}
+                onTab={setTab}
+                tasks={tasks}
+                projects={projects}
+                goals={goals}
+                running={running}
+                onToggleTimer={toggle}
+                onSelectProject={(id) => {
+                  handleSelectProject(id);
+                  setTab('focus');
+                }}
+                onSelectTask={(id, projectId) => {
+                  handleSelectProject(projectId);
+                  handleSelectTask(id);
+                  setTab('focus');
+                }}
               />
               <div className="relative z-10 mx-auto max-w-7xl px-4 pb-6 pt-24 sm:px-6">
                 {tab === 'focus' && (
@@ -497,11 +563,28 @@ export default function App() {
                           <GettingStarted onGo={setTab} />
                         </div>
                       )}
+                      {!showGettingStarted && (
+                        <div className="reveal" style={{ animationDelay: '140ms' }}>
+                          <CommandCenter
+                            projects={projects}
+                            tasks={tasks}
+                            goals={goals}
+                            sprints={sprints}
+                            history={history}
+                            areas={areas}
+                            habits={habits}
+                            habitLog={habitLog}
+                            timezone={auth.timezone}
+                            selectedProjectId={selectedProjectId}
+                            selectedTaskId={selectedTaskId}
+                          />
+                        </div>
+                      )}
                     </div>
                   </main>
                 )}
                 {tab === 'today' && (
-                  <main className="mt-4 grid items-start gap-6 md:grid-cols-2 md:gap-8">
+                  <main className="mt-4 grid items-stretch gap-6 md:grid-cols-2 md:gap-8">
                     <div className="reveal md:col-span-2" style={{ animationDelay: '60ms' }}>
                       <div className="card flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3.5 sm:px-5 sm:py-4">
                         <span
@@ -613,6 +696,11 @@ export default function App() {
                           energyLog={energyLog}
                           energyLogChange={setEnergyLog}
                           goals={goals}
+                          projects={projects}
+                          skills={skills}
+                          objectives={objectives}
+                          links={links}
+                          onLinksChange={setLinks}
                           frogLog={frogLog}
                           history={history}
                           timezone={auth.timezone}
@@ -624,7 +712,7 @@ export default function App() {
                 )}
                 {tab === 'plan' && (
                   <Suspense fallback={<TabFallback label="Plan" />}>
-                    <main className="mt-2 grid items-start gap-6 md:grid-cols-2">
+                    <main className="mt-2 grid items-stretch gap-6 md:grid-cols-2">
                       <div className="reveal" style={{ animationDelay: '90ms' }}>
                         <GoalsCard
                           goals={goals}
@@ -637,6 +725,10 @@ export default function App() {
                           onIvyPlansChange={setIvyPlans}
                           timezone={auth.timezone}
                           lifeAreas={lifeAreas}
+                          links={links}
+                          onLinksChange={setLinks}
+                          skills={skills}
+                          objectives={objectives}
                           isPro={auth.isPro}
                         />
                       </div>
@@ -649,6 +741,11 @@ export default function App() {
                           <OkrCard
                             objectives={objectives}
                             objectivesChange={setObjectives}
+                            links={links}
+                            onLinksChange={setLinks}
+                            goals={goals}
+                            projects={projects}
+                            skills={skills}
                             isPro={auth.isPro}
                           />
                         </div>
@@ -657,6 +754,11 @@ export default function App() {
                             skills={skills}
                             skillsChange={setSkills}
                             transitionTip={transitionAdvice(skills, tasks, projects, goals)}
+                            links={links}
+                            onLinksChange={setLinks}
+                            goals={goals}
+                            projects={projects}
+                            objectives={objectives}
                             isPro={auth.isPro}
                           />
                         </div>
@@ -666,7 +768,7 @@ export default function App() {
                 )}
                 {tab === 'assistant' && (
                   <Suspense fallback={<TabFallback label="Assistant" />}>
-                    <main className="mt-2 grid items-start gap-6 md:grid-cols-2">
+                    <main className="mt-2 grid items-stretch gap-6 md:grid-cols-2">
                       <div className="reveal" style={{ animationDelay: '90ms' }}>
                         <AssistantCard
                           messages={chatHistory}
@@ -680,6 +782,7 @@ export default function App() {
                           ivyPlans={ivyPlans}
                           onIvyPlansChange={setIvyPlans}
                           selectedProjectId={selectedProjectId}
+                          sprints={sprints}
                           onTasksChange={setTasks}
                           isPro={auth.isPro}
                         />
@@ -704,7 +807,7 @@ export default function App() {
                 )}
                 {tab === 'growth' && (
                   <Suspense fallback={<TabFallback label="Growth" />}>
-                    <main className="mt-2 grid items-start gap-6 md:grid-cols-2">
+                    <main className="mt-2 grid items-stretch gap-6 md:grid-cols-2">
                       <div className="reveal" style={{ animationDelay: '90ms' }}>
                         <GrowthCard history={history} />
                       </div>
@@ -746,7 +849,7 @@ export default function App() {
                 )}
                 {tab === 'map' && (
                   <Suspense fallback={<TabFallback label="Map" />}>
-                    <main className="mt-4 grid items-start gap-6 md:grid-cols-2">
+                    <main className="mt-4 grid items-stretch gap-6 md:grid-cols-2">
                       <div className="reveal md:col-span-2" style={{ animationDelay: '90ms' }}>
                         {lifeMapCard}
                       </div>
@@ -755,7 +858,7 @@ export default function App() {
                 )}
                 {tab === 'projects' && (
                   <Suspense fallback={<TabFallback label="Projects" />}>
-                    <main className="mt-2 grid items-start gap-6 md:grid-cols-2">
+                    <main className="mt-2 grid items-stretch gap-6 md:grid-cols-2">
                       <div className="reveal" style={{ animationDelay: '90ms' }}>
                         <ProjectsCard
                           projects={projects}
@@ -766,6 +869,13 @@ export default function App() {
                           onSelectProject={handleSelectProject}
                           onProjectsChange={setProjects}
                           onTasksChange={setTasks}
+                          links={links}
+                          onLinksChange={setLinks}
+                          goals={goals}
+                          skills={skills}
+                          objectives={objectives}
+                          savedFilters={savedFilters}
+                          onSavedFiltersChange={setSavedFilters}
                           isPro={auth.isPro}
                         />
                       </div>
@@ -794,15 +904,33 @@ export default function App() {
                 )}
                 {tab === 'reports' && (
                   <Suspense fallback={<TabFallback label="Reports" />}>
-                    <main className="mt-2 grid items-start gap-6 md:grid-cols-2">
+                    <main className="mt-2 grid items-stretch gap-6 md:grid-cols-2">
                       <div className="reveal" style={{ animationDelay: '90ms' }}>
                         <ReportsCard
                           history={history}
                           areas={areas}
                           projects={projects}
                           tasks={tasks}
+                          goals={goals}
+                          skills={skills}
                           timezone={auth.timezone}
                           capacityMin={settings.weeklyCapacityMin}
+                          isPro={auth.isPro}
+                        />
+                      </div>
+                    </main>
+                  </Suspense>
+                )}
+                {tab === 'graph' && (
+                  <Suspense fallback={<TabFallback label="Graph" />}>
+                    <main className="mt-2 grid items-stretch gap-6">
+                      <div className="reveal" style={{ animationDelay: '90ms' }}>
+                        <GraphCard
+                          links={links}
+                          goals={goals}
+                          projects={projects}
+                          skills={skills}
+                          objectives={objectives}
                         />
                       </div>
                     </main>
@@ -810,7 +938,7 @@ export default function App() {
                 )}
                 {tab === 'settings' && (
                   <Suspense fallback={<TabFallback label="Settings" />}>
-                    <main className="mt-2 grid items-start gap-6 md:grid-cols-2">
+                    <main className="mt-2 grid items-stretch gap-6 md:grid-cols-2">
                       <div className="reveal" style={{ animationDelay: '90ms' }}>
                         <SettingsCard
                           settings={settings}
@@ -836,24 +964,22 @@ export default function App() {
                   style={{ animationDelay: '360ms' }}
                 >
                   <div className="flex flex-col items-center gap-3 sm:flex-row">
-                    <p className="font-mono text-[11px] text-faint">
-                      Moneo — build focus. See it grow.
-                    </p>
+                    <p className="font-mono text-[11px] text-faint">{t('footer.tagline')}</p>
                     <div className="flex items-center gap-4 font-mono text-[11px] text-faint">
                       <Link to="/help" className="hover:text-cream transition-colors">
-                        Help
+                        {t('footer.help')}
                       </Link>
                       <Link to="/privacy" className="hover:text-cream transition-colors">
-                        Privacy
+                        {t('footer.privacy')}
                       </Link>
                       <Link to="/terms" className="hover:text-cream transition-colors">
-                        Terms
+                        {t('footer.terms')}
                       </Link>
                     </div>
                   </div>
                   <p className="hidden items-center gap-2 font-mono text-[11px] text-faint sm:flex">
-                    <span className="kbd">Space</span> start / pause
-                    <span className="kbd">R</span> reset
+                    <span className="kbd">Space</span> {t('footer.startPause')}
+                    <span className="kbd">R</span> {t('footer.reset')}
                   </p>
                 </footer>
               </div>
@@ -883,6 +1009,21 @@ export default function App() {
                 />
               )}
               {showOnboarding && <OnboardingModal onDone={dismissOnboarding} />}
+              {reflectionSession && (
+                <PostSessionReflection
+                  session={reflectionSession}
+                  journal={journal}
+                  journalChange={setJournal}
+                  timezone={auth.timezone}
+                  onDone={() => setReflectionSession(null)}
+                />
+              )}
+              {celebrations.current && (
+                <CelebrationOverlay
+                  celebration={celebrations.current}
+                  onDone={celebrations.dismiss}
+                />
+              )}
             </div>
           </LocaleProvider>
         }

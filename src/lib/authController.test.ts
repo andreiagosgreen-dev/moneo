@@ -415,3 +415,48 @@ describe('deleteAccount (server-confirmed wipe)', () => {
     expect(d.cleared.count).toBe(0);
   });
 });
+
+describe('captcha token forwarding (Faza 32a)', () => {
+  function captchaSpyClient(): { client: AuthClientLike; calls: unknown[] } {
+    const calls: unknown[] = [];
+    const client: AuthClientLike = {
+      getSession: async () => ({ data: { session: null } }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+      signInWithPassword: async (creds) => {
+        calls.push(creds);
+        return { data: { user: { id: 'u-1', email: 'a@example.com' } }, error: null };
+      },
+      signUp: async (creds) => {
+        calls.push(creds);
+        return {
+          data: { user: { id: 'u-2', email: 'b@example.com' }, session: null },
+          error: null,
+        };
+      },
+      signOut: async () => ({ error: null }),
+      signInWithOAuth: async () => ({ data: { url: null }, error: null }),
+    };
+    return { client, calls };
+  }
+
+  it('forwards captchaToken to signInWithPassword when provided', async () => {
+    const { client, calls } = captchaSpyClient();
+    const c = createAuthController(deps(client));
+    await c.signIn('a@example.com', 'password123', 'tok-abc');
+    expect(calls[0]).toMatchObject({ options: { captchaToken: 'tok-abc' } });
+  });
+
+  it('omits options entirely when no captchaToken is given', async () => {
+    const { client, calls } = captchaSpyClient();
+    const c = createAuthController(deps(client));
+    await c.signIn('a@example.com', 'password123');
+    expect(calls[0]).not.toHaveProperty('options');
+  });
+
+  it('forwards captchaToken to signUp when provided', async () => {
+    const { client, calls } = captchaSpyClient();
+    const c = createAuthController(deps(client));
+    await c.signUp('b@example.com', 'password123', 'tok-xyz');
+    expect(calls[0]).toMatchObject({ options: { captchaToken: 'tok-xyz' } });
+  });
+});

@@ -57,6 +57,10 @@ describe('centralized storage keys', () => {
       locale: 'moneo:locale',
       estimateProfiles: 'moneo:estimate-profiles',
       aiConsent: 'moneo:ai-consent',
+      links: 'moneo:links',
+      capsuleDelivered: 'moneo:capsule-delivered',
+      celebrationsShown: 'moneo:celebrations-shown',
+      savedFilters: 'moneo:saved-filters',
     });
   });
 });

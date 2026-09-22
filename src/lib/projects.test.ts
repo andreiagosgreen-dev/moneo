@@ -88,6 +88,15 @@ describe('updateProject', () => {
     })[0];
     expect(updated.tags).toEqual([]);
   });
+
+  it('sets and removes the project doc (Faza 20)', () => {
+    const withDoc = updateProject([makeProject()], 'p1', { doc: '  Some context  ' })[0];
+    expect(withDoc.doc).toBe('Some context');
+    const removed = updateProject([withDoc], 'p1', { doc: null })[0];
+    expect(removed.doc).toBeUndefined();
+    const blank = updateProject([withDoc], 'p1', { doc: '   ' })[0];
+    expect(blank.doc).toBeUndefined();
+  });
 });
 
 describe('deleteProject / activeProjects / archivedProjects', () => {
