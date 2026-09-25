@@ -26,11 +26,12 @@ interface Props {
   onToggle: (id: string) => void;
   onAdd: (text: string) => void;
   estimates?: ReactNode;
-  program: ReactNode;
+  /** Optional schedule strip — omit when empty noise (Orar owns blocks). */
+  program?: ReactNode;
   more?: ReactNode;
 }
 
-/** Today screen: rituals, progress, priorities, program. */
+/** Today screen: rituals, progress, priorities, then optional extras. */
 export default function MonoAzi({
   doneCount,
   totalCount,
@@ -181,12 +182,14 @@ export default function MonoAzi({
         )}
       </section>
 
-      <section className="mono-sec mono-pad" aria-label={t('mono.azi.program')}>
-        <p className="mono-eyebrow" style={{ marginBottom: 8 }}>
-          {t('mono.azi.program')}
-        </p>
-        {program}
-      </section>
+      {program ? (
+        <section className="mono-sec mono-pad" aria-label={t('mono.azi.program')}>
+          <p className="mono-eyebrow" style={{ marginBottom: 8 }}>
+            {t('mono.azi.program')}
+          </p>
+          {program}
+        </section>
+      ) : null}
 
       {more}
     </div>

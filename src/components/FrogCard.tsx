@@ -74,9 +74,7 @@ export default function FrogCard({
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">
             {t('frog.title')}
           </h2>
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            {t('frog.sub')}
-          </p>
+          <p className="mt-1.5 text-[13px] leading-snug text-sage">{t('frog.sub')}</p>
         </div>
         {isPro && stats.days > 0 && (
           <span className="font-mono text-[11px] text-sage" title={t('frog.streakTitle')}>
