@@ -89,6 +89,14 @@ describe('MonoAzi', () => {
     expect(input.placeholder).toBe('List is full (6).');
   });
 
+  it('shows an empty priorities card with plural add placeholder (no thick blank bar)', () => {
+    const c = render(screen({ items: [], totalCount: 0, doneCount: 0 }));
+    expect(c.textContent).toContain('Write below what you want to finish today');
+    const input = c.querySelector('#mono-azi-new') as HTMLInputElement;
+    expect(input.placeholder).toBe('Add tasks for today');
+    expect(c.querySelectorAll('[role="checkbox"]').length).toBe(0);
+  });
+
   it('fires ritual buttons', () => {
     const onMorning = vi.fn();
     const onShutdown = vi.fn();

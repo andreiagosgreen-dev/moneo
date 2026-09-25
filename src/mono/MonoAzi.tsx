@@ -30,7 +30,7 @@ interface Props {
   more?: ReactNode;
 }
 
-/** Today screen (V1 prototype): rituals, progress, priorities, program. */
+/** Today screen: rituals, progress, priorities, program. */
 export default function MonoAzi({
   doneCount,
   totalCount,
@@ -50,6 +50,7 @@ export default function MonoAzi({
   const [draft, setDraft] = useState('');
   const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
   const full = totalCount >= maxTasks;
+  const hasItems = items.length > 0;
 
   const submit = () => {
     const clean = draft.trim();
@@ -57,6 +58,45 @@ export default function MonoAzi({
     onAdd(clean);
     setDraft('');
   };
+
+  const addForm = (
+    <form
+      className="mono-row"
+      style={{ gap: 10, marginTop: hasItems ? 12 : 0 }}
+      onSubmit={(e) => {
+        e.preventDefault();
+        submit();
+      }}
+    >
+      <label
+        htmlFor="mono-azi-new"
+        className="mono-eyebrow"
+        style={{ position: 'absolute', left: -9999 }}
+      >
+        {t('mono.azi.addPh')}
+      </label>
+      <input
+        id="mono-azi-new"
+        className="mono-field"
+        type="text"
+        value={draft}
+        disabled={full}
+        placeholder={full ? t('mono.azi.full', { max: maxTasks }) : t('mono.azi.addPh')}
+        autoComplete="off"
+        style={{ flex: 1 }}
+        onChange={(e) => setDraft(e.target.value)}
+      />
+      <button
+        type="submit"
+        disabled={full || draft.trim().length === 0}
+        aria-label={t('mono.azi.addBtn')}
+        className="mono-btn mono-btn-primary"
+        style={{ padding: '0 18px', minWidth: 52 }}
+      >
+        +
+      </button>
+    </form>
+  );
 
   return (
     <div>
@@ -87,7 +127,7 @@ export default function MonoAzi({
             </div>
             <div
               className="mono-num"
-              style={{ fontSize: 26, fontWeight: 600, letterSpacing: '-0.02em' }}
+              style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-0.02em' }}
             >
               {fmtNum(pct)}%
             </div>
@@ -99,69 +139,50 @@ export default function MonoAzi({
       </div>
 
       <section className="mono-sec mono-pad" aria-label={t('mono.azi.prio')}>
-        <p className="mono-eyebrow" style={{ marginBottom: 4 }}>
+        <p className="mono-eyebrow" style={{ marginBottom: 8 }}>
           {t('mono.azi.prio')}
         </p>
-        <MonoCard style={{ padding: '4px 16px' }}>
-          {items.map((item) => (
-            <div key={item.id} className="mono-list-row">
-              <MonoTick checked={item.done} onToggle={() => onToggle(item.id)} label={item.text} />
-              <div className="mono-list-grow">
-                <div
-                  className="mono-h3"
-                  style={
-                    item.done
-                      ? { textDecoration: 'line-through', color: 'var(--mono-muted)' }
-                      : undefined
-                  }
-                >
-                  {item.text}
+
+        {hasItems ? (
+          <>
+            <MonoCard style={{ padding: '8px 16px' }}>
+              {items.map((item) => (
+                <div key={item.id} className="mono-list-row">
+                  <MonoTick
+                    checked={item.done}
+                    onToggle={() => onToggle(item.id)}
+                    label={item.text}
+                  />
+                  <div className="mono-list-grow">
+                    <div
+                      className="mono-h3"
+                      style={
+                        item.done
+                          ? { textDecoration: 'line-through', color: 'var(--mono-muted)' }
+                          : undefined
+                      }
+                    >
+                      {item.text}
+                    </div>
+                    {item.meta && <div className="mono-meta">{item.meta}</div>}
+                  </div>
                 </div>
-                {item.meta && <div className="mono-meta">{item.meta}</div>}
-              </div>
-            </div>
-          ))}
-        </MonoCard>
-        <form
-          className="mono-row"
-          style={{ gap: 10, marginTop: 12 }}
-          onSubmit={(e) => {
-            e.preventDefault();
-            submit();
-          }}
-        >
-          <label
-            htmlFor="mono-azi-new"
-            className="mono-eyebrow"
-            style={{ position: 'absolute', left: -9999 }}
-          >
-            {t('mono.azi.addPh')}
-          </label>
-          <input
-            id="mono-azi-new"
-            className="mono-field"
-            type="text"
-            value={draft}
-            disabled={full}
-            placeholder={full ? t('mono.azi.full', { max: maxTasks }) : t('mono.azi.addPh')}
-            autoComplete="off"
-            style={{ flex: 1 }}
-            onChange={(e) => setDraft(e.target.value)}
-          />
-          <button
-            type="submit"
-            disabled={full || draft.trim().length === 0}
-            aria-label={t('mono.azi.addBtn')}
-            className="mono-btn mono-btn-primary"
-            style={{ padding: '0 16px' }}
-          >
-            +
-          </button>
-        </form>
+              ))}
+            </MonoCard>
+            {addForm}
+          </>
+        ) : (
+          <MonoCard>
+            <p className="mono-meta" style={{ marginBottom: 14 }}>
+              {t('mono.azi.empty')}
+            </p>
+            {addForm}
+          </MonoCard>
+        )}
       </section>
 
       <section className="mono-sec mono-pad" aria-label={t('mono.azi.program')}>
-        <p className="mono-eyebrow" style={{ marginBottom: 4 }}>
+        <p className="mono-eyebrow" style={{ marginBottom: 8 }}>
           {t('mono.azi.program')}
         </p>
         {program}
