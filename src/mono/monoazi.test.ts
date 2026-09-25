@@ -90,11 +90,12 @@ describe('MonoAzi', () => {
   });
 
   it('shows an empty priorities card with plural add placeholder (no thick blank bar)', () => {
-    const c = render(screen({ items: [], totalCount: 0, doneCount: 0 }));
+    const c = render(screen({ items: [], totalCount: 0, doneCount: 0, program: undefined }));
     expect(c.textContent).toContain('Write below what you want to finish today');
     const input = c.querySelector('#mono-azi-new') as HTMLInputElement;
     expect(input.placeholder).toBe('Add tasks for today');
     expect(c.querySelectorAll('[role="checkbox"]').length).toBe(0);
+    expect(c.textContent).not.toContain('Schedule');
   });
 
   it('fires ritual buttons', () => {

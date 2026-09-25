@@ -38,7 +38,7 @@ export default function Disclosure({ title, hint, defaultOpen, children }: Props
         </span>
       </button>
       {open && (
-        <div className="mt-5 grid min-w-0 items-start gap-6 md:grid-cols-2 [&>*]:min-w-0">
+        <div className="mt-5 flex min-w-0 flex-row items-stretch gap-4 overflow-x-auto pb-1 [&>*]:min-w-[min(100%,20rem)] [&>*]:flex-1 [&>*]:shrink-0">
           {children}
         </div>
       )}

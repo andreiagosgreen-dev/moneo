@@ -63,7 +63,6 @@ import {
   IVY_FREE_MAX_TASKS,
 } from './lib/ivyLee';
 import { isEngagedUser } from './lib/engagement';
-import UpNext from './components/UpNext';
 import Disclosure from './components/Disclosure';
 import { loadBlocks, type TimeBlock } from './lib/timeBlocks';
 import { loadSkills, transitionAdvice, type Skill } from './lib/skills';
@@ -720,18 +719,6 @@ export default function App() {
                               </div>
                             </div>
                           ) : undefined
-                        }
-                        program={
-                          <UpNext
-                            blocks={timeBlocks}
-                            tasks={tasks}
-                            projects={projects}
-                            goals={goals}
-                            plans={ivyPlans}
-                            plansChange={setIvyPlans}
-                            timezone={auth.timezone}
-                            isPro={auth.isPro}
-                          />
                         }
                         more={
                           <>
