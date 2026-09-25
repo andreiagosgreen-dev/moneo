@@ -31,10 +31,10 @@ export default function Disclosure({ title, hint, defaultOpen, children }: Props
           ▸
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block font-display text-[17px] font-bold tracking-tight text-cream">
+          <span className="block font-display text-[19px] font-bold tracking-tight text-cream">
             {title}
           </span>
-          {hint && <span className="mt-1 block text-[13px] text-sage">{hint}</span>}
+          {hint && <span className="mt-1.5 block text-[15px] leading-snug text-sage">{hint}</span>}
         </span>
       </button>
       {open && (

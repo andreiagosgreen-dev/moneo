@@ -60,11 +60,13 @@ export default function HabitsTab({
   return (
     <div>
       {active.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">
-          {t('life.hab.emptyA')}
-          <br />
-          {t('life.hab.emptyB')}
-        </p>
+        <div className="empty-panel">
+          <p>
+            {t('life.hab.emptyA')}
+            <br />
+            {t('life.hab.emptyB')}
+          </p>
+        </div>
       ) : (
         <ul className="space-y-1.5">
           {active.map((h) => {
@@ -183,12 +185,12 @@ export default function HabitsTab({
               onKeyDown={(e) => e.key === 'Enter' && draft.trim() && add(draft, freq)}
               placeholder={t('life.hab.ph')}
               aria-label={t('life.hab.add')}
-              className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
+              className="h-10 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-[14px] text-cream ring-1 ring-inset ring-line placeholder:text-sage/70 focus:ring-accent focus:outline-none"
             />
             <select
               value={freq}
               onChange={(e) => setFreq(e.target.value as HabitFrequency)}
-              className="h-9 shrink-0 rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+              className="h-10 shrink-0 rounded-lg bg-ink/40 px-2.5 text-[13px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
               aria-label={t('life.hab.freq')}
             >
               <option value="daily">{t('life.hab.dailyOpt')}</option>
@@ -197,7 +199,7 @@ export default function HabitsTab({
             <button
               onClick={() => draft.trim() && add(draft, freq)}
               disabled={!draft.trim()}
-              className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
+              className="press btn-accent flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
               aria-label={t('life.hab.add')}
             >
               +
@@ -205,7 +207,7 @@ export default function HabitsTab({
           </div>
           <button
             onClick={() => setShowTemplates(!showTemplates)}
-            className="press mt-2 font-mono text-[11px] text-sage hover:text-cream"
+            className="press mt-2 text-[13px] font-medium text-sage hover:text-cream"
           >
             {t(showTemplates ? 'life.hab.hideTpl' : 'life.hab.showTpl')}
           </button>
