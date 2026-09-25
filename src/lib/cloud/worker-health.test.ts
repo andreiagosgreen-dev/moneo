@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { buildHealthBody, type Env } from '../../../cloudflare/workers/index';
+import { buildHealthBody, type HealthEnv } from '../../../cloudflare/workers/health';
 
 describe('buildHealthBody', () => {
   it('reports each integration as configured or not, never leaking values', () => {
-    const env: Env = {
+    const env: HealthEnv = {
       SUPABASE_URL: 'https://xyz.supabase.co',
       SUPABASE_SERVICE_ROLE_KEY: 'srv-key',
       AI_API_KEY: 'ai-key',

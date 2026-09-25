@@ -37,6 +37,9 @@ import {
   mergeHeaders,
   canonicalRedirect,
 } from './security';
+import { buildHealthBody } from './health';
+
+export { buildHealthBody } from './health';
 
 /** Best-effort per-isolate guards (see security.ts for the caveat). */
 const webhookLimiter = createRateLimiter({ windowMs: 60_000, max: 30 });
@@ -49,18 +52,6 @@ const buddyLimiter = createRateLimiter({ windowMs: 60_000, max: 20 });
 const webhookDeduper = createDeduper(3_600_000);
 
 const SEC = buildSecurityHeaders();
-
-/** Presence-only env summary for /api/health. Never throws, never leaks values. */
-export function buildHealthBody(env: Env): { ok: true; env: Record<string, boolean> } {
-  return {
-    ok: true,
-    env: {
-      supabase: Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY),
-      lemonSqueezy: Boolean(env.LEMON_SQUEEZY_WEBHOOK_SECRET),
-      ai: Boolean(env.AI_API_KEY),
-    },
-  };
-}
 
 function api(body: Record<string, unknown>, status: number): Response {
   return new Response(JSON.stringify(body), {
