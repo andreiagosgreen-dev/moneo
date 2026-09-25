@@ -19,19 +19,17 @@ export default function LifeCard(props: LifeCardProps) {
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">
             {t('life.title')}
           </h2>
-          <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.14em] text-faint">
-            {t('life.sub')}
-          </p>
+          <p className="mt-1.5 text-[13px] leading-snug text-sage">{t('life.sub')}</p>
         </div>
       </header>
 
-      <div className="mt-3 flex min-w-0 max-w-full flex-wrap gap-1 rounded-xl bg-ink/60 p-1 ring-1 ring-line">
+      <div className="mt-3 flex min-w-0 max-w-full items-center gap-1 overflow-x-auto rounded-xl bg-ink/60 p-1 ring-1 ring-line">
         {LIFE_TABS.map((tb) => (
           <button
             key={tb.id}
             onClick={() => setTab(tb.id)}
-            className={`press shrink-0 rounded-lg px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] transition-colors ${
-              tab === tb.id ? 'bg-cream/10 text-cream' : 'text-faint hover:text-sage'
+            className={`press shrink-0 rounded-lg px-3.5 py-2 text-[13px] font-semibold transition-colors ${
+              tab === tb.id ? 'bg-cream/10 text-cream' : 'text-sage hover:text-cream'
             }`}
           >
             {t(tb.label as TKey)}

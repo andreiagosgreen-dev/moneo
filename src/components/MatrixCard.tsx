@@ -52,28 +52,28 @@ export default function MatrixCard({ tasks, history, onTasksChange, isPro = fals
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">
             {t('matrix.title')}
           </h2>
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+          <p className="mt-1.5 text-[13px] leading-snug text-sage">
             {t(isPro ? 'matrix.subPro' : 'matrix.subFree')}
           </p>
         </div>
-        <span className="font-mono text-[11px] text-sage">
+        <span className="text-[13px] font-medium text-sage">
           {t('matrix.active', { n: fmtNum(total) })}
         </span>
       </header>
 
       {focus && focus.quadrant && (
         <div className="mt-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3">
-          <p className="text-[13px] font-semibold text-cream">
+          <p className="text-[14px] font-semibold text-cream">
             {t(QUADRANT_TEXT_KEYS[focus.quadrant].action as TKey)}: {focus.task?.title}
           </p>
-          <p className="mt-0.5 font-mono text-[11px] text-faint">{focus.headline}</p>
+          <p className="mt-0.5 text-[13px] text-sage">{focus.headline}</p>
         </div>
       )}
 
       {total === 0 ? (
-        <p className="mt-4 rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">
-          {t('matrix.empty')}
-        </p>
+        <div className="empty-panel mt-4">
+          <p>{t('matrix.empty')}</p>
+        </div>
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
           {TASK_QUADRANTS.map((q: TaskQuadrant) => {

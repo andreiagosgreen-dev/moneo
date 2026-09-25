@@ -63,15 +63,13 @@ export default function AgileCard({
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">
             {t('agile.title')}
           </h2>
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            {t('agile.sub')}
-          </p>
+          <p className="mt-1.5 text-[13px] leading-snug text-sage">{t('agile.sub')}</p>
         </div>
         {live.length > 0 && (
           <select
             value={projectId ?? ''}
             onChange={(e) => onSelectProject(e.target.value || null)}
-            className="h-8 max-w-[150px] shrink-0 rounded-lg bg-ink/40 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+            className="h-9 max-w-[180px] shrink-0 rounded-lg bg-ink/40 px-2.5 text-[13px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
             aria-label={t('agile.project')}
           >
             {live.map((p) => (
@@ -95,13 +93,13 @@ export default function AgileCard({
         </div>
       ) : (
         <>
-          <div className="mt-4 flex min-w-0 max-w-full flex-wrap gap-1 rounded-xl bg-ink/60 p-1 ring-1 ring-line">
+          <div className="mt-4 flex min-w-0 max-w-full items-center gap-1 overflow-x-auto rounded-xl bg-ink/60 p-1 ring-1 ring-line">
             {AGILE_TABS.map((tb) => (
               <button
                 key={tb.id}
                 onClick={() => setTab(tb.id)}
-                className={`press shrink-0 rounded-lg px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors ${
-                  tab === tb.id ? 'bg-cream/10 text-cream' : 'text-faint hover:text-sage'
+                className={`press shrink-0 rounded-lg px-3.5 py-2 text-[13px] font-semibold transition-colors ${
+                  tab === tb.id ? 'bg-cream/10 text-cream' : 'text-sage hover:text-cream'
                 }`}
               >
                 {t(tb.label as TKey)}
@@ -109,7 +107,7 @@ export default function AgileCard({
             ))}
             <button
               onClick={() => setAdvancedVisible(false)}
-              className="press ml-auto shrink-0 rounded-lg px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-faint hover:text-sage"
+              className="press ml-auto shrink-0 rounded-lg px-3 py-2 text-[13px] font-semibold text-sage hover:text-cream"
               title={t('adv.hide')}
               aria-label={t('adv.hide')}
             >
