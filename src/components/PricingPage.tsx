@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../lib/authProvider';
-import { initiateCheckout, type Plan } from '../lib/billing/lemonSqueezy';
+import { checkoutReturnUrl, initiateCheckout, type Plan } from '../lib/billing/lemonSqueezy';
 import {
   PRICING_PLANS_DISPLAY,
   PRO_PRICES,
@@ -56,7 +56,7 @@ export default function PricingPage() {
       alert(t('pay.signin'));
       return;
     }
-    const url = initiateCheckout(planId, auth.user.userId);
+    const url = initiateCheckout(planId, auth.user.userId, checkoutReturnUrl());
     if (!url || !openExternal(url)) alert(t('pay.unavailable'));
   };
 

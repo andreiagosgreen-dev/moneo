@@ -118,6 +118,24 @@ export function useAuth(): AuthApi {
     void refreshSubscription();
   }, [refreshSubscription]);
 
+  // After Lemon checkout the tab often stays open on Free — re-fetch when
+  // the user returns so Pro unlocks without a hard reload.
+  useEffect(() => {
+    if (!snapshot.user?.userId) return;
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void refreshSubscription();
+    };
+    const onFocus = () => {
+      void refreshSubscription();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onFocus);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [snapshot.user?.userId, refreshSubscription]);
+
   const { signIn, signUp, signInWithGoogle, signOut, deleteAccount } = controller;
   return useMemo(
     () => ({
