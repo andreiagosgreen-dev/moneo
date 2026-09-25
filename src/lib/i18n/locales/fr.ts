@@ -962,7 +962,8 @@ export const fr: Record<TKey, string> = {
   'mono.azi.count': '{done} sur {total} terminées',
   'mono.azi.motto': 'Garde le rythme, pas la perfection.',
   'mono.azi.prio': 'Priorités',
-  'mono.azi.empty': 'Écris ci-dessous ce que tu veux finir aujourd’hui — tu peux en ajouter plusieurs.',
+  'mono.azi.empty':
+    'Écris ci-dessous ce que tu veux finir aujourd’hui — tu peux en ajouter plusieurs.',
   'mono.azi.addPh': 'Ajouter des tâches pour aujourd’hui',
   'mono.azi.addBtn': 'Ajouter',
   'mono.azi.program': 'Programme',
