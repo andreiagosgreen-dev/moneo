@@ -41,7 +41,8 @@ export const ro: Record<TKey, string> = {
   'today.shutdownTitle': 'Recapitulează ziua și mută restanțele pe mâine',
   'today.planned': 'Planificat {p} · disponibil ~{a}',
   'today.more': 'Mai mult azi',
-  'today.moreHint': 'Matrice și Viață pe același rând — sarcini din Proiecte, obiceiuri pe care le adaugi aici',
+  'today.moreHint':
+    'Matrice și Viață pe același rând — sarcini din Proiecte, obiceiuri pe care le adaugi aici',
   'today.advPlan': 'Planificare avansată',
   'today.advSkillsHint': 'OKR-uri · inventar de abilități',
   'today.advAgileHint': 'Sprinturi · kanban · cascadă',
