@@ -11,8 +11,9 @@
   background: var(--mono-bg);
   color: var(--mono-fg);
   font-family: var(--mono-font-body);
-  font-size: 15.5px;
-  line-height: var(--mono-body-lh, 1.45);
+  /* Age-friendly base: readable for kids and older adults (WCAG-ish 16px+). */
+  font-size: 17px;
+  line-height: var(--mono-body-lh, 1.55);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -27,54 +28,55 @@
 }
 .mono-eyebrow {
   font-family: var(--mono-font-mono);
-  font-size: 12.5px;
-  font-weight: 600;
-  letter-spacing: var(--mono-eyebrow-tracking, 0.06em);
-  text-transform: uppercase;
-  color: var(--mono-muted);
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  /* Sentence case reads faster than ALL-CAPS for young + older eyes. */
+  text-transform: none;
+  color: color-mix(in oklab, var(--mono-muted) 55%, var(--mono-fg) 45%);
   margin: 0;
 }
 .mono-h1 {
   font-family: var(--mono-font-display);
-  font-size: 30px;
+  font-size: 32px;
   font-weight: var(--mono-h1-weight, 600);
   letter-spacing: var(--mono-h1-tracking, -0.02em);
-  line-height: 1.08;
+  line-height: 1.1;
   color: var(--mono-fg-2);
   margin: 3px 0 0;
 }
 .mono-h2 {
   font-family: var(--mono-font-display);
-  font-size: 19px;
+  font-size: 21px;
   font-weight: var(--mono-h2-weight, 600);
   letter-spacing: var(--mono-h2-tracking, -0.015em);
-  line-height: 1.2;
+  line-height: 1.22;
   color: var(--mono-fg-2);
   margin: 0;
 }
 .mono-h3 {
   font-family: var(--mono-font-body);
-  font-size: 15px;
+  font-size: 16.5px;
   font-weight: var(--mono-h3-weight, 600);
   letter-spacing: -0.005em;
-  line-height: 1.3;
+  line-height: 1.35;
   color: var(--mono-fg-2);
   margin: 0;
 }
 .mono-meta {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 500;
-  color: var(--mono-muted);
-  line-height: 1.4;
+  color: color-mix(in oklab, var(--mono-muted) 50%, var(--mono-fg) 50%);
+  line-height: 1.45;
   margin: 0;
 }
 .mono-sec-label {
   font-family: var(--mono-font-mono);
-  font-size: 12.5px;
-  font-weight: 600;
-  letter-spacing: var(--mono-eyebrow-tracking, 0.06em);
-  text-transform: uppercase;
-  color: var(--mono-muted);
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: color-mix(in oklab, var(--mono-muted) 55%, var(--mono-fg) 45%);
   padding: 0 20px;
   margin: 0 0 10px;
 }
@@ -110,7 +112,7 @@
   border-radius: var(--mono-r-btn);
   font: inherit;
   font-family: var(--mono-font-body);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: var(--mono-btn-weight, 600);
   letter-spacing: var(--mono-btn-tracking, -0.005em);
   cursor: pointer;
@@ -181,14 +183,14 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 36px;
-  padding: 0 14px;
+  min-height: 44px;
+  padding: 0 16px;
   border: 0;
   border-radius: var(--mono-r-pill);
   background: var(--mono-bg-2);
   color: var(--mono-fg);
   font: inherit;
-  font-size: 13.5px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition:
@@ -223,9 +225,9 @@
 /* ---------- tick ---------- */
 .mono-tick {
   flex: 0 0 auto;
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
   border: 1.5px solid var(--mono-border-2);
   background: transparent;
   display: grid;
@@ -237,8 +239,8 @@
     border-color var(--mono-dur) var(--mono-ease);
 }
 .mono-tick svg {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   stroke: #fff;
   fill: none;
   stroke-width: 2.4;
@@ -256,7 +258,7 @@
 
 /* ---------- progress ---------- */
 .mono-progress {
-  height: 6px;
+  height: 8px;
   border-radius: var(--mono-r-pill);
   background: var(--mono-bg-2);
   overflow: hidden;
@@ -387,13 +389,13 @@
 .mono-field {
   display: block;
   width: 100%;
-  min-height: 46px;
-  padding: 12px 14px;
+  min-height: 48px;
+  padding: 12px 16px;
   background: var(--mono-bg-2);
   border: 1px solid transparent;
   border-radius: var(--mono-r-btn);
   font: inherit;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--mono-fg-2);
 }
 .mono-field::placeholder {
@@ -461,9 +463,9 @@
   background: var(--mono-panel, var(--mono-bg-2));
   padding: 28px 20px;
   text-align: center;
-  color: var(--mono-muted);
-  font-size: 14px;
-  line-height: 1.5;
+  color: color-mix(in oklab, var(--mono-muted) 45%, var(--mono-fg) 55%);
+  font-size: 15.5px;
+  line-height: 1.55;
   box-shadow: inset 0 1px 0 color-mix(in oklab, var(--mono-fg) 6%, transparent);
 }
 .mono-empty-art svg {
@@ -686,28 +688,28 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 7px 0;
-  min-height: 56px;
+  gap: 4px;
+  padding: 8px 0;
+  min-height: 60px;
   background: transparent;
   border: 0;
   border-radius: 12px;
-  color: var(--mono-muted);
+  color: color-mix(in oklab, var(--mono-muted) 40%, var(--mono-fg) 60%);
   font: inherit;
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
   cursor: pointer;
   transition:
     color var(--mono-dur) var(--mono-ease),
     background var(--mono-dur) var(--mono-ease);
 }
 .mono-nav-item svg {
-  width: 21px;
-  height: 21px;
+  width: 24px;
+  height: 24px;
   stroke: currentColor;
   fill: none;
-  stroke-width: 1.7;
+  stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -767,14 +769,14 @@
     flex-direction: row;
     justify-content: flex-start;
     gap: 12px;
-    padding: 11px 12px;
-    font-size: 14px;
-    border-radius: 10px;
-    min-height: 44px;
+    padding: 12px 14px;
+    font-size: 15px;
+    border-radius: 12px;
+    min-height: 48px;
   }
   .mono-nav-item svg {
-    width: 19px;
-    height: 19px;
+    width: 22px;
+    height: 22px;
   }
   .mono-rail-brand {
     display: flex;
@@ -1541,16 +1543,18 @@
 .mono-more-item {
   width: 100%;
   display: grid;
-  grid-template-columns: 36px 1fr auto;
+  grid-template-columns: 40px 1fr auto;
   align-items: center;
   gap: 12px;
-  padding: 14px 16px;
+  min-height: 56px;
+  padding: 16px 18px;
   border-radius: 14px;
   border: 0;
   background: var(--mono-raised, var(--mono-surface));
   box-shadow: var(--mono-sh-card);
   color: var(--mono-fg);
   font-family: var(--mono-font-body);
+  font-size: 16px;
   text-align: left;
   cursor: pointer;
 }
@@ -1584,7 +1588,7 @@
   flex-wrap: wrap;
   gap: 14px;
   font-family: var(--mono-font-body);
-  font-size: 13px;
+  font-size: 14px;
 }
 .mono-more-legal a {
   color: var(--mono-muted);
