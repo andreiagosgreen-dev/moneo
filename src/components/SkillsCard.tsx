@@ -88,11 +88,11 @@ export default function SkillsCard({
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">
             {t('skill.title')}
           </h2>
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+          <p className="mt-1.5 text-[13px] leading-snug text-sage">
             {isPro ? t('skill.subPro') : t('skill.subFree', { n: fmtNum(FREE_SKILLS_LIMIT) })}
           </p>
         </div>
-        <span className="font-mono text-[11px] text-sage">{fmtDur(total)}</span>
+        <span className="text-[13px] font-medium text-sage">{fmtDur(total)}</span>
       </header>
 
       {transitionTip && (
@@ -102,11 +102,13 @@ export default function SkillsCard({
       )}
 
       {skills.length === 0 ? (
-        <p className="mt-4 rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">
-          {t('skill.emptyA')}
-          <br />
-          {t('skill.emptyB')}
-        </p>
+        <div className="empty-panel mt-4">
+          <p>
+            {t('skill.emptyA')}
+            <br />
+            {t('skill.emptyB')}
+          </p>
+        </div>
       ) : (
         <Disclosure
           title={t('skills.tree.title')}
