@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildWeeklyRecap, drawRecapCard, RECAP_W, RECAP_H, type RecapStrings } from './recap';
+import { dayKeyInTz } from './timezone';
 import type { Session } from './store';
 import type { Project } from './projects';
 import type { Task } from './tasks';
@@ -68,12 +69,15 @@ describe('buildWeeklyRecap', () => {
       { id: 's3', at: NOW, min: 25, projectId: 'p2' },
       { id: 'old', at: NOW - 30 * DAY, min: 60, projectId: 'p1' },
     ];
+    // Trailing 7 UTC days ending at NOW — matches rangeDayKeys('week') shape, pinned so Date.now() drift cannot break the suite.
+    const weekKeys = Array.from({ length: 7 }, (_, i) => dayKeyInTz(NOW - (6 - i) * DAY, 'UTC'));
     const recap = buildWeeklyRecap({
       history,
       projects: [project(), project({ id: 'p2', name: 'Blog', color: '#3b82f6' })],
       tasks,
       goals,
       timezone: 'UTC',
+      dayKeys: weekKeys,
     });
     expect(recap.dayKeys).toHaveLength(7);
     expect(recap.sessionCount).toBe(3);

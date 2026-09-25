@@ -15,7 +15,7 @@ Gantt/Timeline, o trecere de polish vizual (contrast/densitate/animație), și
 o cercetare amplă de 16 produse concurente (Toggl, Todoist, Motion, TickTick,
 Trello, Asana, ClickUp, Jira, Clockify, Monday.com, Linear, Superhuman,
 Obsidian, Habitica, Duolingo, Notion) — vezi
-`ANALIZA-CONCURENTA-10-PRODUSE.md` și `COMPETITOR-RESEARCH-2026-09.md` în
+`docs/archive/ANALIZA-CONCURENTA-10-PRODUSE.md` și `docs/archive/COMPETITOR-RESEARCH-2026-09.md` în
 rădăcina repo-ului pentru detalii complete (ce face fiecare, puncte forte,
 rating pe părți, ce se împrumută și de unde).
 
@@ -33,7 +33,7 @@ concreți înainte de acest document:
 
 1. **Rating pe părți** pentru fiecare din cele 10+6 produse (design, font,
    utilități, ușurință, preț-valoare, performanță, recenzii, final) — vezi
-   `ANALIZA-CONCURENTA-10-PRODUSE.md`, secțiunea "Rating pe părți", cu surse
+   `docs/archive/ANALIZA-CONCURENTA-10-PRODUSE.md`, secțiunea "Rating pe părți", cu surse
    reale (G2/Capterra) citate pentru fiecare scor.
 2. **5 concepte vizuale de design** explorate direct într-un canvas Artifact
    (Linear Speed / Playful Momentum / Deep Focus / Bold Command Center /

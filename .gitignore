@@ -27,11 +27,14 @@ build/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+.playwright-cli/
 
 # Worker build artifact (tsc output inside cloudflare/workers)
 cloudflare/workers/*.js
 cloudflare/workers/*.d.ts
 
-# agent tooling state (never commit)
+# agent / IDE tooling state (never commit)
 .mimosa/
+.cursor/
+.claude/
 .claude/scheduled_tasks.lock
