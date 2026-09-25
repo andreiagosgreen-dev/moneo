@@ -967,6 +967,7 @@ export const uk: Record<TKey, string> = {
   'mono.azi.count': '{done} з {total} виконано',
   'mono.azi.motto': 'Тримай ритм, а не ідеал.',
   'mono.azi.prio': 'Пріоритети',
+  'mono.azi.empty': 'Напиши нижче, що хочеш закінчити сьогодні — можна додати кілька.',
   'mono.azi.addPh': 'Додати завдання на сьогодні',
   'mono.azi.addBtn': 'Додати',
   'mono.azi.program': 'Розклад',
