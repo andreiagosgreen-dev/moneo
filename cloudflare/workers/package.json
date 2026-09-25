@@ -8,7 +8,7 @@
     "build": "tsc"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260918.1",
+    "@cloudflare/workers-types": "^5.20260922.1",
     "typescript": "^5.7.0",
     "wrangler": "^4.131.1"
   }
