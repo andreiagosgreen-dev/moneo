@@ -88,7 +88,11 @@ export function pathFromModelJson(
     }
   }
 
-  const steps = Array.isArray(json.steps) ? json.steps : Array.isArray(json.tasks) ? json.tasks : null;
+  const steps = Array.isArray(json.steps)
+    ? json.steps
+    : Array.isArray(json.tasks)
+      ? json.tasks
+      : null;
   if (!steps || steps.length === 0) return { path: base, sources };
 
   const tasks = steps

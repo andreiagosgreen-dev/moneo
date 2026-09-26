@@ -106,9 +106,7 @@ export default function RoadmapPanel({
     setStatus('');
     setDraftPath(null);
     const preferred = groupPreferredKind(group);
-    const effective: ByokConfig = byokOk
-      ? cfg
-      : { ...cfg, provider: 'local', webSearch: false };
+    const effective: ByokConfig = byokOk ? cfg : { ...cfg, provider: 'local', webSearch: false };
     const result = await buildByokPath(
       {
         text,
@@ -190,7 +188,9 @@ export default function RoadmapPanel({
             min={1}
             max={40}
             value={hoursPerWeek}
-            onChange={(e) => setHoursPerWeek(Math.min(40, Math.max(1, Number(e.target.value) || 1)))}
+            onChange={(e) =>
+              setHoursPerWeek(Math.min(40, Math.max(1, Number(e.target.value) || 1)))
+            }
             className="h-8 w-16 rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line"
           />
         </label>
@@ -209,18 +209,14 @@ export default function RoadmapPanel({
           {t('assist.roadmap.aiSettings')}
         </summary>
         <div className="mt-2 space-y-2 pb-1">
-          {!byokOk ? (
-            <p className="text-[11px] text-faint">{t('assist.roadmap.byokPro')}</p>
-          ) : null}
+          {!byokOk ? <p className="text-[11px] text-faint">{t('assist.roadmap.byokPro')}</p> : null}
           <div className="grid gap-2 sm:grid-cols-2">
             <label className="block text-[11px] text-sage">
               {t('assist.roadmap.provider')}
               <select
                 value={byokOk ? cfg.provider : 'local'}
                 disabled={!byokOk}
-                onChange={(e) =>
-                  persistCfg({ ...cfg, provider: e.target.value as ByokProvider })
-                }
+                onChange={(e) => persistCfg({ ...cfg, provider: e.target.value as ByokProvider })}
                 className="mt-1 h-9 w-full rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none disabled:opacity-50"
               >
                 {(byokOk ? BYOK_PROVIDERS : (['local'] as ByokProvider[])).map((p) => (
@@ -269,8 +265,7 @@ export default function RoadmapPanel({
           <ul className="space-y-1 text-[12px] text-sage">
             {draftPath.tasks.slice(0, 12).map((task) => (
               <li key={task.draftId}>
-                {task.title}{' '}
-                <span className="text-faint">({fmtNum(task.pomodoros * 25)}m)</span>
+                {task.title} <span className="text-faint">({fmtNum(task.pomodoros * 25)}m)</span>
               </li>
             ))}
           </ul>

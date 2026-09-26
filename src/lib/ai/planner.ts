@@ -78,12 +78,7 @@ const OUTCOME_FRAMES = [
 export const PHASE_OUTCOME_FRAMES: Record<PathKind, string[]> = {
   learning: [...OUTCOME_FRAMES],
   launch: [...OUTCOME_FRAMES],
-  build: [
-    'ai.tpl.phaseSpec',
-    'ai.tpl.phaseParts',
-    'ai.tpl.phaseAssemble',
-    'ai.tpl.phaseMaiden',
-  ],
+  build: ['ai.tpl.phaseSpec', 'ai.tpl.phaseParts', 'ai.tpl.phaseAssemble', 'ai.tpl.phaseMaiden'],
   general: [...OUTCOME_FRAMES],
 };
 

@@ -579,17 +579,19 @@ export default function App() {
 
   // Keep the intention on the top unfinished plan item unless the user typed
   // something else (or cleared it intentionally after we auto-filled).
+  const nextPlanItemId = nextPlanItem?.id ?? null;
+  const nextPlanItemText = nextPlanItem?.text ?? null;
   useEffect(() => {
-    if (!nextPlanItem) return;
+    if (!nextPlanItemId || nextPlanItemText == null) return;
     setIntentionDraft((prev) => {
       const trimmed = prev.trim();
       if (trimmed === '' || prev === autoIntentionRef.current) {
-        autoIntentionRef.current = nextPlanItem.text;
-        return nextPlanItem.text;
+        autoIntentionRef.current = nextPlanItemText;
+        return nextPlanItemText;
       }
       return prev;
     });
-  }, [nextPlanItem?.id, nextPlanItem?.text]);
+  }, [nextPlanItemId, nextPlanItemText]);
 
   const focusStats = (() => {
     const todaySessions = history.filter((s) => isTodayInTz(s.at, auth.timezone));
@@ -813,9 +815,7 @@ export default function App() {
                         onPath={goFill}
                         dayKey={todayKey}
                         planTaskCount={todayPlan?.tasks.length ?? 0}
-                        planOpenCount={
-                          todayPlan?.tasks.filter((x) => !x.done).length ?? 0
-                        }
+                        planOpenCount={todayPlan?.tasks.filter((x) => !x.done).length ?? 0}
                         atmosphere={atmosphere}
                         onAtmosphere={setAtmosphere}
                       />
@@ -960,11 +960,13 @@ export default function App() {
                                   history={history}
                                   onTasksChange={setTasks}
                                   isPro={auth.isPro}
-                                  planTaskIds={new Set(
-                                    (todayPlan?.tasks ?? [])
-                                      .map((x) => x.taskId)
-                                      .filter((id): id is string => !!id),
-                                  )}
+                                  planTaskIds={
+                                    new Set(
+                                      (todayPlan?.tasks ?? [])
+                                        .map((x) => x.taskId)
+                                        .filter((id): id is string => !!id),
+                                    )
+                                  }
                                   onAddToPlan={addLinkedTaskToPlan}
                                 />
                                 <LifeCard
@@ -1105,7 +1107,10 @@ export default function App() {
                           hint={t('today.advSkillsHint')}
                           defaultOpen={engaged}
                         >
-                          <div className="reveal h-full min-w-0" style={{ animationDelay: '170ms' }}>
+                          <div
+                            className="reveal h-full min-w-0"
+                            style={{ animationDelay: '170ms' }}
+                          >
                             <OkrCard
                               objectives={objectives}
                               objectivesChange={setObjectives}
@@ -1117,7 +1122,10 @@ export default function App() {
                               isPro={auth.isPro}
                             />
                           </div>
-                          <div className="reveal h-full min-w-0" style={{ animationDelay: '210ms' }}>
+                          <div
+                            className="reveal h-full min-w-0"
+                            style={{ animationDelay: '210ms' }}
+                          >
                             <SkillsCard
                               skills={skills}
                               skillsChange={setSkills}

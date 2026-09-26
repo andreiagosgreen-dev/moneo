@@ -107,7 +107,9 @@ describe('MonoFocus', () => {
       start.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
     expect(onToggle).toHaveBeenCalledTimes(1);
-    const see = Array.from(c.querySelectorAll('button')).find((b) => b.textContent === 'Open plan')!;
+    const see = Array.from(c.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Open plan',
+    )!;
     act(() => {
       see.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
@@ -154,7 +156,7 @@ describe('MonoFocus', () => {
   it('shows empty plan hint when up next is empty', () => {
     const onSeePlan = vi.fn();
     const c = render(screen({ upNext: [], onSeePlan }));
-    expect(c.textContent).toContain("No plan yet. Write today’s list first.");
+    expect(c.textContent).toContain('No plan yet. Write today’s list first.');
     expect(c.textContent).toContain("Today's plan");
     const write = Array.from(c.querySelectorAll('button')).find(
       (b) => b.textContent === "Write today's plan",

@@ -1,10 +1,5 @@
 import { useI18n } from '../lib/i18n/LocaleContext';
-import {
-  nextOpenStep,
-  roadmapEta,
-  roadmapProgress,
-  type Roadmap,
-} from '../lib/ai/roadmap';
+import { nextOpenStep, roadmapEta, roadmapProgress, type Roadmap } from '../lib/ai/roadmap';
 import { RoadmapJourneyTrack, RoadmapProgressRing } from './RoadmapJourney';
 
 interface Props {
@@ -43,9 +38,7 @@ export default function MonoRoadmapStrip({ roadmap, onOpen, onWorkFocus }: Props
             {roadmap.title}
           </p>
           <p className="mono-meta" style={{ marginTop: 4 }}>
-            {next
-              ? t('assist.roadmap.next', { step: next.title })
-              : t('assist.roadmap.stripDone')}
+            {next ? t('assist.roadmap.next', { step: next.title }) : t('assist.roadmap.stripDone')}
             {' · '}
             {t('assist.roadmap.etaShort', {
               days: fmtNum(eta.daysLeft),

@@ -27,9 +27,7 @@ export function materializeBuiltPath(path: BuiltPath, translate: PathTranslate):
 
   const milestones = path.milestones.map((m) => {
     const outcome = outcomeText(m.phaseId);
-    const title = isTplFrame(m.title)
-      ? translate(m.title, { outcome, goal: path.goal })
-      : m.title;
+    const title = isTplFrame(m.title) ? translate(m.title, { outcome, goal: path.goal }) : m.title;
     return { ...m, title };
   });
 

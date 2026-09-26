@@ -25,16 +25,16 @@ export function RoadmapJourneyTrack({ steps, compact = false, maxCompact = 8 }: 
 
   let visible = steps.map((s, i) => ({ step: s, i }));
   if (compact && steps.length > maxCompact) {
-    const now = Math.max(0, steps.findIndex((s) => !s.done));
+    const now = Math.max(
+      0,
+      steps.findIndex((s) => !s.done),
+    );
     const start = Math.max(0, Math.min(now - 2, steps.length - maxCompact));
     visible = steps.slice(start, start + maxCompact).map((s, k) => ({ step: s, i: start + k }));
   }
 
   return (
-    <ol
-      className={`mono-rm-track${compact ? ' is-compact' : ''}`}
-      aria-hidden
-    >
+    <ol className={`mono-rm-track${compact ? ' is-compact' : ''}`} aria-hidden>
       {visible.map(({ step, i }, visIdx) => {
         const state = nodeState(steps, i);
         return (
@@ -99,9 +99,7 @@ export function RoadmapJourneyTrail({ steps, children }: TrailProps) {
         return (
           <li key={step.id} className={`mono-rm-station is-${state}`}>
             <div className="mono-rm-station-rail" aria-hidden>
-              <span className="mono-rm-station-dot">
-                {state === 'done' ? '✓' : i + 1}
-              </span>
+              <span className="mono-rm-station-dot">{state === 'done' ? '✓' : i + 1}</span>
             </div>
             <div className="mono-rm-station-body">{children(step, state, i)}</div>
           </li>

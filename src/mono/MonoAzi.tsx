@@ -129,8 +129,7 @@ export default function MonoAzi({
       {onPath ? <MonoPath active="today" onGo={onPath} /> : null}
       {motto?.text ? (
         <p className="mono-azi-motto-line">
-          “{motto.text}”
-          <span className="mono-azi-motto-src"> — {motto.source}</span>
+          “{motto.text}”<span className="mono-azi-motto-src"> — {motto.source}</span>
         </p>
       ) : null}
 

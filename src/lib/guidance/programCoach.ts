@@ -6,13 +6,7 @@
 export type ProgramCoachScreen = 'today' | 'focus' | 'orar';
 
 export type ProgramCoachKind =
-  | 'aziEmpty'
-  | 'aziOpen'
-  | 'aziDone'
-  | 'focusEmpty'
-  | 'focusOpen'
-  | 'orarEmpty'
-  | 'orarHas';
+  'aziEmpty' | 'aziOpen' | 'aziDone' | 'focusEmpty' | 'focusOpen' | 'orarEmpty' | 'orarHas';
 
 export interface ProgramCoachInput {
   screen: ProgramCoachScreen;

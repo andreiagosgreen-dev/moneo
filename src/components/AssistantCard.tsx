@@ -324,11 +324,7 @@ export default function AssistantCard({
     // New plan creates a project — Free still capped at FREE_PROJECTS_LIMIT.
     const needsNewProject = !r.projectId;
     if (needsNewProject && !isPro && projects.length >= FREE_PROJECTS_LIMIT) {
-      const log = appendMessage(
-        messages,
-        'assistant',
-        t('proj.limit', { n: FREE_PROJECTS_LIMIT }),
-      );
+      const log = appendMessage(messages, 'assistant', t('proj.limit', { n: FREE_PROJECTS_LIMIT }));
       commit(log);
       return;
     }

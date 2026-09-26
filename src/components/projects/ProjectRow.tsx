@@ -102,15 +102,16 @@ export default function ProjectRow({
       }),
     );
     // New / changed deadline → decompose into horizon tasks (hour slices for day).
-    if (
-      deadline &&
-      deadline > project.createdAt &&
-      (!prevDeadline || prevDeadline !== deadline)
-    ) {
+    if (deadline && deadline > project.createdAt && (!prevDeadline || prevDeadline !== deadline)) {
       const open = projectTasks.filter((x) => x.status !== 'completed').length;
       if (open < 2) {
         const label = (level: GoalLevel) => t(GOAL_LEVEL_KEYS[level] as TKey);
-        const drafts = decomposeProjectTasks(editName.trim() || project.name, project.createdAt, deadline, label);
+        const drafts = decomposeProjectTasks(
+          editName.trim() || project.name,
+          project.createdAt,
+          deadline,
+          label,
+        );
         if (drafts.length > 0) {
           const created = drafts.map((d) =>
             withEstimate(createTaskObject(project.id, d.title, d.priority), d.estimateMin),

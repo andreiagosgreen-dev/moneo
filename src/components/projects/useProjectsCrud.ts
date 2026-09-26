@@ -11,10 +11,7 @@ import {
 import type { Task } from '../../lib/tasks';
 import { saveTasks } from '../../lib/tasks';
 import { getTemplateById, instantiateTemplate } from '../../lib/projectTemplates';
-import {
-  seedPhasesForProject,
-  type WaterfallPhase,
-} from '../../lib/waterfall';
+import { seedPhasesForProject, type WaterfallPhase } from '../../lib/waterfall';
 import { saveAdvancedPlanning } from '../../lib/advancedPlanning';
 
 export interface ProjectsCrudOptions {

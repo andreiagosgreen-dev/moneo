@@ -7,14 +7,7 @@ import { STORAGE_KEYS } from '../storage/storageKeys';
 import type { BuiltPath, PathKind } from './types';
 import type { ByokProvider } from './byok';
 
-export type RoadmapGroup =
-  | 'learn'
-  | 'build'
-  | 'ship'
-  | 'market'
-  | 'write'
-  | 'life'
-  | 'custom';
+export type RoadmapGroup = 'learn' | 'build' | 'ship' | 'market' | 'write' | 'life' | 'custom';
 
 export const ROADMAP_GROUPS: RoadmapGroup[] = [
   'learn',
@@ -339,7 +332,9 @@ export function setPlannedPace(r: Roadmap, plannedMinPerDay: number, now = Date.
 }
 
 /** i18n key for a group starter goal, or null for blank custom. */
-export function groupStarterKey(group: RoadmapGroup): `assist.roadmap.starter.${Exclude<RoadmapGroup, 'custom'>}` | null {
+export function groupStarterKey(
+  group: RoadmapGroup,
+): `assist.roadmap.starter.${Exclude<RoadmapGroup, 'custom'>}` | null {
   if (group === 'custom') return null;
   return `assist.roadmap.starter.${group}`;
 }

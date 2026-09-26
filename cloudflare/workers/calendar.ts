@@ -16,10 +16,7 @@
  */
 
 import { bearerToken, verifyUser, type FetchImpl } from './account';
-import {
-  hasComplimentaryPro,
-  resolveComplimentaryAllowlist,
-} from './complimentaryPro';
+import { hasComplimentaryPro, resolveComplimentaryAllowlist } from './complimentaryPro';
 import { buildSecurityHeaders, declaredBodyTooLarge, mergeHeaders } from './security';
 
 export interface CalendarEnv {
@@ -61,12 +58,7 @@ async function requireUser(
   }
   const token = bearerToken(request);
   if (!token) return { error: json({ error: 'Missing or invalid authorization' }, 401) };
-  const user = await verifyUser(
-    env.SUPABASE_URL,
-    env.SUPABASE_SERVICE_ROLE_KEY,
-    token,
-    fetchImpl,
-  );
+  const user = await verifyUser(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, token, fetchImpl);
   if (!user) return { error: json({ error: 'Invalid or expired session' }, 401) };
   return user;
 }

@@ -53,7 +53,14 @@ function Ring({ pct, label }: { pct: number; label: string }) {
   return (
     <div className="mono-life-ring" aria-label={`${label}: ${v}%`}>
       <svg viewBox="0 0 72 72" width="72" height="72" aria-hidden>
-        <circle className="mono-life-ring-track" cx="36" cy="36" r={r} fill="none" strokeWidth="5" />
+        <circle
+          className="mono-life-ring-track"
+          cx="36"
+          cy="36"
+          r={r}
+          fill="none"
+          strokeWidth="5"
+        />
         <circle
           className="mono-life-ring-bar"
           cx="36"
@@ -78,7 +85,11 @@ export default function MonoViata({ motto, frames, next, onGo, children }: Props
 
   return (
     <div>
-      <MonoHead eyebrow={t('mono.life.kicker')} title={t('mono.life.title')} sub={t('mono.life.sub')} />
+      <MonoHead
+        eyebrow={t('mono.life.kicker')}
+        title={t('mono.life.title')}
+        sub={t('mono.life.sub')}
+      />
       <MonoPath active="map" onGo={onGo} withLife />
 
       <div className="mono-pad">

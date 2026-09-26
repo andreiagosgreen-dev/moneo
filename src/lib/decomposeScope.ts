@@ -121,7 +121,10 @@ export function decomposeGoalChildren(root: Goal, opts: DecomposeGoalOptions): G
   const out: Goal[] = [];
   let parentId = root.id;
   for (const level of take) {
-    const ratio = Math.min(1, Math.max(LEVEL_MONTHS.daily / rootMonths, LEVEL_MONTHS[level] / rootMonths));
+    const ratio = Math.min(
+      1,
+      Math.max(LEVEL_MONTHS.daily / rootMonths, LEVEL_MONTHS[level] / rootMonths),
+    );
     const targetDate = Math.round(now + span * ratio);
     const title = `${opts.label(level)} · ${root.title}`.slice(0, 120);
     const g: Goal = {
@@ -162,7 +165,9 @@ export function decomposeProjectTasks(
     return [];
   }
   const rootLevel = levelFromDateRange(startMs, deadlineMs);
-  const levels = [rootLevel, ...childLevelsBelow(rootLevel)].filter((l, i, a) => a.indexOf(l) === i);
+  const levels = [rootLevel, ...childLevelsBelow(rootLevel)].filter(
+    (l, i, a) => a.indexOf(l) === i,
+  );
   const clean = projectName.trim().slice(0, 60) || 'Project';
   const drafts: DecomposeTaskDraft[] = [];
 

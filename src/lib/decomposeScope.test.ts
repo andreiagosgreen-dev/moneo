@@ -79,9 +79,9 @@ describe('decomposeProjectTasks', () => {
     const end = Date.UTC(2031, 0, 1); // ~5y
     const drafts = decomposeProjectTasks('Ship product', start, end, label);
     expect(drafts.length).toBeGreaterThan(3);
-    expect(drafts.some((d: DecomposeTaskDraft) => d.level === 'daily' && d.estimateMin === 120)).toBe(
-      true,
-    );
+    expect(
+      drafts.some((d: DecomposeTaskDraft) => d.level === 'daily' && d.estimateMin === 120),
+    ).toBe(true);
     expect(drafts.some((d) => d.title.includes('Ship product'))).toBe(true);
   });
 

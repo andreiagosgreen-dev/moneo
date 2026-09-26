@@ -55,8 +55,10 @@ describe('MonoViata', () => {
     expect(c.textContent).toContain('Begin with the end in mind.');
     expect(c.textContent).toContain('Stephen Covey');
     expect(c.textContent).toContain('50%');
-    expect(c.textContent).toContain('Work the top open item on Focus.');
-    const cta = Array.from(c.querySelectorAll('button')).find((b) => b.textContent === 'Open Focus')!;
+    expect(c.textContent).toContain('Work the first open item in Focus.');
+    const cta = Array.from(c.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Open Focus',
+    )!;
     act(() => {
       cta.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });

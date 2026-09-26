@@ -197,7 +197,9 @@
   color: inherit;
   font: inherit;
   cursor: pointer;
-  transition: transform 180ms var(--mono-ease, ease), background 180ms ease;
+  transition:
+    transform 180ms var(--mono-ease, ease),
+    background 180ms ease;
 }
 .mono-roadmap-strip:hover {
   background: color-mix(in oklab, var(--mono-surface) 85%, var(--mono-accent, var(--accent)) 8%);

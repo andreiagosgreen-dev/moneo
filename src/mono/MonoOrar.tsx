@@ -18,13 +18,7 @@ interface Props {
 }
 
 /** Schedule screen shell: when you work — not what. */
-export default function MonoOrar({
-  timezone,
-  children,
-  onPath,
-  dayKey,
-  hasBlocks = false,
-}: Props) {
+export default function MonoOrar({ timezone, children, onPath, dayKey, hasBlocks = false }: Props) {
   const { t, fmtDayKey } = useI18n();
   const keys = currentWeekKeys(timezone);
   const range = `${fmtDayKey(keys[0])} – ${fmtDayKey(keys[keys.length - 1])}`;

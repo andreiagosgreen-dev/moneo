@@ -28,9 +28,11 @@ describe('complimentaryPro — allowlist helpers', () => {
   });
 
   it('merges hardcoded + env without duplicates', () => {
-    expect(
-      resolveComplimentaryAllowlist('b@y.com, a@x.com', ['A@X.com', 'c@z.com']),
-    ).toEqual(['a@x.com', 'c@z.com', 'b@y.com']);
+    expect(resolveComplimentaryAllowlist('b@y.com, a@x.com', ['A@X.com', 'c@z.com'])).toEqual([
+      'a@x.com',
+      'c@z.com',
+      'b@y.com',
+    ]);
   });
 
   it('ships the permanent complimentary Pro allowlist (lowercase)', () => {

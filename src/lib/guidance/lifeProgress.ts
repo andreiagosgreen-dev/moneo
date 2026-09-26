@@ -67,10 +67,7 @@ export function lifeMapPct(areas: LifeMapArea[]): number {
  * - day cleared + life gaps → tune Map
  * - else keep rhythm on Focus
  */
-export function lifeNextStep(
-  plan: IvyPlan | null,
-  areas: LifeMapArea[],
-): LifeNextStep {
+export function lifeNextStep(plan: IvyPlan | null, areas: LifeMapArea[]): LifeNextStep {
   const tasks = plan?.tasks ?? [];
   if (tasks.length === 0) {
     return { kind: 'writePlan', tab: 'today' };

@@ -8,15 +8,7 @@
 import type { GoalLevel } from './goals';
 
 export type PlanningHorizon =
-  | 'day'
-  | 'week'
-  | 'month'
-  | 'year1'
-  | 'year3'
-  | 'year5'
-  | 'year7'
-  | 'year10'
-  | 'life';
+  'day' | 'week' | 'month' | 'year1' | 'year3' | 'year5' | 'year7' | 'year10' | 'life';
 
 /** UI order: near → far. */
 export const PLANNING_HORIZONS: PlanningHorizon[] = [
