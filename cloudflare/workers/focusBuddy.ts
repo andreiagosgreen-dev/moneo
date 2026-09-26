@@ -6,12 +6,18 @@
  * client never supplies a user id.
  */
 
-import { bearerToken, verifyUserToken, type FetchImpl } from './account';
+import { bearerToken, verifyUser, type FetchImpl } from './account';
+import {
+  hasComplimentaryPro,
+  resolveComplimentaryAllowlist,
+} from './complimentaryPro';
 import { buildSecurityHeaders, mergeHeaders } from './security';
 
 export interface FocusBuddyEnv {
   SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
+  /** Comma-separated emails — Free branding + Pro entitlements (not Lemon). */
+  PRO_COMPLIMENTARY_EMAILS?: string;
 }
 
 interface PairRow {
@@ -62,13 +68,18 @@ async function findPairForUser(
   return rows[0] ?? null;
 }
 
-/** Defense-in-depth Pro-gate — mirrors the owner-read the webhook path already does. */
+/** Defense-in-depth Pro-gate — mirrors the owner-read the webhook path already does.
+ *  Also honors complimentary Pro emails (Free branding, full unlock). */
 async function isUserPro(
   supabaseUrl: string,
   serviceKey: string,
   userId: string,
+  email: string | null,
+  complimentaryEnv: string | undefined,
   fetchImpl: FetchImpl,
 ): Promise<boolean> {
+  const allowlist = resolveComplimentaryAllowlist(complimentaryEnv);
+  if (hasComplimentaryPro(email, allowlist)) return true;
   try {
     const res = await fetchImpl(
       `${supabaseUrl}/rest/v1/subscriptions?user_id=eq.${userId}&select=status&limit=1`,
@@ -86,20 +97,20 @@ async function verify(
   request: Request,
   env: FocusBuddyEnv,
   fetchImpl: FetchImpl,
-): Promise<{ userId: string } | Response> {
+): Promise<{ userId: string; email: string | null } | Response> {
   if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
     return json({ error: 'Focus buddy is not configured' }, 503);
   }
   const token = bearerToken(request);
   if (!token) return json({ error: 'Missing or invalid authorization' }, 401);
-  const userId = await verifyUserToken(
+  const user = await verifyUser(
     env.SUPABASE_URL,
     env.SUPABASE_SERVICE_ROLE_KEY,
     token,
     fetchImpl,
   );
-  if (!userId) return json({ error: 'Invalid or expired session' }, 401);
-  return { userId };
+  if (!user) return json({ error: 'Invalid or expired session' }, 401);
+  return user;
 }
 
 /** POST /api/buddy/invite — creates a pending pairing, returns its code. */
@@ -114,7 +125,7 @@ export async function handleBuddyInvite(
   const supabaseUrl = env.SUPABASE_URL as string;
   const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY as string;
 
-  if (!(await isUserPro(supabaseUrl, serviceKey, v.userId, fetchImpl))) {
+  if (!(await isUserPro(supabaseUrl, serviceKey, v.userId, v.email, env.PRO_COMPLIMENTARY_EMAILS, fetchImpl))) {
     return json({ error: 'Focus buddy is a Pro feature' }, 403);
   }
 
@@ -143,7 +154,7 @@ export async function handleBuddyJoin(
   const supabaseUrl = env.SUPABASE_URL as string;
   const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY as string;
 
-  if (!(await isUserPro(supabaseUrl, serviceKey, v.userId, fetchImpl))) {
+  if (!(await isUserPro(supabaseUrl, serviceKey, v.userId, v.email, env.PRO_COMPLIMENTARY_EMAILS, fetchImpl))) {
     return json({ error: 'Focus buddy is a Pro feature' }, 403);
   }
 

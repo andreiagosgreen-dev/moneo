@@ -25,6 +25,7 @@ import {
   DEFAULT_FREE_SUBSCRIPTION,
   type SubscriptionInfo,
 } from './cloud/subscriptionRepository';
+import { resolveIsPro } from './billing/complimentaryPro';
 
 /**
  * Thin React wrapper around the framework-free auth controller.
@@ -119,10 +120,13 @@ export function useAuth(): AuthApi {
   }, [refreshSubscription]);
 
   const { signIn, signUp, signInWithGoogle, signOut, deleteAccount } = controller;
+  // Complimentary accounts: Free Lemon/plan branding (`subscription` stays
+  // free) + full Pro entitlements via `isPro`. Not a paid subscription.
+  const isPro = resolveIsPro(subscription.isPro, snapshot.user?.email ?? null);
   return useMemo(
     () => ({
       ...snapshot,
-      isPro: subscription.isPro,
+      isPro,
       subscription,
       refreshSubscription,
       signIn,
@@ -133,6 +137,7 @@ export function useAuth(): AuthApi {
     }),
     [
       snapshot,
+      isPro,
       subscription,
       refreshSubscription,
       signIn,

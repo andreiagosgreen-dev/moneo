@@ -15,7 +15,11 @@
  * client-supplied user id is never trusted.
  */
 
-import { bearerToken, verifyUserToken, type FetchImpl } from './account';
+import { bearerToken, verifyUser, type FetchImpl } from './account';
+import {
+  hasComplimentaryPro,
+  resolveComplimentaryAllowlist,
+} from './complimentaryPro';
 import { buildSecurityHeaders, declaredBodyTooLarge, mergeHeaders } from './security';
 
 export interface CalendarEnv {
@@ -23,6 +27,8 @@ export interface CalendarEnv {
   SUPABASE_SERVICE_ROLE_KEY?: string;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
+  /** Comma-separated emails — Free branding + Pro entitlements (not Lemon). */
+  PRO_COMPLIMENTARY_EMAILS?: string;
 }
 
 const MAX_CONNECT_BODY_BYTES = 4_096;
@@ -49,30 +55,35 @@ async function requireUser(
   request: Request,
   env: CalendarEnv,
   fetchImpl: FetchImpl,
-): Promise<{ userId: string } | { error: Response }> {
+): Promise<{ userId: string; email: string | null } | { error: Response }> {
   if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
     return { error: json({ error: 'Calendar integration is not configured' }, 503) };
   }
   const token = bearerToken(request);
   if (!token) return { error: json({ error: 'Missing or invalid authorization' }, 401) };
-  const userId = await verifyUserToken(
+  const user = await verifyUser(
     env.SUPABASE_URL,
     env.SUPABASE_SERVICE_ROLE_KEY,
     token,
     fetchImpl,
   );
-  if (!userId) return { error: json({ error: 'Invalid or expired session' }, 401) };
-  return { userId };
+  if (!user) return { error: json({ error: 'Invalid or expired session' }, 401) };
+  return user;
 }
 
 /** Defense-in-depth: UI hides the feature from Free users, but a hidden
- *  button is not enough gating for a credential this sensitive. */
+ *  button is not enough gating for a credential this sensitive.
+ *  Also honors complimentary Pro emails (Free branding, full unlock). */
 async function isProUser(
   supabaseUrl: string,
   serviceKey: string,
   userId: string,
+  email: string | null,
+  complimentaryEnv: string | undefined,
   fetchImpl: FetchImpl,
 ): Promise<boolean> {
+  const allowlist = resolveComplimentaryAllowlist(complimentaryEnv);
+  if (hasComplimentaryPro(email, allowlist)) return true;
   try {
     const res = await fetchImpl(
       `${supabaseUrl}/rest/v1/subscriptions?user_id=eq.${encodeURIComponent(userId)}&select=status`,
@@ -242,6 +253,8 @@ export async function handleCalendarConnect(
     env.SUPABASE_URL!,
     env.SUPABASE_SERVICE_ROLE_KEY!,
     auth.userId,
+    auth.email,
+    env.PRO_COMPLIMENTARY_EMAILS,
     fetchImpl,
   );
   if (!isPro) return json({ error: 'Calendar sync is a Pro feature' }, 403);
@@ -323,6 +336,8 @@ export async function handleCalendarEvents(
     env.SUPABASE_URL!,
     env.SUPABASE_SERVICE_ROLE_KEY!,
     auth.userId,
+    auth.email,
+    env.PRO_COMPLIMENTARY_EMAILS,
     fetchImpl,
   );
   if (!isPro) return json({ error: 'Calendar sync is a Pro feature' }, 403);

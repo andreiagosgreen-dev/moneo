@@ -18,6 +18,9 @@ import { FREE_HABITS_LIMIT } from '../habits';
 import { FREE_SKILLS_LIMIT } from '../skills';
 import { IVY_MAX_TASKS, IVY_FREE_MAX_TASKS } from '../ivyLee';
 import { CORE_INSIGHT_LIMIT } from '../insights';
+import { FREE_ROADMAPS_LIMIT, canAddRoadmap } from '../ai/roadmap';
+
+export { FREE_ROADMAPS_LIMIT, canAddRoadmap };
 
 export type PlanId = 'free' | 'pro-monthly' | 'pro-yearly';
 
@@ -102,20 +105,21 @@ export const FREE_LIMITS = {
   ivyTasks: IVY_FREE_MAX_TASKS,
   ivyMax: IVY_MAX_TASKS,
   insights: CORE_INSIGHT_LIMIT,
+  roadmaps: FREE_ROADMAPS_LIMIT,
 } as const;
 
 /**
- * What cloud sync actually transports today (see syncEngine + syncRepos):
- * focus sessions, focus areas and settings. Projects, tasks, Ivy plans,
- * time blocks, goals, OKRs, skills, habits, journal, energy, sprints and
- * phases stay on this device. The pricing copy must never promise more.
+ * Free vs Pro (keep gating + pay.* copy aligned):
  *
- * Appearance honesty: the 20 Focus atmospheres are free for everyone.
- * Pro appearance gates are light mode, custom accents and Pro font packs
- * (SettingsCard) — pay.plan.monthly.f6 must describe those, not atmospheres.
+ * FREE — Focus forever; 3 projects / 3 goals / 3 OKRs / 5 habits / 5 skills;
+ * Ivy 3/day; 2 assistant quick actions; 1 local plan (no own-key AI);
+ * 2 core Insights; atmospheres free; data stays on device.
  *
- * Soft promises: priority support / beta invites are operational, not code
- * gates — keep copy concrete (email priority, beta invite) rather than fog.
+ * PRO — unlimited entities; full chat + tones + voice; own-key plans;
+ * all Insights; CSV/PDF export; time blocks + sprint charts + kanban WIP;
+ * cloud sync (sessions, areas, settings only); light / accents / Pro fonts.
+ *
+ * Soft promises (beta invites / priority support) are operational, not code gates.
  */
 export const SYNC_SCOPE_KEY: TKey = 'pay.syncScope';
 export const SYNC_NOTE_KEY: TKey = 'pay.syncNote';
@@ -131,6 +135,21 @@ export function canExportSessions(isPro: boolean): boolean {
 export function canPrintReport(isPro: boolean): boolean {
   return isPro;
 }
+
+/** Own-key AI providers (Gemini / OpenAI / DeepSeek) are Pro. Free = local only. */
+export function canUseByokAi(isPro: boolean): boolean {
+  return isPro;
+}
+
+/* ---------------- Complimentary Pro (not Lemon-paid) ---------------- */
+export {
+  COMPLIMENTARY_PRO_EMAILS,
+  clientComplimentaryAllowlist,
+  hasComplimentaryPro,
+  parseComplimentaryProEmails,
+  resolveComplimentaryAllowlist,
+  resolveIsPro,
+} from './complimentaryPro';
 
 /* ---------------- /pricing comparison table ---------------- */
 
@@ -162,6 +181,11 @@ export function getComparisonRows(): ComparisonRow[] {
       labelKey: 'pricing.row.ivy',
       free: { kind: 'limit', value: FREE_LIMITS.ivyTasks },
       pro: { kind: 'limit', value: FREE_LIMITS.ivyMax },
+    },
+    {
+      labelKey: 'pricing.row.plan',
+      free: { kind: 'limit', value: FREE_LIMITS.roadmaps },
+      pro: { kind: 'key', key: 'pricing.unlimited' },
     },
     {
       labelKey: 'pay.plan.monthly.f2',
