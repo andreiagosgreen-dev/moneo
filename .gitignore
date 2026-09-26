@@ -35,3 +35,4 @@ cloudflare/workers/*.d.ts
 # agent tooling state (never commit)
 .mimosa/
 .claude/scheduled_tasks.lock
+.cursor/
