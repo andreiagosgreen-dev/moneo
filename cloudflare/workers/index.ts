@@ -37,7 +37,7 @@ import {
   mergeHeaders,
   canonicalRedirect,
 } from './security';
-import { isStaticAssetPath } from './staticAssetPath';
+import { isStaticAssetPath, isRevalidateAlwaysPath } from './staticAssetPath';
 
 export { isStaticAssetPath } from './staticAssetPath';
 
@@ -226,10 +226,11 @@ export default {
       return new Response(object.body, {
         headers: mergeHeaders(SEC, cors, {
           'Content-Type': contentType,
-          'Cache-Control':
-            filePath === '/index.html'
-              ? 'public, max-age=0, must-revalidate'
-              : 'public, max-age=31536000, immutable',
+          // index.html + SW + manifest must revalidate so clients pick up
+          // new builds; hashed assets stay immutable.
+          'Cache-Control': isRevalidateAlwaysPath(filePath)
+            ? 'public, max-age=0, must-revalidate'
+            : 'public, max-age=31536000, immutable',
         }),
       });
     }
