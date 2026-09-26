@@ -93,9 +93,10 @@ describe('pricingConfig — single source of truth', () => {
     expect(en['pay.plan.monthly.f5'].toLowerCase()).not.toMatch(/all data|everything/);
   });
 
-  it('does not market free Focus atmospheres as Pro “premium themes”', () => {
+  it('markets Pro look as light, accents, fonts and interior atmospheres', () => {
     const look = en['pay.plan.monthly.f6'].toLowerCase();
     expect(look).toMatch(/light|accent|font/);
-    expect(look).not.toMatch(/premium theme|atmosphere/);
+    expect(look).toMatch(/interior|atmosphere/);
+    expect(look).not.toMatch(/premium theme/);
   });
 });
