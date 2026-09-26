@@ -130,6 +130,25 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     pitfalls: ['Starting work on a verbal agreement'],
     pro: true,
   },
+  {
+    id: 'diy-hardware',
+    name: 'Hardware build',
+    description: 'Plan, order parts, assemble, test, then first flight.',
+    category: 'learning',
+    color: '#14b8a6',
+    stack: ['Parts list', 'Controller', 'Radio', 'Safety'],
+    tasks: [
+      { title: 'Define goals and limits', priority: 'p0' },
+      { title: 'List and order parts', priority: 'p0' },
+      { title: 'Assemble frame and power', priority: 'p1' },
+      { title: 'Set up controller and radio', priority: 'p1' },
+      { title: 'Run safe bench checks', priority: 'p1' },
+      { title: 'First controlled hover and notes', priority: 'p2' },
+    ],
+    bestPractices: ['Set failsafe before motors spin', 'Finish bench checks before outdoor flight'],
+    pitfalls: ['Skipping failsafe setup', 'Flying outdoors before a safe hover test'],
+    pro: false,
+  },
 ];
 
 /** Blueprints visible to the caller (Free sees starters only). */

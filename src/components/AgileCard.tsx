@@ -57,7 +57,7 @@ export default function AgileCard({
   }, [tasks]);
 
   return (
-    <section className="card min-w-0 px-6 py-6 sm:px-7" aria-label={t('agile.aria')}>
+    <section className="card flex h-full min-w-0 flex-col px-6 py-6 sm:px-7" aria-label={t('agile.aria')}>
       <header className="flex items-baseline justify-between gap-3">
         <div className="min-w-0">
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">

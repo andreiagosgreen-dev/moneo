@@ -36,6 +36,22 @@ export const WATERFALL_STARTERS: Array<{ name: string; gate: string }> = [
   { name: 'Deployment', gate: 'Live + monitored' },
 ];
 
+/** Named phase packs (software default + hardware/build). */
+export type WaterfallPackId = 'software' | 'build';
+
+export const WATERFALL_PACKS: Record<WaterfallPackId, Array<{ name: string; gate: string }>> = {
+  software: WATERFALL_STARTERS,
+  build: [
+    { name: 'Spec', gate: 'Goals and limits written' },
+    { name: 'Parts', gate: 'Parts ordered or on hand' },
+    { name: 'Assemble', gate: 'Frame and power connected safely' },
+    { name: 'Connect', gate: 'Controller, radio, and failsafe set' },
+    { name: 'Bench test', gate: 'Safe checks pass before flight' },
+    { name: 'First flight', gate: 'First controlled hover logged' },
+    { name: 'Improve', gate: 'Tune and note next changes' },
+  ],
+};
+
 export function loadPhases(): WaterfallPhase[] {
   const stored = read<WaterfallPhase[]>(STORAGE_KEYS.waterfall);
   if (!Array.isArray(stored)) return [];
@@ -89,11 +105,15 @@ export function createPhaseObject(
   };
 }
 
-/** Seed the classic 5-stage pipeline (no-op when phases already exist). */
-export function seedStarterPhases(phases: WaterfallPhase[], projectId: string): WaterfallPhase[] {
+/** Seed a phase pack (no-op when phases already exist for the project). */
+export function seedPhasesForProject(
+  phases: WaterfallPhase[],
+  projectId: string,
+  pack: WaterfallPackId = 'software',
+): WaterfallPhase[] {
   if (phases.some((p) => p.projectId === projectId)) return phases;
   const now = Date.now();
-  const starters = WATERFALL_STARTERS.map((s, i) => ({
+  const starters = (WATERFALL_PACKS[pack] ?? WATERFALL_PACKS.software).map((s, i) => ({
     id: crypto.randomUUID(),
     projectId,
     name: s.name,
@@ -104,6 +124,11 @@ export function seedStarterPhases(phases: WaterfallPhase[], projectId: string): 
     updatedAt: now,
   }));
   return [...phases, ...starters];
+}
+
+/** Seed the classic 5-stage software pipeline (no-op when phases already exist). */
+export function seedStarterPhases(phases: WaterfallPhase[], projectId: string): WaterfallPhase[] {
+  return seedPhasesForProject(phases, projectId, 'software');
 }
 
 export interface PhaseUpdates {

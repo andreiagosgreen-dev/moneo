@@ -25,6 +25,8 @@ export const MAX_WEBHOOK_BODY_BYTES = 1_000_000;
  * Sentry (Faza 32c, error-only reporting) posts directly from the
  * browser to its ingest host — optional, only active with a configured
  * DSN, hence connect-src rather than a hard requirement anywhere else.
+ * BYOK Assistant (user's own Gemini/OpenAI/DeepSeek keys) calls those
+ * providers from the browser — narrowly allowlisted origins only.
  */
 export function buildSecurityHeaders(): Record<string, string> {
   const csp = [
@@ -33,7 +35,17 @@ export function buildSecurityHeaders(): Record<string, string> {
     "style-src 'self' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob:",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.lemonsqueezy.com https://challenges.cloudflare.com https://*.sentry.io",
+    [
+      "connect-src 'self'",
+      'https://*.supabase.co',
+      'wss://*.supabase.co',
+      'https://*.lemonsqueezy.com',
+      'https://challenges.cloudflare.com',
+      'https://*.sentry.io',
+      'https://generativelanguage.googleapis.com',
+      'https://api.openai.com',
+      'https://api.deepseek.com',
+    ].join(' '),
     'frame-src https://challenges.cloudflare.com',
     "manifest-src 'self'",
     "object-src 'none'",

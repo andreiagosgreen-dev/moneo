@@ -24,6 +24,8 @@ import {
   bulkSetDueAt,
   bulkMoveToProject,
 } from '../../lib/tasks';
+import { decomposeProjectTasks, withEstimate } from '../../lib/decomposeScope';
+import { GOAL_LEVEL_KEYS, type GoalLevel } from '../../lib/goals';
 import type { Session } from '../../lib/store';
 import { ChevronIcon, TrashIcon, CopyIcon, ArchiveIcon, PlusIcon } from './icons';
 import type { ProjectRowProps } from './types';
@@ -51,6 +53,7 @@ export default function ProjectRow({
   allProjects,
   skills,
   objectives,
+  onWorkFocus,
 }: ProjectRowProps) {
   const minutes = getMinutesForProject(project.id, history);
   const i18n = useI18n();
@@ -86,6 +89,7 @@ export default function ProjectRow({
     }
     const deadline = editDeadline ? new Date(editDeadline + 'T12:00:00').getTime() : null;
     const rate = editBillable && editRate.trim() ? Number(editRate) : null;
+    const prevDeadline = project.deadline;
     onProjectsChange(
       updateProject([project], project.id, {
         name: editName,
@@ -97,6 +101,24 @@ export default function ProjectRow({
         hourlyRate: rate !== null && Number.isFinite(rate) && rate > 0 ? rate : null,
       }),
     );
+    // New / changed deadline → decompose into horizon tasks (hour slices for day).
+    if (
+      deadline &&
+      deadline > project.createdAt &&
+      (!prevDeadline || prevDeadline !== deadline)
+    ) {
+      const open = projectTasks.filter((x) => x.status !== 'completed').length;
+      if (open < 2) {
+        const label = (level: GoalLevel) => t(GOAL_LEVEL_KEYS[level] as TKey);
+        const drafts = decomposeProjectTasks(editName.trim() || project.name, project.createdAt, deadline, label);
+        if (drafts.length > 0) {
+          const created = drafts.map((d) =>
+            withEstimate(createTaskObject(project.id, d.title, d.priority), d.estimateMin),
+          );
+          onTasksChange([...tasks, ...created]);
+        }
+      }
+    }
     setEditing(false);
   };
 
@@ -199,6 +221,21 @@ export default function ProjectRow({
         </div>
 
         <div className="flex shrink-0 items-center gap-1">
+          {onWorkFocus && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                const open = projectTasks.find((x) => x.status !== 'completed') ?? null;
+                onWorkFocus(project.id, open?.id ?? null);
+              }}
+              className="press rounded-lg px-2 py-1 text-[10px] font-semibold text-on-accent"
+              style={{ background: 'var(--accent)' }}
+              title={t('goal.workFocusTitle')}
+            >
+              {t('goal.workFocus')}
+            </button>
+          )}
           <button
             onClick={(e) => {
               e.stopPropagation();

@@ -15,6 +15,7 @@ const EN_I18N = createI18n('en');
 export type GoalLevel =
   | 'life'
   | 'years10'
+  | 'years7'
   | 'years5'
   | 'years3'
   | 'vision'
@@ -26,6 +27,7 @@ export type GoalLevel =
 export const GOAL_LEVELS: GoalLevel[] = [
   'life',
   'years10',
+  'years7',
   'years5',
   'years3',
   'vision',
@@ -38,6 +40,7 @@ export const GOAL_LEVELS: GoalLevel[] = [
 export const GOAL_LEVEL_LABELS: Record<GoalLevel, string> = {
   life: 'Life',
   years10: '10 years',
+  years7: '7 years',
   years5: '5 years',
   years3: '3 years',
   vision: '1 year',
@@ -51,6 +54,7 @@ export const GOAL_LEVEL_LABELS: Record<GoalLevel, string> = {
 export const GOAL_LEVEL_KEYS: Record<GoalLevel, string> = {
   life: 'goal.level.life',
   years10: 'goal.level.years10',
+  years7: 'goal.level.years7',
   years5: 'goal.level.years5',
   years3: 'goal.level.years3',
   vision: 'goal.level.vision',
@@ -64,6 +68,7 @@ export const GOAL_LEVEL_KEYS: Record<GoalLevel, string> = {
 export const GOAL_SHORT_KEYS: Record<GoalLevel, string> = {
   life: 'goal.short.life',
   years10: 'goal.short.years10',
+  years7: 'goal.short.years7',
   years5: 'goal.short.years5',
   years3: 'goal.short.years3',
   vision: 'goal.short.vision',
@@ -77,13 +82,14 @@ export const GOAL_SHORT_KEYS: Record<GoalLevel, string> = {
 const LEVEL_RANK: Record<GoalLevel, number> = {
   life: 0,
   years10: 1,
-  years5: 2,
-  years3: 3,
-  vision: 4,
-  milestone: 5,
-  project: 6,
-  weekly: 7,
-  daily: 8,
+  years7: 2,
+  years5: 3,
+  years3: 4,
+  vision: 5,
+  milestone: 6,
+  project: 7,
+  weekly: 8,
+  daily: 9,
 };
 
 export interface Goal {

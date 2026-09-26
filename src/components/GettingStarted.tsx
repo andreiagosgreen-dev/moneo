@@ -6,14 +6,14 @@ interface Props {
   onGo: (t: MonoTab) => void;
 }
 
-/** Focus-first path: intention → session; step 3 is a soft Pro note (stays on Focus). */
+/** Daily spine: write the list → work it → optional schedule. */
 const STEPS: Array<{ n: string; title: TKey; body: TKey; cta: TKey; tab: MonoTab }> = [
-  { n: '1', title: 'getting.s1t', body: 'getting.s1b', cta: 'getting.s1c', tab: 'focus' },
+  { n: '1', title: 'getting.s1t', body: 'getting.s1b', cta: 'getting.s1c', tab: 'today' },
   { n: '2', title: 'getting.s2t', body: 'getting.s2b', cta: 'getting.s2c', tab: 'focus' },
-  { n: '3', title: 'getting.s3t', body: 'getting.s3b', cta: 'getting.s3c', tab: 'focus' },
+  { n: '3', title: 'getting.s3t', body: 'getting.s3b', cta: 'getting.s3c', tab: 'orar' },
 ];
 
-/** First-run guide, shown only while the workspace is still empty (light atmospheres). */
+/** First-run guide for the Azi → Focus → Orar path. */
 export default function GettingStarted({ onGo }: Props) {
   const { t } = useI18n();
   return (

@@ -4,6 +4,8 @@ import MonoBtn from './MonoBtn';
 import MonoChip from './MonoChip';
 import MonoTick from './MonoTick';
 import MonoStat from './MonoStat';
+import MonoPath from './MonoPath';
+import MonoCoach from './MonoCoach';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
 import { fmtClock, type Mode } from '../lib/store';
@@ -13,6 +15,8 @@ import type { SessionImpact } from '../lib/progress';
 import MonoProgressMeter from './MonoProgressMeter';
 import { dayLabel } from './monoDate';
 import { ATMOSPHERES, type Atmosphere } from './atmosphere';
+import type { MonoTab } from './MonoNav';
+import { pickProgramCoach } from '../lib/guidance/programCoach';
 
 const CIRC = 540.35;
 const PRESETS = [5, 25, 45];
@@ -91,6 +95,13 @@ interface Props {
   onPreset: (min: number) => void;
   onToggleTask: (id: string) => void;
   onSeePlan: () => void;
+  /** Path map navigation. */
+  onPath?: (tab: MonoTab) => void;
+  /** Calendar day key for coach dismiss. */
+  dayKey?: string;
+  /** Today's plan size (for coach). */
+  planTaskCount?: number;
+  planOpenCount?: number;
   /** Emotional skin. Defaults to Hârtie so existing screens stay the home. */
   atmosphere?: Atmosphere;
   onAtmosphere?: (atmosphere: Atmosphere) => void;
@@ -127,6 +138,10 @@ export default function MonoFocus({
   onPreset,
   onToggleTask,
   onSeePlan,
+  onPath,
+  dayKey,
+  planTaskCount,
+  planOpenCount,
   atmosphere = 'hartie',
   onAtmosphere,
 }: Props) {
@@ -221,59 +236,76 @@ export default function MonoFocus({
   const context = (
     <details className="atm-context">
       <summary>{t('mono.atm.context')}</summary>
-      <label className="mono-eyebrow" htmlFor="mono-area">
-        {t('timer.area')}
-      </label>
-      <select
-        id="mono-area"
-        className="mono-field"
-        value={selectedAreaId ?? ''}
-        onChange={(e) => onSelectArea(e.target.value === '' ? null : e.target.value)}
-      >
-        <option value="">{t('timer.noArea')}</option>
-        {areas.map((a) => (
-          <option key={a.id} value={a.id}>
-            {a.name}
-          </option>
-        ))}
-      </select>
-      <label className="mono-eyebrow" htmlFor="mono-project">
-        {t('timer.project')}
-      </label>
-      <select
-        id="mono-project"
-        className="mono-field"
-        value={selectedProjectId ?? ''}
-        onChange={(e) => onSelectProject(e.target.value === '' ? null : e.target.value)}
-      >
-        <option value="">{t('timer.noProject')}</option>
-        {projects.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.name}
-          </option>
-        ))}
-      </select>
-      <label className="mono-eyebrow" htmlFor="mono-task">
-        {t('timer.task')}
-      </label>
-      <select
-        id="mono-task"
-        className="mono-field"
-        value={selectedTaskId ?? ''}
-        onChange={(e) => onSelectTask(e.target.value === '' ? null : e.target.value)}
-      >
-        <option value="">{t('timer.noTask')}</option>
-        {tasks.map((x) => (
-          <option key={x.id} value={x.id}>
-            {x.title}
-          </option>
-        ))}
-      </select>
+      <div className="atm-context-body">
+        <div className="atm-context-field">
+          <label className="mono-eyebrow" htmlFor="mono-area">
+            {t('timer.area')}
+          </label>
+          <select
+            id="mono-area"
+            className="mono-field"
+            value={selectedAreaId ?? ''}
+            onChange={(e) => onSelectArea(e.target.value === '' ? null : e.target.value)}
+          >
+            <option value="">{t('timer.noArea')}</option>
+            {areas.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="atm-context-field">
+          <label className="mono-eyebrow" htmlFor="mono-project">
+            {t('timer.project')}
+          </label>
+          <select
+            id="mono-project"
+            className="mono-field"
+            value={selectedProjectId ?? ''}
+            onChange={(e) => onSelectProject(e.target.value === '' ? null : e.target.value)}
+          >
+            <option value="">{t('timer.noProject')}</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="atm-context-field">
+          <label className="mono-eyebrow" htmlFor="mono-task">
+            {t('timer.task')}
+          </label>
+          <select
+            id="mono-task"
+            className="mono-field"
+            value={selectedTaskId ?? ''}
+            onChange={(e) => onSelectTask(e.target.value === '' ? null : e.target.value)}
+          >
+            <option value="">{t('timer.noTask')}</option>
+            {tasks.map((x) => (
+              <option key={x.id} value={x.id}>
+                {x.title}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
     </details>
   );
 
   const taskList =
-    upNext.length === 0 ? null : (
+    upNext.length === 0 ? (
+      <div style={{ marginTop: 8 }}>
+        <p className="atm-hint">{t('mono.focus.planEmpty')}</p>
+        <div style={{ marginTop: 10 }}>
+          <MonoBtn type="button" variant="primary" onClick={onSeePlan} block>
+            {t('mono.focus.writePlan')}
+          </MonoBtn>
+        </div>
+      </div>
+    ) : (
       <ul className="atm-tasks">
         {upNext.map((item) => (
           <li key={item.id} className={item.done ? 'is-done' : undefined}>
@@ -287,6 +319,27 @@ export default function MonoFocus({
         ))}
       </ul>
     );
+
+  const programCoachKind =
+    dayKey != null
+      ? pickProgramCoach({
+          screen: 'focus',
+          planTaskCount: planTaskCount ?? upNext.length,
+          planOpenCount: planOpenCount ?? upNext.filter((x) => !x.done).length,
+          hasBlocks: false,
+        })
+      : null;
+
+  const programCoach =
+    programCoachKind && dayKey ? (
+      <MonoCoach
+        kind={programCoachKind}
+        dayKey={dayKey}
+        onExample={programCoachKind === 'focusOpen' ? (text) => onIntention(text) : undefined}
+        onCta={programCoachKind === 'focusEmpty' ? onSeePlan : undefined}
+        ctaLabel={programCoachKind === 'focusEmpty' ? t('mono.focus.writePlan') : undefined}
+      />
+    ) : null;
 
   // Single shared composition for ALL atmospheres (colors via CSS tokens only).
   return (
@@ -311,7 +364,8 @@ export default function MonoFocus({
       </details>
 
       <div className="atm-desk">
-        <MonoHead eyebrow={dayLabel(tag)} title={t('mono.focus.greet')} />
+        <MonoHead eyebrow={dayLabel(tag)} title={t('mono.focus.greet')} sub={t('mono.focus.sub')} />
+        {onPath ? <MonoPath active="focus" onGo={onPath} /> : null}
         <div className="atm-board mono-pad">
           <section className="atm-stage" aria-label={title}>
             <p className="mono-eyebrow">{title}</p>
@@ -332,7 +386,8 @@ export default function MonoFocus({
               <p className="atm-aside-title">{t('mono.focus.secToday')}</p>
               <MonoChip onClick={onSeePlan}>{t('mono.focus.seePlan')}</MonoChip>
             </div>
-            {taskList}
+            {programCoach}
+            {programCoachKind === 'focusEmpty' ? null : taskList}
             <p className="atm-hint">
               {t('mono.atm.todayLine', {
                 sessions: fmtNum(stats.sessions),
@@ -345,8 +400,8 @@ export default function MonoFocus({
               <MonoStat value={fmtNum(stats.done)} caption={t('mono.focus.sDone')} />
             </div>
           </aside>
+          {context}
         </div>
-        <div className="mono-pad">{context}</div>
       </div>
 
       {summary && (
