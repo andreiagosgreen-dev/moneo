@@ -6,6 +6,9 @@ import { safeRead as read, safeWrite as write } from '../storage/storageAdapter'
 import { STORAGE_KEYS } from '../storage/storageKeys';
 import type { BuiltPath, PathKind } from './types';
 import type { ByokProvider } from './byok';
+import { FREE_ROADMAPS_LIMIT, canAddRoadmap } from '../roadmapLimits';
+
+export { FREE_ROADMAPS_LIMIT, canAddRoadmap };
 
 export type RoadmapGroup = 'learn' | 'build' | 'ship' | 'market' | 'write' | 'life' | 'custom';
 
@@ -18,14 +21,6 @@ export const ROADMAP_GROUPS: RoadmapGroup[] = [
   'life',
   'custom',
 ];
-
-/** Free keeps one active plan; Pro is unlimited. */
-export const FREE_ROADMAPS_LIMIT = 1;
-
-/** Whether another roadmap may be added (Free: one slot). */
-export function canAddRoadmap(isPro: boolean, existingCount: number): boolean {
-  return isPro || existingCount < FREE_ROADMAPS_LIMIT;
-}
 
 const LEGACY_GROUP: Record<string, RoadmapGroup> = {
   math: 'learn',

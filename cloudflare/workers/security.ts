@@ -33,7 +33,7 @@ export function buildSecurityHeaders(): Record<string, string> {
     "default-src 'self'",
     "script-src 'self' https://challenges.cloudflare.com",
     "style-src 'self' https://fonts.googleapis.com",
-    "font-src 'self' https://fonts.gstatic.com",
+    "font-src 'self' data: https://fonts.gstatic.com",
     "img-src 'self' data: blob:",
     [
       "connect-src 'self'",

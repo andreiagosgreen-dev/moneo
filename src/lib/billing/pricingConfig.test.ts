@@ -20,7 +20,7 @@ import { FREE_HABITS_LIMIT } from '../habits';
 import { FREE_SKILLS_LIMIT } from '../skills';
 import { IVY_MAX_TASKS, IVY_FREE_MAX_TASKS } from '../ivyLee';
 import { CORE_INSIGHT_LIMIT } from '../insights';
-import { FREE_ROADMAPS_LIMIT, canAddRoadmap } from '../ai/roadmap';
+import { FREE_ROADMAPS_LIMIT, canAddRoadmap } from '../roadmapLimits';
 
 describe('pricingConfig — single source of truth', () => {
   it('lists exactly free + pro-monthly + pro-yearly with distinct prices', () => {
