@@ -61,6 +61,19 @@ describe('buildCheckoutUrl', () => {
     );
   });
 
+  it('appends a safe redirect_url so Pro can refresh after payment', () => {
+    configureEnv({ store: 's1', base: BASE, monthly: '111', yearly: '222' });
+    expect(buildCheckoutUrl('pro-monthly', 'user-1', 'https://moneo.bond/account?billing=success')).toBe(
+      `${BASE}/buy/111?checkout[custom][user_id]=user-1&checkout[redirect_url]=${encodeURIComponent('https://moneo.bond/account?billing=success')}`,
+    );
+    expect(buildCheckoutUrl('pro-monthly', 'user-1', 'http://localhost:3000/account?billing=success')).toContain(
+      'checkout[redirect_url]=',
+    );
+    expect(buildCheckoutUrl('pro-monthly', 'user-1', 'javascript:alert(1)')).toBe(
+      `${BASE}/buy/111?checkout[custom][user_id]=user-1`,
+    );
+  });
+
   it('fails closed when the plan variant id is missing', () => {
     configureEnv({ store: 's1', base: BASE, yearly: '222' });
     expect(buildCheckoutUrl('pro-monthly', 'user-1')).toBeNull();
