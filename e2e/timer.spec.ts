@@ -6,11 +6,15 @@ import { skipOnboarding } from './helpers';
  * else matters. Mono Focus replaces the old Focus/Short/Long tabs with
  * duration presets (5 / 25 / 45 min) and a Start → Pause → Resume control,
  * all local-first (no signed-in session needed).
+ *
+ * Empty first-run boots land on Today; open Focus before asserting the clock.
  */
 test.describe('focus timer', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page);
     await page.goto('/');
+    await page.getByRole('tab', { name: 'Focus', exact: true }).click();
+    await expect(page.locator('.atm-time').first()).toBeVisible();
   });
 
   const clock = (page: import('@playwright/test').Page) => page.locator('.atm-time').first();
