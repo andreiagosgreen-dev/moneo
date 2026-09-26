@@ -2,13 +2,13 @@
  * Coherent planning horizons across Goals, AI path and assistant.
  *
  * Near term (day / week / month) already exists in Today / Ivy / Calendar.
- * This module adds the long arc: 1y · 3y · 5y · 10y · life — one vocabulary
- * the UI and engines share. Pure + tested; never throws.
+ * Long arc: 1y · 3y · 5y · 7y · 10y · life — one vocabulary the UI and engines share.
+ * Pure + tested; never throws.
  */
 import type { GoalLevel } from './goals';
 
 export type PlanningHorizon =
-  'day' | 'week' | 'month' | 'year1' | 'year3' | 'year5' | 'year10' | 'life';
+  'day' | 'week' | 'month' | 'year1' | 'year3' | 'year5' | 'year7' | 'year10' | 'life';
 
 /** UI order: near → far. */
 export const PLANNING_HORIZONS: PlanningHorizon[] = [
@@ -18,6 +18,7 @@ export const PLANNING_HORIZONS: PlanningHorizon[] = [
   'year1',
   'year3',
   'year5',
+  'year7',
   'year10',
   'life',
 ];
@@ -29,12 +30,13 @@ export const GOAL_HORIZONS: PlanningHorizon[] = [
   'year1',
   'year3',
   'year5',
+  'year7',
   'year10',
   'life',
 ];
 
 /** AI path horizon pickers (months). Life ≈ 40y planning window. */
-export const AI_HORIZON_MONTHS = [1, 3, 6, 12, 36, 60, 120, 480] as const;
+export const AI_HORIZON_MONTHS = [1, 3, 6, 12, 36, 60, 84, 120, 480] as const;
 
 export const HORIZON_LABEL_KEYS: Record<PlanningHorizon, string> = {
   day: 'horizon.day',
@@ -43,6 +45,7 @@ export const HORIZON_LABEL_KEYS: Record<PlanningHorizon, string> = {
   year1: 'horizon.year1',
   year3: 'horizon.year3',
   year5: 'horizon.year5',
+  year7: 'horizon.year7',
   year10: 'horizon.year10',
   life: 'horizon.life',
 };
@@ -54,6 +57,7 @@ export const HORIZON_SHORT_KEYS: Record<PlanningHorizon, string> = {
   year1: 'horizon.short.year1',
   year3: 'horizon.short.year3',
   year5: 'horizon.short.year5',
+  year7: 'horizon.short.year7',
   year10: 'horizon.short.year10',
   life: 'horizon.short.life',
 };
@@ -73,6 +77,8 @@ export function horizonToMonths(h: PlanningHorizon): number {
       return 36;
     case 'year5':
       return 60;
+    case 'year7':
+      return 84;
     case 'year10':
       return 120;
     case 'life':
@@ -95,6 +101,8 @@ export function horizonToGoalLevel(h: PlanningHorizon): GoalLevel {
       return 'years3';
     case 'year5':
       return 'years5';
+    case 'year7':
+      return 'years7';
     case 'year10':
       return 'years10';
     case 'life':
@@ -118,6 +126,8 @@ export function goalLevelToHorizon(level: GoalLevel): PlanningHorizon {
       return 'year3';
     case 'years5':
       return 'year5';
+    case 'years7':
+      return 'year7';
     case 'years10':
       return 'year10';
     case 'life':
@@ -137,7 +147,8 @@ export function monthsToHorizon(months: number): PlanningHorizon {
   if (m <= 6) return 'month';
   if (m <= 18) return 'year1';
   if (m <= 42) return 'year3';
-  if (m <= 72) return 'year5';
+  if (m <= 66) return 'year5';
+  if (m <= 96) return 'year7';
   if (m <= 180) return 'year10';
   return 'life';
 }

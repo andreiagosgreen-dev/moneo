@@ -8,6 +8,7 @@ import {
   SYNC_SCOPE_KEY,
   canExportSessions,
   canPrintReport,
+  canUseByokAi,
   getComparisonRows,
   getPlanDisplay,
 } from './pricingConfig';
@@ -19,6 +20,7 @@ import { FREE_HABITS_LIMIT } from '../habits';
 import { FREE_SKILLS_LIMIT } from '../skills';
 import { IVY_MAX_TASKS, IVY_FREE_MAX_TASKS } from '../ivyLee';
 import { CORE_INSIGHT_LIMIT } from '../insights';
+import { FREE_ROADMAPS_LIMIT, canAddRoadmap } from '../ai/roadmap';
 
 describe('pricingConfig — single source of truth', () => {
   it('lists exactly free + pro-monthly + pro-yearly with distinct prices', () => {
@@ -43,6 +45,7 @@ describe('pricingConfig — single source of truth', () => {
     expect(FREE_LIMITS.ivyTasks).toBe(IVY_FREE_MAX_TASKS);
     expect(FREE_LIMITS.ivyMax).toBe(IVY_MAX_TASKS);
     expect(FREE_LIMITS.insights).toBe(CORE_INSIGHT_LIMIT);
+    expect(FREE_LIMITS.roadmaps).toBe(FREE_ROADMAPS_LIMIT);
   });
 
   it('exposes feature lists as i18n keys (no hardcoded display copy)', () => {
@@ -54,16 +57,21 @@ describe('pricingConfig — single source of truth', () => {
     }
   });
 
-  it('gates exports behind Pro', () => {
+  it('gates exports and own-key AI behind Pro', () => {
     expect(canExportSessions(false)).toBe(false);
     expect(canExportSessions(true)).toBe(true);
     expect(canPrintReport(false)).toBe(false);
     expect(canPrintReport(true)).toBe(true);
+    expect(canUseByokAi(false)).toBe(false);
+    expect(canUseByokAi(true)).toBe(true);
+    expect(canAddRoadmap(false, 0)).toBe(true);
+    expect(canAddRoadmap(false, FREE_ROADMAPS_LIMIT)).toBe(false);
+    expect(canAddRoadmap(true, 99)).toBe(true);
   });
 
   it('builds comparison rows from live limits (no hardcoded numbers)', () => {
     const rows = getComparisonRows();
-    expect(rows.length).toBe(8);
+    expect(rows.length).toBe(9);
     const projects = rows[0];
     expect(projects.labelKey).toBe('pay.plan.monthly.f1');
     expect(projects.free).toEqual({ kind: 'limit', value: FREE_PROJECTS_LIMIT });

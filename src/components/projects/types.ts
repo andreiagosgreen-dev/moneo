@@ -7,6 +7,7 @@ import type { Goal } from '../../lib/goals';
 import type { Skill } from '../../lib/skills';
 import type { SavedFilter } from '../../lib/savedFilters';
 import type { Objective } from '../../lib/okrs';
+import type { WaterfallPhase } from '../../lib/waterfall';
 
 export interface Props {
   projects: Project[];
@@ -26,6 +27,10 @@ export interface Props {
   isPro?: boolean;
   savedFilters: SavedFilter[];
   onSavedFiltersChange: (filters: SavedFilter[]) => void;
+  /** Bind project (+ task) into Focus timer and open Focus. */
+  onWorkFocus?: (projectId: string, taskId: string | null) => void;
+  phases?: WaterfallPhase[];
+  onPhasesChange?: (phases: WaterfallPhase[]) => void;
 }
 
 export interface ProjectRowProps {
@@ -47,6 +52,8 @@ export interface ProjectRowProps {
   allProjects: Project[];
   skills: Skill[];
   objectives: Objective[];
+  /** Select this project (+ optional task) for the Focus timer. */
+  onWorkFocus?: (projectId: string, taskId: string | null) => void;
 }
 
 export interface TaskRowProps {

@@ -11,6 +11,8 @@ import {
 import type { Task } from '../../lib/tasks';
 import { saveTasks } from '../../lib/tasks';
 import { getTemplateById, instantiateTemplate } from '../../lib/projectTemplates';
+import { seedPhasesForProject, type WaterfallPhase } from '../../lib/waterfall';
+import { saveAdvancedPlanning } from '../../lib/advancedPlanning';
 
 export interface ProjectsCrudOptions {
   projects: Project[];
@@ -24,6 +26,8 @@ export interface ProjectsCrudOptions {
   deleteConfirmMessage: string;
   /** Called after a create/clone so the card can expand the new row. */
   onCreated: (id: string) => void;
+  phases?: WaterfallPhase[];
+  onPhasesChange?: (phases: WaterfallPhase[]) => void;
 }
 
 /**
@@ -42,6 +46,8 @@ export function useProjectsCrud({
   isPro,
   deleteConfirmMessage,
   onCreated,
+  phases = [],
+  onPhasesChange,
 }: ProjectsCrudOptions) {
   const [limitNotice, setLimitNotice] = useState(false);
 
@@ -80,6 +86,13 @@ export function useProjectsCrud({
     const { project, tasks: starter } = instantiateTemplate(template);
     commitProjects([...projects, project]);
     commitTasks([...tasks, ...starter]);
+    if (template.id === 'diy-hardware' && onPhasesChange) {
+      const next = seedPhasesForProject(phases, project.id, 'build');
+      if (next !== phases) {
+        saveAdvancedPlanning(true);
+        onPhasesChange(next);
+      }
+    }
     onSelectProject(project.id);
     onCreated(project.id);
     return true;

@@ -1,17 +1,16 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
 interface Props {
   title: string;
   hint?: string;
   defaultOpen: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 /**
- * Progressive disclosure section (Roadmap Faza 2): power features stay one
- * tap away instead of crowding first-run screens. Plain section header —
- * deliberately NOT a card, so cards never nest. Instant toggle, respects
- * reduced-motion by construction.
+ * Progressive disclosure (Roadmap Faza 2): power features stay one tap away.
+ * Children stack as full-width rows (one under the other) — never side-by-side
+ * narrow columns.
  */
 export default function Disclosure({ title, hint, defaultOpen, children }: Props) {
   const [open, setOpen] = useState(defaultOpen);
@@ -38,7 +37,7 @@ export default function Disclosure({ title, hint, defaultOpen, children }: Props
         </span>
       </button>
       {open && (
-        <div className="mt-5 flex min-w-0 flex-row items-stretch gap-4 overflow-x-auto pb-1 [&>*]:min-w-[min(100%,20rem)] [&>*]:flex-1 [&>*]:shrink-0">
+        <div className="mt-5 flex min-w-0 flex-col gap-5 [&>*]:min-w-0 [&>*]:w-full">
           {children}
         </div>
       )}

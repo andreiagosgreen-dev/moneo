@@ -90,7 +90,10 @@ export default function OkrCard({
   const validParents = objectives.filter((o) => !o.archived);
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label={t('okr.aria')}>
+    <section
+      className="card flex h-full min-w-0 flex-col px-6 py-6 sm:px-7"
+      aria-label={t('okr.aria')}
+    >
       <header className="flex items-baseline justify-between gap-3">
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">

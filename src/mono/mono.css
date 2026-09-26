@@ -45,6 +45,497 @@
   color: var(--mono-fg-2);
   margin: 3px 0 0;
 }
+.mono-page-sub {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--mono-muted);
+  max-width: 36em;
+}
+
+/* Jump-back after opening a module to fill something in */
+.mono-return {
+  padding: 10px 20px 0;
+}
+.mono-return-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--mono-surface) 80%, transparent);
+  color: var(--mono-fg-2);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 550;
+  cursor: pointer;
+}
+.mono-return-btn:hover {
+  color: var(--mono-fg);
+  background: color-mix(in oklab, var(--mono-surface) 70%, var(--mono-accent, var(--accent)) 10%);
+}
+.mono-return-btn:focus-visible {
+  outline: 2px solid var(--mono-accent, var(--accent));
+  outline-offset: 2px;
+}
+
+/* Daily spine: write → work → when */
+.mono-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 0;
+  padding: 0 20px 10px;
+}
+.mono-path-piece {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.mono-path-sep {
+  color: var(--mono-muted);
+  opacity: 0.55;
+  padding: 0 2px;
+  font-size: 13px;
+}
+.mono-path-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--mono-muted);
+  font: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.mono-path-step:hover {
+  color: var(--mono-fg-2);
+  background: color-mix(in oklab, var(--mono-surface) 70%, transparent);
+}
+.mono-path-step.is-on {
+  color: var(--mono-fg);
+  background: color-mix(in oklab, var(--mono-surface) 85%, var(--mono-accent, var(--accent)) 8%);
+}
+.mono-path-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35em;
+  height: 1.35em;
+  border-radius: 999px;
+  font-family: var(--mono-font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  background: color-mix(in oklab, var(--mono-muted) 22%, transparent);
+  color: inherit;
+}
+.mono-path-step.is-on .mono-path-n {
+  background: var(--mono-accent, var(--accent));
+  color: var(--mono-on-accent, var(--on-accent, #fff));
+}
+.mono-path-label {
+  font-weight: 550;
+}
+
+/* ---------- Program coach (spine guidance) ---------- */
+.mono-coach {
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: var(--mono-raised, var(--mono-surface));
+  box-shadow: var(--mono-sh-card);
+}
+.mono-coach-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.mono-coach-dismiss {
+  margin: 0;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--mono-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 550;
+  cursor: pointer;
+}
+.mono-coach-dismiss:hover {
+  color: var(--mono-fg);
+  background: color-mix(in oklab, var(--mono-muted) 14%, transparent);
+}
+.mono-coach-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.mono-coach-restore {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 2px;
+}
+
+.mono-roadmap-strip {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 16px 18px;
+  text-align: left;
+  border: 0;
+  border-radius: 16px;
+  background: var(--mono-raised, var(--mono-surface));
+  box-shadow: var(--mono-sh-card);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    transform 180ms var(--mono-ease, ease),
+    background 180ms ease;
+}
+.mono-roadmap-strip:hover {
+  background: color-mix(in oklab, var(--mono-surface) 85%, var(--mono-accent, var(--accent)) 8%);
+  transform: translateY(-1px);
+}
+.mono-roadmap-strip:active {
+  transform: translateY(0);
+}
+.mono-roadmap-strip-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* ---------- Roadmap journey (visual path A→Z) ---------- */
+.mono-rm-strip-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.mono-rm-strip-copy {
+  min-width: 0;
+  flex: 1;
+}
+.mono-rm-strip-bar {
+  margin-top: 12px;
+}
+.mono-rm-strip-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+.mono-rm-strip-cta {
+  font-family: var(--mono-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mono-accent, var(--accent));
+}
+
+.mono-rm-ring {
+  position: relative;
+  flex-shrink: 0;
+}
+.mono-rm-ring svg {
+  display: block;
+  transform: rotate(-90deg);
+}
+.mono-rm-ring-bg,
+.mono-rm-ring-fg {
+  fill: none;
+  stroke-width: 4;
+}
+.mono-rm-ring-bg {
+  stroke: color-mix(in oklab, var(--mono-muted) 28%, transparent);
+}
+.mono-rm-ring-fg {
+  stroke: var(--mono-accent, var(--accent));
+  stroke-linecap: round;
+  transition: stroke-dashoffset 420ms var(--mono-ease, ease);
+}
+.mono-rm-ring-label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono-font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mono-fg);
+}
+
+.mono-rm-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.mono-rm-track::-webkit-scrollbar {
+  display: none;
+}
+.mono-rm-node {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.mono-rm-seg {
+  width: 14px;
+  height: 2px;
+  margin: 0 2px;
+  border-radius: 99px;
+  background: color-mix(in oklab, var(--mono-muted) 35%, transparent);
+}
+.mono-rm-node.is-done .mono-rm-seg,
+.mono-rm-node.is-now .mono-rm-seg {
+  background: color-mix(in oklab, var(--mono-accent, var(--accent)) 70%, transparent);
+}
+.mono-rm-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-family: var(--mono-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  background: color-mix(in oklab, var(--mono-muted) 20%, transparent);
+  color: var(--mono-muted);
+}
+.mono-rm-node.is-done .mono-rm-dot {
+  background: color-mix(in oklab, var(--mono-accent, var(--accent)) 28%, transparent);
+  color: var(--mono-accent, var(--accent));
+}
+.mono-rm-node.is-now .mono-rm-dot {
+  background: var(--mono-accent, var(--accent));
+  color: var(--mono-on-accent, var(--on-accent, #fff));
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--mono-accent, var(--accent)) 28%, transparent);
+  animation: mono-rm-pulse 1.6s ease-in-out infinite;
+}
+.mono-rm-track.is-compact .mono-rm-seg {
+  width: 10px;
+}
+
+@keyframes mono-rm-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--mono-accent, var(--accent)) 22%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in oklab, var(--mono-accent, var(--accent)) 10%, transparent);
+  }
+}
+
+.mono-rm-trail {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.mono-rm-station {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 8px;
+  align-items: stretch;
+}
+.mono-rm-station-rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
+}
+.mono-rm-station-rail::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: color-mix(in oklab, var(--mono-muted) 28%, transparent);
+}
+.mono-rm-station:first-child .mono-rm-station-rail::before {
+  top: 18px;
+}
+.mono-rm-station:last-child .mono-rm-station-rail::before {
+  bottom: calc(100% - 18px);
+}
+.mono-rm-station.is-done .mono-rm-station-rail::before {
+  background: color-mix(in oklab, var(--mono-accent, var(--accent)) 45%, transparent);
+}
+.mono-rm-station-dot {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  font-family: var(--mono-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--mono-surface, var(--ink, #111));
+  color: var(--mono-muted);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--mono-muted) 30%, transparent);
+}
+.mono-rm-station.is-done .mono-rm-station-dot {
+  color: var(--mono-accent, var(--accent));
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--mono-accent, var(--accent)) 50%, transparent);
+}
+.mono-rm-station.is-now .mono-rm-station-dot {
+  background: var(--mono-accent, var(--accent));
+  color: var(--mono-on-accent, var(--on-accent, #fff));
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--mono-accent, var(--accent)) 30%, transparent);
+  animation: mono-rm-pulse 1.6s ease-in-out infinite;
+}
+.mono-rm-station-body {
+  min-width: 0;
+  padding: 4px 0 10px;
+}
+.mono-rm-station.is-now .mono-rm-station-body > * {
+  outline: 1px solid color-mix(in oklab, var(--mono-accent, var(--accent)) 35%, transparent);
+  outline-offset: 0;
+  border-radius: 10px;
+}
+.mono-rm-hero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.mono-rm-hero-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+/* ---------- Life hub (Map / Viață) ---------- */
+.mono-life-motto {
+  padding: 16px 18px;
+}
+.mono-life-motto-text {
+  margin: 8px 0 0;
+  font-family: var(--mono-font-display);
+  font-size: 18px;
+  font-weight: 550;
+  line-height: 1.4;
+  color: var(--mono-fg-2);
+}
+.mono-life-horizons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mono-life-horizon {
+  margin: 0;
+  padding: 8px 14px;
+  border: 1px solid var(--mono-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--mono-muted);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 550;
+  cursor: pointer;
+}
+.mono-life-horizon:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+.mono-life-horizon.is-on {
+  color: var(--mono-fg);
+  border-color: color-mix(in oklab, var(--mono-accent, var(--accent)) 45%, var(--mono-border));
+  background: color-mix(in oklab, var(--mono-surface) 80%, var(--mono-accent, var(--accent)) 12%);
+}
+.mono-life-frames {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (min-width: 720px) {
+  .mono-life-frames {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.mono-life-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 14px 10px;
+  border: 1px solid var(--mono-border);
+  border-radius: 14px;
+  background: var(--mono-raised, var(--mono-surface));
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: center;
+}
+.mono-life-frame:hover {
+  border-color: color-mix(in oklab, var(--mono-accent, var(--accent)) 35%, var(--mono-border));
+}
+.mono-life-frame-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mono-fg-2);
+}
+.mono-life-ring {
+  position: relative;
+  width: 72px;
+  height: 72px;
+}
+.mono-life-ring-track {
+  stroke: color-mix(in oklab, var(--mono-border) 80%, transparent);
+}
+.mono-life-ring-bar {
+  stroke: var(--mono-accent, var(--accent));
+  transition: stroke-dashoffset 0.4s ease;
+}
+.mono-life-ring-pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--mono-fg);
+}
+.mono-azi-motto-line {
+  margin: 10px 20px 0;
+  padding: 10px 14px;
+  border-left: 2px solid color-mix(in oklab, var(--mono-accent, var(--accent)) 50%, transparent);
+  color: var(--mono-muted);
+  font-size: 14px;
+  line-height: 1.45;
+  font-style: italic;
+}
+.mono-azi-motto-src {
+  font-style: normal;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
 .mono-h2 {
   font-family: var(--mono-font-display);
   font-size: 21px;
@@ -746,7 +1237,7 @@
 @media (min-width: 1024px) {
   .mono-shell {
     padding-bottom: 0;
-    padding-left: 240px;
+    padding-left: 256px;
   }
   .mono-shell-inner {
     padding: 32px 40px 48px;
@@ -757,8 +1248,8 @@
     gap: 4px;
     top: 0;
     right: auto;
-    width: 240px;
-    padding: 24px 14px;
+    width: 256px;
+    padding: 24px 16px;
     border-top: 0;
     border-right: 1px solid var(--mono-border);
     background: transparent;
@@ -801,9 +1292,12 @@
     line-height: 1;
   }
   .mono-rail-foot {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     margin-top: auto;
-    padding: 16px 0 0;
+    padding: 20px 0 4px;
+    border-top: 1px solid var(--mono-border);
   }
 
   .mono-nav-item.is-desk-only {
@@ -822,19 +1316,53 @@
   }
   .mono-rail-kicker {
     display: block;
-    margin: 0 12px 8px;
+    margin: 0 12px 0;
   }
   .mono-rail-account {
     display: block;
-    margin: 0 4px 8px;
+    margin: 0 4px;
   }
   .mono-rail-account .btn,
   .mono-rail-account button {
     font-family: var(--mono-font-body);
   }
+  .mono-rail-tools {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .mono-rail-tools .mono-nav-item {
+    white-space: nowrap;
+    min-height: 44px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .mono-rail-item-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mono-rail-kbd {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-family: var(--mono-font-mono, ui-monospace, monospace);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--mono-muted);
+    background: transparent;
+    border: 0;
+    padding: 0;
+  }
   .mono-rail-new {
     display: block;
-    margin-top: 8px;
+    margin-top: 4px;
+  }
+  .mono-rail-tag {
+    margin: 4px 12px 0;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--mono-muted);
   }
   .mono-nav {
     display: flex;
@@ -1436,18 +1964,76 @@
   font-size: 13.5px;
   font-weight: 500;
 }
-.atm-context summary {
-  cursor: pointer;
-  color: var(--mono-muted);
-  font-size: 13.5px;
-  font-weight: 500;
+.atm-context {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 16px 20px 20px;
+  border-radius: 16px;
+  border: 0;
+  background: var(--mono-raised, var(--mono-surface));
+  box-shadow: var(--mono-sh-card);
+  color: var(--mono-fg-2);
+  box-sizing: border-box;
 }
-.atm-context .mono-field {
-  margin-top: 6px;
+.atm-context > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  margin: 0;
+  padding: 4px 0 2px;
+  color: var(--mono-fg);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.atm-context > summary::-webkit-details-marker {
+  display: none;
+}
+.atm-context > summary::before {
+  content: '';
+  width: 0.45em;
+  height: 0.45em;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  opacity: 0.7;
+  flex-shrink: 0;
+  transition: transform 160ms ease;
+}
+.atm-context[open] > summary::before {
+  transform: rotate(45deg);
+  opacity: 1;
+}
+.atm-context-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 16px 0 4px;
+  border-top: 1px solid var(--mono-border, color-mix(in oklab, var(--mono-muted) 22%, transparent));
+}
+@media (min-width: 720px) {
+  .atm-context-body {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+.atm-context-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
 }
 .atm-context .mono-eyebrow {
   display: block;
-  margin-top: 12px;
+  margin: 0;
+}
+.atm-context .mono-field {
+  margin: 0;
+  width: 100%;
 }
 .atm-bar > span {
   display: block;
@@ -1605,6 +2191,10 @@
   flex-direction: column;
   gap: 8px;
 }
+.atm-desk-below {
+  margin-top: 20px;
+  padding-bottom: 28px;
+}
 .atm-board {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
@@ -1660,10 +2250,12 @@
 }
 .atm-hint,
 .atm-picker,
-.atm-switch,
-.atm-context {
+.atm-switch {
   font-family: var(--mono-font-body);
   color: var(--mono-muted);
+}
+.atm-context {
+  font-family: var(--mono-font-body);
 }
 .atm-time {
   font-family: var(--mono-font-display);

@@ -60,7 +60,7 @@ describe('WeeklyRecapCard', () => {
   it('shows the empty state before the first session', () => {
     const el = renderCard([]);
     expect(el.textContent).toContain('Weekly recap');
-    expect(el.textContent).toContain('Finish one focus round');
+    expect(el.textContent).toContain('Finish one focus session');
   });
 
   it('renders the week total, top mover and share actions', () => {

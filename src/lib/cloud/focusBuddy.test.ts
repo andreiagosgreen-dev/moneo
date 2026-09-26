@@ -74,6 +74,26 @@ describe('handleBuddyInvite', () => {
     ).toBe(403);
   });
 
+  it('allows invite for complimentary Free users (email allowlist)', async () => {
+    const { fn } = stubFetch((url, method) => {
+      if (url.endsWith('/auth/v1/user'))
+        return { status: 200, body: { id: 'user-1', email: 'comp@example.com' } };
+      if (url.includes('/rest/v1/subscriptions'))
+        return { status: 200, body: [{ status: 'free' }] };
+      if (url.includes('/rest/v1/focus_buddy_pairs') && method === 'GET') {
+        return { status: 200, body: [] };
+      }
+      if (url.includes('/rest/v1/focus_buddy_pairs')) return { status: 200, body: [] };
+      return { status: 404, body: {} };
+    });
+    const env: FocusBuddyEnv = {
+      ...ENV,
+      PRO_COMPLIMENTARY_EMAILS: 'comp@example.com',
+    };
+    const res = await handleBuddyInvite(authedRequest('/api/buddy/invite', 'tok'), env, fn);
+    expect(res.status).toBe(200);
+  });
+
   it('creates a pending invite with a code for a Pro user with no existing pairing', async () => {
     const { fn } = proBackend();
     const res = await handleBuddyInvite(authedRequest('/api/buddy/invite', 'tok'), ENV, fn);

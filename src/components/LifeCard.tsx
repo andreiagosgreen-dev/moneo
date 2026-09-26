@@ -13,7 +13,10 @@ export default function LifeCard(props: LifeCardProps) {
   const [tab, setTab] = useState<LifeTab>('habits');
 
   return (
-    <section className="card min-w-0 px-5 py-5 sm:px-6" aria-label={t('life.aria')}>
+    <section
+      className="card flex h-full min-w-0 flex-col px-5 py-5 sm:px-6"
+      aria-label={t('life.aria')}
+    >
       <header className="flex items-baseline justify-between gap-3">
         <div className="min-w-0">
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">
@@ -37,7 +40,7 @@ export default function LifeCard(props: LifeCardProps) {
         ))}
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 min-w-0 flex-1">
         {tab === 'habits' && <HabitsTab {...props} />}
         {tab === 'balance' && <BalanceTab {...props} />}
         {tab === 'journal' && <JournalTab {...props} />}

@@ -20,6 +20,9 @@ workers_dev = false
 # `wrangler secret put` instead, never here.
 [vars]
 SUPABASE_URL = "https://yvkguiiqojwyosvkxzbt.supabase.co"
+# Complimentary Pro emails (Free branding + full unlock). Comma-separated;
+# mirror VITE_PRO_COMPLIMENTARY_EMAILS / COMPLIMENTARY_PRO_EMAILS in code.
+# PRO_COMPLIMENTARY_EMAILS = "you@example.com,other@example.com"
 
 # KV namespace for caching
 [[kv_namespaces]]

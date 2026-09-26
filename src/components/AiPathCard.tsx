@@ -10,13 +10,20 @@ import {
 import { buildSprint, type BuiltSprint } from '../lib/ai/sprint';
 import { loadAIConsent, saveAIConsent } from '../lib/ai/providers';
 import type { BuiltPath, ClarifyId, PathInput, SkillLevel } from '../lib/ai/types';
-import { createProjectObject, type Project, type ProjectCategory } from '../lib/projects';
+import {
+  createProjectObject,
+  FREE_PROJECTS_LIMIT,
+  type Project,
+  type ProjectCategory,
+} from '../lib/projects';
 import { createTaskObject, setTaskEstimate, type Task } from '../lib/tasks';
 import { createGoalObject, type Goal } from '../lib/goals';
 import { addTaskToDay, IVY_MAX_TASKS, IVY_FREE_MAX_TASKS, type IvyPlan } from '../lib/ivyLee';
 import { weekdayOfKey, type TimeBlock, type Weekday } from '../lib/timeBlocks';
 import { dayCapacity, nextDayKey } from '../lib/ritual';
 import { dayKeyInTz } from '../lib/timezone';
+import type { WaterfallPhase } from '../lib/waterfall';
+import { seedWaterfallForPathKind } from '../lib/ai/approvePath';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
 
@@ -30,6 +37,8 @@ interface Props {
   ivyPlans: IvyPlan[];
   plansChange: (plans: IvyPlan[]) => void;
   blocks: TimeBlock[];
+  phases?: WaterfallPhase[];
+  phasesChange?: (phases: WaterfallPhase[]) => void;
   timezone: string;
   isPro?: boolean;
 }
@@ -56,6 +65,8 @@ export default function AiPathCard({
   ivyPlans,
   plansChange,
   blocks,
+  phases = [],
+  phasesChange,
   timezone,
   isPro = false,
 }: Props) {
@@ -154,6 +165,11 @@ export default function AiPathCard({
 
     let projectId: string | null = null;
     if (createProject) {
+      if (!isPro && projects.length >= FREE_PROJECTS_LIMIT) {
+        setResultNote(t('proj.limit', { n: FREE_PROJECTS_LIMIT }));
+        setStep('done');
+        return;
+      }
       const name =
         path != null
           ? `${t('ai.approve.projectPrefix')}${path.goal}`
@@ -170,6 +186,10 @@ export default function AiPathCard({
       // disappearing once the plan is approved.
       const goal = createGoalObject(goals, project.name, 'project');
       if (goal) goalsChange([...goals, { ...goal, projectId: project.id }]);
+
+      if (path && phasesChange) {
+        phasesChange(seedWaterfallForPathKind(phases, project.id, path.kind));
+      }
     }
 
     // title → real Task id, so week-drafted Ivy entries (below) can carry

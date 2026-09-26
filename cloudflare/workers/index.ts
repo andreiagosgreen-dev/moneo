@@ -82,6 +82,8 @@ export interface Env {
   /** Reused from the existing Google Sign-In OAuth client — not a new app. */
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
+  /** Comma-separated emails with Free branding + Pro unlock (not Lemon-paid). */
+  PRO_COMPLIMENTARY_EMAILS?: string;
 }
 
 const DEFAULT_ALLOWED_ORIGINS = 'https://moneo.bond';

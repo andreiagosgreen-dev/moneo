@@ -4,8 +4,12 @@ import MonoCard from './MonoCard';
 import MonoBtn from './MonoBtn';
 import MonoTick from './MonoTick';
 import MonoProgress from './MonoProgress';
+import MonoPath from './MonoPath';
+import MonoCoach from './MonoCoach';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import { dayLabel } from './monoDate';
+import type { MonoTab } from './MonoNav';
+import { pickProgramCoach } from '../lib/guidance/programCoach';
 
 export interface MonoAziItem {
   id: string;
@@ -15,6 +19,8 @@ export interface MonoAziItem {
 }
 
 interface Props {
+  /** Calendar day key for coach dismiss (YYYY-M-D). */
+  dayKey: string;
   doneCount: number;
   totalCount: number;
   items: MonoAziItem[];
@@ -25,6 +31,12 @@ interface Props {
   onShutdown: () => void;
   onToggle: (id: string) => void;
   onAdd: (text: string) => void;
+  /** Jump to Focus to work the list. */
+  onGoWork?: () => void;
+  /** Path map navigation. */
+  onPath?: (tab: MonoTab) => void;
+  /** Optional attributed daily motto (calm, one line). */
+  motto?: { text: string; source: string };
   estimates?: ReactNode;
   /** Optional schedule strip — omit when empty noise (Orar owns blocks). */
   program?: ReactNode;
@@ -33,6 +45,7 @@ interface Props {
 
 /** Today screen: rituals, progress, priorities, then optional extras. */
 export default function MonoAzi({
+  dayKey,
   doneCount,
   totalCount,
   items,
@@ -43,6 +56,9 @@ export default function MonoAzi({
   onShutdown,
   onToggle,
   onAdd,
+  onGoWork,
+  onPath,
+  motto,
   estimates,
   program,
   more,
@@ -52,6 +68,14 @@ export default function MonoAzi({
   const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
   const full = totalCount >= maxTasks;
   const hasItems = items.length > 0;
+  const hasOpen = items.some((x) => !x.done);
+  const openCount = items.filter((x) => !x.done).length;
+  const coachKind = pickProgramCoach({
+    screen: 'today',
+    planTaskCount: totalCount,
+    planOpenCount: openCount,
+    hasBlocks: false,
+  });
 
   const submit = () => {
     const clean = draft.trim();
@@ -101,7 +125,13 @@ export default function MonoAzi({
 
   return (
     <div>
-      <MonoHead eyebrow={dayLabel(tag)} title={t('mono.azi.title')} />
+      <MonoHead eyebrow={dayLabel(tag)} title={t('mono.azi.title')} sub={t('mono.azi.sub')} />
+      {onPath ? <MonoPath active="today" onGo={onPath} /> : null}
+      {motto?.text ? (
+        <p className="mono-azi-motto-line">
+          “{motto.text}”<span className="mono-azi-motto-src"> — {motto.source}</span>
+        </p>
+      ) : null}
 
       <div className="mono-pad">
         <div className="mono-row" style={{ gap: 8 }}>
@@ -139,6 +169,18 @@ export default function MonoAzi({
         </MonoCard>
       </div>
 
+      {coachKind ? (
+        <div className="mono-pad" style={{ marginTop: 14 }}>
+          <MonoCoach
+            kind={coachKind}
+            dayKey={dayKey}
+            onExample={coachKind === 'aziEmpty' ? (text) => setDraft(text) : undefined}
+            onCta={coachKind === 'aziDone' ? onShutdown : undefined}
+            ctaLabel={coachKind === 'aziDone' ? shutdownLabel : undefined}
+          />
+        </div>
+      ) : null}
+
       <section className="mono-sec mono-pad" aria-label={t('mono.azi.prio')}>
         <p className="mono-eyebrow" style={{ marginBottom: 8 }}>
           {t('mono.azi.prio')}
@@ -171,14 +213,16 @@ export default function MonoAzi({
               ))}
             </MonoCard>
             {addForm}
+            {hasOpen && onGoWork ? (
+              <div style={{ marginTop: 14 }}>
+                <MonoBtn variant="primary" onClick={onGoWork} block>
+                  {t('mono.azi.goWork')}
+                </MonoBtn>
+              </div>
+            ) : null}
           </>
         ) : (
-          <MonoCard>
-            <p className="mono-meta" style={{ marginBottom: 14 }}>
-              {t('mono.azi.empty')}
-            </p>
-            {addForm}
-          </MonoCard>
+          <MonoCard>{addForm}</MonoCard>
         )}
       </section>
 

@@ -20,6 +20,10 @@ interface Props {
   frogLogChange: (log: FrogLog) => void;
   onTasksChange: (tasks: Task[]) => void;
   isPro?: boolean;
+  /** When true, frog is already on today's Ivy plan. */
+  onPlan?: boolean;
+  /** Add the frog to today's plan (Azi spine). */
+  onAddToPlan?: () => void;
 }
 
 export default function FrogCard({
@@ -29,6 +33,8 @@ export default function FrogCard({
   frogLogChange,
   onTasksChange,
   isPro = false,
+  onPlan = false,
+  onAddToPlan,
 }: Props) {
   const now = useMemo(() => Date.now(), []);
   const { t, tag, fmtNum } = useI18n();
@@ -103,12 +109,24 @@ export default function FrogCard({
             {t(eaten ? 'frog.eaten' : 'frog.uneaten')}
           </p>
           {!eaten && (
-            <button
-              onClick={eatFrog}
-              className="press btn-accent mt-3 rounded-lg px-4 py-2 text-sm font-semibold"
-            >
-              {t('frog.eat')}
-            </button>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                onClick={eatFrog}
+                className="press btn-accent rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                {t('frog.eat')}
+              </button>
+              {onAddToPlan && (
+                <button
+                  type="button"
+                  disabled={onPlan}
+                  onClick={onAddToPlan}
+                  className="press rounded-lg border border-line px-4 py-2 text-sm font-semibold text-cream disabled:opacity-50"
+                >
+                  {onPlan ? t('frog.onPlan') : t('frog.addToPlan')}
+                </button>
+              )}
+            </div>
           )}
         </div>
       )}
