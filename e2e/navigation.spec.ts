@@ -37,7 +37,8 @@ test.describe('mono navigation', () => {
 
   test('the command palette opens with Ctrl+K and navigates', async ({ page }) => {
     // Wait for the app shell (and its window keydown listener) before the shortcut.
-    await expect(page.locator('.atm-time').first()).toBeVisible();
+    // Empty first-run boots land on Today, so Focus's .atm-time may be absent.
+    await expect(page.getByRole('tab', { name: 'Today', exact: true })).toBeVisible();
     await page.keyboard.press('Control+k');
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
