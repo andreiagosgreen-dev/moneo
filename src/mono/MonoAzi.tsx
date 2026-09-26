@@ -40,6 +40,8 @@ interface Props {
   estimates?: ReactNode;
   /** Optional schedule strip — omit when empty noise (Orar owns blocks). */
   program?: ReactNode;
+  /** Habit check-in for today (Mono surface; full Life stays under More). */
+  habits?: ReactNode;
   more?: ReactNode;
 }
 
@@ -61,6 +63,7 @@ export default function MonoAzi({
   motto,
   estimates,
   program,
+  habits,
   more,
 }: Props) {
   const { t, tag, fmtNum } = useI18n();
@@ -234,6 +237,8 @@ export default function MonoAzi({
           {program}
         </section>
       ) : null}
+
+      {habits}
 
       {more}
     </div>
