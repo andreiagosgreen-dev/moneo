@@ -58,7 +58,11 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        // Do NOT precache woff/woff2 — Pro font packs balloon precache to ~10MB
+        // and can break SW install / leave a stuck black shell after deploy.
+        // Fonts still load on demand with long-cache hashed URLs from R2.
+        globPatterns: ['**/*.{js,css,html,svg,png}'],
+        globIgnores: ['**/*.{woff,woff2}'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

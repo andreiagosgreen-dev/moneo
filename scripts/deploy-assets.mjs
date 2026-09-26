@@ -49,11 +49,29 @@ async function walk(dir) {
 
 const files = await walk(DIST);
 
-for (const file of files) {
+/**
+ * Upload order matters: hashed assets first, shell last.
+ * If index.html / sw.js land before their hashed chunks exist on R2, the
+ * Worker historically SPA-fell-back HTML for missing `.js` → black screen.
+ */
+function uploadRank(key) {
+  if (key === 'index.html') return 3;
+  if (key === 'sw.js' || key === 'registerSW.js' || /^workbox-.*\.js$/.test(key)) return 2;
+  if (key.startsWith('assets/')) return 0;
+  return 1;
+}
+
+const ordered = [...files].sort((a, b) => {
+  const ka = relative(DIST, a).split(sep).join('/').replace(/\\/g, '/');
+  const kb = relative(DIST, b).split(sep).join('/').replace(/\\/g, '/');
+  return uploadRank(ka) - uploadRank(kb) || ka.localeCompare(kb);
+});
+
+for (const file of ordered) {
   const key = relative(DIST, file).split(sep).join('/').replace(/\\/g, '/');
   const command = `${WRANGLER} r2 object put ${BUCKET}/${key} --file "${file}" --remote`;
   console.log(`→ ${key}`);
   execSync(command, { stdio: 'inherit', bigint: false });
 }
 
-console.log(`\nUploaded ${files.length} files to r2://${BUCKET}`);
+console.log(`\nUploaded ${ordered.length} files to r2://${BUCKET}`);

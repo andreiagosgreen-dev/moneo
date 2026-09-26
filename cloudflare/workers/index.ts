@@ -37,6 +37,9 @@ import {
   mergeHeaders,
   canonicalRedirect,
 } from './security';
+import { isStaticAssetPath } from './staticAssetPath';
+
+export { isStaticAssetPath } from './staticAssetPath';
 
 /** Best-effort per-isolate guards (see security.ts for the caveat). */
 const webhookLimiter = createRateLimiter({ windowMs: 60_000, max: 30 });
@@ -231,6 +234,18 @@ export default {
       });
     }
 
+    // Missing hashed assets must be real 404s — never HTML. Returning index.html
+    // for `/assets/*.js` makes the browser try to execute HTML as a module →
+    // blank/black screen (dark body bg, empty #root).
+    if (isStaticAssetPath(filePath)) {
+      return new Response(`Not Found. Tried to fetch: ${r2Key}`, {
+        status: 404,
+        headers: mergeHeaders(SEC, cors, {
+          'Cache-Control': 'no-store',
+        }),
+      });
+    }
+
     // SPA fallback: return index.html for client routes (e.g. /privacy, /terms)
     const indexObject = await env.R2_BUCKET?.get('index.html');
     if (indexObject) {
@@ -390,6 +405,7 @@ function getContentType(filePath: string): string {
     jpg: 'image/jpeg',
     jpeg: 'image/jpeg',
     svg: 'image/svg+xml',
+    woff: 'font/woff',
     woff2: 'font/woff2',
     webmanifest: 'application/manifest+json',
   };
