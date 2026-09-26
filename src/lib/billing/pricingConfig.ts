@@ -113,11 +113,12 @@ export const FREE_LIMITS = {
  *
  * FREE — Focus forever; 3 projects / 3 goals / 3 OKRs / 5 habits / 5 skills;
  * Ivy 3/day; 2 assistant quick actions; 1 local plan (no own-key AI);
- * 2 core Insights; atmospheres free; data stays on device.
+ * 2 core Insights; classic Focus atmospheres free; data stays on device.
  *
  * PRO — unlimited entities; full chat + tones + voice; own-key plans;
  * all Insights; CSV/PDF export; time blocks + sprint charts + kanban WIP;
- * cloud sync (sessions, areas, settings only); light / accents / Pro fonts.
+ * cloud sync (sessions, areas, settings only); light / accents / Pro fonts;
+ * interior Pro atmosphere packs.
  *
  * Soft promises (beta invites / priority support) are operational, not code gates.
  */

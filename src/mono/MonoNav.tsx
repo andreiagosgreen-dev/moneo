@@ -139,19 +139,22 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette }: Pro
       </div>
 
       <div className="mono-rail-foot">
-        <p className="mono-eyebrow mono-rail-kicker">{t('mono.nav.account')}</p>
-        <div className="mono-rail-account">
-          <Suspense fallback={null}>
-            <AccountButton />
-          </Suspense>
+        <div className="mono-rail-foot-identity">
+          <p className="mono-eyebrow mono-rail-kicker">{t('mono.nav.account')}</p>
+          <div className="mono-rail-account">
+            <Suspense fallback={null}>
+              <AccountButton />
+            </Suspense>
+          </div>
         </div>
+
         <div className="mono-rail-tools">
           <button
             type="button"
             role="tab"
             aria-selected={tab === 'settings'}
             onClick={() => onTab('settings')}
-            className={`mono-nav-item${tab === 'settings' ? ' active' : ''}`}
+            className={`mono-nav-item mono-rail-tool${tab === 'settings' ? ' active' : ''}`}
           >
             <svg
               viewBox="0 0 24 24"
@@ -168,7 +171,7 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette }: Pro
               type="button"
               onClick={onOpenPalette}
               title={`${t('palette.title')} (⌘K)`}
-              className="mono-nav-item"
+              className="mono-nav-item mono-rail-tool"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -182,13 +185,15 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette }: Pro
             </button>
           )}
         </div>
+
         <button
           type="button"
           onClick={onNewSession}
-          className="mono-btn mono-btn-ghost mono-btn-block mono-rail-new"
+          className="mono-btn mono-btn-primary mono-btn-block mono-rail-new"
         >
           {t('mono.nav.newSession')}
         </button>
+
         <p className="mono-rail-tag">{t('foot.tag')}</p>
       </div>
     </nav>

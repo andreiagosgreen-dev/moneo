@@ -116,41 +116,10 @@ describe('MonoFocus', () => {
     expect(onSeePlan).toHaveBeenCalledTimes(1);
   });
 
-  it('offers the four atmospheres and reports the chosen one', () => {
-    const onAtmosphere = vi.fn();
-    const c = render(screen({ onAtmosphere }));
-    const names = [
-      'Paper',
-      'Sanctuary',
-      'Clear',
-      'Ritual',
-      'Dawn',
-      'Studio',
-      'Chapter',
-      'Shore',
-      'Night',
-      'Wax',
-      'Snow',
-      'Charcoal',
-      'Garden',
-      'Clay',
-      'Ink',
-      'Aurora',
-      'Stone',
-      'Honey',
-      'Sea',
-      'Lamp',
-    ];
-    for (const name of names) {
-      expect(c.textContent).toContain(name);
-    }
-    const sanctuary = Array.from(c.querySelectorAll('button')).find(
-      (b) => b.textContent === 'Sanctuary',
-    )!;
-    act(() => {
-      sanctuary.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    });
-    expect(onAtmosphere).toHaveBeenCalledWith('sanctuar');
+  it('does not render the atmosphere picker (moved to Settings)', () => {
+    const c = render(screen({ atmosphere: 'ritual' }));
+    expect(c.querySelector('.atm-picker')).toBeNull();
+    expect(c.querySelector('.atm-ritual')).toBeTruthy();
   });
 
   it('shows empty plan hint when up next is empty', () => {

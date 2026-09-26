@@ -14,35 +14,12 @@ import type { SessionFeedback } from '../lib/ai/types';
 import type { SessionImpact } from '../lib/progress';
 import MonoProgressMeter from './MonoProgressMeter';
 import { dayLabel } from './monoDate';
-import { ATMOSPHERES, type Atmosphere } from './atmosphere';
+import { type Atmosphere } from './atmosphere';
 import type { MonoTab } from './MonoNav';
 import { pickProgramCoach } from '../lib/guidance/programCoach';
 
 const CIRC = 540.35;
 const PRESETS = [5, 25, 45];
-
-const ATM_LABEL: Record<Atmosphere, TKey> = {
-  hartie: 'mono.atm.hartie',
-  sanctuar: 'mono.atm.sanctuar',
-  clar: 'mono.atm.clar',
-  ritual: 'mono.atm.ritual',
-  zori: 'mono.atm.zori',
-  atelier: 'mono.atm.atelier',
-  capitol: 'mono.atm.capitol',
-  tarm: 'mono.atm.tarm',
-  noapte: 'mono.atm.noapte',
-  ceara: 'mono.atm.ceara',
-  zapada: 'mono.atm.zapada',
-  carbune: 'mono.atm.carbune',
-  gradina: 'mono.atm.gradina',
-  ceramica: 'mono.atm.ceramica',
-  cerneala: 'mono.atm.cerneala',
-  aurora: 'mono.atm.aurora',
-  piatra: 'mono.atm.piatra',
-  miere: 'mono.atm.miere',
-  mare: 'mono.atm.mare',
-  lampa: 'mono.atm.lampa',
-};
 
 const BREAK_LABEL: Record<Exclude<Mode, 'focus'>, TKey> = {
   short: 'timer.mode.short.label',
@@ -102,9 +79,8 @@ interface Props {
   /** Today's plan size (for coach). */
   planTaskCount?: number;
   planOpenCount?: number;
-  /** Emotional skin. Defaults to Hârtie so existing screens stay the home. */
+  /** Color skin (picked in Settings). Defaults to Hârtie for class fallback. */
   atmosphere?: Atmosphere;
-  onAtmosphere?: (atmosphere: Atmosphere) => void;
 }
 
 /** Focus screen — one shared layout for every atmosphere; only colors change. */
@@ -143,7 +119,6 @@ export default function MonoFocus({
   planTaskCount,
   planOpenCount,
   atmosphere = 'hartie',
-  onAtmosphere,
 }: Props) {
   const { t, tag, fmtDur, fmtNum } = useI18n();
   const { mm, ss } = fmtClock(Math.max(0, remaining));
@@ -344,25 +319,6 @@ export default function MonoFocus({
   // Single shared composition for ALL atmospheres (colors via CSS tokens only).
   return (
     <div className={`atm atm-${atmosphere}`}>
-      <details className="atm-picker">
-        <summary>
-          {t('mono.atm.label')} · {t(ATM_LABEL[atmosphere])}
-        </summary>
-        <div className="atm-switch" role="radiogroup" aria-label={t('mono.atm.label')}>
-          {ATMOSPHERES.map((id) => (
-            <button
-              key={id}
-              type="button"
-              role="radio"
-              aria-checked={atmosphere === id}
-              onClick={() => onAtmosphere?.(id)}
-            >
-              {t(ATM_LABEL[id])}
-            </button>
-          ))}
-        </div>
-      </details>
-
       <div className="atm-desk">
         <MonoHead eyebrow={dayLabel(tag)} title={t('mono.focus.greet')} sub={t('mono.focus.sub')} />
         {onPath ? <MonoPath active="focus" onGo={onPath} /> : null}

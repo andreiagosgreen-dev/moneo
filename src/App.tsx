@@ -134,6 +134,7 @@ import {
   loadAtmosphere,
   saveAtmosphere,
   applyAtmosphere,
+  resolveAtmosphere,
   type Atmosphere,
 } from './mono/atmosphere';
 import OnboardingModal from './components/OnboardingModal';
@@ -520,10 +521,12 @@ export default function App() {
     applyTheme(theme, modeWrapRef.current, auth.isPro);
   }, [theme, mode, auth.isPro]);
 
+  // Pro interior packs only paint while auth.isPro — stored choice survives downgrade.
+  const paintedAtmosphere = resolveAtmosphere(atmosphere, auth.isPro);
   useEffect(() => {
-    applyAtmosphere(atmosphere);
+    applyAtmosphere(paintedAtmosphere);
     saveAtmosphere(atmosphere);
-  }, [atmosphere]);
+  }, [atmosphere, paintedAtmosphere]);
 
   const dismissOnboarding = () => {
     setShowOnboarding(false);
@@ -737,7 +740,7 @@ export default function App() {
               ref={modeWrapRef}
               data-mode={mode}
               data-focusing={running}
-              data-atmosphere={atmosphere}
+              data-atmosphere={paintedAtmosphere}
               className="atm-root relative min-h-screen overflow-hidden"
             >
               <p role="status" aria-live="polite" className="sr-only">
@@ -816,8 +819,7 @@ export default function App() {
                         dayKey={todayKey}
                         planTaskCount={todayPlan?.tasks.length ?? 0}
                         planOpenCount={todayPlan?.tasks.filter((x) => !x.done).length ?? 0}
-                        atmosphere={atmosphere}
-                        onAtmosphere={setAtmosphere}
+                        atmosphere={paintedAtmosphere}
                       />
                       {activeRm ? (
                         <div className="mono-pad" style={{ marginTop: 14 }}>
@@ -1316,6 +1318,8 @@ export default function App() {
                             theme={theme}
                             onThemeChange={setTheme}
                             isPro={auth.isPro}
+                            atmosphere={atmosphere}
+                            onAtmosphere={setAtmosphere}
                           />
                         </div>
                         <div className="reveal" style={{ animationDelay: '135ms' }}>
