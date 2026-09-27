@@ -100,7 +100,9 @@ async function runOnce(cfg: ProSyncConfig, adoptAccount: boolean): Promise<ProSy
  * Start a round now (or right after the one in flight). Resolves with the
  * outcome, or null when Pro sync is not active on this device.
  */
-export function requestProSync(opts: { adoptAccount?: boolean } = {}): Promise<ProSyncOutcome | null> {
+export function requestProSync(
+  opts: { adoptAccount?: boolean } = {},
+): Promise<ProSyncOutcome | null> {
   const cfg = config;
   if (!cfg || !cfg.isPro) return Promise.resolve(null);
   if (inFlight) {
@@ -117,6 +119,16 @@ export function requestProSync(opts: { adoptAccount?: boolean } = {}): Promise<P
         if (!current || !current.isPro) break;
         result = await runOnce(current, opts.adoptAccount === true);
       } while (again);
+    } catch {
+      result = {
+        ok: false,
+        error: 'pull',
+        pulled: 0,
+        applied: 0,
+        pushed: 0,
+        conflicts: 0,
+        changedKeys: [],
+      };
     } finally {
       inFlight = null;
       setStatus({

@@ -153,9 +153,9 @@ export const es: Record<TKey, string> = {
   'lifemap.emptyKicker': 'Mapa de vida · nuevo',
   'lifemap.emptyTitle': 'Dibuja la vida a la que sirve tu foco',
   'lifemap.tplBlank': 'Lienzo vacío',
-  'lifemap.localOnly': 'Tu mapa de vida es privado y se guarda en este dispositivo.',
+  'lifemap.localOnly': 'Tu mapa de vida es privado — solo tú lo ves.',
   'lifemap.title': 'Mapa de vida',
-  'lifemap.subtitle': 'Privado · guardado en este dispositivo',
+  'lifemap.subtitle': 'Privado · solo tú lo ves',
   'lifemap.manage': 'Gestionar áreas',
   'lifemap.manageDone': 'Listo',
   'lifemap.stepAdd': '＋ Paso de 10 min',
@@ -814,9 +814,10 @@ export const es: Record<TKey, string> = {
   'pay.portalError': 'No se pudo abrir el portal. Inténtalo de nuevo.',
   'pay.resumeTitle': 'Has iniciado sesión — completa tu mejora',
   'pay.resumeCta': 'Continuar al pago',
-  'pay.syncScope': 'Sincronización entre dispositivos: sesiones de foco, áreas de foco y ajustes',
+  'pay.syncScope':
+    'Con una cuenta gratuita: las sesiones de foco, las áreas de foco y los ajustes se sincronizan entre dispositivos',
   'pay.syncNote':
-    'Proyectos, tareas, metas, hábitos, diario y el resto de tu planificación se guardan en el dispositivo donde los creaste.',
+    'Con Pro, todos tus datos se guardan también en tu cuenta — proyectos, tareas, metas, hábitos, diario y el resto de tu planificación. En Free, se quedan en el dispositivo donde los creaste.',
   'pay.plan.free.desc': 'Perfecto para empezar',
   'pay.plan.free.f0': 'Sesiones de foco ilimitadas',
   'pay.plan.free.f1': '3 proyectos con listas de tareas',
@@ -903,7 +904,7 @@ export const es: Record<TKey, string> = {
     'Desgloses 7/30 días por proyecto y área con 80/20 para todos. Export CSV (Pro) y PDF imprimible (Pro) con totales.',
   'help.s.lifemap.t': 'Mapa de vida',
   'help.s.lifemap.b':
-    'Pestaña Mapa: evalúa 5–9 áreas de vida Ahora vs Deseado, ponderadas con importancia. La rueda muestra equilibrio y mayor brecha; un paso de 10 minutos cae en el plan de hoy. La revisión semanal muestra la atención. Empieza de plantilla (Equilibrado, Estudiante, Freelancer, Fundador, Recuperación) o vacío. Privado: tu mapa se queda en este dispositivo.',
+    'Pestaña Mapa: evalúa 5–9 áreas de vida Ahora vs Deseado, ponderadas con importancia. La rueda muestra equilibrio y mayor brecha; un paso de 10 minutos cae en el plan de hoy. La revisión semanal muestra la atención. Empieza de plantilla (Equilibrado, Estudiante, Freelancer, Fundador, Recuperación) o vacío. Privado: solo tú lo ves. Con Pro, también se guarda en tu cuenta.',
   'help.s.life.t': 'Vida',
   'help.s.life.b':
     'Hábitos con rachas y recordatorios nocturnos. El equilibrio puntúa en vivo sobre 5 áreas. Diario con ánimo y gratitud. Los check-ins de energía muestran horas pico (Pro).',
@@ -912,7 +913,7 @@ export const es: Record<TKey, string> = {
     'Sigue niveles 1–5 con recursos. Marca proyectos facturables con tarifa horaria — importes en stats, informes, PDF.',
   'help.s.privacy.t': 'Privacidad y datos',
   'help.s.privacy.b':
-    'Moneo guarda tu trabajo automáticamente. Con una cuenta y la sincronización activada, tus sesiones de foco, áreas y ajustes se guardan en tu cuenta y están disponibles en tus otros dispositivos. Proyectos, tareas, planes y el resto se guardan en el dispositivo donde los creaste. La exportación CSV/PDF es Pro. Mientras la sincronización esté activada, el historial de foco no se puede borrar.',
+    'Moneo guarda tu trabajo automáticamente. Con una cuenta y la sincronización activada, tus sesiones de foco, áreas y ajustes se guardan en tu cuenta y están disponibles en tus otros dispositivos. Con Pro, el resto también se guarda en tu cuenta — proyectos, tareas, metas, hábitos, diario y planes. En Free, se guardan en el dispositivo donde los creaste. La exportación CSV/PDF es Pro. Mientras la sincronización esté activada, el historial de foco no se puede borrar.',
 
   'foot.tag': 'Moneo — construye foco. Míralo crecer.',
   'foot.help': 'Ayuda',
@@ -1805,7 +1806,7 @@ export const es: Record<TKey, string> = {
   'pricing.compareFree': 'Free',
   'pricing.comparePro': 'Pro',
   'pricing.syncNote':
-    'El sync cubre solo sesiones, áreas y ajustes — el resto queda en el dispositivo.',
+    'Las cuentas gratuitas sincronizan sesiones, áreas y ajustes; con Pro, todos tus datos se guardan en tu cuenta.',
   'pricing.localNote':
     'No necesitas cuenta para empezar y Moneo funciona sin conexión. Inicia sesión solo para sincronizar entre dispositivos o suscribirte a Pro.',
   // ── Merged from main (features landed in parallel) ──
@@ -1871,7 +1872,7 @@ export const es: Record<TKey, string> = {
   'mono.xp.ranksLine':
     'Rangos: {ranks}. Cada rango tiene varios escalones y cada nivel nuevo pide un poco más que el anterior.',
   'mono.xp.deviceNote':
-    'La XP de las sesiones de foco te acompaña a tus otros dispositivos cuando la sincronización está activada. Por ahora, las tareas y los hábitos solo cuentan en el dispositivo donde los completaste.',
+    'La XP de las sesiones de foco te acompaña a tus otros dispositivos cuando la sincronización está activada. Con Pro, las tareas y los hábitos también se sincronizan; en Free solo cuentan en el dispositivo donde los completaste.',
   'filters.newView': '+ Nueva vista',
   'filters.cancel': 'Cancelar',
   'filters.remove': 'Eliminar vista',
@@ -1911,16 +1912,16 @@ export const es: Record<TKey, string> = {
   'auth.emailPlaceholder': 'tu@ejemplo.com',
   'auth.passwordLabel': 'Contraseña',
   'auth.localFirstNote':
-    'Una cuenta mantiene a salvo tus sesiones de foco, áreas y ajustes y te permite usarlos en tus otros dispositivos. No se sube nada hasta que actives la sincronización.',
+    'Una cuenta mantiene a salvo tus sesiones de foco, áreas y ajustes y te permite usarlos en tus otros dispositivos. Con Pro, todos tus datos se guardan en tu cuenta. No se sube nada hasta que actives la sincronización.',
   'auth.continueWithGoogle': 'Continuar con Google',
   'auth.orDivider': 'o',
   'sync.title': 'Sincroniza tus datos de Moneo',
   'sync.description':
-    'Guarda tu historial de foco, áreas y ajustes en tu cuenta y úsalos en todos tus dispositivos.',
+    'Guarda tu historial de foco, áreas y ajustes en tu cuenta y úsalos en todos tus dispositivos. Con Pro, se incluye toda tu planificación.',
   'sync.syncNow': 'Sincronizar ahora',
   'sync.notNow': 'Ahora no',
   'sync.onlyNote':
-    'Solo se sincronizan las sesiones de foco, las áreas y los ajustes. Proyectos, tareas y el resto de tu planificación siguen guardados en este dispositivo.',
+    'En Free solo se sincronizan las sesiones de foco, las áreas y los ajustes; proyectos, tareas y el resto de tu planificación se quedan en este dispositivo. Con Pro, se sincroniza todo.',
   'sync.syncing': 'Sincronizando…',
   'sync.failed': 'Sincronización fallida',
   'sync.synced': 'Sincronizado',

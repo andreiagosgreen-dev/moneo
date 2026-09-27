@@ -154,9 +154,9 @@ export const de: Record<TKey, string> = {
   'lifemap.emptyKicker': 'Lebenskarte · neu',
   'lifemap.emptyTitle': 'Die Lebenskarte, der dein Fokus dient',
   'lifemap.tplBlank': 'Leere Leinwand',
-  'lifemap.localOnly': 'Deine Lebenskarte ist privat und auf diesem Gerät gespeichert.',
+  'lifemap.localOnly': 'Deine Lebenskarte ist privat — nur du siehst sie.',
   'lifemap.title': 'Lebenskarte',
-  'lifemap.subtitle': 'Privat · auf diesem Gerät gespeichert',
+  'lifemap.subtitle': 'Privat · nur du siehst sie',
   'lifemap.manage': 'Bereiche verwalten',
   'lifemap.manageDone': 'Fertig',
   'lifemap.stepAdd': '＋ 10-Minuten-Schritt',
@@ -808,9 +808,10 @@ export const de: Record<TKey, string> = {
   'pay.portalError': 'Portal konnte nicht geöffnet werden. Bitte erneut versuchen.',
   'pay.resumeTitle': 'Du bist angemeldet — schließe dein Upgrade ab',
   'pay.resumeCta': 'Weiter zur Kasse',
-  'pay.syncScope': 'Abgleich zwischen Geräten: Fokussitzungen, Fokusbereiche und Einstellungen',
+  'pay.syncScope':
+    'Mit kostenlosem Konto: Fokussitzungen, Fokusbereiche und Einstellungen werden zwischen Geräten abgeglichen',
   'pay.syncNote':
-    'Projekte, Aufgaben, Ziele, Gewohnheiten, Journal und der Rest deiner Planung werden auf dem Gerät gespeichert, auf dem du sie angelegt hast.',
+    'Mit Pro werden alle deine Daten auch in deinem Konto gespeichert — Projekte, Aufgaben, Ziele, Gewohnheiten, Journal und der Rest deiner Planung. In Free bleiben sie auf dem Gerät, auf dem du sie angelegt hast.',
   'pay.plan.free.desc': 'Perfekt zum Starten',
   'pay.plan.free.f0': 'Unbegrenzte Fokussitzungen',
   'pay.plan.free.f1': '3 Projekte mit Aufgabenlisten',
@@ -896,7 +897,7 @@ export const de: Record<TKey, string> = {
     '7/30-Tage-Splits nach Projekt und Bereich mit 80/20 für alle. CSV-Export (Pro) und druckbares PDF (Pro) mit Summen.',
   'help.s.lifemap.t': 'Lebenskarte',
   'help.s.lifemap.b':
-    'Karten-Tab: 5–9 Lebensbereiche Jetzt vs Wunsch, gewichtet mit Wichtigkeit. Das Rad zeigt Balance und größte Lücke; ein 10-Minuten-Schritt landet im Tagesplan. Wochenreview zeigt Aufmerksamkeit. Starte mit Vorlage (Balanced, Student, Freelancer, Founder, Recovery) oder leer. Privat: deine Karte bleibt auf diesem Gerät.',
+    'Karten-Tab: 5–9 Lebensbereiche Jetzt vs Wunsch, gewichtet mit Wichtigkeit. Das Rad zeigt Balance und größte Lücke; ein 10-Minuten-Schritt landet im Tagesplan. Wochenreview zeigt Aufmerksamkeit. Starte mit Vorlage (Balanced, Student, Freelancer, Founder, Recovery) oder leer. Privat: nur du siehst sie. Mit Pro wird sie auch in deinem Konto gespeichert.',
   'help.s.life.t': 'Leben',
   'help.s.life.b':
     'Habits mit Streaks und Abend-Erinnerungen. Balance scort live über 5 Bereiche. Journal mit Stimmung und Dankbarkeit. Energie-Check-ins zeigen Peak-Stunden (Pro).',
@@ -905,7 +906,7 @@ export const de: Record<TKey, string> = {
     'Skill-Level 1–5 mit Ressourcen. Markiere Projekte abrechenbar mit Stundensatz — Beträge in Stats, Berichten, PDF.',
   'help.s.privacy.t': 'Privatheit & Daten',
   'help.s.privacy.b':
-    'Moneo speichert deine Arbeit automatisch. Mit Konto und eingeschaltetem Abgleich bleiben Fokus-Sitzungen, Bereiche und Einstellungen in deinem Konto und sind auf deinen anderen Geräten verfügbar. Projekte, Aufgaben, Pläne und der Rest werden auf dem Gerät gespeichert, auf dem du sie angelegt hast. CSV/PDF-Export ist Pro. Solange der Abgleich an ist, lässt sich der Fokus-Verlauf nicht löschen.',
+    'Moneo speichert deine Arbeit automatisch. Mit Konto und eingeschaltetem Abgleich bleiben Fokus-Sitzungen, Bereiche und Einstellungen in deinem Konto und sind auf deinen anderen Geräten verfügbar. Mit Pro wird auch der Rest in deinem Konto gespeichert — Projekte, Aufgaben, Ziele, Gewohnheiten, Journal und Pläne. In Free werden sie auf dem Gerät gespeichert, auf dem du sie angelegt hast. CSV/PDF-Export ist Pro. Solange der Abgleich an ist, lässt sich der Fokus-Verlauf nicht löschen.',
 
   'foot.tag': 'Moneo — baue Fokus. Sieh ihn wachsen.',
   'foot.help': 'Hilfe',
@@ -1818,7 +1819,7 @@ export const de: Record<TKey, string> = {
   'pricing.compareFree': 'Free',
   'pricing.comparePro': 'Pro',
   'pricing.syncNote':
-    'Sync umfasst nur Sitzungen, Bereiche und Einstellungen — der Rest bleibt auf dem Gerät.',
+    'Kostenlose Konten gleichen Sitzungen, Bereiche und Einstellungen ab; mit Pro werden alle deine Daten in deinem Konto gespeichert.',
   'pricing.localNote':
     'Zum Start brauchst du kein Konto, und Moneo funktioniert offline. Anmelden musst du dich nur für den Abgleich zwischen Geräten oder ein Pro-Abo.',
   // ── Merged from main (features landed in parallel) ──
@@ -1885,7 +1886,7 @@ export const de: Record<TKey, string> = {
   'mono.xp.ranksLine':
     'Ränge: {ranks}. Jeder Rang hat ein paar Stufen, und jede neue Stufe braucht etwas mehr als die vorige.',
   'mono.xp.deviceNote':
-    'XP aus Fokus-Sitzungen begleitet dich auf deine anderen Geräte, wenn der Abgleich an ist. Aufgaben und Gewohnheiten zählen vorerst nur auf dem Gerät, auf dem du sie erledigt hast.',
+    'XP aus Fokus-Sitzungen begleitet dich auf deine anderen Geräte, wenn der Abgleich an ist. Mit Pro werden auch Aufgaben und Gewohnheiten abgeglichen; in Free zählen sie nur auf dem Gerät, auf dem du sie erledigt hast.',
   'filters.newView': '+ Neue Ansicht',
   'filters.cancel': 'Abbrechen',
   'filters.remove': 'Ansicht entfernen',
@@ -1925,16 +1926,16 @@ export const de: Record<TKey, string> = {
   'auth.emailPlaceholder': 'du@beispiel.com',
   'auth.passwordLabel': 'Passwort',
   'auth.localFirstNote':
-    'Mit einem Konto sind deine Fokus-Sitzungen, Bereiche und Einstellungen sicher und auf deinen anderen Geräten verfügbar. Hochgeladen wird erst, wenn du den Abgleich einschaltest.',
+    'Mit einem Konto sind deine Fokus-Sitzungen, Bereiche und Einstellungen sicher und auf deinen anderen Geräten verfügbar. Mit Pro werden alle deine Daten in deinem Konto gespeichert. Hochgeladen wird erst, wenn du den Abgleich einschaltest.',
   'auth.continueWithGoogle': 'Mit Google fortfahren',
   'auth.orDivider': 'oder',
   'sync.title': 'Synchronisiere deine Moneo-Daten',
   'sync.description':
-    'Speichere deinen Fokus-Verlauf, deine Bereiche und Einstellungen in deinem Konto und nutze sie auf all deinen Geräten.',
+    'Speichere deinen Fokus-Verlauf, deine Bereiche und Einstellungen in deinem Konto und nutze sie auf all deinen Geräten. Mit Pro ist deine gesamte Planung dabei.',
   'sync.syncNow': 'Jetzt synchronisieren',
   'sync.notNow': 'Nicht jetzt',
   'sync.onlyNote':
-    'Synchronisiert werden nur Fokus-Sitzungen, Bereiche und Einstellungen. Projekte, Aufgaben und der Rest deiner Planung bleiben auf diesem Gerät gespeichert.',
+    'In Free werden nur Fokus-Sitzungen, Bereiche und Einstellungen abgeglichen; Projekte, Aufgaben und der Rest deiner Planung bleiben auf diesem Gerät. Mit Pro wird alles abgeglichen.',
   'sync.syncing': 'Synchronisiere…',
   'sync.failed': 'Synchronisierung fehlgeschlagen',
   'sync.synced': 'Synchronisiert',

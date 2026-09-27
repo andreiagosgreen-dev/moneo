@@ -23,14 +23,7 @@ import {
  */
 
 export type ProSyncError =
-  | 'auth'
-  | 'not-pro'
-  | 'consent'
-  | 'account-mismatch'
-  | 'not-migrated'
-  | 'pull'
-  | 'apply'
-  | 'push';
+  'auth' | 'not-pro' | 'consent' | 'account-mismatch' | 'not-migrated' | 'pull' | 'apply' | 'push';
 
 export type PullResult = { ok: true; rows: RemoteRecord[] } | { ok: false; notMigrated?: boolean };
 export type PushResult = { ok: true } | { ok: false; code: 'not-pro' | 'not-migrated' | 'failed' };

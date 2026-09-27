@@ -48,7 +48,7 @@ export const legalRo: LegalSet = {
         heading: '3. Serviciul',
         blocks: [
           'Moneo te ajută să-ți planifici ziua și să lucrezi în sesiuni de concentrare. Funcționează „local întâi”: majoritatea funcțiilor merg fără cont, iar datele tale sunt salvate în browser, pe dispozitivul tău.',
-          'Cu un cont Pro poți sincroniza în baza noastră de date din cloud sesiunile de concentrare, ariile de focus și setările. Proiectele, sarcinile, planurile, obiectivele, obiceiurile, jurnalul și celelalte date de planificare rămân pe dispozitivul tău.',
+          'Cu un cont poți sincroniza în baza noastră de date din cloud sesiunile de concentrare, ariile de focus și setările. Cu Pro, și celelalte date de planificare (proiecte, sarcini, planuri, obiective, obiceiuri, jurnal și date similare) se salvează în contul tău și se sincronizează între dispozitive. Pe planul Free, aceste date de planificare rămân pe dispozitivul tău.',
         ],
       },
       {
@@ -181,7 +181,7 @@ export const legalRo: LegalSet = {
       {
         heading: '2. Date care rămân pe dispozitivul tău',
         blocks: [
-          'Tot ce creezi e salvat întâi în stocarea locală a browserului, pe dispozitivul tău: sesiuni de concentrare, arii de focus, setări, proiecte, sarcini, planuri zilnice, blocuri de timp, obiective, OKR-uri, abilități, obiceiuri, jurnal și energie, istoricul discuțiilor cu asistentul și date similare. Noi nu putem vedea aceste date. Ele rămân pe dispozitiv, cu excepția sincronizării în cloud din Pro (vezi mai jos).',
+          'Tot ce creezi e salvat întâi în stocarea locală a browserului, pe dispozitivul tău: sesiuni de concentrare, arii de focus, setări, proiecte, sarcini, planuri zilnice, blocuri de timp, obiective, OKR-uri, abilități, obiceiuri, jurnal și energie, istoricul discuțiilor cu asistentul și date similare. Noi nu putem vedea aceste date. Ele rămân pe dispozitiv, cu excepția cazului în care pornești sincronizarea în cloud (vezi mai jos).',
           'Dacă adaugi propria cheie API pentru un furnizor AI, și ea e salvată doar în browser. Nu este trimisă niciodată către serverele Moneo.',
         ],
       },
@@ -192,7 +192,8 @@ export const legalRo: LegalSet = {
             list: [
               'Contul: adresa de email, parola în formă criptată ireversibil (hash, dacă folosești parolă), metoda de autentificare și datele contului, gestionate de furnizorul nostru de autentificare. Dacă intri cu Google, primim de la Google adresa de email și datele de profil de bază.',
               'Profilul: fusul orar, folosit ca să-ți numărăm corect zilele.',
-              'Sincronizarea în cloud (doar Pro): sesiunile de concentrare (durata, ora, intenția scrisă, aria de focus), ariile de focus, setările și un identificator aleator al dispozitivului, folosit la combinarea modificărilor între dispozitive.',
+              'Sincronizarea în cloud (cu un cont, doar după ce o pornești): sesiunile de concentrare (durata, ora, intenția scrisă, aria de focus), ariile de focus, setările și un identificator aleator al dispozitivului, folosit la combinarea modificărilor între dispozitive.',
+              'Sincronizarea completă (doar Pro, cu sincronizarea pornită): celelalte date de planificare — proiecte, sarcini, obiective, OKR-uri, obiceiuri și bifele lor, jurnal și energie, arii de viață și harta vieții, abilități, blocuri de timp, planuri zilnice, sprinturi, setările tablei, planuri în cascadă, linkuri, filtre salvate și roadmap-uri — împreună cu momentul în care fiecare element a fost modificat sau șters ultima dată. Istoricul discuțiilor cu asistentul și cheile AI nu se sincronizează. Dacă Pro se încheie, copia deja salvată în cont se păstrează, dar nu se mai actualizează, iar datele de pe dispozitiv nu sunt atinse.',
               'Abonamentul: planul, starea, data reînnoirii și ID-urile de client și de abonament Lemon Squeezy, primite de la Lemon Squeezy ca să știm dacă ai Pro.',
               'Partenerul de focus (opțional, Pro): dacă te asociezi cu un partener, un cod de invitație și asocierea; partenerul vede doar minutele tale de concentrare de azi.',
               'Google Calendar (opțional, Pro): dacă îl conectezi, un token care ne permite să citim evenimentele din calendar (doar citire), ca să arătăm suprapunerile cu planul tău. Evenimentele sunt citite la nevoie și nu le stocăm. Poți deconecta oricând.',
@@ -361,7 +362,7 @@ export const legalRo: LegalSet = {
         heading: '4. Ce se întâmplă cu Pro după rambursare',
         blocks: [
           'Rambursarea anulează și abonamentul, deci nu vei mai fi taxat. Funcțiile Pro se opresc când rambursarea e procesată, iar contul revine la planul Free.',
-          'Datele tale nu se șterg: tot ce e pe dispozitiv rămâne acolo, iar datele deja sincronizate rămân în cont până îl ștergi. Sincronizarea în cloud e o funcție Pro, deci se oprește.',
+          'Datele tale nu se șterg: tot ce e pe dispozitiv rămâne acolo, iar datele deja sincronizate rămân în cont până îl ștergi. Sincronizarea completă a tuturor datelor e o funcție Pro, deci nu se mai actualizează; sesiunile de concentrare, ariile de focus și setările se sincronizează în continuare.',
         ],
       },
       {

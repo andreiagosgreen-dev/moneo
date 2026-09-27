@@ -160,9 +160,9 @@ export const en = {
   'lifemap.emptyKicker': 'Life map · new',
   'lifemap.emptyTitle': 'Map the life your focus serves',
   'lifemap.tplBlank': 'Empty canvas',
-  'lifemap.localOnly': 'Your life map is private and saved on this device.',
+  'lifemap.localOnly': 'Your life map is private — only you can see it.',
   'lifemap.title': 'Life map',
-  'lifemap.subtitle': 'Private · saved on this device',
+  'lifemap.subtitle': 'Private · only you can see it',
   'lifemap.manage': 'Manage areas',
   'lifemap.manageDone': 'Done',
   'lifemap.stepAdd': '＋ 10-min step',
@@ -818,9 +818,10 @@ export const en = {
   'pay.portalError': 'Could not open the subscription portal. Please try again.',
   'pay.resumeTitle': 'You’re signed in — finish your upgrade',
   'pay.resumeCta': 'Continue to checkout',
-  'pay.syncScope': 'Sync between devices: focus sessions, focus areas and settings',
+  'pay.syncScope':
+    'With a free account: focus sessions, focus areas and settings sync between devices',
   'pay.syncNote':
-    'Projects, tasks, goals, habits, journal and the rest of your planning are saved on the device where you created them.',
+    'With Pro, all your data is saved to your account too — projects, tasks, goals, habits, journal and the rest of your planning. On Free, those stay on the device where you created them.',
   'pay.plan.free.desc': 'Perfect for getting started',
   'pay.plan.free.f0': 'Unlimited focus sessions',
   'pay.plan.free.f1': '3 projects with task lists',
@@ -906,7 +907,7 @@ export const en = {
     '7/30-day breakdowns by project and area with an 80/20 callout for everyone. CSV export (Pro) and printable PDF (Pro) include billable totals.',
   'help.s.lifemap.t': 'Life map',
   'help.s.lifemap.b':
-    'Map tab: score 5–9 life areas Now vs Want, weighted by importance. The wheel shows balance and the biggest gap; one 10-minute step lands in today’s plan. Weekly review shows what got attention. Start from a template (Balanced, Student, Freelancer, Founder, Recovery) or blank. Private: your map stays on this device.',
+    'Map tab: score 5–9 life areas Now vs Want, weighted by importance. The wheel shows balance and the biggest gap; one 10-minute step lands in today’s plan. Weekly review shows what got attention. Start from a template (Balanced, Student, Freelancer, Founder, Recovery) or blank. Private: only you can see it. With Pro, it’s also saved to your account.',
   'help.s.life.t': 'Life',
   'help.s.life.b':
     'Habits with streaks and evening reminders. Balance scores real time across 5 life areas. Journal with mood and gratitude. Energy check-ins reveal peak hours (Pro).',
@@ -915,7 +916,7 @@ export const en = {
     'Track skill levels 1–5 with resources. Mark projects billable with an hourly rate — amounts appear in stats, reports and PDF exports.',
   'help.s.privacy.t': 'Privacy & data',
   'help.s.privacy.b':
-    'Moneo saves your work automatically. With an account and sync turned on, your focus sessions, areas and settings are kept in your account and available on your other devices. Projects, tasks, plans and the rest are saved on the device where you created them. CSV/PDF export is Pro. While sync is on, focus history can’t be cleared.',
+    'Moneo saves your work automatically. With an account and sync turned on, your focus sessions, areas and settings are kept in your account and available on your other devices. With Pro, everything else is saved to your account too — projects, tasks, goals, habits, journal and plans. On Free, those are saved on the device where you created them. CSV/PDF export is Pro. While sync is on, focus history can’t be cleared.',
 
   'foot.tag': 'Moneo — build focus. See it grow.',
   'foot.help': 'Help',
@@ -1810,7 +1811,7 @@ export const en = {
   'pricing.compareFree': 'Free',
   'pricing.comparePro': 'Pro',
   'pricing.syncNote':
-    'Sync covers focus sessions, focus areas and settings only — everything else stays on this device.',
+    'Free accounts sync focus sessions, areas and settings; with Pro, all your data is saved to your account.',
   'pricing.localNote':
     'No account needed to start, and Moneo works offline. Sign in only when you want to sync between devices or subscribe to Pro.',
   // ── Merged from main (features landed in parallel) ──
@@ -1876,7 +1877,7 @@ export const en = {
   'mono.xp.ranksLine':
     'Ranks: {ranks}. Each rank has a few steps, and every new level takes a little longer than the last.',
   'mono.xp.deviceNote':
-    'XP from focus sessions follows you to your other devices when sync is on. For now, tasks and habits count only on the device where you completed them.',
+    'XP from focus sessions follows you to your other devices when sync is on. With Pro, tasks and habits sync too; on Free they count only on the device where you completed them.',
   'filters.newView': '+ New view',
   'filters.cancel': 'Cancel',
   'filters.remove': 'Remove view',
@@ -1915,16 +1916,16 @@ export const en = {
   'auth.emailPlaceholder': 'you@example.com',
   'auth.passwordLabel': 'Password',
   'auth.localFirstNote':
-    'An account keeps your focus sessions, areas and settings safe and lets you use them on your other devices. Nothing is uploaded until you turn on sync.',
+    'An account keeps your focus sessions, areas and settings safe and lets you use them on your other devices. With Pro, all your data is saved to your account. Nothing is uploaded until you turn on sync.',
   'auth.continueWithGoogle': 'Continue with Google',
   'auth.orDivider': 'or',
   'sync.title': 'Sync your Moneo data',
   'sync.description':
-    'Save your focus history, areas and settings to your account and use them on all your devices.',
+    'Save your focus history, areas and settings to your account and use them on all your devices. With Pro, all your planning data is included.',
   'sync.syncNow': 'Sync now',
   'sync.notNow': 'Not now',
   'sync.onlyNote':
-    'Only focus sessions, areas and settings sync. Projects, tasks and the rest of your planning stay saved on this device.',
+    'On Free, only focus sessions, areas and settings sync; projects, tasks and the rest of your planning stay on this device. With Pro, all of it syncs.',
   'sync.syncing': 'Syncing…',
   'sync.failed': 'Sync failed',
   'sync.synced': 'Synced',

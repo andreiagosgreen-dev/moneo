@@ -132,7 +132,10 @@ export async function isProForSync(
       { headers: restHeaders(env.SUPABASE_SERVICE_ROLE_KEY!) },
     );
     if (!res.ok) return false;
-    const rows = (await res.json()) as Array<{ status?: string; current_period_end?: string | null }>;
+    const rows = (await res.json()) as Array<{
+      status?: string;
+      current_period_end?: string | null;
+    }>;
     return hasPaidProAccess(rows[0]?.status, rows[0]?.current_period_end);
   } catch {
     return false;

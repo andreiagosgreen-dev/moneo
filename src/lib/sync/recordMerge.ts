@@ -177,7 +177,13 @@ export function planCollection(opts: {
     if (m.d) {
       push.push({ collection, record_id: id, data: null, deleted: true, updated_at: m.t });
     } else if (local.has(id)) {
-      push.push({ collection, record_id: id, data: local.get(id), deleted: false, updated_at: m.t });
+      push.push({
+        collection,
+        record_id: id,
+        data: local.get(id),
+        deleted: false,
+        updated_at: m.t,
+      });
     }
   }
 

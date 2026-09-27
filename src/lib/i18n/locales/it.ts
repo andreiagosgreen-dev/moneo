@@ -152,9 +152,9 @@ export const it: Record<TKey, string> = {
   'lifemap.emptyKicker': 'Mappa della vita · nuova',
   'lifemap.emptyTitle': 'Disegna la vita che il tuo focus serve',
   'lifemap.tplBlank': 'Tela vuota',
-  'lifemap.localOnly': 'La tua mappa della vita è privata e salvata su questo dispositivo.',
+  'lifemap.localOnly': 'La tua mappa della vita è privata — la vedi solo tu.',
   'lifemap.title': 'Mappa della vita',
-  'lifemap.subtitle': 'Privata · salvata su questo dispositivo',
+  'lifemap.subtitle': 'Privata · la vedi solo tu',
   'lifemap.manage': 'Gestisci aree',
   'lifemap.manageDone': 'Fatto',
   'lifemap.stepAdd': '＋ Passo da 10 min',
@@ -807,9 +807,9 @@ export const it: Record<TKey, string> = {
   'pay.resumeTitle': 'Hai effettuato l’accesso — completa il passaggio a Pro',
   'pay.resumeCta': 'Continua al pagamento',
   'pay.syncScope':
-    'Sincronizzazione tra dispositivi: sessioni di focus, aree di focus e impostazioni',
+    'Con un account gratuito: sessioni di focus, aree di focus e impostazioni si sincronizzano tra dispositivi',
   'pay.syncNote':
-    'Progetti, attività, obiettivi, abitudini, diario e il resto della pianificazione vengono salvati sul dispositivo in cui li hai creati.',
+    'Con Pro, tutti i tuoi dati vengono salvati anche nel tuo account — progetti, attività, obiettivi, abitudini, diario e il resto della pianificazione. Con Free restano sul dispositivo in cui li hai creati.',
   'pay.plan.free.desc': 'Perfetto per iniziare',
   'pay.plan.free.f0': 'Sessioni di focus illimitate',
   'pay.plan.free.f1': '3 progetti con liste di attività',
@@ -896,7 +896,7 @@ export const it: Record<TKey, string> = {
     'Spaccati 7/30 giorni per progetto e area con 80/20 per tutti. Export CSV (Pro) e PDF stampabile (Pro) con totali.',
   'help.s.lifemap.t': 'Mappa di vita',
   'help.s.lifemap.b':
-    'Tab Mappa: valuta 5–9 aree di vita Ora vs Desiderato, pesate con importanza. La ruota mostra equilibrio e divario max; un passo da 10 minuti finisce nel piano di oggi. La review settimanale mostra l’attenzione. Parti da un template (Bilanciato, Studente, Freelancer, Fondatore, Recupero) o vuoto. Privato: la tua mappa resta su questo dispositivo.',
+    'Tab Mappa: valuta 5–9 aree di vita Ora vs Desiderato, pesate con importanza. La ruota mostra equilibrio e divario max; un passo da 10 minuti finisce nel piano di oggi. La review settimanale mostra l’attenzione. Parti da un template (Bilanciato, Studente, Freelancer, Fondatore, Recupero) o vuoto. Privato: la vedi solo tu. Con Pro viene salvata anche nel tuo account.',
   'help.s.life.t': 'Vita',
   'help.s.life.b':
     'Abitudini con serie e promemoria serali. L’equilibrio punteggia live su 5 aree. Diario con umore e gratitudine. I check-in energia mostrano le ore di picco (Pro).',
@@ -905,7 +905,7 @@ export const it: Record<TKey, string> = {
     'Traccia livelli skill 1–5 con risorse. Segna progetti fatturabili con tariffa oraria — gli importi in statistiche, report e PDF.',
   'help.s.privacy.t': 'Privacy e dati',
   'help.s.privacy.b':
-    'Moneo salva il tuo lavoro automaticamente. Con un account e la sincronizzazione attiva, sessioni di focus, aree e impostazioni restano nel tuo account e sono disponibili sugli altri dispositivi. Progetti, attività, piani e il resto vengono salvati sul dispositivo in cui li hai creati. L’export CSV/PDF è Pro. Con la sincronizzazione attiva, la cronologia di focus non si può cancellare.',
+    'Moneo salva il tuo lavoro automaticamente. Con un account e la sincronizzazione attiva, sessioni di focus, aree e impostazioni restano nel tuo account e sono disponibili sugli altri dispositivi. Con Pro anche il resto viene salvato nel tuo account — progetti, attività, obiettivi, abitudini, diario e piani. Con Free vengono salvati sul dispositivo in cui li hai creati. L’export CSV/PDF è Pro. Con la sincronizzazione attiva, la cronologia di focus non si può cancellare.',
 
   'foot.tag': 'Moneo — costruisci il focus. Guardalo crescere.',
   'foot.help': 'Aiuto',
@@ -1815,7 +1815,7 @@ export const it: Record<TKey, string> = {
   'pricing.compareFree': 'Free',
   'pricing.comparePro': 'Pro',
   'pricing.syncNote':
-    'Il sync copre solo sessioni, aree e impostazioni — il resto resta sul dispositivo.',
+    'Gli account gratuiti sincronizzano sessioni, aree e impostazioni; con Pro tutti i tuoi dati vengono salvati nel tuo account.',
   'pricing.localNote':
     'Non serve un account per iniziare e Moneo funziona offline. Accedi solo per sincronizzare i dispositivi o abbonarti a Pro.',
   // ── Merged from main (features landed in parallel) ──
@@ -1882,7 +1882,7 @@ export const it: Record<TKey, string> = {
   'mono.xp.ranksLine':
     'Gradi: {ranks}. Ogni grado ha alcuni gradini e ogni nuovo livello richiede un po’ più del precedente.',
   'mono.xp.deviceNote':
-    'Gli XP delle sessioni di focus ti seguono sugli altri dispositivi quando la sincronizzazione è attiva. Per ora attività e abitudini contano solo sul dispositivo in cui le hai completate.',
+    'Gli XP delle sessioni di focus ti seguono sugli altri dispositivi quando la sincronizzazione è attiva. Con Pro si sincronizzano anche attività e abitudini; con Free contano solo sul dispositivo in cui le hai completate.',
   'filters.newView': '+ Nuova vista',
   'filters.cancel': 'Annulla',
   'filters.remove': 'Rimuovi vista',
@@ -1922,16 +1922,16 @@ export const it: Record<TKey, string> = {
   'auth.emailPlaceholder': 'tu@esempio.com',
   'auth.passwordLabel': 'Password',
   'auth.localFirstNote':
-    'Un account tiene al sicuro sessioni di focus, aree e impostazioni e ti permette di usarle sugli altri dispositivi. Nulla viene caricato finché non attivi la sincronizzazione.',
+    'Un account tiene al sicuro sessioni di focus, aree e impostazioni e ti permette di usarle sugli altri dispositivi. Con Pro tutti i tuoi dati vengono salvati nel tuo account. Nulla viene caricato finché non attivi la sincronizzazione.',
   'auth.continueWithGoogle': 'Continua con Google',
   'auth.orDivider': 'o',
   'sync.title': 'Sincronizza i tuoi dati Moneo',
   'sync.description':
-    'Salva la cronologia di focus, le aree e le impostazioni nel tuo account e usale su tutti i tuoi dispositivi.',
+    'Salva la cronologia di focus, le aree e le impostazioni nel tuo account e usale su tutti i tuoi dispositivi. Con Pro è inclusa tutta la tua pianificazione.',
   'sync.syncNow': 'Sincronizza ora',
   'sync.notNow': 'Non ora',
   'sync.onlyNote':
-    'Si sincronizzano solo sessioni di focus, aree e impostazioni. Progetti, attività e il resto della pianificazione restano salvati su questo dispositivo.',
+    'Con Free si sincronizzano solo sessioni di focus, aree e impostazioni; progetti, attività e il resto della pianificazione restano su questo dispositivo. Con Pro si sincronizza tutto.',
   'sync.syncing': 'Sincronizzazione…',
   'sync.failed': 'Sincronizzazione non riuscita',
   'sync.synced': 'Sincronizzato',

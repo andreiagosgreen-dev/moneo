@@ -27,10 +27,10 @@ export type FetchImpl = typeof fetch;
 
 /** User-data tables wiped explicitly, children before parents. */
 export const ACCOUNT_DATA_TABLES = [
-  'user_records',
   'focus_sessions',
   'focus_areas',
   'user_settings',
+  'user_records',
   'subscriptions',
   'google_calendar_connections',
   'profiles',

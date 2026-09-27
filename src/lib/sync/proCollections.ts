@@ -16,10 +16,7 @@ import { STORAGE_KEYS } from '../storage/storageKeys';
  */
 
 export type CollectionShape =
-  | { kind: 'list'; idField: string }
-  | { kind: 'map' }
-  | { kind: 'set' }
-  | { kind: 'value' };
+  { kind: 'list'; idField: string } | { kind: 'map' } | { kind: 'set' } | { kind: 'value' };
 
 export interface ProCollection {
   /** Cloud collection name (`user_records.collection`). Never rename. */

@@ -48,7 +48,7 @@ export const legalEn: LegalSet = {
         heading: '3. The Service',
         blocks: [
           'Moneo helps you plan your day and run focus sessions. It is local-first: most features work without an account, and your data is stored in your browser on your device.',
-          'With a Pro account you can sync focus sessions, focus areas and settings to our cloud database. Projects, tasks, plans, goals, habits, journal entries and other planning data stay on your device.',
+          'With an account you can sync focus sessions, focus areas and settings to our cloud database. With Pro, your other planning data (projects, tasks, plans, goals, habits, journal entries and similar) is also saved to your account and synced between your devices. On the Free plan, that planning data stays on your device.',
         ],
       },
       {
@@ -181,7 +181,7 @@ export const legalEn: LegalSet = {
       {
         heading: '2. Data that stays on your device',
         blocks: [
-          'Everything you create is first saved in your browser’s local storage on your device: focus sessions, focus areas, settings, projects, tasks, daily plans, time blocks, goals, OKRs, skills, habits, journal and energy entries, assistant chat history and similar data. We cannot see this data. It stays on your device unless you use Pro cloud sync (see below).',
+          'Everything you create is first saved in your browser’s local storage on your device: focus sessions, focus areas, settings, projects, tasks, daily plans, time blocks, goals, OKRs, skills, habits, journal and energy entries, assistant chat history and similar data. We cannot see this data. It stays on your device unless you turn on cloud sync (see below).',
           'If you add your own AI provider API key, it is also stored only in your browser. It is never sent to Moneo’s servers.',
         ],
       },
@@ -192,7 +192,8 @@ export const legalEn: LegalSet = {
             list: [
               'Account: your email address, a hashed password (if you use one), sign-in method and account timestamps, handled by our authentication provider. If you sign in with Google, we receive your email address and basic profile data from Google.',
               'Profile: your time zone, used to count your days correctly.',
-              'Cloud sync (Pro only): focus sessions (duration, time, intention text, focus area), focus areas, your settings, and a random device identifier used to merge changes between devices.',
+              'Cloud sync (with an account, only after you turn it on): focus sessions (duration, time, intention text, focus area), focus areas, your settings, and a random device identifier used to merge changes between devices.',
+              'Full sync (Pro only, when sync is on): your other planning data — projects, tasks, goals, OKRs, habits and habit check-ins, journal and energy entries, life areas and life map, skills, time blocks, daily plans, sprints, board settings, waterfall plans, links, saved filters and roadmaps — together with the time each item was last changed or deleted. Assistant chat history and AI keys are not synced. If Pro ends, the copy already in your account is kept but no longer updated, and your data on the device is not touched.',
               'Subscription: plan, status, renewal date and Lemon Squeezy customer and subscription IDs, received from Lemon Squeezy so we know whether you have Pro.',
               'Focus buddy (optional, Pro): if you pair with a buddy, an invite code and the pairing; your buddy can see only your focused minutes for today.',
               'Google Calendar (optional, Pro): if you connect it, a token that lets us read your calendar events (read-only) to show conflicts with your plan. Events are fetched when needed and not stored by us. You can disconnect at any time.',
@@ -359,7 +360,7 @@ export const legalEn: LegalSet = {
         heading: '4. What happens to Pro after a refund',
         blocks: [
           'A refund also cancels the subscription, so you will not be charged again. Pro features end when the refund is processed and your account returns to the Free plan.',
-          'Your data is not deleted: everything on your device stays there, and data already synced to your account stays in it until you delete your account. Cloud sync is a Pro feature, so it stops.',
+          'Your data is not deleted: everything on your device stays there, and data already synced to your account stays in it until you delete your account. Full sync of all your data is a Pro feature, so it stops updating; focus sessions, focus areas and settings keep syncing.',
         ],
       },
       {

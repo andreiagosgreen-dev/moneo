@@ -32,7 +32,11 @@ const ERROR_KEYS: Record<ProSyncError, TKey> = {
 export type CloudSyncView = 'pro' | 'pro-off' | 'free' | 'lapsed';
 
 /** Which explanation a signed-in user sees. Pure for tests. */
-export function cloudSyncView(isPro: boolean, syncEnabled: boolean, usedProSync: boolean): CloudSyncView {
+export function cloudSyncView(
+  isPro: boolean,
+  syncEnabled: boolean,
+  usedProSync: boolean,
+): CloudSyncView {
   if (isPro) return syncEnabled ? 'pro' : 'pro-off';
   return usedProSync ? 'lapsed' : 'free';
 }
