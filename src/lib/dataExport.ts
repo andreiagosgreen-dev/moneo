@@ -18,12 +18,24 @@ export const EXPORT_VERSION = 1;
 /** Device bookkeeping, not user data: neither exported nor overwritten on import. */
 const DEVICE_ONLY_KEYS: ReadonlySet<string> = new Set([STORAGE_KEYS.syncState]);
 
+/**
+ * Pro sync bookkeeping: never exported, and dropped by an import so the next
+ * sync merges the imported data with the account instead of reading records
+ * missing from the file as deletions.
+ */
+const RESET_ON_IMPORT_KEYS: ReadonlySet<string> = new Set([
+  STORAGE_KEYS.proSync,
+  STORAGE_KEYS.proSyncEdits,
+]);
+
 export interface CloudExport {
   email: string | null;
   sessions: unknown[] | null;
   areas: unknown[] | null;
   settings: unknown | null;
   subscription: { status: string; planId: string; currentPeriodEnd: number | null } | null;
+  /** Pro full-data sync rows (projects, tasks, journal, ...); null when unavailable. */
+  records?: unknown[] | null;
 }
 
 export interface MoneoExport {
@@ -45,7 +57,11 @@ export interface ExportOptions {
 }
 
 function isExportableKey(key: string): boolean {
-  return (isMoneoLocalKey(key) || key === STORAGE_KEYS.locale) && !DEVICE_ONLY_KEYS.has(key);
+  return (
+    (isMoneoLocalKey(key) || key === STORAGE_KEYS.locale) &&
+    !DEVICE_ONLY_KEYS.has(key) &&
+    !RESET_ON_IMPORT_KEYS.has(key)
+  );
 }
 
 function stripAiKey(value: unknown): unknown {

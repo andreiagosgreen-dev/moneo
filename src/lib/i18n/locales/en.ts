@@ -833,7 +833,8 @@ export const en = {
   'pay.plan.monthly.f2': 'Full AI assistant, all insights & plans with your own AI key (optional)',
   'pay.plan.monthly.f3': 'Export reports to CSV (Excel) and PDF',
   'pay.plan.monthly.f4': 'Weekly time blocks, sprint charts & kanban work limits',
-  'pay.plan.monthly.f5': 'Sync between devices: focus sessions, areas & settings',
+  'pay.plan.monthly.f5':
+    'All your data saved to your account and synced between devices — projects, tasks, goals, habits, journal & focus sessions',
   'pay.plan.monthly.f6':
     'Light mode, accent colors, extra fonts & interior color palettes for Focus',
   'pay.plan.monthly.f7': 'Priority email replies from support',
@@ -2782,4 +2783,41 @@ export const en = {
   'graph.subtitle': '{nodes} nodes · {edges} links',
   'graph.empty':
     'No connections yet — open a goal, project, skill or today’s journal entry and link it to something.',
+  'mono.cloud.title': 'Account sync',
+  'mono.cloud.proLead': 'All your data is saved to your account',
+  'mono.cloud.proBody':
+    'Projects, tasks, goals, habits, journal, life map, plans and focus sessions stay up to date on every device where you sign in.',
+  'mono.cloud.syncing': 'Syncing…',
+  'mono.cloud.synced': 'Synced',
+  'mono.cloud.notSynced': 'Not synced',
+  'mono.cloud.never': 'Not synced yet',
+  'mono.cloud.lastSync': 'last sync {time}',
+  'mono.cloud.syncNow': 'Sync now',
+  'mono.cloud.openAccount': 'Open account',
+  'mono.cloud.offHint': 'Turn on sync in your account to save everything there.',
+  'mono.cloud.err.pull':
+    'Couldn’t reach your account. Everything is safe on this device — Moneo will try again.',
+  'mono.cloud.err.push':
+    'Some changes aren’t in your account yet. They’re safe on this device and will upload automatically.',
+  'mono.cloud.err.apply': 'Couldn’t save on this device — the browser’s storage may be full.',
+  'mono.cloud.err.notMigrated':
+    'Saving all your data to your account isn’t available yet. Everything is safe on this device.',
+  'mono.cloud.err.notPro':
+    'Your account isn’t on Pro right now, so only focus sessions, areas and settings sync.',
+  'mono.cloud.mismatchTitle': 'This device was synced with a different account',
+  'mono.cloud.mismatchBody':
+    'To keep accounts separate, nothing was uploaded. If this data is yours, add it to this account.',
+  'mono.cloud.mismatchCta': 'Add to this account',
+  'mono.cloud.freeBody':
+    'Included for free: your focus sessions, areas and settings sync with your account.',
+  'mono.cloud.freeUpsell':
+    'With Pro, all your data — projects, tasks, goals, habits, journal and life map — is saved to your account and follows you to every device.',
+  'mono.cloud.seePro': 'See Pro',
+  'mono.cloud.lapsedTitle': 'Your Pro plan has ended',
+  'mono.cloud.lapsedBody':
+    'Your projects, tasks and the rest of your planning stay on this device. Your account keeps the last synced copy but no longer updates. Focus sessions, areas and settings still sync.',
+  'mono.cloud.renew': 'Renew Pro',
+  'pricing.row.sync': 'Sync between devices (with an account)',
+  'pricing.sync.free': 'Sessions, areas & settings',
+  'pricing.sync.pro': 'All your data',
 };

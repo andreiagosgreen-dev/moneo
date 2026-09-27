@@ -1,5 +1,6 @@
 import type { CloudExport } from '../dataExport';
 import { pullAreasAll } from './areaRepository';
+import { pullAllUserRecords } from './recordRepository';
 import { pullAllSessions } from './sessionRepository';
 import { getSettings } from './settingsRepository';
 import { fetchSubscription } from './subscriptionRepository';
@@ -13,11 +14,12 @@ export async function collectCloudExport(
   userId: string,
   email: string | null,
 ): Promise<CloudExport> {
-  const [sessions, areas, settings, subscription] = await Promise.all([
+  const [sessions, areas, settings, subscription, records] = await Promise.all([
     pullAllSessions(userId),
     pullAreasAll(userId),
     getSettings(userId),
     fetchSubscription(userId),
+    pullAllUserRecords(userId),
   ]);
   let settingsOut: Record<string, unknown> | null = null;
   if (settings) {
@@ -34,5 +36,14 @@ export async function collectCloudExport(
       planId: subscription.planId,
       currentPeriodEnd: subscription.currentPeriodEnd,
     },
+    records: records
+      ? records.map((r) => ({
+          collection: r.collection,
+          id: r.recordId,
+          deleted: r.deleted,
+          updatedAt: r.updatedAt,
+          data: r.data,
+        }))
+      : null,
   };
 }

@@ -824,7 +824,8 @@ export const de: Record<TKey, string> = {
     'Voller KI-Assistent, alle Signale & Pläne mit eigenem KI-Schlüssel (optional)',
   'pay.plan.monthly.f3': 'Berichte als CSV (Excel) und PDF exportieren',
   'pay.plan.monthly.f4': 'Wöchentliche Zeitblöcke, Sprint-Diagramme & Arbeitslimits im Kanban',
-  'pay.plan.monthly.f5': 'Abgleich zwischen Geräten: Sitzungen, Bereiche & Einstellungen',
+  'pay.plan.monthly.f5':
+    'Alle deine Daten im Konto gespeichert und zwischen Geräten abgeglichen — Projekte, Aufgaben, Ziele, Gewohnheiten, Journal & Fokussitzungen',
   'pay.plan.monthly.f6':
     'Hellmodus, Akzentfarben, zusätzliche Schriften & Interieur-Farbpaletten für Fokus',
   'pay.plan.monthly.f7': 'Priorisierte E-Mail-Antworten vom Support',
@@ -2810,4 +2811,43 @@ export const de: Record<TKey, string> = {
   'graph.subtitle': '{nodes} Knoten · {edges} Verknüpfungen',
   'graph.empty':
     'Noch keine Verbindungen — öffne ein Ziel, Projekt, eine Fähigkeit oder den heutigen Journal-Eintrag und verknüpfe ihn mit etwas.',
+  'mono.cloud.title': 'Konto-Synchronisierung',
+  'mono.cloud.proLead': 'Alle deine Daten werden in deinem Konto gespeichert',
+  'mono.cloud.proBody':
+    'Projekte, Aufgaben, Ziele, Gewohnheiten, Journal, Lebenskarte, Pläne und Fokus-Sessions sind auf jedem Gerät aktuell, auf dem du dich anmeldest.',
+  'mono.cloud.syncing': 'Synchronisiere…',
+  'mono.cloud.synced': 'Synchronisiert',
+  'mono.cloud.notSynced': 'Nicht synchronisiert',
+  'mono.cloud.never': 'Noch nicht synchronisiert',
+  'mono.cloud.lastSync': 'zuletzt {time}',
+  'mono.cloud.syncNow': 'Jetzt synchronisieren',
+  'mono.cloud.openAccount': 'Konto öffnen',
+  'mono.cloud.offHint':
+    'Aktiviere die Synchronisierung in deinem Konto, um alles dort zu speichern.',
+  'mono.cloud.err.pull':
+    'Dein Konto ist gerade nicht erreichbar. Auf diesem Gerät ist alles sicher — Moneo versucht es erneut.',
+  'mono.cloud.err.push':
+    'Einige Änderungen sind noch nicht in deinem Konto. Sie sind auf diesem Gerät sicher und werden automatisch hochgeladen.',
+  'mono.cloud.err.apply':
+    'Speichern auf diesem Gerät nicht möglich — der Browserspeicher ist eventuell voll.',
+  'mono.cloud.err.notMigrated':
+    'Das Speichern aller Daten im Konto ist noch nicht verfügbar. Auf diesem Gerät ist alles sicher.',
+  'mono.cloud.err.notPro':
+    'Dein Konto hat gerade kein Pro, daher werden nur Fokus-Sessions, Bereiche und Einstellungen synchronisiert.',
+  'mono.cloud.mismatchTitle': 'Dieses Gerät wurde mit einem anderen Konto synchronisiert',
+  'mono.cloud.mismatchBody':
+    'Damit Konten getrennt bleiben, wurde nichts hochgeladen. Wenn diese Daten dir gehören, füge sie diesem Konto hinzu.',
+  'mono.cloud.mismatchCta': 'Zu diesem Konto hinzufügen',
+  'mono.cloud.freeBody':
+    'Kostenlos enthalten: Deine Fokus-Sessions, Bereiche und Einstellungen werden mit deinem Konto synchronisiert.',
+  'mono.cloud.freeUpsell':
+    'Mit Pro werden alle deine Daten — Projekte, Aufgaben, Ziele, Gewohnheiten, Journal und Lebenskarte — in deinem Konto gespeichert und begleiten dich auf jedes Gerät.',
+  'mono.cloud.seePro': 'Pro ansehen',
+  'mono.cloud.lapsedTitle': 'Dein Pro-Abo ist beendet',
+  'mono.cloud.lapsedBody':
+    'Deine Projekte, Aufgaben und der Rest deiner Planung bleiben auf diesem Gerät. Dein Konto behält die zuletzt synchronisierte Kopie, wird aber nicht mehr aktualisiert. Fokus-Sessions, Bereiche und Einstellungen werden weiter synchronisiert.',
+  'mono.cloud.renew': 'Pro verlängern',
+  'pricing.row.sync': 'Synchronisierung zwischen Geräten (mit Konto)',
+  'pricing.sync.free': 'Sessions, Bereiche & Einstellungen',
+  'pricing.sync.pro': 'Alle deine Daten',
 };

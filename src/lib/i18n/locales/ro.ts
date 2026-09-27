@@ -827,7 +827,8 @@ export const ro: Record<TKey, string> = {
   'pay.plan.monthly.f3': 'Export rapoarte în CSV (Excel) și PDF',
   'pay.plan.monthly.f4':
     'Blocuri de timp în calendar, grafice de sprint și limite de lucru pe kanban',
-  'pay.plan.monthly.f5': 'Sincronizare între dispozitive: sesiuni de focus, arii și setări',
+  'pay.plan.monthly.f5':
+    'Toate datele tale salvate în cont și sincronizate între dispozitive — proiecte, sarcini, obiective, obiceiuri, jurnal și sesiuni de focus',
   'pay.plan.monthly.f6':
     'Mod luminos, culori de accent, fonturi în plus și palete Focus interioare',
   'pay.plan.monthly.f7': 'Suport prioritar pe email',
@@ -2796,4 +2797,42 @@ export const ro: Record<TKey, string> = {
   'graph.subtitle': '{nodes} noduri · {edges} legături',
   'graph.empty':
     'Nicio conexiune încă — deschide un goal, proiect, abilitate sau intrarea de azi din jurnal și leag-o de ceva.',
+  'mono.cloud.title': 'Sincronizare cont',
+  'mono.cloud.proLead': 'Toate datele tale se salvează în cont',
+  'mono.cloud.proBody':
+    'Proiectele, sarcinile, obiectivele, obiceiurile, jurnalul, harta vieții, planurile și sesiunile de concentrare sunt la zi pe orice dispozitiv pe care te conectezi.',
+  'mono.cloud.syncing': 'Se sincronizează…',
+  'mono.cloud.synced': 'Sincronizat',
+  'mono.cloud.notSynced': 'Nesincronizat',
+  'mono.cloud.never': 'Încă nesincronizat',
+  'mono.cloud.lastSync': 'ultima sincronizare {time}',
+  'mono.cloud.syncNow': 'Sincronizează acum',
+  'mono.cloud.openAccount': 'Deschide contul',
+  'mono.cloud.offHint': 'Pornește sincronizarea din cont ca să salvezi totul acolo.',
+  'mono.cloud.err.pull':
+    'Nu am putut ajunge la contul tău. Totul e în siguranță pe acest dispozitiv — Moneo va încerca din nou.',
+  'mono.cloud.err.push':
+    'Unele modificări nu sunt încă în cont. Sunt în siguranță pe acest dispozitiv și se vor urca automat.',
+  'mono.cloud.err.apply':
+    'Nu am putut salva pe acest dispozitiv — spațiul browserului poate fi plin.',
+  'mono.cloud.err.notMigrated':
+    'Salvarea tuturor datelor în cont nu e disponibilă încă. Totul e în siguranță pe acest dispozitiv.',
+  'mono.cloud.err.notPro':
+    'Contul tău nu are Pro acum, așa că se sincronizează doar sesiunile, ariile și setările.',
+  'mono.cloud.mismatchTitle': 'Acest dispozitiv a fost sincronizat cu alt cont',
+  'mono.cloud.mismatchBody':
+    'Ca să nu amestecăm conturile, nu am urcat nimic. Dacă datele sunt ale tale, adaugă-le în acest cont.',
+  'mono.cloud.mismatchCta': 'Adaugă în acest cont',
+  'mono.cloud.freeBody':
+    'Inclus gratuit: sesiunile de concentrare, ariile și setările se sincronizează cu contul tău.',
+  'mono.cloud.freeUpsell':
+    'Cu Pro, toate datele tale — proiecte, sarcini, obiective, obiceiuri, jurnal și harta vieții — se salvează în cont și te urmează pe orice dispozitiv.',
+  'mono.cloud.seePro': 'Vezi Pro',
+  'mono.cloud.lapsedTitle': 'Abonamentul Pro s-a încheiat',
+  'mono.cloud.lapsedBody':
+    'Proiectele, sarcinile și restul planificării rămân pe acest dispozitiv. Contul păstrează ultima copie sincronizată, dar nu se mai actualizează. Sesiunile, ariile și setările se sincronizează în continuare.',
+  'mono.cloud.renew': 'Reînnoiește Pro',
+  'pricing.row.sync': 'Sincronizare între dispozitive (cu cont)',
+  'pricing.sync.free': 'Sesiuni, arii și setări',
+  'pricing.sync.pro': 'Toate datele tale',
 };
