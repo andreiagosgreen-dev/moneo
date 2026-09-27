@@ -156,6 +156,19 @@ describe('carryForNewDay', () => {
     expect(today!.tasks.every((t) => !t.done)).toBe(true);
   });
 
+  it('keeps the project-task link on carried items', () => {
+    const todayKey = dayKeyInTz(Date.now(), TZ);
+    const yKey = dayKeyInTz(Date.now() - 24 * 3600_000, TZ);
+    const yesterdayPlan = setDayPlan([], yKey, [
+      { id: 't1', text: 'Linked', done: false, rank: 1, taskId: 'task-7' },
+      { id: 't2', text: 'Plain', done: false, rank: 2 },
+    ]);
+    const { plans } = carryForNewDay(yesterdayPlan, TZ);
+    const today = plans.find((p) => p.dateKey === todayKey)!;
+    expect(today.tasks[0].taskId).toBe('task-7');
+    expect('taskId' in today.tasks[1]).toBe(false);
+  });
+
   it('does nothing when today already has a plan', () => {
     const todayKey = dayKeyInTz(Date.now(), TZ);
     const withToday = setDayPlan([], todayKey, [

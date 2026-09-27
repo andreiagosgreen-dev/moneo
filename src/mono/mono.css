@@ -3209,3 +3209,169 @@
     display: none;
   }
 }
+
+/* ---------- XP rank (Growth + Account) ---------- */
+.mono-celebrate.is-goal .mono-celebrate-icon,
+.mono-celebrate.is-focusDays .mono-celebrate-icon,
+.mono-celebrate.is-levelUp .mono-celebrate-icon {
+  background: var(--mono-tint, var(--mono-accent));
+  color: var(--atm-on, #fff);
+}
+.mono-celebrate-icon.is-level {
+  font-family: var(--mono-font-display);
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  box-shadow:
+    0 0 0 3px color-mix(in oklab, var(--mono-tint, var(--mono-accent)) 26%, transparent),
+    0 0 18px color-mix(in oklab, var(--mono-tint, var(--mono-accent)) 55%, transparent);
+}
+.mono-rank {
+  display: grid;
+  gap: 14px;
+}
+.mono-rank-main {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+}
+.mono-rank-ring {
+  position: relative;
+  flex: none;
+  width: 84px;
+  height: 84px;
+  isolation: isolate;
+}
+.mono-rank-ring::before {
+  content: '';
+  position: absolute;
+  inset: 4%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--mono-tint, var(--mono-accent)) 22%, transparent),
+    transparent
+  );
+}
+.mono-rank-ring svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+.mono-rank-track {
+  stroke: var(--mono-sunken, var(--mono-bg-2));
+}
+.mono-rank-bar {
+  stroke: var(--mono-tint, var(--mono-accent));
+  filter: drop-shadow(
+    0 0 5px color-mix(in oklab, var(--mono-tint, var(--mono-accent)) 55%, transparent)
+  );
+  transition: stroke-dasharray 600ms var(--mono-ease);
+}
+.mono-rank-level {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  font-family: var(--mono-font-display);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--mono-fg-2);
+  font-variant-numeric: tabular-nums;
+}
+.mono-rank-level small {
+  display: block;
+  margin-bottom: 2px;
+  font-family: var(--mono-font-mono);
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  color: var(--mono-muted);
+}
+.mono-rank-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.mono-rank-name {
+  margin-top: 1px;
+  overflow-wrap: anywhere;
+}
+.mono-rank-next {
+  font-size: 13.5px;
+  color: var(--mono-muted);
+}
+.mono-rank-how {
+  border-radius: 14px;
+  background: var(--mono-sunken, var(--mono-bg-2));
+  box-shadow: var(--mono-elev-1, none);
+}
+.mono-rank-how > summary {
+  cursor: pointer;
+  padding: 12px 14px;
+  min-height: 44px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--mono-fg-2);
+  list-style-position: inside;
+}
+.mono-rank-how > summary:focus-visible {
+  outline: 2px solid var(--mono-tint, var(--mono-accent));
+  outline-offset: 2px;
+  border-radius: 14px;
+}
+.mono-rank-how[open] {
+  padding-bottom: 12px;
+}
+.mono-rank-how > :not(summary) {
+  margin: 0 14px;
+}
+.mono-rank-how > p + p,
+.mono-rank-how > ul + p {
+  margin-top: 10px;
+}
+.mono-rank-how ul {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  margin-bottom: 0;
+  padding: 0;
+  list-style: none;
+}
+.mono-rank-how li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--mono-fg);
+}
+.mono-rank-earned {
+  flex: none;
+  font-family: var(--mono-font-mono);
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--mono-tint, var(--mono-accent));
+  font-variant-numeric: tabular-nums;
+}
+.mono-rank-note {
+  font-size: 13px;
+  color: var(--mono-muted);
+}
+/* Account page sits outside the app shell: host the card in the user's atmosphere. */
+.mono-rank-host {
+  border-radius: var(--mono-r-card);
+  background: transparent;
+  background-image: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mono-rank-bar {
+    transition: none;
+  }
+}
