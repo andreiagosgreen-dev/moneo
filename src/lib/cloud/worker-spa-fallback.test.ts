@@ -18,6 +18,7 @@ describe('isStaticAssetPath', () => {
     expect(isStaticAssetPath('/privacy')).toBe(false);
     expect(isStaticAssetPath('/terms')).toBe(false);
     expect(isStaticAssetPath('/refund')).toBe(false);
+    expect(isStaticAssetPath('/welcome')).toBe(false);
     expect(isStaticAssetPath('/account')).toBe(false);
     expect(isStaticAssetPath('/account/calendar-callback')).toBe(false);
     expect(isStaticAssetPath('/index.html')).toBe(false);
