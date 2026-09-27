@@ -184,6 +184,8 @@ VITE_LEMONSQUEEZY_YEARLY_VARIANT_ID=...
 
 **[REPO]** URL: `…/checkout/buy/<variant>?checkout[custom][user_id]=<id>` — fail-closed fara cele 4 vars.
 
+**[TU]** Intoarcere dupa plata: la fiecare produs (Monthly + Yearly) → Confirmation modal → **Button link** = `https://moneo.bond/account?billing=success`. Linkurile de checkout Lemon nu accepta redirect ca parametru; `/account?billing=success` reincarca imediat abonamentul (tab-ul ramas deschis se reincarca oricum la focus).
+
 ### 3.3 Webhook
 
 - URL: `https://moneo.bond/api/webhook/lemonsqueezy`

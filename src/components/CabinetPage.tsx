@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import BrandMark from './BrandMark';
 import PricingCard from './PricingCard';
 import NotificationsSettings from './NotificationsSettings';
@@ -42,10 +42,23 @@ function Spinner() {
 export default function CabinetPage() {
   const { t } = useI18n();
   const auth = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const portalUrl = buildCustomerPortalUrl();
+
+  // Lemon's confirmation "Button link" points at /account?billing=success
+  // (set per product in the Lemon dashboard). The webhook may land slightly
+  // later; the focus/visibility refresh in useAuth covers that.
+  const refreshSubscription = auth.refreshSubscription;
+  useEffect(() => {
+    if (searchParams.get('billing') !== 'success') return;
+    void refreshSubscription();
+    const next = new URLSearchParams(searchParams);
+    next.delete('billing');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams, refreshSubscription]);
 
   const planLabel = (id: SubscriptionInfo['planId']) => {
     if (id === 'pro-monthly') return t('account.plan.pro-monthly');
