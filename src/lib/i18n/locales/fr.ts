@@ -47,14 +47,15 @@ export const fr: Record<TKey, string> = {
   'land.cta.start': 'Commencer gratuitement',
   'land.cta.pricing': 'Voir les tarifs',
   'land.hero.eyebrow': 'Pour les élèves, les étudiants et les professionnels',
-  'land.hero.title': 'Concentrez-vous, planifiez, progressez — jour après jour.',
+  'land.hero.title': 'Concentrez‑vous, planifiez, progressez — jour après jour.',
   'land.hero.sub':
     'Moneo réunit un minuteur de concentration apaisant, un plan simple pour aujourd’hui, vos projets et vos habitudes au même endroit — pour savoir toujours quoi faire ensuite et voir vos progrès.',
   'land.hero.trust': 'Sans carte · Sans compte · Fonctionne hors ligne',
   'land.shot.focus.alt':
     'Écran Focus de Moneo : un minuteur de 25 minutes, l’intention du jour et les prochaines tâches',
   'land.shot.focusPhone.alt': 'Moneo sur un téléphone : le minuteur avec l’intention du jour',
-  'land.shot.today.alt': 'Écran Aujourd’hui de Moneo : les priorités du jour, certaines déjà cochées',
+  'land.shot.today.alt':
+    'Écran Aujourd’hui de Moneo : les priorités du jour, certaines déjà cochées',
   'land.shot.growth.alt': 'Écran Progression de Moneo : XP, rang actuel et série de jours de focus',
   'land.who.eyebrow': 'Pour qui',
   'land.who.title': 'Pour tous ceux qui veulent en faire plus — sereinement',
@@ -91,7 +92,8 @@ export const fr: Record<TKey, string> = {
   'land.feat.projects.b':
     'Découpez les grands objectifs en petites tâches. L’assistant de planification transforme « Je veux apprendre… » en un parcours clair, directement sur votre appareil.',
   'land.feat.habits.t': 'Des habitudes qui tiennent',
-  'land.feat.habits.b': 'De petites habitudes quotidiennes, avec des séries et un rappel en douceur le soir.',
+  'land.feat.habits.b':
+    'De petites habitudes quotidiennes, avec des séries et un rappel en douceur le soir.',
   'land.feat.atm.t': 'Une ambiance pour chaque humeur',
   'land.feat.atm.b':
     'Des thèmes de couleur apaisants pour votre espace de concentration — la même mise en page simple, dans l’ambiance qui vous plaît.',

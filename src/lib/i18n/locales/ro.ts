@@ -48,7 +48,7 @@ export const ro: Record<TKey, string> = {
   'land.cta.start': 'Începe gratuit',
   'land.cta.pricing': 'Vezi prețurile',
   'land.hero.eyebrow': 'Pentru elevi, studenți și profesioniști',
-  'land.hero.title': 'Concentrează-te, planifică și crește — zi de zi.',
+  'land.hero.title': 'Concentrează‑te, planifică și crește — zi de zi.',
   'land.hero.sub':
     'Moneo adună la un loc un cronometru de concentrare liniștit, un plan simplu pentru azi, proiectele și obiceiurile tale — ca să știi mereu ce urmează și să vezi cum devii tot mai bun.',
   'land.hero.trust': 'Fără card · Fără cont · Funcționează offline',

@@ -55,7 +55,8 @@ export const es: Record<TKey, string> = {
     'Pantalla Focus de Moneo: un temporizador de 25 minutos, la intención de hoy y las próximas tareas',
   'land.shot.focusPhone.alt': 'Moneo en el móvil: el temporizador con la intención de hoy',
   'land.shot.today.alt': 'Pantalla Hoy de Moneo: las prioridades del día, algunas ya marcadas',
-  'land.shot.growth.alt': 'Pantalla Crecimiento de Moneo: XP, rango actual y racha de días con foco',
+  'land.shot.growth.alt':
+    'Pantalla Crecimiento de Moneo: XP, rango actual y racha de días con foco',
   'land.who.eyebrow': 'Para quién',
   'land.who.title': 'Para cualquiera que quiera hacer más — con calma',
   'land.who.pupils.t': 'Estudiantes de secundaria',

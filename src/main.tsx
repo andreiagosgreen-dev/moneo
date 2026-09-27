@@ -84,7 +84,11 @@ function Root() {
 
   return (
     <Suspense fallback={null}>
-      {view === 'landing' ? <Landing onStart={startApp} onPrefetchApp={prefetchApp} /> : <AppRoot />}
+      {view === 'landing' ? (
+        <Landing onStart={startApp} onPrefetchApp={prefetchApp} />
+      ) : (
+        <AppRoot />
+      )}
     </Suspense>
   );
 }

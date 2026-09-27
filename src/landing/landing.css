@@ -43,7 +43,7 @@ html:has(.lnd) body {
   box-sizing: border-box;
 }
 
-.lnd a {
+:where(.lnd) a {
   color: inherit;
 }
 
@@ -63,7 +63,10 @@ html:has(.lnd) body {
 }
 
 .lnd-wrap {
-  width: min(1160px, 100% - 40px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+  width: min(
+    1160px,
+    100% - 40px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)
+  );
   margin-inline: auto;
 }
 

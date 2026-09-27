@@ -98,7 +98,8 @@ export const en = {
   'land.feat.habits.t': 'Habits that stick',
   'land.feat.habits.b': 'Small daily habits with streaks and a gentle reminder in the evening.',
   'land.feat.atm.t': 'An atmosphere for every mood',
-  'land.feat.atm.b': 'Calm color themes for your focus space — the same simple layout in the mood you like.',
+  'land.feat.atm.b':
+    'Calm color themes for your focus space — the same simple layout in the mood you like.',
   'land.feat.private.t': 'Private and offline',
   'land.feat.private.b':
     'Works without internet. Your data stays on your device; sign in only if you want to sync.',

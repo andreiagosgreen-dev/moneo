@@ -91,7 +91,8 @@ export const de: Record<TKey, string> = {
   'land.feat.projects.b':
     'Teile große Ziele in kleine Aufgaben. Der Plan-Assistent macht aus „Ich will … lernen“ einen klaren Fahrplan — direkt auf deinem Gerät.',
   'land.feat.habits.t': 'Gewohnheiten, die bleiben',
-  'land.feat.habits.b': 'Kleine tägliche Gewohnheiten mit Serien und einer sanften Erinnerung am Abend.',
+  'land.feat.habits.b':
+    'Kleine tägliche Gewohnheiten mit Serien und einer sanften Erinnerung am Abend.',
   'land.feat.atm.t': 'Eine Atmosphäre für jede Stimmung',
   'land.feat.atm.b':
     'Ruhige Farbthemen für deinen Fokusbereich — dasselbe einfache Layout in der Stimmung, die dir gefällt.',

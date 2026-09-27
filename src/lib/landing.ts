@@ -71,7 +71,10 @@ export function landingView({
 
 /** True when `/` would show the landing because this browser is new. */
 export function isFirstVisitLanding(input: LandingInput): boolean {
-  return normalizePath(input.pathname) === '/' && landingView({ ...input, activeInTab: false }) === 'landing';
+  return (
+    normalizePath(input.pathname) === '/' &&
+    landingView({ ...input, activeInTab: false }) === 'landing'
+  );
 }
 
 export function isLandingActiveInTab(): boolean {

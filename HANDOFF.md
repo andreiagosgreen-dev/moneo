@@ -75,6 +75,7 @@ Rescrise pentru Mono: timer (preseturi 5/25/45, Start → Pause → Resume, ceas
 - **Sync:** nu e bug de engine dacă lipsește env valid; UI arată `outcome.error`. Scope: `focus_sessions` + `focus_areas` + `user_settings`. Proiecte/goals/etc. rămân local.
 - **Ghid ops:** `OPS-LAUNCH.md` (pas cu pas) + `LAUNCH-9.md` (checklist scurt).
 - **PR-uri Mono vechi:** `feat/mono-launch` / #24 nu se mai unesc pe main — conținutul e în #26.
+- **Landing (`src/landing/`):** apare pe `/` doar la prima vizită (fără date Moneo locale, fără sesiune, fără `moneo:landing-seen`) și oricând pe `/welcome`. Decizia e în `src/lib/landing.ts` (funcție pură, testată) și se ia în `main.tsx` înainte de a încărca aplicația (`AppRoot` e lazy). Link-urile directe (`/pricing`, `/account…`, `/?action=…`) nu sunt interceptate niciodată. În E2E, `skipOnboarding` sare și peste landing. Capturile din landing se regenerează cu `node scripts/landing-shots.mjs` (dev server pornit).
 
 ### 0.9. Prima replică recomandată în chat Cursor
 

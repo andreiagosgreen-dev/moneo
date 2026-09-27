@@ -59,7 +59,8 @@ type T = (key: TKey, vars?: Vars) => string;
 /* React 18 has no typed `fetchPriority` prop; the lowercase attribute passes through. */
 const HIGH_PRIORITY = { fetchpriority: 'high' } as Record<string, string>;
 
-const BLANK_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+const BLANK_PIXEL =
+  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
 const AUDIENCES: Array<{ id: 'pupils' | 'students' | 'pros'; icon: ReactNode }> = [
   { id: 'pupils', icon: <IconBook /> },

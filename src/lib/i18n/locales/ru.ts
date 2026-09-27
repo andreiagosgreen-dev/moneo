@@ -101,8 +101,7 @@ export const ru: Record<TKey, string> = {
   'land.feat.langs.t': 'На вашем языке',
   'land.feat.langs.b': 'Moneo говорит на 8 языках, включая румынский, русский и украинский.',
   'land.feat.install.t': 'На телефоне, как приложение',
-  'land.feat.install.b':
-    'Добавьте Moneo на главный экран в два касания — без магазина приложений.',
+  'land.feat.install.b': 'Добавьте Moneo на главный экран в два касания — без магазина приложений.',
   'land.how.eyebrow': 'Как это работает',
   'land.how.title': 'Начните меньше чем за минуту',
   'land.how.s1.t': 'Откройте Moneo',

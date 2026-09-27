@@ -36,6 +36,7 @@ test.describe('public pages', () => {
   test('/privacy, /terms and /help load with real content', async ({ page }) => {
     for (const path of ['/privacy', '/terms', '/help']) {
       await page.goto(path);
+      await expect(page.getByRole('heading').first()).toBeVisible();
       const bodyText = await page.locator('body').innerText();
       expect(bodyText.length).toBeGreaterThan(200);
     }

@@ -53,9 +53,11 @@ export const it: Record<TKey, string> = {
   'land.hero.trust': 'Nessuna carta · Nessun account · Funziona offline',
   'land.shot.focus.alt':
     'Schermata Focus di Moneo: un timer di 25 minuti, l’intenzione di oggi e le prossime attività',
-  'land.shot.focusPhone.alt': 'Moneo sul telefono: il timer di concentrazione con l’intenzione di oggi',
+  'land.shot.focusPhone.alt':
+    'Moneo sul telefono: il timer di concentrazione con l’intenzione di oggi',
   'land.shot.today.alt': 'Schermata Oggi di Moneo: le priorità del giorno, alcune già spuntate',
-  'land.shot.growth.alt': 'Schermata Crescita di Moneo: XP, grado attuale e serie di giorni di focus',
+  'land.shot.growth.alt':
+    'Schermata Crescita di Moneo: XP, grado attuale e serie di giorni di focus',
   'land.who.eyebrow': 'Per chi',
   'land.who.title': 'Per chiunque voglia fare di più — con calma',
   'land.who.pupils.t': 'Studenti delle superiori',
@@ -91,7 +93,8 @@ export const it: Record<TKey, string> = {
   'land.feat.projects.b':
     'Dividi i grandi obiettivi in piccole attività. L’assistente di pianificazione trasforma “Voglio imparare…” in un percorso chiaro, direttamente sul tuo dispositivo.',
   'land.feat.habits.t': 'Abitudini che restano',
-  'land.feat.habits.b': 'Piccole abitudini quotidiane con serie di giorni e un promemoria gentile la sera.',
+  'land.feat.habits.b':
+    'Piccole abitudini quotidiane con serie di giorni e un promemoria gentile la sera.',
   'land.feat.atm.t': 'Un’atmosfera per ogni stato d’animo',
   'land.feat.atm.b':
     'Temi di colore rilassanti per il tuo spazio di concentrazione — lo stesso layout semplice, nell’atmosfera che preferisci.',
