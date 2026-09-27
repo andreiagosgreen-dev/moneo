@@ -36,6 +36,8 @@ test.describe('public pages', () => {
   test('/privacy, /terms, /refund and /help load with real content', async ({ page }) => {
     for (const path of ['/privacy', '/terms', '/refund', '/help']) {
       await page.goto(path);
+      // Legal pages are a lazy chunk — wait for the heading before reading text.
+      await expect(page.locator('h1').first()).toBeVisible();
       const bodyText = await page.locator('body').innerText();
       expect(bodyText.length).toBeGreaterThan(200);
     }
