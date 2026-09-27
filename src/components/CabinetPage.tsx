@@ -48,8 +48,9 @@ export default function CabinetPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const portalUrl = buildCustomerPortalUrl();
 
-  // Lemon redirect lands on /account?billing=success — pull Pro immediately
-  // (webhook may land a second earlier or later; focus refresh covers retries).
+  // Lemon's confirmation "Button link" points at /account?billing=success
+  // (set per product in the Lemon dashboard). The webhook may land slightly
+  // later; the focus/visibility refresh in useAuth covers that.
   const refreshSubscription = auth.refreshSubscription;
   useEffect(() => {
     if (searchParams.get('billing') !== 'success') return;

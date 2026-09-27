@@ -63,17 +63,11 @@ function variantForPlan(planId: Plan): string | null {
 /**
  * Checkout URL for a paid plan. Uses the plan's distinct variant id so
  * monthly and yearly open different checkouts; the user id is URL-encoded
- * so the webhook can attribute the subscription. Optional `redirectUrl`
- * (https only) sends the buyer back to the app after payment so Pro can
- * refresh. Null when billing is not configured (free plan, missing
- * store/base/variant, or non-https base). Fail-closed: never invent a buy
- * URL or open-redirect the buyer (Faza 5A).
+ * so the webhook can attribute the subscription. Null when billing is not
+ * configured (free plan, missing store/base/variant, or non-https base).
+ * Fail-closed: never invent a buy URL or open-redirect the buyer (Faza 5A).
  */
-export function buildCheckoutUrl(
-  planId: Plan,
-  userId: string,
-  redirectUrl?: string | null,
-): string | null {
+export function buildCheckoutUrl(planId: Plan, userId: string): string | null {
   const config = getLemonSqueezyConfig();
   const variant = variantForPlan(planId);
   if (planId === 'free' || !config.checkoutUrl || !config.storeId || !variant) {
@@ -87,24 +81,7 @@ export function buildCheckoutUrl(
   } catch {
     return null;
   }
-  let url = `${base}/buy/${variant}?checkout[custom][user_id]=${encodeURIComponent(userId)}`;
-  if (redirectUrl) {
-    try {
-      const redirect = new URL(redirectUrl);
-      if (redirect.protocol === 'https:' || redirect.protocol === 'http:') {
-        // http allowed only for localhost (dev); https everywhere else.
-        const isLocalHttp =
-          redirect.protocol === 'http:' &&
-          (redirect.hostname === 'localhost' || redirect.hostname === '127.0.0.1');
-        if (redirect.protocol === 'https:' || isLocalHttp) {
-          url += `&checkout[redirect_url]=${encodeURIComponent(redirect.href)}`;
-        }
-      }
-    } catch {
-      /* ignore unsafe redirect */
-    }
-  }
-  return url;
+  return `${base}/buy/${variant}?checkout[custom][user_id]=${encodeURIComponent(userId)}`;
 }
 
 /**
@@ -126,27 +103,12 @@ export function buildCustomerPortalUrl(): string | null {
   }
 }
 
-export function initiateCheckout(
-  planId: Plan,
-  userId: string,
-  redirectUrl?: string | null,
-): string | null {
-  return buildCheckoutUrl(planId, userId, redirectUrl);
-}
-
-/** Same-origin account page after Lemon checkout — triggers Pro refresh. */
-export function checkoutReturnUrl(origin: string = typeof window !== 'undefined' ? window.location.origin : ''): string | null {
-  if (!origin) return null;
-  try {
-    const parsed = new URL(origin);
-    return `${parsed.origin}/account?billing=success`;
-  } catch {
-    return null;
-  }
+export function initiateCheckout(planId: Plan, userId: string): string | null {
+  return buildCheckoutUrl(planId, userId);
 }
 
 export function getProPlanCheckoutUrl(userId: string): string | null {
-  return initiateCheckout('pro-monthly', userId, checkoutReturnUrl());
+  return initiateCheckout('pro-monthly', userId);
 }
 
 /* ---------------- Customer Portal (self-serve billing) ---------------- */

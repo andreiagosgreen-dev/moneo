@@ -1,5 +1,5 @@
 import { useAuth } from '../lib/authProvider';
-import { checkoutReturnUrl, initiateCheckout, type Plan } from '../lib/billing/lemonSqueezy';
+import { initiateCheckout, type Plan } from '../lib/billing/lemonSqueezy';
 import {
   PRICING_PLANS_DISPLAY,
   PRO_PRICES,
@@ -55,7 +55,7 @@ export default function PricingCard() {
       return;
     }
 
-    const checkoutUrl = initiateCheckout(planId, auth.user.userId, checkoutReturnUrl());
+    const checkoutUrl = initiateCheckout(planId, auth.user.userId);
     if (!checkoutUrl || !openExternal(checkoutUrl)) {
       alert(t('pay.unavailable'));
     }
