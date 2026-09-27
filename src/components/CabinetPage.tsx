@@ -10,6 +10,7 @@ import { useAuth } from '../lib/authProvider';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import {
   hasRenewingSubscription,
+  isCancelledButActive,
   type SubscriptionInfo,
 } from '../lib/cloud/subscriptionRepository';
 import { LEMON_MY_ORDERS_URL, buildCustomerPortalUrl } from '../lib/billing/lemonSqueezy';
@@ -166,13 +167,20 @@ export default function CabinetPage() {
           </h2>
           <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-line bg-ink/50 px-4 py-3">
             <span className="text-sm font-semibold text-cream">
-              {planLabel(auth.subscription.planId)}
+              {auth.subscription.isPro
+                ? planLabel(auth.subscription.planId)
+                : t('account.plan.free')}
             </span>
-            {auth.subscription.currentPeriodEnd && (
+            {auth.subscription.isPro && auth.subscription.currentPeriodEnd && (
               <span className="font-mono text-[11px] text-faint">
-                {t('account.renews', {
-                  date: new Date(auth.subscription.currentPeriodEnd).toLocaleDateString(),
-                })}
+                {t(
+                  isCancelledButActive(auth.subscription)
+                    ? 'account.cancelledUntil'
+                    : 'account.renews',
+                  {
+                    date: new Date(auth.subscription.currentPeriodEnd).toLocaleDateString(),
+                  },
+                )}
               </span>
             )}
           </div>

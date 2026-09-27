@@ -1920,6 +1920,7 @@ export const en = {
   'account.plan.pro-monthly': 'Pro (Monthly)',
   'account.plan.pro-yearly': 'Pro (Yearly)',
   'account.renews': 'Renews {date}',
+  'account.cancelledUntil': 'Cancelled — Pro active until {date}',
   'login.title': 'Welcome back',
   'login.subtitle': 'Sign in to sync your focus across devices.',
   'login.backToApp': 'Back to Moneo',
