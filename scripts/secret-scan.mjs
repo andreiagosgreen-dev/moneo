@@ -75,10 +75,14 @@ const PATTERNS = [
   },
 ];
 
+// Nested agent worktrees are full copies of the repo on other branches.
+const SKIP_PATHS = new Set([path.join(ROOT, '.claude', 'worktrees')]);
+
 function walk(dir, out = []) {
   for (const entry of readdirSync(dir)) {
     if (SKIP_DIRS.has(entry)) continue;
     const full = path.join(dir, entry);
+    if (SKIP_PATHS.has(full)) continue;
     const st = statSync(full);
     if (st.isDirectory()) {
       walk(full, out);
