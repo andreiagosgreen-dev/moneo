@@ -26,6 +26,7 @@ import {
   type SubscriptionInfo,
 } from './cloud/subscriptionRepository';
 import { resolveIsPro } from './billing/complimentaryPro';
+import { requestAccountDeletion } from './accountDeletionClient';
 
 /**
  * Thin React wrapper around the framework-free auth controller.
@@ -48,20 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         getProfileTimezone: (userId) => getProfileTimezone(userId),
         // Same-origin Worker endpoint (serves the frontend in production).
         // Unreachable in dev → the promise rejects → controller fails closed.
-        requestAccountDeletion: async (accessToken) => {
-          try {
-            const res = await fetch('/api/account/delete', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken}`,
-              },
-            });
-            return res.ok;
-          } catch {
-            return false;
-          }
-        },
+        requestAccountDeletion: (accessToken) => requestAccountDeletion(accessToken),
         // Only invoked after the server confirms the wipe.
         clearLocalData: () => {
           try {

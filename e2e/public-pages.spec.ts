@@ -33,11 +33,23 @@ test.describe('public pages', () => {
     await expect(page.getByRole('textbox').first()).toBeVisible();
   });
 
-  test('/privacy, /terms and /help load with real content', async ({ page }) => {
-    for (const path of ['/privacy', '/terms', '/help']) {
+  test('/privacy, /terms, /refund and /help load with real content', async ({ page }) => {
+    for (const path of ['/privacy', '/terms', '/refund', '/help']) {
       await page.goto(path);
+      // Legal pages are a lazy chunk — wait for the heading before reading text.
+      await expect(page.locator('h1').first()).toBeVisible();
       const bodyText = await page.locator('body').innerText();
       expect(bodyText.length).toBeGreaterThan(200);
     }
+  });
+
+  test('/refund is the refund policy, not the app, and links support by email', async ({
+    page,
+  }) => {
+    await page.goto('/refund');
+    await expect(page.getByRole('heading', { level: 1, name: 'Refund Policy' })).toBeVisible();
+    await expect(page.locator('.atm-root')).toHaveCount(0);
+    await expect(page.locator('a[href^="mailto:"]').first()).toBeVisible();
+    await expect(page).toHaveTitle('Refund Policy — Moneo');
   });
 });

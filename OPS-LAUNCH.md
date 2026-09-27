@@ -179,7 +179,7 @@ CF API Token (Workers + R2 pe `moneo-assets`) → secrets `CLOUDFLARE_ACCOUNT_ID
 
 ### 3.2 Env FE
 
-In `.env.local` + GitHub secrets:
+In `.env.local` + GitHub → Settings → Secrets and variables → Actions → tab **Variables** (nu Secrets; valorile sunt publice, ajung in bundle):
 
 ```
 VITE_LEMONSQUEEZY_STORE_ID=...
@@ -196,7 +196,7 @@ VITE_LEMONSQUEEZY_YEARLY_VARIANT_ID=...
 
 - URL: `https://moneo.bond/api/webhook/lemonsqueezy`
 - Secret = acelasi ca `LEMON_SQUEEZY_WEBHOOK_SECRET`
-- Evenimente: subscription_created/updated/cancelled/expired (+ payment_success ok)
+- Evenimente (doar acestea scriu in `public.subscriptions`, vezi `cloudflare/workers/billing.ts`): `subscription_created`, `subscription_updated`, `subscription_cancelled`, `subscription_resumed`, `subscription_expired`, `subscription_paused`, `subscription_unpaused`. Restul (ex. `subscription_payment_success`) primesc 200 fara efect.
 
 Fara secret → 503. Semnatura gresita → 401.
 
@@ -220,11 +220,32 @@ npx wrangler secret put LEMON_SQUEEZY_API_KEY
 
 Pricing → Upgrade → Lemon → dupa plata: rand in `subscriptions`; Manage → portal HTTPS.
 
+### 3.6 Plan anual + anulare **[REPO]**
+
+- **Fara migratie noua.** Se folosesc coloanele existente `status`, `plan_id`, `current_period_end`.
+- Planul (lunar/anual) se decide in Worker (`cloudflare/workers/subscriptionAccess.ts`): intai dupa ID-urile numerice Lemon din `wrangler.toml` `[vars]` (`LEMON_YEARLY_IDS`, `LEMON_MONTHLY_IDS` — variant + product, publice), apoi dupa numele produsului („Moneo Pro (Yearly)”). Produs nou in Lemon → adauga ID-urile acolo.
+- Anulare: Lemon trimite `status: cancelled` + `ends_at`; Worker-ul scrie `current_period_end = ends_at`, iar Pro ramane activ pana la acea data (Cont: „Anulat — Pro activ pana la …”). `past_due` = Pro (Lemon reincearca ~2 saptamani); `unpaid` / `paused` / `expired` = Free.
+- Randurile vechi (ex. anual salvat ca `pro-monthly`) se corecteaza la urmatorul webhook `subscription_*` dupa deploy. Mai rapid: Lemon → Settings → Webhooks → livrarea `subscription_created`/`subscription_updated` → Resend.
+
+### 3.7 Trecere din Test in Live **[TU]**
+
+Test si Live sunt doua lumi separate in Lemon: produse, webhook-uri, chei API si coduri de reducere diferite. Store ID (`478882`) si slug-ul `moneo` raman aceleasi.
+
+1. **Activare magazin:** bara stanga → **Activate your store** → chestionar (persoana fizica e OK, fara firma) + verificare identitate (act de identitate). Settings → **Payouts**: cont bancar (Moldova e suportata pentru bank payouts) sau PayPal; formular fiscal **W-8BEN** (persoana fizica non-SUA). Aprobare ~2–3 zile lucratoare.
+2. **Produse live:** comuta **Test mode** OFF (bara stanga jos) → Products. Daca produsele lipsesc in Live: in Test mode → produs → „…” → **Copy to Live Mode** (primesc ID-uri noi). Verifica $5.99 / luna si $59.99 / an.
+3. **ID-urile din app** (`VITE_LEMONSQUEEZY_MONTHLY_VARIANT_ID` / `…_YEARLY_…`) sunt UUID-ul din linkul de checkout: produs → **Share** → `https://moneo.lemonsqueezy.com/checkout/buy/<UUID>`. Daca UUID-ul live difera de cel din GitHub Variables → actualizeaza variabila si redeploy (Actions → CI → Run workflow pe `main`).
+4. **Confirmation modal** (per produs, in Live — nu se presupune copiat): Button link = `https://moneo.bond/account?billing=success`.
+5. **Webhook live** (Settings → Webhooks, cu Test mode OFF): URL + evenimentele din 3.3. Worker-ul are un singur secret, deci fie folosesti **acelasi signing secret** ca webhook-ul de test (nu mai e nimic de facut in Cloudflare), fie pui unul nou si rulezi `npx wrangler secret put LEMON_SQUEEZY_WEBHOOK_SECRET` din `cloudflare\workers` (webhook-ul de test va primi 401 dupa asta — sterge-l).
+6. **API key live** (optional, 3.4): cheile de test nu merg pe datele live → cheie noua cu Test mode OFF → `npx wrangler secret put LEMON_SQUEEZY_API_KEY`.
+7. **Test real:** cont Moneo care **nu** e in `COMPLIMENTARY_PRO_EMAILS` (altfel e deja Pro) → Upgrade lunar cu cardul tau → `/account` arata Pro → Lemon Settings → Webhooks → livrari cu 200 → Orders → **Refund** → Subscriptions → **Cancel**.
+
+**[REPO]** Planul (lunar/anual) se deduce ca in 3.6: ID-urile din `wrangler.toml` `[vars]`, apoi numele produsului. Produsele copiate in Live primesc **ID-uri numerice noi** → adauga-le in `LEMON_YEARLY_IDS` / `LEMON_MONTHLY_IDS` (PR + deploy); pana atunci decide numele produsului („Moneo Pro (Yearly)”). Accesul Pro nu depinde de eticheta planului.
+
 ---
 
 ## PASUL 4 — GitHub secrets + deploy **[TU]**
 
-Secrets Vite: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, cele 4 Lemon, optional `VITE_SENTRY_DSN`.
+GitHub **Variables** (nu Secrets) pentru Vite: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, cele 4 Lemon, optional `VITE_SENTRY_DSN`.
 
 Deploy: Actions → **CI** → Run workflow pe `main` (approval `production`).
 
@@ -305,6 +326,21 @@ Eroarea `schema "public" already exists` la restore e normala. Dupa restore: act
 **Dupa upgrade la Supabase Pro** (backup-uri zilnice incluse, fara pauza la inactivitate) workflow-urile **DB backup** si **Supabase keepalive** devin redundante: le dezactivezi din Actions (… → Disable workflow) sau le stergi printr-un PR.
 
 Nota: GitHub opreste singur workflow-urile programate intr-un repo public dupa 60 de zile fara niciun commit; daca se intampla, Actions → workflow → Enable.
+
+---
+
+## PASUL 8b — Pagini legale + contact
+
+**[REPO]** Pagini publice: `https://moneo.bond/terms`, `https://moneo.bond/privacy`, `https://moneo.bond/refund` (engleza = textul obligatoriu; romana = traducere completa; celelalte limbi vad engleza + nota). Toate datele (vanzator, tara, email suport, data „Ultima actualizare”, 14 zile rambursare) sunt intr-un singur fisier: `src/lib/legal/seller.ts`. Emailul de suport actual: `atsolutionsrl.md@gmail.com` (cu `.md` — fara el e alta casuta Gmail). Linkuri Terms · Privacy · Refund · Contact apar pe Pricing, Login, Setari, Help si „More”.
+
+**[TU]**
+
+1. **Lemon Squeezy** → Store → Settings (sectiunea de politici / legal, daca exista) si in descrierea fiecarui produs (Monthly + Yearly): lipeste linkurile Terms, Privacy si Refund de mai sus + emailul de suport. Lemon (Merchant of Record) cere o politica de rambursare vizibila.
+2. **Google Cloud Console** → APIs & Services → OAuth consent screen (Branding): **Application privacy policy link** = `https://moneo.bond/privacy`, **Application terms of service link** = `https://moneo.bond/terms`, **User support email** + **Developer contact** = emailul de suport. Fara ele Google poate refuza verificarea aplicatiei.
+3. Cand configurezi redirectionarea de email la Namecheap (ex. `support@moneo.bond` → Gmail), schimba **doar** `SUPPORT_EMAIL` din `src/lib/legal/seller.ts` (o linie) + actualizeaza aici si in Lemon/Google.
+4. Cand inregistrezi o firma: actualizeaza `SELLER` (nume, `entity`, tara) din `src/lib/legal/seller.ts`, mareste `LEGAL_LAST_UPDATED` si reciteste textele.
+5. **Recomandat:** o verificare juridica (avocat din RM / UE). Textele sunt sabloane oneste, scrise dupa ce face codul azi — nu sunt consultanta juridica.
+6. Orice modificare de continut in `src/lib/legal/content/en.ts` (si `ro.ts`) → schimba `LEGAL_LAST_UPDATED` in aceeasi zi.
 
 ---
 

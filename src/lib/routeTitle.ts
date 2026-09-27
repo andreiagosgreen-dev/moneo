@@ -4,6 +4,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/help': 'Help — Moneo',
   '/privacy': 'Privacy Policy — Moneo',
   '/terms': 'Terms of Service — Moneo',
+  '/refund': 'Refund Policy — Moneo',
   '/login': 'Sign in — Moneo',
   '/reset-password': 'Reset password — Moneo',
   '/account': 'Account — Moneo',
