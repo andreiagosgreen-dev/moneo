@@ -20,6 +20,7 @@ import LifeCard from './components/LifeCard';
 
 const StatsCard = lazy(() => import('./components/StatsCard'));
 const SettingsCard = lazy(() => import('./components/SettingsCard'));
+const MonoDataExport = lazy(() => import('./mono/MonoDataExport'));
 const ReportsCard = lazy(() => import('./components/ReportsCard'));
 const WeeklyRecapCard = lazy(() => import('./components/WeeklyRecapCard'));
 const GrowthCard = lazy(() => import('./components/GrowthCard'));
@@ -1369,6 +1370,9 @@ export default function App() {
                         </div>
                         <div className="reveal" style={{ animationDelay: '135ms' }}>
                           <LanguageCard />
+                          <div style={{ marginTop: 24 }}>
+                            <MonoDataExport user={auth.user} />
+                          </div>
                           <div style={{ marginTop: 24 }}>
                             <MonoLocalData signedIn={auth.status === 'authenticated'} />
                           </div>

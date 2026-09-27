@@ -790,7 +790,7 @@ export const it: Record<TKey, string> = {
 
   'pay.title': 'Passa a Pro',
   'pay.sub':
-    'Ottieni l’assistente IA completo, progetti e obiettivi illimitati, esportazioni e un aspetto su misura. La sincronizzazione tra dispositivi include sessioni di focus, aree e impostazioni.',
+    'Ottieni l’assistente IA completo, progetti e obiettivi illimitati, esportazioni CSV/PDF e un aspetto su misura. La sincronizzazione tra dispositivi include sessioni di focus, aree e impostazioni.',
   'pay.signin': 'Accedi per passare a Pro',
   'pay.unavailable': 'Pagamento non disponibile al momento. Contatta il supporto.',
   'pay.current': 'Attuale',
@@ -1059,6 +1059,29 @@ export const it: Record<TKey, string> = {
     'Attività, progetti, obiettivi, abitudini, diario, cronologia focus e impostazioni salvati in questo browser verranno rimossi. Non si può annullare.',
   'mono.data.cancel': 'Annulla',
   'mono.data.confirm': 'Elimina tutto',
+  'mono.export.title': 'Esporta e importa',
+  'mono.export.body':
+    'Scarica tutto ciò che Moneo conserva per te in un unico file JSON — gratis per tutti. Tienilo come backup o spostalo in un altro browser.',
+  'mono.export.cloudNote':
+    'Hai effettuato l’accesso, quindi il file include anche sessioni, aree e impostazioni sincronizzate e lo stato dell’abbonamento.',
+  'mono.export.includeKeys': 'Includi le mie chiavi IA',
+  'mono.export.includeKeysHint': 'Disattivato di default. Includile solo se tieni il file privato.',
+  'mono.export.download': 'Esporta tutti i miei dati (JSON)',
+  'mono.export.busy': 'Preparazione…',
+  'mono.export.done': 'Esportazione scaricata.',
+  'mono.export.failed': 'Esportazione non riuscita. Riprova.',
+  'mono.export.import': 'Importa da file',
+  'mono.export.confirmTitle': 'Sostituire i dati su questo dispositivo?',
+  'mono.export.confirmBody':
+    'Tutto ciò che Moneo conserva in questo browser verrà sostituito con l’esportazione del {date}. Account e dati nel cloud non cambiano: la sincronizzazione si allinea dopo.',
+  'mono.export.cancel': 'Annulla',
+  'mono.export.confirm': 'Sostituisci i dati',
+  'mono.export.err.invalidJson': 'Questo file non è un JSON valido.',
+  'mono.export.err.wrongFormat': 'Questo non è un file di esportazione Moneo.',
+  'mono.export.err.unsupportedVersion':
+    'Questa esportazione proviene da una versione più recente di Moneo. Aggiorna l’app e riprova.',
+  'mono.export.err.invalidShape': 'Il file di esportazione è danneggiato o incompleto.',
+  'mono.export.err.write': 'Importazione non riuscita: i dati precedenti sono stati mantenuti.',
   'mono.coach.examples': 'Esempi',
   'mono.coach.aziEmpty.q': 'Cosa vale la pena finire oggi?',
   'mono.coach.aziEmpty.hint':
@@ -1141,8 +1164,9 @@ export const it: Record<TKey, string> = {
   'rep.csv': 'Esporta CSV',
   'rep.pdf': 'Esporta PDF',
   'rep.pdfTitle': 'Apri resoconto stampabile (Stampa → Salva come PDF)',
-  'rep.exportProTitle': 'L’export è Pro',
-  'rep.exportProBody': 'Passa a Pro per esportare in CSV o PDF. I dati restano sul dispositivo.',
+  'rep.exportProTitle': 'Le esportazioni avanzate sono Pro',
+  'rep.exportProBody':
+    'Passa a Pro per esportare in CSV o PDF. L’esportazione JSON completa dei tuoi dati è gratuita nelle Impostazioni.',
   'rep.docTitle': 'Resoconto Focus Moneo',
   'rep.rangeLabel.week': 'Ultimi 7 giorni',
   'rep.rangeLabel.month': 'Ultimi 30 giorni',
@@ -1760,11 +1784,12 @@ export const it: Record<TKey, string> = {
     'Passa a Moneo Pro per coaching prioritario, avvisi di scadenza e le tue ore di punta.',
   'pricing.title': 'Prezzi Moneo',
   'pricing.sub':
-    'Inizia gratis, senza carta e senza account. Pro aggiunge l’assistente IA completo, pianificazione avanzata, esportazioni e un aspetto su misura. I tuoi dati restano sul tuo dispositivo e Moneo funziona anche offline.',
+    'Inizia gratis, senza carta e senza account. Pro aggiunge l’assistente IA completo, pianificazione avanzata, esportazioni CSV/PDF e un aspetto su misura. I tuoi dati restano sul tuo dispositivo e Moneo funziona anche offline.',
   'pricing.back': '← Torna a Moneo',
   'pricing.unlimited': 'Illimitato',
   'pricing.row.ivy': 'Attività prioritarie al giorno (metodo Ivy Lee)',
   'pricing.row.plan': 'Piani passo passo per i tuoi obiettivi',
+  'pricing.row.jsonExport': 'Esportazione completa dei dati (JSON)',
   'pricing.compareFeature': 'Funzione',
   'pricing.compareFree': 'Free',
   'pricing.comparePro': 'Pro',
@@ -2293,7 +2318,7 @@ export const it: Record<TKey, string> = {
   'reports.exportPortfolio': 'Esporta portfolio',
   'reports.exportPortfolioTitle':
     'Una pagina condivisibile con progetti completati, obiettivi raggiunti e competenze forti',
-  'reports.exportProOnly': 'Le esportazioni sono una funzione Pro.',
+  'reports.exportProOnly': 'Le esportazioni avanzate (CSV, PDF) sono una funzione Pro.',
   'reports.moreDetail': 'Altri dettagli',
   'reports.moreDetailHint': 'Approfondimenti · allocazione · esportazione',
   'reports.exportPdfTitle': 'Apri un report stampabile (Stampa → Salva come PDF)',
