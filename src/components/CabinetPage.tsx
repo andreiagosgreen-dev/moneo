@@ -22,6 +22,7 @@ import { loadHabitLog } from '../lib/habits';
 import { loadPhases } from '../lib/waterfall';
 import { loadProjects } from '../lib/projects';
 import { loadAtmosphere, resolveAtmosphere } from '../mono/atmosphere';
+import MonoCloudSync from '../mono/MonoCloudSync';
 
 const MonoRankCard = lazy(() => import('../mono/MonoRankCard'));
 
@@ -198,6 +199,13 @@ export default function CabinetPage() {
         <section className="card px-6 py-5">
           <SyncPanel userId={user.userId} />
         </section>
+
+        <div
+          className="atm-root mono-rank-host"
+          data-atmosphere={resolveAtmosphere(loadAtmosphere(), auth.isPro)}
+        >
+          <MonoCloudSync isPro={auth.isPro} onAccountPage />
+        </div>
 
         <section className="card px-6 py-5">
           <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">

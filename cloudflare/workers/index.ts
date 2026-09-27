@@ -33,6 +33,7 @@ import {
   handleBuddyStatus,
   handleBuddyUnpair,
 } from './focusBuddy';
+import { handleSyncRecords } from './proSync';
 import {
   MAX_WEBHOOK_BODY_BYTES,
   buildSecurityHeaders,
@@ -54,6 +55,8 @@ const accountLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
 const calendarLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
 const calendarEventsLimiter = createRateLimiter({ windowMs: 60_000, max: 20 });
 const buddyLimiter = createRateLimiter({ windowMs: 60_000, max: 20 });
+/** Pro sync pushes are debounced client-side; a first upload is a handful of batches. */
+const syncLimiter = createRateLimiter({ windowMs: 60_000, max: 60 });
 /** Webhook replay window: same (event, subscription) applies once per hour. */
 const webhookDeduper = createDeduper(3_600_000);
 
@@ -153,7 +156,9 @@ export default {
               ? calendarLimiter
               : url.pathname.startsWith('/api/buddy/')
                 ? buddyLimiter
-                : webhookLimiter;
+                : url.pathname === '/api/sync/records'
+                  ? syncLimiter
+                  : webhookLimiter;
       if (!limiter(`${clientIp(request)}:${url.pathname}`)) {
         return new Response(JSON.stringify({ error: 'Too many requests' }), {
           status: 429,
@@ -216,6 +221,10 @@ export default {
     if (url.pathname === '/api/buddy/join') return handleBuddyJoin(request, env);
     if (url.pathname === '/api/buddy/unpair') return handleBuddyUnpair(request, env);
     if (url.pathname === '/api/buddy/status') return handleBuddyStatus(request, env);
+
+    // Pro full-data sync write path: JWT identity, server-side Pro check,
+    // newest-wins upsert. Reads go through the RLS-scoped client.
+    if (url.pathname === '/api/sync/records') return handleSyncRecords(request, env);
 
     // Determine file path from URL
     let filePath = url.pathname;

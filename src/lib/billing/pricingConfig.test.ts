@@ -106,16 +106,22 @@ describe('pricingConfig — single source of truth', () => {
     }
   });
 
-  it('keeps sync marketing keys honest (sessions / areas / settings only)', () => {
+  it('keeps sync marketing keys honest (free: sessions / areas / settings; Pro: all data)', () => {
     expect(SYNC_SCOPE_KEY).toBe('pay.syncScope');
     expect(SYNC_NOTE_KEY).toBe('pay.syncNote');
     const scope = en[SYNC_SCOPE_KEY].toLowerCase();
     expect(scope).toMatch(/session/);
     expect(scope).toMatch(/area/);
     expect(scope).toMatch(/setting/);
-    expect(en[SYNC_NOTE_KEY].toLowerCase()).toMatch(/project/);
-    expect(en['pay.plan.monthly.f5'].toLowerCase()).toMatch(/session/);
-    expect(en['pay.plan.monthly.f5'].toLowerCase()).not.toMatch(/all data|everything/);
+    expect(en[SYNC_NOTE_KEY].toLowerCase()).toMatch(/pro/);
+    const f5 = en['pay.plan.monthly.f5'].toLowerCase();
+    expect(f5).toMatch(/project/);
+    expect(f5).toMatch(/session/);
+    const row = getComparisonRows().find((r) => r.labelKey === 'pricing.row.sync');
+    expect(row?.free).toEqual({ kind: 'key', key: 'pricing.sync.free' });
+    expect(row?.pro).toEqual({ kind: 'key', key: 'pricing.sync.pro' });
+    expect(en['pricing.sync.free'].toLowerCase()).toMatch(/session/);
+    expect(en['pricing.sync.free'].toLowerCase()).not.toMatch(/all/);
   });
 
   it('markets Pro look as light, accents, fonts and interior atmospheres', () => {

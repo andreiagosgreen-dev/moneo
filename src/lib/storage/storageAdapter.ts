@@ -38,10 +38,41 @@ export function safeRead<T>(key: string): T | null {
   }
 }
 
+type WriteListener = (key: string) => void;
+const writeListeners = new Map<string, Set<WriteListener>>();
+
+/**
+ * Observe successful writes that actually CHANGE the stored value of one of
+ * `keys` (re-saving identical JSON is not reported). Used by Pro sync to
+ * timestamp edits and debounce uploads. Returns an unsubscribe function.
+ */
+export function onStorageWrite(keys: readonly string[], cb: WriteListener): () => void {
+  for (const key of keys) {
+    let set = writeListeners.get(key);
+    if (!set) writeListeners.set(key, (set = new Set()));
+    set.add(cb);
+  }
+  return () => {
+    for (const key of keys) writeListeners.get(key)?.delete(cb);
+  };
+}
+
 /** Returns true when the write succeeded. */
 export function safeWrite(key: string, value: unknown): boolean {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    const next = JSON.stringify(value);
+    const listeners = writeListeners.get(key);
+    const changed = listeners && listeners.size > 0 && localStorage.getItem(key) !== next;
+    localStorage.setItem(key, next);
+    if (changed) {
+      for (const cb of [...listeners]) {
+        try {
+          cb(key);
+        } catch {
+          /* a listener must never break a local save */
+        }
+      }
+    }
     return true;
   } catch {
     return false;

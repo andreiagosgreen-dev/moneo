@@ -62,6 +62,24 @@ describe('buildExport', () => {
     expect(text).not.toContain('other-app');
   });
 
+  it('leaves Pro sync bookkeeping out of the file and drops it on import', () => {
+    const storage = populated();
+    storage.setItem(STORAGE_KEYS.proSync, JSON.stringify({ version: 1, userId: 'u-SECRET' }));
+    storage.setItem(STORAGE_KEYS.proSyncEdits, JSON.stringify({ k: 1 }));
+    const data = buildExport(storage);
+    expect(JSON.stringify(data)).not.toContain('u-SECRET');
+    expect(data.local[STORAGE_KEYS.proSyncEdits]).toBeUndefined();
+
+    const target = populated();
+    target.setItem(STORAGE_KEYS.proSync, JSON.stringify({ version: 1, userId: 'u-old' }));
+    applyImport(target, {
+      ...data,
+      local: { ...data.local, [STORAGE_KEYS.proSync]: { version: 1, userId: 'u-file' } },
+    });
+    expect(target.getItem(STORAGE_KEYS.proSync)).toBeNull();
+    expect(target.getItem(STORAGE_KEYS.tasks)).toBe(JSON.stringify([{ id: 't1', title: 'Write' }]));
+  });
+
   it('strips the AI key by default and includes it only when asked', () => {
     const off = buildExport(populated());
     expect(off.includesAiKeys).toBe(false);

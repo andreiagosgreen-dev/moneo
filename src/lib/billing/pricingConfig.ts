@@ -112,12 +112,13 @@ export const FREE_LIMITS = {
  *
  * FREE — Focus forever; 3 projects / 3 goals / 3 OKRs / 5 habits / 5 skills;
  * Ivy 3/day; 2 assistant quick actions; 1 local plan (no own-key AI);
- * 2 core Insights; classic Focus atmospheres free; data stays on device.
+ * 2 core Insights; classic Focus atmospheres free; with an account, sessions,
+ * areas and settings sync; everything else stays on the device.
  *
  * PRO — unlimited entities; full chat + tones + voice; own-key plans;
  * all Insights; CSV/PDF export (full JSON data export is free); time blocks + sprint charts + kanban WIP;
- * cloud sync (sessions, areas, settings only); light / accents / Pro fonts;
- * interior Pro atmosphere packs.
+ * full account sync (every planning store in `sync/proCollections.ts` on top of
+ * sessions/areas/settings); light / accents / Pro fonts; interior Pro atmosphere packs.
  *
  * Soft promises (beta invites / priority support) are operational, not code gates.
  */
@@ -208,9 +209,9 @@ export function getComparisonRows(): ComparisonRow[] {
       pro: { kind: 'check' },
     },
     {
-      labelKey: 'pay.plan.monthly.f5',
-      free: { kind: 'dash' },
-      pro: { kind: 'check' },
+      labelKey: 'pricing.row.sync',
+      free: { kind: 'key', key: 'pricing.sync.free' },
+      pro: { kind: 'key', key: 'pricing.sync.pro' },
     },
     {
       labelKey: 'pay.plan.monthly.f6',

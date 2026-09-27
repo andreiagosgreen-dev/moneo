@@ -280,9 +280,9 @@ export const ro: Record<TKey, string> = {
   'lifemap.emptyKicker': 'Harta vieții · nou',
   'lifemap.emptyTitle': 'Desenează viața pe care o servește focusul tău',
   'lifemap.tplBlank': 'Pânză goală',
-  'lifemap.localOnly': 'Harta vieții e privată și rămâne salvată pe acest dispozitiv.',
+  'lifemap.localOnly': 'Harta vieții e privată — doar tu o vezi.',
   'lifemap.title': 'Harta vieții',
-  'lifemap.subtitle': 'Privată · salvată pe acest dispozitiv',
+  'lifemap.subtitle': 'Privată · doar tu o vezi',
   'lifemap.manage': 'Gestionează ariile',
   'lifemap.manageDone': 'Gata',
   'lifemap.stepAdd': '＋ Pas de 10 min',
@@ -936,9 +936,10 @@ export const ro: Record<TKey, string> = {
   'pay.portalError': 'Nu am putut deschide portalul. Încearcă din nou.',
   'pay.resumeTitle': 'Ești conectat — finalizează trecerea la Pro',
   'pay.resumeCta': 'Continuă spre plată',
-  'pay.syncScope': 'Sincronizare între dispozitive: sesiuni de focus, arii de focus și setări',
+  'pay.syncScope':
+    'Cu un cont gratuit: sesiunile de focus, ariile de focus și setările se sincronizează între dispozitive',
   'pay.syncNote':
-    'Proiectele, sarcinile, obiectivele, obiceiurile, jurnalul și restul planificării se salvează pe dispozitivul pe care le-ai creat.',
+    'Cu Pro, toate datele tale se salvează în cont — proiecte, sarcini, obiective, obiceiuri, jurnal și restul planificării. Pe Free, acestea rămân pe dispozitivul pe care le-ai creat.',
   'pay.plan.free.desc': 'Perfect ca să începi',
   'pay.plan.free.f0': 'Sesiuni de focus nelimitate',
   'pay.plan.free.f1': '3 proiecte cu liste de sarcini',
@@ -953,7 +954,8 @@ export const ro: Record<TKey, string> = {
   'pay.plan.monthly.f3': 'Export rapoarte în CSV (Excel) și PDF',
   'pay.plan.monthly.f4':
     'Blocuri de timp în calendar, grafice de sprint și limite de lucru pe kanban',
-  'pay.plan.monthly.f5': 'Sincronizare între dispozitive: sesiuni de focus, arii și setări',
+  'pay.plan.monthly.f5':
+    'Toate datele tale salvate în cont și sincronizate între dispozitive — proiecte, sarcini, obiective, obiceiuri, jurnal și sesiuni de focus',
   'pay.plan.monthly.f6':
     'Mod luminos, culori de accent, fonturi în plus și palete Focus interioare',
   'pay.plan.monthly.f7': 'Suport prioritar pe email',
@@ -1024,7 +1026,7 @@ export const ro: Record<TKey, string> = {
     'Defalcări pe 7/30 de zile pe proiect și arie, cu apel 80/20, pentru toată lumea. Exportul CSV (Pro) și PDF-ul de tipărit (Pro) includ totalele facturabile.',
   'help.s.lifemap.t': 'Harta vieții',
   'help.s.lifemap.b':
-    'Tabul Hartă: evaluează 5–9 arii de viață Acum vs Dorit, ponderat cu importanța. Roata arată echilibrul și cel mai mare decalaj; un pas de 10 minute ajunge în planul de azi. Recenzia săptămânală arată ce a primit atenție. Pornește de la un șablon (Echilibrat, Student, Freelancer, Fondator, Recuperare) sau gol. Privat: harta ta rămâne pe acest dispozitiv.',
+    'Tabul Hartă: evaluează 5–9 arii de viață Acum vs Dorit, ponderat cu importanța. Roata arată echilibrul și cel mai mare decalaj; un pas de 10 minute ajunge în planul de azi. Recenzia săptămânală arată ce a primit atenție. Pornește de la un șablon (Echilibrat, Student, Freelancer, Fondator, Recuperare) sau gol. Privat: doar tu o vezi. Cu Pro, se salvează și în contul tău.',
   'help.s.life.t': 'Viața',
   'help.s.life.b':
     'Obiceiuri cu serii și mementouri de seară. Echilibrul punctează în timp real pe 5 arii de viață. Jurnal cu stare și recunoștință. Check-in-urile de energie arată orele de vârf (Pro).',
@@ -1033,7 +1035,7 @@ export const ro: Record<TKey, string> = {
     'Urmărește niveluri de abilități 1–5 cu resurse. Marchează proiecte facturabile cu tarif orar — sumele apar în statistici, rapoarte și exporturi PDF.',
   'help.s.privacy.t': 'Confidențialitate și date',
   'help.s.privacy.b':
-    'Moneo îți salvează automat munca. Cu un cont și sincronizarea pornită, sesiunile de focus, ariile și setările se păstrează în contul tău și le ai pe toate dispozitivele. Proiectele, sarcinile, planurile și restul se salvează pe dispozitivul pe care le-ai creat. Exportul CSV/PDF e Pro. Cât timp sincronizarea e pornită, istoricul de focus nu poate fi șters.',
+    'Moneo îți salvează automat munca. Cu un cont și sincronizarea pornită, sesiunile de focus, ariile și setările se păstrează în contul tău și le ai pe toate dispozitivele. Cu Pro, și restul se salvează în cont — proiecte, sarcini, obiective, obiceiuri, jurnal și planuri. Pe Free, acestea se salvează pe dispozitivul pe care le-ai creat. Exportul CSV/PDF e Pro. Cât timp sincronizarea e pornită, istoricul de focus nu poate fi șters.',
 
   'foot.tag': 'Moneo — construiește focus. Vezi-l cum crește.',
   'foot.help': 'Ajutor',
@@ -1943,7 +1945,7 @@ export const ro: Record<TKey, string> = {
   'pricing.compareFree': 'Gratuit',
   'pricing.comparePro': 'Pro',
   'pricing.syncNote':
-    'Sync-ul acoperă doar sesiunile, ariile de focus și setările — restul rămâne pe acest dispozitiv.',
+    'Conturile gratuite sincronizează sesiunile, ariile de focus și setările; cu Pro, toate datele tale se salvează în cont.',
   'pricing.localNote':
     'Nu ai nevoie de cont ca să începi, iar Moneo merge și fără internet. Te conectezi doar când vrei sincronizare între dispozitive sau abonament Pro.',
   // ── Merged from main (features landed in parallel) ──
@@ -2009,7 +2011,7 @@ export const ro: Record<TKey, string> = {
   'mono.xp.ranksLine':
     'Ranguri: {ranks}. Fiecare rang are câteva trepte, iar fiecare nivel nou cere puțin mai mult decât precedentul.',
   'mono.xp.deviceNote':
-    'XP-ul din sesiunile de focus te urmează pe celelalte dispozitive când sincronizarea e pornită. Deocamdată, task-urile și obiceiurile contează doar pe dispozitivul pe care le-ai bifat.',
+    'XP-ul din sesiunile de focus te urmează pe celelalte dispozitive când sincronizarea e pornită. Cu Pro se sincronizează și task-urile și obiceiurile; pe Free contează doar pe dispozitivul pe care le-ai bifat.',
   'filters.newView': '+ Vedere nouă',
   'filters.cancel': 'Anulează',
   'filters.remove': 'Elimină vederea',
@@ -2048,16 +2050,16 @@ export const ro: Record<TKey, string> = {
   'auth.emailPlaceholder': 'tu@exemplu.com',
   'auth.passwordLabel': 'Parolă',
   'auth.localFirstNote':
-    'Un cont îți păstrează în siguranță sesiunile de focus, ariile și setările și le poți folosi pe celelalte dispozitive. Nimic nu se încarcă până nu pornești sincronizarea.',
+    'Un cont îți păstrează în siguranță sesiunile de focus, ariile și setările și le poți folosi pe celelalte dispozitive. Cu Pro, toate datele tale se salvează în cont. Nimic nu se încarcă până nu pornești sincronizarea.',
   'auth.continueWithGoogle': 'Continuă cu Google',
   'auth.orDivider': 'sau',
   'sync.title': 'Sincronizează-ți datele Moneo',
   'sync.description':
-    'Salvează-ți istoricul de focus, ariile și setările în cont și folosește-le pe toate dispozitivele tale.',
+    'Salvează-ți istoricul de focus, ariile și setările în cont și folosește-le pe toate dispozitivele tale. Cu Pro, se include toată planificarea ta.',
   'sync.syncNow': 'Sincronizează acum',
   'sync.notNow': 'Nu acum',
   'sync.onlyNote':
-    'Se sincronizează doar sesiunile de focus, ariile și setările. Proiectele, sarcinile și restul planificării rămân salvate pe acest dispozitiv.',
+    'Pe Free se sincronizează doar sesiunile de focus, ariile și setările; proiectele, sarcinile și restul planificării rămân pe acest dispozitiv. Cu Pro, se sincronizează tot.',
   'sync.syncing': 'Se sincronizează…',
   'sync.failed': 'Sincronizare eșuată',
   'sync.synced': 'Sincronizat',
@@ -2922,4 +2924,42 @@ export const ro: Record<TKey, string> = {
   'graph.subtitle': '{nodes} noduri · {edges} legături',
   'graph.empty':
     'Nicio conexiune încă — deschide un goal, proiect, abilitate sau intrarea de azi din jurnal și leag-o de ceva.',
+  'mono.cloud.title': 'Sincronizare cont',
+  'mono.cloud.proLead': 'Toate datele tale se salvează în cont',
+  'mono.cloud.proBody':
+    'Proiectele, sarcinile, obiectivele, obiceiurile, jurnalul, harta vieții, planurile și sesiunile de concentrare sunt la zi pe orice dispozitiv pe care te conectezi.',
+  'mono.cloud.syncing': 'Se sincronizează…',
+  'mono.cloud.synced': 'Sincronizat',
+  'mono.cloud.notSynced': 'Nesincronizat',
+  'mono.cloud.never': 'Încă nesincronizat',
+  'mono.cloud.lastSync': 'ultima sincronizare {time}',
+  'mono.cloud.syncNow': 'Sincronizează acum',
+  'mono.cloud.openAccount': 'Deschide contul',
+  'mono.cloud.offHint': 'Pornește sincronizarea din cont ca să salvezi totul acolo.',
+  'mono.cloud.err.pull':
+    'Nu am putut ajunge la contul tău. Totul e în siguranță pe acest dispozitiv — Moneo va încerca din nou.',
+  'mono.cloud.err.push':
+    'Unele modificări nu sunt încă în cont. Sunt în siguranță pe acest dispozitiv și se vor urca automat.',
+  'mono.cloud.err.apply':
+    'Nu am putut salva pe acest dispozitiv — spațiul browserului poate fi plin.',
+  'mono.cloud.err.notMigrated':
+    'Salvarea tuturor datelor în cont nu e disponibilă încă. Totul e în siguranță pe acest dispozitiv.',
+  'mono.cloud.err.notPro':
+    'Contul tău nu are Pro acum, așa că se sincronizează doar sesiunile, ariile și setările.',
+  'mono.cloud.mismatchTitle': 'Acest dispozitiv a fost sincronizat cu alt cont',
+  'mono.cloud.mismatchBody':
+    'Ca să nu amestecăm conturile, nu am urcat nimic. Dacă datele sunt ale tale, adaugă-le în acest cont.',
+  'mono.cloud.mismatchCta': 'Adaugă în acest cont',
+  'mono.cloud.freeBody':
+    'Inclus gratuit: sesiunile de concentrare, ariile și setările se sincronizează cu contul tău.',
+  'mono.cloud.freeUpsell':
+    'Cu Pro, toate datele tale — proiecte, sarcini, obiective, obiceiuri, jurnal și harta vieții — se salvează în cont și te urmează pe orice dispozitiv.',
+  'mono.cloud.seePro': 'Vezi Pro',
+  'mono.cloud.lapsedTitle': 'Abonamentul Pro s-a încheiat',
+  'mono.cloud.lapsedBody':
+    'Proiectele, sarcinile și restul planificării rămân pe acest dispozitiv. Contul păstrează ultima copie sincronizată, dar nu se mai actualizează. Sesiunile, ariile și setările se sincronizează în continuare.',
+  'mono.cloud.renew': 'Reînnoiește Pro',
+  'pricing.row.sync': 'Sincronizare între dispozitive (cu cont)',
+  'pricing.sync.free': 'Sesiuni, arii și setări',
+  'pricing.sync.pro': 'Toate datele tale',
 };
