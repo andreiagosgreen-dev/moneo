@@ -43,6 +43,54 @@ jobs:
             echo "ready=true" >> "$GITHUB_OUTPUT"
           fi
 
+      # Never echo the value: errors only describe what is wrong with it.
+      - name: Validate SUPABASE_DB_URL
+        if: steps.check.outputs.ready == 'true'
+        run: |
+          set -euo pipefail
+          fail() { echo "::error title=SUPABASE_DB_URL::$1"; exit 1; }
+          url="${SUPABASE_DB_URL//$'\r'/}"
+          url="${url//$'\n'/}"
+          url="${url#"${url%%[![:space:]]*}"}"
+          url="${url%"${url##*[![:space:]]}"}"
+          case "$url" in
+            \"*\" | \'*\') url="${url:1:${#url}-2}" ;;
+          esac
+          echo "::add-mask::$url"
+          case "$url" in
+            postgresql://* | postgres://*) ;;
+            psql*) fail "The value is a psql command. In Supabase → Connect → Session pooler copy the URI (it starts with postgresql://)." ;;
+            *postgresql://* | *postgres://*) fail "The value has extra text before postgresql://. Paste only the link." ;;
+            *) fail "The value does not start with postgresql://. Paste the Session pooler URI from Supabase → Connect (and check the two secrets are not swapped)." ;;
+          esac
+          case "$url" in
+            *YOUR-PASSWORD*) fail "Replace [YOUR-PASSWORD], brackets included, with the database password." ;;
+          esac
+          rest="${url#*://}"
+          case "$rest" in
+            *@*) ;;
+            *) fail "The link has no user:password@ part. Use the Session pooler URI with the password filled in." ;;
+          esac
+          userinfo="${rest%@*}"
+          hostpart="${rest##*@}"
+          case "$userinfo" in
+            *\[* | *\]*) fail "Remove the [ ] brackets around the password." ;;
+            *@* | */* | *\?* | *\#* | *[[:space:]]*) fail "The password contains @ / ? # or spaces: URL-encode them or reset the password to letters and digits only." ;;
+          esac
+          if grep -Eq '%($|[^0-9A-Fa-f]|[0-9A-Fa-f]($|[^0-9A-Fa-f]))' <<< "$userinfo"; then
+            fail "The password contains a bare % (write it as %25) or reset the password to letters and digits only."
+          fi
+          case "$hostpart" in
+            db.*.supabase.co*) fail "This is the Direct connection (IPv6 only, unreachable from GitHub runners). Use the Session pooler URI (pooler.supabase.com, port 5432)." ;;
+            *pooler.supabase.com:6543*) fail "Port 6543 is the Transaction pooler. Use the Session pooler URI (port 5432)." ;;
+          esac
+          if [[ "$hostpart" == *pooler.supabase.com* && "$userinfo" != postgres.* ]]; then
+            fail "With the pooler the user must be postgres.<project-ref>, not just postgres."
+          fi
+          umask 077
+          printf '%s' "$url" > "$RUNNER_TEMP/db_url"
+          echo "SUPABASE_DB_URL looks valid."
+
       - name: Install postgresql-client-${{ env.PG_MAJOR }} (PGDG)
         if: steps.check.outputs.ready == 'true'
         run: |
@@ -63,16 +111,17 @@ jobs:
         run: |
           set -euo pipefail
           PG_DUMP="/usr/lib/postgresql/${PG_MAJOR}/bin/pg_dump"
+          DB_URL="$(cat "$RUNNER_TEMP/db_url")"
           umask 077
           # auth rows first: public tables reference auth.users(id), so a
           # restore into a fresh project must load users before the FKs.
           {
             echo "-- moneo backup $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo "-- part 1/2: auth.users + auth.identities (data only)"
-            "$PG_DUMP" "$SUPABASE_DB_URL" --data-only --no-owner --no-privileges \
+            "$PG_DUMP" "$DB_URL" --data-only --no-owner --no-privileges \
               --table=auth.users --table=auth.identities
             echo "-- part 2/2: schema public (schema + data)"
-            "$PG_DUMP" "$SUPABASE_DB_URL" --schema=public --no-owner --no-privileges
+            "$PG_DUMP" "$DB_URL" --schema=public --no-owner --no-privileges
           } > dump.sql
           if [ "$(grep -c 'PostgreSQL database dump complete' dump.sql)" -ne 2 ]; then
             echo "::error::pg_dump output is incomplete"
