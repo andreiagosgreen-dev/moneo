@@ -91,7 +91,7 @@ export default function ProjectRow({
     const rate = editBillable && editRate.trim() ? Number(editRate) : null;
     const prevDeadline = project.deadline;
     onProjectsChange(
-      updateProject([project], project.id, {
+      updateProject(allProjects, project.id, {
         name: editName,
         category: editCategory as ProjectCategory,
         color: editColor,
