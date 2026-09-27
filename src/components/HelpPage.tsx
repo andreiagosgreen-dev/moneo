@@ -29,6 +29,12 @@ export default function HelpPage() {
         {t('help.title')}
       </h1>
       <p className="mt-2 text-[13px] leading-relaxed text-sage">{t('help.sub')}</p>
+      <Link
+        to="/welcome"
+        className="press mt-3 inline-flex min-h-11 items-center text-[13px] font-semibold text-cream underline underline-offset-2"
+      >
+        {t('land.about')} →
+      </Link>
       <div className="mt-6 space-y-3">
         {SECTIONS.map((s) => (
           <section

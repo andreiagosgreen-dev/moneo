@@ -36,6 +36,7 @@ describe('centralized storage keys', () => {
       theme: 'moneo:ui-theme',
       atmosphere: 'moneo:atmosphere',
       onboardingSeen: 'moneo:onboarding-seen',
+      landingSeen: 'moneo:landing-seen',
       skills: 'moneo:skills',
       deadlineReminders: 'moneo:deadline-reminders',
       frogLog: 'moneo:frog-log',

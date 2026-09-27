@@ -36,13 +36,8 @@ export interface PricingPlanDisplay {
   featureKeys: TKey[];
 }
 
-export const PRO_PRICES = {
-  monthly: '$5.99',
-  yearly: '$59.99',
-  /** 59.99 / 12 ≈ 5.00 — vs $5.99×12 (~$71.88), ~2 months free. */
-  yearlyMonthly: '$5.00',
-  monthsFree: 2,
-} as const;
+import { PRO_PRICES } from './prices';
+export { FREE_PRICE, PRO_PRICES } from './prices';
 
 export const PRICING_PLANS_DISPLAY: PricingPlanDisplay[] = [
   {

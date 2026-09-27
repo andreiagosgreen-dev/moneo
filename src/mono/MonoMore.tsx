@@ -60,6 +60,7 @@ export default function MonoMore({ tab, onOpen }: Props) {
         </ol>
 
         <nav className="mono-more-legal" aria-label={t('foot.help')}>
+          <Link to="/welcome">{t('land.about')}</Link>
           <Link to="/help">{t('foot.help')}</Link>
           <Link to="/privacy">{t('foot.privacy')}</Link>
           <Link to="/terms">{t('foot.terms')}</Link>

@@ -89,11 +89,19 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           const norm = id.replace(/\\/g, '/');
+          // Landing-page imports (display prices, font CSS) stay with whoever
+          // imports them, so first-time visitors don't download the app.
+          if (norm.endsWith('/src/lib/billing/prices.ts') || norm.includes('/@fontsource/')) {
+            return null;
+          }
           if (
             norm.includes('@lemonsqueezy/lemonsqueezy.js') ||
             norm.includes('/src/lib/billing/')
           ) {
             return 'billing';
+          }
+          if (norm.includes('/node_modules/@supabase/')) {
+            return 'supabase';
           }
           if (norm.includes('/src/lib/assistant.ts') || norm.includes('/src/lib/ai/')) {
             return 'ai-assistant';
