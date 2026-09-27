@@ -11,9 +11,12 @@ import { Link } from 'react-router-dom';
 import type { Dictionary } from '../lib/i18n';
 import type { Locale, TKey, Vars } from '../lib/i18n/types';
 import { LOCALES, isLocale, saveLocale } from '../lib/i18n/meta';
-import { FREE_PRICE, PRO_PRICES } from '../lib/billing/prices';
+import { FREE_PRICE, PLAN_FEATURE_KEYS, PRO_PRICES, SYNC_SCOPE_KEY } from '../lib/billing/prices';
 import {
+  ADULT_AGE,
+  DIGITAL_CONSENT_AGE,
   LEGAL_PATHS,
+  MIN_ACCOUNT_AGE,
   REFUND_DAYS,
   SELLER,
   SUPPORT_EMAIL,
@@ -83,22 +86,8 @@ const TILES: Array<{ id: string; icon: ReactNode }> = [
   { id: 'install', icon: <IconPhone /> },
 ];
 
-const FREE_FEATURES: TKey[] = [
-  'pay.plan.free.f0',
-  'pay.plan.free.f1',
-  'pay.plan.free.f2',
-  'pay.plan.free.f3',
-  'pay.plan.free.f4',
-];
-
-const PRO_FEATURES: TKey[] = [
-  'pay.plan.monthly.f0',
-  'pay.plan.monthly.f1',
-  'pay.plan.monthly.f2',
-  'pay.plan.monthly.f3',
-  'pay.plan.monthly.f4',
-  'pay.plan.monthly.f5',
-];
+const FREE_FEATURES: readonly TKey[] = [...PLAN_FEATURE_KEYS.free, SYNC_SCOPE_KEY];
+const PRO_FEATURES: readonly TKey[] = PLAN_FEATURE_KEYS.proMonthly;
 
 const FAQ_IDS = [
   'free',
@@ -536,7 +525,14 @@ export default function LandingPage({
                         )}
                       </p>
                     ) : (
-                      <p>{t(`land.faq.${id}.a` as TKey, { days: REFUND_DAYS })}</p>
+                      <p>
+                        {t(`land.faq.${id}.a` as TKey, {
+                          days: REFUND_DAYS,
+                          min: MIN_ACCOUNT_AGE,
+                          adult: ADULT_AGE,
+                          consent: DIGITAL_CONSENT_AGE,
+                        })}
+                      </p>
                     )}
                     {id === 'refund' && (
                       <p>

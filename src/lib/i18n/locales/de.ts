@@ -98,7 +98,7 @@ export const de: Record<TKey, string> = {
     'Ruhige Farbthemen für deinen Fokusbereich — dasselbe einfache Layout in der Stimmung, die dir gefällt.',
   'land.feat.private.t': 'Privat und offline',
   'land.feat.private.b':
-    'Funktioniert ohne Internet. Deine Daten bleiben auf deinem Gerät; anmelden musst du dich nur, wenn du synchronisieren willst.',
+    'Funktioniert ohne Internet. Ohne Konto werden deine Daten auf diesem Gerät gespeichert. Mit Pro werden alle deine Daten in deinem Konto gespeichert, und du siehst sie auf jedem Gerät.',
   'land.feat.langs.t': 'In deiner Sprache',
   'land.feat.langs.b': 'Moneo spricht 8 Sprachen, darunter Rumänisch, Russisch und Ukrainisch.',
   'land.feat.install.t': 'Auf dem Handy, wie eine App',
@@ -127,13 +127,13 @@ export const de: Record<TKey, string> = {
   'land.faq.title': 'Häufige Fragen',
   'land.faq.free.q': 'Ist Moneo kostenlos?',
   'land.faq.free.a':
-    'Ja. Fokus-Timer, Tagesplan, 3 Projekte, Gewohnheiten und Journal sind für immer kostenlos. Pro bringt unbegrenzt viele Projekte und Ziele, den vollen KI-Assistenten, Exporte, Synchronisierung zwischen Geräten und mehr.',
+    'Ja. Fokus-Timer, Tagesplan, 3 Projekte, Gewohnheiten und Journal sind für immer kostenlos. Pro bringt unbegrenzt viele Projekte und Ziele, den vollen KI-Assistenten, Exporte, alle deine Daten im Konto auf jedem Gerät und mehr.',
   'land.faq.account.q': 'Brauche ich ein Konto?',
   'land.faq.account.a':
-    'Nein. Öffne Moneo und leg los — alles funktioniert ohne Konto. Erstelle eins nur, wenn du zwischen Geräten synchronisieren oder Pro kaufen willst.',
+    'Nein. Öffne Moneo und leg los — alles funktioniert ohne Konto und wird auf diesem Gerät gespeichert. Mit einem kostenlosen Konto werden dort auch Fokussitzungen, Bereiche und Einstellungen gespeichert, mit Pro alle deine Daten.',
   'land.faq.data.q': 'Wo werden meine Daten gespeichert?',
   'land.faq.data.a':
-    'Auf deinem Gerät, in deinem Browser. Wenn du dich anmeldest, werden nur Fokus-Sessions, Fokusbereiche und Einstellungen mit deinem Konto synchronisiert; Projekte, Aufgaben, Ziele, Gewohnheiten und Journal bleiben auf dem Gerät, auf dem du sie erstellt hast. In den Einstellungen kannst du jederzeit alle Daten in eine Datei exportieren oder alles löschen.',
+    'Ohne Konto wird alles auf diesem Gerät gespeichert, in deinem Browser. Mit einem kostenlosen Konto werden Fokussitzungen, Fokusbereiche und Einstellungen auch in deinem Konto gespeichert und erscheinen auf deinen anderen Geräten. Mit Pro werden alle deine Daten in deinem Konto gespeichert — Projekte, Aufgaben, Ziele, Gewohnheiten, Journal und der Rest deiner Planung — und du siehst sie auf jedem Gerät. In den Einstellungen kannst du jederzeit alle Daten in eine Datei exportieren oder alles löschen.',
   'land.faq.cancel.q': 'Kann ich jederzeit kündigen?',
   'land.faq.cancel.a':
     'Ja. Du kündigst mit wenigen Klicks in deinem Konto. Pro bleibt bis zum Ende des bezahlten Zeitraums aktiv, und du wirst nicht erneut belastet.',
@@ -142,13 +142,13 @@ export const de: Record<TKey, string> = {
     'Ja. Wenn Pro nicht zu dir passt, kannst du innerhalb von {days} Tagen nach jeder Zahlung — auch nach Verlängerungen — eine volle Rückerstattung verlangen. Ohne Fragen.',
   'land.faq.minors.q': 'Ist Moneo für Schüler und Jugendliche geeignet?',
   'land.faq.minors.a':
-    'Ja. Moneo ist für Menschen ab 13 Jahren gedacht und funktioniert komplett ohne Konto, es sind also keine persönlichen Daten nötig. Wenn du unter 18 bist, frag vor dem Erstellen eines Kontos einen Elternteil oder Erziehungsberechtigten; Zahlungen sollte ein Elternteil übernehmen.',
+    'Ja. Moneo funktioniert vollständig ohne Konto, es sind also keine persönlichen Daten nötig. Für ein Konto musst du mindestens {min} Jahre alt sein. Wenn du unter {adult} bist, nutze Moneo nur mit Erlaubnis eines Elternteils oder Erziehungsberechtigten; unter dem Alter der digitalen Einwilligung in deinem Land ({consent} in vielen EU-Ländern) muss ein Elternteil oder Erziehungsberechtigter zustimmen, bevor du ein Konto erstellst. Pro für jemanden unter {adult} kauft ein Elternteil oder Erziehungsberechtigter oder es wird mit deren Erlaubnis gekauft.',
   'land.faq.devices.q': 'Auf welchen Geräten funktioniert es?',
   'land.faq.devices.a':
     'In jedem modernen Browser auf Handy, Tablet oder Computer — Android, iPhone, Windows, Mac oder Linux. Du kannst es auch wie eine App auf dem Startbildschirm installieren.',
   'land.faq.offline.q': 'Funktioniert es offline?',
   'land.faq.offline.a':
-    'Ja. Nach deinem ersten Besuch funktioniert Moneo ohne Internet. Wenn du ein Konto nutzt, wird synchronisiert, sobald du wieder online bist.',
+    'Ja. Nach deinem ersten Besuch funktioniert Moneo ohne Internet. Wenn du ein Konto nutzt, werden deine Änderungen dort gespeichert, sobald du wieder online bist.',
   'land.faq.ai.q': 'Was macht die KI? Ist mein KI-Schlüssel sicher?',
   'land.faq.ai.a':
     'Der Plan-Assistent macht aus einem Ziel einen Schritt-für-Schritt-Plan und schlägt vor, woran du als Nächstes arbeitest. Der kostenlose Plan-Builder läuft auf deinem Gerät. Mit Pro kannst du optional deinen eigenen KI-Schlüssel verbinden (Gemini, OpenAI oder DeepSeek): Er wird nur auf deinem Gerät gespeichert und direkt an diesen Anbieter gesendet — nie an unsere Server.',

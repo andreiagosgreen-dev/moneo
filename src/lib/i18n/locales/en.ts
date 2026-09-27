@@ -102,7 +102,7 @@ export const en = {
     'Calm color themes for your focus space — the same simple layout in the mood you like.',
   'land.feat.private.t': 'Private and offline',
   'land.feat.private.b':
-    'Works without internet. Your data stays on your device; sign in only if you want to sync.',
+    'Works without internet. Without an account, your data is saved on this device. With Pro, all of it is saved to your account and you see it on any device.',
   'land.feat.langs.t': 'In your language',
   'land.feat.langs.b': 'Moneo speaks 8 languages, including Romanian, Russian and Ukrainian.',
   'land.feat.install.t': 'On your phone, like an app',
@@ -130,13 +130,13 @@ export const en = {
   'land.faq.title': 'Frequently asked questions',
   'land.faq.free.q': 'Is Moneo free?',
   'land.faq.free.a':
-    'Yes. The focus timer, the day plan, 3 projects, habits and the journal are free forever. Pro adds unlimited projects and goals, the full AI assistant, exports, sync between devices and more.',
+    'Yes. The focus timer, the day plan, 3 projects, habits and the journal are free forever. Pro adds unlimited projects and goals, the full AI assistant, exports, all your data saved to your account on every device, and more.',
   'land.faq.account.q': 'Do I need an account?',
   'land.faq.account.a':
-    'No. Open Moneo and start — everything works without an account. Create one only if you want to sync between devices or buy Pro.',
+    'No. Open Moneo and start — everything works without an account and is saved on this device. With a free account, your focus sessions, areas and settings are saved to it too; with Pro, all your data is.',
   'land.faq.data.q': 'Where is my data stored?',
   'land.faq.data.a':
-    'On your device, in your browser. If you sign in, only focus sessions, focus areas and settings sync to your account; projects, tasks, goals, habits and the journal stay on the device where you created them. In Settings you can export all your data to a file or delete everything at any time.',
+    'Without an account, everything is saved on this device, in your browser. With a free account, your focus sessions, focus areas and settings are also saved to your account and show up on your other devices. With Pro, all your data is saved to your account — projects, tasks, goals, habits, journal and the rest of your planning — and you see it on any device. In Settings you can export all your data to a file or delete everything at any time.',
   'land.faq.cancel.q': 'Can I cancel anytime?',
   'land.faq.cancel.a':
     'Yes. Cancel from your account in a couple of clicks. You keep Pro until the end of the period you’ve paid for and won’t be charged again.',
@@ -145,13 +145,13 @@ export const en = {
     'Yes. If Pro isn’t right for you, ask for a full refund within {days} days of any payment — renewals included. No questions asked.',
   'land.faq.minors.q': 'Is Moneo suitable for pupils and teenagers?',
   'land.faq.minors.a':
-    'Yes. Moneo is made for ages 13 and up and works fully without an account, so no personal details are needed. If you’re under 18, ask a parent or guardian before creating an account; payments should be made by a parent.',
+    'Yes. Moneo works fully without an account, so no personal details are needed. To create an account you must be at least {min}. If you’re under {adult}, use Moneo only with the permission of a parent or legal guardian; below the age of digital consent in your country ({consent} in many EU countries), a parent or guardian must agree before you create an account. Pro for someone under {adult} is bought by a parent or guardian, or with their permission.',
   'land.faq.devices.q': 'Which devices does it work on?',
   'land.faq.devices.a':
     'Any modern browser on a phone, tablet or computer — Android, iPhone, Windows, Mac or Linux. You can also install it on your home screen like an app.',
   'land.faq.offline.q': 'Does it work offline?',
   'land.faq.offline.a':
-    'Yes. After your first visit Moneo works without internet. If you use an account, syncing catches up when you’re back online.',
+    'Yes. After your first visit Moneo works without internet. If you use an account, your changes are saved to it as soon as you’re back online.',
   'land.faq.ai.q': 'What does the AI do? Is my AI key safe?',
   'land.faq.ai.a':
     'The plan assistant turns a goal into a step-by-step plan and suggests what to work on next. The free plan builder runs on your device. With Pro you can connect your own AI key (Gemini, OpenAI or DeepSeek) if you want: it is stored only on your device and sent straight to that provider — never to our servers.',

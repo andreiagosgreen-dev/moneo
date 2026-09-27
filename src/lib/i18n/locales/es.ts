@@ -98,7 +98,7 @@ export const es: Record<TKey, string> = {
     'Temas de color tranquilos para tu espacio de concentración — el mismo diseño sencillo, con el ambiente que te gusta.',
   'land.feat.private.t': 'Privado y sin conexión',
   'land.feat.private.b':
-    'Funciona sin internet. Tus datos se quedan en tu dispositivo; inicia sesión solo si quieres sincronizar.',
+    'Funciona sin internet. Sin cuenta, tus datos se guardan en este dispositivo. Con Pro, todos tus datos se guardan en tu cuenta y los ves en cualquier dispositivo.',
   'land.feat.langs.t': 'En tu idioma',
   'land.feat.langs.b': 'Moneo habla 8 idiomas, entre ellos rumano, ruso y ucraniano.',
   'land.feat.install.t': 'En tu móvil, como una app',
@@ -127,13 +127,13 @@ export const es: Record<TKey, string> = {
   'land.faq.title': 'Preguntas frecuentes',
   'land.faq.free.q': '¿Moneo es gratis?',
   'land.faq.free.a':
-    'Sí. El temporizador de concentración, el plan del día, 3 proyectos, los hábitos y el diario son gratis para siempre. Pro añade proyectos y objetivos ilimitados, el asistente de IA completo, exportaciones, sincronización entre dispositivos y más.',
+    'Sí. El temporizador de concentración, el plan del día, 3 proyectos, los hábitos y el diario son gratis para siempre. Pro añade proyectos y objetivos ilimitados, el asistente de IA completo, exportaciones, todos tus datos guardados en tu cuenta en cualquier dispositivo y más.',
   'land.faq.account.q': '¿Necesito una cuenta?',
   'land.faq.account.a':
-    'No. Abre Moneo y empieza — todo funciona sin cuenta. Crea una solo si quieres sincronizar entre dispositivos o comprar Pro.',
+    'No. Abre Moneo y empieza — todo funciona sin cuenta y se guarda en este dispositivo. Con una cuenta gratuita también se guardan en ella tus sesiones de foco, áreas y ajustes; con Pro, todos tus datos.',
   'land.faq.data.q': '¿Dónde se guardan mis datos?',
   'land.faq.data.a':
-    'En tu dispositivo, en el navegador. Si inicias sesión, solo se sincronizan con tu cuenta las sesiones de concentración, las áreas y los ajustes; los proyectos, tareas, objetivos, hábitos y el diario se quedan en el dispositivo donde los creaste. Desde Ajustes puedes exportar todos tus datos a un archivo o borrarlo todo cuando quieras.',
+    'Sin cuenta, todo se guarda en este dispositivo, en tu navegador. Con una cuenta gratuita, tus sesiones de foco, áreas de foco y ajustes también se guardan en tu cuenta y aparecen en tus otros dispositivos. Con Pro, todos tus datos se guardan en tu cuenta — proyectos, tareas, metas, hábitos, diario y el resto de tu planificación — y los ves en cualquier dispositivo. Desde Ajustes puedes exportar todos tus datos a un archivo o borrarlo todo cuando quieras.',
   'land.faq.cancel.q': '¿Puedo cancelar cuando quiera?',
   'land.faq.cancel.a':
     'Sí. Cancela desde tu cuenta en un par de clics. Conservas Pro hasta el final del periodo pagado y no se te volverá a cobrar.',
@@ -142,13 +142,13 @@ export const es: Record<TKey, string> = {
     'Sí. Si Pro no es para ti, pide el reembolso completo en los {days} días siguientes a cualquier pago — renovaciones incluidas. Sin preguntas.',
   'land.faq.minors.q': '¿Moneo es adecuado para estudiantes y adolescentes?',
   'land.faq.minors.a':
-    'Sí. Moneo está pensado para mayores de 13 años y funciona por completo sin cuenta, así que no hacen falta datos personales. Si tienes menos de 18 años, pide permiso a tu madre, padre o tutor antes de crear una cuenta; los pagos debería hacerlos un adulto responsable.',
+    'Sí. Moneo funciona por completo sin cuenta, así que no hacen falta datos personales. Para crear una cuenta debes tener al menos {min} años. Si tienes menos de {adult} años, usa Moneo solo con permiso de tu madre, padre o tutor legal; por debajo de la edad de consentimiento digital de tu país ({consent} en muchos países de la UE), tu madre, padre o tutor debe aceptar antes de que crees una cuenta. Pro para alguien menor de {adult} años lo compra su madre, padre o tutor, o se compra con su permiso.',
   'land.faq.devices.q': '¿En qué dispositivos funciona?',
   'land.faq.devices.a':
     'En cualquier navegador moderno en móvil, tableta u ordenador — Android, iPhone, Windows, Mac o Linux. También puedes instalarlo en la pantalla de inicio como una app.',
   'land.faq.offline.q': '¿Funciona sin conexión?',
   'land.faq.offline.a':
-    'Sí. Después de tu primera visita, Moneo funciona sin internet. Si usas una cuenta, la sincronización se pone al día cuando vuelves a estar en línea.',
+    'Sí. Después de tu primera visita, Moneo funciona sin internet. Si usas una cuenta, tus cambios se guardan en ella en cuanto vuelves a estar en línea.',
   'land.faq.ai.q': '¿Qué hace la IA? ¿Mi clave de IA está segura?',
   'land.faq.ai.a':
     'El asistente de planes convierte un objetivo en un plan paso a paso y te sugiere en qué trabajar después. El generador de planes gratuito funciona en tu dispositivo. Con Pro puedes conectar, si quieres, tu propia clave de IA (Gemini, OpenAI o DeepSeek): se guarda solo en tu dispositivo y se envía directamente a ese proveedor — nunca a nuestros servidores.',

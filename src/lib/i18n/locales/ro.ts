@@ -98,7 +98,7 @@ export const ro: Record<TKey, string> = {
     'Teme de culoare liniștite pentru spațiul tău de lucru — același aranjament simplu, în atmosfera care îți place.',
   'land.feat.private.t': 'Privat și offline',
   'land.feat.private.b':
-    'Funcționează fără internet. Datele rămân pe dispozitivul tău; te conectezi doar dacă vrei sincronizare.',
+    'Funcționează fără internet. Fără cont, datele se salvează pe acest dispozitiv. Cu Pro, toate datele tale se salvează în cont și le vezi pe orice dispozitiv.',
   'land.feat.langs.t': 'În limba ta',
   'land.feat.langs.b': 'Moneo vorbește 8 limbi, printre care română, rusă și ucraineană.',
   'land.feat.install.t': 'Pe telefon, ca o aplicație',
@@ -127,13 +127,13 @@ export const ro: Record<TKey, string> = {
   'land.faq.title': 'Întrebări frecvente',
   'land.faq.free.q': 'Moneo e gratuit?',
   'land.faq.free.a':
-    'Da. Cronometrul de concentrare, planul zilei, 3 proiecte, obiceiurile și jurnalul sunt gratuite pentru totdeauna. Pro adaugă proiecte și obiective nelimitate, asistentul AI complet, exporturi, sincronizare între dispozitive și altele.',
+    'Da. Cronometrul de concentrare, planul zilei, 3 proiecte, obiceiurile și jurnalul sunt gratuite pentru totdeauna. Pro adaugă proiecte și obiective nelimitate, asistentul AI complet, exporturi, toate datele salvate în cont pe orice dispozitiv și altele.',
   'land.faq.account.q': 'Am nevoie de cont?',
   'land.faq.account.a':
-    'Nu. Deschizi Moneo și începi — totul funcționează fără cont. Îți faci unul doar dacă vrei sincronizare între dispozitive sau Pro.',
+    'Nu. Deschizi Moneo și începi — totul funcționează fără cont și se salvează pe acest dispozitiv. Cu un cont gratuit, în cont se salvează și sesiunile de focus, ariile și setările; cu Pro, toate datele tale.',
   'land.faq.data.q': 'Unde sunt păstrate datele mele?',
   'land.faq.data.a':
-    'Pe dispozitivul tău, în browser. Dacă te conectezi, în cont se sincronizează doar sesiunile de concentrare, ariile și setările; proiectele, sarcinile, obiectivele, obiceiurile și jurnalul rămân pe dispozitivul unde le-ai creat. Din Setări îți poți exporta oricând toate datele într-un fișier sau poți șterge totul.',
+    'Fără cont, totul se salvează pe acest dispozitiv, în browser. Cu un cont gratuit, sesiunile de focus, ariile de focus și setările se salvează și în cont și le vezi pe celelalte dispozitive. Cu Pro, toate datele tale se salvează în cont — proiecte, sarcini, obiective, obiceiuri, jurnal și restul planificării — și le vezi pe orice dispozitiv. Din Setări îți poți exporta oricând toate datele într-un fișier sau poți șterge totul.',
   'land.faq.cancel.q': 'Pot anula oricând?',
   'land.faq.cancel.a':
     'Da. Anulezi din cont în câteva clicuri. Păstrezi Pro până la sfârșitul perioadei plătite și nu mai ești taxat.',
@@ -142,13 +142,13 @@ export const ro: Record<TKey, string> = {
     'Da. Dacă Pro nu ți se potrivește, ceri rambursarea integrală în {days} zile de la orice plată — inclusiv reînnoirile. Fără întrebări.',
   'land.faq.minors.q': 'E potrivit pentru elevi și adolescenți?',
   'land.faq.minors.a':
-    'Da. Moneo e gândit pentru vârsta de 13 ani în sus și funcționează complet fără cont, deci nu e nevoie de date personale. Dacă ai sub 18 ani, cere acordul unui părinte sau tutore înainte să-ți faci cont; plățile ar trebui făcute de un părinte.',
+    'Da. Moneo funcționează complet fără cont, deci nu e nevoie de date personale. Pentru un cont trebuie să ai cel puțin {min} ani. Dacă ai sub {adult} ani, folosești Moneo doar cu permisiunea unui părinte sau a unui tutore legal; sub vârsta consimțământului digital din țara ta ({consent} ani în multe țări din UE), un părinte sau un tutore trebuie să fie de acord înainte să-ți creezi cont. Pro pentru cineva sub {adult} ani se cumpără de un părinte sau de un tutore ori cu permisiunea lor.',
   'land.faq.devices.q': 'Pe ce dispozitive funcționează?',
   'land.faq.devices.a':
     'În orice browser modern, pe telefon, tabletă sau calculator — Android, iPhone, Windows, Mac sau Linux. Îl poți instala și pe ecranul principal, ca pe o aplicație.',
   'land.faq.offline.q': 'Funcționează offline?',
   'land.faq.offline.a':
-    'Da. După prima vizită, Moneo merge fără internet. Dacă folosești un cont, sincronizarea se face când revii online.',
+    'Da. După prima vizită, Moneo merge fără internet. Dacă folosești un cont, modificările se salvează în el imediat ce revii online.',
   'land.faq.ai.q': 'Ce face AI-ul? Cheia mea AI e în siguranță?',
   'land.faq.ai.a':
     'Asistentul de plan transformă un obiectiv într-un plan pas cu pas și îți sugerează la ce să lucrezi mai departe. Planul gratuit se construiește pe dispozitivul tău. Cu Pro poți conecta, dacă vrei, propria cheie AI (Gemini, OpenAI sau DeepSeek): e păstrată doar pe dispozitivul tău și trimisă direct furnizorului — niciodată serverelor noastre.',

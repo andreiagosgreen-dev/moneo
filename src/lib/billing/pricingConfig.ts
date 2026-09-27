@@ -37,8 +37,8 @@ export interface PricingPlanDisplay {
   featureKeys: TKey[];
 }
 
-import { PRO_PRICES } from './prices';
-export { FREE_PRICE, PRO_PRICES } from './prices';
+import { PLAN_FEATURE_KEYS, PRO_PRICES } from './prices';
+export { FREE_PRICE, PRO_PRICES, SYNC_NOTE_KEY, SYNC_SCOPE_KEY } from './prices';
 
 export const PRICING_PLANS_DISPLAY: PricingPlanDisplay[] = [
   {
@@ -48,13 +48,7 @@ export const PRICING_PLANS_DISPLAY: PricingPlanDisplay[] = [
     price: '$0',
     perKey: null,
     descKey: 'pay.plan.free.desc',
-    featureKeys: [
-      'pay.plan.free.f0',
-      'pay.plan.free.f1',
-      'pay.plan.free.f2',
-      'pay.plan.free.f3',
-      'pay.plan.free.f4',
-    ],
+    featureKeys: [...PLAN_FEATURE_KEYS.free],
   },
   {
     id: 'pro-monthly',
@@ -63,16 +57,7 @@ export const PRICING_PLANS_DISPLAY: PricingPlanDisplay[] = [
     price: PRO_PRICES.monthly,
     perKey: 'pay.perMonth',
     descKey: 'pay.plan.monthly.desc',
-    featureKeys: [
-      'pay.plan.monthly.f0',
-      'pay.plan.monthly.f1',
-      'pay.plan.monthly.f2',
-      'pay.plan.monthly.f3',
-      'pay.plan.monthly.f4',
-      'pay.plan.monthly.f5',
-      'pay.plan.monthly.f6',
-      'pay.plan.monthly.f7',
-    ],
+    featureKeys: [...PLAN_FEATURE_KEYS.proMonthly],
   },
   {
     id: 'pro-yearly',
@@ -81,12 +66,7 @@ export const PRICING_PLANS_DISPLAY: PricingPlanDisplay[] = [
     price: PRO_PRICES.yearly,
     perKey: 'pay.perYear',
     descKey: 'pay.plan.yearly.desc',
-    featureKeys: [
-      'pay.plan.yearly.f0',
-      'pay.plan.yearly.f1',
-      'pay.plan.yearly.f2',
-      'pay.plan.yearly.f3',
-    ],
+    featureKeys: [...PLAN_FEATURE_KEYS.proYearly],
   },
 ];
 
@@ -122,9 +102,6 @@ export const FREE_LIMITS = {
  *
  * Soft promises (beta invites / priority support) are operational, not code gates.
  */
-export const SYNC_SCOPE_KEY: TKey = 'pay.syncScope';
-export const SYNC_NOTE_KEY: TKey = 'pay.syncNote';
-
 /* ---------------- Pro gating (pure, testable) ---------------- */
 
 /** CSV timesheet export is Pro. Free callers are blocked with an upsell. */
