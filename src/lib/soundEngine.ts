@@ -303,12 +303,17 @@ export async function loadCustomSound(): Promise<ArrayBuffer | null> {
 export async function deleteCustomSound(): Promise<void> {
   const db = await openCustomDB();
   if (!db) return;
-  try {
-    const tx = db.transaction(CUSTOM_STORE_NAME, 'readwrite');
-    tx.objectStore(CUSTOM_STORE_NAME).delete(CUSTOM_SOUND_KEY);
-  } catch {
-    /* ignore */
-  }
+  return new Promise((resolve) => {
+    try {
+      const tx = db.transaction(CUSTOM_STORE_NAME, 'readwrite');
+      tx.objectStore(CUSTOM_STORE_NAME).delete(CUSTOM_SOUND_KEY);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+      tx.onabort = () => resolve();
+    } catch {
+      resolve();
+    }
+  });
 }
 
 async function playCustomSound(vol: number) {

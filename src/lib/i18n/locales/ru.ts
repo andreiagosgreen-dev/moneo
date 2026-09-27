@@ -1050,6 +1050,18 @@ export const ru: Record<TKey, string> = {
   'mono.coach.label': 'Подсказка',
   'mono.coach.dismiss': 'Скрыть',
   'mono.coach.show': 'Показать подсказку',
+  'mono.data.title': 'Данные на этом устройстве',
+  'mono.data.body':
+    'Всё, что вы создаёте без аккаунта, хранится в этом браузере. Удалите данные, чтобы начать с чистого Moneo.',
+  'mono.data.accountNote':
+    'Данные, синхронизированные с аккаунтом, остаются там. Чтобы удалить и их, удалите аккаунт.',
+  'mono.data.accountLink': 'Открыть аккаунт',
+  'mono.data.wipe': 'Удалить все данные на этом устройстве',
+  'mono.data.confirmTitle': 'Удалить всё на этом устройстве?',
+  'mono.data.confirmBody':
+    'Задачи, проекты, цели, привычки, дневник, история фокуса и настройки в этом браузере будут удалены. Это нельзя отменить.',
+  'mono.data.cancel': 'Отмена',
+  'mono.data.confirm': 'Удалить всё',
   'mono.coach.examples': 'Примеры',
   'mono.coach.aziEmpty.q': 'Что стоит закончить сегодня?',
   'mono.coach.aziEmpty.hint':

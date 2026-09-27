@@ -1045,6 +1045,18 @@ export const fr: Record<TKey, string> = {
   'mono.coach.label': 'Guide',
   'mono.coach.dismiss': 'Masquer',
   'mono.coach.show': 'Afficher le guide',
+  'mono.data.title': 'Données sur cet appareil',
+  'mono.data.body':
+    'Tout ce que vous créez sans compte est enregistré dans ce navigateur. Supprimez-le pour repartir avec un Moneo vide.',
+  'mono.data.accountNote':
+    'Les données synchronisées avec votre compte y restent. Pour les supprimer aussi, supprimez votre compte.',
+  'mono.data.accountLink': 'Ouvrir le compte',
+  'mono.data.wipe': 'Supprimer toutes les données de cet appareil',
+  'mono.data.confirmTitle': 'Tout supprimer sur cet appareil ?',
+  'mono.data.confirmBody':
+    'Tâches, projets, objectifs, habitudes, journal, historique de focus et réglages enregistrés dans ce navigateur seront supprimés. Action irréversible.',
+  'mono.data.cancel': 'Annuler',
+  'mono.data.confirm': 'Tout supprimer',
   'mono.coach.examples': 'Exemples',
   'mono.coach.aziEmpty.q': 'Qu’est-ce qui mérite d’être fini aujourd’hui ?',
   'mono.coach.aziEmpty.hint': 'Écris 1–3 résultats concrets — pas de vœux flous. De haut en bas.',

@@ -973,7 +973,7 @@ export const ro: Record<TKey, string> = {
   'mono.focus.planEmpty': 'Încă nu ai plan. Scrie mai întâi lista de azi.',
   'mono.focus.writePlan': 'Scrie planul de azi',
   'mono.focus.intentLabel': 'La ce lucrezi? (opțional)',
-  'mono.focus.intentPh': 'Capitolul 3 — structuri de date',
+  'mono.focus.intentPh': 'ex. Capitolul 3 — structuri de date',
   'mono.atm.label': 'Atmosferă',
   'mono.atm.hartie': 'Hârtie',
   'mono.atm.sanctuar': 'Sanctuar',
@@ -1047,6 +1047,18 @@ export const ro: Record<TKey, string> = {
   'mono.coach.label': 'Ghid',
   'mono.coach.dismiss': 'Ascunde',
   'mono.coach.show': 'Arată ghidul',
+  'mono.data.title': 'Datele de pe acest dispozitiv',
+  'mono.data.body':
+    'Tot ce creezi fără cont se salvează în acest browser. Șterge-le ca să pornești de la zero, cu Moneo gol.',
+  'mono.data.accountNote':
+    'Datele sincronizate în cont rămân acolo. Ca să le ștergi și pe ele, șterge contul.',
+  'mono.data.accountLink': 'Deschide contul',
+  'mono.data.wipe': 'Șterge toate datele de pe acest dispozitiv',
+  'mono.data.confirmTitle': 'Ștergi tot de pe acest dispozitiv?',
+  'mono.data.confirmBody':
+    'Sarcinile, proiectele, obiectivele, obiceiurile, jurnalul, istoricul de focus și setările salvate în acest browser vor fi șterse. Nu se poate anula.',
+  'mono.data.cancel': 'Anulează',
+  'mono.data.confirm': 'Șterge tot',
   'mono.coach.examples': 'Sugestii',
   'mono.coach.aziEmpty.q': 'Ce merită terminat azi?',
   'mono.coach.aziEmpty.hint': 'Listează 1–3 rezultate clare. Lucrează-le în ordine.',

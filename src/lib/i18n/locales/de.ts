@@ -1045,6 +1045,18 @@ export const de: Record<TKey, string> = {
   'mono.coach.label': 'Hilfe',
   'mono.coach.dismiss': 'Ausblenden',
   'mono.coach.show': 'Hilfe zeigen',
+  'mono.data.title': 'Daten auf diesem Gerät',
+  'mono.data.body':
+    'Alles, was du ohne Konto anlegst, wird in diesem Browser gespeichert. Lösche es, um mit einem leeren Moneo neu zu starten.',
+  'mono.data.accountNote':
+    'Mit deinem Konto synchronisierte Daten bleiben dort. Um sie ebenfalls zu entfernen, lösche dein Konto.',
+  'mono.data.accountLink': 'Konto öffnen',
+  'mono.data.wipe': 'Alle Daten auf diesem Gerät löschen',
+  'mono.data.confirmTitle': 'Alles auf diesem Gerät löschen?',
+  'mono.data.confirmBody':
+    'Aufgaben, Projekte, Ziele, Gewohnheiten, Journal, Fokus-Verlauf und Einstellungen in diesem Browser werden entfernt. Das kann nicht rückgängig gemacht werden.',
+  'mono.data.cancel': 'Abbrechen',
+  'mono.data.confirm': 'Alles löschen',
   'mono.coach.examples': 'Beispiele',
   'mono.coach.aziEmpty.q': 'Was lohnt sich heute zu beenden?',
   'mono.coach.aziEmpty.hint':

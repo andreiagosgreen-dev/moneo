@@ -11,6 +11,7 @@ import MonoRapoarte from './mono/MonoRapoarte';
 import MonoCrestere from './mono/MonoCrestere';
 import MonoViata from './mono/MonoViata';
 import MonoReturn from './mono/MonoReturn';
+import MonoLocalData from './mono/MonoLocalData';
 import GettingStarted from './components/GettingStarted';
 import TabFallback from './components/TabFallback';
 import MatrixCard from './components/MatrixCard';
@@ -1348,6 +1349,9 @@ export default function App() {
                         </div>
                         <div className="reveal" style={{ animationDelay: '135ms' }}>
                           <LanguageCard />
+                          <div style={{ marginTop: 24 }}>
+                            <MonoLocalData signedIn={auth.status === 'authenticated'} />
+                          </div>
                         </div>
                         <div className="reveal" style={{ animationDelay: '180ms' }}>
                           <PricingCard />

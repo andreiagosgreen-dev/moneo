@@ -1045,6 +1045,18 @@ export const it: Record<TKey, string> = {
   'mono.coach.label': 'Guida',
   'mono.coach.dismiss': 'Nascondi',
   'mono.coach.show': 'Mostra guida',
+  'mono.data.title': 'Dati su questo dispositivo',
+  'mono.data.body':
+    'Tutto ciò che crei senza account è salvato in questo browser. Eliminalo per ricominciare con un Moneo vuoto.',
+  'mono.data.accountNote':
+    "I dati sincronizzati con l'account restano lì. Per rimuovere anche quelli, elimina l'account.",
+  'mono.data.accountLink': 'Apri account',
+  'mono.data.wipe': 'Elimina tutti i dati su questo dispositivo',
+  'mono.data.confirmTitle': 'Eliminare tutto su questo dispositivo?',
+  'mono.data.confirmBody':
+    'Attività, progetti, obiettivi, abitudini, diario, cronologia focus e impostazioni salvati in questo browser verranno rimossi. Non si può annullare.',
+  'mono.data.cancel': 'Annulla',
+  'mono.data.confirm': 'Elimina tutto',
   'mono.coach.examples': 'Esempi',
   'mono.coach.aziEmpty.q': 'Cosa vale la pena finire oggi?',
   'mono.coach.aziEmpty.hint':
