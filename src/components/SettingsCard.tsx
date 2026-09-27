@@ -29,6 +29,7 @@ import {
   isProAtmosphere,
   type Atmosphere,
 } from '../mono/atmosphere';
+import { loadCelebratePrefs, saveCelebratePrefs, type CelebratePrefs } from '../lib/moments';
 
 interface Props {
   settings: Settings;
@@ -209,6 +210,7 @@ export default function SettingsCard({
   const { t } = useI18n();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasCustom, setHasCustom] = useState(false);
+  const [celebrate, setCelebrate] = useState<CelebratePrefs>(loadCelebratePrefs);
 
   useEffect(() => {
     if (settings.soundType !== 'custom') return;
@@ -345,6 +347,16 @@ export default function SettingsCard({
           hint={t('set.autoH')}
           on={settings.autoStart}
           onClick={() => onChange({ autoStart: !settings.autoStart })}
+        />
+        <Toggle
+          label={t('mono.celebrate.setting')}
+          hint={t('mono.celebrate.settingH')}
+          on={celebrate.enabled}
+          onClick={() => {
+            const next = { enabled: !celebrate.enabled };
+            setCelebrate(next);
+            saveCelebratePrefs(next);
+          }}
         />
         <Toggle
           label={t('set.chime')}

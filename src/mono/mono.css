@@ -2790,3 +2790,353 @@
   font-family: var(--mono-font-display);
   color: var(--mono-fg);
 }
+
+/* ---------- depth: elevation ladder + atmosphere glow ----------
+ * Derived from each atmosphere's own tokens (accent, raised, border), so every
+ * skin gets its own tint without per-atmosphere blocks. Colors only — the
+ * layout is identical on all atmospheres. */
+.atm-root {
+  --mono-tint: var(--atm-accent, var(--mono-accent));
+  --mono-elev-1:
+    0 1px 2px rgb(0 0 0 / 0.06), 0 6px 16px -10px rgb(0 0 0 / 0.24), 0 0 0 1px var(--mono-border);
+  --mono-elev-2: var(--mono-sh-card);
+  --mono-elev-3: var(--mono-sh-pop);
+  --mono-glow:
+    0 0 0 1px color-mix(in oklab, var(--mono-tint) 34%, transparent),
+    0 22px 60px -22px color-mix(in oklab, var(--mono-tint) 70%, transparent);
+  --mono-surface-grad: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--mono-raised) 91%, white 9%) 0%,
+    var(--mono-raised) 38%,
+    color-mix(in oklab, var(--mono-raised) 92%, var(--mono-tint) 8%) 100%
+  );
+  --mono-sunken: color-mix(in oklab, var(--mono-raised) 72%, var(--mono-bg) 28%);
+  --mono-bg-glow: radial-gradient(
+    1100px 520px at 62% -12%,
+    color-mix(in oklab, var(--mono-tint) 18%, transparent),
+    transparent 72%
+  );
+  --mono-fill-grad: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--mono-tint) 70%, var(--mono-fg-2) 30%),
+    var(--mono-tint)
+  );
+  background-image: var(--mono-bg-glow);
+  background-repeat: no-repeat;
+}
+.atm-root .mono-card:not(.mono-card-ink),
+.atm-root .atm-stage,
+.atm-root .atm-aside,
+.atm-root .atm-context,
+.atm-root .mono-coach,
+.atm-root .mono-more-item:not(.is-on),
+.atm-root .mono-growth-board .card {
+  background-image: var(--mono-surface-grad);
+}
+/* Nested tiles sit one step lower than the card that holds them. */
+.atm-root .atm-aside .mono-stat,
+.atm-root .atm-aside .mono-coach {
+  background: var(--mono-sunken);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 5%, transparent),
+    var(--mono-elev-1);
+}
+.atm-root .atm-stage {
+  transition: box-shadow 600ms var(--mono-ease);
+}
+.atm-root[data-focusing='true'] .atm-stage {
+  box-shadow: var(--mono-elev-2), var(--mono-glow);
+}
+.atm-root .atm-ring-wrap {
+  isolation: isolate;
+}
+.atm-root .atm-ring-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 6%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--mono-tint) 16%, transparent),
+    transparent
+  );
+  opacity: 0.55;
+  transition: opacity 600ms var(--mono-ease);
+}
+.atm-root[data-focusing='true'] .atm-ring-wrap::before {
+  opacity: 1;
+}
+.atm-root .atm-ring .bar {
+  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--mono-tint) 65%, transparent));
+}
+.atm-root .mono-progress > span {
+  background: var(--mono-fill-grad);
+}
+.atm-root .mono-card-ink .mono-progress > span {
+  background: var(--mono-on-ink);
+}
+.atm-root .mono-more-item,
+.atm-root button.mono-card {
+  transition:
+    transform var(--mono-dur) var(--mono-ease),
+    box-shadow 200ms var(--mono-ease);
+}
+@media (hover: hover) {
+  .atm-root .mono-more-item:hover,
+  .atm-root button.mono-card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--mono-elev-3);
+  }
+}
+.atm-root .mono-nav {
+  box-shadow: 0 -10px 28px -18px rgb(0 0 0 / 0.4);
+}
+.atm-root .mono-nav-item.active {
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--mono-tint) 22%, transparent);
+}
+.atm-root .mono-nav-item.active svg {
+  animation: mono-nav-pop 320ms var(--mono-ease);
+}
+@media (min-width: 1024px) {
+  .atm-root .mono-nav {
+    box-shadow: none;
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--mono-bg-2) 60%, transparent),
+      transparent 70%
+    );
+  }
+}
+
+/* ---------- motion: screen change, check-off, session end ---------- */
+.mono-shell-inner > main {
+  animation: mono-screen-fade 220ms var(--mono-ease) backwards;
+}
+.mono-shell-inner > main .mono-page-head {
+  animation: mono-screen-slide 280ms var(--mono-ease) backwards;
+}
+.mono-tick.is-pop {
+  animation: mono-tick-pop 380ms var(--mono-ease);
+}
+.mono-tick.is-pop svg path {
+  stroke-dasharray: 21;
+  animation: mono-tick-draw 280ms 60ms var(--mono-ease) backwards;
+}
+.atm-tasks li span,
+.mono-list-row .mono-h3 {
+  transition: color 240ms var(--mono-ease);
+}
+.atm-ring-wrap.is-bloom {
+  animation: mono-bloom 1100ms var(--mono-ease);
+}
+.atm-summary {
+  position: fixed;
+  bottom: 96px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  width: min(24rem, calc(100vw - 2rem));
+  box-shadow: var(--mono-elev-3);
+  animation: mono-summary-in 360ms var(--mono-ease) backwards;
+}
+@keyframes mono-screen-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes mono-screen-slide {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes mono-nav-pop {
+  40% {
+    transform: scale(1.14);
+  }
+}
+@keyframes mono-tick-pop {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--mono-accent) 45%, transparent);
+  }
+  40% {
+    transform: scale(0.86);
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+@keyframes mono-tick-draw {
+  from {
+    stroke-dashoffset: 21;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes mono-bloom {
+  35% {
+    transform: scale(1.035);
+    filter: drop-shadow(0 0 22px color-mix(in oklab, var(--mono-tint) 55%, transparent));
+  }
+}
+@keyframes mono-summary-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(14px) scale(0.98);
+  }
+}
+
+/* ---------- celebration moments (lazy layer: MonoCelebrate) ---------- */
+.mono-confetti {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 69;
+  pointer-events: none;
+}
+.mono-celebrate {
+  position: fixed;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  z-index: 70;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: min(26rem, calc(100vw - 1.5rem));
+  padding: 14px 10px 16px 14px;
+  overflow: hidden;
+  border-radius: var(--mono-r-card);
+  background-color: var(--mono-raised, var(--mono-surface));
+  background-image: var(--mono-surface-grad, none);
+  color: var(--mono-fg);
+  box-shadow: var(--mono-elev-3, var(--mono-sh-pop)), var(--mono-glow, 0 0 0 0 transparent);
+  font-family: var(--mono-font-body);
+  transform: translateX(-50%);
+  animation: mono-celebrate-in 420ms var(--mono-ease) backwards;
+}
+.mono-celebrate-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--mono-tint, var(--mono-accent)) 18%, transparent);
+  color: var(--mono-tint, var(--mono-accent));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--mono-tint, var(--mono-accent)) 30%, transparent);
+  animation: mono-celebrate-icon 700ms 120ms var(--mono-ease) backwards;
+}
+.mono-celebrate.is-project .mono-celebrate-icon {
+  background: var(--mono-tint, var(--mono-accent));
+  color: var(--atm-on, #fff);
+}
+.mono-celebrate-icon svg,
+.mono-celebrate-close svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mono-celebrate-copy {
+  min-width: 0;
+}
+.mono-celebrate-kicker {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mono-tint, var(--mono-accent));
+}
+.mono-celebrate-msg {
+  margin: 2px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--mono-fg-2);
+  overflow-wrap: anywhere;
+}
+.mono-celebrate-close {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--mono-muted);
+  cursor: pointer;
+}
+.mono-celebrate-close:hover {
+  color: var(--mono-fg-2);
+  background: color-mix(in oklab, var(--mono-fg) 8%, transparent);
+}
+.mono-celebrate-close:focus-visible {
+  outline: 2px solid var(--mono-tint, var(--mono-accent));
+  outline-offset: 2px;
+}
+.mono-celebrate-timer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  background: var(--mono-fill-grad, var(--mono-accent));
+  transform-origin: left center;
+  animation: mono-celebrate-timer var(--celebrate-ms, 5000ms) linear forwards;
+  opacity: 0.7;
+}
+@media (min-width: 1024px) {
+  /* Center over the content column, not over the rail. */
+  .mono-celebrate {
+    left: calc(50% + 128px);
+  }
+}
+@keyframes mono-celebrate-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-12px) scale(0.97);
+  }
+}
+@keyframes mono-celebrate-icon {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+@keyframes mono-celebrate-timer {
+  to {
+    transform: scaleX(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mono-shell-inner > main,
+  .mono-shell-inner > main .mono-page-head,
+  .mono-tick.is-pop,
+  .mono-tick.is-pop svg path,
+  .atm-ring-wrap.is-bloom,
+  .atm-summary,
+  .atm-root .mono-nav-item.active svg,
+  .mono-celebrate,
+  .mono-celebrate-icon {
+    animation: none !important;
+  }
+  .mono-celebrate-timer {
+    display: none;
+  }
+}

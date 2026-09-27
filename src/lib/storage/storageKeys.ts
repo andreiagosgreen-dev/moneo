@@ -94,6 +94,8 @@ export const STORAGE_KEYS = {
   capsuleDelivered: 'moneo:capsule-delivered',
   /** Rare-celebration shown log, celebrationId → true (Faza 27). */
   celebrationsShown: 'moneo:celebrations-shown',
+  /** Everyday celebration moments on/off (Settings) — local only, never synced. */
+  celebratePrefs: 'moneo:celebrate-prefs',
   /** Saved task filters / Smart Views (Faza 18). */
   savedFilters: 'moneo:saved-filters',
   /** Advanced planning visibility (Kanban/Sprints/Gantt/Waterfall) — local only. */

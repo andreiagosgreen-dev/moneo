@@ -36,6 +36,7 @@ const LanguageCard = lazy(() => import('./components/LanguageCard'));
 const AiPathCard = lazy(() => import('./components/AiPathCard'));
 const CalendarCard = lazy(() => import('./components/CalendarCard'));
 const GraphCard = lazy(() => import('./components/GraphCard'));
+const MonoCelebrate = lazy(() => import('./mono/MonoCelebrate'));
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import HelpPage from './components/HelpPage';
@@ -169,6 +170,7 @@ import { useAuth } from './lib/authProvider';
 import { useGoogleCalendarEvents } from './hooks/useGoogleCalendarEvents';
 import { useTimeCapsules } from './hooks/useTimeCapsules';
 import { useCelebrations } from './hooks/useCelebrations';
+import { useMoments } from './hooks/useMoments';
 import { isTodayInTz, dayKeyInTz } from './lib/timezone';
 import { loadSyncState, onSyncStateChange } from './lib/sync/syncState';
 
@@ -341,6 +343,7 @@ export default function App() {
   // App sits above LocaleProvider, so it localizes via a memo directly.
   const appI18n = useMemo(() => createI18n(locale, i18nDict), [locale, i18nDict]);
   const { t, fmtDur, fmtClock } = appI18n;
+  const moments = useMoments(tasks, phases, projects);
 
   const {
     mode,
@@ -374,6 +377,7 @@ export default function App() {
       });
       setHistory(withEntry);
       setLastDone({ id: entry.at, minutes: entry.min, impact });
+      moments.celebrateSession(entry);
       if (loadNotificationPrefs().sessionReflection) setReflectionSession(entry);
     },
     initial: {
@@ -1427,6 +1431,11 @@ export default function App() {
                   celebration={celebrations.current}
                   onDone={celebrations.dismiss}
                 />
+              )}
+              {!celebrations.current && moments.current && (
+                <Suspense fallback={null}>
+                  <MonoCelebrate moment={moments.current} onDone={moments.dismiss} />
+                </Suspense>
               )}
             </div>
           </LocaleProvider>
