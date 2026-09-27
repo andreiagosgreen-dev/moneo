@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import BrandMark from './BrandMark';
 import PricingCard from './PricingCard';
@@ -14,6 +14,15 @@ import {
 } from '../lib/cloud/subscriptionRepository';
 import { LEMON_MY_ORDERS_URL, buildCustomerPortalUrl } from '../lib/billing/lemonSqueezy';
 import ManageSubscriptionButton from './ManageSubscriptionButton';
+import { computeXp } from '../lib/xp';
+import { loadHistory } from '../lib/store';
+import { loadTasks } from '../lib/tasks';
+import { loadHabitLog } from '../lib/habits';
+import { loadPhases } from '../lib/waterfall';
+import { loadProjects } from '../lib/projects';
+import { loadAtmosphere, resolveAtmosphere } from '../mono/atmosphere';
+
+const MonoRankCard = lazy(() => import('../mono/MonoRankCard'));
 
 function Spinner() {
   return (
@@ -51,6 +60,17 @@ export default function CabinetPage() {
   const [error, setError] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const portalUrl = buildCustomerPortalUrl();
+  const xp = useMemo(
+    () =>
+      computeXp({
+        history: loadHistory(),
+        tasks: loadTasks(),
+        habitLog: loadHabitLog(),
+        phases: loadPhases(),
+        projects: loadProjects(),
+      }),
+    [],
+  );
 
   // Lemon's confirmation "Button link" points at /account?billing=success
   // (set per product in the Lemon dashboard). The webhook may land slightly
@@ -130,6 +150,15 @@ export default function CabinetPage() {
             </div>
           </div>
         </section>
+
+        <div
+          className="atm-root mono-rank-host"
+          data-atmosphere={resolveAtmosphere(loadAtmosphere(), auth.isPro)}
+        >
+          <Suspense fallback={null}>
+            <MonoRankCard xp={xp} />
+          </Suspense>
+        </div>
 
         <section className="card px-6 py-5">
           <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">

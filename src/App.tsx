@@ -37,6 +37,7 @@ const AiPathCard = lazy(() => import('./components/AiPathCard'));
 const CalendarCard = lazy(() => import('./components/CalendarCard'));
 const GraphCard = lazy(() => import('./components/GraphCard'));
 const MonoCelebrate = lazy(() => import('./mono/MonoCelebrate'));
+const MonoRankCard = lazy(() => import('./mono/MonoRankCard'));
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import HelpPage from './components/HelpPage';
@@ -49,7 +50,6 @@ import { titleForPath } from './lib/routeTitle';
 import CommandCenter from './components/CommandCenter';
 import CommandPalette from './components/CommandPalette';
 import PostSessionReflection from './components/PostSessionReflection';
-import CelebrationOverlay from './components/CelebrationOverlay';
 import {
   loadProjects,
   loadSelectedProject,
@@ -169,8 +169,8 @@ import { usePlannerState } from './hooks/usePlannerState';
 import { useAuth } from './lib/authProvider';
 import { useGoogleCalendarEvents } from './hooks/useGoogleCalendarEvents';
 import { useTimeCapsules } from './hooks/useTimeCapsules';
-import { useCelebrations } from './hooks/useCelebrations';
 import { useMoments } from './hooks/useMoments';
+import { computeXp, levelFromXp } from './lib/xp';
 import { isTodayInTz, dayKeyInTz } from './lib/timezone';
 import { loadSyncState, onSyncStateChange } from './lib/sync/syncState';
 
@@ -343,7 +343,12 @@ export default function App() {
   // App sits above LocaleProvider, so it localizes via a memo directly.
   const appI18n = useMemo(() => createI18n(locale, i18nDict), [locale, i18nDict]);
   const { t, fmtDur, fmtClock } = appI18n;
-  const moments = useMoments(tasks, phases, projects);
+  const xp = useMemo(
+    () => computeXp({ history, tasks, habitLog, phases, projects }),
+    [history, tasks, habitLog, phases, projects],
+  );
+  const xpLevel = levelFromXp(xp.total).level;
+  const moments = useMoments({ tasks, phases, projects, goals, history, level: xpLevel });
 
   const {
     mode,
@@ -455,7 +460,6 @@ export default function App() {
 
   const externalCalendarEvents = useGoogleCalendarEvents(auth.isPro, auth.timezone);
   useTimeCapsules(goals, settings.notifications, auth.isPro);
-  const celebrations = useCelebrations(goals, tasks, history);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -1199,6 +1203,12 @@ export default function App() {
                     <Suspense fallback={<TabFallback label="Growth" />}>
                       <main>
                         <MonoCrestere>
+                          <div
+                            className="reveal mono-growth-span"
+                            style={{ animationDelay: '60ms' }}
+                          >
+                            <MonoRankCard xp={xp} />
+                          </div>
                           <div className="reveal" style={{ animationDelay: '90ms' }}>
                             <GrowthCard history={history} />
                           </div>
@@ -1426,13 +1436,7 @@ export default function App() {
                   onDone={() => setReflectionSession(null)}
                 />
               )}
-              {celebrations.current && (
-                <CelebrationOverlay
-                  celebration={celebrations.current}
-                  onDone={celebrations.dismiss}
-                />
-              )}
-              {!celebrations.current && moments.current && (
+              {moments.current && (
                 <Suspense fallback={null}>
                   <MonoCelebrate moment={moments.current} onDone={moments.dismiss} />
                 </Suspense>
