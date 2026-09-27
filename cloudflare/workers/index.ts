@@ -13,6 +13,12 @@
 
 import { handleAccountDelete } from './account';
 import { classifySubscriptionEvent } from './billing';
+import {
+  accessPeriodEnd,
+  normalizeStatus,
+  resolvePlanId,
+  type LemonSubscriptionAttributes,
+} from './subscriptionAccess';
 import { handleCustomerPortal } from './portal';
 import { handleAIPlan } from './ai';
 import {
@@ -87,6 +93,9 @@ export interface Env {
   GOOGLE_CLIENT_SECRET?: string;
   /** Comma-separated emails with Free branding + Pro unlock (not Lemon-paid). */
   PRO_COMPLIMENTARY_EMAILS?: string;
+  /** Comma-separated Lemon variant/product ids per interval (public, not secrets). */
+  LEMON_YEARLY_IDS?: string;
+  LEMON_MONTHLY_IDS?: string;
 }
 
 const DEFAULT_ALLOWED_ORIGINS = 'https://moneo.bond';
@@ -334,11 +343,11 @@ async function handleLemonSqueezyWebhook(request: Request, env: Env): Promise<Re
   }
 
   const data = payload?.data;
-  const attrs = data?.attributes || {};
-  const status = attrs.status || 'active';
-  const variantName = (attrs.variant_name || '').toLowerCase();
-  const planId = variantName.includes('year') ? 'pro-yearly' : 'pro-monthly';
-  const currentPeriodEnd = attrs.renews_at || attrs.ends_at || null;
+  const attrs: LemonSubscriptionAttributes = data?.attributes || {};
+  const planId = resolvePlanId(attrs, {
+    yearlyIds: env.LEMON_YEARLY_IDS,
+    monthlyIds: env.LEMON_MONTHLY_IDS,
+  });
 
   try {
     const response = await fetch(`${env.SUPABASE_URL}/rest/v1/subscriptions`, {
@@ -353,9 +362,9 @@ async function handleLemonSqueezyWebhook(request: Request, env: Env): Promise<Re
         user_id: userId,
         lemon_customer_id: String(attrs.customer_id || ''),
         lemon_subscription_id: String(data?.id || ''),
-        status: status === 'active' || status === 'on_trial' ? 'active' : status,
+        status: normalizeStatus(attrs.status),
         plan_id: planId,
-        current_period_end: currentPeriodEnd,
+        current_period_end: accessPeriodEnd(attrs),
         updated_at: new Date().toISOString(),
       }),
     });
