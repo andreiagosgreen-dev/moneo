@@ -1890,6 +1890,7 @@ export const uk: Record<TKey, string> = {
   'account.plan.pro-monthly': 'Pro (Щомісячно)',
   'account.plan.pro-yearly': 'Pro (Щорічно)',
   'account.renews': 'Поновлення {date}',
+  'account.cancelledUntil': 'Скасовано — Pro активний до {date}',
   'login.title': 'З поверненням',
   'login.subtitle': 'Увійдіть, щоб синхронізувати фокус між пристроями.',
   'login.backToApp': 'Назад до Moneo',

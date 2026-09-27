@@ -18,6 +18,7 @@
 import { bearerToken, verifyUser, type FetchImpl } from './account';
 import { hasComplimentaryPro, resolveComplimentaryAllowlist } from './complimentaryPro';
 import { buildSecurityHeaders, declaredBodyTooLarge, mergeHeaders } from './security';
+import { hasPaidProAccess } from './subscriptionAccess';
 
 export interface CalendarEnv {
   SUPABASE_URL?: string;
@@ -78,12 +79,15 @@ async function isProUser(
   if (hasComplimentaryPro(email, allowlist)) return true;
   try {
     const res = await fetchImpl(
-      `${supabaseUrl}/rest/v1/subscriptions?user_id=eq.${encodeURIComponent(userId)}&select=status`,
+      `${supabaseUrl}/rest/v1/subscriptions?user_id=eq.${encodeURIComponent(userId)}&select=status,current_period_end`,
       { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
     );
     if (!res.ok) return false;
-    const rows = (await res.json()) as Array<{ status?: string }>;
-    return rows[0]?.status === 'active';
+    const rows = (await res.json()) as Array<{
+      status?: string;
+      current_period_end?: string | null;
+    }>;
+    return hasPaidProAccess(rows[0]?.status, rows[0]?.current_period_end);
   } catch {
     return false;
   }
