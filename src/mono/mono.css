@@ -1027,6 +1027,35 @@
 .mono-sec {
   margin-top: 22px;
 }
+.mono-link {
+  color: var(--mono-fg);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.mono-danger-box {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px var(--mono-danger);
+}
+.mono-danger-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.mono-danger-actions .mono-btn {
+  flex: 1 1 140px;
+}
+.mono-danger-actions .mono-btn-primary,
+.mono-danger-actions .mono-btn-primary:not(:disabled):hover {
+  background: var(--mono-danger);
+  color: #fff;
+}
+[data-theme='dark'] .mono-danger-actions .mono-btn-primary {
+  color: #1a0b0b;
+}
 .mono-row {
   display: flex;
   align-items: center;

@@ -979,7 +979,7 @@ export const en = {
   'mono.focus.planEmpty': 'No plan yet. Write today’s list first.',
   'mono.focus.writePlan': "Write today's plan",
   'mono.focus.intentLabel': 'What are you working on? (optional)',
-  'mono.focus.intentPh': 'Chapter 3 — data structures',
+  'mono.focus.intentPh': 'e.g. Chapter 3 — data structures',
   'mono.atm.label': 'Atmosphere',
   'mono.atm.hartie': 'Paper',
   'mono.atm.sanctuar': 'Sanctuary',
@@ -1053,6 +1053,18 @@ export const en = {
   'mono.coach.label': 'Guide',
   'mono.coach.dismiss': 'Dismiss',
   'mono.coach.show': 'Show guide',
+  'mono.data.title': 'Data on this device',
+  'mono.data.body':
+    'Everything you create without an account is saved in this browser. Delete it to start over with an empty Moneo.',
+  'mono.data.accountNote':
+    'Data synced to your account stays there. To remove it too, delete your account.',
+  'mono.data.accountLink': 'Open account',
+  'mono.data.wipe': 'Delete all data on this device',
+  'mono.data.confirmTitle': 'Delete everything on this device?',
+  'mono.data.confirmBody':
+    'Tasks, projects, goals, habits, journal, focus history and settings saved in this browser will be removed. This cannot be undone.',
+  'mono.data.cancel': 'Cancel',
+  'mono.data.confirm': 'Delete everything',
   'mono.coach.examples': 'Suggestions',
   'mono.coach.aziEmpty.q': 'What should you finish today?',
   'mono.coach.aziEmpty.hint': 'List 1–3 clear outcomes. Work them in order.',
