@@ -77,14 +77,18 @@ describe('PricingPage (/pricing)', () => {
     expect(text).toContain('Feature');
     expect(text).toContain('Unlimited');
     // Sync scope is honest: sessions, areas & settings only.
-    expect(text).toContain('focus sessions, focus areas and settings only');
-    expect(text).toContain('Everything works offline');
+    expect(text).toContain('Sync between devices: focus sessions, focus areas and settings');
+    expect(text).toContain('Projects, tasks, goals');
+    expect(text).toContain('Moneo works offline');
+    expect(text).not.toMatch(/local-first/i);
   });
 
   it('renders translated chrome (ro)', () => {
     const text = renderPage('ro');
     expect(text).toContain('Prețuri Moneo');
     expect(text).toContain('Nelimitat');
+    expect(text).toContain('Începe gratuit, fără card');
+    expect(text).not.toMatch(/local-first/i);
   });
 
   it('shows the customer-portal entry for paid plans only', () => {
