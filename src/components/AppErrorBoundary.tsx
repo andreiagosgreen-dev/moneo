@@ -39,8 +39,7 @@ export default class AppErrorBoundary extends Component<Props, State> {
       >
         <h1 className="font-display text-2xl font-bold text-cream">Something went wrong</h1>
         <p className="max-w-sm text-[13px] leading-relaxed text-sage">
-          Moneo hit an unexpected error. Your local data is still on this device — reload to
-          continue.
+          Moneo hit an unexpected error. Your data is safe — reload to continue.
         </p>
         <button
           type="button"

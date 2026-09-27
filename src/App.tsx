@@ -1387,6 +1387,7 @@ export default function App() {
                             isPro={auth.isPro}
                             atmosphere={atmosphere}
                             onAtmosphere={setAtmosphere}
+                            synced={auth.status === 'authenticated' && syncState.initialized}
                           />
                         </div>
                         <div className="reveal" style={{ animationDelay: '135ms' }}>
