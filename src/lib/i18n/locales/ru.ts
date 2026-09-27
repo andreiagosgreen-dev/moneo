@@ -1890,6 +1890,7 @@ export const ru: Record<TKey, string> = {
   'account.plan.pro-monthly': 'Pro (Ежемесячно)',
   'account.plan.pro-yearly': 'Pro (Ежегодно)',
   'account.renews': 'Продление {date}',
+  'account.cancelledUntil': 'Отменено — Pro активен до {date}',
   'login.title': 'С возвращением',
   'login.subtitle': 'Войдите, чтобы синхронизировать фокус между устройствами.',
   'login.backToApp': 'Назад в Moneo',

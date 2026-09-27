@@ -1902,6 +1902,7 @@ export const ro: Record<TKey, string> = {
   'account.plan.pro-monthly': 'Pro (Lunar)',
   'account.plan.pro-yearly': 'Pro (Anual)',
   'account.renews': 'Se reînnoiește {date}',
+  'account.cancelledUntil': 'Anulat — Pro activ până la {date}',
   'login.title': 'Bine ai revenit',
   'login.subtitle': 'Conectează-te ca să-ți sincronizezi focusul pe toate dispozitivele.',
   'login.backToApp': 'Înapoi la Moneo',

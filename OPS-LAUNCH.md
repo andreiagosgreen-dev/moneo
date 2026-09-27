@@ -220,6 +220,13 @@ npx wrangler secret put LEMON_SQUEEZY_API_KEY
 
 Pricing → Upgrade → Lemon → dupa plata: rand in `subscriptions`; Manage → portal HTTPS.
 
+### 3.6 Plan anual + anulare **[REPO]**
+
+- **Fara migratie noua.** Se folosesc coloanele existente `status`, `plan_id`, `current_period_end`.
+- Planul (lunar/anual) se decide in Worker (`cloudflare/workers/subscriptionAccess.ts`): intai dupa ID-urile numerice Lemon din `wrangler.toml` `[vars]` (`LEMON_YEARLY_IDS`, `LEMON_MONTHLY_IDS` — variant + product, publice), apoi dupa numele produsului („Moneo Pro (Yearly)”). Produs nou in Lemon → adauga ID-urile acolo.
+- Anulare: Lemon trimite `status: cancelled` + `ends_at`; Worker-ul scrie `current_period_end = ends_at`, iar Pro ramane activ pana la acea data (Cont: „Anulat — Pro activ pana la …”). `past_due` = Pro (Lemon reincearca ~2 saptamani); `unpaid` / `paused` / `expired` = Free.
+- Randurile vechi (ex. anual salvat ca `pro-monthly`) se corecteaza la urmatorul webhook `subscription_*` dupa deploy. Mai rapid: Lemon → Settings → Webhooks → livrarea `subscription_created`/`subscription_updated` → Resend.
+
 ---
 
 ## PASUL 4 — GitHub secrets + deploy **[TU]**

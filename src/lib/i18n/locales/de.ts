@@ -1902,6 +1902,7 @@ export const de: Record<TKey, string> = {
   'account.plan.pro-monthly': 'Pro (Monatlich)',
   'account.plan.pro-yearly': 'Pro (Jährlich)',
   'account.renews': 'Verlängert sich am {date}',
+  'account.cancelledUntil': 'Gekündigt — Pro aktiv bis {date}',
   'login.title': 'Willkommen zurück',
   'login.subtitle': 'Melde dich an, um deinen Fokus geräteübergreifend zu synchronisieren.',
   'login.backToApp': 'Zurück zu Moneo',
