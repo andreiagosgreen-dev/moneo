@@ -26,8 +26,9 @@ export type PlanId = 'free' | 'pro-monthly' | 'pro-yearly';
 
 export interface PricingPlanDisplay {
   id: PlanId;
-  /** Marketing name — a product name, intentionally not translated. */
+  /** English plan name (checkout metadata). UI renders `nameKey`. */
   name: string;
+  nameKey: TKey;
   /** Display price, e.g. "$5.99". Currency formatting stays literal. */
   price: string;
   /** Per-period suffix key (null for Free). */
@@ -48,6 +49,7 @@ export const PRICING_PLANS_DISPLAY: PricingPlanDisplay[] = [
   {
     id: 'free',
     name: 'Free',
+    nameKey: 'pricing.plan.free.name',
     price: '$0',
     perKey: null,
     descKey: 'pay.plan.free.desc',
@@ -62,6 +64,7 @@ export const PRICING_PLANS_DISPLAY: PricingPlanDisplay[] = [
   {
     id: 'pro-monthly',
     name: 'Pro (Monthly)',
+    nameKey: 'pricing.plan.proMonthly.name',
     price: PRO_PRICES.monthly,
     perKey: 'pay.perMonth',
     descKey: 'pay.plan.monthly.desc',
@@ -79,6 +82,7 @@ export const PRICING_PLANS_DISPLAY: PricingPlanDisplay[] = [
   {
     id: 'pro-yearly',
     name: 'Pro (Yearly)',
+    nameKey: 'pricing.plan.proYearly.name',
     price: PRO_PRICES.yearly,
     perKey: 'pay.perYear',
     descKey: 'pay.plan.yearly.desc',

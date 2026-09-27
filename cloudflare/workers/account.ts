@@ -6,10 +6,12 @@
  * Any `user_id` sent in the request body is ignored.
  *
  * Order: verify token → cancel a live Lemon subscription (only when the
- * Worker holds LEMON_SQUEEZY_API_KEY) → wipe data tables explicitly →
- * delete the Auth user (cascades anything left) → `{ ok: true }`. Every failure fails closed
- * with 4xx/5xx and touches nothing after the failed step, so the client
- * can safely retry and never wipes local data on error.
+ * Worker holds LEMON_SQUEEZY_API_KEY) → wipe every data table explicitly
+ * (a failing table does not stop the others; optional tables that are not
+ * migrated yet are skipped) → delete the Auth user LAST (FK cascades remove
+ * anything a failed wipe left) → `{ ok: true }` only once the Auth user is
+ * really gone. Any failure answers 4xx/5xx with the failing step, so the
+ * client keeps its local data and can safely retry.
  */
 
 import { buildSecurityHeaders, mergeHeaders } from './security';
@@ -32,6 +34,36 @@ export const ACCOUNT_DATA_TABLES = [
   'google_calendar_connections',
   'profiles',
 ] as const;
+
+/**
+ * Tables whose migration may not be applied in a given deployment
+ * (0010 google_calendar_connections is not in production yet). A missing
+ * one holds no rows, so it is skipped instead of failing the deletion.
+ */
+export const OPTIONAL_ACCOUNT_TABLES: ReadonlySet<string> = new Set([
+  'google_calendar_connections',
+  'focus_buddy_pairs',
+]);
+
+/** PostgREST codes for "relation does not exist" (Postgres / schema cache). */
+const MISSING_TABLE_CODES: ReadonlySet<string> = new Set(['42P01', 'PGRST205']);
+
+export async function isMissingTableResponse(res: Response): Promise<boolean> {
+  if (res.ok) return false;
+  try {
+    const body = (await res.clone().json()) as { code?: unknown };
+    return typeof body?.code === 'string' && MISSING_TABLE_CODES.has(body.code);
+  } catch {
+    return false;
+  }
+}
+
+export interface DeleteRowsResult {
+  /** Tables whose wipe failed (network or non-2xx, other than a skipped optional table). */
+  failed: string[];
+  /** Optional tables that do not exist in this database. */
+  skipped: string[];
+}
 
 interface SupabaseUser {
   id?: unknown;
@@ -102,48 +134,46 @@ export async function verifyUserToken(
   return user?.userId ?? null;
 }
 
-/** Delete every user-data row; false on the first failure (abort, retryable). */
+/**
+ * Delete every user-data row. Keeps going past a failing table so one bad
+ * table never leaves the rest behind; the caller decides what to do with
+ * `failed`. Missing optional tables are reported in `skipped`.
+ */
 export async function deleteUserRows(
   supabaseUrl: string,
   serviceKey: string,
   userId: string,
   fetchImpl: FetchImpl,
-): Promise<boolean> {
-  try {
-    for (const table of ACCOUNT_DATA_TABLES) {
-      const res = await fetchImpl(
-        `${supabaseUrl}/rest/v1/${table}?user_id=eq.${encodeURIComponent(userId)}`,
-        {
-          method: 'DELETE',
-          headers: {
-            apikey: serviceKey,
-            Authorization: `Bearer ${serviceKey}`,
-            Prefer: 'return=minimal',
-          },
-        },
-      );
-      if (!res.ok) return false;
-    }
+): Promise<DeleteRowsResult> {
+  const id = encodeURIComponent(userId);
+  const targets: Array<{ table: string; filter: string }> = [
+    ...ACCOUNT_DATA_TABLES.map((table) => ({ table, filter: `user_id=eq.${id}` })),
     // focus_buddy_pairs (Faza 25) has no single user_id column — a user can
     // be on either side of the pairing — so it needs its own OR filter.
-    const buddyRes = await fetchImpl(
-      `${supabaseUrl}/rest/v1/focus_buddy_pairs?or=(user_a.eq.${encodeURIComponent(
-        userId,
-      )},user_b.eq.${encodeURIComponent(userId)})`,
-      {
+    { table: 'focus_buddy_pairs', filter: `or=(user_a.eq.${id},user_b.eq.${id})` },
+  ];
+  const result: DeleteRowsResult = { failed: [], skipped: [] };
+  for (const { table, filter } of targets) {
+    try {
+      const res = await fetchImpl(`${supabaseUrl}/rest/v1/${table}?${filter}`, {
         method: 'DELETE',
         headers: {
           apikey: serviceKey,
           Authorization: `Bearer ${serviceKey}`,
           Prefer: 'return=minimal',
         },
-      },
-    );
-    if (!buddyRes.ok) return false;
-    return true;
-  } catch {
-    return false;
+      });
+      if (res.ok) continue;
+      if (OPTIONAL_ACCOUNT_TABLES.has(table) && (await isMissingTableResponse(res))) {
+        result.skipped.push(table);
+      } else {
+        result.failed.push(table);
+      }
+    } catch {
+      result.failed.push(table);
+    }
   }
+  return result;
 }
 
 /** Subscription states Lemon will not charge again. */
@@ -262,16 +292,15 @@ export async function handleAccountDelete(
     }
   }
 
-  const rowsGone = await deleteUserRows(
+  const rows = await deleteUserRows(
     env.SUPABASE_URL,
     env.SUPABASE_SERVICE_ROLE_KEY,
     userId,
     fetchImpl,
   );
-  if (!rowsGone) {
-    return json({ error: 'Failed to delete user data' }, 500);
-  }
 
+  // Every data table references auth.users ON DELETE CASCADE, so deleting
+  // the Auth user also removes whatever a failed explicit wipe left.
   const authGone = await deleteAuthUser(
     env.SUPABASE_URL,
     env.SUPABASE_SERVICE_ROLE_KEY,
@@ -279,7 +308,14 @@ export async function handleAccountDelete(
     fetchImpl,
   );
   if (!authGone) {
-    return json({ error: 'Failed to delete user' }, 500);
+    return json(
+      {
+        error: 'Failed to delete user',
+        step: 'auth',
+        ...(rows.failed.length > 0 ? { failedTables: rows.failed } : {}),
+      },
+      500,
+    );
   }
 
   return json({ ok: true }, 200);

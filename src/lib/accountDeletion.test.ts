@@ -5,6 +5,7 @@ import {
   deleteAuthUser,
   deleteUserRows,
   handleAccountDelete,
+  isMissingTableResponse,
   verifyUserToken,
   type AccountEnv,
 } from '../../cloudflare/workers/account';
@@ -141,8 +142,36 @@ describe('handleAccountDelete', () => {
     expect(calls).toHaveLength(0);
   });
 
-  it('aborts before auth deletion when a table wipe fails', async () => {
-    const { fn, calls } = stubFetch((url, _init) => {
+  it.each(['PGRST205', '42P01'])(
+    'skips an unmigrated optional table (%s) and still deletes everything else',
+    async (code) => {
+      const { fn, calls } = stubFetch((url) => {
+        if (url.endsWith('/auth/v1/user')) return { status: 200, body: { id: 'user-1' } };
+        if (url.includes('/rest/v1/google_calendar_connections')) {
+          return {
+            status: 404,
+            body: {
+              code,
+              message: "Could not find the table 'public.google_calendar_connections'",
+            },
+          };
+        }
+        if (url.includes('/rest/v1/')) return { status: 200, body: [] };
+        if (url.includes('/auth/v1/admin/users/')) return { status: 200, body: {} };
+        return { status: 404, body: {} };
+      });
+      const res = await handleAccountDelete(deleteRequest('good-token'), ENV, fn);
+      expect(res.status).toBe(200);
+      expect(await res.json()).toEqual({ ok: true });
+      const urls = calls.map((c) => c.url);
+      expect(urls.some((u) => u.includes('/rest/v1/profiles?'))).toBe(true);
+      expect(urls.some((u) => u.includes('/rest/v1/focus_buddy_pairs?'))).toBe(true);
+      expect(urls[urls.length - 1]).toBe('https://xyz.supabase.co/auth/v1/admin/users/user-1');
+    },
+  );
+
+  it('keeps wiping after a failing table and deletes the auth user last', async () => {
+    const { fn, calls } = stubFetch((url) => {
       if (url.endsWith('/auth/v1/user')) return { status: 200, body: { id: 'user-1' } };
       if (url.includes('/rest/v1/focus_areas')) return { status: 500, body: {} };
       if (url.includes('/rest/v1/')) return { status: 200, body: [] };
@@ -150,8 +179,42 @@ describe('handleAccountDelete', () => {
       return { status: 404, body: {} };
     });
     const res = await handleAccountDelete(deleteRequest('good-token'), ENV, fn);
+    // Auth delete cascades the rows the explicit wipe could not remove.
+    expect(res.status).toBe(200);
+    const urls = calls.map((c) => c.url);
+    const areasIdx = urls.findIndex((u) => u.includes('/rest/v1/focus_areas'));
+    const laterTables = urls.slice(areasIdx + 1).filter((u) => u.includes('/rest/v1/'));
+    expect(laterTables.length).toBe(ACCOUNT_DATA_TABLES.length - 2 + 1);
+    expect(urls[urls.length - 1]).toContain('/auth/v1/admin/users/user-1');
+  });
+
+  it('reports failure (never ok) when the auth user cannot be deleted', async () => {
+    const { fn } = stubFetch((url) => {
+      if (url.endsWith('/auth/v1/user')) return { status: 200, body: { id: 'user-1' } };
+      if (url.includes('/rest/v1/profiles')) return { status: 500, body: {} };
+      if (url.includes('/rest/v1/')) return { status: 200, body: [] };
+      if (url.includes('/auth/v1/admin/users/')) return { status: 500, body: {} };
+      return { status: 404, body: {} };
+    });
+    const res = await handleAccountDelete(deleteRequest('good-token'), ENV, fn);
     expect(res.status).toBe(500);
-    expect(calls.some((c) => c.url.includes('/auth/v1/admin/users/'))).toBe(false);
+    const body = (await res.json()) as Record<string, unknown>;
+    expect(body.ok).toBeUndefined();
+    expect(body).toMatchObject({ step: 'auth', failedTables: ['profiles'] });
+  });
+
+  it('does not skip a missing core table silently', async () => {
+    const { fn, calls } = stubFetch((url) => {
+      if (url.endsWith('/auth/v1/user')) return { status: 200, body: { id: 'user-1' } };
+      if (url.includes('/rest/v1/profiles')) return { status: 404, body: { code: 'PGRST205' } };
+      if (url.includes('/rest/v1/')) return { status: 200, body: [] };
+      if (url.includes('/auth/v1/admin/users/')) return { status: 500, body: {} };
+      return { status: 404, body: {} };
+    });
+    const res = await handleAccountDelete(deleteRequest('good-token'), ENV, fn);
+    expect(res.status).toBe(500);
+    expect(await res.json()).toMatchObject({ failedTables: ['profiles'] });
+    expect(calls[calls.length - 1].url).toContain('/auth/v1/admin/users/');
   });
 
   it('treats an already-gone auth user as success (idempotent retries)', async () => {
@@ -225,15 +288,42 @@ describe('handleAccountDelete — Lemon subscription cancellation', () => {
 });
 
 describe('deleteUserRows / deleteAuthUser units', () => {
-  it('deleteUserRows stops at the first failure', async () => {
+  it('deleteUserRows continues past failures and reports them', async () => {
     const { fn, calls } = stubFetch((url) => {
       if (url.includes('/rest/v1/focus_sessions')) return { status: 500, body: {} };
+      if (url.includes('/rest/v1/google_calendar_connections')) {
+        return { status: 404, body: { code: '42P01' } };
+      }
       return { status: 200, body: [] };
     });
     await expect(
       deleteUserRows(ENV.SUPABASE_URL!, ENV.SUPABASE_SERVICE_ROLE_KEY!, 'u', fn),
-    ).resolves.toBe(false);
-    expect(calls).toHaveLength(1);
+    ).resolves.toEqual({ failed: ['focus_sessions'], skipped: ['google_calendar_connections'] });
+    expect(calls).toHaveLength(ACCOUNT_DATA_TABLES.length + 1);
+  });
+
+  it('deleteUserRows maps a per-table transport error to that table only', async () => {
+    let n = 0;
+    const flaky = (async () => {
+      n += 1;
+      if (n === 1) throw new Error('down');
+      return new Response(null, { status: 204 });
+    }) as typeof fetch;
+    await expect(
+      deleteUserRows(ENV.SUPABASE_URL!, ENV.SUPABASE_SERVICE_ROLE_KEY!, 'u', flaky),
+    ).resolves.toEqual({ failed: [ACCOUNT_DATA_TABLES[0]], skipped: [] });
+    expect(n).toBe(ACCOUNT_DATA_TABLES.length + 1);
+  });
+
+  it('isMissingTableResponse only matches relation-does-not-exist codes', async () => {
+    const res = (status: number, body: unknown) => new Response(JSON.stringify(body), { status });
+    await expect(isMissingTableResponse(res(404, { code: 'PGRST205' }))).resolves.toBe(true);
+    await expect(isMissingTableResponse(res(404, { code: '42P01' }))).resolves.toBe(true);
+    await expect(isMissingTableResponse(res(500, { code: '23503' }))).resolves.toBe(false);
+    await expect(isMissingTableResponse(new Response('oops', { status: 502 }))).resolves.toBe(
+      false,
+    );
+    await expect(isMissingTableResponse(res(200, { code: '42P01' }))).resolves.toBe(false);
   });
 
   it('deleteAuthUser maps transport errors to false', async () => {

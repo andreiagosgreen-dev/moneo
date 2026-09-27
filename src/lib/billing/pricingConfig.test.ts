@@ -13,6 +13,13 @@ import {
   getPlanDisplay,
 } from './pricingConfig';
 import { en } from '../i18n/locales/en';
+import { de } from '../i18n/locales/de';
+import { es } from '../i18n/locales/es';
+import { fr } from '../i18n/locales/fr';
+import { it as it_ } from '../i18n/locales/it';
+import { ro } from '../i18n/locales/ro';
+import { ru } from '../i18n/locales/ru';
+import { uk } from '../i18n/locales/uk';
 import { FREE_PROJECTS_LIMIT } from '../projects';
 import { FREE_GOALS_LIMIT } from '../goals';
 import { FREE_OKRS_LIMIT } from '../okrs';
@@ -55,6 +62,15 @@ describe('pricingConfig — single source of truth', () => {
         expect(key.startsWith('pay.')).toBe(true);
       }
     }
+  });
+
+  it('translates plan names in every locale via nameKey', () => {
+    const locales: Array<Record<string, string>> = [de, es, fr, it_, ro, ru, uk];
+    for (const plan of PRICING_PLANS_DISPLAY) {
+      expect(en[plan.nameKey]).toBe(plan.name);
+      for (const dict of locales) expect(dict[plan.nameKey]).toBeTruthy();
+    }
+    expect(locales.some((d) => d['pricing.plan.proMonthly.name'] !== 'Pro (Monthly)')).toBe(true);
   });
 
   it('gates exports and own-key AI behind Pro', () => {

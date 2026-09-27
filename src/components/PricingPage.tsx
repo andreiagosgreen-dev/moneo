@@ -95,7 +95,7 @@ export default function PricingPage() {
             {t('pay.resumeTitle')}
           </h2>
           <p className="mt-1 text-[12px] leading-relaxed text-sage">
-            {resumePlan.name} · {resumePlan.price}
+            {t(resumePlan.nameKey)} · {resumePlan.price}
             {resumePlan.perKey ? ` ${t(resumePlan.perKey)}` : ''}
           </p>
           <button
@@ -125,7 +125,7 @@ export default function PricingPage() {
               }`}
             >
               <div className="flex items-baseline justify-between gap-3">
-                <h2 className="font-display text-[17px] font-bold text-cream">{plan.name}</h2>
+                <h2 className="font-display text-[17px] font-bold text-cream">{t(plan.nameKey)}</h2>
                 <div className="text-right">
                   <div className="font-display text-xl font-bold text-cream">
                     {plan.price}

@@ -94,7 +94,9 @@ export default function PricingCard() {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-display text-sm font-semibold text-cream">{plan.name}</h4>
+                    <h4 className="font-display text-sm font-semibold text-cream">
+                      {t(plan.nameKey)}
+                    </h4>
                     {isCurrent && (
                       <span className="rounded-md bg-accent/20 px-2 py-0.5 text-[10px] font-semibold text-accent">
                         {t('pay.current')}
