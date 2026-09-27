@@ -17,6 +17,7 @@ describe('isStaticAssetPath', () => {
   it('allows SPA fallback for client routes without a file extension', () => {
     expect(isStaticAssetPath('/privacy')).toBe(false);
     expect(isStaticAssetPath('/terms')).toBe(false);
+    expect(isStaticAssetPath('/refund')).toBe(false);
     expect(isStaticAssetPath('/account')).toBe(false);
     expect(isStaticAssetPath('/account/calendar-callback')).toBe(false);
     expect(isStaticAssetPath('/index.html')).toBe(false);

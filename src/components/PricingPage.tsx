@@ -18,7 +18,10 @@ import {
 } from '../lib/billing/pricingConfig';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import { openExternal } from '../lib/links';
+import { REFUND_DAYS, SUPPORT_EMAIL, SUPPORT_MAILTO } from '../lib/legal/seller';
+import MonoLegalLinks from '../mono/MonoLegalLinks';
 import ManageSubscriptionButton from './ManageSubscriptionButton';
+import LegalInline from './legal/LegalInline';
 
 function CheckIcon() {
   return (
@@ -109,7 +112,10 @@ export default function PricingPage() {
 
       {payError && (
         <p role="alert" className="mt-4 text-[12px] font-medium text-tomato">
-          {payError}
+          {payError}{' '}
+          <a href={SUPPORT_MAILTO} className="font-semibold underline underline-offset-2">
+            {SUPPORT_EMAIL}
+          </a>
         </p>
       )}
 
@@ -216,6 +222,18 @@ export default function PricingPage() {
       </p>
       <p className="mt-2 text-[11px] leading-relaxed text-faint">{t('pricing.localNote')}</p>
       <p className="mt-1.5 text-[11px] leading-relaxed text-faint">{t('pay.note')}</p>
+      <p className="mt-1.5 text-[11px] leading-relaxed text-faint">
+        <LegalInline
+          text={t('legal.refundLine', { n: REFUND_DAYS })}
+          docLabels={{
+            terms: t('legal.termsLink'),
+            privacy: t('legal.privacyLink'),
+            refund: t('legal.refundLink'),
+          }}
+          linkClassName="font-semibold text-sage underline underline-offset-2 hover:text-cream"
+        />
+      </p>
+      <MonoLegalLinks showHelp className="mt-8" />
     </div>
   );
 }

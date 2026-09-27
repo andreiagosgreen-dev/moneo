@@ -8,6 +8,7 @@ describe('titleForPath', () => {
     expect(titleForPath('/help')).toBe('Help — Moneo');
     expect(titleForPath('/privacy')).toBe('Privacy Policy — Moneo');
     expect(titleForPath('/terms')).toBe('Terms of Service — Moneo');
+    expect(titleForPath('/refund')).toBe('Refund Policy — Moneo');
     expect(titleForPath('/pricing/')).toBe('Pricing — Moneo');
   });
 

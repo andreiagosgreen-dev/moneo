@@ -1,8 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
+  GOAL_FIRST,
+  GOAL_MILESTONE,
+  LEVEL_NEW_RANK,
+  LEVEL_STEP,
   MAX_QUEUE,
   type Moment,
+  celebrationMoment,
   confettiCount,
+  levelUpMoment,
   detectWorkMoments,
   enqueueMoments,
   loadCelebratePrefs,
@@ -200,6 +206,40 @@ describe('markMomentShown', () => {
     expect(markMomentShown({}, m('phase:a', 'phase'))).toEqual({ 'moment:phase:a': true });
     const shown = {};
     expect(markMomentShown(shown, m('session:1', 'session'))).toBe(shown);
+  });
+});
+
+describe('rare celebrations + level-ups in the same queue', () => {
+  it('maps goal and focus-day celebrations onto moments with their original ids', () => {
+    expect(
+      celebrationMoment({ id: 'firstGoalDone', kind: 'firstGoalDone', label: 'Ship' }),
+    ).toEqual({ id: 'firstGoalDone', kind: 'goal', label: 'Ship', variant: GOAL_FIRST });
+    expect(
+      celebrationMoment({ id: 'milestoneDone:g1', kind: 'milestoneDone', label: 'Beta' }),
+    ).toMatchObject({ kind: 'goal', variant: GOAL_MILESTONE });
+    expect(
+      celebrationMoment({ id: 'focusDays:100', kind: 'focusDaysMilestone', label: '100' }),
+    ).toEqual({ id: 'focusDays:100', kind: 'focusDays', count: 100, variant: 0 });
+  });
+
+  it('keeps the legacy, unprefixed shown-log keys for goal / focus-day moments', () => {
+    const goal = celebrationMoment({ id: 'firstGoalDone', kind: 'firstGoalDone', label: 'x' });
+    expect(markMomentShown({}, goal)).toEqual({ firstGoalDone: true });
+    expect(enqueueMoments([], [goal], { firstGoalDone: true })).toEqual([]);
+  });
+
+  it('builds level-up moments that celebrate once', () => {
+    const up = levelUpMoment(4, true);
+    expect(up).toEqual({ id: 'level:4', kind: 'levelUp', count: 4, variant: LEVEL_NEW_RANK });
+    expect(levelUpMoment(5, false).variant).toBe(LEVEL_STEP);
+    const shown = markMomentShown({}, up);
+    expect(shown).toEqual({ 'moment:level:4': true });
+    expect(enqueueMoments([], [up], shown)).toEqual([]);
+  });
+
+  it('treats level-ups as big wins', () => {
+    expect(momentDuration('levelUp')).toBe(momentDuration('project'));
+    expect(confettiCount('levelUp', false)).toBe(confettiCount('project', false));
   });
 });
 

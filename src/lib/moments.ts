@@ -1,26 +1,30 @@
-/* Everyday celebration moments — a short, calm "well done" after real work:
- * a finished focus session, a milestone task or waterfall phase, a whole
- * project. Pure functions only; the hook owns state and the lazy UI layer
- * owns the animation. Distinct from the rare, modal celebrations in
- * `celebrations.ts` (first goal, focus-day thresholds).
+/* Celebration moments — a short, calm "well done" after real work: a
+ * finished focus session, a milestone task or waterfall phase, a whole
+ * project, a new XP level, plus the rarer goal / focus-day milestones
+ * detected in `celebrations.ts`. Pure functions only; the hook owns state
+ * and the lazy UI layer owns the animation.
  */
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead, safeWrite } from './storage/storageAdapter';
+import type { Celebration } from './celebrations';
 import type { Session } from './store';
 import type { Project } from './projects';
 import type { Task } from './tasks';
 import type { WaterfallPhase } from './waterfall';
 
-export type MomentKind = 'session' | 'milestone' | 'phase' | 'project';
+export type MomentKind =
+  'session' | 'milestone' | 'phase' | 'project' | 'goal' | 'focusDays' | 'levelUp';
 
 export interface Moment {
   /** Stable key — dedupes the queue; non-session ids persist in the shown-log. */
   id: string;
   kind: MomentKind;
-  /** Task / phase / project name (absent for sessions). */
+  /** Task / phase / project / goal name (absent for sessions). */
   label?: string;
   /** Focused minutes (sessions only). */
   minutes?: number;
+  /** Level reached (levelUp) or focus-day count (focusDays). */
+  count?: number;
   /** Message variant, deterministic per moment. */
   variant: number;
 }
@@ -31,7 +35,18 @@ export const MOMENT_WEIGHT: Record<MomentKind, number> = {
   milestone: 2,
   phase: 2,
   project: 3,
+  goal: 3,
+  focusDays: 3,
+  levelUp: 3,
 };
+
+/** Goal variants: first goal ever vs. a milestone-level goal. */
+export const GOAL_FIRST = 0;
+export const GOAL_MILESTONE = 1;
+
+/** Level-up variants: a step inside the rank vs. a brand-new rank. */
+export const LEVEL_STEP = 0;
+export const LEVEL_NEW_RANK = 1;
 
 /** Never let celebrations pile up behind each other. */
 export const MAX_QUEUE = 3;
@@ -40,6 +55,33 @@ export const SESSION_VARIANTS = 3;
 
 /** Shown-log prefix, shared with the rare-celebration log. */
 const SHOWN_PREFIX = 'moment:';
+
+/** Rare celebrations keep their original, unprefixed shown-log ids. */
+function shownKey(m: Moment): string {
+  return m.kind === 'goal' || m.kind === 'focusDays' ? m.id : SHOWN_PREFIX + m.id;
+}
+
+/** A rare goal / focus-day celebration, delivered through the same calm layer. */
+export function celebrationMoment(c: Celebration): Moment {
+  if (c.kind === 'focusDaysMilestone') {
+    return { id: c.id, kind: 'focusDays', count: Number(c.label) || 0, variant: 0 };
+  }
+  return {
+    id: c.id,
+    kind: 'goal',
+    label: c.label,
+    variant: c.kind === 'milestoneDone' ? GOAL_MILESTONE : GOAL_FIRST,
+  };
+}
+
+export function levelUpMoment(level: number, isNewRank: boolean): Moment {
+  return {
+    id: `level:${level}`,
+    kind: 'levelUp',
+    count: level,
+    variant: isNewRank ? LEVEL_NEW_RANK : LEVEL_STEP,
+  };
+}
 
 export function sessionMoment(entry: Pick<Session, 'at' | 'min'>): Moment {
   const at = Number.isFinite(entry.at) ? entry.at : 0;
@@ -146,7 +188,7 @@ export function enqueueMoments(
   let next = [...queue];
   for (const m of incoming) {
     if (next.some((q) => q.id === m.id)) continue;
-    if (m.kind !== 'session' && shown[SHOWN_PREFIX + m.id]) continue;
+    if (m.kind !== 'session' && shown[shownKey(m)]) continue;
     if (m.kind === 'session') next = next.filter((q, i) => i === 0 || q.kind !== 'session');
     next.push(m);
   }
@@ -164,7 +206,7 @@ export function enqueueMoments(
 /** Sessions celebrate every time; everything else only once, ever. */
 export function markMomentShown(shown: Record<string, true>, m: Moment): Record<string, true> {
   if (m.kind === 'session') return shown;
-  return { ...shown, [SHOWN_PREFIX + m.id]: true };
+  return { ...shown, [shownKey(m)]: true };
 }
 
 /** How long a moment stays before it quietly leaves (ms). */
