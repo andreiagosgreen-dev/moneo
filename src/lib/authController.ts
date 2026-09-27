@@ -129,7 +129,7 @@ export function mapAuthError(raw: string | undefined | null): string {
     msg.includes('timeout') ||
     msg.includes('fetch')
   )
-    return 'Network unavailable — Moneo keeps working offline.';
+    return 'No internet connection. Check it and try again — you can keep using Moneo meanwhile.';
   return 'Something went wrong. Please try again.';
 }
 
@@ -459,7 +459,8 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
       if (!wiped) {
         return {
           ok: false,
-          message: 'Could not delete your account. Nothing was removed — please try again.',
+          message:
+            'Could not delete your account. Your account still exists and this device was not cleared — please try again.',
         };
       }
 

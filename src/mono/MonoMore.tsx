@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
 import MonoHead from './MonoHead';
+import MonoLegalLinks from './MonoLegalLinks';
 import type { MonoTab } from './MonoNav';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
@@ -59,12 +59,7 @@ export default function MonoMore({ tab, onOpen }: Props) {
           })}
         </ol>
 
-        <nav className="mono-more-legal" aria-label={t('foot.help')}>
-          <Link to="/welcome">{t('land.about')}</Link>
-          <Link to="/help">{t('foot.help')}</Link>
-          <Link to="/privacy">{t('foot.privacy')}</Link>
-          <Link to="/terms">{t('foot.terms')}</Link>
-        </nav>
+        <MonoLegalLinks showAbout showHelp />
       </div>
     </div>
   );

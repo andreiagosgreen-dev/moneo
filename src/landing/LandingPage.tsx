@@ -580,8 +580,8 @@ export default function LandingPage({
           <nav className="lnd-footer-nav" aria-label={t('land.foot.nav')}>
             <Link to={LEGAL_PATHS.terms}>{t('foot.terms')}</Link>
             <Link to={LEGAL_PATHS.privacy}>{t('foot.privacy')}</Link>
-            <Link to={LEGAL_PATHS.refund}>{t('land.foot.refund')}</Link>
-            <a href={SUPPORT_MAILTO}>{t('land.foot.contact')}</a>
+            <Link to={LEGAL_PATHS.refund}>{t('foot.refund')}</Link>
+            <a href={SUPPORT_MAILTO}>{t('foot.contact')}</a>
             <Link to="/help">{t('foot.help')}</Link>
             <Link to="/login">{t('auth.signIn')}</Link>
           </nav>

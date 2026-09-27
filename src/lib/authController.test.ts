@@ -278,7 +278,8 @@ describe('sign-in / sign-up / sign-out', () => {
     const res = await c.signIn('a@example.com', 'password123');
     expect(res).toEqual({
       ok: false,
-      message: 'Network unavailable — Moneo keeps working offline.',
+      message:
+        'No internet connection. Check it and try again — you can keep using Moneo meanwhile.',
     });
     // Local product unaffected: state machine still functional.
     expect(c.getSnapshot().status).toBe('loading');

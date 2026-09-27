@@ -133,7 +133,7 @@ export const ro: Record<TKey, string> = {
     'Nu. Deschizi Moneo și începi — totul funcționează fără cont. Îți faci unul doar dacă vrei sincronizare între dispozitive sau Pro.',
   'land.faq.data.q': 'Unde sunt păstrate datele mele?',
   'land.faq.data.a':
-    'Pe dispozitivul tău, în browser. Dacă te conectezi, în cont se sincronizează doar sesiunile de concentrare, ariile și setările; proiectele, sarcinile, obiectivele, obiceiurile și jurnalul rămân pe dispozitivul unde le-ai creat. Poți șterge totul din Setări oricând.',
+    'Pe dispozitivul tău, în browser. Dacă te conectezi, în cont se sincronizează doar sesiunile de concentrare, ariile și setările; proiectele, sarcinile, obiectivele, obiceiurile și jurnalul rămân pe dispozitivul unde le-ai creat. Din Setări îți poți exporta oricând toate datele într-un fișier sau poți șterge totul.',
   'land.faq.cancel.q': 'Pot anula oricând?',
   'land.faq.cancel.a':
     'Da. Anulezi din cont în câteva clicuri. Păstrezi Pro până la sfârșitul perioadei plătite și nu mai ești taxat.',
@@ -158,8 +158,6 @@ export const ro: Record<TKey, string> = {
   'land.final.sub':
     'Gratuit, fără cont, fără card. Începe acum și vezi cât poți face în 25 de minute.',
   'land.foot.nav': 'Informații legale și contact',
-  'land.foot.refund': 'Rambursare',
-  'land.foot.contact': 'Contact',
   'land.foot.country': 'Republica Moldova',
   'today.rituals': 'Ritualuri zilnice',
   'today.ritualsTitle': 'Începe cu intenție. Încheie cu o scurtă recapitulare.',
@@ -282,9 +280,9 @@ export const ro: Record<TKey, string> = {
   'lifemap.emptyKicker': 'Harta vieții · nou',
   'lifemap.emptyTitle': 'Desenează viața pe care o servește focusul tău',
   'lifemap.tplBlank': 'Pânză goală',
-  'lifemap.localOnly': 'Stocat pe acest dispozitiv · doar local, niciodată sincronizat.',
+  'lifemap.localOnly': 'Harta vieții e privată și rămâne salvată pe acest dispozitiv.',
   'lifemap.title': 'Harta vieții',
-  'lifemap.subtitle': 'Stocat pe acest dispozitiv · doar local',
+  'lifemap.subtitle': 'Privată · salvată pe acest dispozitiv',
   'lifemap.manage': 'Gestionează ariile',
   'lifemap.manageDone': 'Gata',
   'lifemap.stepAdd': '＋ Pas de 10 min',
@@ -343,18 +341,19 @@ export const ro: Record<TKey, string> = {
   'lifemap.assist.reflect': 'Întrebări de reflecție',
   'lifemap.assist.action': 'Un pas mic',
   'lifemap.assist.loading': 'Gândesc…',
-  'lifemap.assist.offline': 'AI local nu e configurat — prompturi de coaching în schimb:',
+  'lifemap.assist.offline':
+    'Sugestiile AI nu sunt disponibile acum — iată câteva întrebări care te pot ghida:',
   'lifemap.coach.reflect':
     'Privește forma întreagă. Ce te surprinde? De ce e „{name}” la {score}/10 azi? Cum arată +1 săptămâna asta — o imagine concretă, nu un plan?',
   'lifemap.coach.actionWith': 'Începe cu „{name}”. Pas mic (≤15 min): {intention}',
   'lifemap.coach.actionPlain':
     'Începe cu „{name}”. Dă-i zece minute concentrate azi — o mutare mică, apoi oprește-te.',
   'settings.langTitle': 'Limbă',
-  'settings.langBody': 'Limba interfeței. Se aplică instant, se salvează pe acest dispozitiv.',
+  'settings.langBody': 'Limba interfeței. Se schimbă instant.',
   'settings.langAria': 'Limba interfeței',
   'fmt.h': 'h',
   'fmt.m': 'min',
-  'ai.kicker': 'Cale AI · local',
+  'ai.kicker': 'Cale AI',
   'ai.title': 'Construiește-mi calea',
   'ai.modeAria': 'Tipul planului',
   'ai.modeGoal': 'Cale spre obiectiv',
@@ -546,7 +545,7 @@ export const ro: Record<TKey, string> = {
   'ins.ui.title': 'Semnale',
   'ins.ui.subPro': 'Fiecare semnal, explicat',
   'ins.ui.subFree': '2 semnale gratis · restul în Pro',
-  'ins.ui.local': 'local',
+  'ins.ui.local': 'privat',
   'ins.ui.locked.one': '{n} semnal Pro blocat',
   'ins.ui.locked.few': '{n} semnale Pro blocate',
   'ins.ui.locked.many': '{n} de semnale Pro blocate',
@@ -796,7 +795,8 @@ export const ro: Record<TKey, string> = {
 
   'set.aria': 'Setări cronometru',
   'set.title': 'Reglează',
-  'set.saved': 'Salvat local',
+  'set.saved': 'Salvat pe acest dispozitiv',
+  'set.savedSynced': 'Se sincronizează cu contul tău',
   'set.s.focus': 'Durata focus',
   'set.s.focusH': 'O rundă de muncă profundă',
   'set.s.short': 'Pauză scurtă',
@@ -832,7 +832,7 @@ export const ro: Record<TKey, string> = {
   'set.sound.custom': 'Personalizat',
   'set.preview': 'Previzualizează sunetul',
   'set.customUp': 'Încărcare personalizată',
-  'set.customHas': 'Sunetul tău e stocat pe acest dispozitiv.',
+  'set.customHas': 'Sunetul tău e salvat pe acest dispozitiv.',
   'set.customFormats': 'MP3, WAV, OGG sau WebM',
   'set.remove': 'Elimină',
   'set.test': 'Testează',
@@ -902,7 +902,7 @@ export const ro: Record<TKey, string> = {
   'notif.disconnectTime': 'Ora deconectării',
   'notif.deadline': 'Mementouri scadențe',
   'notif.deadlineBody': 'Avertisment browser când o scadență e la 48 de ore',
-  'notif.saved': 'Preferințe salvate pe acest dispozitiv.',
+  'notif.saved': 'Preferințe salvate.',
   'notif.done.focusT': 'Sesiune de focus completă',
   'notif.done.shortB': 'Timpul pauzei scurte',
   'notif.done.longB': 'Timpul pauzei lungi',
@@ -922,7 +922,7 @@ export const ro: Record<TKey, string> = {
 
   'pay.title': 'Treci la Pro',
   'pay.sub':
-    'Primești asistentul AI complet, proiecte și obiective nelimitate, exporturi și un aspect personalizat. Sincronizarea între dispozitive include sesiunile de focus, ariile și setările.',
+    'Primești asistentul AI complet, proiecte și obiective nelimitate, exporturi CSV/PDF și un aspect personalizat. Sincronizarea între dispozitive include sesiunile de focus, ariile și setările.',
   'pay.signin': 'Conectează-te ca să treci la Pro',
   'pay.unavailable': 'Plata nu e disponibilă momentan. Scrie-ne la suport.',
   'pay.current': 'Actual',
@@ -938,13 +938,13 @@ export const ro: Record<TKey, string> = {
   'pay.resumeCta': 'Continuă spre plată',
   'pay.syncScope': 'Sincronizare între dispozitive: sesiuni de focus, arii de focus și setări',
   'pay.syncNote':
-    'Proiectele, sarcinile, obiectivele, obiceiurile, jurnalul și restul planificării rămân pe dispozitivul pe care le-ai creat.',
+    'Proiectele, sarcinile, obiectivele, obiceiurile, jurnalul și restul planificării se salvează pe dispozitivul pe care le-ai creat.',
   'pay.plan.free.desc': 'Perfect ca să începi',
   'pay.plan.free.f0': 'Sesiuni de focus nelimitate',
   'pay.plan.free.f1': '3 proiecte cu liste de sarcini',
   'pay.plan.free.f2': 'Planul zilei: 3 sarcini prioritare + cea mai grea întâi',
   'pay.plan.free.f3': '1 plan pas cu pas pentru un obiectiv + 2 acțiuni rapide ale asistentului',
-  'pay.plan.free.f4': 'Obiceiuri și jurnal, private pe dispozitivul tău',
+  'pay.plan.free.f4': 'Obiceiuri și jurnal privat',
   'pay.plan.monthly.desc': 'Pentru cine planifică și lucrează concentrat zi de zi',
   'pay.plan.monthly.f0': 'Tot ce e în Free',
   'pay.plan.monthly.f1': 'Proiecte, obiective și OKR-uri nelimitate',
@@ -994,7 +994,7 @@ export const ro: Record<TKey, string> = {
 
   'help.back': '← Înapoi la Moneo',
   'help.title': 'Centrul de ajutor',
-  'help.sub': 'Fiecare cartonaș pe o pagină. Nimic de aici nu părăsește dispozitivul.',
+  'help.sub': 'Toate funcțiile, explicate pe o singură pagină.',
   'help.s.timer.t': 'Cronometru',
   'help.s.timer.b':
     'Alege Focus, Pauză scurtă sau Pauză lungă. Setează o intenție, alege aria, proiectul și sarcina, apoi apasă Spațiu. Sesiunile se contorizează automat la tot ce ai selectat.',
@@ -1015,7 +1015,7 @@ export const ro: Record<TKey, string> = {
     'Obiectivele cascadează Viziune → Săptămânal cu adunare automată; generează sarcini de pornire sau trimite una în planul de azi. OKR-urile urmăresc rezultate cheie trimestriale cu slidere.',
   'help.s.aipath.t': 'Cale AI',
   'help.s.aipath.b':
-    'Tabul Plan: descrie un obiectiv sau o abilitate, răspunde la max 3 întrebări, verifică draftul vizual, apoi aprobă. Maximum un proiect și 20 de sarcini per aprobare; drafturile săptămânii nu umplu niciodată ziua. Rulează 100% pe dispozitiv; pregătirea automată e opțională. După sesiuni, feedback-ul în 4 atingeri reglează estimările.',
+    'Tabul Plan: descrie un obiectiv sau o abilitate, răspunde la max 3 întrebări, verifică draftul vizual, apoi aprobă. Maximum un proiect și 20 de sarcini per aprobare; drafturile săptămânii nu umplu niciodată ziua. Pregătirea automată e opțională. După sesiuni, feedback-ul în 4 atingeri reglează estimările.',
   'help.s.assistant.t': 'Asistent',
   'help.s.assistant.b':
     'Întreabă „what should I work on?” sau scrie „add task Draft proposal p1 tomorrow for Client”. Gratis primește 2 acțiuni rapide; Pro deblochează chat complet.',
@@ -1024,7 +1024,7 @@ export const ro: Record<TKey, string> = {
     'Defalcări pe 7/30 de zile pe proiect și arie, cu apel 80/20, pentru toată lumea. Exportul CSV (Pro) și PDF-ul de tipărit (Pro) includ totalele facturabile.',
   'help.s.lifemap.t': 'Harta vieții',
   'help.s.lifemap.b':
-    'Tabul Hartă: evaluează 5–9 arii de viață Acum vs Dorit, ponderat cu importanța. Roata arată echilibrul și cel mai mare decalaj; un pas de 10 minute ajunge în planul de azi. Recenzia săptămânală arată ce a primit atenție. Pornește de la un șablon (Echilibrat, Student, Freelancer, Fondator, Recuperare) sau gol. Doar local: niciodată sincronizat, niciodată pe mail.',
+    'Tabul Hartă: evaluează 5–9 arii de viață Acum vs Dorit, ponderat cu importanța. Roata arată echilibrul și cel mai mare decalaj; un pas de 10 minute ajunge în planul de azi. Recenzia săptămânală arată ce a primit atenție. Pornește de la un șablon (Echilibrat, Student, Freelancer, Fondator, Recuperare) sau gol. Privat: harta ta rămâne pe acest dispozitiv.',
   'help.s.life.t': 'Viața',
   'help.s.life.b':
     'Obiceiuri cu serii și mementouri de seară. Echilibrul punctează în timp real pe 5 arii de viață. Jurnal cu stare și recunoștință. Check-in-urile de energie arată orele de vârf (Pro).',
@@ -1033,12 +1033,28 @@ export const ro: Record<TKey, string> = {
     'Urmărește niveluri de abilități 1–5 cu resurse. Marchează proiecte facturabile cu tarif orar — sumele apar în statistici, rapoarte și exporturi PDF.',
   'help.s.privacy.t': 'Confidențialitate și date',
   'help.s.privacy.b':
-    'Totul trăiește mai întâi pe dispozitivul tău (localStorage). Conectează-te ca să sincronizezi sesiunile, ariile de focus și setările via Supabase — proiectele, sarcinile, planurile și restul rămân locale. Exportul CSV/PDF e Pro; ștergerea istoricului e blocată cât timp sync-ul e pornit.',
+    'Moneo îți salvează automat munca. Cu un cont și sincronizarea pornită, sesiunile de focus, ariile și setările se păstrează în contul tău și le ai pe toate dispozitivele. Proiectele, sarcinile, planurile și restul se salvează pe dispozitivul pe care le-ai creat. Exportul CSV/PDF e Pro. Cât timp sincronizarea e pornită, istoricul de focus nu poate fi șters.',
 
   'foot.tag': 'Moneo — construiește focus. Vezi-l cum crește.',
   'foot.help': 'Ajutor',
   'foot.privacy': 'Confidențialitate',
   'foot.terms': 'Termeni',
+  'foot.refund': 'Rambursare',
+  'foot.contact': 'Contact',
+  'legal.nav': 'Informații legale și contact',
+  'legal.bindingNote':
+    'Aceasta este o traducere pentru comoditate. Versiunea în limba engleză este cea obligatorie din punct de vedere juridic.',
+  'legal.showEnglish': 'Citește originalul în engleză',
+  'legal.showTranslation': 'Arată traducerea în română',
+  'legal.agree': 'Creând un cont, ești de acord cu {terms} și cu {privacy}.',
+  'legal.ageNote': 'Ai sub {n} ani? Întreabă mai întâi un părinte sau un tutore.',
+  'legal.termsLink': 'Termenii și condițiile',
+  'legal.privacyLink': 'Politica de confidențialitate',
+  'legal.refundLink': 'Politica de rambursare',
+  'legal.cardTitle': 'Ajutor, contact și informații legale',
+  'legal.contactBody':
+    'Întrebări, facturare, rambursări sau cereri despre date? Scrie-ne la {email}.',
+  'legal.refundLine': 'Garanție de rambursare în {n} zile, fără întrebări. Vezi {refund}.',
   'foot.hintStart': 'pornește / pauză',
   'foot.hintReset': 'resetează',
   'mono.nav.focus': 'Focus',
@@ -1183,12 +1199,39 @@ export const ro: Record<TKey, string> = {
   'mono.data.accountNote':
     'Datele sincronizate în cont rămân acolo. Ca să le ștergi și pe ele, șterge contul.',
   'mono.data.accountLink': 'Deschide contul',
+  'mono.data.guestNote':
+    'Ca să nu pierzi sesiunile de focus, ariile și setările, creează-ți un cont și pornește sincronizarea.',
+  'mono.data.guestLink': 'Creează un cont',
   'mono.data.wipe': 'Șterge toate datele de pe acest dispozitiv',
   'mono.data.confirmTitle': 'Ștergi tot de pe acest dispozitiv?',
   'mono.data.confirmBody':
     'Sarcinile, proiectele, obiectivele, obiceiurile, jurnalul, istoricul de focus și setările salvate în acest browser vor fi șterse. Nu se poate anula.',
   'mono.data.cancel': 'Anulează',
   'mono.data.confirm': 'Șterge tot',
+  'mono.export.title': 'Export și import',
+  'mono.export.body':
+    'Descarcă tot ce păstrează Moneo pentru tine într-un singur fișier JSON — gratuit pentru toți. Păstrează-l ca backup sau mută-l în alt browser.',
+  'mono.export.cloudNote':
+    'Ești conectat, așa că fișierul include și sesiunile, ariile, setările sincronizate și starea abonamentului.',
+  'mono.export.includeKeys': 'Include cheile mele AI',
+  'mono.export.includeKeysHint':
+    'Dezactivat implicit. Include-le doar dacă păstrezi fișierul privat.',
+  'mono.export.download': 'Exportă toate datele mele (JSON)',
+  'mono.export.busy': 'Se pregătește…',
+  'mono.export.done': 'Exportul a fost descărcat.',
+  'mono.export.failed': 'Exportul a eșuat. Încearcă din nou.',
+  'mono.export.import': 'Importă din fișier',
+  'mono.export.confirmTitle': 'Înlocuiești datele de pe acest dispozitiv?',
+  'mono.export.confirmBody':
+    'Tot ce păstrează Moneo în acest browser va fi înlocuit cu exportul din {date}. Contul tău nu se schimbă — la următoarea sincronizare datele se unesc.',
+  'mono.export.cancel': 'Anulează',
+  'mono.export.confirm': 'Înlocuiește datele',
+  'mono.export.err.invalidJson': 'Fișierul nu este un JSON valid.',
+  'mono.export.err.wrongFormat': 'Acesta nu este un fișier de export Moneo.',
+  'mono.export.err.unsupportedVersion':
+    'Exportul vine dintr-o versiune mai nouă de Moneo. Actualizează aplicația și încearcă din nou.',
+  'mono.export.err.invalidShape': 'Fișierul de export este deteriorat sau incomplet.',
+  'mono.export.err.write': 'Importul a eșuat — datele anterioare au fost păstrate.',
   'mono.coach.examples': 'Sugestii',
   'mono.coach.aziEmpty.q': 'Ce merită terminat azi?',
   'mono.coach.aziEmpty.hint': 'Listează 1–3 rezultate clare. Lucrează-le în ordine.',
@@ -1268,9 +1311,9 @@ export const ro: Record<TKey, string> = {
   'rep.csv': 'Exportă CSV',
   'rep.pdf': 'Exportă PDF',
   'rep.pdfTitle': 'Deschide un raport de tipărit (Tipărește → Salvează ca PDF)',
-  'rep.exportProTitle': 'Exportul e o funcție Pro',
+  'rep.exportProTitle': 'Exporturile avansate sunt o funcție Pro',
   'rep.exportProBody':
-    'Treci la Pro ca să exporți sesiunile ca CSV sau PDF. Datele rămân pe acest dispozitiv până atunci.',
+    'Treci la Pro ca să exporți sesiunile ca CSV sau PDF. Exportul complet JSON al datelor e gratuit în Setări.',
   'rep.docTitle': 'Raport Focus Moneo',
   'rep.rangeLabel.week': 'Ultimele 7 zile',
   'rep.rangeLabel.month': 'Ultimele 30 zile',
@@ -1705,13 +1748,13 @@ export const ro: Record<TKey, string> = {
   'assist.roadmap.byokPro':
     'Folosirea propriei chei AI (Gemini, OpenAI sau DeepSeek) e inclusă în Pro. Planificatorul integrat merge și în Free.',
   'assist.roadmap.provider': 'Furnizor',
-  'assist.roadmap.provider.local': 'Pe acest dispozitiv',
+  'assist.roadmap.provider.local': 'Integrat (fără cheie)',
   'assist.roadmap.provider.gemini': 'Gemini',
   'assist.roadmap.provider.openai': 'OpenAI',
   'assist.roadmap.provider.deepseek': 'DeepSeek',
   'assist.roadmap.apiKey': 'Cheie API',
   'assist.roadmap.apiKeyPh': 'Cheia ta',
-  'assist.roadmap.keyHint': 'Păstrată doar pe acest dispozitiv.',
+  'assist.roadmap.keyHint': 'Cheia ta rămâne doar pe acest dispozitiv, pentru siguranță.',
   'assist.roadmap.webSearch': 'Include rezultate web',
   'assist.roadmap.webSearchHint': 'Gemini',
   'assist.roadmap.goalPh': 'Ce vrei să faci?',
@@ -1719,7 +1762,7 @@ export const ro: Record<TKey, string> = {
   'assist.roadmap.build': 'Creează planul',
   'assist.roadmap.building': 'Se creează…',
   'assist.roadmap.buildFail': 'Nu s-a putut crea planul. Încearcă din nou.',
-  'assist.roadmap.fallback': 'Se folosește plannerul local.',
+  'assist.roadmap.fallback': 'Se folosește planificatorul integrat.',
   'assist.roadmap.draft': 'Previzualizare',
   'assist.roadmap.approve': 'Începe',
   'assist.roadmap.discard': 'Anulează',
@@ -1883,19 +1926,19 @@ export const ro: Record<TKey, string> = {
     'Planificat {planned} vs ~{cap} capacitate reală — {excess} peste. Împinge excesul pe mâine.',
   'ins.stalled.body':
     '{project} a luat {dur} săptămâna asta fără sarcini terminate spre „{goal}”. Fă din „{task}” următorul P0.',
-  'ins.ui.localTitle':
-    'Reguli deterministe peste istoricul tău de focus — nicio dată nu părăsește dispozitivul',
+  'ins.ui.localTitle': 'Pe baza propriului tău istoric de focus. Nimic nu e trimis nicăieri.',
   'ins.ui.empty':
     'Nicio perspectivă încă. Fă câteva runde de focus și Moneo va începe să vadă tipare în când și unde lucrezi cel mai bine.',
   'ins.ui.lockedBody':
     'Treci la Moneo Pro pentru coaching prioritar, alerte de scadențe și fereastra ta de focus maxim.',
   'pricing.title': 'Prețuri Moneo',
   'pricing.sub':
-    'Începe gratuit, fără card și fără cont. Pro îți aduce asistentul AI complet, planificare avansată, exporturi și un aspect personalizat. Datele tale rămân pe dispozitivul tău, iar Moneo merge și fără internet.',
+    'Începe gratuit, fără card și fără cont. Pro îți aduce asistentul AI complet, planificare avansată, exporturi CSV/PDF și un aspect personalizat.',
   'pricing.back': '← Înapoi la Moneo',
   'pricing.unlimited': 'Nelimitat',
   'pricing.row.ivy': 'Sarcini prioritare pe zi (metoda Ivy Lee)',
   'pricing.row.plan': 'Planuri pas cu pas pentru obiective',
+  'pricing.row.jsonExport': 'Export complet al datelor (JSON)',
   'pricing.compareFeature': 'Funcție',
   'pricing.compareFree': 'Gratuit',
   'pricing.comparePro': 'Pro',
@@ -1966,7 +2009,7 @@ export const ro: Record<TKey, string> = {
   'mono.xp.ranksLine':
     'Ranguri: {ranks}. Fiecare rang are câteva trepte, iar fiecare nivel nou cere puțin mai mult decât precedentul.',
   'mono.xp.deviceNote':
-    'Deocamdată task-urile și obiceiurile contează doar pe acest dispozitiv — nu se sincronizează încă între dispozitive. Sesiunile de focus te urmează când ești conectat.',
+    'XP-ul din sesiunile de focus te urmează pe celelalte dispozitive când sincronizarea e pornită. Deocamdată, task-urile și obiceiurile contează doar pe dispozitivul pe care le-ai bifat.',
   'filters.newView': '+ Vedere nouă',
   'filters.cancel': 'Anulează',
   'filters.remove': 'Elimină vederea',
@@ -2005,24 +2048,23 @@ export const ro: Record<TKey, string> = {
   'auth.emailPlaceholder': 'tu@exemplu.com',
   'auth.passwordLabel': 'Parolă',
   'auth.localFirstNote':
-    'Sesiunile, intențiile și ariile tale rămân pe acest dispozitiv. Conectarea îți creează contul Moneo; sincronizarea între dispozitive e opțională — nu se încarcă nimic până nu o pornești tu.',
+    'Un cont îți păstrează în siguranță sesiunile de focus, ariile și setările și le poți folosi pe celelalte dispozitive. Nimic nu se încarcă până nu pornești sincronizarea.',
   'auth.continueWithGoogle': 'Continuă cu Google',
   'auth.orDivider': 'sau',
   'sync.title': 'Sincronizează-ți datele Moneo',
   'sync.description':
-    'Istoricul local de focus, ariile, intențiile și setările tale pot fi salvate în cont și sincronizate pe mai multe dispozitive.',
+    'Salvează-ți istoricul de focus, ariile și setările în cont și folosește-le pe toate dispozitivele tale.',
   'sync.syncNow': 'Sincronizează acum',
   'sync.notNow': 'Nu acum',
   'sync.onlyNote':
-    'Doar sesiunile, ariile și setările se sincronizează — schițele de intenție și starea cronometrului nu părăsesc niciodată acest dispozitiv.',
+    'Se sincronizează doar sesiunile de focus, ariile și setările. Proiectele, sarcinile și restul planificării rămân salvate pe acest dispozitiv.',
   'sync.syncing': 'Se sincronizează…',
   'sync.failed': 'Sincronizare eșuată',
   'sync.synced': 'Sincronizat',
   'sync.comparing': 'se compară cu contul tău',
   'sync.lastSynced': 'Ultima sincronizare {time}',
   'sync.enabled': 'Sincronizare activă',
-  'sync.failedRetry':
-    'Sincronizare eșuată — datele tale locale sunt în siguranță. Încearcă din nou.',
+  'sync.failedRetry': 'Sincronizarea a eșuat — nu s-a pierdut nimic. Încearcă din nou.',
   'sync.justNow': 'chiar acum',
   'sync.minAgo': 'acum {n}m',
   'account.checking': 'Se verifică contul',
@@ -2452,7 +2494,7 @@ export const ro: Record<TKey, string> = {
   'reports.exportPortfolio': 'Exportă portofoliu',
   'reports.exportPortfolioTitle':
     'O pagină de partajat cu proiecte finalizate, goal-uri atinse și skill-uri puternice',
-  'reports.exportProOnly': 'Exporturile sunt o funcție Pro.',
+  'reports.exportProOnly': 'Exporturile avansate (CSV, PDF) sunt o funcție Pro.',
   'reports.moreDetail': 'Mai multe detalii',
   'reports.moreDetailHint': 'Perspective · alocare · export',
   'reports.exportPdfTitle': 'Deschide un raport printabil (Print → Salvează ca PDF)',
