@@ -252,10 +252,39 @@ node scripts\check-dns.mjs
 |---|---|
 | Health | Actions DNS + edge; `node scripts/check-dns.mjs` |
 | Migratii | Staging first → prod gated; adauga `0007_…`, nu edita SQL aplicat |
-| Backup | Supabase Database → Backups |
+| Backup | Free: Actions **DB backup** (saptamanal, vezi 8.1). Pro: Supabase Database → Backups |
+| Keepalive | Actions **Supabase keepalive** (zilnic, citire REST) — Free pune proiectul pe pauza dupa ~7 zile fara activitate |
 | UAT | `docs/UAT.md` — Focus, Auth+Sync, Pricing |
 | Dependabot | `.github/dependabot.yml` |
 | Email | Poate astepta (fail-closed in UI) |
+
+### 8.1 Backup DB (cat timp Supabase e pe Free)
+
+Workflow `.github/workflows/db-backup.yml`: duminica 03:00 UTC face `pg_dump` (datele din `auth.users` + `auth.identities`, apoi schema + datele din `public`), il cripteaza cu gpg AES256 si il urca ca artifact (pastrat 30 de zile). Repo-ul e public, deci artifactul e mereu criptat. Fara secretele de mai jos jobul se sare (notice), nu pica.
+
+**Secrets GitHub** (repo → Settings → Secrets and variables → Actions → New repository secret):
+
+1. `SUPABASE_DB_URL` — Supabase → proiect `moneo-dev` → butonul **Connect** (sau Project Settings → Database) → **Connection string** → **Session pooler** (merge pe IPv4, cum sunt runner-ele GitHub). Arata ca `postgresql://postgres.yvkguiiqojwyosvkxzbt:[YOUR-PASSWORD]@aws-0-eu-west-1.pooler.supabase.com:5432/postgres` (hostul exact il copiezi din dashboard); inlocuiesti `[YOUR-PASSWORD]` cu parola bazei (daca ai uitat-o: Database → Settings → Reset database password — atunci actualizeaza si alte locuri care o folosesc).
+2. `BACKUP_PASSPHRASE` — o parola lunga, aleatoare (ex. 32+ caractere din password manager). **Pastreaz-o in password manager**: fara ea backup-urile nu se pot decripta.
+
+**Rulare manuala:** Actions → **DB backup** → Run workflow (pe `main`).
+
+**Descarcare + restore** (Linux/macOS/WSL; Windows: Git Bash are `gpg`; `psql` din PostgreSQL 17):
+
+```bash
+# 1. Actions → rularea DB backup → Artifacts → descarci zip-ul si il dezarhivezi
+# 2. Decriptare (cere BACKUP_PASSPHRASE):
+gpg -d moneo-db-YYYYMMDD-HHMMSS.sql.gpg > moneo-db.sql
+# 3. Restore intr-un proiect Supabase NOU si gol (Session pooler URL al lui):
+psql "postgresql://postgres.<ref-nou>:<parola>@aws-0-<regiune>.pooler.supabase.com:5432/postgres" -f moneo-db.sql
+# (sau direct: gpg -d moneo-db-....sql.gpg | psql "<URL>")
+```
+
+Eroarea `schema "public" already exists` la restore e normala. Dupa restore: actualizezi `SUPABASE_URL` / chei (worker + variabile `VITE_*`), rotesti `SUPABASE_SERVICE_ROLE_KEY`, verifici login → sync → abonament pentru un cont de test (vezi `SECURITY.md` → Backups & restore). Nu restaura peste proiectul existent: randurile din `auth` ar da conflicte de chei.
+
+**Dupa upgrade la Supabase Pro** (backup-uri zilnice incluse, fara pauza la inactivitate) workflow-urile **DB backup** si **Supabase keepalive** devin redundante: le dezactivezi din Actions (… → Disable workflow) sau le stergi printr-un PR.
+
+Nota: GitHub opreste singur workflow-urile programate intr-un repo public dupa 60 de zile fara niciun commit; daca se intampla, Actions → workflow → Enable.
 
 ---
 
