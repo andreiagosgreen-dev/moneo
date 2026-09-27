@@ -4,6 +4,9 @@ interface Props {
   title: string;
   hint?: string;
   defaultOpen: boolean;
+  /** Controlled open — when set, parent owns expand/collapse. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   children: ReactNode;
 }
 
@@ -12,10 +15,24 @@ interface Props {
  * Children stack as full-width rows (one under the other) — never side-by-side
  * narrow columns.
  */
-export default function Disclosure({ title, hint, defaultOpen, children }: Props) {
-  const [open, setOpen] = useState(defaultOpen);
+export default function Disclosure({
+  title,
+  hint,
+  defaultOpen,
+  open: openProp,
+  onOpenChange,
+  children,
+}: Props) {
+  const [uncontrolled, setUncontrolled] = useState(defaultOpen);
+  const controlled = openProp !== undefined;
+  const open = controlled ? openProp : uncontrolled;
+  const setOpen = (next: boolean | ((prev: boolean) => boolean)) => {
+    const value = typeof next === 'function' ? next(open) : next;
+    if (controlled) onOpenChange?.(value);
+    else setUncontrolled(value);
+  };
   return (
-    <div className="md:col-span-2">
+    <div className="md:col-span-2" id="today-more">
       <button
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}

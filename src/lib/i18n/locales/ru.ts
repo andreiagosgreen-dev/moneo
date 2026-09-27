@@ -1033,6 +1033,11 @@ export const ru: Record<TKey, string> = {
   'mono.azi.blockNow': 'Окно фокуса сейчас · {start}–{end}',
   'mono.azi.blockNext': 'Следующее окно · {start}–{end}',
   'mono.azi.blockHint': 'Открыть расписание',
+  'mono.azi.habits': 'Привычки',
+  'mono.azi.habitsCount': '{done} из {total} сегодня',
+  'mono.azi.habitsEmpty':
+    'Пока нет привычек. Добавь несколько, чтобы отмечать их здесь каждый день.',
+  'mono.azi.habitsManage': 'Управлять привычками',
   'mono.path.aria': 'Путь дня',
   'mono.path.write': 'Написать',
   'mono.path.work': 'Работать',

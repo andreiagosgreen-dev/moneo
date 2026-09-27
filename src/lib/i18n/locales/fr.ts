@@ -1028,6 +1028,11 @@ export const fr: Record<TKey, string> = {
   'mono.azi.blockNow': 'Fenêtre de focus maintenant · {start}–{end}',
   'mono.azi.blockNext': 'Prochaine fenêtre · {start}–{end}',
   'mono.azi.blockHint': 'Ouvrir le programme',
+  'mono.azi.habits': 'Habitudes',
+  'mono.azi.habitsCount': '{done} sur {total} aujourd’hui',
+  'mono.azi.habitsEmpty':
+    'Pas encore d’habitudes. Ajoute-en quelques-unes pour les cocher ici chaque jour.',
+  'mono.azi.habitsManage': 'Gérer les habitudes',
   'mono.path.aria': 'Chemin du jour',
   'mono.path.write': 'Écrire',
   'mono.path.work': 'Travailler',

@@ -4,6 +4,7 @@ import MonoNav, { type MonoTab } from './mono/MonoNav';
 import MonoMore from './mono/MonoMore';
 import MonoFocus from './mono/MonoFocus';
 import MonoAzi from './mono/MonoAzi';
+import MonoHabitsCheckin from './mono/MonoHabitsCheckin';
 import MonoOrar from './mono/MonoOrar';
 import MonoProiecte from './mono/MonoProiecte';
 import MonoRapoarte from './mono/MonoRapoarte';
@@ -665,6 +666,17 @@ export default function App() {
   // Progressive disclosure (Roadmap Faza 2): brand-new workspaces see only
   // the calm core flow; everything else unfolds after first sessions.
   const engaged = isEngagedUser(history, projects);
+  const [todayMoreOpen, setTodayMoreOpen] = useState<boolean | null>(null);
+  const moreIsOpen = todayMoreOpen ?? engaged;
+  const openTodayHabitsManage = () => {
+    setTodayMoreOpen(true);
+    queueMicrotask(() => {
+      document.getElementById('today-life-habits')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
+  };
 
   // Life Map (Roadmap Faza 3): one element, mounted either in the Map tab
   // (desktop + mobile) or as a section inside Growth on small screens —
@@ -910,6 +922,14 @@ export default function App() {
                             </button>
                           ) : undefined
                         }
+                        habits={
+                          <MonoHabitsCheckin
+                            habits={habits}
+                            habitLog={habitLog}
+                            onHabitLogChange={setHabitLog}
+                            onManage={openTodayHabitsManage}
+                          />
+                        }
                         more={
                           <>
                             {!showGettingStarted && (
@@ -956,6 +976,8 @@ export default function App() {
                                 title={t('today.more')}
                                 hint={t('today.moreHint')}
                                 defaultOpen={engaged}
+                                open={moreIsOpen}
+                                onOpenChange={setTodayMoreOpen}
                               >
                                 <MatrixCard
                                   tasks={tasks}
@@ -971,31 +993,33 @@ export default function App() {
                                   }
                                   onAddToPlan={addLinkedTaskToPlan}
                                 />
-                                <LifeCard
-                                  habits={habits}
-                                  habitsChange={setHabits}
-                                  habitLog={habitLog}
-                                  habitLogChange={setHabitLog}
-                                  lifeAreas={lifeAreas}
-                                  lifeAreasChange={setLifeAreas}
-                                  focusAreas={areas}
-                                  journal={journal}
-                                  journalChange={setJournal}
-                                  timeOff={timeOff}
-                                  timeOffChange={setTimeOff}
-                                  energyLog={energyLog}
-                                  energyLogChange={setEnergyLog}
-                                  goals={goals}
-                                  projects={projects}
-                                  skills={skills}
-                                  objectives={objectives}
-                                  links={links}
-                                  onLinksChange={setLinks}
-                                  frogLog={frogLog}
-                                  history={history}
-                                  timezone={auth.timezone}
-                                  isPro={auth.isPro}
-                                />
+                                <div id="today-life-habits">
+                                  <LifeCard
+                                    habits={habits}
+                                    habitsChange={setHabits}
+                                    habitLog={habitLog}
+                                    habitLogChange={setHabitLog}
+                                    lifeAreas={lifeAreas}
+                                    lifeAreasChange={setLifeAreas}
+                                    focusAreas={areas}
+                                    journal={journal}
+                                    journalChange={setJournal}
+                                    timeOff={timeOff}
+                                    timeOffChange={setTimeOff}
+                                    energyLog={energyLog}
+                                    energyLogChange={setEnergyLog}
+                                    goals={goals}
+                                    projects={projects}
+                                    skills={skills}
+                                    objectives={objectives}
+                                    links={links}
+                                    onLinksChange={setLinks}
+                                    frogLog={frogLog}
+                                    history={history}
+                                    timezone={auth.timezone}
+                                    isPro={auth.isPro}
+                                  />
+                                </div>
                               </Disclosure>
                             </div>
                           </>

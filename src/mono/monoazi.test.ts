@@ -127,4 +127,17 @@ describe('MonoAzi', () => {
     });
     expect(onMorning).toHaveBeenCalledTimes(1);
   });
+
+  it('renders the habits slot between program and more', () => {
+    const c = render(
+      screen({
+        habits: createElement('div', null, 'HABITS_SLOT'),
+        more: createElement('div', null, 'MORE_SLOT'),
+      }),
+    );
+    expect(c.textContent).toContain('HABITS_SLOT');
+    expect(c.textContent).toContain('MORE_SLOT');
+    const text = c.textContent ?? '';
+    expect(text.indexOf('HABITS_SLOT')).toBeLessThan(text.indexOf('MORE_SLOT'));
+  });
 });
