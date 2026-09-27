@@ -802,7 +802,7 @@ export const en = {
 
   'pay.title': 'Upgrade to Pro',
   'pay.sub':
-    'Get the full AI assistant, unlimited projects and goals, exports and a personalized look. Sync between devices covers your focus sessions, areas and settings.',
+    'Get the full AI assistant, unlimited projects and goals, CSV/PDF exports and a personalized look. Sync between devices covers your focus sessions, areas and settings.',
   'pay.signin': 'Please sign in to upgrade to Pro',
   'pay.unavailable': 'Payment isn’t available right now. Please contact support.',
   'pay.current': 'Current',
@@ -1083,6 +1083,29 @@ export const en = {
     'Tasks, projects, goals, habits, journal, focus history and settings saved in this browser will be removed. This cannot be undone.',
   'mono.data.cancel': 'Cancel',
   'mono.data.confirm': 'Delete everything',
+  'mono.export.title': 'Export & import',
+  'mono.export.body':
+    'Download everything Moneo stores for you as one JSON file — free for everyone. Keep it as a backup or move it to another browser.',
+  'mono.export.cloudNote':
+    'You are signed in, so the file also includes your synced sessions, areas, settings and subscription status.',
+  'mono.export.includeKeys': 'Include my AI keys',
+  'mono.export.includeKeysHint': 'Off by default. Only include them if you keep the file private.',
+  'mono.export.download': 'Export all my data (JSON)',
+  'mono.export.busy': 'Preparing…',
+  'mono.export.done': 'Export downloaded.',
+  'mono.export.failed': 'Export failed. Please try again.',
+  'mono.export.import': 'Import from file',
+  'mono.export.confirmTitle': 'Replace the data on this device?',
+  'mono.export.confirmBody':
+    'Everything Moneo stores in this browser will be replaced with the export from {date}. Your account and cloud data are not changed — sync reconciles afterwards.',
+  'mono.export.cancel': 'Cancel',
+  'mono.export.confirm': 'Replace data',
+  'mono.export.err.invalidJson': 'This file is not valid JSON.',
+  'mono.export.err.wrongFormat': 'This is not a Moneo export file.',
+  'mono.export.err.unsupportedVersion':
+    'This export comes from a newer Moneo version. Update the app and try again.',
+  'mono.export.err.invalidShape': 'The export file is damaged or incomplete.',
+  'mono.export.err.write': 'Import failed — your previous data was kept.',
   'mono.coach.examples': 'Suggestions',
   'mono.coach.aziEmpty.q': 'What should you finish today?',
   'mono.coach.aziEmpty.hint': 'List 1–3 clear outcomes. Work them in order.',
@@ -1161,9 +1184,9 @@ export const en = {
   'rep.csv': 'Export CSV',
   'rep.pdf': 'Export PDF',
   'rep.pdfTitle': 'Open a printable report (Print → Save as PDF)',
-  'rep.exportProTitle': 'Export is a Pro feature',
+  'rep.exportProTitle': 'Advanced exports are a Pro feature',
   'rep.exportProBody':
-    'Upgrade to Pro to export your sessions as CSV or PDF. Your data stays on this device until then.',
+    'Upgrade to Pro to export your sessions as CSV or PDF. A full JSON export of all your data is free in Settings.',
   'rep.docTitle': 'Moneo Focus Report',
   'rep.rangeLabel.week': 'Last 7 days',
   'rep.rangeLabel.month': 'Last 30 days',
@@ -1771,11 +1794,12 @@ export const en = {
     'Upgrade to Moneo Pro for priority coaching, deadline alerts, and your best focus window.',
   'pricing.title': 'Moneo pricing',
   'pricing.sub':
-    'Start free — no card, no account needed. Pro adds the full AI assistant, advanced planning, exports and a personalized look. Your data stays on your device, and Moneo works offline.',
+    'Start free — no card, no account needed. Pro adds the full AI assistant, advanced planning, CSV/PDF exports and a personalized look. Your data stays on your device, and Moneo works offline.',
   'pricing.back': '← Back to Moneo',
   'pricing.unlimited': 'Unlimited',
   'pricing.row.ivy': 'Priority tasks per day (Ivy Lee method)',
   'pricing.row.plan': 'Step-by-step goal plans',
+  'pricing.row.jsonExport': 'Full data export (JSON)',
   'pricing.compareFeature': 'Feature',
   'pricing.compareFree': 'Free',
   'pricing.comparePro': 'Pro',
@@ -2327,7 +2351,7 @@ export const en = {
   'reports.exportPortfolio': 'Export Portfolio',
   'reports.exportPortfolioTitle':
     'A shareable page of completed projects, achieved goals and strong skills',
-  'reports.exportProOnly': 'Exports are a Pro feature.',
+  'reports.exportProOnly': 'Advanced exports (CSV, PDF) are a Pro feature.',
   'reports.moreDetail': 'More detail',
   'reports.moreDetailHint': 'Insights · allocation · export',
   'reports.exportPdfTitle': 'Open a printable report (Print → Save as PDF)',

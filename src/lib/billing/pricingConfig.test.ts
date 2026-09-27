@@ -87,7 +87,7 @@ describe('pricingConfig — single source of truth', () => {
 
   it('builds comparison rows from live limits (no hardcoded numbers)', () => {
     const rows = getComparisonRows();
-    expect(rows.length).toBe(9);
+    expect(rows.length).toBe(10);
     const projects = rows[0];
     expect(projects.labelKey).toBe('pay.plan.monthly.f1');
     expect(projects.free).toEqual({ kind: 'limit', value: FREE_PROJECTS_LIMIT });
@@ -95,6 +95,15 @@ describe('pricingConfig — single source of truth', () => {
     const ivy = rows[1];
     expect(ivy.free).toEqual({ kind: 'limit', value: IVY_FREE_MAX_TASKS });
     expect(ivy.pro).toEqual({ kind: 'limit', value: IVY_MAX_TASKS });
+  });
+
+  it('keeps the full JSON data export free and only advanced formats Pro', () => {
+    const json = getComparisonRows().find((r) => r.labelKey === 'pricing.row.jsonExport');
+    expect(json?.free).toEqual({ kind: 'check' });
+    expect(en['rep.exportProTitle'].toLowerCase()).toMatch(/advanced/);
+    for (const key of ['pay.sub', 'pricing.sub'] as const) {
+      expect(en[key]).toMatch(/CSV\/PDF exports/);
+    }
   });
 
   it('keeps sync marketing keys honest (sessions / areas / settings only)', () => {

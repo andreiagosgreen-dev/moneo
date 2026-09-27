@@ -120,7 +120,7 @@ export const FREE_LIMITS = {
  * 2 core Insights; classic Focus atmospheres free; data stays on device.
  *
  * PRO — unlimited entities; full chat + tones + voice; own-key plans;
- * all Insights; CSV/PDF export; time blocks + sprint charts + kanban WIP;
+ * all Insights; CSV/PDF export (full JSON data export is free); time blocks + sprint charts + kanban WIP;
  * cloud sync (sessions, areas, settings only); light / accents / Pro fonts;
  * interior Pro atmosphere packs.
  *
@@ -196,6 +196,11 @@ export function getComparisonRows(): ComparisonRow[] {
       labelKey: 'pay.plan.monthly.f2',
       free: { kind: 'limit', value: FREE_LIMITS.insights },
       pro: { kind: 'key', key: 'pricing.unlimited' },
+    },
+    {
+      labelKey: 'pricing.row.jsonExport',
+      free: { kind: 'check' },
+      pro: { kind: 'check' },
     },
     {
       labelKey: 'pay.plan.monthly.f3',
