@@ -1811,6 +1811,24 @@ export const fr: Record<TKey, string> = {
   'auth.signIn': 'Se connecter',
   'auth.createAccount': 'Créer un compte',
   'auth.emailLabel': 'E-mail',
+  'auth.forgotPassword': 'Mot de passe oublié ?',
+  'auth.resetTitle': 'Réinitialiser le mot de passe',
+  'auth.resetIntro':
+    'Saisissez l’e-mail de votre compte : nous vous enverrons un lien pour choisir un nouveau mot de passe.',
+  'auth.resetSend': 'Envoyer le lien',
+  'auth.resetSent':
+    'Si un compte existe pour cet e-mail, le lien est en route. Consultez votre boîte de réception.',
+  'auth.backToSignIn': 'Retour à la connexion',
+  'auth.newPasswordTitle': 'Choisir un nouveau mot de passe',
+  'auth.newPasswordLabel': 'Nouveau mot de passe',
+  'auth.newPasswordConfirm': 'Répétez le nouveau mot de passe',
+  'auth.newPasswordSave': 'Enregistrer le mot de passe',
+  'auth.newPasswordShort': 'Utilisez au moins {n} caractères.',
+  'auth.newPasswordMismatch': 'Les mots de passe ne correspondent pas.',
+  'auth.newPasswordDone': 'Mot de passe mis à jour. Vous êtes connecté.',
+  'auth.resetLinkChecking': 'Vérification du lien…',
+  'auth.resetLinkInvalid':
+    'Ce lien est invalide ou a expiré. Demandez-en un nouveau depuis la page de connexion.',
   'auth.emailPlaceholder': 'vous@exemple.com',
   'auth.passwordLabel': 'Mot de passe',
   'auth.localFirstNote':

@@ -15,8 +15,8 @@ export const MAX_WEBHOOK_BODY_BYTES = 1_000_000;
  * Response headers applied to every Worker response (static assets, SPA
  * fallback and JSON APIs alike).
  *
- * CSP is tuned to the actual bundle: same-origin scripts, Google Fonts
- * stylesheets + font files, self/data/blob images, Supabase + Lemon
+ * CSP is tuned to the actual bundle: same-origin scripts, styles and
+ * self-hosted (Fontsource) fonts, self/data/blob images, Supabase + Lemon
  * Squeezy connections. Microphone is deliberately NOT denied — voice
  * input (Web Speech API) is a feature. Custom-domain self-hosted
  * Supabase needs its host added to connect-src. Cloudflare Turnstile
@@ -32,8 +32,8 @@ export function buildSecurityHeaders(): Record<string, string> {
   const csp = [
     "default-src 'self'",
     "script-src 'self' https://challenges.cloudflare.com",
-    "style-src 'self' https://fonts.googleapis.com",
-    "font-src 'self' data: https://fonts.gstatic.com",
+    "style-src 'self'",
+    "font-src 'self' data:",
     "img-src 'self' data: blob:",
     [
       "connect-src 'self'",

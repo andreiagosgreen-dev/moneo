@@ -2,7 +2,7 @@ export default function TermsOfService() {
   return (
     <div className="max-w-2xl mx-auto p-6 text-sm text-gray-700">
       <h1 className="text-2xl font-bold mb-6">Terms of Service</h1>
-      <p className="mb-4">Last updated: {new Date().toLocaleDateString()}</p>
+      <p className="mb-4">Last updated: September 27, 2026</p>
 
       <section className="mb-6">
         <h2 className="text-lg font-semibold mb-2">1. Acceptance of Terms</h2>

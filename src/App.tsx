@@ -1,5 +1,5 @@
 import { useMemo, lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import MonoNav, { type MonoTab } from './mono/MonoNav';
 import MonoMore from './mono/MonoMore';
 import MonoFocus from './mono/MonoFocus';
@@ -42,6 +42,8 @@ import PricingPage from './components/PricingPage';
 import LoginPage from './components/LoginPage';
 import CabinetPage from './components/CabinetPage';
 import CalendarCallback from './components/CalendarCallback';
+import ResetPasswordPage from './components/ResetPasswordPage';
+import { titleForPath } from './lib/routeTitle';
 import CommandCenter from './components/CommandCenter';
 import CommandPalette from './components/CommandPalette';
 import PostSessionReflection from './components/PostSessionReflection';
@@ -387,6 +389,12 @@ export default function App() {
     t,
   });
 
+  // Idle tab title follows client-side navigation; a live countdown wins.
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if (!running && remaining >= total) document.title = titleForPath(pathname);
+  }, [pathname, running, remaining, total]);
+
   const {
     ivyPlans,
     setIvyPlans,
@@ -725,6 +733,14 @@ export default function App() {
         element={
           <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={setLocale}>
             <LoginPage />
+          </LocaleProvider>
+        }
+      />
+      <Route
+        path="/reset-password"
+        element={
+          <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={setLocale}>
+            <ResetPasswordPage />
           </LocaleProvider>
         }
       />

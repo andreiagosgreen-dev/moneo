@@ -1802,6 +1802,23 @@ export const ro: Record<TKey, string> = {
   'auth.signIn': 'Conectare',
   'auth.createAccount': 'Creează cont',
   'auth.emailLabel': 'Email',
+  'auth.forgotPassword': 'Ai uitat parola?',
+  'auth.resetTitle': 'Resetează parola',
+  'auth.resetIntro': 'Scrie emailul contului și îți trimitem un link pentru o parolă nouă.',
+  'auth.resetSend': 'Trimite linkul de resetare',
+  'auth.resetSent':
+    'Dacă există un cont cu acest email, linkul de resetare e pe drum. Verifică-ți inboxul.',
+  'auth.backToSignIn': 'Înapoi la conectare',
+  'auth.newPasswordTitle': 'Setează o parolă nouă',
+  'auth.newPasswordLabel': 'Parolă nouă',
+  'auth.newPasswordConfirm': 'Repetă parola nouă',
+  'auth.newPasswordSave': 'Salvează parola nouă',
+  'auth.newPasswordShort': 'Folosește cel puțin {n} caractere.',
+  'auth.newPasswordMismatch': 'Parolele nu coincid.',
+  'auth.newPasswordDone': 'Parola a fost schimbată. Ești conectat.',
+  'auth.resetLinkChecking': 'Verificăm linkul de resetare…',
+  'auth.resetLinkInvalid':
+    'Linkul de resetare nu e valid sau a expirat. Cere unul nou din pagina de conectare.',
   'auth.emailPlaceholder': 'tu@exemplu.com',
   'auth.passwordLabel': 'Parolă',
   'auth.localFirstNote':

@@ -34,6 +34,7 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated?: () => 
   const { t } = useI18n();
   const auth = useAuth();
   const [tab, setTab] = useState<'signin' | 'signup'>('signin');
+  const [forgot, setForgot] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -62,6 +63,95 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated?: () => 
     setCaptchaToken(null);
     if (res.ok) onAuthenticated?.();
   };
+
+  const sendReset = async () => {
+    if (busy) return;
+    setBusy(true);
+    setError('');
+    setNote('');
+    const res = await auth.requestPasswordReset(
+      email,
+      `${window.location.origin}/reset-password`,
+      captchaToken ?? undefined,
+    );
+    setBusy(false);
+    setCaptchaToken(null);
+    if (!res.ok) {
+      setError(res.message);
+      return;
+    }
+    setNote(t('auth.resetSent'));
+  };
+
+  const switchForgot = (next: boolean) => {
+    setForgot(next);
+    setError('');
+    setNote('');
+    setPassword('');
+  };
+
+  const emailField = (
+    <div>
+      <label
+        htmlFor="account-email"
+        className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint"
+      >
+        {t('auth.emailLabel')}
+      </label>
+      <input
+        ref={emailRef}
+        id="account-email"
+        type="email"
+        autoComplete="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="mt-1.5 h-10 w-full rounded-xl border border-line bg-ink/60 px-3 text-sm text-cream transition-colors placeholder:text-faint focus:[border-color:var(--accent)] focus:outline-none"
+        placeholder={t('auth.emailPlaceholder')}
+      />
+    </div>
+  );
+
+  const messages = (
+    <>
+      {error && (
+        <p role="alert" className="text-[12px] font-medium text-tomato">
+          {error}
+        </p>
+      )}
+      {note && (
+        <p role="status" className="text-[12px] font-medium text-sage">
+          {note}
+        </p>
+      )}
+    </>
+  );
+
+  if (forgot) {
+    return (
+      <div className="space-y-3">
+        <h2 className="font-display text-[15px] font-bold text-cream">{t('auth.resetTitle')}</h2>
+        <p className="text-[12px] leading-relaxed text-sage">{t('auth.resetIntro')}</p>
+        {emailField}
+        <TurnstileWidget onToken={setCaptchaToken} onExpire={() => setCaptchaToken(null)} />
+        {messages}
+        <button
+          onClick={() => void sendReset()}
+          disabled={busy || email.trim().length === 0 || (captchaRequired && !captchaToken)}
+          className="press btn-accent flex h-11 w-full items-center justify-center gap-2 rounded-xl font-display text-[15px] font-bold disabled:opacity-40"
+        >
+          {busy ? <Spinner /> : null}
+          {t('auth.resetSend')}
+        </button>
+        <button
+          type="button"
+          onClick={() => switchForgot(false)}
+          className="press w-full text-center text-[12px] font-semibold text-faint hover:text-sage"
+        >
+          {t('auth.backToSignIn')}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -99,24 +189,7 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated?: () => 
       </div>
 
       <div className="mt-4 space-y-3">
-        <div>
-          <label
-            htmlFor="account-email"
-            className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint"
-          >
-            {t('auth.emailLabel')}
-          </label>
-          <input
-            ref={emailRef}
-            id="account-email"
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1.5 h-10 w-full rounded-xl border border-line bg-ink/60 px-3 text-sm text-cream transition-colors placeholder:text-faint focus:[border-color:var(--accent)] focus:outline-none"
-            placeholder={t('auth.emailPlaceholder')}
-          />
-        </div>
+        {emailField}
         <div>
           <label
             htmlFor="account-password"
@@ -139,20 +212,20 @@ export default function AuthForm({ onAuthenticated }: { onAuthenticated?: () => 
             className="mt-1.5 h-10 w-full rounded-xl border border-line bg-ink/60 px-3 text-sm text-cream transition-colors placeholder:text-faint focus:[border-color:var(--accent)] focus:outline-none"
             placeholder="••••••••"
           />
+          {tab === 'signin' && (
+            <button
+              type="button"
+              onClick={() => switchForgot(true)}
+              className="press mt-1.5 text-[12px] font-semibold text-faint hover:text-sage"
+            >
+              {t('auth.forgotPassword')}
+            </button>
+          )}
         </div>
 
         <TurnstileWidget onToken={setCaptchaToken} onExpire={() => setCaptchaToken(null)} />
 
-        {error && (
-          <p role="alert" className="text-[12px] font-medium text-tomato">
-            {error}
-          </p>
-        )}
-        {note && (
-          <p role="status" className="text-[12px] font-medium text-sage">
-            {note}
-          </p>
-        )}
+        {messages}
 
         <button
           onClick={() => void submit()}
