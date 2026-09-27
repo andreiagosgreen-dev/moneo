@@ -926,6 +926,7 @@ export const en = {
   'legal.showEnglish': 'Read the English original',
   'legal.showTranslation': 'Show the translation',
   'legal.agree': 'By creating an account you agree to the {terms} and the {privacy}.',
+  'legal.ageNote': 'Under {n}? Ask a parent or guardian first.',
   'legal.termsLink': 'Terms of Service',
   'legal.privacyLink': 'Privacy Policy',
   'legal.refundLink': 'Refund Policy',

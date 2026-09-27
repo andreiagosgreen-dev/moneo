@@ -22,6 +22,13 @@ export const LEGAL_LAST_UPDATED = '2026-09-27';
 
 export const REFUND_DAYS = 14;
 
+/** Minimum age to create an account (Google sign-in and most services require 13+). */
+export const MIN_ACCOUNT_AGE = 13;
+/** Below this, users need a parent's or legal guardian's permission. */
+export const ADULT_AGE = 18;
+/** Typical EU age of digital consent (GDPR Art. 8); some countries set it lower. */
+export const DIGITAL_CONSENT_AGE = 16;
+
 export const MERCHANT_OF_RECORD = 'Lemon Squeezy';
 
 export type LegalDocId = 'terms' | 'privacy' | 'refund';

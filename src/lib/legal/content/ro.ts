@@ -1,5 +1,14 @@
 import { PRO_PRICES } from '../../billing/pricingConfig';
-import { MERCHANT_OF_RECORD, REFUND_DAYS, SELLER, SITE_URL, formatLegalDate } from '../seller';
+import {
+  ADULT_AGE,
+  DIGITAL_CONSENT_AGE,
+  MERCHANT_OF_RECORD,
+  MIN_ACCOUNT_AGE,
+  REFUND_DAYS,
+  SELLER,
+  SITE_URL,
+  formatLegalDate,
+} from '../seller';
 import type { LegalSet } from '../types';
 
 const OPERATOR = `${SELLER.name}, ${SELLER.entity.ro} cu sediul în ${SELLER.country.ro}`;
@@ -20,10 +29,19 @@ export const legalRo: LegalSet = {
         blocks: [`Moneo este operat de ${OPERATOR} („noi”). Ne poți scrie la {email}.`],
       },
       {
-        heading: '2. Acceptarea Termenilor',
+        heading: '2. Acceptarea Termenilor și cine poate folosi Moneo',
         blocks: [
           'Folosind Serviciul sau creând un cont, accepți acești Termeni. Dacă nu ești de acord, te rugăm să nu folosești Serviciul.',
-          'Pentru a crea un cont trebuie să ai cel puțin 16 ani sau acordul unui părinte ori al unui tutore legal.',
+          'Moneo e făcut pentru elevi, studenți și adulți. Îl poți folosi și fără cont: atunci datele rămân pe dispozitivul tău și nu ne trimiți nimic. Aceasta e varianta cea mai sigură pentru utilizatorii mai tineri.',
+          {
+            list: [
+              `Ca să creezi un cont trebuie să ai cel puțin ${MIN_ACCOUNT_AGE} ani.`,
+              `Dacă ai sub ${ADULT_AGE} ani, poți folosi Moneo doar cu permisiunea unui părinte sau a unui tutore legal.`,
+              `Dacă ai sub vârsta consimțământului digital din țara ta (${DIGITAL_CONSENT_AGE} ani în multe țări din UE), un părinte sau un tutore legal trebuie să fie de acord înainte să-ți creezi cont.`,
+              `Un abonament Pro pentru cineva sub ${ADULT_AGE} ani trebuie cumpărat de un părinte sau de un tutore legal ori cu permisiunea lor.`,
+            ],
+          },
+          'Părintele sau tutorele legal care îi permite unui minor să folosească Moneo acceptă acești Termeni în numele minorului și răspunde de supravegherea acestei folosiri. Capacitatea unui minor de a încheia contracte este cea prevăzută de legea aplicabilă.',
         ],
       },
       {
@@ -280,9 +298,18 @@ export const legalRo: LegalSet = {
         ],
       },
       {
-        heading: '12. Copii',
+        heading: '12. Copii, elevi și studenți',
         blocks: [
-          'Moneo nu se adresează copiilor sub 16 ani și nu colectăm cu bună știință datele lor personale. Dacă crezi că un copil ne-a dat date personale, scrie-ne și le ștergem.',
+          `Moneo e folosit de elevi, studenți și adulți. Pentru un cont e nevoie de vârsta minimă de ${MIN_ACCOUNT_AGE} ani. Utilizatorii sub ${ADULT_AGE} ani au nevoie de permisiunea unui părinte sau a unui tutore legal, iar sub vârsta consimțământului digital din țara lor (${DIGITAL_CONSENT_AGE} ani în multe țări din UE) un părinte sau un tutore legal trebuie să-și dea acordul pentru crearea contului.`,
+          {
+            list: [
+              'Fără cont, nu ne trimiți nimic: toate datele rămân pe dispozitiv. Aceasta e cea mai sigură variantă pentru utilizatorii mai tineri.',
+              'Cu cont, colectăm de la minori aceleași date minime ca de la oricine altcineva (vezi secțiunea 3) — nimic în plus.',
+              'Fără reclame, fără profilare și fără vânzarea datelor — pentru nimeni, inclusiv pentru minori.',
+              'Părinții și tutorii legali pot cere să vadă, să exporte sau să șteargă datele copilului scriindu-ne la {email}.',
+              `Dacă aflăm că un copil sub ${MIN_ACCOUNT_AGE} ani și-a creat cont, ștergem contul și datele lui.`,
+            ],
+          },
         ],
       },
       {

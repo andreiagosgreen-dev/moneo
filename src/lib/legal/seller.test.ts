@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
+import { en as enStrings } from '../i18n/locales/en';
 import { getLegalDoc, legalLangFor } from './content';
 import {
+  ADULT_AGE,
+  DIGITAL_CONSENT_AGE,
   LEGAL_DOCS,
+  MIN_ACCOUNT_AGE,
   LEGAL_LAST_UPDATED,
   LEGAL_PATHS,
   REFUND_DAYS,
@@ -187,6 +191,56 @@ describe('legal content', () => {
     expect(allText(getLegalDoc('terms', 'ro'))).toContain(
       'păstrezi Pro până la sfârșitul perioadei deja plătite',
     );
+  });
+
+  it('sets the age rules: 13+ for an account, guardian permission under 18', () => {
+    expect(MIN_ACCOUNT_AGE).toBe(13);
+    expect(ADULT_AGE).toBe(18);
+    expect(DIGITAL_CONSENT_AGE).toBe(16);
+
+    const terms = allText(getLegalDoc('terms', 'en'));
+    expect(terms).toContain('To create an account you must be at least 13 years old.');
+    expect(terms).toContain(
+      'If you are under 18, you may use Moneo only with the permission of a parent or legal guardian.',
+    );
+    expect(terms).toContain('(16 in many EU countries), a parent or legal guardian must agree');
+    expect(terms).toContain(
+      'A Pro subscription for someone under 18 must be bought by a parent or legal guardian, or with their permission.',
+    );
+    expect(terms).toContain('governed by applicable law');
+    expect(terms).toContain('You can use it without an account');
+    expect(terms).not.toMatch(/at least 16/);
+
+    const ro = allText(getLegalDoc('terms', 'ro'));
+    expect(ro).toContain('Ca să creezi un cont trebuie să ai cel puțin 13 ani.');
+    expect(ro).toContain('Dacă ai sub 18 ani');
+    expect(ro).toContain('legea aplicabilă');
+    expect(ro).not.toMatch(/cel puțin 16/);
+
+    expect(enStrings['legal.ageNote'].replace('{n}', String(DIGITAL_CONSENT_AGE))).toBe(
+      'Under 16? Ask a parent or guardian first.',
+    );
+  });
+
+  it('Privacy has a children and students section with guardian contact', () => {
+    for (const lang of LANGS) {
+      const doc = getLegalDoc('privacy', lang);
+      const sec = doc.sections.find((s) => s.heading.startsWith('12.'));
+      expect(sec, lang).toBeDefined();
+      const text = allText({ ...doc, intro: [], sections: [sec!] });
+      expect(text).toContain('{email}');
+      expect(text).toContain(String(MIN_ACCOUNT_AGE));
+      expect(text).toContain(String(DIGITAL_CONSENT_AGE));
+    }
+    const en = getLegalDoc('privacy', 'en').sections.find((s) => s.heading.startsWith('12.'))!;
+    expect(en.heading).toBe('12. Children and students');
+    const enText = allText({ ...getLegalDoc('privacy', 'en'), intro: [], sections: [en] });
+    expect(enText).toContain('Without an account, nothing is sent to us');
+    expect(enText).toContain('No advertising, no profiling and no selling of data');
+    expect(enText).toContain(
+      'If we learn that a child under 13 has created an account, we delete the account and its data.',
+    );
+    expect(enText).not.toMatch(/not directed at children under 16/);
   });
 
   it('Romanian lists have the same number of items as the English ones', () => {

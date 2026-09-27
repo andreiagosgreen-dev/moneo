@@ -7,6 +7,7 @@ import LegalInline from './legal/LegalInline';
 import MonoLegalLinks from '../mono/MonoLegalLinks';
 import { useAuth } from '../lib/authProvider';
 import { useI18n } from '../lib/i18n/LocaleContext';
+import { DIGITAL_CONSENT_AGE } from '../lib/legal/seller';
 import { UPGRADE_PARAM, parsePaidPlan, pricingPathForUpgrade } from '../lib/billing/upgradeIntent';
 
 /**
@@ -80,6 +81,8 @@ export default function LoginPage() {
             }}
             linkClassName="font-semibold text-sage underline underline-offset-2 hover:text-cream"
           />
+          <br />
+          {t('legal.ageNote', { n: DIGITAL_CONSENT_AGE })}
         </p>
 
         <p className="mt-6 text-center">

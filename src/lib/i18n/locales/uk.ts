@@ -921,6 +921,7 @@ export const uk: Record<TKey, string> = {
   'legal.showEnglish': 'Читати оригінал англійською',
   'legal.showTranslation': 'Показати переклад',
   'legal.agree': 'Створюючи обліковий запис, ви погоджуєтеся з {terms} та {privacy}.',
+  'legal.ageNote': 'Вам менше {n}? Спершу попросіть дозволу в батьків або опікуна.',
   'legal.termsLink': 'Умовами використання',
   'legal.privacyLink': 'Політикою конфіденційності',
   'legal.refundLink': 'Політика повернення коштів',

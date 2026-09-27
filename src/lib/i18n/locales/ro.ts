@@ -919,6 +919,7 @@ export const ro: Record<TKey, string> = {
   'legal.showEnglish': 'Citește originalul în engleză',
   'legal.showTranslation': 'Arată traducerea în română',
   'legal.agree': 'Creând un cont, ești de acord cu {terms} și cu {privacy}.',
+  'legal.ageNote': 'Ai sub {n} ani? Întreabă mai întâi un părinte sau un tutore.',
   'legal.termsLink': 'Termenii și condițiile',
   'legal.privacyLink': 'Politica de confidențialitate',
   'legal.refundLink': 'Politica de rambursare',

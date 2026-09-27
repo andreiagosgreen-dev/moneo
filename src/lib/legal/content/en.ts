@@ -1,5 +1,14 @@
 import { PRO_PRICES } from '../../billing/pricingConfig';
-import { MERCHANT_OF_RECORD, REFUND_DAYS, SELLER, SITE_URL, formatLegalDate } from '../seller';
+import {
+  ADULT_AGE,
+  DIGITAL_CONSENT_AGE,
+  MERCHANT_OF_RECORD,
+  MIN_ACCOUNT_AGE,
+  REFUND_DAYS,
+  SELLER,
+  SITE_URL,
+  formatLegalDate,
+} from '../seller';
 import type { LegalSet } from '../types';
 
 const OPERATOR = `${SELLER.name}, ${SELLER.entity.en} based in ${SELLER.country.en}`;
@@ -20,10 +29,19 @@ export const legalEn: LegalSet = {
         blocks: [`Moneo is operated by ${OPERATOR} ("we", "us"). You can reach us at {email}.`],
       },
       {
-        heading: '2. Accepting these Terms',
+        heading: '2. Accepting these Terms and who can use Moneo',
         blocks: [
           'By using the Service or creating an account, you agree to these Terms. If you do not agree, please do not use the Service.',
-          'You must be at least 16 years old, or have permission from a parent or legal guardian, to create an account.',
+          'Moneo is made for pupils, university students and adults. You can use it without an account: your data then stays on your device and nothing is sent to us. This is the safest option for younger users.',
+          {
+            list: [
+              `To create an account you must be at least ${MIN_ACCOUNT_AGE} years old.`,
+              `If you are under ${ADULT_AGE}, you may use Moneo only with the permission of a parent or legal guardian.`,
+              `If you are below the age of digital consent in your country (${DIGITAL_CONSENT_AGE} in many EU countries), a parent or legal guardian must agree before you create an account.`,
+              `A Pro subscription for someone under ${ADULT_AGE} must be bought by a parent or legal guardian, or with their permission.`,
+            ],
+          },
+          'A parent or legal guardian who allows a minor to use Moneo agrees to these Terms on the minor’s behalf and is responsible for supervising that use. A minor’s ability to enter into agreements is governed by applicable law.',
         ],
       },
       {
@@ -280,9 +298,18 @@ export const legalEn: LegalSet = {
         ],
       },
       {
-        heading: '12. Children',
+        heading: '12. Children and students',
         blocks: [
-          'Moneo is not directed at children under 16, and we do not knowingly collect their personal data. If you believe a child has given us personal data, contact us and we will delete it.',
+          `Moneo is used by pupils, university students and adults. An account requires a minimum age of ${MIN_ACCOUNT_AGE}. Users under ${ADULT_AGE} need the permission of a parent or legal guardian, and below the age of digital consent in their country (${DIGITAL_CONSENT_AGE} in many EU countries) a parent or legal guardian must consent to the account being created.`,
+          {
+            list: [
+              'Without an account, nothing is sent to us: all data stays on the device. This is the safest way for younger users to use Moneo.',
+              'With an account, we collect the same minimal data from minors as from anyone else (see section 3) — nothing extra.',
+              'No advertising, no profiling and no selling of data — for anyone, including minors.',
+              'Parents and legal guardians can ask to see, export or delete their child’s data by writing to {email}.',
+              `If we learn that a child under ${MIN_ACCOUNT_AGE} has created an account, we delete the account and its data.`,
+            ],
+          },
         ],
       },
       {
