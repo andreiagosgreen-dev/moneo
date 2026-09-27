@@ -1,0 +1,40 @@
+name: Supabase keepalive
+
+# Free-plan Supabase projects are paused after a week without activity. One
+# read-only PostgREST query per day keeps the database awake. Uses the public
+# publishable/anon key (already a repo variable); RLS makes the answer `[]`.
+
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    name: Read-only query through PostgREST
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+    steps:
+      - name: Ping database
+        run: |
+          set -euo pipefail
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::notice title=Keepalive skipped::VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY repository variables are not set."
+            exit 0
+          fi
+          status=$(curl -sS -o body.json -w '%{http_code}' --max-time 30 \
+            --retry 3 --retry-delay 10 \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            "${SUPABASE_URL%/}/rest/v1/focus_areas?select=id&limit=1")
+          if [ "$status" != "200" ]; then
+            echo "::error title=Supabase keepalive failed::HTTP ${status} — project may be paused (Supabase dashboard → Restore project)."
+            head -c 300 body.json || true
+            exit 1
+          fi
+          echo "Supabase answered HTTP 200 ($(head -c 40 body.json))"

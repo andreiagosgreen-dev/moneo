@@ -1,0 +1,103 @@
+name: DB backup
+
+# Weekly encrypted pg_dump of the Supabase database while the project is on the
+# Free plan (no Supabase backups). Redundant once the project is on Pro.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_DB_URL    Session pooler connection string (IPv4), with password.
+#   BACKUP_PASSPHRASE  Long random passphrase used to encrypt the dump (gpg AES256).
+# If either is missing the job skips with a notice instead of failing.
+#
+# The repo is public: artifacts are downloadable by anyone, so the dump is
+# never uploaded unencrypted. Restore steps: OPS-LAUNCH.md → "Backup DB".
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: db-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    name: pg_dump → gpg → artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      PG_MAJOR: '17'
+    steps:
+      - name: Check secrets
+        id: check
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::notice title=DB backup skipped::Add the SUPABASE_DB_URL and BACKUP_PASSPHRASE repository secrets to enable backups (see OPS-LAUNCH.md)."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install postgresql-client-${{ env.PG_MAJOR }} (PGDG)
+        if: steps.check.outputs.ready == 'true'
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+            https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq "postgresql-client-${PG_MAJOR}"
+          "/usr/lib/postgresql/${PG_MAJOR}/bin/pg_dump" --version
+
+      - name: Dump auth users + public schema and data
+        if: steps.check.outputs.ready == 'true'
+        env:
+          PGSSLMODE: require
+          PGCONNECT_TIMEOUT: '30'
+        run: |
+          set -euo pipefail
+          PG_DUMP="/usr/lib/postgresql/${PG_MAJOR}/bin/pg_dump"
+          umask 077
+          # auth rows first: public tables reference auth.users(id), so a
+          # restore into a fresh project must load users before the FKs.
+          {
+            echo "-- moneo backup $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "-- part 1/2: auth.users + auth.identities (data only)"
+            "$PG_DUMP" "$SUPABASE_DB_URL" --data-only --no-owner --no-privileges \
+              --table=auth.users --table=auth.identities
+            echo "-- part 2/2: schema public (schema + data)"
+            "$PG_DUMP" "$SUPABASE_DB_URL" --schema=public --no-owner --no-privileges
+          } > dump.sql
+          if [ "$(grep -c 'PostgreSQL database dump complete' dump.sql)" -ne 2 ]; then
+            echo "::error::pg_dump output is incomplete"
+            exit 1
+          fi
+          echo "Dump size: $(du -h dump.sql | cut -f1)"
+
+      - name: Encrypt (gpg AES256)
+        if: steps.check.outputs.ready == 'true'
+        id: encrypt
+        run: |
+          set -euo pipefail
+          NAME="moneo-db-$(date -u +%Y%m%d-%H%M%S)"
+          gpg --batch --yes --quiet --pinentry-mode loopback --passphrase-fd 3 \
+            --symmetric --cipher-algo AES256 --output "${NAME}.sql.gpg" dump.sql \
+            3<<< "$BACKUP_PASSPHRASE"
+          shred -u dump.sql
+          echo "name=${NAME}" >> "$GITHUB_OUTPUT"
+          echo "Encrypted: $(du -h "${NAME}.sql.gpg" | cut -f1)"
+
+      - uses: actions/upload-artifact@v4
+        if: steps.check.outputs.ready == 'true'
+        with:
+          name: ${{ steps.encrypt.outputs.name }}
+          path: ${{ steps.encrypt.outputs.name }}.sql.gpg
+          retention-days: 30
+          if-no-files-found: error
+          compression-level: 0
