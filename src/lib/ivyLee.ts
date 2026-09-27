@@ -242,6 +242,7 @@ export function carryForNewDay(
     text: t.text,
     done: false,
     rank: i + 1,
+    ...(t.taskId ? { taskId: t.taskId } : {}),
   }));
   return {
     plans: setDayPlan(plans, todayKey, tasks),

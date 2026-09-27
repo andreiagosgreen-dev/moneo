@@ -63,6 +63,7 @@ describe('centralized storage keys', () => {
       capsuleDelivered: 'moneo:capsule-delivered',
       celebrationsShown: 'moneo:celebrations-shown',
       celebratePrefs: 'moneo:celebrate-prefs',
+      xpSeen: 'moneo:xp-seen',
       savedFilters: 'moneo:saved-filters',
       advancedPlanning: 'moneo:advanced-planning',
       aiByok: 'moneo:ai-byok',

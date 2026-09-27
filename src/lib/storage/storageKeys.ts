@@ -98,6 +98,8 @@ export const STORAGE_KEYS = {
   celebrationsShown: 'moneo:celebrations-shown',
   /** Everyday celebration moments on/off (Settings) — local only, never synced. */
   celebratePrefs: 'moneo:celebrate-prefs',
+  /** Last XP level already celebrated — XP itself is derived, never stored. */
+  xpSeen: 'moneo:xp-seen',
   /** Saved task filters / Smart Views (Faza 18). */
   savedFilters: 'moneo:saved-filters',
   /** Advanced planning visibility (Kanban/Sprints/Gantt/Waterfall) — local only. */

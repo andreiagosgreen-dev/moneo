@@ -37,6 +37,7 @@ const AiPathCard = lazy(() => import('./components/AiPathCard'));
 const CalendarCard = lazy(() => import('./components/CalendarCard'));
 const GraphCard = lazy(() => import('./components/GraphCard'));
 const MonoCelebrate = lazy(() => import('./mono/MonoCelebrate'));
+const MonoRankCard = lazy(() => import('./mono/MonoRankCard'));
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import HelpPage from './components/HelpPage';
@@ -49,7 +50,6 @@ import { titleForPath } from './lib/routeTitle';
 import CommandCenter from './components/CommandCenter';
 import CommandPalette from './components/CommandPalette';
 import PostSessionReflection from './components/PostSessionReflection';
-import CelebrationOverlay from './components/CelebrationOverlay';
 import {
   loadProjects,
   loadSelectedProject,
@@ -59,17 +59,17 @@ import {
   FREE_PROJECTS_LIMIT,
   type Project,
 } from './lib/projects';
-import { loadTasks, saveTasks, updateTaskStatus, type Task } from './lib/tasks';
+import { loadTasks, saveTasks, type Task } from './lib/tasks';
 import {
   loadPlans,
   planForDay,
   addTaskToDay,
-  togglePlanTask,
   planDoneCount,
   dayPlanHasLinkedTask,
   IVY_MAX_TASKS,
   IVY_FREE_MAX_TASKS,
 } from './lib/ivyLee';
+import { togglePlanItem, syncPlanWithTasks } from './lib/planTaskSync';
 import { isEngagedUser } from './lib/engagement';
 import Disclosure from './components/Disclosure';
 import {
@@ -169,8 +169,8 @@ import { usePlannerState } from './hooks/usePlannerState';
 import { useAuth } from './lib/authProvider';
 import { useGoogleCalendarEvents } from './hooks/useGoogleCalendarEvents';
 import { useTimeCapsules } from './hooks/useTimeCapsules';
-import { useCelebrations } from './hooks/useCelebrations';
 import { useMoments } from './hooks/useMoments';
+import { computeXp, levelFromXp } from './lib/xp';
 import { isTodayInTz, dayKeyInTz } from './lib/timezone';
 import { loadSyncState, onSyncStateChange } from './lib/sync/syncState';
 
@@ -343,7 +343,12 @@ export default function App() {
   // App sits above LocaleProvider, so it localizes via a memo directly.
   const appI18n = useMemo(() => createI18n(locale, i18nDict), [locale, i18nDict]);
   const { t, fmtDur, fmtClock } = appI18n;
-  const moments = useMoments(tasks, phases, projects);
+  const xp = useMemo(
+    () => computeXp({ history, tasks, habitLog, phases, projects }),
+    [history, tasks, habitLog, phases, projects],
+  );
+  const xpLevel = levelFromXp(xp.total).level;
+  const moments = useMoments({ tasks, phases, projects, goals, history, level: xpLevel });
 
   const {
     mode,
@@ -455,7 +460,6 @@ export default function App() {
 
   const externalCalendarEvents = useGoogleCalendarEvents(auth.isPro, auth.timezone);
   useTimeCapsules(goals, settings.notifications, auth.isPro);
-  const celebrations = useCelebrations(goals, tasks, history);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -634,17 +638,16 @@ export default function App() {
     if (mode !== 'focus') switchMode('focus');
   };
   const handleToggleTask = (id: string) => {
-    const item = todayPlan?.tasks.find((x) => x.id === id);
-    if (!item) return;
-    const nextDone = !item.done;
-    setIvyPlans(togglePlanTask(ivyPlans, todayKey, id));
-    if (item.taskId) {
-      const linked = tasks.find((x) => x.id === item.taskId);
-      if (linked) {
-        setTasks(updateTaskStatus(tasks, item.taskId, nextDone ? 'completed' : 'pending'));
-      }
-    }
+    const r = togglePlanItem(ivyPlans, todayKey, id, tasks);
+    if (r.plans !== ivyPlans) setIvyPlans(r.plans);
+    if (r.tasks !== tasks) setTasks(r.tasks);
   };
+
+  // Projects/Focus → today's plan: linked items follow their task's status.
+  useEffect(() => {
+    const synced = syncPlanWithTasks(ivyPlans, todayKey, tasks);
+    if (synced) setIvyPlans(synced);
+  }, [tasks, ivyPlans, todayKey, setIvyPlans]);
   const addLinkedTaskToPlan = (task: Task): boolean => {
     if (dayPlanHasLinkedTask(ivyPlans, todayKey, task.id)) return false;
     const r = addTaskToDay(
@@ -887,7 +890,7 @@ export default function App() {
                         shutdownLabel={t('today.shutdown')}
                         onMorning={() => setMorningOpen(true)}
                         onShutdown={() => setShutdownOpen(true)}
-                        onToggle={(id) => setIvyPlans(togglePlanTask(ivyPlans, todayKey, id))}
+                        onToggle={handleToggleTask}
                         onAdd={(text) => {
                           const r = addTaskToDay(ivyPlans, todayKey, text, todayMaxTasks);
                           if (r.added) setIvyPlans(r.plans);
@@ -1199,6 +1202,12 @@ export default function App() {
                     <Suspense fallback={<TabFallback label="Growth" />}>
                       <main>
                         <MonoCrestere>
+                          <div
+                            className="reveal mono-growth-span"
+                            style={{ animationDelay: '60ms' }}
+                          >
+                            <MonoRankCard xp={xp} />
+                          </div>
                           <div className="reveal" style={{ animationDelay: '90ms' }}>
                             <GrowthCard history={history} />
                           </div>
@@ -1426,13 +1435,7 @@ export default function App() {
                   onDone={() => setReflectionSession(null)}
                 />
               )}
-              {celebrations.current && (
-                <CelebrationOverlay
-                  celebration={celebrations.current}
-                  onDone={celebrations.dismiss}
-                />
-              )}
-              {!celebrations.current && moments.current && (
+              {moments.current && (
                 <Suspense fallback={null}>
                   <MonoCelebrate moment={moments.current} onDone={moments.dismiss} />
                 </Suspense>
