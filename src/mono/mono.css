@@ -2698,20 +2698,89 @@
   color: var(--mono-muted);
   font-size: 16px;
 }
-.mono-more-legal {
+.mono-legal-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 8px 14px;
   font-family: var(--mono-font-body);
   font-size: 14px;
 }
-.mono-more-legal a {
+.mono-legal-links a {
   color: var(--mono-muted);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.mono-more-legal a:hover {
+.mono-legal-links a:hover {
   color: var(--mono-fg);
+}
+.mono-legal-card-links {
+  margin-top: 12px;
+}
+
+/* ---------- legal pages (Terms / Privacy / Refund) ---------- */
+.mono-legal {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 32px 20px 56px;
+}
+.mono-legal-back {
+  display: inline-block;
+  margin-bottom: 18px;
+  font-family: var(--mono-font-mono);
+  font-size: 13.5px;
+  color: var(--mono-muted);
+  text-decoration: none;
+}
+.mono-legal-back:hover {
+  color: var(--mono-fg);
+}
+.mono-legal-note {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px var(--mono-border-2);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--mono-fg);
+}
+.mono-legal-switch {
+  font: inherit;
+  font-weight: 600;
+  color: var(--mono-fg);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.mono-legal-updated {
+  margin-top: 8px;
+}
+.mono-legal-sec {
+  margin-top: 28px;
+}
+.mono-legal-sec .mono-h2 {
+  margin-bottom: 8px;
+}
+.mono-legal-p,
+.mono-legal-list {
+  margin: 10px 0 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--mono-fg);
+}
+.mono-legal-list {
+  list-style: disc;
+  padding-left: 1.3em;
+}
+.mono-legal-list li + li {
+  margin-top: 6px;
+}
+.mono-legal-foot {
+  margin-top: 40px;
+  padding-top: 18px;
+  border-top: 1px solid var(--mono-border-2);
 }
 
 /* ---------- shared Focus composition (all atmospheres) ---------- */

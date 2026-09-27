@@ -11,6 +11,7 @@ import {
 } from '../lib/billing/pricingConfig';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import { openExternal } from '../lib/links';
+import { SUPPORT_EMAIL, SUPPORT_MAILTO } from '../lib/legal/seller';
 
 function CheckIcon() {
   return (
@@ -145,7 +146,10 @@ export default function PricingCard() {
 
       {payError && (
         <p role="alert" className="mt-4 text-[12px] font-medium text-tomato">
-          {payError}
+          {payError}{' '}
+          <a href={SUPPORT_MAILTO} className="font-semibold underline underline-offset-2">
+            {SUPPORT_EMAIL}
+          </a>
         </p>
       )}
 

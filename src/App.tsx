@@ -37,8 +37,9 @@ const AiPathCard = lazy(() => import('./components/AiPathCard'));
 const CalendarCard = lazy(() => import('./components/CalendarCard'));
 const GraphCard = lazy(() => import('./components/GraphCard'));
 const MonoCelebrate = lazy(() => import('./mono/MonoCelebrate'));
-import PrivacyPolicy from './components/PrivacyPolicy';
-import TermsOfService from './components/TermsOfService';
+const LegalPage = lazy(() => import('./components/legal/LegalPage'));
+import { LEGAL_DOCS, LEGAL_PATHS } from './lib/legal/seller';
+import MonoSupportCard from './mono/MonoSupportCard';
 import HelpPage from './components/HelpPage';
 import PricingPage from './components/PricingPage';
 import LoginPage from './components/LoginPage';
@@ -715,8 +716,19 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/privacy" element={<PrivacyPolicy />} />
-      <Route path="/terms" element={<TermsOfService />} />
+      {LEGAL_DOCS.map((doc) => (
+        <Route
+          key={doc}
+          path={LEGAL_PATHS[doc]}
+          element={
+            <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={setLocale}>
+              <Suspense fallback={null}>
+                <LegalPage doc={doc} />
+              </Suspense>
+            </LocaleProvider>
+          }
+        />
+      ))}
       <Route
         path="/help"
         element={
@@ -1371,6 +1383,9 @@ export default function App() {
                           <LanguageCard />
                           <div style={{ marginTop: 24 }}>
                             <MonoLocalData signedIn={auth.status === 'authenticated'} />
+                          </div>
+                          <div style={{ marginTop: 24 }}>
+                            <MonoSupportCard />
                           </div>
                         </div>
                         <div className="reveal" style={{ animationDelay: '180ms' }}>

@@ -308,6 +308,21 @@ Nota: GitHub opreste singur workflow-urile programate intr-un repo public dupa 6
 
 ---
 
+## PASUL 8b — Pagini legale + contact
+
+**[REPO]** Pagini publice: `https://moneo.bond/terms`, `https://moneo.bond/privacy`, `https://moneo.bond/refund` (engleza = textul obligatoriu; romana = traducere completa; celelalte limbi vad engleza + nota). Toate datele (vanzator, tara, email suport, data „Ultima actualizare”, 14 zile rambursare) sunt intr-un singur fisier: `src/lib/legal/seller.ts`. Emailul de suport actual: `atsolutionsrl@gmail.com`. Linkuri Terms · Privacy · Refund · Contact apar pe Pricing, Login, Setari, Help si „More”.
+
+**[TU]**
+
+1. **Lemon Squeezy** → Store → Settings (sectiunea de politici / legal, daca exista) si in descrierea fiecarui produs (Monthly + Yearly): lipeste linkurile Terms, Privacy si Refund de mai sus + emailul de suport. Lemon (Merchant of Record) cere o politica de rambursare vizibila.
+2. **Google Cloud Console** → APIs & Services → OAuth consent screen (Branding): **Application privacy policy link** = `https://moneo.bond/privacy`, **Application terms of service link** = `https://moneo.bond/terms`, **User support email** + **Developer contact** = emailul de suport. Fara ele Google poate refuza verificarea aplicatiei.
+3. Cand configurezi redirectionarea de email la Namecheap (ex. `support@moneo.bond` → Gmail), schimba **doar** `SUPPORT_EMAIL` din `src/lib/legal/seller.ts` (o linie) + actualizeaza aici si in Lemon/Google.
+4. Cand inregistrezi o firma: actualizeaza `SELLER` (nume, `entity`, tara) din `src/lib/legal/seller.ts`, mareste `LEGAL_LAST_UPDATED` si reciteste textele.
+5. **Recomandat:** o verificare juridica (avocat din RM / UE). Textele sunt sabloane oneste, scrise dupa ce face codul azi — nu sunt consultanta juridica.
+6. Orice modificare de continut in `src/lib/legal/content/en.ts` (si `ro.ts`) → schimba `LEGAL_LAST_UPDATED` in aceeasi zi.
+
+---
+
 ## PASUL 9 — Smoke final (15 min) **[TU]**
 
 1. https://moneo.bond HTTPS

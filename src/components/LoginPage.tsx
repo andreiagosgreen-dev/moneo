@@ -3,6 +3,8 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import BrandMark from './BrandMark';
 import AuthForm from './account/AuthForm';
 import GoogleSignInButton from './account/GoogleSignInButton';
+import LegalInline from './legal/LegalInline';
+import MonoLegalLinks from '../mono/MonoLegalLinks';
 import { useAuth } from '../lib/authProvider';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import { UPGRADE_PARAM, parsePaidPlan, pricingPathForUpgrade } from '../lib/billing/upgradeIntent';
@@ -68,11 +70,24 @@ export default function LoginPage() {
 
         <AuthForm />
 
+        <p className="mt-4 text-center text-[12px] leading-relaxed text-faint">
+          <LegalInline
+            text={t('legal.agree')}
+            docLabels={{
+              terms: t('legal.termsLink'),
+              privacy: t('legal.privacyLink'),
+              refund: t('legal.refundLink'),
+            }}
+            linkClassName="font-semibold text-sage underline underline-offset-2 hover:text-cream"
+          />
+        </p>
+
         <p className="mt-6 text-center">
           <Link to="/" className="text-[12px] font-semibold text-faint hover:text-sage">
             {t('login.backToApp')}
           </Link>
         </p>
+        <MonoLegalLinks className="mt-4 justify-center" />
       </div>
     </div>
   );
