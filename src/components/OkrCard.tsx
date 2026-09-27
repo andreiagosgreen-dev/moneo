@@ -90,13 +90,16 @@ export default function OkrCard({
   const validParents = objectives.filter((o) => !o.archived);
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label={t('okr.aria')}>
+    <section
+      className="card flex h-full min-w-0 flex-col px-6 py-6 sm:px-7"
+      aria-label={t('okr.aria')}
+    >
       <header className="flex items-baseline justify-between gap-3">
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight text-cream">
             {t('okr.title')}
           </h2>
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+          <p className="mt-1.5 text-[13px] leading-snug text-sage">
             {isPro ? t('okr.subPro') : t('okr.subFree', { n: fmtNum(FREE_OKRS_LIMIT) })}
           </p>
         </div>
@@ -106,7 +109,7 @@ export default function OkrCard({
           </span>
           <button
             onClick={() => setReview(okrReview(objectives, period || undefined, i18n))}
-            className="press rounded-md px-2 py-1 font-mono text-[11px] text-sage ring-1 ring-inset ring-line hover:text-cream"
+            className="press rounded-lg px-3 py-1.5 text-[13px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream"
             title={t('okr.reviewTitle')}
           >
             {t('okr.review')}
@@ -161,11 +164,13 @@ export default function OkrCard({
       )}
 
       {roots.length === 0 ? (
-        <p className="mt-4 rounded-xl border border-dashed border-line/60 px-4 py-5 text-center text-[12px] leading-relaxed text-faint">
-          {t('okr.emptyA')}
-          <br />
-          {t('okr.emptyB')}
-        </p>
+        <div className="empty-panel mt-4">
+          <p>
+            {t('okr.emptyA')}
+            <br />
+            {t('okr.emptyB')}
+          </p>
+        </div>
       ) : (
         <ul className="mt-4 space-y-2">
           {roots.map((o) => (

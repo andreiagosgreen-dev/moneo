@@ -100,49 +100,49 @@ export default function UpNext({
 
   return (
     <section className="card px-6 py-6 sm:px-7" aria-label={t('upnext.title')}>
-      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">
+      <p className="text-[13px] font-semibold uppercase tracking-[0.08em] text-accent">
         {t('upnext.title')}
       </p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <div className="rounded-xl bg-ink/40 px-4 py-3.5 ring-1 ring-inset ring-line">
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-faint">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-sage">
             {next ? (next.state === 'now' ? t('upnext.now') : t('upnext.next')) : t('upnext.none')}
           </p>
           {next ? (
             <>
-              <p className="mt-1.5 truncate text-[15px] font-semibold text-cream">
+              <p className="mt-1.5 truncate text-[16px] font-semibold text-cream">
                 {next.block.label}
               </p>
-              <p className="mt-0.5 font-mono text-[12px] text-sage">
+              <p className="mt-0.5 text-[13px] text-sage">
                 {fmtClock(next.block.startMin)}–{fmtClock(next.block.endMin)}
               </p>
             </>
           ) : (
-            <p className="mt-1.5 text-[13px] leading-relaxed text-sage">{t('upnext.noneBody')}</p>
+            <p className="mt-1.5 text-[14px] leading-relaxed text-sage">{t('upnext.noneBody')}</p>
           )}
         </div>
         <div className="rounded-xl bg-ink/40 px-4 py-3.5 ring-1 ring-inset ring-line">
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-faint">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-sage">
             {t('upnext.rec')}
           </p>
           {recommendation ? (
             <>
               <p
-                className="mt-1.5 truncate text-[15px] font-semibold text-cream"
+                className="mt-1.5 truncate text-[16px] font-semibold text-cream"
                 title={recommendation.title}
               >
                 {recommendation.title}
               </p>
               <div className="mt-1.5 flex items-center justify-between gap-2">
-                <p className="truncate font-mono text-[11px] text-faint">{recommendation.source}</p>
+                <p className="truncate text-[13px] text-sage">{recommendation.source}</p>
                 {onList ? (
-                  <span className="shrink-0 font-mono text-[11px] font-semibold text-mint">
+                  <span className="shrink-0 text-[13px] font-semibold text-mint">
                     {t('upnext.onList')}
                   </span>
                 ) : (
                   <button
                     onClick={onPlan}
-                    className="press btn-accent shrink-0 rounded-lg px-3 py-1.5 font-mono text-[11px] font-bold"
+                    className="press btn-accent shrink-0 rounded-lg px-3 py-1.5 text-[13px] font-bold"
                     aria-label={t('upnext.addAria', { title: recommendation.title })}
                   >
                     {t('upnext.add')}
@@ -151,7 +151,7 @@ export default function UpNext({
               </div>
             </>
           ) : (
-            <p className="mt-1.5 text-[13px] leading-relaxed text-sage">{t('upnext.recEmpty')}</p>
+            <p className="mt-1.5 text-[14px] leading-relaxed text-sage">{t('upnext.recEmpty')}</p>
           )}
         </div>
       </div>

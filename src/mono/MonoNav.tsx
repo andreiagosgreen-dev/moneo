@@ -139,59 +139,62 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette }: Pro
       </div>
 
       <div className="mono-rail-foot">
-        <p className="mono-eyebrow mono-rail-kicker">{t('mono.nav.account')}</p>
-        <div className="mono-rail-account">
-          <Suspense fallback={null}>
-            <AccountButton />
-          </Suspense>
+        <div className="mono-rail-foot-identity">
+          <p className="mono-eyebrow mono-rail-kicker">{t('mono.nav.account')}</p>
+          <div className="mono-rail-account">
+            <Suspense fallback={null}>
+              <AccountButton />
+            </Suspense>
+          </div>
         </div>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'settings'}
-          onClick={() => onTab('settings')}
-          className={`mono-nav-item${tab === 'settings' ? ' active' : ''}`}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            aria-hidden
-            dangerouslySetInnerHTML={{
-              __html:
-                '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9c.2.6.7 1 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
-            }}
-          />
-          {t('nav.settingsLabel')}
-        </button>
-        {onOpenPalette && (
+
+        <div className="mono-rail-tools">
           <button
             type="button"
-            onClick={onOpenPalette}
-            title={t('palette.title')}
-            className="mono-nav-item"
+            role="tab"
+            aria-selected={tab === 'settings'}
+            onClick={() => onTab('settings')}
+            className={`mono-nav-item mono-rail-tool${tab === 'settings' ? ' active' : ''}`}
           >
             <svg
               viewBox="0 0 24 24"
               aria-hidden
               dangerouslySetInnerHTML={{
-                __html: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+                __html:
+                  '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9c.2.6.7 1 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
               }}
             />
-            {t('palette.title')}
-            <span className="mono-meta" style={{ marginLeft: 'auto' }}>
-              ⌘K
-            </span>
+            <span className="mono-rail-item-label">{t('mono.nav.settings')}</span>
           </button>
-        )}
+          {onOpenPalette && (
+            <button
+              type="button"
+              onClick={onOpenPalette}
+              title={`${t('palette.title')} (⌘K)`}
+              className="mono-nav-item mono-rail-tool"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden
+                dangerouslySetInnerHTML={{
+                  __html: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+                }}
+              />
+              <span className="mono-rail-item-label">{t('mono.nav.palette')}</span>
+              <kbd className="mono-rail-kbd">⌘K</kbd>
+            </button>
+          )}
+        </div>
+
         <button
           type="button"
           onClick={onNewSession}
-          className="mono-btn mono-btn-ghost mono-btn-block mono-rail-new"
+          className="mono-btn mono-btn-primary mono-btn-block mono-rail-new"
         >
           {t('mono.nav.newSession')}
         </button>
-        <p className="mono-meta" style={{ margin: '12px 2px 0' }}>
-          {t('foot.tag')}
-        </p>
+
+        <p className="mono-rail-tag">{t('foot.tag')}</p>
       </div>
     </nav>
   );

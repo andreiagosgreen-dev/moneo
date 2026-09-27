@@ -88,7 +88,7 @@ export default function BalanceTab({
         </p>
       )}
 
-      <ul className="mt-3 space-y-2">
+      <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
         {report.areas.map((a) => {
           const source = lifeAreas.find((x) => x.id === a.id);
           const linkedIds = source?.linkedAreaIds ?? [];

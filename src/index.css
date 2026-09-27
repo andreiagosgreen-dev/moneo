@@ -7,8 +7,8 @@
   --color-card2: #1a2233;
   --color-line: #263049;
   --color-cream: #f2f4f9;
-  --color-sage: #9aa7bd;
-  --color-faint: #7c8aa6;
+  --color-sage: #b0bccd;
+  --color-faint: #97a5bc;
   --color-tomato: #f07167;
   --color-tomato-deep: #d65448;
   --color-mint: #3ecf8e;
@@ -104,8 +104,8 @@
   --color-card2: #f3f6fa;
   --color-line: #d3dbe7;
   --color-cream: #131a26;
-  --color-sage: #4d5b72;
-  --color-faint: #5f6c84;
+  --color-sage: #3a4660;
+  --color-faint: #4a5670;
   --color-tomato: #dd4a3c;
   --color-tomato-deep: #bd3527;
   --color-mint: #0f9d63;
@@ -292,6 +292,37 @@ body {
     0 1px 0 rgb(255 255 255 / 0.06) inset,
     0 28px 56px -28px rgb(0 0 0 / 0.7)
   );
+}
+
+/* Age-friendly floor for legacy cards (Matrix, Agile, Life, OKR…).
+ * Large type + 44px tap targets so kids and older adults can use them. */
+.card {
+  font-size: 15.5px;
+  line-height: 1.5;
+}
+.card input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='range']),
+.card select,
+.card textarea {
+  min-height: 44px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.card textarea {
+  min-height: 88px;
+}
+.card button.btn-accent,
+.card .btn-accent {
+  min-height: 44px;
+  min-width: 44px;
+  font-size: 15px;
+}
+.card button:focus-visible,
+.card input:focus-visible,
+.card select:focus-visible,
+.card textarea:focus-visible,
+.card a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .press {

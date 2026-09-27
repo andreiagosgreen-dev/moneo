@@ -14,6 +14,7 @@ import {
   planDoneCount,
   carryForNewDay,
   getIvyAnalytics,
+  dayPlanHasLinkedTask,
   IVY_MAX_TASKS,
   IVY_FREE_MAX_TASKS,
   IVY_RETENTION_DAYS,
@@ -171,6 +172,18 @@ describe('carryForNewDay', () => {
     const { plans, changed } = carryForNewDay(doneAll, TZ);
     expect(changed).toBe(false);
     void plans;
+  });
+});
+
+describe('dayPlanHasLinkedTask', () => {
+  it('detects linked project tasks on the day plan', () => {
+    const key = '2026-9-25';
+    const plans = setDayPlan([], key, [
+      { id: 'i1', text: 'Hard thing', done: false, rank: 1, taskId: 'task-9' },
+    ]);
+    expect(dayPlanHasLinkedTask(plans, key, 'task-9')).toBe(true);
+    expect(dayPlanHasLinkedTask(plans, key, 'other')).toBe(false);
+    expect(dayPlanHasLinkedTask([], key, 'task-9')).toBe(false);
   });
 });
 

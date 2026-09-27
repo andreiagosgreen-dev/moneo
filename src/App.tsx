@@ -4,10 +4,13 @@ import MonoNav, { type MonoTab } from './mono/MonoNav';
 import MonoMore from './mono/MonoMore';
 import MonoFocus from './mono/MonoFocus';
 import MonoAzi from './mono/MonoAzi';
+import MonoHabitsCheckin from './mono/MonoHabitsCheckin';
 import MonoOrar from './mono/MonoOrar';
 import MonoProiecte from './mono/MonoProiecte';
 import MonoRapoarte from './mono/MonoRapoarte';
 import MonoCrestere from './mono/MonoCrestere';
+import MonoViata from './mono/MonoViata';
+import MonoReturn from './mono/MonoReturn';
 import GettingStarted from './components/GettingStarted';
 import TabFallback from './components/TabFallback';
 import MatrixCard from './components/MatrixCard';
@@ -59,18 +62,36 @@ import {
   addTaskToDay,
   togglePlanTask,
   planDoneCount,
+  dayPlanHasLinkedTask,
   IVY_MAX_TASKS,
   IVY_FREE_MAX_TASKS,
 } from './lib/ivyLee';
 import { isEngagedUser } from './lib/engagement';
-import UpNext from './components/UpNext';
 import Disclosure from './components/Disclosure';
-import { loadBlocks, type TimeBlock } from './lib/timeBlocks';
+import {
+  loadBlocks,
+  nextFocusBlock,
+  weekdayOfKey,
+  minuteOfDayInTz,
+  type TimeBlock,
+} from './lib/timeBlocks';
 import { loadSkills, transitionAdvice, type Skill } from './lib/skills';
-import { loadFrogLog, type FrogLog } from './lib/frog';
+import { loadFrogLog, pickFrog, type FrogLog } from './lib/frog';
+import { mottoForDay } from './lib/guidance/mottos';
+import { buildLifeHubSnapshot } from './lib/guidance/lifeProgress';
 import { loadGoals, saveGoals, FREE_GOALS_LIMIT, type Goal } from './lib/goals';
 import { planQuickStart } from './lib/quickstart';
 import { loadChatHistory, type ChatMessage } from './lib/assistant';
+import {
+  activeRoadmap,
+  loadRoadmaps,
+  recalcRoadmap,
+  saveRoadmaps,
+  syncStepsFromTasks,
+  upsertRoadmap,
+  type Roadmap,
+} from './lib/ai/roadmap';
+import MonoRoadmapStrip from './mono/MonoRoadmapStrip';
 import { loadHabits, loadHabitLog, type Habit, type HabitLog } from './lib/habits';
 import { loadLifeAreas, type LifeArea } from './lib/lifeAreas';
 import { loadLifeMap, type LifeMapArea } from './lib/lifemap';
@@ -114,6 +135,7 @@ import {
   loadAtmosphere,
   saveAtmosphere,
   applyAtmosphere,
+  resolveAtmosphere,
   type Atmosphere,
 } from './mono/atmosphere';
 import OnboardingModal from './components/OnboardingModal';
@@ -167,6 +189,7 @@ const BOOT = (() => {
   const frogLog = loadFrogLog();
   const goals = loadGoals();
   const chatHistory = loadChatHistory();
+  const roadmaps = loadRoadmaps();
   const habits = loadHabits();
   const habitLog = loadHabitLog();
   const lifeAreas = loadLifeAreas();
@@ -204,6 +227,7 @@ const BOOT = (() => {
     frogLog,
     goals,
     chatHistory,
+    roadmaps,
     habits,
     habitLog,
     lifeAreas,
@@ -226,7 +250,33 @@ const BOOT = (() => {
 
 export default function App() {
   const auth = useAuth();
-  const [tab, setTab] = useState<MonoTab>('focus');
+  const [tab, setTab] = useState<MonoTab>(() =>
+    BOOT.history.length === 0 && BOOT.projects.length === 0 && BOOT.tasks.length === 0
+      ? 'today'
+      : 'focus',
+  );
+  /** Origin tab after a jump-to-fill — Back button returns here. */
+  const [returnTo, setReturnTo] = useState<MonoTab | null>(null);
+  const tabRef = useRef(tab);
+  tabRef.current = tab;
+  /** Jump to fill something in another module; remember where we came from. */
+  const goFill = (target: MonoTab) => {
+    const from = tabRef.current;
+    if (target === from) return;
+    setReturnTo(from);
+    setTab(target);
+  };
+  /** Explicit nav (rail / palette) — clear return trail. */
+  const goNav = (target: MonoTab) => {
+    setReturnTo(null);
+    setTab(target);
+  };
+  const goBack = () => {
+    if (!returnTo) return;
+    const dest = returnTo;
+    setReturnTo(null);
+    setTab(dest);
+  };
   const [lastDone, setLastDone] = useState<{
     id: number;
     minutes: number;
@@ -237,6 +287,7 @@ export default function App() {
   const [settings, setSettings] = useState<Settings>(BOOT.settings);
   const [history, setHistory] = useState<Session[]>(BOOT.history);
   const [intentionDraft, setIntentionDraft] = useState(BOOT.intentionDraft);
+  const autoIntentionRef = useRef<string>('');
   const [areas] = useState(BOOT.areas);
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(BOOT.selectedAreaId);
   const [projects, setProjects] = useState<Project[]>(BOOT.projects);
@@ -246,6 +297,7 @@ export default function App() {
   const [frogLog, setFrogLog] = useState<FrogLog>(BOOT.frogLog);
   const [goals, setGoals] = useState<Goal[]>(BOOT.goals);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>(BOOT.chatHistory);
+  const [roadmaps, setRoadmaps] = useState<Roadmap[]>(BOOT.roadmaps);
   const [habits, setHabits] = useState<Habit[]>(BOOT.habits);
   const [habitLog, setHabitLog] = useState<HabitLog>(BOOT.habitLog);
   const [lifeAreas, setLifeAreas] = useState<LifeArea[]>(BOOT.lifeAreas);
@@ -285,7 +337,7 @@ export default function App() {
   }, [estProfiles]);
   // App sits above LocaleProvider, so it localizes via a memo directly.
   const appI18n = useMemo(() => createI18n(locale, i18nDict), [locale, i18nDict]);
-  const { t, fmtDur } = appI18n;
+  const { t, fmtDur, fmtClock } = appI18n;
 
   const {
     mode,
@@ -414,6 +466,49 @@ export default function App() {
     setSelectedTaskId(id);
   };
 
+  /** Pick a decomposed goal/project leaf for the Focus timer. */
+  const handleWorkFocus = (projectId: string, taskId: string | null) => {
+    setSelectedProjectId(projectId);
+    saveSelectedProject(projectId);
+    setSelectedTaskId(taskId);
+    goFill('focus');
+  };
+
+  const activeRm = activeRoadmap(roadmaps);
+
+  // Refresh roadmap ETA from recent Focus minutes on the linked project.
+  useEffect(() => {
+    if (!activeRm?.projectId) return;
+    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const mins = history
+      .filter((s) => s.at >= weekAgo && s.projectId === activeRm.projectId)
+      .reduce((sum, s) => sum + Math.max(0, s.min), 0);
+    const perDay = Math.round(mins / 7);
+    if (perDay < 5) return;
+    if (Math.abs(perDay - (activeRm.actualMinPerDay || 0)) < 3) return;
+    const next = recalcRoadmap(activeRm, perDay);
+    const list = upsertRoadmap(roadmaps, next);
+    setRoadmaps(list);
+    saveRoadmaps(list);
+  }, [history, activeRm, roadmaps]);
+
+  // Focus/Projects → roadmap strip: mark steps done when linked tasks complete.
+  useEffect(() => {
+    if (!activeRm) return;
+    const byId = new Map(tasks.map((t) => [t.id, t]));
+    const synced = syncStepsFromTasks(activeRm, (taskId) => {
+      const task = byId.get(taskId);
+      if (!task) return null;
+      if (task.status === 'completed') return 'completed';
+      if (task.status === 'pending' || task.status === 'in_progress') return 'pending';
+      return 'other';
+    });
+    if (!synced) return;
+    const list = upsertRoadmap(roadmaps, synced);
+    setRoadmaps(list);
+    saveRoadmaps(list);
+  }, [tasks, activeRm, roadmaps]);
+
   const handleSessionFeedback = (kind: SessionFeedback, estimated: number, actual: number) => {
     setEstProfiles((prev) =>
       recordFeedback(prev, scopeKey(selectedProjectId, selectedTaskId), estimated, actual, kind),
@@ -427,10 +522,12 @@ export default function App() {
     applyTheme(theme, modeWrapRef.current, auth.isPro);
   }, [theme, mode, auth.isPro]);
 
+  // Pro interior packs only paint while auth.isPro — stored choice survives downgrade.
+  const paintedAtmosphere = resolveAtmosphere(atmosphere, auth.isPro);
   useEffect(() => {
-    applyAtmosphere(atmosphere);
+    applyAtmosphere(paintedAtmosphere);
     saveAtmosphere(atmosphere);
-  }, [atmosphere]);
+  }, [atmosphere, paintedAtmosphere]);
 
   const dismissOnboarding = () => {
     setShowOnboarding(false);
@@ -470,7 +567,7 @@ export default function App() {
     setSelectedTaskId(plan.task.id);
     setIntentionDraft(plan.task.title);
     dismissOnboarding();
-    setTab('focus');
+    goNav('focus');
   };
   useEffect(() => saveSelectedArea(selectedAreaId), [selectedAreaId]);
   /* ---------- focus areas (CRUD moves to Settings in MONO-5) ---------- */
@@ -478,30 +575,42 @@ export default function App() {
   const showGettingStarted = history.length === 0 && projects.length === 0 && tasks.length === 0;
   const selectedTask = tasks.find((x) => x.id === selectedTaskId) ?? null;
 
-  /* ---------- Mono Focus screen data ---------- */
+  /* ---------- Mono Focus + Azi: one daily spine (Ivy plan) ---------- */
+  const todayKey = dayKeyInTz(Date.now(), auth.timezone);
+  const todayPlan = planForDay(ivyPlans, todayKey);
+  const todayMaxTasks = auth.isPro ? IVY_MAX_TASKS : IVY_FREE_MAX_TASKS;
+  const nextPlanItem = todayPlan?.tasks.find((x) => !x.done) ?? null;
+
+  // Keep the intention on the top unfinished plan item unless the user typed
+  // something else (or cleared it intentionally after we auto-filled).
+  const nextPlanItemId = nextPlanItem?.id ?? null;
+  const nextPlanItemText = nextPlanItem?.text ?? null;
+  useEffect(() => {
+    if (!nextPlanItemId || nextPlanItemText == null) return;
+    setIntentionDraft((prev) => {
+      const trimmed = prev.trim();
+      if (trimmed === '' || prev === autoIntentionRef.current) {
+        autoIntentionRef.current = nextPlanItemText;
+        return nextPlanItemText;
+      }
+      return prev;
+    });
+  }, [nextPlanItemId, nextPlanItemText]);
+
   const focusStats = (() => {
     const todaySessions = history.filter((s) => isTodayInTz(s.at, auth.timezone));
     return {
       sessions: todaySessions.length,
       focusMin: todaySessions.reduce((sum, s) => sum + s.min, 0),
-      done: tasks.filter(
-        (x) =>
-          x.status === 'completed' &&
-          typeof x.completedAt === 'number' &&
-          isTodayInTz(x.completedAt, auth.timezone),
-      ).length,
+      done: todayPlan?.tasks.filter((x) => x.done).length ?? 0,
     };
   })();
-  const focusUpNext = tasks
-    .filter((x) => x.status !== 'completed')
-    .slice(0, 3)
-    .map((x) => {
-      const proj = projects.find((p) => p.id === x.projectId)?.name ?? null;
-      const meta = [typeof x.estimateMin === 'number' ? fmtDur(x.estimateMin) : null, proj]
-        .filter((v): v is string => v !== null)
-        .join(' · ');
-      return { id: x.id, title: x.title, meta, done: false };
-    });
+  const focusUpNext = (todayPlan?.tasks ?? []).map((x) => ({
+    id: x.id,
+    title: x.text,
+    meta: typeof x.estimateMin === 'number' ? fmtDur(x.estimateMin) : '',
+    done: x.done,
+  }));
   const focusTaskOptions = (
     selectedProjectId ? tasks.filter((x) => x.projectId === selectedProjectId) : []
   ).map((x) => ({ id: x.id, title: x.title }));
@@ -512,19 +621,62 @@ export default function App() {
     if (mode !== 'focus') switchMode('focus');
   };
   const handleToggleTask = (id: string) => {
-    const found = tasks.find((x) => x.id === id);
-    if (!found) return;
-    setTasks(updateTaskStatus(tasks, id, found.status === 'completed' ? 'pending' : 'completed'));
+    const item = todayPlan?.tasks.find((x) => x.id === id);
+    if (!item) return;
+    const nextDone = !item.done;
+    setIvyPlans(togglePlanTask(ivyPlans, todayKey, id));
+    if (item.taskId) {
+      const linked = tasks.find((x) => x.id === item.taskId);
+      if (linked) {
+        setTasks(updateTaskStatus(tasks, item.taskId, nextDone ? 'completed' : 'pending'));
+      }
+    }
+  };
+  const addLinkedTaskToPlan = (task: Task): boolean => {
+    if (dayPlanHasLinkedTask(ivyPlans, todayKey, task.id)) return false;
+    const r = addTaskToDay(
+      ivyPlans,
+      todayKey,
+      task.title,
+      todayMaxTasks,
+      typeof task.estimateMin === 'number' ? task.estimateMin : undefined,
+      task.id,
+    );
+    if (r.added) setIvyPlans(r.plans);
+    return r.added;
   };
 
-  /* ---------- Mono Azi screen data (Ivy plan of today) ---------- */
-  const todayKey = dayKeyInTz(Date.now(), auth.timezone);
-  const todayPlan = planForDay(ivyPlans, todayKey);
-  const todayMaxTasks = auth.isPro ? IVY_MAX_TASKS : IVY_FREE_MAX_TASKS;
+  const nowMs = Date.now();
+  const nextBlock = nextFocusBlock(
+    timeBlocks,
+    weekdayOfKey(todayKey),
+    minuteOfDayInTz(nowMs, auth.timezone),
+  );
+  const frogPick = pickFrog(tasks, projects, nowMs);
+  const dayMotto = mottoForDay(todayKey, locale);
+  const lifeHub = buildLifeHubSnapshot({
+    plan: todayPlan,
+    focusSessions: focusStats.sessions,
+    focusMin: focusStats.focusMin,
+    tasks,
+    projects,
+    lifeMap,
+  });
 
   // Progressive disclosure (Roadmap Faza 2): brand-new workspaces see only
   // the calm core flow; everything else unfolds after first sessions.
   const engaged = isEngagedUser(history, projects);
+  const [todayMoreOpen, setTodayMoreOpen] = useState<boolean | null>(null);
+  const moreIsOpen = todayMoreOpen ?? engaged;
+  const openTodayHabitsManage = () => {
+    setTodayMoreOpen(true);
+    queueMicrotask(() => {
+      document.getElementById('today-life-habits')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
+  };
 
   // Life Map (Roadmap Faza 3): one element, mounted either in the Map tab
   // (desktop + mobile) or as a section inside Growth on small screens —
@@ -600,7 +752,7 @@ export default function App() {
               ref={modeWrapRef}
               data-mode={mode}
               data-focusing={running}
-              data-atmosphere={atmosphere}
+              data-atmosphere={paintedAtmosphere}
               className="atm-root relative min-h-screen overflow-hidden"
             >
               <p role="status" aria-live="polite" className="sr-only">
@@ -609,14 +761,14 @@ export default function App() {
 
               <MonoNav
                 tab={tab}
-                onTab={setTab}
-                onNewSession={() => setTab('focus')}
+                onTab={goNav}
+                onNewSession={() => goNav('focus')}
                 onOpenPalette={() => setPaletteOpen(true)}
               />
               <CommandPalette
                 open={paletteOpen}
                 onClose={() => setPaletteOpen(false)}
-                onTab={setTab}
+                onTab={goNav}
                 tasks={tasks}
                 projects={projects}
                 goals={goals}
@@ -624,16 +776,19 @@ export default function App() {
                 onToggleTimer={toggle}
                 onSelectProject={(id) => {
                   handleSelectProject(id);
-                  setTab('focus');
+                  goNav('focus');
                 }}
                 onSelectTask={(id, projectId) => {
                   handleSelectProject(projectId);
                   handleSelectTask(id);
-                  setTab('focus');
+                  goNav('focus');
                 }}
               />
               <div className="mono mono-shell">
                 <div className="mono-shell-inner">
+                  {returnTo && returnTo !== tab ? (
+                    <MonoReturn to={returnTo} onBack={goBack} />
+                  ) : null}
                   {tab === 'focus' && (
                     <main>
                       <MonoFocus
@@ -671,13 +826,25 @@ export default function App() {
                         onReset={reset}
                         onPreset={handlePreset}
                         onToggleTask={handleToggleTask}
-                        onSeePlan={() => setTab('today')}
-                        atmosphere={atmosphere}
-                        onAtmosphere={setAtmosphere}
+                        onSeePlan={() => goFill('today')}
+                        onPath={goFill}
+                        dayKey={todayKey}
+                        planTaskCount={todayPlan?.tasks.length ?? 0}
+                        planOpenCount={todayPlan?.tasks.filter((x) => !x.done).length ?? 0}
+                        atmosphere={paintedAtmosphere}
                       />
+                      {activeRm ? (
+                        <div className="mono-pad" style={{ marginTop: 14 }}>
+                          <MonoRoadmapStrip
+                            roadmap={activeRm}
+                            onOpen={() => goNav('plan')}
+                            onWorkFocus={handleWorkFocus}
+                          />
+                        </div>
+                      ) : null}
                       {showGettingStarted && (
                         <div className="mono-pad atm-desk-below">
-                          <GettingStarted onGo={setTab} />
+                          <GettingStarted onGo={goFill} />
                         </div>
                       )}
                     </main>
@@ -685,6 +852,7 @@ export default function App() {
                   {tab === 'today' && (
                     <main>
                       <MonoAzi
+                        dayKey={todayKey}
                         doneCount={planDoneCount(todayPlan)}
                         totalCount={todayPlan?.tasks.length ?? 0}
                         items={(todayPlan?.tasks ?? []).map((x) => ({
@@ -703,6 +871,9 @@ export default function App() {
                           const r = addTaskToDay(ivyPlans, todayKey, text, todayMaxTasks);
                           if (r.added) setIvyPlans(r.plans);
                         }}
+                        onGoWork={() => goFill('focus')}
+                        onPath={goFill}
+                        motto={{ text: dayMotto.text, source: dayMotto.source }}
                         estimates={
                           todayEstimates > 0 ? (
                             <div style={{ marginTop: 10 }}>
@@ -722,15 +893,41 @@ export default function App() {
                           ) : undefined
                         }
                         program={
-                          <UpNext
-                            blocks={timeBlocks}
-                            tasks={tasks}
-                            projects={projects}
-                            goals={goals}
-                            plans={ivyPlans}
-                            plansChange={setIvyPlans}
-                            timezone={auth.timezone}
-                            isPro={auth.isPro}
+                          nextBlock ? (
+                            <button
+                              type="button"
+                              className="mono-card"
+                              style={{
+                                width: '100%',
+                                textAlign: 'left',
+                                cursor: 'pointer',
+                                border: 'none',
+                              }}
+                              onClick={() => goFill('orar')}
+                            >
+                              <div className="mono-h3">
+                                {t(
+                                  nextBlock.state === 'now'
+                                    ? 'mono.azi.blockNow'
+                                    : 'mono.azi.blockNext',
+                                  {
+                                    start: fmtClock(nextBlock.block.startMin),
+                                    end: fmtClock(nextBlock.block.endMin),
+                                  },
+                                )}
+                              </div>
+                              <p className="mono-meta" style={{ marginTop: 4 }}>
+                                {t('mono.azi.blockHint')}
+                              </p>
+                            </button>
+                          ) : undefined
+                        }
+                        habits={
+                          <MonoHabitsCheckin
+                            habits={habits}
+                            habitLog={habitLog}
+                            onHabitLogChange={setHabitLog}
+                            onManage={openTodayHabitsManage}
                           />
                         }
                         more={
@@ -760,6 +957,18 @@ export default function App() {
                                 frogLogChange={setFrogLog}
                                 onTasksChange={setTasks}
                                 isPro={auth.isPro}
+                                onPlan={
+                                  frogPick
+                                    ? dayPlanHasLinkedTask(ivyPlans, todayKey, frogPick.id)
+                                    : false
+                                }
+                                onAddToPlan={
+                                  frogPick
+                                    ? () => {
+                                        addLinkedTaskToPlan(frogPick);
+                                      }
+                                    : undefined
+                                }
                               />
                             </div>
                             <div className="mono-sec">
@@ -767,49 +976,75 @@ export default function App() {
                                 title={t('today.more')}
                                 hint={t('today.moreHint')}
                                 defaultOpen={engaged}
+                                open={moreIsOpen}
+                                onOpenChange={setTodayMoreOpen}
                               >
                                 <MatrixCard
                                   tasks={tasks}
                                   history={history}
                                   onTasksChange={setTasks}
                                   isPro={auth.isPro}
+                                  planTaskIds={
+                                    new Set(
+                                      (todayPlan?.tasks ?? [])
+                                        .map((x) => x.taskId)
+                                        .filter((id): id is string => !!id),
+                                    )
+                                  }
+                                  onAddToPlan={addLinkedTaskToPlan}
                                 />
-                                <LifeCard
-                                  habits={habits}
-                                  habitsChange={setHabits}
-                                  habitLog={habitLog}
-                                  habitLogChange={setHabitLog}
-                                  lifeAreas={lifeAreas}
-                                  lifeAreasChange={setLifeAreas}
-                                  focusAreas={areas}
-                                  journal={journal}
-                                  journalChange={setJournal}
-                                  timeOff={timeOff}
-                                  timeOffChange={setTimeOff}
-                                  energyLog={energyLog}
-                                  energyLogChange={setEnergyLog}
-                                  goals={goals}
-                                  projects={projects}
-                                  skills={skills}
-                                  objectives={objectives}
-                                  links={links}
-                                  onLinksChange={setLinks}
-                                  frogLog={frogLog}
-                                  history={history}
-                                  timezone={auth.timezone}
-                                  isPro={auth.isPro}
-                                />
+                                <div id="today-life-habits">
+                                  <LifeCard
+                                    habits={habits}
+                                    habitsChange={setHabits}
+                                    habitLog={habitLog}
+                                    habitLogChange={setHabitLog}
+                                    lifeAreas={lifeAreas}
+                                    lifeAreasChange={setLifeAreas}
+                                    focusAreas={areas}
+                                    journal={journal}
+                                    journalChange={setJournal}
+                                    timeOff={timeOff}
+                                    timeOffChange={setTimeOff}
+                                    energyLog={energyLog}
+                                    energyLogChange={setEnergyLog}
+                                    goals={goals}
+                                    projects={projects}
+                                    skills={skills}
+                                    objectives={objectives}
+                                    links={links}
+                                    onLinksChange={setLinks}
+                                    frogLog={frogLog}
+                                    history={history}
+                                    timezone={auth.timezone}
+                                    isPro={auth.isPro}
+                                  />
+                                </div>
                               </Disclosure>
                             </div>
                           </>
                         }
                       />
+                      {activeRm ? (
+                        <div className="mono-pad" style={{ marginTop: 14 }}>
+                          <MonoRoadmapStrip
+                            roadmap={activeRm}
+                            onOpen={() => goNav('plan')}
+                            onWorkFocus={handleWorkFocus}
+                          />
+                        </div>
+                      ) : null}
                     </main>
                   )}
                   {tab === 'orar' && (
                     <Suspense fallback={<TabFallback label="Schedule" />}>
                       <main>
-                        <MonoOrar timezone={auth.timezone}>
+                        <MonoOrar
+                          timezone={auth.timezone}
+                          onPath={goFill}
+                          dayKey={todayKey}
+                          hasBlocks={timeBlocks.length > 0}
+                        >
                           <CalendarCard
                             history={history}
                             projects={projects}
@@ -846,6 +1081,7 @@ export default function App() {
                             links={links}
                             onLinksChange={setLinks}
                             isPro={auth.isPro}
+                            onWorkFocus={handleWorkFocus}
                           />
                         </div>
                         <div
@@ -866,6 +1102,12 @@ export default function App() {
                             selectedProjectId={selectedProjectId}
                             sprints={sprints}
                             onTasksChange={setTasks}
+                            onProjectsChange={setProjects}
+                            phases={phases}
+                            onPhasesChange={setPhases}
+                            roadmaps={roadmaps}
+                            onRoadmapsChange={setRoadmaps}
+                            onWorkFocus={handleWorkFocus}
                             isPro={auth.isPro}
                           />
                         </div>
@@ -880,6 +1122,8 @@ export default function App() {
                             blocks={timeBlocks}
                             goals={goals}
                             goalsChange={setGoals}
+                            phases={phases}
+                            phasesChange={setPhases}
                             timezone={auth.timezone}
                             isPro={auth.isPro}
                           />
@@ -889,7 +1133,10 @@ export default function App() {
                           hint={t('today.advSkillsHint')}
                           defaultOpen={engaged}
                         >
-                          <div className="reveal" style={{ animationDelay: '170ms' }}>
+                          <div
+                            className="reveal h-full min-w-0"
+                            style={{ animationDelay: '170ms' }}
+                          >
                             <OkrCard
                               objectives={objectives}
                               objectivesChange={setObjectives}
@@ -901,7 +1148,10 @@ export default function App() {
                               isPro={auth.isPro}
                             />
                           </div>
-                          <div className="reveal" style={{ animationDelay: '210ms' }}>
+                          <div
+                            className="reveal h-full min-w-0"
+                            style={{ animationDelay: '210ms' }}
+                          >
                             <SkillsCard
                               skills={skills}
                               skillsChange={setSkills}
@@ -976,10 +1226,15 @@ export default function App() {
                   )}
                   {tab === 'map' && (
                     <Suspense fallback={<TabFallback label="Map" />}>
-                      <main className="mt-4 grid items-start gap-6 md:grid-cols-2">
-                        <div className="reveal md:col-span-2" style={{ animationDelay: '90ms' }}>
+                      <main>
+                        <MonoViata
+                          motto={dayMotto}
+                          frames={lifeHub.frames}
+                          next={lifeHub.next}
+                          onGo={goFill}
+                        >
                           {lifeMapCard}
-                        </div>
+                        </MonoViata>
                       </main>
                     </Suspense>
                   )}
@@ -1004,6 +1259,9 @@ export default function App() {
                             savedFilters={savedFilters}
                             onSavedFiltersChange={setSavedFilters}
                             isPro={auth.isPro}
+                            onWorkFocus={handleWorkFocus}
+                            phases={phases}
+                            onPhasesChange={setPhases}
                           />
                           <div className="mono-sec">
                             <Disclosure
@@ -1084,6 +1342,8 @@ export default function App() {
                             theme={theme}
                             onThemeChange={setTheme}
                             isPro={auth.isPro}
+                            atmosphere={atmosphere}
+                            onAtmosphere={setAtmosphere}
                           />
                         </div>
                         <div className="reveal" style={{ animationDelay: '135ms' }}>
@@ -1099,7 +1359,7 @@ export default function App() {
                   {tab === 'more' && (
                     <main className="mt-4">
                       <div className="reveal" style={{ animationDelay: '90ms' }}>
-                        <MonoMore tab={tab} onOpen={setTab} />
+                        <MonoMore tab={tab} onOpen={goNav} />
                       </div>
                     </main>
                   )}

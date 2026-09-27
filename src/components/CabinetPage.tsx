@@ -142,7 +142,8 @@ export default function CabinetPage() {
               </span>
             )}
           </div>
-          {auth.subscription.isPro && portalUrl && (
+          {/* Portal is Lemon-paid only — complimentary Pro keeps Free planId. */}
+          {auth.subscription.isPro && auth.subscription.planId !== 'free' && portalUrl && (
             <a
               href={portalUrl}
               target="_blank"
@@ -171,7 +172,7 @@ export default function CabinetPage() {
         </section>
 
         <section className="card px-6 py-5">
-          <FocusBuddy isPro={auth.subscription.isPro} />
+          <FocusBuddy isPro={auth.isPro} />
         </section>
 
         <section className="card px-6 py-5">

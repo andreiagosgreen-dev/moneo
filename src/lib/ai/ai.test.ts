@@ -37,11 +37,13 @@ import {
 } from './providers';
 
 describe('detectKind + neededInputs', () => {
-  it('classifies learning / launch / general goals', () => {
+  it('classifies learning / launch / build / general goals', () => {
     expect(detectKind('Vreau să învăț React în 12 luni')).toBe('learning');
     expect(detectKind('Learn English speaking')).toBe('learning');
     expect(detectKind('Lansez un produs în 6 luni')).toBe('launch');
     expect(detectKind('Launch my SaaS MVP')).toBe('launch');
+    expect(detectKind('construiesc o dronă')).toBe('build');
+    expect(detectKind('Build a drone with maiden flight')).toBe('build');
     expect(detectKind('Run a marathon')).toBe('general');
   });
 

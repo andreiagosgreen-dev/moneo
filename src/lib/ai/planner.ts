@@ -26,6 +26,10 @@ export const POMODORO_MIN = 25;
 
 const KIND_PATTERNS: Array<{ kind: PathKind; re: RegExp }> = [
   {
+    kind: 'build',
+    re: /drone|dronă|drona|robot|hardware|pcb|prototype|prototip|diy|solder|firmware|quad(?:copter)?|airframe|bom\b|assembl|construiesc|construire|construire|fabric|maker|3d\s*print|cnc|electronics|electron/i,
+  },
+  {
     kind: 'learning',
     re: /learn|study|cours|curs|tutorial|language|limb|limbă|învăț|învăța|invat|англий|учи|учу|вчити|lernen|impar|appr|aprender/i,
   },
@@ -58,6 +62,7 @@ export function resolveInput(input: PathInput): ResolvedPathInput {
     horizonMonths: Math.min(480, Math.max(1, Math.round(input.horizonMonths ?? 6))),
     level: input.level ?? 'beginner',
     hoursPerWeek: Math.min(40, Math.max(1, Math.round(input.hoursPerWeek ?? 5))),
+    ...(input.kind ? { kind: input.kind } : {}),
   };
 }
 
@@ -73,6 +78,7 @@ const OUTCOME_FRAMES = [
 export const PHASE_OUTCOME_FRAMES: Record<PathKind, string[]> = {
   learning: [...OUTCOME_FRAMES],
   launch: [...OUTCOME_FRAMES],
+  build: ['ai.tpl.phaseSpec', 'ai.tpl.phaseParts', 'ai.tpl.phaseAssemble', 'ai.tpl.phaseMaiden'],
   general: [...OUTCOME_FRAMES],
 };
 
@@ -90,6 +96,15 @@ const TASK_FRAMES: Record<PathKind, string[]> = {
     'ai.tpl.taskShip',
     'ai.tpl.taskMeasure',
     'ai.tpl.taskHarden',
+  ],
+  build: [
+    'ai.tpl.taskSpec',
+    'ai.tpl.taskBom',
+    'ai.tpl.taskAssembleHw',
+    'ai.tpl.taskIntegrate',
+    'ai.tpl.taskBench',
+    'ai.tpl.taskMaiden',
+    'ai.tpl.taskIterateHw',
   ],
   general: [
     'ai.tpl.taskDefine',
@@ -129,7 +144,7 @@ export function buildPath(
   input: ResolvedPathInput,
   render: FrameRenderer = identityFrame,
 ): BuiltPath {
-  const kind = detectKind(input.text);
+  const kind = input.kind ?? detectKind(input.text);
   const goal = shortGoal(input.text);
   const quarters = Math.max(1, Math.ceil(input.horizonMonths / 3));
   const outcomeFrames = PHASE_OUTCOME_FRAMES[kind];

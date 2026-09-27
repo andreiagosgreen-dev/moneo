@@ -31,6 +31,9 @@ export default function ProjectsCard({
   isPro = false,
   savedFilters,
   onSavedFiltersChange,
+  onWorkFocus,
+  phases = [],
+  onPhasesChange,
 }: Props) {
   const [showCreate, setShowCreate] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -52,6 +55,8 @@ export default function ProjectsCard({
     isPro,
     deleteConfirmMessage: t('proj.delConfirm'),
     onCreated: (id) => setExpandedId(id),
+    phases,
+    onPhasesChange,
   });
   const { canCreate, limitNotice, setLimitNotice, commitProjects, commitTasks } = crud;
 
@@ -277,6 +282,7 @@ export default function ProjectsCard({
               allProjects={projects}
               skills={skills}
               objectives={objectives}
+              onWorkFocus={onWorkFocus}
             />
           ))
         )}

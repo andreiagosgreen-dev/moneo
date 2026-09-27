@@ -66,3 +66,75 @@ html[data-font='dm-sans'] .atm-root {
   --atm-time-font: var(--mono-font-display);
   --atm-ritual-font: var(--mono-font-body);
 }
+
+html[data-font='lora'],
+html[data-font='lora'] .atm-root {
+  --mono-font-display: 'Lora', Georgia, 'Palatino Linotype', serif;
+  --mono-font-body: 'Lora', Georgia, 'Palatino Linotype', serif;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+}
+
+html[data-font='ibm-plex'],
+html[data-font='ibm-plex'] .atm-root {
+  --mono-font-display: 'IBM Plex Sans', 'Inter', system-ui, sans-serif;
+  --mono-font-body: 'IBM Plex Sans', 'Inter', system-ui, sans-serif;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+}
+
+html[data-font='manrope'],
+html[data-font='manrope'] .atm-root {
+  --mono-font-display: 'Manrope', 'Inter', system-ui, sans-serif;
+  --mono-font-body: 'Manrope', 'Inter', system-ui, sans-serif;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+}
+
+html[data-font='spectral'],
+html[data-font='spectral'] .atm-root {
+  --mono-font-display: 'Spectral', Georgia, 'Palatino Linotype', serif;
+  --mono-font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+}
+
+html[data-font='outfit'],
+html[data-font='outfit'] .atm-root {
+  --mono-font-display: 'Outfit', 'Inter', system-ui, sans-serif;
+  --mono-font-body: 'Outfit', 'Inter', system-ui, sans-serif;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+}
+
+html[data-font='crimson'],
+html[data-font='crimson'] .atm-root {
+  --mono-font-display: 'Crimson Pro', Georgia, 'Times New Roman', serif;
+  --mono-font-body: 'Crimson Pro', Georgia, 'Times New Roman', serif;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+}
+
+html[data-font='space-grotesk'],
+html[data-font='space-grotesk'] .atm-root {
+  --mono-font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --mono-font-body: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+}
+
+html[data-font='newsreader'],
+html[data-font='newsreader'] .atm-root {
+  --mono-font-display: 'Newsreader', Georgia, 'Palatino Linotype', serif;
+  --mono-font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono-font-mono: var(--mono-font-body);
+  --atm-time-font: var(--mono-font-display);
+  --atm-ritual-font: var(--mono-font-body);
+}

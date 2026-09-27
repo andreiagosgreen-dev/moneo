@@ -73,7 +73,7 @@ export default function SprintsTab({
   return (
     <div>
       {vel !== null && (
-        <p className="font-mono text-[11px] text-faint" title={t('agile.sp.velTitle')}>
+        <p className="text-[13px] font-medium text-sage" title={t('agile.sp.velTitle')}>
           {t('agile.sp.velocity', { n: fmtNum(vel) })}
         </p>
       )}
@@ -85,12 +85,12 @@ export default function SprintsTab({
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && create()}
           placeholder={t('agile.sp.ph')}
-          className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
+          className="h-10 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-[14px] text-cream ring-1 ring-inset ring-line placeholder:text-sage/70 focus:ring-accent focus:outline-none"
         />
         <select
           value={length}
           onChange={(e) => setLength(Number(e.target.value))}
-          className="h-9 shrink-0 rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+          className="h-10 shrink-0 rounded-lg bg-ink/40 px-2.5 text-[13px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
           aria-label={t('agile.sp.length')}
         >
           <option value={7}>{t('agile.sp.w1')}</option>
@@ -99,7 +99,7 @@ export default function SprintsTab({
         </select>
         <button
           onClick={create}
-          className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
+          className="press btn-accent flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
           aria-label={t('agile.sp.create')}
         >
           +
@@ -108,7 +108,7 @@ export default function SprintsTab({
 
       {scoped.length === 0 ? (
         <div className="empty-panel mt-3">
-          <p className="text-[13px] text-sage">{t('agile.sp.empty')}</p>
+          <p>{t('agile.sp.empty')}</p>
         </div>
       ) : (
         <ul className="mt-3 space-y-2">

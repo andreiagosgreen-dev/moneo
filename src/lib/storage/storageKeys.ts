@@ -98,6 +98,12 @@ export const STORAGE_KEYS = {
   savedFilters: 'moneo:saved-filters',
   /** Advanced planning visibility (Kanban/Sprints/Gantt/Waterfall) — local only. */
   advancedPlanning: 'moneo:advanced-planning',
+  /** BYOK AI provider + key for Assistant (local only, never synced). */
+  aiByok: 'moneo:ai-byok',
+  /** Assistant learning/project roadmaps (local only). */
+  roadmaps: 'moneo:roadmaps',
+  /** Active roadmap id for spine strip. */
+  activeRoadmapId: 'moneo:active-roadmap-id',
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

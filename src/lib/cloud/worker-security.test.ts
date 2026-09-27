@@ -31,6 +31,10 @@ describe('buildSecurityHeaders', () => {
     expect(csp).toContain("object-src 'none'");
     expect(csp).toContain('https://fonts.googleapis.com');
     expect(csp).toContain('https://*.supabase.co');
+    // BYOK Assistant: browser → provider (user's own keys), narrow allowlist.
+    expect(csp).toContain('https://generativelanguage.googleapis.com');
+    expect(csp).toContain('https://api.openai.com');
+    expect(csp).toContain('https://api.deepseek.com');
     expect(csp).not.toContain('unsafe-inline');
     expect(csp).not.toContain('unsafe-eval');
   });

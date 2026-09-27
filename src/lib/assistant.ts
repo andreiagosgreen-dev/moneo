@@ -39,7 +39,7 @@ export const ASSISTANT_TONES: AssistantTone[] = ['concise', 'encouraging', 'dire
 export const TONE_LABELS: Record<AssistantTone, string> = {
   concise: 'Concise',
   encouraging: 'Encouraging',
-  direct: 'Drill sergeant',
+  direct: 'Direct',
 };
 
 /** Translation keys mirroring TONE_LABELS (UI renders via t()). */

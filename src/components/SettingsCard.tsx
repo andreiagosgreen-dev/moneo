@@ -23,12 +23,22 @@ import {
   type ThemeName,
   type UITheme,
 } from '../lib/theme';
+import {
+  ATMOSPHERES,
+  ATMOSPHERE_LABEL,
+  isProAtmosphere,
+  type Atmosphere,
+} from '../mono/atmosphere';
+
 interface Props {
   settings: Settings;
   onChange: (patch: Partial<Settings>) => void;
   theme: UITheme;
   onThemeChange: (t: UITheme) => void;
   isPro?: boolean;
+  /** Focus color atmosphere — classic free; Pro packs gated. */
+  atmosphere: Atmosphere;
+  onAtmosphere: (atmosphere: Atmosphere) => void;
 }
 
 type NumKey = 'focusMin' | 'shortMin' | 'longMin' | 'longEvery' | 'dailyGoal';
@@ -104,7 +114,7 @@ function Stepper({
   const { t } = useI18n();
   const { min, max } = LIMITS[field];
   const btn =
-    'press btn-ghost flex h-8 w-8 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none';
+    'press btn-ghost flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none';
   return (
     <div className="flex items-center justify-between gap-3 py-3">
       <div className="min-w-0">
@@ -193,6 +203,8 @@ export default function SettingsCard({
   theme,
   onThemeChange,
   isPro = false,
+  atmosphere,
+  onAtmosphere,
 }: Props) {
   const { t } = useI18n();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -304,7 +316,7 @@ export default function SettingsCard({
               onClick={() =>
                 onChange({ weeklyCapacityMin: Math.max(60, settings.weeklyCapacityMin - 60) })
               }
-              className="press btn-ghost flex h-8 w-8 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
+              className="press btn-ghost flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
               disabled={settings.weeklyCapacityMin <= 60}
               aria-label={t('set.capDec')}
             >
@@ -317,7 +329,7 @@ export default function SettingsCard({
               onClick={() =>
                 onChange({ weeklyCapacityMin: Math.min(10080, settings.weeklyCapacityMin + 60) })
               }
-              className="press btn-ghost flex h-8 w-8 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
+              className="press btn-ghost flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
               disabled={settings.weeklyCapacityMin >= 10080}
               aria-label={t('set.capInc')}
             >
@@ -455,7 +467,13 @@ export default function SettingsCard({
         )}
       </div>
 
-      <AppearanceSection theme={theme} onThemeChange={onThemeChange} isPro={isPro} />
+      <AppearanceSection
+        theme={theme}
+        onThemeChange={onThemeChange}
+        isPro={isPro}
+        atmosphere={atmosphere}
+        onAtmosphere={onAtmosphere}
+      />
     </section>
   );
 }
@@ -490,7 +508,7 @@ function Chip({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`press rounded-lg px-3 py-1.5 font-mono text-[12px] font-semibold ring-1 transition-colors disabled:cursor-not-allowed ${
+      className={`press inline-flex min-h-11 items-center rounded-lg px-3 py-2.5 font-mono text-[12px] font-semibold ring-1 transition-colors disabled:cursor-not-allowed ${
         selected
           ? 'bg-ink/70 text-cream ring-accent'
           : disabled || locked
@@ -512,16 +530,28 @@ const FONT_LABEL_KEYS: Record<FontChoice, TKey> = {
   jetbrains: 'set.font.jetbrains',
   fraunces: 'set.font.fraunces',
   'dm-sans': 'set.font.dmSans',
+  lora: 'set.font.lora',
+  'ibm-plex': 'set.font.ibmPlex',
+  manrope: 'set.font.manrope',
+  spectral: 'set.font.spectral',
+  outfit: 'set.font.outfit',
+  crimson: 'set.font.crimson',
+  'space-grotesk': 'set.font.spaceGrotesk',
+  newsreader: 'set.font.newsreader',
 };
 
 function AppearanceSection({
   theme,
   onThemeChange,
   isPro,
+  atmosphere,
+  onAtmosphere,
 }: {
   theme: UITheme;
   onThemeChange: (t: UITheme) => void;
   isPro: boolean;
+  atmosphere: Atmosphere;
+  onAtmosphere: (atmosphere: Atmosphere) => void;
 }) {
   const { t } = useI18n();
   const navigate = useNavigate();
@@ -535,9 +565,52 @@ function AppearanceSection({
     set({ font: f });
   };
 
+  const pickAtmosphere = (id: Atmosphere) => {
+    if (isProAtmosphere(id) && !isPro) {
+      navigate('/pricing');
+      return;
+    }
+    onAtmosphere(id);
+  };
+
   return (
     <div className="mt-2 divide-y divide-line/70 border-t border-line">
       <SectionLabel text={t('set.theme')} />
+
+      <div className="flex flex-col gap-2 py-3">
+        <div className="min-w-0">
+          <div className="text-[14px] font-semibold text-cream/90">{t('set.atm')}</div>
+          <div className="text-[12px] text-faint">{isPro ? t('set.atmPro') : t('set.atmFree')}</div>
+          {!isPro && (
+            <Link
+              to="/pricing"
+              className="mt-1 inline-block text-[12px] font-semibold text-sage underline-offset-2 hover:text-cream hover:underline"
+            >
+              {t('set.atmUpgrade')}
+            </Link>
+          )}
+        </div>
+        <div
+          className="flex max-w-full flex-wrap items-center gap-1.5"
+          role="radiogroup"
+          aria-label={t('set.atm')}
+        >
+          {ATMOSPHERES.map((id) => {
+            const locked = isProAtmosphere(id) && !isPro;
+            return (
+              <Chip
+                key={id}
+                selected={atmosphere === id}
+                locked={locked}
+                onClick={() => pickAtmosphere(id)}
+              >
+                {t(ATMOSPHERE_LABEL[id])}
+                {locked && ' · Pro'}
+              </Chip>
+            );
+          })}
+        </div>
+      </div>
 
       <div className="flex items-center justify-between gap-3 py-3">
         <div className="min-w-0">
@@ -584,7 +657,7 @@ function AppearanceSection({
                   key={k}
                   onClick={() => (isPro ? set({ accent: k }) : undefined)}
                   disabled={!isPro}
-                  className="press flex h-7 min-w-7 items-center justify-center rounded-full p-0.5 disabled:cursor-not-allowed"
+                  className="press flex h-11 min-w-11 items-center justify-center rounded-full p-0.5 disabled:cursor-not-allowed"
                   style={{
                     background: isAuto
                       ? undefined

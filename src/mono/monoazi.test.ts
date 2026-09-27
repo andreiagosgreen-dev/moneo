@@ -26,6 +26,7 @@ function screen(overrides = {}) {
     locale: 'en',
     onLocaleChange: () => {},
     children: createElement(MonoAzi, {
+      dayKey: '2026-9-26',
       doneCount: 2,
       totalCount: 5,
       items: [
@@ -89,6 +90,30 @@ describe('MonoAzi', () => {
     expect(input.placeholder).toBe('List is full (6).');
   });
 
+  it('shows an empty priorities card with plural add placeholder (no thick blank bar)', () => {
+    const c = render(screen({ items: [], totalCount: 0, doneCount: 0, program: undefined }));
+    expect(c.textContent).toContain('What should you finish today?');
+    expect(c.textContent).toContain('Draft the chapter outline');
+    expect(c.textContent).toContain('Write the list. Work in order.');
+    const input = c.querySelector('#mono-azi-new') as HTMLInputElement;
+    expect(input.placeholder).toBe('Add tasks for today');
+    expect(c.querySelectorAll('[role="checkbox"]').length).toBe(0);
+    expect(c.textContent).not.toContain('Schedule');
+  });
+
+  it('shows go-work CTA when there are open priorities', () => {
+    const onGoWork = vi.fn();
+    const c = render(screen({ onGoWork }));
+    expect(c.textContent).toContain('Open Focus');
+    const btn = Array.from(c.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Open Focus',
+    )!;
+    act(() => {
+      btn.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    expect(onGoWork).toHaveBeenCalledTimes(1);
+  });
+
   it('fires ritual buttons', () => {
     const onMorning = vi.fn();
     const onShutdown = vi.fn();
@@ -101,5 +126,18 @@ describe('MonoAzi', () => {
       btns[0].dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
     expect(onMorning).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders the habits slot between program and more', () => {
+    const c = render(
+      screen({
+        habits: createElement('div', null, 'HABITS_SLOT'),
+        more: createElement('div', null, 'MORE_SLOT'),
+      }),
+    );
+    expect(c.textContent).toContain('HABITS_SLOT');
+    expect(c.textContent).toContain('MORE_SLOT');
+    const text = c.textContent ?? '';
+    expect(text.indexOf('HABITS_SLOT')).toBeLessThan(text.indexOf('MORE_SLOT'));
   });
 });

@@ -19,6 +19,12 @@ import {
   suggestTasksForGoal,
   updateGoal,
 } from '../lib/goals';
+import {
+  decomposeGoalChildren,
+  decomposeGoalTaskDrafts,
+  shouldAutoDecompose,
+  withEstimate,
+} from '../lib/decomposeScope';
 import { AREA_LABEL_KEYS, type LifeArea } from '../lib/lifeAreas';
 import type { Project } from '../lib/projects';
 import { activeProjects, createProjectObject } from '../lib/projects';
@@ -50,6 +56,8 @@ interface Props {
   skills: Skill[];
   objectives: Objective[];
   isPro?: boolean;
+  /** Select project+task and open Focus timer on that scope. */
+  onWorkFocus?: (projectId: string, taskId: string | null) => void;
 }
 
 // Re-export guard: parents listed for a level must be broader + active.
@@ -73,6 +81,7 @@ export default function GoalsCard({
   skills,
   objectives,
   isPro = false,
+  onWorkFocus,
 }: Props) {
   const [draft, setDraft] = useState('');
   const [draftLevel, setDraftLevel] = useState<GoalLevel>('project');
@@ -100,12 +109,42 @@ export default function GoalsCard({
   const conflicts = useMemo(() => goalConflicts(goals), [goals]);
   const maxIvy = isPro ? IVY_MAX_TASKS : IVY_FREE_MAX_TASKS;
   const todayKey = dayKeyInTz(Date.now(), timezone);
+  const levelLabel = (level: GoalLevel) => t(GOAL_LEVEL_KEYS[level] as TKey);
 
   const add = () => {
     if (!draft.trim() || atCapacity) return;
-    const goal = createGoalObject(goals, draft, draftLevel, draftParent || undefined);
+    let goal = createGoalObject(goals, draft, draftLevel, draftParent || undefined);
     if (!goal) return;
-    goalsChange([...goals, goal]);
+
+    let nextProjects = projects;
+    let nextTasks = tasks;
+    // Link a project so Focus can bind to decomposed work.
+    const project = createProjectObject(goal.title.slice(0, 60), 'personal');
+    nextProjects = [...projects, project];
+    goal = { ...goal, projectId: project.id, updatedAt: Date.now() };
+
+    const liveCount = goals.filter((g) => !g.archived).length;
+    const room = isPro ? 99 : Math.max(0, FREE_GOALS_LIMIT - liveCount - 1);
+    const kids =
+      shouldAutoDecompose(goal.level) && room > 0
+        ? decomposeGoalChildren(goal, {
+            label: levelLabel,
+            maxChildren: room,
+            projectId: project.id,
+          })
+        : [];
+
+    const drafts = decomposeGoalTaskDrafts(kids.length > 0 ? kids : [goal], goal.title, levelLabel);
+    for (const d of drafts) {
+      nextTasks = [
+        ...nextTasks,
+        withEstimate(createTaskObject(project.id, d.title, d.priority), d.estimateMin),
+      ];
+    }
+
+    projectsChange(nextProjects);
+    onTasksChange(nextTasks);
+    goalsChange([...goals, goal, ...kids]);
     setDraft('');
     setDraftParent('');
   };
@@ -156,6 +195,60 @@ export default function GoalsCard({
     if (added) onIvyPlansChange(plans);
   };
 
+  /** Bind this goal's project + a matching task into Focus timer context. */
+  const workFocus = (goal: Goal) => {
+    if (!onWorkFocus) return;
+    const { project } = ensureGoalProject(goal);
+    const open = tasksForProject(tasks, project.id);
+    let task =
+      open.find((x) => x.title === goal.title && x.status !== 'completed') ??
+      open.find((x) => x.status !== 'completed');
+    if (!task) {
+      task = withEstimate(createTaskObject(project.id, goal.title, 'p1'), 60);
+      onTasksChange([...tasks, task]);
+    }
+    onWorkFocus(project.id, task.id);
+  };
+
+  /** When a target date is set on a leaf-less goal, grow the horizon spine. */
+  const setTargetAndMaybeDecompose = (goal: Goal, targetDate: number | null) => {
+    if (!targetDate) {
+      goalsChange(updateGoal(goals, goal.id, { targetDate: null }));
+      return;
+    }
+    const kids = childrenOf(goals, goal.id);
+    if (kids.length > 0 || !shouldAutoDecompose(goal.level)) {
+      goalsChange(updateGoal(goals, goal.id, { targetDate }));
+      return;
+    }
+    const { project, goals: linkedGoals } = ensureGoalProject(goal);
+    const liveCount = linkedGoals.filter((g) => !g.archived).length;
+    const room = isPro ? 99 : Math.max(0, FREE_GOALS_LIMIT - liveCount);
+    let next = updateGoal(linkedGoals, goal.id, { targetDate, projectId: project.id });
+    const stamped = next.find((g) => g.id === goal.id);
+    if (!stamped || room <= 0) {
+      goalsChange(next);
+      return;
+    }
+    const children = decomposeGoalChildren(
+      { ...stamped, targetDate, projectId: project.id },
+      { label: levelLabel, maxChildren: room, projectId: project.id },
+    );
+    next = [...next, ...children];
+    const drafts = decomposeGoalTaskDrafts(children, stamped.title, levelLabel);
+    if (drafts.length > 0) {
+      let nextTasks = tasks;
+      for (const d of drafts) {
+        nextTasks = [
+          ...nextTasks,
+          withEstimate(createTaskObject(project.id, d.title, d.priority), d.estimateMin),
+        ];
+      }
+      onTasksChange(nextTasks);
+    }
+    goalsChange(next);
+  };
+
   return (
     <section className="card flex h-full flex-col px-6 py-6 sm:px-7" aria-label={t('goal.aria')}>
       <header className="flex items-baseline justify-between gap-3">
@@ -202,6 +295,8 @@ export default function GoalsCard({
               ancestorIds={[]}
               onGenerate={generateTasks}
               onSendToToday={sendToToday}
+              onWorkFocus={onWorkFocus ? workFocus : undefined}
+              onTargetDate={setTargetAndMaybeDecompose}
               links={links}
               onLinksChange={onLinksChange}
               skills={skills}
@@ -320,6 +415,8 @@ interface NodeProps {
   ancestorIds: string[];
   onGenerate: (goal: Goal) => void;
   onSendToToday: (goal: Goal) => void;
+  onWorkFocus?: (goal: Goal) => void;
+  onTargetDate?: (goal: Goal, targetDate: number | null) => void;
   links: EntityLink[];
   onLinksChange: (links: EntityLink[]) => void;
   skills: Skill[];
@@ -337,6 +434,8 @@ function GoalNode({
   ancestorIds,
   onGenerate,
   onSendToToday,
+  onWorkFocus,
+  onTargetDate,
   links,
   onLinksChange,
   skills,
@@ -410,15 +509,18 @@ function GoalNode({
               <input
                 type="date"
                 value={goal.targetDate ? new Date(goal.targetDate).toISOString().slice(0, 10) : ''}
-                onChange={(e) =>
-                  goalsChange(
-                    updateGoal(goals, goal.id, {
-                      targetDate: e.target.value
-                        ? new Date(e.target.value + 'T12:00:00').getTime()
-                        : null,
-                    }),
-                  )
-                }
+                onChange={(e) => {
+                  const next = e.target.value
+                    ? new Date(e.target.value + 'T12:00:00').getTime()
+                    : null;
+                  if (onTargetDate) onTargetDate(goal, next);
+                  else
+                    goalsChange(
+                      updateGoal(goals, goal.id, {
+                        targetDate: next,
+                      }),
+                    );
+                }}
                 className="h-8 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
                 title={t('goal.targetDate')}
               />
@@ -537,6 +639,16 @@ function GoalNode({
               </div>
             )}
             <div className="flex flex-wrap items-center gap-1.5">
+              {onWorkFocus && (
+                <button
+                  onClick={() => onWorkFocus(goal)}
+                  className="press rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-on-accent ring-1 ring-inset ring-accent/40"
+                  style={{ background: 'var(--accent)' }}
+                  title={t('goal.workFocusTitle')}
+                >
+                  {t('goal.workFocus')}
+                </button>
+              )}
               <button
                 onClick={() => onGenerate(goal)}
                 className="press rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream disabled:opacity-40"
@@ -597,6 +709,8 @@ function GoalNode({
               ancestorIds={[...ancestorIds, goal.id]}
               onGenerate={onGenerate}
               onSendToToday={onSendToToday}
+              onWorkFocus={onWorkFocus}
+              onTargetDate={onTargetDate}
               links={links}
               onLinksChange={onLinksChange}
               skills={skills}

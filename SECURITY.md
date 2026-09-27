@@ -22,10 +22,18 @@ no server table exists for them, so there is nothing to leak server-side.
 no `dangerouslySetInnerHTML`, escaped report HTML) instead of claiming
 local encryption that does not exist.
 
+**BYOK Assistant keys** (optional): the user's Gemini / OpenAI / DeepSeek
+key stays in `localStorage` (`moneo:ai-byok`) and is sent **only** from the
+browser to that provider (header auth; never logged, never to Moneo
+workers). Production CSP `connect-src` allowlists those three API hosts.
+Prefer the server `/api/ai/plan` path (`AI_API_KEY` Worker secret) when you
+do not want a provider key in the browser at all.
+
 ## Edge (Cloudflare Worker)
 
 - **Headers on every response** (`cloudflare/workers/security.ts`): strict
   CSP (`default-src 'self'`, fonts/Supabase/Lemon Squeezy allowlisted,
+  BYOK provider hosts for optional client keys,
   `frame-ancestors 'none'`, no `unsafe-inline`/`unsafe-eval`),
   `nosniff`, strict referrer policy, minimal permissions policy
   (microphone intentionally allowed — voice input is a feature),

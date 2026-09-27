@@ -1,22 +1,38 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
 interface Props {
   title: string;
   hint?: string;
   defaultOpen: boolean;
-  children: React.ReactNode;
+  /** Controlled open — when set, parent owns expand/collapse. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  children: ReactNode;
 }
 
 /**
- * Progressive disclosure section (Roadmap Faza 2): power features stay one
- * tap away instead of crowding first-run screens. Plain section header —
- * deliberately NOT a card, so cards never nest. Instant toggle, respects
- * reduced-motion by construction.
+ * Progressive disclosure (Roadmap Faza 2): power features stay one tap away.
+ * Children stack as full-width rows (one under the other) — never side-by-side
+ * narrow columns.
  */
-export default function Disclosure({ title, hint, defaultOpen, children }: Props) {
-  const [open, setOpen] = useState(defaultOpen);
+export default function Disclosure({
+  title,
+  hint,
+  defaultOpen,
+  open: openProp,
+  onOpenChange,
+  children,
+}: Props) {
+  const [uncontrolled, setUncontrolled] = useState(defaultOpen);
+  const controlled = openProp !== undefined;
+  const open = controlled ? openProp : uncontrolled;
+  const setOpen = (next: boolean | ((prev: boolean) => boolean)) => {
+    const value = typeof next === 'function' ? next(open) : next;
+    if (controlled) onOpenChange?.(value);
+    else setUncontrolled(value);
+  };
   return (
-    <div className="md:col-span-2">
+    <div className="md:col-span-2" id="today-more">
       <button
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
@@ -31,14 +47,14 @@ export default function Disclosure({ title, hint, defaultOpen, children }: Props
           ▸
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block font-display text-[17px] font-bold tracking-tight text-cream">
+          <span className="block font-display text-[19px] font-bold tracking-tight text-cream">
             {title}
           </span>
-          {hint && <span className="mt-1 block text-[13px] text-sage">{hint}</span>}
+          {hint && <span className="mt-1.5 block text-[15px] leading-snug text-sage">{hint}</span>}
         </span>
       </button>
       {open && (
-        <div className="mt-5 grid min-w-0 items-start gap-6 md:grid-cols-2 [&>*]:min-w-0">
+        <div className="mt-5 flex min-w-0 flex-col gap-5 [&>*]:min-w-0 [&>*]:w-full">
           {children}
         </div>
       )}

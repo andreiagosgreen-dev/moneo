@@ -25,7 +25,15 @@ export type FontChoice =
   | 'cal-sans'
   | 'jetbrains'
   | 'fraunces'
-  | 'dm-sans';
+  | 'dm-sans'
+  | 'lora'
+  | 'ibm-plex'
+  | 'manrope'
+  | 'spectral'
+  | 'outfit'
+  | 'crimson'
+  | 'space-grotesk'
+  | 'newsreader';
 export type FontScale = 'normal' | 'comfort' | 'compact';
 
 export interface UITheme {
@@ -65,6 +73,14 @@ export const FONT_OPTIONS: FontChoice[] = [
   'jetbrains',
   'fraunces',
   'dm-sans',
+  'lora',
+  'ibm-plex',
+  'manrope',
+  'spectral',
+  'outfit',
+  'crimson',
+  'space-grotesk',
+  'newsreader',
 ];
 export const FONT_SCALE_OPTIONS: FontScale[] = ['normal', 'comfort', 'compact'];
 

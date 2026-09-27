@@ -32,6 +32,7 @@ export const ACCOUNT_DATA_TABLES = [
 
 interface SupabaseUser {
   id?: unknown;
+  email?: unknown;
 }
 
 function json(body: Record<string, unknown>, status: number): Response {
@@ -50,6 +51,40 @@ export function bearerToken(request: Request): string | null {
   return token.length > 0 ? token : null;
 }
 
+export interface VerifiedUser {
+  userId: string;
+  email: string | null;
+}
+
+/**
+ * Resolve identity from a JWT via Supabase Auth (`/auth/v1/user`).
+ * Returns null when the token is invalid, expired or unverifiable.
+ */
+export async function verifyUser(
+  supabaseUrl: string,
+  serviceKey: string,
+  token: string,
+  fetchImpl: FetchImpl,
+): Promise<VerifiedUser | null> {
+  try {
+    const res = await fetchImpl(`${supabaseUrl}/auth/v1/user`, {
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!res.ok) return null;
+    const user = (await res.json()) as SupabaseUser;
+    if (typeof user.id !== 'string' || user.id.length === 0) return null;
+    return {
+      userId: user.id,
+      email: typeof user.email === 'string' && user.email.length > 0 ? user.email : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Resolve the true user id from a JWT via Supabase Auth.
  * Returns null when the token is invalid, expired or unverifiable.
@@ -60,19 +95,8 @@ export async function verifyUserToken(
   token: string,
   fetchImpl: FetchImpl,
 ): Promise<string | null> {
-  try {
-    const res = await fetchImpl(`${supabaseUrl}/auth/v1/user`, {
-      headers: {
-        apikey: serviceKey,
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (!res.ok) return null;
-    const user = (await res.json()) as SupabaseUser;
-    return typeof user.id === 'string' && user.id.length > 0 ? user.id : null;
-  } catch {
-    return null;
-  }
+  const user = await verifyUser(supabaseUrl, serviceKey, token, fetchImpl);
+  return user?.userId ?? null;
 }
 
 /** Delete every user-data row; false on the first failure (abort, retryable). */

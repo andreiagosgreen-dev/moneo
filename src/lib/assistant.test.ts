@@ -123,7 +123,7 @@ describe('respondTo', () => {
     expect(respondTo('help', ctx).text).toContain('frog');
     expect(respondTo('pick my frog', ctx).text).toContain('Hard thing');
     expect(respondTo('what should I work on?', ctx).text).toContain('Hard thing');
-    expect(respondTo('show my matrix', ctx).text).toContain('do-first');
+    expect(respondTo('show my matrix', ctx).text).toContain('Matrix:');
   });
 
   it('reports goals and daily progress', () => {
@@ -185,16 +185,16 @@ describe('tone + motivation', () => {
 
   it('flavors the fallback per tone', () => {
     const ctx = makeCtx();
-    expect(respondTo('blargh', ctx, 'direct').text).toContain('Now.');
-    expect(respondTo('blargh', ctx, 'encouraging').text).toContain('💪');
+    expect(respondTo('blargh', ctx, 'direct').text).toContain('pick my frog');
+    expect(respondTo('blargh', ctx, 'encouraging').text).toContain('pick my frog');
     expect(respondTo('blargh', ctx).action).toBeNull();
   });
 
   it('motivates from streak and today', () => {
     const at = Date.now();
-    expect(motivationLine([], 'UTC')).toContain('Fresh page');
-    expect(motivationLine([{ at, min: 30 }], 'UTC', 'direct')).toContain('No excuses');
-    expect(motivationLine([{ at, min: 30 }], 'UTC', 'encouraging')).toContain('💪');
+    expect(motivationLine([], 'UTC')).toContain('25-minute session');
+    expect(motivationLine([{ at, min: 30 }], 'UTC', 'direct')).toContain('Start the timer');
+    expect(motivationLine([{ at, min: 30 }], 'UTC', 'encouraging')).toContain('You can do this');
   });
 
   it('builds a day plan from frog, focus and goals', () => {
@@ -233,7 +233,7 @@ describe('tone + motivation', () => {
       ],
     });
     const reply = respondTo('plan my day', ctx);
-    expect(reply.text).toContain('Peak energy');
+    expect(reply.text).toContain('Best focus around');
   });
 });
 

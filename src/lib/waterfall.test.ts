@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  WATERFALL_PACKS,
   WATERFALL_STARTERS,
   createPhaseObject,
   deletePhase,
   loadPhases,
   phasesForProject,
   rollbackPhase,
+  seedPhasesForProject,
   seedStarterPhases,
   setPhaseStatus,
   updatePhase,
@@ -55,6 +57,13 @@ describe('waterfall', () => {
       'Testing',
       'Deployment',
     ]);
+  });
+
+  it('seeds build pack with hardware gates', () => {
+    const seeded = seedPhasesForProject([], 'hw1', 'build');
+    expect(seeded).toHaveLength(WATERFALL_PACKS.build.length);
+    expect(seeded[0].name).toBe('Spec');
+    expect(seeded[seeded.length - 1].name).toBe('Improve');
   });
 
   it('seeds starters once per project', () => {

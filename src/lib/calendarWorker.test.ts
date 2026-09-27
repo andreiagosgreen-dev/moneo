@@ -117,6 +117,27 @@ describe('handleCalendarConnect', () => {
     expect((await handleCalendarConnect(req, ENV, fn)).status).toBe(403);
   });
 
+  it('allows a Free Lemon user on the complimentary email allowlist', async () => {
+    const { fn } = stubFetch((url) => {
+      if (url.endsWith('/auth/v1/user'))
+        return { status: 200, body: { id: 'user-1', email: 'Owner@Moneo.bond' } };
+      if (url.includes('/rest/v1/subscriptions'))
+        return { status: 200, body: [{ status: 'free' }] };
+      if (url.includes('/rest/v1/google_calendar_connections')) return { status: 200, body: {} };
+      return { status: 200, body: [] };
+    });
+    const req = new Request('https://moneo.bond/api/calendar/connect', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer good-token' },
+      body: JSON.stringify({ refreshToken: 'rt-comp' }),
+    });
+    const env: CalendarEnv = {
+      ...ENV,
+      PRO_COMPLIMENTARY_EMAILS: 'owner@moneo.bond,friend@example.com',
+    };
+    expect((await handleCalendarConnect(req, env, fn)).status).toBe(200);
+  });
+
   it('rejects an oversized or missing refresh token', async () => {
     const { fn } = proBackend({});
     const missing = new Request('https://moneo.bond/api/calendar/connect', {

@@ -71,7 +71,7 @@ afterEach(() => {
 describe('MonoFocus', () => {
   it('renders greeting, timer, stats and up next', () => {
     const c = render(screen());
-    expect(c.textContent).toContain("Good. Let's work.");
+    expect(c.textContent).toContain('Ready to focus.');
     expect(c.textContent).toContain('25:00');
     expect(c.textContent).toContain('New session');
     expect(c.textContent).toContain('Sessions');
@@ -107,48 +107,33 @@ describe('MonoFocus', () => {
       start.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
     expect(onToggle).toHaveBeenCalledTimes(1);
-    const see = Array.from(c.querySelectorAll('button')).find((b) => b.textContent === 'See plan')!;
+    const see = Array.from(c.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Open plan',
+    )!;
     act(() => {
       see.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
     expect(onSeePlan).toHaveBeenCalledTimes(1);
   });
 
-  it('offers the four atmospheres and reports the chosen one', () => {
-    const onAtmosphere = vi.fn();
-    const c = render(screen({ onAtmosphere }));
-    const names = [
-      'Paper',
-      'Sanctuary',
-      'Clear',
-      'Ritual',
-      'Dawn',
-      'Studio',
-      'Chapter',
-      'Shore',
-      'Night',
-      'Wax',
-      'Snow',
-      'Charcoal',
-      'Garden',
-      'Clay',
-      'Ink',
-      'Aurora',
-      'Stone',
-      'Honey',
-      'Sea',
-      'Lamp',
-    ];
-    for (const name of names) {
-      expect(c.textContent).toContain(name);
-    }
-    const sanctuary = Array.from(c.querySelectorAll('button')).find(
-      (b) => b.textContent === 'Sanctuary',
+  it('does not render the atmosphere picker (moved to Settings)', () => {
+    const c = render(screen({ atmosphere: 'ritual' }));
+    expect(c.querySelector('.atm-picker')).toBeNull();
+    expect(c.querySelector('.atm-ritual')).toBeTruthy();
+  });
+
+  it('shows empty plan hint when up next is empty', () => {
+    const onSeePlan = vi.fn();
+    const c = render(screen({ upNext: [], onSeePlan }));
+    expect(c.textContent).toContain('No plan yet. Write today’s list first.');
+    expect(c.textContent).toContain("Today's plan");
+    const write = Array.from(c.querySelectorAll('button')).find(
+      (b) => b.textContent === "Write today's plan",
     )!;
     act(() => {
-      sanctuary.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      write.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
-    expect(onAtmosphere).toHaveBeenCalledWith('sanctuar');
+    expect(onSeePlan).toHaveBeenCalledTimes(1);
   });
 
   it('shows the completion summary with feedback buttons', () => {
@@ -156,7 +141,7 @@ describe('MonoFocus', () => {
     const c = render(screen({ summary: { id: 1, minutes: 25 }, estimatePomodoros: 1, onFeedback }));
     expect(c.textContent).toContain('Focus session complete');
     const fb = Array.from(c.querySelectorAll('button')).filter((b) =>
-      ['Done', 'Continue', 'Blocked', 'Off-est.'].includes(b.textContent ?? ''),
+      ['Done', 'Continue', 'Blocked', 'Off estimate'].includes(b.textContent ?? ''),
     );
     expect(fb.length).toBe(4);
     act(() => {

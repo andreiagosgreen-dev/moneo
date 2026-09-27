@@ -156,6 +156,17 @@ export function togglePlanTask(plans: IvyPlan[], dateKey: string, taskId: string
   ]);
 }
 
+/** True when today's plan already mirrors this project task. */
+export function dayPlanHasLinkedTask(
+  plans: IvyPlan[],
+  dateKey: string,
+  linkedTaskId: string,
+): boolean {
+  if (!linkedTaskId) return false;
+  const plan = planForDay(plans, dateKey);
+  return !!plan?.tasks.some((t) => t.taskId === linkedTaskId);
+}
+
 export function renamePlanTask(
   plans: IvyPlan[],
   dateKey: string,

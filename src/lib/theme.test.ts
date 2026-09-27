@@ -85,6 +85,8 @@ describe('Pro font gate', () => {
   it('resolveFont keeps Pro packs only while subscribed', () => {
     expect(resolveFont('fraunces', true)).toBe('fraunces');
     expect(resolveFont('fraunces', false)).toBe('default');
+    expect(resolveFont('newsreader', true)).toBe('newsreader');
+    expect(resolveFont('space-grotesk', false)).toBe('default');
     expect(resolveFont('default', false)).toBe('default');
   });
 

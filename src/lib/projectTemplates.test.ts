@@ -8,10 +8,10 @@ import {
 } from './projectTemplates';
 
 describe('projectTemplates', () => {
-  it('ships six blueprints across all project categories', () => {
-    expect(PROJECT_TEMPLATES).toHaveLength(6);
+  it('ships seven blueprints across all project categories', () => {
+    expect(PROJECT_TEMPLATES).toHaveLength(7);
     const ids = PROJECT_TEMPLATES.map((t) => t.id);
-    expect(new Set(ids).size).toBe(6);
+    expect(new Set(ids).size).toBe(7);
   });
 
   it('gates pro blueprints behind Pro (free sees starters only)', () => {

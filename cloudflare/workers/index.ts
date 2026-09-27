@@ -37,6 +37,9 @@ import {
   mergeHeaders,
   canonicalRedirect,
 } from './security';
+import { isStaticAssetPath, isRevalidateAlwaysPath } from './staticAssetPath';
+
+export { isStaticAssetPath } from './staticAssetPath';
 
 /** Best-effort per-isolate guards (see security.ts for the caveat). */
 const webhookLimiter = createRateLimiter({ windowMs: 60_000, max: 30 });
@@ -82,6 +85,8 @@ export interface Env {
   /** Reused from the existing Google Sign-In OAuth client — not a new app. */
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
+  /** Comma-separated emails with Free branding + Pro unlock (not Lemon-paid). */
+  PRO_COMPLIMENTARY_EMAILS?: string;
 }
 
 const DEFAULT_ALLOWED_ORIGINS = 'https://moneo.bond';
@@ -221,10 +226,23 @@ export default {
       return new Response(object.body, {
         headers: mergeHeaders(SEC, cors, {
           'Content-Type': contentType,
-          'Cache-Control':
-            filePath === '/index.html'
-              ? 'public, max-age=0, must-revalidate'
-              : 'public, max-age=31536000, immutable',
+          // index.html + SW + manifest must revalidate so clients pick up
+          // new builds; hashed assets stay immutable.
+          'Cache-Control': isRevalidateAlwaysPath(filePath)
+            ? 'public, max-age=0, must-revalidate'
+            : 'public, max-age=31536000, immutable',
+        }),
+      });
+    }
+
+    // Missing hashed assets must be real 404s — never HTML. Returning index.html
+    // for `/assets/*.js` makes the browser try to execute HTML as a module →
+    // blank/black screen (dark body bg, empty #root).
+    if (isStaticAssetPath(filePath)) {
+      return new Response(`Not Found. Tried to fetch: ${r2Key}`, {
+        status: 404,
+        headers: mergeHeaders(SEC, cors, {
+          'Cache-Control': 'no-store',
         }),
       });
     }
@@ -388,6 +406,7 @@ function getContentType(filePath: string): string {
     jpg: 'image/jpeg',
     jpeg: 'image/jpeg',
     svg: 'image/svg+xml',
+    woff: 'font/woff',
     woff2: 'font/woff2',
     webmanifest: 'application/manifest+json',
   };

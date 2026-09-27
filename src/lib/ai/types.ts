@@ -8,7 +8,7 @@
  * implement the same interface tomorrow (never in the browser).
  */
 
-export type PathKind = 'learning' | 'launch' | 'general';
+export type PathKind = 'learning' | 'launch' | 'build' | 'general';
 export type SkillLevel = 'beginner' | 'intermediate' | 'advanced';
 
 export interface PathInput {
@@ -16,6 +16,8 @@ export interface PathInput {
   horizonMonths?: number;
   level?: SkillLevel;
   hoursPerWeek?: number;
+  /** When set (e.g. Assistant group chip), skips keyword detectKind. */
+  kind?: PathKind;
 }
 
 export interface ResolvedPathInput {
@@ -23,6 +25,7 @@ export interface ResolvedPathInput {
   horizonMonths: number;
   level: SkillLevel;
   hoursPerWeek: number;
+  kind?: PathKind;
 }
 
 /** Ids of clarification questions — UI maps them to translated prompts. */

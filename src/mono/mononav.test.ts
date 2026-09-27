@@ -74,6 +74,18 @@ describe('MonoNav', () => {
     expect(img?.getAttribute('src')).toBe('/brand/moneo-mark-1200.png');
     expect(brand!.textContent).toContain('Moneo');
   });
+
+  it('groups account foot as identity, tools, then new-session CTA', () => {
+    const c = render(withProviders('focus', () => {}));
+    const foot = c.querySelector('.mono-rail-foot');
+    expect(foot).toBeTruthy();
+    expect(foot!.querySelector('.mono-rail-foot-identity')).toBeTruthy();
+    expect(foot!.querySelector('.mono-rail-tools')).toBeTruthy();
+    const cta = foot!.querySelector('.mono-rail-new');
+    expect(cta).toBeTruthy();
+    expect(cta!.className).toMatch(/mono-btn-primary/);
+    expect(cta!.textContent).toMatch(/New session/i);
+  });
 });
 
 describe('MonoMore', () => {
