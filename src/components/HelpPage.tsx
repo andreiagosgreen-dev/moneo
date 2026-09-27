@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
+import MonoLegalLinks from '../mono/MonoLegalLinks';
+import LegalInline from './legal/LegalInline';
 
 const SECTIONS: Array<{ titleKey: TKey; bodyKey: TKey }> = [
   { titleKey: 'help.s.timer.t', bodyKey: 'help.s.timer.b' },
@@ -39,6 +41,24 @@ export default function HelpPage() {
             <p className="mt-1 text-[13px] leading-relaxed text-sage">{t(s.bodyKey)}</p>
           </section>
         ))}
+        <section
+          id="contact"
+          className="rounded-xl bg-ink/40 px-5 py-4 ring-1 ring-inset ring-line"
+        >
+          <h2 className="font-display text-[16px] font-bold text-cream">{t('legal.cardTitle')}</h2>
+          <p className="mt-1 text-[13px] leading-relaxed text-sage">
+            <LegalInline
+              text={t('legal.contactBody')}
+              docLabels={{
+                terms: t('legal.termsLink'),
+                privacy: t('legal.privacyLink'),
+                refund: t('legal.refundLink'),
+              }}
+              linkClassName="font-semibold text-cream underline underline-offset-2"
+            />
+          </p>
+          <MonoLegalLinks className="mt-3" />
+        </section>
       </div>
     </div>
   );
