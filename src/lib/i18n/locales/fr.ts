@@ -908,6 +908,23 @@ export const fr: Record<TKey, string> = {
   'foot.help': 'Aide',
   'foot.privacy': 'Confidentialité',
   'foot.terms': 'Conditions',
+  'foot.refund': 'Remboursement',
+  'foot.contact': 'Contact',
+  'legal.nav': 'Mentions légales et contact',
+  'legal.bindingNote':
+    "Ce document n'est disponible qu'en anglais. Seule la version anglaise fait foi juridiquement.",
+  'legal.showEnglish': "Lire l'original en anglais",
+  'legal.showTranslation': 'Afficher la traduction',
+  'legal.agree': 'En créant un compte, vous acceptez les {terms} et la {privacy}.',
+  'legal.ageNote': 'Moins de {n} ans ? Demandez d’abord à un parent ou à un tuteur.',
+  'legal.termsLink': "Conditions d'utilisation",
+  'legal.privacyLink': 'Politique de confidentialité',
+  'legal.refundLink': 'Politique de remboursement',
+  'legal.cardTitle': 'Aide, contact et mentions légales',
+  'legal.contactBody':
+    'Questions, facturation, remboursements ou demandes sur vos données ? Écrivez-nous à {email}.',
+  'legal.refundLine':
+    'Satisfait ou remboursé pendant {n} jours, sans justification. Voir la {refund}.',
   'foot.hintStart': 'démarrer / pause',
   'foot.hintReset': 'réinitialiser',
   'mono.nav.focus': 'Focus',

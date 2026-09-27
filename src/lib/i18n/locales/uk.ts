@@ -913,6 +913,23 @@ export const uk: Record<TKey, string> = {
   'foot.help': 'Допомога',
   'foot.privacy': 'Приватність',
   'foot.terms': 'Умови',
+  'foot.refund': 'Повернення',
+  'foot.contact': 'Контакти',
+  'legal.nav': 'Правова інформація та контакти',
+  'legal.bindingNote':
+    'Цей документ доступний лише англійською. Юридично обов’язковою є англійська версія.',
+  'legal.showEnglish': 'Читати оригінал англійською',
+  'legal.showTranslation': 'Показати переклад',
+  'legal.agree': 'Створюючи обліковий запис, ви погоджуєтеся з {terms} та {privacy}.',
+  'legal.ageNote': 'Вам менше {n}? Спершу попросіть дозволу в батьків або опікуна.',
+  'legal.termsLink': 'Умовами використання',
+  'legal.privacyLink': 'Політикою конфіденційності',
+  'legal.refundLink': 'Політика повернення коштів',
+  'legal.cardTitle': 'Допомога, контакти та правова інформація',
+  'legal.contactBody':
+    'Питання, оплата, повернення коштів чи запити щодо даних? Пишіть нам на {email}.',
+  'legal.refundLine':
+    'Гарантія повернення коштів протягом {n} днів без запитань. Докладніше: {refund}.',
   'foot.hintStart': 'старт / пауза',
   'foot.hintReset': 'скидання',
   'mono.nav.focus': 'Фокус',
