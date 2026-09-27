@@ -27,11 +27,13 @@ export const MAX_WEBHOOK_BODY_BYTES = 1_000_000;
  * DSN, hence connect-src rather than a hard requirement anywhere else.
  * BYOK Assistant (user's own Gemini/OpenAI/DeepSeek keys) calls those
  * providers from the browser — narrowly allowlisted origins only.
+ * Cloudflare Web Analytics (injected at the edge) loads its beacon from
+ * static.cloudflareinsights.com and reports to cloudflareinsights.com.
  */
 export function buildSecurityHeaders(): Record<string, string> {
   const csp = [
     "default-src 'self'",
-    "script-src 'self' https://challenges.cloudflare.com",
+    "script-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com",
     "style-src 'self'",
     "font-src 'self' data:",
     "img-src 'self' data: blob:",
@@ -42,6 +44,7 @@ export function buildSecurityHeaders(): Record<string, string> {
       'https://*.lemonsqueezy.com',
       'https://challenges.cloudflare.com',
       'https://*.sentry.io',
+      'https://cloudflareinsights.com',
       'https://generativelanguage.googleapis.com',
       'https://api.openai.com',
       'https://api.deepseek.com',
