@@ -1,5 +1,8 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/authProvider';
 import { initiateCheckout, type Plan } from '../lib/billing/lemonSqueezy';
+import { loginPathForUpgrade, type PaidPlanId } from '../lib/billing/upgradeIntent';
 import {
   PRICING_PLANS_DISPLAY,
   PRO_PRICES,
@@ -47,17 +50,20 @@ export default function PricingCard() {
   const { t } = useI18n();
   const auth = useAuth();
   const plans = PRICING_PLANS_DISPLAY;
+  const navigate = useNavigate();
+  const [payError, setPayError] = useState('');
   const currentPlan: Plan = auth.isPro ? (auth.subscription.planId as Plan) : 'free';
 
-  const handleSubscribe = (planId: Plan) => {
+  const handleSubscribe = (planId: PaidPlanId) => {
+    setPayError('');
     if (!auth.user) {
-      alert(t('pay.signin'));
+      navigate(loginPathForUpgrade(planId));
       return;
     }
 
     const checkoutUrl = initiateCheckout(planId, auth.user.userId);
     if (!checkoutUrl || !openExternal(checkoutUrl)) {
-      alert(t('pay.unavailable'));
+      setPayError(t('pay.unavailable'));
     }
   };
 
@@ -126,7 +132,7 @@ export default function PricingCard() {
 
               {isPaid && !isCurrent && (
                 <button
-                  onClick={() => handleSubscribe(plan.id)}
+                  onClick={() => handleSubscribe(plan.id as PaidPlanId)}
                   className="press btn-accent mt-4 flex h-9 w-full items-center justify-center rounded-lg font-display text-sm font-bold"
                 >
                   {t('pay.upgrade')}
@@ -136,6 +142,12 @@ export default function PricingCard() {
           );
         })}
       </div>
+
+      {payError && (
+        <p role="alert" className="mt-4 text-[12px] font-medium text-tomato">
+          {payError}
+        </p>
+      )}
 
       <p className="mt-5 text-[11px] leading-relaxed text-faint">{t('pay.note')}</p>
       <p className="mt-3 text-[12px] leading-relaxed text-sage">

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useI18n } from '../lib/i18n/LocaleContext';
-import { getSupabaseAccessToken, requestCustomerPortalUrl } from '../lib/billing/lemonSqueezy';
+import { getSupabaseAccessToken, resolveCustomerPortalUrl } from '../lib/billing/lemonSqueezy';
+import { openExternal } from '../lib/links';
 
 function Spinner() {
   return (
@@ -25,26 +26,21 @@ function Spinner() {
 
 /**
  * Self-serve billing via the Lemon Squeezy Customer Portal.
- * The Worker issues a pre-signed portal URL (API key stays server-side);
- * cancel, upgrade and downgrade all happen inside that portal — no manual
- * support, no custom billing mutations.
+ * The Worker issues a pre-signed portal URL when it holds the API key;
+ * otherwise the store's email-login portal opens. Cancel, upgrade and
+ * downgrade all happen inside that portal — no custom billing mutations.
  */
 export default function ManageSubscriptionButton() {
   const { t } = useI18n();
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
 
   const open = async () => {
     if (busy) return;
     setBusy(true);
-    setError('');
-    const res = await requestCustomerPortalUrl(getSupabaseAccessToken);
+    const url = await resolveCustomerPortalUrl(getSupabaseAccessToken);
     setBusy(false);
-    if (res.ok && res.url) {
-      window.open(res.url, '_blank', 'noopener,noreferrer');
-    } else {
-      setError(t('pay.portalError'));
-    }
+    // The await can cost the click's popup permission — same-tab instead.
+    if (!openExternal(url)) window.location.assign(url);
   };
 
   return (
@@ -63,11 +59,6 @@ export default function ManageSubscriptionButton() {
           {t('pay.manage')}
         </button>
       </div>
-      {error && (
-        <p role="alert" className="mt-2 text-[12px] font-medium text-tomato">
-          {error}
-        </p>
-      )}
     </div>
   );
 }

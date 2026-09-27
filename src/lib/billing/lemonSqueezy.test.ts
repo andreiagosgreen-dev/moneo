@@ -1,11 +1,14 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  LEMON_MY_ORDERS_URL,
   buildCheckoutUrl,
   buildCustomerPortalUrl,
+  fallbackCustomerPortalUrl,
   getLemonSqueezyConfig,
   getPricingPlans,
   initiateCheckout,
+  resolveCustomerPortalUrl,
 } from './lemonSqueezy';
 
 const BASE = 'https://moneo.lemonsqueezy.com/checkout';
@@ -104,6 +107,41 @@ describe('buildCustomerPortalUrl', () => {
     expect(buildCustomerPortalUrl()).toBeNull();
     configureEnv({ store: 's1', base: 'not a url' });
     expect(buildCustomerPortalUrl()).toBeNull();
+  });
+});
+
+describe('fallbackCustomerPortalUrl / resolveCustomerPortalUrl', () => {
+  const failingWorker = (async () =>
+    new Response(JSON.stringify({ error: 'Billing portal is not configured' }), {
+      status: 503,
+    })) as unknown as typeof fetch;
+
+  it('prefers the store portal, then Lemon "My Orders" — no secret needed', () => {
+    configureEnv({ store: 's1', base: BASE });
+    expect(fallbackCustomerPortalUrl()).toBe('https://moneo.lemonsqueezy.com/billing');
+    configureEnv({});
+    expect(fallbackCustomerPortalUrl()).toBe(LEMON_MY_ORDERS_URL);
+  });
+
+  it('uses the Worker-signed URL when the Worker can issue one', async () => {
+    configureEnv({ store: 's1', base: BASE });
+    const okWorker = (async () =>
+      new Response(JSON.stringify({ url: 'https://moneo.lemonsqueezy.com/billing?signed=1' }), {
+        status: 200,
+      })) as unknown as typeof fetch;
+    await expect(resolveCustomerPortalUrl(async () => 'jwt', okWorker)).resolves.toBe(
+      'https://moneo.lemonsqueezy.com/billing?signed=1',
+    );
+  });
+
+  it('falls back when the Worker has no Lemon API key or there is no session', async () => {
+    configureEnv({ store: 's1', base: BASE });
+    await expect(resolveCustomerPortalUrl(async () => 'jwt', failingWorker)).resolves.toBe(
+      'https://moneo.lemonsqueezy.com/billing',
+    );
+    await expect(resolveCustomerPortalUrl(async () => null, failingWorker)).resolves.toBe(
+      'https://moneo.lemonsqueezy.com/billing',
+    );
   });
 });
 

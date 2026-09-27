@@ -360,6 +360,11 @@ async function handleLemonSqueezyWebhook(request: Request, env: Env): Promise<Re
       }),
     });
 
+    if (response.status === 409) {
+      // FK miss: the account is gone (e.g. the cancellation its deletion
+      // triggered). Acknowledge so Lemon stops retrying.
+      return api({ ok: true, skipped: 'unknown user' }, 200);
+    }
     if (!response.ok) {
       // Faza 5A: never echo upstream bodies to the webhook caller.
       return api({ error: 'Upstream update failed' }, 500);

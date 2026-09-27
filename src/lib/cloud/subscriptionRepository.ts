@@ -14,6 +14,11 @@ export const DEFAULT_FREE_SUBSCRIPTION: SubscriptionInfo = {
   isPro: false,
 };
 
+/** A Lemon subscription that will charge again unless the buyer cancels it. */
+export function hasRenewingSubscription(sub: SubscriptionInfo): boolean {
+  return sub.planId !== 'free' && (sub.status === 'active' || sub.status === 'past_due');
+}
+
 /**
  * Fetches user subscription details from Supabase.
  */

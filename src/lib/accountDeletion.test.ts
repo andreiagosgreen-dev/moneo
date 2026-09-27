@@ -166,6 +166,64 @@ describe('handleAccountDelete', () => {
   });
 });
 
+describe('handleAccountDelete — Lemon subscription cancellation', () => {
+  const LEMON_ENV: AccountEnv = { ...ENV, LEMON_SQUEEZY_API_KEY: 'lemon-key' };
+
+  function backendWithSubscription(status: string, lemonStatus = 200) {
+    return stubFetch((url, init) => {
+      if (url.endsWith('/auth/v1/user')) return { status: 200, body: { id: 'user-1' } };
+      if (url.includes('/rest/v1/subscriptions?') && (init.method ?? 'GET') === 'GET') {
+        return { status: 200, body: [{ lemon_subscription_id: 'sub-9', status }] };
+      }
+      if (url.startsWith('https://api.lemonsqueezy.com/')) return { status: lemonStatus, body: {} };
+      if (url.includes('/auth/v1/admin/users/')) return { status: 200, body: {} };
+      if (url.includes('/rest/v1/')) return { status: 200, body: [] };
+      return { status: 404, body: {} };
+    });
+  }
+
+  it('does not touch Lemon without the API key (default today)', async () => {
+    const { fn, calls } = backendWithSubscription('active');
+    const res = await handleAccountDelete(deleteRequest('good-token'), ENV, fn);
+    expect(res.status).toBe(200);
+    expect(calls.some((c) => c.url.includes('lemonsqueezy'))).toBe(false);
+  });
+
+  it('cancels a live subscription before wiping data when the key is set', async () => {
+    const { fn, calls } = backendWithSubscription('active');
+    const res = await handleAccountDelete(deleteRequest('good-token'), LEMON_ENV, fn);
+    expect(res.status).toBe(200);
+    const cancelIdx = calls.findIndex(
+      (c) => c.url === 'https://api.lemonsqueezy.com/v1/subscriptions/sub-9',
+    );
+    expect(cancelIdx).toBeGreaterThan(0);
+    expect(calls[cancelIdx].method).toBe('DELETE');
+    expect(calls[cancelIdx].auth).toBe('Bearer lemon-key');
+    const firstWipe = calls.findIndex((c) => c.method === 'DELETE' && c.url.includes('/rest/v1/'));
+    expect(cancelIdx).toBeLessThan(firstWipe);
+  });
+
+  it('skips already-cancelled subscriptions', async () => {
+    const { fn, calls } = backendWithSubscription('cancelled');
+    const res = await handleAccountDelete(deleteRequest('good-token'), LEMON_ENV, fn);
+    expect(res.status).toBe(200);
+    expect(calls.some((c) => c.url.includes('lemonsqueezy'))).toBe(false);
+  });
+
+  it('aborts (nothing deleted) when Lemon refuses the cancel', async () => {
+    const { fn, calls } = backendWithSubscription('active', 500);
+    const res = await handleAccountDelete(deleteRequest('good-token'), LEMON_ENV, fn);
+    expect(res.status).toBe(502);
+    expect(calls.some((c) => c.method === 'DELETE' && c.url.includes('supabase.co'))).toBe(false);
+  });
+
+  it('treats a subscription Lemon no longer knows as done', async () => {
+    const { fn } = backendWithSubscription('active', 404);
+    const res = await handleAccountDelete(deleteRequest('good-token'), LEMON_ENV, fn);
+    expect(res.status).toBe(200);
+  });
+});
+
 describe('deleteUserRows / deleteAuthUser units', () => {
   it('deleteUserRows stops at the first failure', async () => {
     const { fn, calls } = stubFetch((url) => {

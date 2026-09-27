@@ -1,6 +1,13 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../lib/authProvider';
 import { initiateCheckout, type Plan } from '../lib/billing/lemonSqueezy';
+import {
+  UPGRADE_PARAM,
+  loginPathForUpgrade,
+  parsePaidPlan,
+  type PaidPlanId,
+} from '../lib/billing/upgradeIntent';
 import {
   PRICING_PLANS_DISPLAY,
   PRO_PRICES,
@@ -47,17 +54,26 @@ function renderValue(v: ComparisonValue): string {
 export default function PricingPage() {
   const { t } = useI18n();
   const auth = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [payError, setPayError] = useState('');
   const rows = getComparisonRows();
   const currentPlan: Plan = auth.isPro ? (auth.subscription.planId as Plan) : 'free';
   const showManage = auth.subscription.planId !== 'free';
+  const intended = parsePaidPlan(searchParams.get(UPGRADE_PARAM));
+  const resumePlan =
+    intended && auth.user && !auth.isPro
+      ? PRICING_PLANS_DISPLAY.find((p) => p.id === intended)
+      : undefined;
 
-  const handleSubscribe = (planId: Plan) => {
+  const handleSubscribe = (planId: PaidPlanId) => {
+    setPayError('');
     if (!auth.user) {
-      alert(t('pay.signin'));
+      navigate(loginPathForUpgrade(planId));
       return;
     }
     const url = initiateCheckout(planId, auth.user.userId);
-    if (!url || !openExternal(url)) alert(t('pay.unavailable'));
+    if (!url || !openExternal(url)) setPayError(t('pay.unavailable'));
   };
 
   return (
@@ -69,6 +85,33 @@ export default function PricingPage() {
         {t('pricing.title')}
       </h1>
       <p className="mt-3 max-w-prose text-[13px] leading-relaxed text-sage">{t('pricing.sub')}</p>
+
+      {intended && resumePlan && (
+        <section
+          aria-labelledby="pricing-resume-title"
+          className="mt-6 rounded-xl bg-accent/10 px-5 py-4 ring-1 ring-inset ring-accent"
+        >
+          <h2 id="pricing-resume-title" className="font-display text-[15px] font-bold text-cream">
+            {t('pay.resumeTitle')}
+          </h2>
+          <p className="mt-1 text-[12px] leading-relaxed text-sage">
+            {resumePlan.name} · {resumePlan.price}
+            {resumePlan.perKey ? ` ${t(resumePlan.perKey)}` : ''}
+          </p>
+          <button
+            onClick={() => handleSubscribe(intended)}
+            className="press btn-accent mt-3 flex h-10 w-full items-center justify-center rounded-lg font-display text-sm font-bold"
+          >
+            {t('pay.resumeCta')}
+          </button>
+        </section>
+      )}
+
+      {payError && (
+        <p role="alert" className="mt-4 text-[12px] font-medium text-tomato">
+          {payError}
+        </p>
+      )}
 
       <div className="mt-8 space-y-4">
         {PRICING_PLANS_DISPLAY.map((plan) => {
@@ -118,7 +161,7 @@ export default function PricingPage() {
               )}
               {isPaid && !isCurrent && (
                 <button
-                  onClick={() => handleSubscribe(plan.id)}
+                  onClick={() => handleSubscribe(plan.id as PaidPlanId)}
                   className="press btn-accent mt-5 flex h-10 w-full items-center justify-center rounded-lg font-display text-sm font-bold"
                 >
                   {t('pay.upgrade')}

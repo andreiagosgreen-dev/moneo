@@ -802,6 +802,8 @@ export const it: Record<TKey, string> = {
   'pay.manage': 'Gestisci abbonamento',
   'pay.manageTitle': 'Cambia piano, aggiorna il metodo di pagamento o disdici',
   'pay.portalError': 'Impossibile aprire il portale. Riprova.',
+  'pay.resumeTitle': 'Hai effettuato l’accesso — completa il passaggio a Pro',
+  'pay.resumeCta': 'Continua al pagamento',
   'pay.syncScope':
     'Sincronizzazione tra dispositivi: sessioni di focus, aree di focus e impostazioni',
   'pay.syncNote':
@@ -1843,6 +1845,9 @@ export const it: Record<TKey, string> = {
   'account.openCabinet': 'Apri il mio spazio',
   'account.subscriptionStatus': 'Abbonamento',
   'account.manageSubscription': 'Gestisci abbonamento',
+  'account.deleteSubWarning':
+    'Hai un abbonamento Pro attivo. Annullalo prima nel portale dell’abbonamento, così sei sicuro di non essere più addebitato.',
+  'account.deleteSubPortal': 'Apri il portale dell’abbonamento',
   'pricingPage.title': 'Prezzi semplici e onesti',
   'pricingPage.subtitle': 'Gratis per sempre per l’essenziale. Passa a Pro quando superi i limiti.',
   'account.plan.free': 'Gratis',

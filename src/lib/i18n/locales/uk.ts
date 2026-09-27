@@ -809,6 +809,8 @@ export const uk: Record<TKey, string> = {
   'pay.manage': 'Керування підпискою',
   'pay.manageTitle': 'Змінити план, оновити спосіб оплати або скасувати',
   'pay.portalError': 'Не вдалося відкрити портал. Спробуйте ще раз.',
+  'pay.resumeTitle': 'Ви увійшли — завершіть перехід на Pro',
+  'pay.resumeCta': 'Перейти до оплати',
   'pay.syncScope': 'Синхронізація між пристроями: фокус-сесії, зони фокуса й налаштування',
   'pay.syncNote':
     'Проєкти, задачі, цілі, звички, щоденник та решта планування залишаються на пристрої, де ви їх створили.',
@@ -1837,6 +1839,9 @@ export const uk: Record<TKey, string> = {
   'account.openCabinet': 'Відкрити мій кабінет',
   'account.subscriptionStatus': 'Підписка',
   'account.manageSubscription': 'Керувати підпискою',
+  'account.deleteSubWarning':
+    'У вас активна підписка Pro. Спершу скасуйте її в порталі підписки, щоб з вас точно більше не списували кошти.',
+  'account.deleteSubPortal': 'Відкрити портал підписки',
   'pricingPage.title': 'Прості, чесні ціни',
   'pricingPage.subtitle':
     'Безкоштовно назавжди для основного. Оновлюйтесь, коли перевищите ліміти.',

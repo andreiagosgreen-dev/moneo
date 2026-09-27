@@ -814,6 +814,8 @@ export const en = {
   'pay.manage': 'Manage subscription',
   'pay.manageTitle': 'Change plan, update your payment method or cancel',
   'pay.portalError': 'Could not open the subscription portal. Please try again.',
+  'pay.resumeTitle': 'You’re signed in — finish your upgrade',
+  'pay.resumeCta': 'Continue to checkout',
   'pay.syncScope': 'Sync between devices: focus sessions, focus areas and settings',
   'pay.syncNote':
     'Projects, tasks, goals, habits, journal and the rest of your planning stay on the device where you created them.',
@@ -1839,6 +1841,9 @@ export const en = {
   'account.openCabinet': 'Open my cabinet',
   'account.subscriptionStatus': 'Subscription',
   'account.manageSubscription': 'Manage subscription',
+  'account.deleteSubWarning':
+    'You have an active Pro subscription. Cancel it in the subscription portal first, so you can be sure you won’t be charged again.',
+  'account.deleteSubPortal': 'Open subscription portal',
   'pricingPage.title': 'Simple, honest pricing',
   'pricingPage.subtitle': 'Free forever for the basics. Upgrade when you outgrow the limits.',
   'account.plan.free': 'Free',
