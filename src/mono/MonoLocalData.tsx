@@ -37,7 +37,14 @@ export default function MonoLocalData({ signedIn = false, onCleared }: Props) {
               {t('mono.data.accountLink')}
             </Link>
           </p>
-        ) : null}
+        ) : (
+          <p className="mono-meta" style={{ marginTop: 8 }}>
+            {t('mono.data.guestNote')}{' '}
+            <Link to="/login" className="mono-link">
+              {t('mono.data.guestLink')}
+            </Link>
+          </p>
+        )}
 
         {!confirming ? (
           <div style={{ marginTop: 14 }}>

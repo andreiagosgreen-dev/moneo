@@ -40,6 +40,8 @@ interface Props {
   /** Focus color atmosphere — classic free; Pro packs gated. */
   atmosphere: Atmosphere;
   onAtmosphere: (atmosphere: Atmosphere) => void;
+  /** Signed in with cloud sync on — timer settings are part of the synced scope. */
+  synced?: boolean;
 }
 
 type NumKey = 'focusMin' | 'shortMin' | 'longMin' | 'longEvery' | 'dailyGoal';
@@ -206,6 +208,7 @@ export default function SettingsCard({
   isPro = false,
   atmosphere,
   onAtmosphere,
+  synced = false,
 }: Props) {
   const { t } = useI18n();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -262,7 +265,7 @@ export default function SettingsCard({
           {t('set.title')}
         </h2>
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-          {t('set.saved')}
+          {t(synced ? 'set.savedSynced' : 'set.saved')}
         </span>
       </header>
 

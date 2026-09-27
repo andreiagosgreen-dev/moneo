@@ -129,7 +129,7 @@ export function mapAuthError(raw: string | undefined | null): string {
     msg.includes('timeout') ||
     msg.includes('fetch')
   )
-    return 'Network unavailable — Moneo keeps working offline.';
+    return 'No internet connection. Check it and try again — you can keep using Moneo meanwhile.';
   return 'Something went wrong. Please try again.';
 }
 

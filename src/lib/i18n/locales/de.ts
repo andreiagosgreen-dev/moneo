@@ -154,9 +154,9 @@ export const de: Record<TKey, string> = {
   'lifemap.emptyKicker': 'Lebenskarte · neu',
   'lifemap.emptyTitle': 'Die Lebenskarte, der dein Fokus dient',
   'lifemap.tplBlank': 'Leere Leinwand',
-  'lifemap.localOnly': 'Auf diesem Gerät gespeichert · nur lokal, nie synchronisiert.',
+  'lifemap.localOnly': 'Deine Lebenskarte ist privat und auf diesem Gerät gespeichert.',
   'lifemap.title': 'Lebenskarte',
-  'lifemap.subtitle': 'Auf diesem Gerät gespeichert · nur lokal',
+  'lifemap.subtitle': 'Privat · auf diesem Gerät gespeichert',
   'lifemap.manage': 'Bereiche verwalten',
   'lifemap.manageDone': 'Fertig',
   'lifemap.stepAdd': '＋ 10-Minuten-Schritt',
@@ -214,18 +214,19 @@ export const de: Record<TKey, string> = {
   'lifemap.assist.reflect': 'Reflexionsfragen',
   'lifemap.assist.action': 'Ein kleiner Schritt',
   'lifemap.assist.loading': 'Denke nach…',
-  'lifemap.assist.offline': 'Lokale KI ist nicht konfiguriert — Coaching-Impulse stattdessen:',
+  'lifemap.assist.offline':
+    'KI-Vorschläge sind gerade nicht verfügbar — hier ein paar Fragen zur Orientierung:',
   'lifemap.coach.reflect':
     'Schau dir die ganze Form an. Was überrascht dich? Warum steht {name} heute bei {score}/10? Wie sähe +1 diese Woche aus — ein konkretes Bild, kein Plan?',
   'lifemap.coach.actionWith': 'Starte mit {name}. Mini-Schritt (≤15 Min): {intention}',
   'lifemap.coach.actionPlain':
     'Starte mit {name}. Gib heute zehn fokussierte Minuten — ein kleiner Zug, dann Schluss.',
   'settings.langTitle': 'Sprache',
-  'settings.langBody': 'Oberflächensprache. Gilt sofort, wird auf diesem Gerät gespeichert.',
+  'settings.langBody': 'Oberflächensprache. Änderungen gelten sofort.',
   'settings.langAria': 'Oberflächensprache',
   'fmt.h': ' Std.',
   'fmt.m': ' Min.',
-  'ai.kicker': 'KI-Pfad · lokal',
+  'ai.kicker': 'KI-Pfad',
   'ai.title': 'Baue meinen Pfad',
   'ai.modeAria': 'Planart',
   'ai.modeGoal': 'Zielpfad',
@@ -417,7 +418,7 @@ export const de: Record<TKey, string> = {
   'ins.ui.title': 'Signale',
   'ins.ui.subPro': 'Jedes Signal, erklärt',
   'ins.ui.subFree': '2 freie Signale · Rest in Pro',
-  'ins.ui.local': 'lokal',
+  'ins.ui.local': 'privat',
   'ins.ui.empty': 'Noch keine Signale. Mach ein paar Fokusrunden, dann erkennt Moneo Muster.',
   'ins.ui.locked.one': '{n} Pro-Signal gesperrt',
   'ins.ui.locked.few': '{n} Pro-Signale gesperrt',
@@ -667,7 +668,8 @@ export const de: Record<TKey, string> = {
 
   'set.aria': 'Timer-Einstellungen',
   'set.title': 'Feintuning',
-  'set.saved': 'Lokal gespeichert',
+  'set.saved': 'Auf diesem Gerät gespeichert',
+  'set.savedSynced': 'Wird mit deinem Konto synchronisiert',
   'set.s.focus': 'Fokuslänge',
   'set.s.focusH': 'Eine Deep-Work-Runde',
   'set.s.short': 'Kurze Pause',
@@ -703,7 +705,7 @@ export const de: Record<TKey, string> = {
   'set.sound.custom': 'Eigen',
   'set.preview': 'Klang testen',
   'set.customUp': 'Eigener Upload',
-  'set.customHas': 'Dein Klang liegt auf diesem Gerät.',
+  'set.customHas': 'Dein Klang ist auf diesem Gerät gespeichert.',
   'set.customFormats': 'MP3, WAV, OGG oder WebM',
   'set.remove': 'Entfernen',
   'set.test': 'Test',
@@ -772,7 +774,7 @@ export const de: Record<TKey, string> = {
   'notif.disconnectTime': 'Feierabend-Zeit',
   'notif.deadline': 'Deadline-Erinnerungen',
   'notif.deadlineBody': 'Browser-Warnung bei Deadline unter 48 Stunden',
-  'notif.saved': 'Einstellungen auf diesem Gerät gespeichert.',
+  'notif.saved': 'Einstellungen gespeichert.',
   'notif.done.focusT': 'Fokussitzung fertig',
   'notif.done.shortB': 'Zeit für kurze Pause',
   'notif.done.longB': 'Zeit für lange Pause',
@@ -808,13 +810,13 @@ export const de: Record<TKey, string> = {
   'pay.resumeCta': 'Weiter zur Kasse',
   'pay.syncScope': 'Abgleich zwischen Geräten: Fokussitzungen, Fokusbereiche und Einstellungen',
   'pay.syncNote':
-    'Projekte, Aufgaben, Ziele, Gewohnheiten, Journal und der Rest deiner Planung bleiben auf dem Gerät, auf dem du sie angelegt hast.',
+    'Projekte, Aufgaben, Ziele, Gewohnheiten, Journal und der Rest deiner Planung werden auf dem Gerät gespeichert, auf dem du sie angelegt hast.',
   'pay.plan.free.desc': 'Perfekt zum Starten',
   'pay.plan.free.f0': 'Unbegrenzte Fokussitzungen',
   'pay.plan.free.f1': '3 Projekte mit Aufgabenlisten',
   'pay.plan.free.f2': 'Tagesplan: 3 Top-Aufgaben + die schwerste zuerst',
   'pay.plan.free.f3': '1 Schritt-für-Schritt-Plan + 2 Schnellaktionen des Assistenten',
-  'pay.plan.free.f4': 'Gewohnheiten und Journal, privat auf deinem Gerät',
+  'pay.plan.free.f4': 'Private Gewohnheiten und Journal',
   'pay.plan.monthly.desc': 'Für alle, die täglich planen und fokussiert arbeiten',
   'pay.plan.monthly.f0': 'Alles aus Free',
   'pay.plan.monthly.f1': 'Unbegrenzte Projekte, Ziele & OKRs',
@@ -863,7 +865,7 @@ export const de: Record<TKey, string> = {
 
   'help.back': '← Zurück zu Moneo',
   'help.title': 'Hilfezentrum',
-  'help.sub': 'Jede Karte auf einer Seite. Nichts verlässt das Gerät.',
+  'help.sub': 'Alle Funktionen, erklärt auf einer Seite.',
   'help.s.timer.t': 'Timer',
   'help.s.timer.b':
     'Wähle Fokus, Kurz oder Lang. Setze Intention, wähle Bereich, Projekt und Aufgabe, dann Leertaste. Sessions zählen automatisch überall mit.',
@@ -884,7 +886,7 @@ export const de: Record<TKey, string> = {
     'Ziele kaskadieren Vision → Woche mit Auto-Rollup; Starter-Aufgaben generieren oder eine in den Tagesplan schicken. OKRs tracken Quartals-Ergebnisse mit Slidern.',
   'help.s.aipath.t': 'KI-Pfad',
   'help.s.aipath.b':
-    'Plan-Tab: Ziel oder Skill beschreiben, bis 3 Fragen beantworten, visuellen Draft prüfen, freigeben. Max ein Projekt und 20 Aufgaben pro Freigabe; Wochen-Drafts füllen den Tag nie. 100% on-device; Auto-Prepare opt-in. Nach Sessions stimmt 4-Tap-Feedback Schätzungen.',
+    'Plan-Tab: Ziel oder Skill beschreiben, bis 3 Fragen beantworten, visuellen Draft prüfen, freigeben. Max ein Projekt und 20 Aufgaben pro Freigabe; Wochen-Drafts füllen den Tag nie. Auto-Prepare ist optional. Nach Sessions stimmt 4-Tap-Feedback Schätzungen.',
   'help.s.assistant.t': 'Assistent',
   'help.s.assistant.b':
     'Frag “what should I work on?” oder tippe “add task Draft proposal p1 tomorrow for Client”. Free kriegt 2 Schnellaktionen; Pro schaltet vollen Chat frei.',
@@ -893,7 +895,7 @@ export const de: Record<TKey, string> = {
     '7/30-Tage-Splits nach Projekt und Bereich mit 80/20 für alle. CSV-Export (Pro) und druckbares PDF (Pro) mit Summen.',
   'help.s.lifemap.t': 'Lebenskarte',
   'help.s.lifemap.b':
-    'Karten-Tab: 5–9 Lebensbereiche Jetzt vs Wunsch, gewichtet mit Wichtigkeit. Das Rad zeigt Balance und größte Lücke; ein 10-Minuten-Schritt landet im Tagesplan. Wochenreview zeigt Aufmerksamkeit. Starte mit Vorlage (Balanced, Student, Freelancer, Founder, Recovery) oder leer. Nur lokal: nie Sync, nie Mail.',
+    'Karten-Tab: 5–9 Lebensbereiche Jetzt vs Wunsch, gewichtet mit Wichtigkeit. Das Rad zeigt Balance und größte Lücke; ein 10-Minuten-Schritt landet im Tagesplan. Wochenreview zeigt Aufmerksamkeit. Starte mit Vorlage (Balanced, Student, Freelancer, Founder, Recovery) oder leer. Privat: deine Karte bleibt auf diesem Gerät.',
   'help.s.life.t': 'Leben',
   'help.s.life.b':
     'Habits mit Streaks und Abend-Erinnerungen. Balance scort live über 5 Bereiche. Journal mit Stimmung und Dankbarkeit. Energie-Check-ins zeigen Peak-Stunden (Pro).',
@@ -902,7 +904,7 @@ export const de: Record<TKey, string> = {
     'Skill-Level 1–5 mit Ressourcen. Markiere Projekte abrechenbar mit Stundensatz — Beträge in Stats, Berichten, PDF.',
   'help.s.privacy.t': 'Privatheit & Daten',
   'help.s.privacy.b':
-    'Alles lebt zuerst auf deinem Gerät (localStorage). Melde dich für Sync von Sitzungen, Bereichen & Einstellungen via Supabase an — Projekte, Tasks und Rest bleiben lokal. CSV/PDF ist Pro; Löschen ist bei Sync an gesperrt.',
+    'Moneo speichert deine Arbeit automatisch. Mit Konto und eingeschaltetem Abgleich bleiben Fokus-Sitzungen, Bereiche und Einstellungen in deinem Konto und sind auf deinen anderen Geräten verfügbar. Projekte, Aufgaben, Pläne und der Rest werden auf dem Gerät gespeichert, auf dem du sie angelegt hast. CSV/PDF-Export ist Pro. Solange der Abgleich an ist, lässt sich der Fokus-Verlauf nicht löschen.',
 
   'foot.tag': 'Moneo — baue Fokus. Sieh ihn wachsen.',
   'foot.help': 'Hilfe',
@@ -1053,6 +1055,9 @@ export const de: Record<TKey, string> = {
   'mono.data.accountNote':
     'Mit deinem Konto synchronisierte Daten bleiben dort. Um sie ebenfalls zu entfernen, lösche dein Konto.',
   'mono.data.accountLink': 'Konto öffnen',
+  'mono.data.guestNote':
+    'Damit deine Fokus-Sitzungen, Bereiche und Einstellungen sicher sind, erstelle ein Konto und schalte den Abgleich ein.',
+  'mono.data.guestLink': 'Konto erstellen',
   'mono.data.wipe': 'Alle Daten auf diesem Gerät löschen',
   'mono.data.confirmTitle': 'Alles auf diesem Gerät löschen?',
   'mono.data.confirmBody':
@@ -1144,7 +1149,7 @@ export const de: Record<TKey, string> = {
   'rep.pdfTitle': 'Druckbericht öffnen (Drucken → Als PDF)',
   'rep.exportProTitle': 'Export ist Pro',
   'rep.exportProBody':
-    'Upgrade auf Pro für CSV/PDF-Export. Deine Daten bleiben bis dahin auf dem Gerät.',
+    'Upgrade auf Pro, um deine Sitzungen als CSV (Excel) oder PDF zu exportieren.',
   'rep.docTitle': 'Moneo Fokus-Bericht',
   'rep.rangeLabel.week': 'Letzte 7 Tage',
   'rep.rangeLabel.month': 'Letzte 30 Tage',
@@ -1576,13 +1581,13 @@ export const de: Record<TKey, string> = {
   'assist.roadmap.byokPro':
     'Eigener KI-Schlüssel (Gemini, OpenAI oder DeepSeek) ist Teil von Pro. Der eingebaute Planer funktioniert auch in Free.',
   'assist.roadmap.provider': 'Anbieter',
-  'assist.roadmap.provider.local': 'Auf diesem Gerät',
+  'assist.roadmap.provider.local': 'Integriert (ohne Schlüssel)',
   'assist.roadmap.provider.gemini': 'Gemini',
   'assist.roadmap.provider.openai': 'OpenAI',
   'assist.roadmap.provider.deepseek': 'DeepSeek',
   'assist.roadmap.apiKey': 'API-Schlüssel',
   'assist.roadmap.apiKeyPh': 'Dein Schlüssel',
-  'assist.roadmap.keyHint': 'Nur auf diesem Gerät gespeichert.',
+  'assist.roadmap.keyHint': 'Dein Schlüssel bleibt zu deiner Sicherheit nur auf diesem Gerät.',
   'assist.roadmap.webSearch': 'Web-Ergebnisse einbeziehen',
   'assist.roadmap.webSearchHint': 'Gemini',
   'assist.roadmap.goalPh': 'Was möchtest du tun?',
@@ -1590,7 +1595,7 @@ export const de: Record<TKey, string> = {
   'assist.roadmap.build': 'Plan erstellen',
   'assist.roadmap.building': 'Erstelle…',
   'assist.roadmap.buildFail': 'Plan konnte nicht erstellt werden. Nochmal versuchen.',
-  'assist.roadmap.fallback': 'Lokaler Planner wird verwendet.',
+  'assist.roadmap.fallback': 'Stattdessen wird der integrierte Planer verwendet.',
   'assist.roadmap.draft': 'Vorschau',
   'assist.roadmap.approve': 'Starten',
   'assist.roadmap.discard': 'Abbrechen',
@@ -1757,12 +1762,12 @@ export const de: Record<TKey, string> = {
   'ins.stalled.body':
     '{project} nahm {dur} diese Woche ohne fertige Aufgabe für „{goal}“. Mach „{task}“ zum nächsten P0.',
   'ins.ui.localTitle':
-    'Deterministische Regeln über deine Fokus-Historie — keine Daten verlassen das Gerät',
+    'Basiert nur auf deinem eigenen Fokus-Verlauf. Nichts wird irgendwohin gesendet.',
   'ins.ui.lockedBody':
     'Upgrade auf Moneo Pro für Prioritäts-Coaching, Deadline-Alarme und deine Power-Stunden.',
   'pricing.title': 'Moneo-Preise',
   'pricing.sub':
-    'Kostenlos starten – ohne Karte, ohne Konto. Pro bringt den vollen KI-Assistenten, erweiterte Planung, Exporte und einen individuellen Look. Deine Daten bleiben auf deinem Gerät, und Moneo funktioniert auch offline.',
+    'Kostenlos starten – ohne Karte, ohne Konto. Pro bringt den vollen KI-Assistenten, erweiterte Planung, Exporte und einen individuellen Look.',
   'pricing.back': '← Zurück zu Moneo',
   'pricing.unlimited': 'Unbegrenzt',
   'pricing.row.ivy': 'Top-Aufgaben pro Tag (Ivy-Lee-Methode)',
@@ -1838,7 +1843,7 @@ export const de: Record<TKey, string> = {
   'mono.xp.ranksLine':
     'Ränge: {ranks}. Jeder Rang hat ein paar Stufen, und jede neue Stufe braucht etwas mehr als die vorige.',
   'mono.xp.deviceNote':
-    'Aufgaben und Gewohnheiten zählen vorerst nur auf diesem Gerät — sie werden noch nicht zwischen Geräten synchronisiert. Fokus-Sitzungen begleiten dich, wenn du angemeldet bist.',
+    'XP aus Fokus-Sitzungen begleitet dich auf deine anderen Geräte, wenn der Abgleich an ist. Aufgaben und Gewohnheiten zählen vorerst nur auf dem Gerät, auf dem du sie erledigt hast.',
   'filters.newView': '+ Neue Ansicht',
   'filters.cancel': 'Abbrechen',
   'filters.remove': 'Ansicht entfernen',
@@ -1878,24 +1883,23 @@ export const de: Record<TKey, string> = {
   'auth.emailPlaceholder': 'du@beispiel.com',
   'auth.passwordLabel': 'Passwort',
   'auth.localFirstNote':
-    'Deine Sitzungen, Absichten und Bereiche bleiben auf diesem Gerät. Die Anmeldung erstellt dein Moneo-Konto; der Abgleich zwischen Geräten ist optional — nichts wird hochgeladen, bis du ihn einschaltest.',
+    'Mit einem Konto sind deine Fokus-Sitzungen, Bereiche und Einstellungen sicher und auf deinen anderen Geräten verfügbar. Hochgeladen wird erst, wenn du den Abgleich einschaltest.',
   'auth.continueWithGoogle': 'Mit Google fortfahren',
   'auth.orDivider': 'oder',
   'sync.title': 'Synchronisiere deine Moneo-Daten',
   'sync.description':
-    'Dein lokaler Fokus-Verlauf, Bereiche, Absichten und Einstellungen können in deinem Konto gespeichert und geräteübergreifend synchronisiert werden.',
+    'Speichere deinen Fokus-Verlauf, deine Bereiche und Einstellungen in deinem Konto und nutze sie auf all deinen Geräten.',
   'sync.syncNow': 'Jetzt synchronisieren',
   'sync.notNow': 'Nicht jetzt',
   'sync.onlyNote':
-    'Nur Sitzungen, Bereiche und Einstellungen werden synchronisiert — Absichts-Entwürfe und der Timer-Status verlassen dieses Gerät nie.',
+    'Synchronisiert werden nur Fokus-Sitzungen, Bereiche und Einstellungen. Projekte, Aufgaben und der Rest deiner Planung bleiben auf diesem Gerät gespeichert.',
   'sync.syncing': 'Synchronisiere…',
   'sync.failed': 'Synchronisierung fehlgeschlagen',
   'sync.synced': 'Synchronisiert',
   'sync.comparing': 'Abgleich mit deinem Konto',
   'sync.lastSynced': 'Zuletzt synchronisiert {time}',
   'sync.enabled': 'Synchronisierung aktiviert',
-  'sync.failedRetry':
-    'Synchronisierung fehlgeschlagen — deine lokalen Daten sind sicher. Versuche es erneut.',
+  'sync.failedRetry': 'Synchronisierung fehlgeschlagen — nichts ist verloren. Versuche es erneut.',
   'sync.justNow': 'gerade eben',
   'sync.minAgo': 'vor {n}m',
   'account.checking': 'Konto wird geprüft',
