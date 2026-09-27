@@ -804,6 +804,8 @@ export const de: Record<TKey, string> = {
   'pay.manage': 'Abo verwalten',
   'pay.manageTitle': 'Plan wechseln, Zahlungsmethode ändern oder kündigen',
   'pay.portalError': 'Portal konnte nicht geöffnet werden. Bitte erneut versuchen.',
+  'pay.resumeTitle': 'Du bist angemeldet — schließe dein Upgrade ab',
+  'pay.resumeCta': 'Weiter zur Kasse',
   'pay.syncScope': 'Abgleich zwischen Geräten: Fokussitzungen, Fokusbereiche und Einstellungen',
   'pay.syncNote':
     'Projekte, Aufgaben, Ziele, Gewohnheiten, Journal und der Rest deiner Planung bleiben auf dem Gerät, auf dem du sie angelegt hast.',
@@ -1858,6 +1860,9 @@ export const de: Record<TKey, string> = {
   'account.openCabinet': 'Mein Bereich öffnen',
   'account.subscriptionStatus': 'Abo',
   'account.manageSubscription': 'Abo verwalten',
+  'account.deleteSubWarning':
+    'Du hast ein aktives Pro-Abo. Kündige es zuerst im Abo-Portal, damit du sicher nicht erneut belastet wirst.',
+  'account.deleteSubPortal': 'Abo-Portal öffnen',
   'pricingPage.title': 'Einfache, ehrliche Preise',
   'pricingPage.subtitle':
     'Für das Wesentliche für immer kostenlos. Upgrade, sobald du die Grenzen erreichst.',

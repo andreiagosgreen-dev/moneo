@@ -5,8 +5,9 @@
  * the user's own JWT, verified against Supabase Auth (`/auth/v1/user`).
  * Any `user_id` sent in the request body is ignored.
  *
- * Order: verify token → wipe data tables explicitly → delete the Auth user
- * (cascades anything left) → `{ ok: true }`. Every failure fails closed
+ * Order: verify token → cancel a live Lemon subscription (only when the
+ * Worker holds LEMON_SQUEEZY_API_KEY) → wipe data tables explicitly →
+ * delete the Auth user (cascades anything left) → `{ ok: true }`. Every failure fails closed
  * with 4xx/5xx and touches nothing after the failed step, so the client
  * can safely retry and never wipes local data on error.
  */
@@ -16,6 +17,8 @@ import { buildSecurityHeaders, mergeHeaders } from './security';
 export interface AccountEnv {
   SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
+  /** Optional: enables cancelling a live Lemon subscription on deletion. */
+  LEMON_SQUEEZY_API_KEY?: string;
 }
 
 export type FetchImpl = typeof fetch;
@@ -143,6 +146,56 @@ export async function deleteUserRows(
   }
 }
 
+/** Subscription states Lemon will not charge again. */
+const NON_BILLING_STATUSES: ReadonlySet<string> = new Set(['free', 'cancelled', 'expired']);
+
+/**
+ * Cancel the caller's live Lemon Squeezy subscription before their rows are
+ * wiped — afterwards nothing in Moneo links the buyer to it. Lemon keeps
+ * access until the paid period ends and stops renewals. True when there is
+ * nothing to cancel, when the cancel succeeds, or when Lemon no longer knows
+ * the subscription (404); false aborts the deletion (retryable).
+ */
+export async function cancelLiveSubscription(
+  supabaseUrl: string,
+  serviceKey: string,
+  lemonApiKey: string,
+  userId: string,
+  fetchImpl: FetchImpl,
+): Promise<boolean> {
+  try {
+    const res = await fetchImpl(
+      `${supabaseUrl}/rest/v1/subscriptions?user_id=eq.${encodeURIComponent(userId)}&select=lemon_subscription_id,status`,
+      {
+        headers: {
+          apikey: serviceKey,
+          Authorization: `Bearer ${serviceKey}`,
+        },
+      },
+    );
+    if (!res.ok) return false;
+    const rows = (await res.json()) as Array<{ lemon_subscription_id?: unknown; status?: unknown }>;
+    const row = Array.isArray(rows) ? rows[0] : null;
+    const subscriptionId =
+      row && typeof row.lemon_subscription_id === 'string' ? row.lemon_subscription_id : '';
+    if (!subscriptionId || NON_BILLING_STATUSES.has(String(row?.status))) return true;
+    const cancel = await fetchImpl(
+      `https://api.lemonsqueezy.com/v1/subscriptions/${encodeURIComponent(subscriptionId)}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Accept: 'application/vnd.api+json',
+          'Content-Type': 'application/vnd.api+json',
+          Authorization: `Bearer ${lemonApiKey}`,
+        },
+      },
+    );
+    return cancel.ok || cancel.status === 404;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Delete the Auth user itself (FK cascades remove anything left).
  * A 404 means "already gone" — still success, so retries are idempotent.
@@ -194,6 +247,19 @@ export async function handleAccountDelete(
   );
   if (!userId) {
     return json({ error: 'Invalid or expired session' }, 401);
+  }
+
+  if (env.LEMON_SQUEEZY_API_KEY) {
+    const cancelled = await cancelLiveSubscription(
+      env.SUPABASE_URL,
+      env.SUPABASE_SERVICE_ROLE_KEY,
+      env.LEMON_SQUEEZY_API_KEY,
+      userId,
+      fetchImpl,
+    );
+    if (!cancelled) {
+      return json({ error: 'Failed to cancel subscription' }, 502);
+    }
   }
 
   const rowsGone = await deleteUserRows(

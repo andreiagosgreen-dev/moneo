@@ -809,6 +809,8 @@ export const ru: Record<TKey, string> = {
   'pay.manage': 'Управление подпиской',
   'pay.manageTitle': 'Сменить план, обновить способ оплаты или отменить',
   'pay.portalError': 'Не удалось открыть портал. Попробуйте ещё раз.',
+  'pay.resumeTitle': 'Вы вошли — завершите переход на Pro',
+  'pay.resumeCta': 'Перейти к оплате',
   'pay.syncScope': 'Синхронизация между устройствами: фокус-сессии, зоны фокуса и настройки',
   'pay.syncNote':
     'Проекты, задачи, цели, привычки, дневник и остальное планирование остаются на устройстве, где вы их создали.',
@@ -1849,6 +1851,9 @@ export const ru: Record<TKey, string> = {
   'account.openCabinet': 'Открыть мой кабинет',
   'account.subscriptionStatus': 'Подписка',
   'account.manageSubscription': 'Управление подпиской',
+  'account.deleteSubWarning':
+    'У вас активная подписка Pro. Сначала отмените её в портале подписки, чтобы с вас точно больше не списывали деньги.',
+  'account.deleteSubPortal': 'Открыть портал подписки',
   'pricingPage.title': 'Простые, честные цены',
   'pricingPage.subtitle': 'Бесплатно навсегда для основного. Обновляйтесь, когда превысите лимиты.',
   'account.plan.free': 'Бесплатно',

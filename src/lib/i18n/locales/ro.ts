@@ -806,6 +806,8 @@ export const ro: Record<TKey, string> = {
   'pay.manage': 'Gestionează abonamentul',
   'pay.manageTitle': 'Schimbă planul, actualizează cardul sau anulează',
   'pay.portalError': 'Nu am putut deschide portalul. Încearcă din nou.',
+  'pay.resumeTitle': 'Ești conectat — finalizează trecerea la Pro',
+  'pay.resumeCta': 'Continuă spre plată',
   'pay.syncScope': 'Sincronizare între dispozitive: sesiuni de focus, arii de focus și setări',
   'pay.syncNote':
     'Proiectele, sarcinile, obiectivele, obiceiurile, jurnalul și restul planificării rămân pe dispozitivul pe care le-ai creat.',
@@ -1859,6 +1861,9 @@ export const ro: Record<TKey, string> = {
   'account.openCabinet': 'Deschide cabinetul meu',
   'account.subscriptionStatus': 'Abonament',
   'account.manageSubscription': 'Gestionează abonamentul',
+  'account.deleteSubWarning':
+    'Ai un abonament Pro activ. Anulează-l întâi din portalul abonamentului, ca să fii sigur că nu mai ești taxat.',
+  'account.deleteSubPortal': 'Deschide portalul abonamentului',
   'pricingPage.title': 'Prețuri simple, oneste',
   'pricingPage.subtitle':
     'Gratuit pentru totdeauna pentru esențial. Fă upgrade când depășești limitele.',

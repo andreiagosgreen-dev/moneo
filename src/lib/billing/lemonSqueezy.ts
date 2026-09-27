@@ -103,6 +103,20 @@ export function buildCustomerPortalUrl(): string | null {
   }
 }
 
+/**
+ * Lemon Squeezy's buyer-wide order history. Works for any store without
+ * configuration — the last resort when the store portal URL can't be built.
+ */
+export const LEMON_MY_ORDERS_URL = 'https://app.lemonsqueezy.com/my-orders';
+
+/**
+ * A portal URL that needs no server secret: the store's `/billing` portal
+ * when the checkout base is configured, otherwise Lemon's "My Orders".
+ */
+export function fallbackCustomerPortalUrl(): string {
+  return buildCustomerPortalUrl() ?? LEMON_MY_ORDERS_URL;
+}
+
 export function initiateCheckout(planId: Plan, userId: string): string | null {
   return buildCheckoutUrl(planId, userId);
 }
@@ -152,6 +166,19 @@ export async function requestCustomerPortalUrl(
   } catch {
     return { ok: false, url: null };
   }
+}
+
+/**
+ * Best portal URL available: the Worker's pre-signed, subscription-scoped
+ * session when `LEMON_SQUEEZY_API_KEY` is set on the Worker, otherwise the
+ * secret-free fallback (buyer signs in with their email there).
+ */
+export async function resolveCustomerPortalUrl(
+  getAccessToken: () => Promise<string | null>,
+  fetchFn: typeof fetch = fetch,
+): Promise<string> {
+  const signed = await requestCustomerPortalUrl(getAccessToken, fetchFn);
+  return signed.ok && signed.url ? signed.url : fallbackCustomerPortalUrl();
 }
 
 /** Resolve the Supabase access token for the portal call. Null when offline. */

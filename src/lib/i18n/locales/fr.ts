@@ -802,6 +802,8 @@ export const fr: Record<TKey, string> = {
   'pay.manage': 'Gérer l’abonnement',
   'pay.manageTitle': 'Changer de formule, mettre à jour le paiement ou résilier',
   'pay.portalError': 'Impossible d’ouvrir le portail. Réessayez.',
+  'pay.resumeTitle': 'Vous êtes connecté — terminez votre passage à Pro',
+  'pay.resumeCta': 'Continuer vers le paiement',
   'pay.syncScope':
     'Synchronisation entre appareils : sessions de focus, zones de focus et réglages',
   'pay.syncNote':
@@ -1868,6 +1870,9 @@ export const fr: Record<TKey, string> = {
   'account.openCabinet': 'Ouvrir mon espace',
   'account.subscriptionStatus': 'Abonnement',
   'account.manageSubscription': 'Gérer l’abonnement',
+  'account.deleteSubWarning':
+    'Vous avez un abonnement Pro actif. Résiliez-le d’abord dans le portail d’abonnement pour être sûr de ne plus être débité.',
+  'account.deleteSubPortal': 'Ouvrir le portail d’abonnement',
   'pricingPage.title': 'Des tarifs simples et honnêtes',
   'pricingPage.subtitle':
     'Gratuit pour toujours pour l’essentiel. Passez à Pro quand vous dépassez les limites.',

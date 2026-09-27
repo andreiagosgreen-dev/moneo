@@ -1,25 +1,35 @@
 import { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import BrandMark from './BrandMark';
 import AuthForm from './account/AuthForm';
 import GoogleSignInButton from './account/GoogleSignInButton';
 import { useAuth } from '../lib/authProvider';
 import { useI18n } from '../lib/i18n/LocaleContext';
+import { UPGRADE_PARAM, parsePaidPlan, pricingPathForUpgrade } from '../lib/billing/upgradeIntent';
 
 /**
  * Dedicated full-page auth screen — email/password (shared AuthForm) plus
- * Google OAuth. Redirects to "/" once a session lands, whether from the
- * form or from the OAuth round-trip (Supabase's client already parses the
- * session out of the redirect URL; authController.init() picks it up).
+ * Google OAuth. Redirects once a session lands, whether from the form or
+ * from the OAuth round-trip (Supabase's client already parses the session
+ * out of the redirect URL; authController.init() picks it up): back to
+ * /pricing with the chosen plan when the visitor came from an upgrade
+ * button, otherwise to "/".
  */
 export default function LoginPage() {
   const { t } = useI18n();
   const auth = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const upgradePlan = parsePaidPlan(searchParams.get(UPGRADE_PARAM));
 
   useEffect(() => {
-    if (auth.status === 'authenticated') navigate('/', { replace: true });
-  }, [auth.status, navigate]);
+    if (auth.status !== 'authenticated') return;
+    navigate(upgradePlan ? pricingPathForUpgrade(upgradePlan) : '/', { replace: true });
+  }, [auth.status, navigate, upgradePlan]);
+
+  const oauthReturn = upgradePlan
+    ? `${window.location.origin}/login?${UPGRADE_PARAM}=${upgradePlan}`
+    : `${window.location.origin}/login`;
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
@@ -34,10 +44,18 @@ export default function LoginPage() {
             {t('login.title')}
           </h1>
           <p className="mt-1.5 text-[13px] text-faint">{t('login.subtitle')}</p>
+          {upgradePlan && (
+            <p
+              role="status"
+              className="mt-3 rounded-lg bg-accent/10 px-3 py-2 text-[12px] font-semibold text-accent"
+            >
+              {t('pay.signin')}
+            </p>
+          )}
         </div>
 
         <div className="mt-6">
-          <GoogleSignInButton redirectTo={`${window.location.origin}/login`} />
+          <GoogleSignInButton redirectTo={oauthReturn} />
         </div>
 
         <div className="my-5 flex items-center gap-3" aria-hidden>

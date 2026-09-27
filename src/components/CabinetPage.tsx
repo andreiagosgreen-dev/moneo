@@ -8,8 +8,12 @@ import GoogleCalendarConnect from './account/GoogleCalendarConnect';
 import FocusBuddy from './account/FocusBuddy';
 import { useAuth } from '../lib/authProvider';
 import { useI18n } from '../lib/i18n/LocaleContext';
-import type { SubscriptionInfo } from '../lib/cloud/subscriptionRepository';
-import { buildCustomerPortalUrl } from '../lib/billing/lemonSqueezy';
+import {
+  hasRenewingSubscription,
+  type SubscriptionInfo,
+} from '../lib/cloud/subscriptionRepository';
+import { LEMON_MY_ORDERS_URL, buildCustomerPortalUrl } from '../lib/billing/lemonSqueezy';
+import ManageSubscriptionButton from './ManageSubscriptionButton';
 
 function Spinner() {
   return (
@@ -144,15 +148,10 @@ export default function CabinetPage() {
             )}
           </div>
           {/* Portal is Lemon-paid only — complimentary Pro keeps Free planId. */}
-          {auth.subscription.isPro && auth.subscription.planId !== 'free' && portalUrl && (
-            <a
-              href={portalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="press btn-ghost mt-3 inline-block rounded-lg px-4 py-2 font-mono text-[12px] font-semibold"
-            >
-              {t('account.manageSubscription')}
-            </a>
+          {auth.subscription.planId !== 'free' && (
+            <div className="mt-3">
+              <ManageSubscriptionButton />
+            </div>
           )}
           <div className="mt-4">
             <PricingCard />
@@ -213,6 +212,22 @@ export default function CabinetPage() {
               <p className="mt-1 text-[11px] leading-relaxed text-sage">
                 {t('account.deleteConfirmBody')}
               </p>
+              {hasRenewingSubscription(auth.subscription) && (
+                <p
+                  role="note"
+                  className="mt-2 rounded-lg border border-tomato/30 px-3 py-2 text-[11px] leading-relaxed text-cream"
+                >
+                  {t('account.deleteSubWarning')}{' '}
+                  <a
+                    href={portalUrl ?? LEMON_MY_ORDERS_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-tomato underline underline-offset-2"
+                  >
+                    {t('account.deleteSubPortal')}
+                  </a>
+                </p>
+              )}
               <div className="mt-3 flex gap-2">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}

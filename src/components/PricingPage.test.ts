@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createElement, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { LocaleProvider } from '../lib/i18n/LocaleContext';
 import { ro } from '../lib/i18n/locales/ro';
 import type { Locale } from '../lib/i18n/types';
@@ -32,19 +32,30 @@ vi.mock('../lib/authProvider', () => ({
 let root: Root | null = null;
 let container: HTMLDivElement | null = null;
 
-function renderPage(locale: Locale): string {
+function LoginProbe() {
+  const loc = useLocation();
+  return createElement('p', null, `LOGIN${loc.search}`);
+}
+
+function renderPage(locale: Locale, url = '/pricing'): string {
   container = document.createElement('div');
   document.body.appendChild(container);
   root = createRoot(container);
+  const page = createElement(LocaleProvider, {
+    locale,
+    dictionary: locale === 'ro' ? ro : undefined,
+    onLocaleChange: () => {},
+    children: createElement(PricingPage),
+  });
   const el: ReactElement = createElement(
     MemoryRouter,
-    null,
-    createElement(LocaleProvider, {
-      locale,
-      dictionary: locale === 'ro' ? ro : undefined,
-      onLocaleChange: () => {},
-      children: createElement(PricingPage),
-    }),
+    { initialEntries: [url] },
+    createElement(
+      Routes,
+      null,
+      createElement(Route, { path: '/pricing', element: page }),
+      createElement(Route, { path: '/login', element: createElement(LoginProbe) }),
+    ),
   );
   act(() => {
     root!.render(el);
@@ -97,5 +108,36 @@ describe('PricingPage (/pricing)', () => {
     authState.planId = 'pro-monthly';
     authState.user = { userId: 'u-1' };
     expect(renderPage('en')).toContain('Manage subscription');
+  });
+
+  it('sends a logged-out buyer to sign-in with the chosen plan — no alert()', () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    renderPage('en');
+    const buttons = [...container!.querySelectorAll('button')].filter(
+      (b) => b.textContent === 'Upgrade',
+    );
+    // Plan order: Free, Pro (Monthly), Pro (Yearly) → second button is yearly.
+    expect(buttons).toHaveLength(2);
+    act(() => {
+      buttons[1].click();
+    });
+    expect(container!.textContent).toBe('LOGIN?upgrade=pro-yearly');
+    expect(alertSpy).not.toHaveBeenCalled();
+    alertSpy.mockRestore();
+  });
+
+  it('offers to continue checkout for the intended plan after sign-in', () => {
+    authState.user = { userId: 'u-1' };
+    const text = renderPage('en', '/pricing?upgrade=pro-yearly');
+    expect(text).toContain('You’re signed in — finish your upgrade');
+    expect(text).toContain('Continue to checkout');
+  });
+
+  it('ignores the intent for visitors and Pro users', () => {
+    expect(renderPage('en', '/pricing?upgrade=pro-yearly')).not.toContain('Continue to checkout');
+    authState.user = { userId: 'u-1' };
+    authState.isPro = true;
+    authState.planId = 'pro-monthly';
+    expect(renderPage('en', '/pricing?upgrade=pro-yearly')).not.toContain('Continue to checkout');
   });
 });

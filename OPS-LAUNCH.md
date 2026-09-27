@@ -23,7 +23,7 @@ Ghid detaliat: acest fisier. Checklist scurt: `LAUNCH-9.md`. Securitate: `SECURI
 |---|---|
 | Checkout Lemon (FE) | **[REPO]** `buildCheckoutUrl` fail-closed; nevoie de 4x `VITE_LEMONSQUEEZY_*` + HTTPS |
 | Webhook Lemon | **[REPO]** Worker `POST /api/webhook/lemonsqueezy` — HMAC, rate-limit 30/min/IP, dedupe, fail-closed fara secret |
-| Customer Portal | **[REPO]** `GET /api/billing/portal` — JWT Supabase + `LEMON_SQUEEZY_API_KEY` pe Worker |
+| Customer Portal | **[REPO]** `GET /api/billing/portal` (link semnat, cere `LEMON_SQUEEZY_API_KEY` pe Worker); fara cheie → portalul magazinului `/billing`, apoi `app.lemonsqueezy.com/my-orders` |
 | Migratii Supabase | **[REPO]** `0001`…`0006` (inclusiv `subscriptions` + CHECK-uri) |
 | Rate-limit API Worker | **[REPO]** webhook/API 30/min/IP; delete account 10/min/IP (per-isolate) |
 | CORS | **[REPO]** allowlist; default `https://moneo.bond` |
@@ -196,7 +196,19 @@ Fara secret → 503. Semnatura gresita → 401.
 
 ### 3.4 API key
 
-Settings → API → `wrangler secret put LEMON_SQUEEZY_API_KEY` (pentru portal).
+Settings → API → `wrangler secret put LEMON_SQUEEZY_API_KEY` (optional, dar recomandat).
+
+**[REPO]** Ce face cheia cand e setata pe Worker:
+
+- „Gestioneaza abonamentul” deschide direct portalul semnat al abonamentului (fara login cu email).
+- La „Sterge contul”, Worker-ul **anuleaza intai abonamentul Lemon activ** (reinnoirea se opreste; accesul ramane pana la finalul perioadei platite), apoi sterge datele. Daca Lemon refuza anularea, stergerea se opreste (se poate reincerca).
+
+**Fara cheie (starea actuala):** butonul deschide portalul magazinului `https://moneo.lemonsqueezy.com/billing` (cumparatorul primeste link pe email), iar confirmarea de stergere a contului avertizeaza utilizatorii cu abonament activ sa-l anuleze intai din portal. Stergerea contului **nu** anuleaza singura abonamentul.
+
+```powershell
+cd cloudflare\workers
+npx wrangler secret put LEMON_SQUEEZY_API_KEY
+```
 
 ### 3.5 Verificare
 

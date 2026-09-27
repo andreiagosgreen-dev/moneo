@@ -809,6 +809,8 @@ export const es: Record<TKey, string> = {
   'pay.manage': 'Gestionar suscripción',
   'pay.manageTitle': 'Cambia de plan, actualiza tu método de pago o cancela',
   'pay.portalError': 'No se pudo abrir el portal. Inténtalo de nuevo.',
+  'pay.resumeTitle': 'Has iniciado sesión — completa tu mejora',
+  'pay.resumeCta': 'Continuar al pago',
   'pay.syncScope': 'Sincronización entre dispositivos: sesiones de foco, áreas de foco y ajustes',
   'pay.syncNote':
     'Proyectos, tareas, metas, hábitos, diario y el resto de tu planificación se quedan en el dispositivo donde los creaste.',
@@ -1845,6 +1847,9 @@ export const es: Record<TKey, string> = {
   'account.openCabinet': 'Abrir mi gabinete',
   'account.subscriptionStatus': 'Suscripción',
   'account.manageSubscription': 'Gestionar suscripción',
+  'account.deleteSubWarning':
+    'Tienes una suscripción Pro activa. Cancélala primero en el portal de suscripción para asegurarte de que no se te cobre de nuevo.',
+  'account.deleteSubPortal': 'Abrir portal de suscripción',
   'pricingPage.title': 'Precios simples y honestos',
   'pricingPage.subtitle':
     'Gratis para siempre para lo básico. Actualiza cuando superes los límites.',
