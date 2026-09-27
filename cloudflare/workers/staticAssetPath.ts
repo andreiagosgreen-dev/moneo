@@ -32,3 +32,13 @@ export function isStaticAssetPath(filePath: string): boolean {
   if (dot <= 0) return false;
   return STATIC_ASSET_EXT.has(base.slice(dot + 1).toLowerCase());
 }
+
+/**
+ * Paths that must revalidate on every request (never long immutable cache).
+ * Service worker + webmanifest must update promptly after deploy.
+ */
+export function isRevalidateAlwaysPath(filePath: string): boolean {
+  return (
+    filePath === '/index.html' || filePath === '/sw.js' || filePath === '/manifest.webmanifest'
+  );
+}

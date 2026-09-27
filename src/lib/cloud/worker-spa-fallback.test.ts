@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { isStaticAssetPath } from '../../../cloudflare/workers/staticAssetPath';
+import {
+  isStaticAssetPath,
+  isRevalidateAlwaysPath,
+} from '../../../cloudflare/workers/staticAssetPath';
 
 describe('isStaticAssetPath', () => {
   it('treats hashed build assets as static (no SPA HTML fallback)', () => {
@@ -17,5 +20,18 @@ describe('isStaticAssetPath', () => {
     expect(isStaticAssetPath('/account')).toBe(false);
     expect(isStaticAssetPath('/account/calendar-callback')).toBe(false);
     expect(isStaticAssetPath('/index.html')).toBe(false);
+  });
+});
+
+describe('isRevalidateAlwaysPath', () => {
+  it('marks shell, SW, and manifest for short cache', () => {
+    expect(isRevalidateAlwaysPath('/index.html')).toBe(true);
+    expect(isRevalidateAlwaysPath('/sw.js')).toBe(true);
+    expect(isRevalidateAlwaysPath('/manifest.webmanifest')).toBe(true);
+  });
+
+  it('leaves hashed assets on immutable long-cache', () => {
+    expect(isRevalidateAlwaysPath('/assets/index-BED1igKF.js')).toBe(false);
+    expect(isRevalidateAlwaysPath('/icon-192.png')).toBe(false);
   });
 });

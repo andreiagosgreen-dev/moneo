@@ -114,7 +114,7 @@ function Stepper({
   const { t } = useI18n();
   const { min, max } = LIMITS[field];
   const btn =
-    'press btn-ghost flex h-8 w-8 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none';
+    'press btn-ghost flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none';
   return (
     <div className="flex items-center justify-between gap-3 py-3">
       <div className="min-w-0">
@@ -316,7 +316,7 @@ export default function SettingsCard({
               onClick={() =>
                 onChange({ weeklyCapacityMin: Math.max(60, settings.weeklyCapacityMin - 60) })
               }
-              className="press btn-ghost flex h-8 w-8 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
+              className="press btn-ghost flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
               disabled={settings.weeklyCapacityMin <= 60}
               aria-label={t('set.capDec')}
             >
@@ -329,7 +329,7 @@ export default function SettingsCard({
               onClick={() =>
                 onChange({ weeklyCapacityMin: Math.min(10080, settings.weeklyCapacityMin + 60) })
               }
-              className="press btn-ghost flex h-8 w-8 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
+              className="press btn-ghost flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
               disabled={settings.weeklyCapacityMin >= 10080}
               aria-label={t('set.capInc')}
             >
@@ -508,7 +508,7 @@ function Chip({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`press rounded-lg px-3 py-1.5 font-mono text-[12px] font-semibold ring-1 transition-colors disabled:cursor-not-allowed ${
+      className={`press inline-flex min-h-11 items-center rounded-lg px-3 py-2.5 font-mono text-[12px] font-semibold ring-1 transition-colors disabled:cursor-not-allowed ${
         selected
           ? 'bg-ink/70 text-cream ring-accent'
           : disabled || locked
@@ -657,7 +657,7 @@ function AppearanceSection({
                   key={k}
                   onClick={() => (isPro ? set({ accent: k }) : undefined)}
                   disabled={!isPro}
-                  className="press flex h-7 min-w-7 items-center justify-center rounded-full p-0.5 disabled:cursor-not-allowed"
+                  className="press flex h-11 min-w-11 items-center justify-center rounded-full p-0.5 disabled:cursor-not-allowed"
                   style={{
                     background: isAuto
                       ? undefined

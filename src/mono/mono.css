@@ -2400,7 +2400,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 14px;
   border: 1px solid var(--mono-border-2);
   border-radius: var(--mono-r-btn);
