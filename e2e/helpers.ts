@@ -10,6 +10,8 @@ import type { Page } from '@playwright/test';
  */
 export async function skipOnboarding(page: Page): Promise<void> {
   await page.addInitScript(() => {
+    // Also skips the first-visit landing page, so `/` opens the app directly.
+    localStorage.setItem('moneo:landing-seen', JSON.stringify(true));
     localStorage.setItem('moneo:onboarding-seen', JSON.stringify(true));
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const parts = new Intl.DateTimeFormat('en-US', {

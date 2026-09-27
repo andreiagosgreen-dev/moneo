@@ -59,7 +59,7 @@ export default function MonoMore({ tab, onOpen }: Props) {
           })}
         </ol>
 
-        <MonoLegalLinks showHelp />
+        <MonoLegalLinks showAbout showHelp />
       </div>
     </div>
   );

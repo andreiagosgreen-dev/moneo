@@ -220,6 +220,15 @@ describe('legal content', () => {
     expect(enStrings['legal.ageNote'].replace('{n}', String(DIGITAL_CONSENT_AGE))).toBe(
       'Under 16? Ask a parent or guardian first.',
     );
+
+    const landingMinors = enStrings['land.faq.minors.a']
+      .replace('{min}', String(MIN_ACCOUNT_AGE))
+      .split('{adult}')
+      .join(String(ADULT_AGE))
+      .replace('{consent}', String(DIGITAL_CONSENT_AGE));
+    expect(landingMinors).toContain('To create an account you must be at least 13.');
+    expect(landingMinors).toContain('If you’re under 18, use Moneo only with the permission');
+    expect(landingMinors).toContain('(16 in many EU countries), a parent or guardian must agree');
   });
 
   it('Privacy has a children and students section with guardian contact', () => {

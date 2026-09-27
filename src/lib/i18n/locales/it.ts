@@ -32,6 +32,135 @@ export const it: Record<TKey, string> = {
   'nav.main': 'Navigazione principale',
   'nav.sections': 'Sezioni',
   'nav.searchResults': 'Risultati di ricerca',
+  // ── Landing page (/ for first-time visitors, /welcome) ──
+  'land.meta.title': 'Moneo — concentrati, pianifica e cresci, giorno dopo giorno',
+  'land.meta.desc':
+    'Un timer di concentrazione tranquillo, un piano semplice per oggi, progetti, abitudini e progressi che vedi. Per studenti delle superiori, universitari e professionisti. Gratis, senza account, funziona offline.',
+  'land.about': 'Informazioni su Moneo',
+  'land.nav.label': 'Sezioni della pagina',
+  'land.nav.forWhom': 'Per chi',
+  'land.nav.features': 'Funzioni',
+  'land.nav.pricing': 'Prezzi',
+  'land.nav.faq': 'Domande',
+  'land.lang': 'Lingua',
+  'land.home': 'Moneo — home',
+  'land.cta.start': 'Inizia gratis',
+  'land.cta.pricing': 'Vedi i prezzi',
+  'land.hero.eyebrow': 'Per studenti, universitari e professionisti',
+  'land.hero.title': 'Concentrati, pianifica e cresci — giorno dopo giorno.',
+  'land.hero.sub':
+    'Moneo riunisce in un unico posto un timer di concentrazione tranquillo, un piano semplice per oggi, i tuoi progetti e le tue abitudini — così sai sempre cosa fare dopo e vedi quanto stai migliorando.',
+  'land.hero.trust': 'Nessuna carta · Nessun account · Funziona offline',
+  'land.shot.focus.alt':
+    'Schermata Focus di Moneo: un timer di 25 minuti, l’intenzione di oggi e le prossime attività',
+  'land.shot.focusPhone.alt':
+    'Moneo sul telefono: il timer di concentrazione con l’intenzione di oggi',
+  'land.shot.today.alt': 'Schermata Oggi di Moneo: le priorità del giorno, alcune già spuntate',
+  'land.shot.growth.alt':
+    'Schermata Crescita di Moneo: XP, grado attuale e serie di giorni di focus',
+  'land.who.eyebrow': 'Per chi',
+  'land.who.title': 'Per chiunque voglia fare di più — con calma',
+  'land.who.pupils.t': 'Studenti delle superiori',
+  'land.who.pupils.b':
+    'Compiti, verifiche e preparazione alla maturità in brevi sessioni di concentrazione — senza che il telefono ti distragga.',
+  'land.who.pupils.l1': 'Un piano per i compiti di oggi',
+  'land.who.pupils.l2': 'Ripasso per gli esami, passo dopo passo',
+  'land.who.pupils.l3': 'Serie di giorni che ti motivano',
+  'land.who.students.t': 'Universitari',
+  'land.who.students.b':
+    'Sessione d’esami, progetti e tesi, divisi in passi chiari con scadenze che rispetti davvero.',
+  'land.who.students.l1': 'Pianifica la sessione',
+  'land.who.students.l2': 'Progetti e tesi per passi',
+  'land.who.students.l3': 'Vedi quanto hai studiato',
+  'land.who.pros.t': 'Professionisti',
+  'land.who.pros.b':
+    'Lavoro concentrato su ciò che conta, abitudini che restano e un equilibrio più sano tra lavoro e vita.',
+  'land.who.pros.l1': 'Progetti e priorità',
+  'land.who.pros.l2': 'Abitudini quotidiane',
+  'land.who.pros.l3': 'Equilibrio lavoro–vita',
+  'land.feat.eyebrow': 'Cosa ottieni',
+  'land.feat.title': 'Tutto ciò che serve per concentrarti — e niente che ti distragga',
+  'land.feat.focus.t': 'Un timer che ti tiene in carreggiata',
+  'land.feat.focus.b':
+    'Scegli 25 o 45 minuti, scrivi a cosa lavori e premi start. Allo scadere la pausa è pronta, e ogni sessione conta per il progetto e l’attività che hai scelto.',
+  'land.feat.today.t': 'Oggi: le tue priorità, niente di più',
+  'land.feat.today.b':
+    'Scegli le 3 cose più importanti di oggi (fino a 6 con Pro), spuntale una alla volta e comincia dalla più difficile.',
+  'land.feat.growth.t': 'Guardati crescere',
+  'land.feat.growth.b':
+    'Ogni sessione di concentrazione ti fa guadagnare XP. Sali di grado, mantieni viva la tua serie e festeggia quando completi una fase o un intero progetto.',
+  'land.feat.projects.t': 'Progetti e piani passo passo',
+  'land.feat.projects.b':
+    'Dividi i grandi obiettivi in piccole attività. L’assistente di pianificazione trasforma “Voglio imparare…” in un percorso chiaro, direttamente sul tuo dispositivo.',
+  'land.feat.habits.t': 'Abitudini che restano',
+  'land.feat.habits.b':
+    'Piccole abitudini quotidiane con serie di giorni e un promemoria gentile la sera.',
+  'land.feat.atm.t': 'Un’atmosfera per ogni stato d’animo',
+  'land.feat.atm.b':
+    'Temi di colore rilassanti per il tuo spazio di concentrazione — lo stesso layout semplice, nell’atmosfera che preferisci.',
+  'land.feat.private.t': 'Privato e offline',
+  'land.feat.private.b':
+    'Funziona senza internet. Senza account, i tuoi dati vengono salvati su questo dispositivo. Con Pro, tutti i tuoi dati vengono salvati nel tuo account e li vedi su qualsiasi dispositivo.',
+  'land.feat.langs.t': 'Nella tua lingua',
+  'land.feat.langs.b': 'Moneo parla 8 lingue, tra cui rumeno, russo e ucraino.',
+  'land.feat.install.t': 'Sul telefono, come un’app',
+  'land.feat.install.b':
+    'Aggiungi Moneo alla schermata Home con due tocchi — senza passare dall’app store.',
+  'land.how.eyebrow': 'Come funziona',
+  'land.how.title': 'Pronto in meno di un minuto',
+  'land.how.s1.t': 'Apri Moneo',
+  'land.how.s1.b': 'Nessuna registrazione e nessuna carta. Premi solo “Inizia gratis”.',
+  'land.how.s2.t': 'Scegli le priorità di oggi',
+  'land.how.s2.b': 'Scrivi le 3 cose che contano oggi e scegli da quale cominciare.',
+  'land.how.s3.t': 'Concentrati e guarda i progressi',
+  'land.how.s3.b':
+    'Avvia una sessione, fai la pausa, ripeti. La tua serie, gli XP e i report crescono con te.',
+  'land.price.eyebrow': 'Prezzi',
+  'land.price.title': 'Gratis per iniziare. Pro quando vuoi di più.',
+  'land.price.free.t': 'Gratis',
+  'land.price.free.sub': 'Per sempre, senza carta',
+  'land.price.pro.t': 'Pro',
+  'land.price.pro.or': 'oppure {price}/anno',
+  'land.price.pro.cta': 'Confronta i piani',
+  'land.price.note':
+    'Pagamento sicuro con Lemon Squeezy. Disdici quando vuoi. Rimborso completo entro {days} giorni, senza domande.',
+  'land.price.refundLink': 'Politica di rimborso',
+  'land.faq.eyebrow': 'Domande',
+  'land.faq.title': 'Domande frequenti',
+  'land.faq.free.q': 'Moneo è gratis?',
+  'land.faq.free.a':
+    'Sì. Il timer di concentrazione, il piano del giorno, 3 progetti, le abitudini e il diario sono gratis per sempre. Pro aggiunge progetti e obiettivi illimitati, l’assistente AI completo, le esportazioni, tutti i tuoi dati salvati nell’account su ogni dispositivo e altro ancora.',
+  'land.faq.account.q': 'Serve un account?',
+  'land.faq.account.a':
+    'No. Apri Moneo e inizia — tutto funziona senza account e viene salvato su questo dispositivo. Con un account gratuito vi si salvano anche sessioni di focus, aree e impostazioni; con Pro, tutti i tuoi dati.',
+  'land.faq.data.q': 'Dove vengono salvati i miei dati?',
+  'land.faq.data.a':
+    'Senza account, tutto viene salvato su questo dispositivo, nel browser. Con un account gratuito, sessioni di focus, aree di focus e impostazioni vengono salvate anche nel tuo account e le vedi sugli altri dispositivi. Con Pro, tutti i tuoi dati vengono salvati nel tuo account — progetti, attività, obiettivi, abitudini, diario e il resto della pianificazione — e li vedi su qualsiasi dispositivo. Dalle Impostazioni puoi esportare tutti i tuoi dati in un file o cancellare tutto in qualsiasi momento.',
+  'land.faq.cancel.q': 'Posso disdire quando voglio?',
+  'land.faq.cancel.a':
+    'Sì. Disdici dal tuo account in un paio di clic. Mantieni Pro fino alla fine del periodo già pagato e non ti verrà addebitato altro.',
+  'land.faq.refund.q': 'Posso avere un rimborso?',
+  'land.faq.refund.a':
+    'Sì. Se Pro non fa per te, chiedi il rimborso completo entro {days} giorni da qualsiasi pagamento — rinnovi compresi. Senza domande.',
+  'land.faq.minors.q': 'Moneo è adatto a studenti e adolescenti?',
+  'land.faq.minors.a':
+    'Sì. Moneo funziona completamente senza account, quindi non servono dati personali. Per creare un account devi avere almeno {min} anni. Se hai meno di {adult} anni, usa Moneo solo con il permesso di un genitore o tutore legale; sotto l’età del consenso digitale nel tuo paese ({consent} in molti paesi UE), un genitore o tutore deve essere d’accordo prima che tu crei un account. Pro per chi ha meno di {adult} anni lo acquista un genitore o tutore, o viene acquistato con il loro permesso.',
+  'land.faq.devices.q': 'Su quali dispositivi funziona?',
+  'land.faq.devices.a':
+    'In qualsiasi browser moderno su telefono, tablet o computer — Android, iPhone, Windows, Mac o Linux. Puoi anche installarlo nella schermata Home come un’app.',
+  'land.faq.offline.q': 'Funziona offline?',
+  'land.faq.offline.a':
+    'Sì. Dopo la prima visita Moneo funziona senza internet. Se usi un account, le modifiche vengono salvate appena torni online.',
+  'land.faq.ai.q': 'Cosa fa l’AI? La mia chiave AI è al sicuro?',
+  'land.faq.ai.a':
+    'L’assistente di pianificazione trasforma un obiettivo in un piano passo passo e ti suggerisce su cosa lavorare dopo. Il generatore di piani gratuito funziona sul tuo dispositivo. Con Pro puoi, se vuoi, collegare la tua chiave AI (Gemini, OpenAI o DeepSeek): resta salvata solo sul tuo dispositivo e viene inviata direttamente a quel fornitore — mai ai nostri server.',
+  'land.faq.support.q': 'Come contatto l’assistenza?',
+  'land.faq.support.a': 'Scrivici a {email}. Leggiamo ogni messaggio.',
+  'land.final.title': 'La tua prima sessione di concentrazione è a un clic di distanza',
+  'land.final.sub':
+    'Gratis, senza account, senza carta. Inizia ora e scopri quanto riesci a fare in 25 minuti.',
+  'land.foot.nav': 'Note legali e contatti',
+  'land.foot.country': 'Repubblica di Moldova',
   'today.rituals': '☀️ Rituali del giorno',
   'today.ritualsTitle': 'Inizia la giornata con un’intenzione, chiudila con una revisione',
   'today.morning': 'Rituale del mattino',

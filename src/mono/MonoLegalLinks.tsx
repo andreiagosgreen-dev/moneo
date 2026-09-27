@@ -5,17 +5,20 @@ import { LEGAL_PATHS, SUPPORT_MAILTO } from '../lib/legal/seller';
 interface Props {
   /** Prepend a Help link (Settings, More, legal pages). */
   showHelp?: boolean;
+  /** Prepend an "About Moneo" link to the landing page (More). */
+  showAbout?: boolean;
   className?: string;
 }
 
 /** Help · Terms · Privacy · Refund · Contact — one row, same everywhere. */
-export default function MonoLegalLinks({ showHelp = false, className }: Props) {
+export default function MonoLegalLinks({ showHelp = false, showAbout = false, className }: Props) {
   const { t } = useI18n();
   return (
     <nav
       className={className ? `mono-legal-links ${className}` : 'mono-legal-links'}
       aria-label={t('legal.nav')}
     >
+      {showAbout && <Link to="/welcome">{t('land.about')}</Link>}
       {showHelp && <Link to="/help">{t('foot.help')}</Link>}
       <Link to={LEGAL_PATHS.terms}>{t('foot.terms')}</Link>
       <Link to={LEGAL_PATHS.privacy}>{t('foot.privacy')}</Link>

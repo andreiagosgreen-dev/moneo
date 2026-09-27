@@ -1,82 +1,103 @@
-import { StrictMode } from 'react';
+import { StrictMode, Suspense, lazy, useCallback, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom';
 import './index.css';
 import './mono/tokens.css';
 import './mono/mono.css';
-/* Self-hosted Mono fonts (Fontsource, bundled locally — offline + PWA safe). */
-import '@fontsource/cal-sans/400.css';
+/* Core Mono fonts (Fontsource, bundled locally — offline + PWA safe). The
+ * remaining families ship with the app chunk (AppRoot.tsx). */
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/inter/700.css';
-import '@fontsource/inter/800.css';
-import '@fontsource/jetbrains-mono/400.css';
-import '@fontsource/jetbrains-mono/500.css';
-import '@fontsource/jetbrains-mono/600.css';
 import '@fontsource/literata/400.css';
-import '@fontsource/literata/400-italic.css';
 import '@fontsource/literata/500.css';
 import '@fontsource/literata/600.css';
-import '@fontsource/source-serif-4/400.css';
-import '@fontsource/source-serif-4/400-italic.css';
-import '@fontsource/source-serif-4/600.css';
-import '@fontsource/fraunces/400.css';
-import '@fontsource/fraunces/500.css';
-import '@fontsource/fraunces/600.css';
-import '@fontsource/dm-sans/400.css';
-import '@fontsource/dm-sans/500.css';
-import '@fontsource/dm-sans/600.css';
-import '@fontsource/dm-sans/700.css';
-import '@fontsource/lora/400.css';
-import '@fontsource/lora/500.css';
-import '@fontsource/lora/600.css';
-import '@fontsource/lora/700.css';
-import '@fontsource/ibm-plex-sans/400.css';
-import '@fontsource/ibm-plex-sans/500.css';
-import '@fontsource/ibm-plex-sans/600.css';
-import '@fontsource/ibm-plex-sans/700.css';
-import '@fontsource/manrope/400.css';
-import '@fontsource/manrope/500.css';
-import '@fontsource/manrope/600.css';
-import '@fontsource/manrope/700.css';
-import '@fontsource/spectral/400.css';
-import '@fontsource/spectral/500.css';
-import '@fontsource/spectral/600.css';
-import '@fontsource/spectral/700.css';
-import '@fontsource/outfit/400.css';
-import '@fontsource/outfit/500.css';
-import '@fontsource/outfit/600.css';
-import '@fontsource/outfit/700.css';
-import '@fontsource/crimson-pro/400.css';
-import '@fontsource/crimson-pro/500.css';
-import '@fontsource/crimson-pro/600.css';
-import '@fontsource/crimson-pro/700.css';
-import '@fontsource/space-grotesk/400.css';
-import '@fontsource/space-grotesk/500.css';
-import '@fontsource/space-grotesk/600.css';
-import '@fontsource/space-grotesk/700.css';
-import '@fontsource/newsreader/400.css';
-import '@fontsource/newsreader/500.css';
-import '@fontsource/newsreader/600.css';
-import '@fontsource/newsreader/700.css';
-import App from './App';
 import AppErrorBoundary from './components/AppErrorBoundary';
-import { AuthProvider } from './lib/authProvider';
 import { initErrorReporting } from './lib/errorReporting';
+import {
+  LANDING_PATH,
+  isFirstVisitLanding,
+  isLandingActiveInTab,
+  landingView,
+  markLandingActive,
+  markLandingSeen,
+  readStorageKeys,
+  type LandingView,
+} from './lib/landing';
+import { loadLocale } from './lib/i18n/meta';
 import { applyAtmosphere, loadAtmosphere } from './mono/atmosphere';
+import { loadLandingDictionary } from './landing/dictionaries';
+import { preloadLandingHero } from './landing/heroImages';
+import type { LandingPageProps } from './landing/LandingPage';
 
 /* Apply stored atmosphere before first paint so theme fonts hit body/Tailwind. */
 applyAtmosphere(loadAtmosphere());
 initErrorReporting();
 
+const loadApp = () => import('./AppRoot');
+const AppRoot = lazy(loadApp);
+
+const Landing = lazy(async () => {
+  const locale = loadLocale();
+  preloadLandingHero(locale);
+  const [mod, dictionary] = await Promise.all([
+    import('./landing/LandingPage'),
+    loadLandingDictionary(locale),
+  ]);
+  const Page = mod.default;
+  return {
+    default: (props: Omit<LandingPageProps, 'initialLocale' | 'initialDictionary'>) => (
+      <Page {...props} initialLocale={locale} initialDictionary={dictionary} />
+    ),
+  };
+});
+
+function prefetchApp() {
+  void loadApp();
+}
+
+function Root() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [started, setStarted] = useState(false);
+  const onLanding = location.pathname.replace(/\/+$/, '') === LANDING_PATH;
+  let view: LandingView = 'app';
+  if (!started || onLanding) {
+    const input = {
+      pathname: location.pathname,
+      search: location.search,
+      storageKeys: readStorageKeys(),
+      activeInTab: isLandingActiveInTab(),
+    };
+    view = landingView(input);
+    if (isFirstVisitLanding(input)) markLandingActive(true);
+  }
+
+  const startApp = useCallback(() => {
+    markLandingSeen();
+    markLandingActive(false);
+    setStarted(true);
+    window.scrollTo(0, 0);
+    if (onLanding) navigate('/');
+  }, [navigate, onLanding]);
+
+  return (
+    <Suspense fallback={null}>
+      {view === 'landing' ? (
+        <Landing onStart={startApp} onPrefetchApp={prefetchApp} />
+      ) : (
+        <AppRoot />
+      )}
+    </Suspense>
+  );
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AppErrorBoundary>
       <BrowserRouter>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
+        <Root />
       </BrowserRouter>
     </AppErrorBoundary>
   </StrictMode>,

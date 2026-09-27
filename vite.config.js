@@ -87,13 +87,29 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
+        // Shared helpers (storage, preload) must not be pulled into a manual
+        // chunk just because it uses them — the entry would then load it too.
+        onlyExplicitManualChunks: true,
         manualChunks(id) {
           const norm = id.replace(/\\/g, '/');
+          // Landing-page imports (display prices, font CSS) stay with whoever
+          // imports them, so first-time visitors don't download the app.
+          if (norm.endsWith('/src/lib/billing/prices.ts') || norm.includes('/@fontsource/')) {
+            return null;
+          }
+          // The other locales split on their own (dynamic imports); English is
+          // also imported statically, so pin it to one chunk the landing can load.
+          if (norm.endsWith('/src/lib/i18n/locales/en.ts')) {
+            return 'locale-en';
+          }
           if (
             norm.includes('@lemonsqueezy/lemonsqueezy.js') ||
             norm.includes('/src/lib/billing/')
           ) {
             return 'billing';
+          }
+          if (norm.includes('/node_modules/@supabase/')) {
+            return 'supabase';
           }
           if (norm.includes('/src/lib/assistant.ts') || norm.includes('/src/lib/ai/')) {
             return 'ai-assistant';

@@ -18,9 +18,10 @@ function memoryStorage(entries: Record<string, string> = {}): Storage {
 }
 
 describe('localDataReset', () => {
-  it('treats every registered product key except the language as Moneo data', () => {
+  it('treats every registered product key except device preferences as Moneo data', () => {
+    const preferences: string[] = [STORAGE_KEYS.locale, STORAGE_KEYS.landingSeen];
     for (const key of Object.values(STORAGE_KEYS)) {
-      expect(isMoneoLocalKey(key)).toBe(key !== STORAGE_KEYS.locale);
+      expect(isMoneoLocalKey(key)).toBe(!preferences.includes(key));
     }
     expect(isMoneoLocalKey('moneo.coach.dismissed.aziEmpty')).toBe(true);
     expect(isMoneoLocalKey('sb-yvkguiiqojwyosvkxzbt-auth-token')).toBe(false);
@@ -34,11 +35,13 @@ describe('localDataReset', () => {
       [STORAGE_KEYS.focusAreas]: '[]',
       'moneo.coach.dismissed.aziEmpty': '2026-9-27',
       [STORAGE_KEYS.locale]: JSON.stringify('ro'),
+      [STORAGE_KEYS.landingSeen]: 'true',
       'sb-x-auth-token': 'session',
       'other-app': 'keep',
     });
 
     expect(clearMoneoLocalStorage(storage)).toBe(4);
+    expect(storage.getItem(STORAGE_KEYS.landingSeen)).toBe('true');
     expect(storage.getItem(STORAGE_KEYS.tasks)).toBeNull();
     expect(storage.getItem(STORAGE_KEYS.history)).toBeNull();
     expect(storage.getItem(STORAGE_KEYS.focusAreas)).toBeNull();

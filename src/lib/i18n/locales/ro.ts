@@ -33,6 +33,132 @@ export const ro: Record<TKey, string> = {
   'nav.main': 'Navigare principală',
   'nav.sections': 'Secțiuni',
   'nav.searchResults': 'Rezultatele căutării',
+  // ── Landing page (/ for first-time visitors, /welcome) ──
+  'land.meta.title': 'Moneo — Concentrează-te, planifică și crește, zi de zi',
+  'land.meta.desc':
+    'Un cronometru de concentrare liniștit, un plan simplu pentru azi, proiecte, obiceiuri și progres pe care îl vezi. Pentru elevi, studenți și profesioniști. Gratuit, fără cont, funcționează offline.',
+  'land.about': 'Despre Moneo',
+  'land.nav.label': 'Secțiunile paginii',
+  'land.nav.forWhom': 'Pentru cine',
+  'land.nav.features': 'Funcții',
+  'land.nav.pricing': 'Prețuri',
+  'land.nav.faq': 'Întrebări',
+  'land.lang': 'Limba',
+  'land.home': 'Moneo — acasă',
+  'land.cta.start': 'Începe gratuit',
+  'land.cta.pricing': 'Vezi prețurile',
+  'land.hero.eyebrow': 'Pentru elevi, studenți și profesioniști',
+  'land.hero.title': 'Concentrează‑te, planifică și crește — zi de zi.',
+  'land.hero.sub':
+    'Moneo adună la un loc un cronometru de concentrare liniștit, un plan simplu pentru azi, proiectele și obiceiurile tale — ca să știi mereu ce urmează și să vezi cum devii tot mai bun.',
+  'land.hero.trust': 'Fără card · Fără cont · Funcționează offline',
+  'land.shot.focus.alt':
+    'Ecranul Focus din Moneo: cronometru de 25 de minute, intenția zilei și următoarele sarcini',
+  'land.shot.focusPhone.alt': 'Moneo pe telefon: cronometrul de concentrare cu intenția zilei',
+  'land.shot.today.alt': 'Ecranul Azi din Moneo: prioritățile zilei, unele deja bifate',
+  'land.shot.growth.alt': 'Ecranul Creștere din Moneo: XP, rangul actual și seria de zile cu focus',
+  'land.who.eyebrow': 'Pentru cine',
+  'land.who.title': 'Pentru oricine vrea să facă mai mult — fără stres',
+  'land.who.pupils.t': 'Elevi',
+  'land.who.pupils.b':
+    'Teme, teze și pregătire pentru BAC în sesiuni scurte de concentrare — fără ca telefonul să-ți fure atenția.',
+  'land.who.pupils.l1': 'Un plan pentru temele de azi',
+  'land.who.pupils.l2': 'Recapitulare pentru examene, pas cu pas',
+  'land.who.pupils.l3': 'Serii de zile care te motivează',
+  'land.who.students.t': 'Studenți',
+  'land.who.students.b':
+    'Sesiunea, proiectele și lucrarea de licență, împărțite în pași clari, cu termene pe care chiar le respecți.',
+  'land.who.students.l1': 'Planifică-ți sesiunea',
+  'land.who.students.l2': 'Proiecte și licență pe pași',
+  'land.who.students.l3': 'Vezi cât ai învățat',
+  'land.who.pros.t': 'Profesioniști',
+  'land.who.pros.b':
+    'Muncă concentrată pe ce contează, obiceiuri care rămân și un echilibru mai sănătos între muncă și viață.',
+  'land.who.pros.l1': 'Proiecte și priorități',
+  'land.who.pros.l2': 'Obiceiuri zilnice',
+  'land.who.pros.l3': 'Echilibru muncă–viață',
+  'land.feat.eyebrow': 'Ce primești',
+  'land.feat.title': 'Tot ce-ți trebuie ca să te concentrezi — și nimic care să te distragă',
+  'land.feat.focus.t': 'Un cronometru care te ține pe drumul bun',
+  'land.feat.focus.b':
+    'Alegi 25 sau 45 de minute, scrii la ce lucrezi și apeși start. Când se termină timpul, pauza te așteaptă, iar fiecare sesiune se adaugă la proiectul și sarcina alese.',
+  'land.feat.today.t': 'Azi: prioritățile tale, nimic în plus',
+  'land.feat.today.b':
+    'Alegi cele 3 lucruri care contează cel mai mult azi (până la 6 cu Pro), le bifezi pe rând și începi cu cel mai greu.',
+  'land.feat.growth.t': 'Vezi cum crești',
+  'land.feat.growth.b':
+    'Fiecare sesiune de concentrare îți aduce XP. Urci în ranguri, îți păstrezi seria de zile și sărbătorești când termini o etapă sau un proiect întreg.',
+  'land.feat.projects.t': 'Proiecte și planuri pas cu pas',
+  'land.feat.projects.b':
+    'Împarte obiectivele mari în sarcini mici. Asistentul de plan transformă „Vreau să învăț…” într-un traseu clar, direct pe dispozitivul tău.',
+  'land.feat.habits.t': 'Obiceiuri care rămân',
+  'land.feat.habits.b': 'Obiceiuri zilnice mici, cu serii de zile și o reamintire blândă seara.',
+  'land.feat.atm.t': 'O atmosferă pentru fiecare stare',
+  'land.feat.atm.b':
+    'Teme de culoare liniștite pentru spațiul tău de lucru — același aranjament simplu, în atmosfera care îți place.',
+  'land.feat.private.t': 'Privat și offline',
+  'land.feat.private.b':
+    'Funcționează fără internet. Fără cont, datele se salvează pe acest dispozitiv. Cu Pro, toate datele tale se salvează în cont și le vezi pe orice dispozitiv.',
+  'land.feat.langs.t': 'În limba ta',
+  'land.feat.langs.b': 'Moneo vorbește 8 limbi, printre care română, rusă și ucraineană.',
+  'land.feat.install.t': 'Pe telefon, ca o aplicație',
+  'land.feat.install.b':
+    'Adaugă Moneo pe ecranul principal din două atingeri — fără magazin de aplicații.',
+  'land.how.eyebrow': 'Cum funcționează',
+  'land.how.title': 'Pornești în mai puțin de un minut',
+  'land.how.s1.t': 'Deschide Moneo',
+  'land.how.s1.b': 'Fără înregistrare și fără card. Apasă doar „Începe gratuit”.',
+  'land.how.s2.t': 'Alege prioritățile zilei',
+  'land.how.s2.b': 'Notează cele 3 lucruri care contează azi și alege cu ce începi.',
+  'land.how.s3.t': 'Concentrează-te și vezi progresul',
+  'land.how.s3.b':
+    'Pornești o sesiune, iei pauza, repeți. Seria de zile, XP-ul și rapoartele cresc odată cu tine.',
+  'land.price.eyebrow': 'Prețuri',
+  'land.price.title': 'Gratuit ca să începi. Pro când vrei mai mult.',
+  'land.price.free.t': 'Gratuit',
+  'land.price.free.sub': 'Pentru totdeauna, fără card',
+  'land.price.pro.t': 'Pro',
+  'land.price.pro.or': 'sau {price}/an',
+  'land.price.pro.cta': 'Compară planurile',
+  'land.price.note':
+    'Plată securizată prin Lemon Squeezy. Anulezi oricând. Rambursare integrală în {days} zile, fără întrebări.',
+  'land.price.refundLink': 'Politica de rambursare',
+  'land.faq.eyebrow': 'Întrebări',
+  'land.faq.title': 'Întrebări frecvente',
+  'land.faq.free.q': 'Moneo e gratuit?',
+  'land.faq.free.a':
+    'Da. Cronometrul de concentrare, planul zilei, 3 proiecte, obiceiurile și jurnalul sunt gratuite pentru totdeauna. Pro adaugă proiecte și obiective nelimitate, asistentul AI complet, exporturi, toate datele salvate în cont pe orice dispozitiv și altele.',
+  'land.faq.account.q': 'Am nevoie de cont?',
+  'land.faq.account.a':
+    'Nu. Deschizi Moneo și începi — totul funcționează fără cont și se salvează pe acest dispozitiv. Cu un cont gratuit, în cont se salvează și sesiunile de focus, ariile și setările; cu Pro, toate datele tale.',
+  'land.faq.data.q': 'Unde sunt păstrate datele mele?',
+  'land.faq.data.a':
+    'Fără cont, totul se salvează pe acest dispozitiv, în browser. Cu un cont gratuit, sesiunile de focus, ariile de focus și setările se salvează și în cont și le vezi pe celelalte dispozitive. Cu Pro, toate datele tale se salvează în cont — proiecte, sarcini, obiective, obiceiuri, jurnal și restul planificării — și le vezi pe orice dispozitiv. Din Setări îți poți exporta oricând toate datele într-un fișier sau poți șterge totul.',
+  'land.faq.cancel.q': 'Pot anula oricând?',
+  'land.faq.cancel.a':
+    'Da. Anulezi din cont în câteva clicuri. Păstrezi Pro până la sfârșitul perioadei plătite și nu mai ești taxat.',
+  'land.faq.refund.q': 'Îmi pot primi banii înapoi?',
+  'land.faq.refund.a':
+    'Da. Dacă Pro nu ți se potrivește, ceri rambursarea integrală în {days} zile de la orice plată — inclusiv reînnoirile. Fără întrebări.',
+  'land.faq.minors.q': 'E potrivit pentru elevi și adolescenți?',
+  'land.faq.minors.a':
+    'Da. Moneo funcționează complet fără cont, deci nu e nevoie de date personale. Pentru un cont trebuie să ai cel puțin {min} ani. Dacă ai sub {adult} ani, folosești Moneo doar cu permisiunea unui părinte sau a unui tutore legal; sub vârsta consimțământului digital din țara ta ({consent} ani în multe țări din UE), un părinte sau un tutore trebuie să fie de acord înainte să-ți creezi cont. Pro pentru cineva sub {adult} ani se cumpără de un părinte sau de un tutore ori cu permisiunea lor.',
+  'land.faq.devices.q': 'Pe ce dispozitive funcționează?',
+  'land.faq.devices.a':
+    'În orice browser modern, pe telefon, tabletă sau calculator — Android, iPhone, Windows, Mac sau Linux. Îl poți instala și pe ecranul principal, ca pe o aplicație.',
+  'land.faq.offline.q': 'Funcționează offline?',
+  'land.faq.offline.a':
+    'Da. După prima vizită, Moneo merge fără internet. Dacă folosești un cont, modificările se salvează în el imediat ce revii online.',
+  'land.faq.ai.q': 'Ce face AI-ul? Cheia mea AI e în siguranță?',
+  'land.faq.ai.a':
+    'Asistentul de plan transformă un obiectiv într-un plan pas cu pas și îți sugerează la ce să lucrezi mai departe. Planul gratuit se construiește pe dispozitivul tău. Cu Pro poți conecta, dacă vrei, propria cheie AI (Gemini, OpenAI sau DeepSeek): e păstrată doar pe dispozitivul tău și trimisă direct furnizorului — niciodată serverelor noastre.',
+  'land.faq.support.q': 'Cum contactez suportul?',
+  'land.faq.support.a': 'Scrie-ne la {email}. Citim fiecare mesaj.',
+  'land.final.title': 'Prima ta sesiune de concentrare e la un clic distanță',
+  'land.final.sub':
+    'Gratuit, fără cont, fără card. Începe acum și vezi cât poți face în 25 de minute.',
+  'land.foot.nav': 'Informații legale și contact',
+  'land.foot.country': 'Republica Moldova',
   'today.rituals': 'Ritualuri zilnice',
   'today.ritualsTitle': 'Începe cu intenție. Încheie cu o scurtă recapitulare.',
   'today.morning': 'Ritualul de dimineață',

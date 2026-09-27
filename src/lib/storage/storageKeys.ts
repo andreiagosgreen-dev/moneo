@@ -48,6 +48,8 @@ export const STORAGE_KEYS = {
   atmosphere: 'moneo:atmosphere',
   /** First-run onboarding dismissed flag (Premium Polish, Week 10). */
   onboardingSeen: 'moneo:onboarding-seen',
+  /** Landing page "Start free" clicked — first-time visitors only (local only). */
+  landingSeen: 'moneo:landing-seen',
   /** Technical skills inventory (Roadmap Phase 1.2). */
   skills: 'moneo:skills',
   /** Deadline reminder stamps, projectId → day key (Roadmap 2.4). */

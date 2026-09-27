@@ -1,4 +1,5 @@
-import { STORAGE_KEYS } from './storage/storageKeys';
+import { markLandingSeen } from './landing';
+import { isMoneoLocalKey } from './storage/moneoKeys';
 import { deleteCustomSound } from './soundEngine';
 
 /**
@@ -7,15 +8,7 @@ import { deleteCustomSound } from './soundEngine';
  * never touched here — account deletion has its own confirmed flow.
  */
 
-const MONEO_PREFIXES = ['moneo:', 'moneo.', 'solanum:'];
-
-/** Interface language is a device preference, not user data. */
-const KEEP_KEYS: ReadonlySet<string> = new Set([STORAGE_KEYS.locale]);
-
-export function isMoneoLocalKey(key: string): boolean {
-  if (KEEP_KEYS.has(key)) return false;
-  return MONEO_PREFIXES.some((p) => key.startsWith(p));
-}
+export { isMoneoLocalKey };
 
 /** Removes every Moneo key from `storage`. Returns how many were removed. Never throws. */
 export function clearMoneoLocalStorage(storage?: Storage): number {
@@ -37,9 +30,11 @@ export function clearMoneoLocalStorage(storage?: Storage): number {
   return removed;
 }
 
-/** Full local wipe: localStorage keys + the uploaded custom sound (IndexedDB). */
+/** Full local wipe: localStorage keys + the uploaded custom sound (IndexedDB).
+ * The reload lands in an empty app, not on the first-visit landing page. */
 export async function clearAllLocalData(): Promise<number> {
   const removed = clearMoneoLocalStorage();
+  markLandingSeen();
   try {
     await deleteCustomSound();
   } catch {
