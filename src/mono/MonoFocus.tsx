@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useState } from 'react';
 import MonoHead from './MonoHead';
 import MonoBtn from './MonoBtn';
 import MonoChip from './MonoChip';
@@ -151,7 +151,7 @@ export default function MonoFocus({
   const resetDisabled = remaining >= total && !running;
 
   const ring = (
-    <div className="atm-ring-wrap">
+    <div className={summary ? 'atm-ring-wrap is-bloom' : 'atm-ring-wrap'}>
       <svg className="atm-ring" viewBox="0 0 200 200" aria-hidden>
         <circle className="track" cx="100" cy="100" r="86" fill="none" strokeWidth="2.25" />
         <circle
@@ -361,7 +361,7 @@ export default function MonoFocus({
       </div>
 
       {summary && (
-        <div role="status" className="mono-card" style={summaryStyle}>
+        <div role="status" className="mono-card atm-summary">
           <p className="mono-h3">{t('timer.done.focus')}</p>
           <p className="mono-meta" style={{ marginTop: 2 }}>
             {t('timer.doneFocusDetail', { dur: fmtDur(summary.minutes) })}
@@ -409,12 +409,3 @@ export default function MonoFocus({
     </div>
   );
 }
-
-const summaryStyle: CSSProperties = {
-  position: 'fixed',
-  bottom: 96,
-  left: '50%',
-  transform: 'translateX(-50%)',
-  zIndex: 50,
-  width: 'min(24rem, calc(100vw - 2rem))',
-};
