@@ -59,6 +59,11 @@ export interface AuthClientLike {
     options?: { redirectTo?: string };
   }): Promise<{ data: { url?: string | null }; error: { message?: string } | null }>;
   signOut(): Promise<{ error: { message?: string } | null }>;
+  resetPasswordForEmail(
+    email: string,
+    options?: { redirectTo?: string; captchaToken?: string },
+  ): Promise<{ error: { message?: string } | null }>;
+  updateUser(attrs: { password: string }): Promise<{ error: { message?: string } | null }>;
 }
 
 export interface AuthControllerDeps {
@@ -91,6 +96,17 @@ export interface AuthController {
   /** Redirects the browser to Google's consent screen; never resolves on success. */
   signInWithGoogle(redirectTo: string): Promise<AuthResult>;
   signOut(): Promise<void>;
+  /**
+   * Emails a password-reset link that lands on `redirectTo`. Succeeds even
+   * for unknown emails (Supabase doesn't reveal whether an account exists).
+   */
+  requestPasswordReset(
+    email: string,
+    redirectTo: string,
+    captchaToken?: string,
+  ): Promise<AuthResult>;
+  /** Sets a new password for the current (recovery) session. */
+  updatePassword(password: string): Promise<AuthResult>;
   /** Permanently deletes the account and all associated data. */
   deleteAccount(): Promise<AuthResult>;
 }
@@ -104,6 +120,8 @@ export function mapAuthError(raw: string | undefined | null): string {
   if (msg.includes('password should be at least') || msg.includes('weak password'))
     return 'Password is too weak — use at least 8 characters.';
   if (msg.includes('email not confirmed')) return 'Check your inbox and confirm your email first.';
+  if (msg.includes('should be different from the old password'))
+    return 'Choose a password different from your current one.';
   if (msg.includes('rate limit')) return 'Too many attempts — wait a moment and try again.';
   if (
     msg.includes('failed to fetch') ||
@@ -346,6 +364,58 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
         /* best-effort; local state resets regardless */
       }
       if (!disposed) emit(anonymous());
+    },
+
+    async requestPasswordReset(email, redirectTo, captchaToken) {
+      let client: AuthClientLike | null = null;
+      try {
+        client = await getClient();
+      } catch (e) {
+        return {
+          ok: false,
+          message: mapAuthError(e instanceof Error ? e.message : null),
+        };
+      }
+      if (!client) return { ok: false, message: 'Cloud is not configured on this installation.' };
+      try {
+        const { error } = await client.resetPasswordForEmail(email.trim(), {
+          redirectTo,
+          ...(captchaToken ? { captchaToken } : {}),
+        });
+        if (error) return { ok: false, message: mapAuthError(error.message) };
+        return { ok: true };
+      } catch (e) {
+        return {
+          ok: false,
+          message: mapAuthError(e instanceof Error ? e.message : null),
+        };
+      }
+    },
+
+    async updatePassword(password) {
+      if (!snapshot.user) {
+        return { ok: false, message: 'Reset link expired — request a new one.' };
+      }
+      let client: AuthClientLike | null = null;
+      try {
+        client = await getClient();
+      } catch (e) {
+        return {
+          ok: false,
+          message: mapAuthError(e instanceof Error ? e.message : null),
+        };
+      }
+      if (!client) return { ok: false, message: 'Cloud is not configured on this installation.' };
+      try {
+        const { error } = await client.updateUser({ password });
+        if (error) return { ok: false, message: mapAuthError(error.message) };
+        return { ok: true };
+      } catch (e) {
+        return {
+          ok: false,
+          message: mapAuthError(e instanceof Error ? e.message : null),
+        };
+      }
     },
 
     async deleteAccount() {

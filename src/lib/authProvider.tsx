@@ -91,6 +91,12 @@ export interface AuthApi extends AuthSnapshot {
   signUp(email: string, password: string, captchaToken?: string): Promise<AuthResult>;
   signInWithGoogle(redirectTo: string): Promise<AuthResult>;
   signOut(): Promise<void>;
+  requestPasswordReset(
+    email: string,
+    redirectTo: string,
+    captchaToken?: string,
+  ): Promise<AuthResult>;
+  updatePassword(password: string): Promise<AuthResult>;
   deleteAccount(): Promise<AuthResult>;
 }
 
@@ -141,6 +147,7 @@ export function useAuth(): AuthApi {
   // Complimentary accounts: Free Lemon/plan branding (`subscription` stays
   // free) + full Pro entitlements via `isPro`. Not a paid subscription.
   const isPro = resolveIsPro(subscription.isPro, snapshot.user?.email ?? null);
+  const { requestPasswordReset, updatePassword } = controller;
   return useMemo(
     () => ({
       ...snapshot,
@@ -151,6 +158,8 @@ export function useAuth(): AuthApi {
       signUp,
       signInWithGoogle,
       signOut,
+      requestPasswordReset,
+      updatePassword,
       deleteAccount,
     }),
     [
@@ -162,6 +171,8 @@ export function useAuth(): AuthApi {
       signUp,
       signInWithGoogle,
       signOut,
+      requestPasswordReset,
+      updatePassword,
       deleteAccount,
     ],
   );

@@ -1809,6 +1809,23 @@ export const en = {
   'auth.signIn': 'Sign in',
   'auth.createAccount': 'Create account',
   'auth.emailLabel': 'Email',
+  'auth.forgotPassword': 'Forgot password?',
+  'auth.resetTitle': 'Reset your password',
+  'auth.resetIntro': 'Enter your account email and we’ll send you a link to set a new password.',
+  'auth.resetSend': 'Send reset link',
+  'auth.resetSent':
+    'If an account exists for this email, a reset link is on its way. Check your inbox.',
+  'auth.backToSignIn': 'Back to sign in',
+  'auth.newPasswordTitle': 'Set a new password',
+  'auth.newPasswordLabel': 'New password',
+  'auth.newPasswordConfirm': 'Repeat new password',
+  'auth.newPasswordSave': 'Save new password',
+  'auth.newPasswordShort': 'Use at least {n} characters.',
+  'auth.newPasswordMismatch': 'The passwords don’t match.',
+  'auth.newPasswordDone': 'Password updated. You’re signed in.',
+  'auth.resetLinkChecking': 'Checking your reset link…',
+  'auth.resetLinkInvalid':
+    'This reset link is invalid or has expired. Request a new one from the sign-in page.',
   'auth.emailPlaceholder': 'you@example.com',
   'auth.passwordLabel': 'Password',
   'auth.localFirstNote':

@@ -1815,6 +1815,24 @@ export const de: Record<TKey, string> = {
   'auth.signIn': 'Anmelden',
   'auth.createAccount': 'Konto erstellen',
   'auth.emailLabel': 'E-Mail',
+  'auth.forgotPassword': 'Passwort vergessen?',
+  'auth.resetTitle': 'Passwort zurücksetzen',
+  'auth.resetIntro':
+    'Gib die E-Mail deines Kontos ein – wir senden dir einen Link für ein neues Passwort.',
+  'auth.resetSend': 'Link senden',
+  'auth.resetSent':
+    'Falls ein Konto mit dieser E-Mail existiert, ist der Link unterwegs. Sieh in dein Postfach.',
+  'auth.backToSignIn': 'Zurück zur Anmeldung',
+  'auth.newPasswordTitle': 'Neues Passwort festlegen',
+  'auth.newPasswordLabel': 'Neues Passwort',
+  'auth.newPasswordConfirm': 'Neues Passwort wiederholen',
+  'auth.newPasswordSave': 'Neues Passwort speichern',
+  'auth.newPasswordShort': 'Verwende mindestens {n} Zeichen.',
+  'auth.newPasswordMismatch': 'Die Passwörter stimmen nicht überein.',
+  'auth.newPasswordDone': 'Passwort geändert. Du bist angemeldet.',
+  'auth.resetLinkChecking': 'Link wird geprüft…',
+  'auth.resetLinkInvalid':
+    'Dieser Link ist ungültig oder abgelaufen. Fordere auf der Anmeldeseite einen neuen an.',
   'auth.emailPlaceholder': 'du@beispiel.com',
   'auth.passwordLabel': 'Passwort',
   'auth.localFirstNote':

@@ -2,7 +2,7 @@ export default function PrivacyPolicy() {
   return (
     <div className="max-w-2xl mx-auto p-6 text-sm text-gray-700">
       <h1 className="text-2xl font-bold mb-6">Privacy Policy</h1>
-      <p className="mb-4">Last updated: {new Date().toLocaleDateString()}</p>
+      <p className="mb-4">Last updated: September 27, 2026</p>
 
       <section className="mb-6">
         <h2 className="text-lg font-semibold mb-2">1. Data We Collect</h2>
@@ -23,9 +23,11 @@ export default function PrivacyPolicy() {
       <section className="mb-6">
         <h2 className="text-lg font-semibold mb-2">2. Data Storage</h2>
         <p className="mb-2">
-          Your data is stored locally in your browser's localStorage. If you enable cloud sync, data
-          is also stored in your Supabase project, which is protected by end-to-end encryption and
-          access controls.
+          Your data is stored locally in your browser's localStorage, on your device. If you sign in
+          and enable cloud sync, focus sessions, focus areas and settings are also stored in
+          Moneo&apos;s cloud database (hosted by Supabase), where access controls let only your
+          account read them. Data travels between your device and our servers over an encrypted
+          connection (HTTPS/TLS). It is not end-to-end encrypted.
         </p>
       </section>
 

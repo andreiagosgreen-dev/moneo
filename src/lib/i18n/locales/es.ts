@@ -1802,6 +1802,24 @@ export const es: Record<TKey, string> = {
   'auth.signIn': 'Iniciar sesión',
   'auth.createAccount': 'Crear cuenta',
   'auth.emailLabel': 'Correo electrónico',
+  'auth.forgotPassword': '¿Olvidaste la contraseña?',
+  'auth.resetTitle': 'Restablecer contraseña',
+  'auth.resetIntro':
+    'Escribe el email de tu cuenta y te enviaremos un enlace para crear una contraseña nueva.',
+  'auth.resetSend': 'Enviar enlace',
+  'auth.resetSent':
+    'Si existe una cuenta con este email, el enlace va en camino. Revisa tu bandeja de entrada.',
+  'auth.backToSignIn': 'Volver a iniciar sesión',
+  'auth.newPasswordTitle': 'Crea una contraseña nueva',
+  'auth.newPasswordLabel': 'Contraseña nueva',
+  'auth.newPasswordConfirm': 'Repite la contraseña nueva',
+  'auth.newPasswordSave': 'Guardar contraseña nueva',
+  'auth.newPasswordShort': 'Usa al menos {n} caracteres.',
+  'auth.newPasswordMismatch': 'Las contraseñas no coinciden.',
+  'auth.newPasswordDone': 'Contraseña actualizada. Has iniciado sesión.',
+  'auth.resetLinkChecking': 'Comprobando el enlace…',
+  'auth.resetLinkInvalid':
+    'Este enlace no es válido o ha caducado. Pide uno nuevo desde la página de inicio de sesión.',
   'auth.emailPlaceholder': 'tu@ejemplo.com',
   'auth.passwordLabel': 'Contraseña',
   'auth.localFirstNote':

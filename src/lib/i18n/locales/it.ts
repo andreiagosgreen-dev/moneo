@@ -1813,6 +1813,24 @@ export const it: Record<TKey, string> = {
   'auth.signIn': 'Accedi',
   'auth.createAccount': 'Crea account',
   'auth.emailLabel': 'Email',
+  'auth.forgotPassword': 'Password dimenticata?',
+  'auth.resetTitle': 'Reimposta la password',
+  'auth.resetIntro':
+    'Inserisci l’email del tuo account e ti invieremo un link per impostare una nuova password.',
+  'auth.resetSend': 'Invia link',
+  'auth.resetSent':
+    'Se esiste un account con questa email, il link è in arrivo. Controlla la posta.',
+  'auth.backToSignIn': 'Torna all’accesso',
+  'auth.newPasswordTitle': 'Imposta una nuova password',
+  'auth.newPasswordLabel': 'Nuova password',
+  'auth.newPasswordConfirm': 'Ripeti la nuova password',
+  'auth.newPasswordSave': 'Salva la nuova password',
+  'auth.newPasswordShort': 'Usa almeno {n} caratteri.',
+  'auth.newPasswordMismatch': 'Le password non coincidono.',
+  'auth.newPasswordDone': 'Password aggiornata. Hai effettuato l’accesso.',
+  'auth.resetLinkChecking': 'Verifica del link…',
+  'auth.resetLinkInvalid':
+    'Questo link non è valido o è scaduto. Richiedine uno nuovo dalla pagina di accesso.',
   'auth.emailPlaceholder': 'tu@esempio.com',
   'auth.passwordLabel': 'Password',
   'auth.localFirstNote':

@@ -18,8 +18,12 @@ function fakeClient(opts?: {
   signInError?: string;
   signUpError?: string;
   signUpNoSession?: boolean;
+  resetError?: string;
+  updateError?: string;
 }) {
   const listeners: Array<(event: string, session: { user: RawUser } | null) => void> = [];
+  const resetCalls: Array<{ email: string; redirectTo?: string; captchaToken?: string }> = [];
+  const passwordUpdates: string[] = [];
   let unsubscribed = false;
   const client: AuthClientLike = {
     getSession: async () => ({
@@ -71,10 +75,20 @@ function fakeClient(opts?: {
             },
     signInWithOAuth: async () => ({ data: { url: 'https://example.com/oauth' }, error: null }),
     signOut: async () => ({ error: null }),
+    resetPasswordForEmail: async (email, options) => {
+      resetCalls.push({ email, ...options });
+      return { error: opts?.resetError ? { message: opts.resetError } : null };
+    },
+    updateUser: async ({ password }) => {
+      passwordUpdates.push(password);
+      return { error: opts?.updateError ? { message: opts.updateError } : null };
+    },
   };
   return {
     client,
     listeners,
+    resetCalls,
+    passwordUpdates,
     fire: (event: string, session: { user: RawUser } | null) =>
       listeners.forEach((l) => l(event, session)),
     wasUnsubscribed: () => unsubscribed,
@@ -154,6 +168,8 @@ describe('auth state machine', () => {
       signUp: async () => ({ data: { user: null, session: null }, error: null }),
       signOut: async () => ({ error: null }),
       signInWithOAuth: async () => ({ data: {}, error: null }),
+      resetPasswordForEmail: async () => ({ error: null }),
+      updateUser: async () => ({ error: null }),
     };
     const c = createAuthController(deps(hanging));
     c.init();
@@ -463,6 +479,8 @@ describe('captcha token forwarding (Faza 32a)', () => {
       },
       signOut: async () => ({ error: null }),
       signInWithOAuth: async () => ({ data: { url: null }, error: null }),
+      resetPasswordForEmail: async () => ({ error: null }),
+      updateUser: async () => ({ error: null }),
     };
     return { client, calls };
   }
@@ -486,5 +504,62 @@ describe('captcha token forwarding (Faza 32a)', () => {
     const c = createAuthController(deps(client));
     await c.signUp('b@example.com', 'password123', 'tok-xyz');
     expect(calls[0]).toMatchObject({ options: { captchaToken: 'tok-xyz' } });
+  });
+});
+
+describe('password reset', () => {
+  it('emails a reset link to the trimmed address with the redirect + captcha', async () => {
+    const fake = fakeClient();
+    const c = createAuthController(deps(fake.client));
+    const res = await c.requestPasswordReset(
+      '  a@example.com ',
+      'https://moneo.bond/reset-password',
+      'tok-1',
+    );
+    expect(res).toEqual({ ok: true });
+    expect(fake.resetCalls).toEqual([
+      {
+        email: 'a@example.com',
+        redirectTo: 'https://moneo.bond/reset-password',
+        captchaToken: 'tok-1',
+      },
+    ]);
+  });
+
+  it('maps reset errors and fails honestly when cloud is not configured', async () => {
+    const fake = fakeClient({ resetError: 'Email rate limit exceeded' });
+    const c = createAuthController(deps(fake.client));
+    expect(await c.requestPasswordReset('a@example.com', 'https://x/reset-password')).toEqual({
+      ok: false,
+      message: 'Too many attempts — wait a moment and try again.',
+    });
+    const offline = createAuthController(deps(null));
+    const res = await offline.requestPasswordReset('a@example.com', 'https://x/reset-password');
+    expect(res.ok).toBe(false);
+  });
+
+  it('updates the password only with a (recovery) session', async () => {
+    const fake = fakeClient({ sessionUser: { id: 'u-1', email: 'a@example.com' } });
+    const c = createAuthController(deps(fake.client));
+    expect((await c.updatePassword('new-password-1')).ok).toBe(false);
+    expect(fake.passwordUpdates).toEqual([]);
+    c.init();
+    await flush();
+    expect(await c.updatePassword('new-password-1')).toEqual({ ok: true });
+    expect(fake.passwordUpdates).toEqual(['new-password-1']);
+  });
+
+  it('explains a reused password in plain words', async () => {
+    const fake = fakeClient({
+      sessionUser: { id: 'u-1' },
+      updateError: 'New password should be different from the old password.',
+    });
+    const c = createAuthController(deps(fake.client));
+    c.init();
+    await flush();
+    expect(await c.updatePassword('same-password')).toEqual({
+      ok: false,
+      message: 'Choose a password different from your current one.',
+    });
   });
 });

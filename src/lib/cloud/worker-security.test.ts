@@ -29,7 +29,10 @@ describe('buildSecurityHeaders', () => {
     expect(csp).toContain("script-src 'self'");
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain("object-src 'none'");
-    expect(csp).toContain('https://fonts.googleapis.com');
+    // Fonts are self-hosted (Fontsource) — no Google Fonts origins.
+    expect(csp).toContain("font-src 'self' data:");
+    expect(csp).not.toContain('fonts.googleapis.com');
+    expect(csp).not.toContain('fonts.gstatic.com');
     expect(csp).toContain('https://*.supabase.co');
     // BYOK Assistant: browser → provider (user's own keys), narrow allowlist.
     expect(csp).toContain('https://generativelanguage.googleapis.com');

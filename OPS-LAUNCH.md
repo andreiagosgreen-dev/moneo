@@ -83,7 +83,13 @@ Authentication → URL Configuration:
 | Camp | Valoare |
 |---|---|
 | Site URL (prod) | `https://moneo.bond` |
-| Redirect URLs | `https://moneo.bond/**`, `http://localhost:5173/**` |
+| Redirect URLs | `https://moneo.bond/**`, `http://localhost:3000/**` |
+
+**Resetare parola** **[REPO]**: „Ai uitat parola?” la conectare trimite un email Supabase cu link spre `https://moneo.bond/reset-password`, unde utilizatorul alege parola noua. **[TU]** verifica:
+
+1. Authentication → URL Configuration → Redirect URLs contine `https://moneo.bond/**` (sau explicit `https://moneo.bond/reset-password`). Fara asta, linkul din email duce pe Site URL si resetarea nu porneste.
+2. Authentication → Emails → SMTP: serverul de email implicit Supabase trimite doar cateva emailuri pe ora — pentru clienti reali seteaza un SMTP propriu (ex. Resend, Postmark), altfel emailurile de resetare/confirmare se pot pierde.
+3. Optional: Authentication → Emails → Templates → „Reset Password” — textul emailului (implicit in engleza).
 
 Staging: poti dezactiva Confirm email (Auth → Providers → Email) pentru UAT fara inbox.
 
