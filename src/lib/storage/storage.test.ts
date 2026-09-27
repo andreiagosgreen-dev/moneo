@@ -29,6 +29,8 @@ describe('centralized storage keys', () => {
       selectedProject: 'moneo:selected-project',
       schemaVersion: 'moneo:schema-version',
       syncState: 'moneo:sync-state',
+      proSync: 'moneo:pro-sync',
+      proSyncEdits: 'moneo:pro-sync-edits',
       notificationPrefs: 'moneo:notification-prefs',
       tasks: 'moneo:tasks',
       ivyPlans: 'moneo:ivy-plans',

@@ -30,6 +30,10 @@ export const STORAGE_KEYS = {
   schemaVersion: 'moneo:schema-version',
   /** Sync meta version, initialized, lastSuccessfulSyncAt, deviceId (Gate 9). */
   syncState: 'moneo:sync-state',
+  /** Pro full-data sync bookkeeping: per-record synced hashes, pull cursor, owner. */
+  proSync: 'moneo:pro-sync',
+  /** Pro full-data sync: last local edit time per synced store (small, written often). */
+  proSyncEdits: 'moneo:pro-sync-edits',
   /** Email notification preferences (daily summary, focus reminder). */
   notificationPrefs: 'moneo:notification-prefs',
   /** Tasks belonging to projects (Phase 2 project cabinet). */

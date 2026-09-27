@@ -87,9 +87,11 @@ describe('PricingPage (/pricing)', () => {
     expect(text).toContain('2 months free');
     expect(text).toContain('Feature');
     expect(text).toContain('Unlimited');
-    // Sync scope is honest: sessions, areas & settings only.
-    expect(text).toContain('Sync between devices: focus sessions, focus areas and settings');
-    expect(text).toContain('Projects, tasks, goals');
+    // Sync scope is honest: free = sessions, areas & settings; Pro = all data.
+    expect(text).toContain('focus sessions, focus areas and settings sync between devices');
+    expect(text).toContain('With Pro, all your data is saved to your account');
+    expect(text).toContain('Sessions, areas & settings');
+    expect(text).toContain('All your data');
     expect(text).toContain('Moneo works offline');
     expect(text).not.toMatch(/local-first/i);
   });

@@ -30,6 +30,7 @@ export const ACCOUNT_DATA_TABLES = [
   'focus_sessions',
   'focus_areas',
   'user_settings',
+  'user_records',
   'subscriptions',
   'google_calendar_connections',
   'profiles',
@@ -37,10 +38,11 @@ export const ACCOUNT_DATA_TABLES = [
 
 /**
  * Tables whose migration may not be applied in a given deployment
- * (0010 google_calendar_connections is not in production yet). A missing
- * one holds no rows, so it is skipped instead of failing the deletion.
+ * (0010 google_calendar_connections, 0011 user_records). A missing one
+ * holds no rows, so it is skipped instead of failing the deletion.
  */
 export const OPTIONAL_ACCOUNT_TABLES: ReadonlySet<string> = new Set([
+  'user_records',
   'google_calendar_connections',
   'focus_buddy_pairs',
 ]);

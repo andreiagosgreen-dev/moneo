@@ -152,9 +152,9 @@ export const fr: Record<TKey, string> = {
   'lifemap.emptyKicker': 'Carte de vie · nouvelle',
   'lifemap.emptyTitle': 'Dessinez la vie que votre focus sert',
   'lifemap.tplBlank': 'Toile vierge',
-  'lifemap.localOnly': 'Votre carte de vie est privée et enregistrée sur cet appareil.',
+  'lifemap.localOnly': 'Votre carte de vie est privée — vous seul la voyez.',
   'lifemap.title': 'Carte de vie',
-  'lifemap.subtitle': 'Privée · enregistrée sur cet appareil',
+  'lifemap.subtitle': 'Privée · vous seul la voyez',
   'lifemap.manage': 'Gérer les domaines',
   'lifemap.manageDone': 'Terminé',
   'lifemap.stepAdd': '＋ Pas de 10 min',
@@ -807,9 +807,9 @@ export const fr: Record<TKey, string> = {
   'pay.resumeTitle': 'Vous êtes connecté — terminez votre passage à Pro',
   'pay.resumeCta': 'Continuer vers le paiement',
   'pay.syncScope':
-    'Synchronisation entre appareils : sessions de focus, zones de focus et réglages',
+    'Avec un compte gratuit : sessions de focus, zones de focus et réglages se synchronisent entre appareils',
   'pay.syncNote':
-    'Projets, tâches, objectifs, habitudes, journal et le reste de votre planification sont enregistrés sur l’appareil où vous les avez créés.',
+    'Avec Pro, toutes vos données sont aussi enregistrées dans votre compte — projets, tâches, objectifs, habitudes, journal et le reste de votre planification. En Free, elles restent sur l’appareil où vous les avez créées.',
   'pay.plan.free.desc': 'Parfait pour commencer',
   'pay.plan.free.f0': 'Sessions focus illimitées',
   'pay.plan.free.f1': '3 projets avec listes de tâches',
@@ -824,7 +824,8 @@ export const fr: Record<TKey, string> = {
   'pay.plan.monthly.f3': 'Export des rapports en CSV (Excel) et PDF',
   'pay.plan.monthly.f4':
     'Blocs de temps hebdo, graphiques de sprint et limites de travail en kanban',
-  'pay.plan.monthly.f5': 'Synchronisation entre appareils : sessions, zones et réglages',
+  'pay.plan.monthly.f5':
+    'Toutes vos données enregistrées dans votre compte et synchronisées entre appareils : projets, tâches, objectifs, habitudes, journal et sessions de focus',
   'pay.plan.monthly.f6':
     'Mode clair, couleurs d’accent, polices en plus et palettes intérieur pour Focus',
   'pay.plan.monthly.f7': 'Réponses e-mail prioritaires du support',
@@ -895,7 +896,7 @@ export const fr: Record<TKey, string> = {
     'Découpes 7/30 jours par projet et domaine avec 80/20 pour tous. Export CSV (Pro) et PDF imprimable (Pro) avec totaux.',
   'help.s.lifemap.t': 'Carte de vie',
   'help.s.lifemap.b':
-    'Onglet Carte : évaluez 5–9 domaines de vie Maintenant vs Souhaité, pondérés par importance. La roue montre l’équilibre et le plus grand écart ; un pas de 10 minutes atterrit dans le plan du jour. La revue hebdo montre l’attention. Partez d’un modèle (Équilibré, Étudiant, Freelance, Fondateur, Récupération) ou vide. Privé : votre carte reste sur cet appareil.',
+    'Onglet Carte : évaluez 5–9 domaines de vie Maintenant vs Souhaité, pondérés par importance. La roue montre l’équilibre et le plus grand écart ; un pas de 10 minutes atterrit dans le plan du jour. La revue hebdo montre l’attention. Partez d’un modèle (Équilibré, Étudiant, Freelance, Fondateur, Récupération) ou vide. Privé : vous seul la voyez. Avec Pro, elle est aussi enregistrée dans votre compte.',
   'help.s.life.t': 'Vie',
   'help.s.life.b':
     'Habitudes avec séries et rappels du soir. L’équilibre score en live sur 5 domaines. Journal avec humeur et gratitude. Les check-ins énergie montrent les heures de pointe (Pro).',
@@ -904,7 +905,7 @@ export const fr: Record<TKey, string> = {
     'Suivez des niveaux 1–5 avec ressources. Marquez des projets facturables avec taux horaire — montants en stats, rapports, PDF.',
   'help.s.privacy.t': 'Confidentialité et données',
   'help.s.privacy.b':
-    'Moneo enregistre votre travail automatiquement. Avec un compte et la synchronisation activée, vos sessions de focus, zones et réglages sont conservés dans votre compte et disponibles sur vos autres appareils. Projets, tâches, plans et le reste sont enregistrés sur l’appareil où vous les avez créés. L’export CSV/PDF est Pro. Tant que la synchronisation est active, l’historique de focus ne peut pas être effacé.',
+    'Moneo enregistre votre travail automatiquement. Avec un compte et la synchronisation activée, vos sessions de focus, zones et réglages sont conservés dans votre compte et disponibles sur vos autres appareils. Avec Pro, le reste est aussi enregistré dans votre compte — projets, tâches, objectifs, habitudes, journal et plans. En Free, ils sont enregistrés sur l’appareil où vous les avez créés. L’export CSV/PDF est Pro. Tant que la synchronisation est active, l’historique de focus ne peut pas être effacé.',
 
   'foot.tag': 'Moneo — construisez le focus. Regardez-le grandir.',
   'foot.help': 'Aide',
@@ -1828,7 +1829,7 @@ export const fr: Record<TKey, string> = {
   'pricing.compareFree': 'Free',
   'pricing.comparePro': 'Pro',
   'pricing.syncNote':
-    'Le sync couvre sessions, zones et réglages uniquement — le reste reste sur l’appareil.',
+    'Les comptes gratuits synchronisent sessions, zones et réglages ; avec Pro, toutes vos données sont enregistrées dans votre compte.',
   'pricing.localNote':
     'Pas besoin de compte pour commencer, et Moneo fonctionne hors ligne. Connectez-vous seulement pour synchroniser vos appareils ou passer à Pro.',
   // ── Merged from main (features landed in parallel) ──
@@ -1894,7 +1895,7 @@ export const fr: Record<TKey, string> = {
   'mono.xp.ranksLine':
     'Rangs : {ranks}. Chaque rang compte quelques paliers, et chaque nouveau niveau demande un peu plus que le précédent.',
   'mono.xp.deviceNote':
-    'L’XP des sessions de focus vous suit sur vos autres appareils quand la synchronisation est active. Pour l’instant, les tâches et les habitudes ne comptent que sur l’appareil où vous les avez terminées.',
+    'L’XP des sessions de focus vous suit sur vos autres appareils quand la synchronisation est active. Avec Pro, les tâches et les habitudes se synchronisent aussi ; en Free, elles ne comptent que sur l’appareil où vous les avez terminées.',
   'filters.newView': '+ Nouvelle vue',
   'filters.cancel': 'Annuler',
   'filters.remove': 'Supprimer la vue',
@@ -1934,16 +1935,16 @@ export const fr: Record<TKey, string> = {
   'auth.emailPlaceholder': 'vous@exemple.com',
   'auth.passwordLabel': 'Mot de passe',
   'auth.localFirstNote':
-    'Un compte garde vos sessions de focus, zones et réglages en sécurité et vous permet de les retrouver sur vos autres appareils. Rien n’est envoyé tant que vous n’activez pas la synchronisation.',
+    'Un compte garde vos sessions de focus, zones et réglages en sécurité et vous permet de les retrouver sur vos autres appareils. Avec Pro, toutes vos données sont enregistrées dans votre compte. Rien n’est envoyé tant que vous n’activez pas la synchronisation.',
   'auth.continueWithGoogle': 'Continuer avec Google',
   'auth.orDivider': 'ou',
   'sync.title': 'Synchronisez vos données Moneo',
   'sync.description':
-    'Enregistrez votre historique de focus, vos zones et vos réglages dans votre compte et retrouvez-les sur tous vos appareils.',
+    'Enregistrez votre historique de focus, vos zones et vos réglages dans votre compte et retrouvez-les sur tous vos appareils. Avec Pro, toute votre planification est incluse.',
   'sync.syncNow': 'Synchroniser maintenant',
   'sync.notNow': 'Pas maintenant',
   'sync.onlyNote':
-    'Seuls les sessions de focus, les zones et les réglages se synchronisent. Projets, tâches et le reste de votre planification restent enregistrés sur cet appareil.',
+    'En Free, seuls les sessions de focus, les zones et les réglages se synchronisent ; projets, tâches et le reste de votre planification restent sur cet appareil. Avec Pro, tout se synchronise.',
   'sync.syncing': 'Synchronisation…',
   'sync.failed': 'Échec de la synchronisation',
   'sync.synced': 'Synchronisé',
@@ -2819,4 +2820,43 @@ export const fr: Record<TKey, string> = {
   'graph.subtitle': '{nodes} nœuds · {edges} liens',
   'graph.empty':
     'Aucune connexion pour l’instant — ouvrez un objectif, un projet, une compétence ou l’entrée du jour du journal et liez-la à quelque chose.',
+  'mono.cloud.title': 'Synchronisation du compte',
+  'mono.cloud.proLead': 'Toutes vos données sont enregistrées dans votre compte',
+  'mono.cloud.proBody':
+    'Projets, tâches, objectifs, habitudes, journal, carte de vie, plans et sessions de focus restent à jour sur chaque appareil où vous vous connectez.',
+  'mono.cloud.syncing': 'Synchronisation…',
+  'mono.cloud.synced': 'Synchronisé',
+  'mono.cloud.notSynced': 'Non synchronisé',
+  'mono.cloud.never': 'Pas encore synchronisé',
+  'mono.cloud.lastSync': 'dernière synchro {time}',
+  'mono.cloud.syncNow': 'Synchroniser',
+  'mono.cloud.openAccount': 'Ouvrir le compte',
+  'mono.cloud.offHint':
+    'Activez la synchronisation dans votre compte pour y enregistrer toutes vos données.',
+  'mono.cloud.err.pull':
+    'Impossible de joindre votre compte. Tout est en sécurité sur cet appareil — Moneo réessaiera.',
+  'mono.cloud.err.push':
+    'Certaines modifications ne sont pas encore dans votre compte. Elles sont en sécurité sur cet appareil et seront envoyées automatiquement.',
+  'mono.cloud.err.apply':
+    'Impossible d’enregistrer sur cet appareil — le stockage du navigateur est peut-être plein.',
+  'mono.cloud.err.notMigrated':
+    'L’enregistrement de toutes vos données dans le compte n’est pas encore disponible. Tout est en sécurité sur cet appareil.',
+  'mono.cloud.err.notPro':
+    'Votre compte n’est pas Pro pour le moment : seules les sessions, les zones et les paramètres sont synchronisés.',
+  'mono.cloud.mismatchTitle': 'Cet appareil a été synchronisé avec un autre compte',
+  'mono.cloud.mismatchBody':
+    'Pour garder les comptes séparés, rien n’a été envoyé. Si ces données sont à vous, ajoutez-les à ce compte.',
+  'mono.cloud.mismatchCta': 'Ajouter à ce compte',
+  'mono.cloud.freeBody':
+    'Inclus gratuitement : vos sessions de focus, zones et paramètres se synchronisent avec votre compte.',
+  'mono.cloud.freeUpsell':
+    'Avec Pro, toutes vos données — projets, tâches, objectifs, habitudes, journal et carte de vie — sont enregistrées dans votre compte et vous suivent sur tous vos appareils.',
+  'mono.cloud.seePro': 'Voir Pro',
+  'mono.cloud.lapsedTitle': 'Votre abonnement Pro est terminé',
+  'mono.cloud.lapsedBody':
+    'Vos projets, tâches et le reste de votre planification restent sur cet appareil. Votre compte garde la dernière copie synchronisée, mais n’est plus mis à jour. Les sessions, zones et paramètres restent synchronisés.',
+  'mono.cloud.renew': 'Renouveler Pro',
+  'pricing.row.sync': 'Synchronisation entre appareils (avec un compte)',
+  'pricing.sync.free': 'Sessions, zones et paramètres',
+  'pricing.sync.pro': 'Toutes vos données',
 };

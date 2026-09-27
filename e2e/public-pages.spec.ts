@@ -21,6 +21,10 @@ test.describe('public pages', () => {
     expect(body).toContain('$0');
     expect(body).toContain('$5.99');
     expect(body).toContain('$59.99');
+    // Account sync row: free accounts sync sessions/areas/settings, Pro saves everything.
+    const syncRow = page.getByRole('row', { name: /sync between devices/i });
+    await expect(syncRow).toContainText('Sessions, areas & settings');
+    await expect(syncRow).toContainText('All your data');
 
     await page.getByRole('link', { name: /back to moneo/i }).click();
     await expect(page).toHaveURL('/');

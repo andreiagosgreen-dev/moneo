@@ -12,6 +12,7 @@ import MonoCrestere from './mono/MonoCrestere';
 import MonoViata from './mono/MonoViata';
 import MonoReturn from './mono/MonoReturn';
 import MonoLocalData from './mono/MonoLocalData';
+import MonoCloudSync from './mono/MonoCloudSync';
 import GettingStarted from './components/GettingStarted';
 import TabFallback from './components/TabFallback';
 import MatrixCard from './components/MatrixCard';
@@ -163,6 +164,8 @@ import {
   saveSelectedArea,
 } from './lib/focusAreas';
 import { runLocalMigrations } from './lib/storage/migrations';
+import { STORAGE_KEYS } from './lib/storage/storageKeys';
+import { useProSync } from './hooks/useProSync';
 import { sessionProgressImpact, type SessionImpact } from './lib/progress';
 import { useTimer } from './hooks/useTimer';
 import { usePersonalDataPersistence } from './hooks/usePersonalDataPersistence';
@@ -451,6 +454,42 @@ export default function App() {
     theme,
     links,
     savedFilters,
+  });
+
+  // Account sync rewrote these stores in localStorage — reload them into
+  // state so the persistence effects never write a stale copy back.
+  const reloadFromStorage = (keys: string[]) => {
+    const reloaders: Record<string, () => void> = {
+      [STORAGE_KEYS.history]: () => setHistory(loadHistory()),
+      [STORAGE_KEYS.settings]: () => setSettings(loadSettings()),
+      [STORAGE_KEYS.projects]: () => setProjects(loadProjects()),
+      [STORAGE_KEYS.tasks]: () => setTasks(loadTasks()),
+      [STORAGE_KEYS.goals]: () => setGoals(loadGoals()),
+      [STORAGE_KEYS.objectives]: () => setObjectives(loadObjectives()),
+      [STORAGE_KEYS.habits]: () => setHabits(loadHabits()),
+      [STORAGE_KEYS.habitLog]: () => setHabitLog(loadHabitLog()),
+      [STORAGE_KEYS.journal]: () => setJournal(loadJournal()),
+      [STORAGE_KEYS.timeOff]: () => setTimeOff(loadTimeOff()),
+      [STORAGE_KEYS.energyLog]: () => setEnergyLog(loadEnergyLog()),
+      [STORAGE_KEYS.lifeAreas]: () => setLifeAreas(loadLifeAreas()),
+      [STORAGE_KEYS.lifeMap]: () => setLifeMap(loadLifeMap()),
+      [STORAGE_KEYS.skills]: () => setSkills(loadSkills()),
+      [STORAGE_KEYS.timeBlocks]: () => setTimeBlocks(loadBlocks()),
+      [STORAGE_KEYS.ivyPlans]: () => setIvyPlans(loadPlans()),
+      [STORAGE_KEYS.frogLog]: () => setFrogLog(loadFrogLog()),
+      [STORAGE_KEYS.sprints]: () => setSprints(loadSprints()),
+      [STORAGE_KEYS.waterfall]: () => setPhases(loadPhases()),
+      [STORAGE_KEYS.links]: () => setLinks(loadLinks()),
+      [STORAGE_KEYS.savedFilters]: () => setSavedFilters(loadSavedFilters()),
+      [STORAGE_KEYS.roadmaps]: () => setRoadmaps(loadRoadmaps()),
+    };
+    for (const key of keys) reloaders[key]?.();
+  };
+  useProSync({
+    userId: auth.user?.userId ?? null,
+    isPro: auth.isPro,
+    syncEnabled: syncState.initialized,
+    onApplied: reloadFromStorage,
   });
 
   useAppNotifications({
@@ -1392,6 +1431,11 @@ export default function App() {
                         </div>
                         <div className="reveal" style={{ animationDelay: '135ms' }}>
                           <LanguageCard />
+                          {auth.status === 'authenticated' ? (
+                            <div style={{ marginTop: 24 }}>
+                              <MonoCloudSync isPro={auth.isPro} />
+                            </div>
+                          ) : null}
                           <div style={{ marginTop: 24 }}>
                             <MonoDataExport user={auth.user} />
                           </div>
