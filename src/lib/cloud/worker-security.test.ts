@@ -42,6 +42,24 @@ describe('buildSecurityHeaders', () => {
     expect(csp).not.toContain('unsafe-eval');
   });
 
+  it('allows exactly the Cloudflare Web Analytics beacon and its report endpoint', () => {
+    const csp = buildSecurityHeaders()['Content-Security-Policy'];
+    const directives = Object.fromEntries(
+      csp.split('; ').map((d) => {
+        const [name, ...sources] = d.split(' ');
+        return [name, sources];
+      }),
+    );
+    expect(directives['script-src']).toEqual([
+      "'self'",
+      'https://challenges.cloudflare.com',
+      'https://static.cloudflareinsights.com',
+    ]);
+    expect(directives['connect-src']).toContain('https://cloudflareinsights.com');
+    expect(directives['connect-src']).not.toContain('https://*.cloudflareinsights.com');
+    expect(directives['connect-src']).not.toContain('https://static.cloudflareinsights.com');
+  });
+
   it('merges left-to-right with later values winning', () => {
     expect(mergeHeaders({ a: '1' }, null, { a: '2', b: '3' })).toEqual({ a: '2', b: '3' });
   });

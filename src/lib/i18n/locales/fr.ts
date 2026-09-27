@@ -792,7 +792,7 @@ export const fr: Record<TKey, string> = {
 
   'pay.title': 'Passer à Pro',
   'pay.sub':
-    'Profitez de l’assistant IA complet, de projets et objectifs illimités, des exports et d’un look personnalisé. La synchronisation entre appareils couvre vos sessions de focus, zones et réglages.',
+    'Profitez de l’assistant IA complet, de projets et objectifs illimités, des exports CSV/PDF et d’un look personnalisé. La synchronisation entre appareils couvre vos sessions de focus, zones et réglages.',
   'pay.signin': 'Connectez-vous pour passer à Pro',
   'pay.unavailable': 'Paiement indisponible pour le moment. Contactez le support.',
   'pay.current': 'Actuel',
@@ -910,6 +910,23 @@ export const fr: Record<TKey, string> = {
   'foot.help': 'Aide',
   'foot.privacy': 'Confidentialité',
   'foot.terms': 'Conditions',
+  'foot.refund': 'Remboursement',
+  'foot.contact': 'Contact',
+  'legal.nav': 'Mentions légales et contact',
+  'legal.bindingNote':
+    "Ce document n'est disponible qu'en anglais. Seule la version anglaise fait foi juridiquement.",
+  'legal.showEnglish': "Lire l'original en anglais",
+  'legal.showTranslation': 'Afficher la traduction',
+  'legal.agree': 'En créant un compte, vous acceptez les {terms} et la {privacy}.',
+  'legal.ageNote': 'Moins de {n} ans ? Demandez d’abord à un parent ou à un tuteur.',
+  'legal.termsLink': "Conditions d'utilisation",
+  'legal.privacyLink': 'Politique de confidentialité',
+  'legal.refundLink': 'Politique de remboursement',
+  'legal.cardTitle': 'Aide, contact et mentions légales',
+  'legal.contactBody':
+    'Questions, facturation, remboursements ou demandes sur vos données ? Écrivez-nous à {email}.',
+  'legal.refundLine':
+    'Satisfait ou remboursé pendant {n} jours, sans justification. Voir la {refund}.',
   'foot.hintStart': 'démarrer / pause',
   'foot.hintReset': 'réinitialiser',
   'mono.nav.focus': 'Focus',
@@ -1064,6 +1081,30 @@ export const fr: Record<TKey, string> = {
     'Tâches, projets, objectifs, habitudes, journal, historique de focus et réglages enregistrés dans ce navigateur seront supprimés. Action irréversible.',
   'mono.data.cancel': 'Annuler',
   'mono.data.confirm': 'Tout supprimer',
+  'mono.export.title': 'Export et import',
+  'mono.export.body':
+    'Téléchargez tout ce que Moneo conserve pour vous dans un seul fichier JSON — gratuit pour tous. Gardez-le comme sauvegarde ou transférez-le vers un autre navigateur.',
+  'mono.export.cloudNote':
+    'Vous êtes connecté : le fichier inclut aussi vos sessions, zones et réglages synchronisés ainsi que le statut de votre abonnement.',
+  'mono.export.includeKeys': 'Inclure mes clés IA',
+  'mono.export.includeKeysHint':
+    'Désactivé par défaut. Ne les incluez que si vous gardez le fichier privé.',
+  'mono.export.download': 'Exporter toutes mes données (JSON)',
+  'mono.export.busy': 'Préparation…',
+  'mono.export.done': 'Export téléchargé.',
+  'mono.export.failed': 'L’export a échoué. Veuillez réessayer.',
+  'mono.export.import': 'Importer depuis un fichier',
+  'mono.export.confirmTitle': 'Remplacer les données de cet appareil ?',
+  'mono.export.confirmBody':
+    'Tout ce que Moneo conserve dans ce navigateur sera remplacé par l’export du {date}. Votre compte ne change pas — la prochaine synchronisation réunit les deux.',
+  'mono.export.cancel': 'Annuler',
+  'mono.export.confirm': 'Remplacer les données',
+  'mono.export.err.invalidJson': 'Ce fichier n’est pas un JSON valide.',
+  'mono.export.err.wrongFormat': 'Ce n’est pas un fichier d’export Moneo.',
+  'mono.export.err.unsupportedVersion':
+    'Cet export provient d’une version plus récente de Moneo. Mettez l’app à jour et réessayez.',
+  'mono.export.err.invalidShape': 'Le fichier d’export est endommagé ou incomplet.',
+  'mono.export.err.write': 'L’import a échoué — vos données précédentes ont été conservées.',
   'mono.coach.examples': 'Exemples',
   'mono.coach.aziEmpty.q': 'Qu’est-ce qui mérite d’être fini aujourd’hui ?',
   'mono.coach.aziEmpty.hint': 'Écris 1–3 résultats concrets — pas de vœux flous. De haut en bas.',
@@ -1146,8 +1187,9 @@ export const fr: Record<TKey, string> = {
   'rep.csv': 'Exporter CSV',
   'rep.pdf': 'Exporter PDF',
   'rep.pdfTitle': 'Ouvrir un rapport imprimable (Imprimer → PDF)',
-  'rep.exportProTitle': 'L’export est Pro',
-  'rep.exportProBody': 'Passez à Pro pour exporter vos sessions en CSV (Excel) ou PDF.',
+  'rep.exportProTitle': 'Les exports avancés sont Pro',
+  'rep.exportProBody':
+    'Passez à Pro pour exporter en CSV ou PDF. L’export JSON complet de vos données est gratuit dans les Réglages.',
   'rep.docTitle': 'Rapport Focus Moneo',
   'rep.rangeLabel.week': '7 derniers jours',
   'rep.rangeLabel.month': '30 derniers jours',
@@ -1776,11 +1818,12 @@ export const fr: Record<TKey, string> = {
     'Passez à Moneo Pro : coaching prioritaire, alertes d’échéances et vos heures de pointe.',
   'pricing.title': 'Tarifs Moneo',
   'pricing.sub':
-    'Commencez gratuitement, sans carte ni compte. Pro ajoute l’assistant IA complet, une planification avancée, les exports et un look personnalisé.',
+    'Commencez gratuitement, sans carte ni compte. Pro ajoute l’assistant IA complet, une planification avancée, les exports CSV/PDF et un look personnalisé.',
   'pricing.back': '← Retour à Moneo',
   'pricing.unlimited': 'Illimité',
   'pricing.row.ivy': 'Tâches prioritaires par jour (méthode Ivy Lee)',
   'pricing.row.plan': 'Plans pas à pas pour vos objectifs',
+  'pricing.row.jsonExport': 'Export complet des données (JSON)',
   'pricing.compareFeature': 'Fonction',
   'pricing.compareFree': 'Free',
   'pricing.comparePro': 'Pro',
@@ -2344,7 +2387,7 @@ export const fr: Record<TKey, string> = {
   'reports.exportPortfolio': 'Exporter le portfolio',
   'reports.exportPortfolioTitle':
     'Une page à partager avec les projets terminés, les objectifs atteints et les compétences solides',
-  'reports.exportProOnly': 'Les exports sont une fonctionnalité Pro.',
+  'reports.exportProOnly': 'Les exports avancés (CSV, PDF) sont une fonctionnalité Pro.',
   'reports.moreDetail': 'Plus de détails',
   'reports.moreDetailHint': 'Aperçus · répartition · export',
   'reports.exportPdfTitle': 'Ouvrir un rapport imprimable (Imprimer → Enregistrer en PDF)',

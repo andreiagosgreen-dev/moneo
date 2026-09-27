@@ -798,7 +798,7 @@ export const ru: Record<TKey, string> = {
 
   'pay.title': 'Перейти на Pro',
   'pay.sub':
-    'Полноценный ИИ-ассистент, безлимит проектов и целей, экспорт и оформление на ваш вкус. Синхронизация между устройствами охватывает фокус-сессии, зоны и настройки.',
+    'Полноценный ИИ-ассистент, безлимит проектов и целей, экспорт в CSV/PDF и оформление на ваш вкус. Синхронизация между устройствами охватывает фокус-сессии, зоны и настройки.',
   'pay.signin': 'Войдите, чтобы перейти на Pro',
   'pay.unavailable': 'Оплата недоступна. Напишите в поддержку.',
   'pay.current': 'Текущий',
@@ -915,6 +915,22 @@ export const ru: Record<TKey, string> = {
   'foot.help': 'Помощь',
   'foot.privacy': 'Приватность',
   'foot.terms': 'Условия',
+  'foot.refund': 'Возврат',
+  'foot.contact': 'Контакты',
+  'legal.nav': 'Правовая информация и контакты',
+  'legal.bindingNote':
+    'Этот документ доступен только на английском языке. Юридически обязывающей является английская версия.',
+  'legal.showEnglish': 'Читать оригинал на английском',
+  'legal.showTranslation': 'Показать перевод',
+  'legal.agree': 'Создавая аккаунт, вы соглашаетесь с {terms} и {privacy}.',
+  'legal.ageNote': 'Вам меньше {n}? Сначала спросите разрешения у родителя или опекуна.',
+  'legal.termsLink': 'Условиями использования',
+  'legal.privacyLink': 'Политикой конфиденциальности',
+  'legal.refundLink': 'Политика возврата',
+  'legal.cardTitle': 'Помощь, контакты и правовая информация',
+  'legal.contactBody': 'Вопросы, оплата, возвраты или запросы по данным? Пишите нам на {email}.',
+  'legal.refundLine':
+    'Гарантия возврата денег в течение {n} дней без вопросов. Подробнее: {refund}.',
   'foot.hintStart': 'старт / пауза',
   'foot.hintReset': 'сброс',
   'mono.nav.focus': 'Фокус',
@@ -1069,6 +1085,30 @@ export const ru: Record<TKey, string> = {
     'Задачи, проекты, цели, привычки, дневник, история фокуса и настройки в этом браузере будут удалены. Это нельзя отменить.',
   'mono.data.cancel': 'Отмена',
   'mono.data.confirm': 'Удалить всё',
+  'mono.export.title': 'Экспорт и импорт',
+  'mono.export.body':
+    'Скачайте всё, что Moneo хранит для вас, одним JSON-файлом — бесплатно для всех. Сохраните его как резервную копию или перенесите в другой браузер.',
+  'mono.export.cloudNote':
+    'Вы вошли в аккаунт, поэтому файл также содержит синхронизированные сессии, зоны, настройки и статус подписки.',
+  'mono.export.includeKeys': 'Включить мои ИИ-ключи',
+  'mono.export.includeKeysHint':
+    'По умолчанию выключено. Включайте, только если храните файл в тайне.',
+  'mono.export.download': 'Экспортировать все мои данные (JSON)',
+  'mono.export.busy': 'Подготовка…',
+  'mono.export.done': 'Экспорт скачан.',
+  'mono.export.failed': 'Не удалось выполнить экспорт. Попробуйте ещё раз.',
+  'mono.export.import': 'Импорт из файла',
+  'mono.export.confirmTitle': 'Заменить данные на этом устройстве?',
+  'mono.export.confirmBody':
+    'Всё, что Moneo хранит в этом браузере, будет заменено экспортом от {date}. Аккаунт не изменится — при следующей синхронизации данные объединятся.',
+  'mono.export.cancel': 'Отмена',
+  'mono.export.confirm': 'Заменить данные',
+  'mono.export.err.invalidJson': 'Этот файл не является корректным JSON.',
+  'mono.export.err.wrongFormat': 'Это не файл экспорта Moneo.',
+  'mono.export.err.unsupportedVersion':
+    'Этот экспорт создан более новой версией Moneo. Обновите приложение и попробуйте снова.',
+  'mono.export.err.invalidShape': 'Файл экспорта повреждён или неполон.',
+  'mono.export.err.write': 'Импорт не удался — прежние данные сохранены.',
   'mono.coach.examples': 'Примеры',
   'mono.coach.aziEmpty.q': 'Что стоит закончить сегодня?',
   'mono.coach.aziEmpty.hint':
@@ -1151,8 +1191,9 @@ export const ru: Record<TKey, string> = {
   'rep.csv': 'Экспорт CSV',
   'rep.pdf': 'Экспорт PDF',
   'rep.pdfTitle': 'Открыть печатный отчёт (Печать → Сохранить как PDF)',
-  'rep.exportProTitle': 'Экспорт — функция Pro',
-  'rep.exportProBody': 'Перейдите на Pro, чтобы экспортировать сессии в CSV (Excel) или PDF.',
+  'rep.exportProTitle': 'Расширенный экспорт — функция Pro',
+  'rep.exportProBody':
+    'Перейдите на Pro, чтобы экспортировать сессии в CSV или PDF. Полный экспорт данных в JSON бесплатен в Настройках.',
   'rep.docTitle': 'Фокус-отчёт Moneo',
   'rep.rangeLabel.week': 'Последние 7 дней',
   'rep.rangeLabel.month': 'Последние 30 дней',
@@ -1755,11 +1796,12 @@ export const ru: Record<TKey, string> = {
     'Перейдите на Moneo Pro: приоритетный коучинг, алерты дедлайнов и ваши часы силы.',
   'pricing.title': 'Тарифы Moneo',
   'pricing.sub':
-    'Начните бесплатно — без карты и без аккаунта. Pro добавляет полноценного ИИ-ассистента, расширенное планирование, экспорт и оформление на ваш вкус.',
+    'Начните бесплатно — без карты и без аккаунта. Pro добавляет полноценного ИИ-ассистента, расширенное планирование, экспорт в CSV/PDF и оформление на ваш вкус.',
   'pricing.back': '← Назад в Moneo',
   'pricing.unlimited': 'Без лимита',
   'pricing.row.ivy': 'Приоритетных задач в день (метод Айви Ли)',
   'pricing.row.plan': 'Пошаговые планы к целям',
+  'pricing.row.jsonExport': 'Полный экспорт данных (JSON)',
   'pricing.compareFeature': 'Функция',
   'pricing.compareFree': 'Free',
   'pricing.comparePro': 'Pro',
@@ -2314,7 +2356,7 @@ export const ru: Record<TKey, string> = {
   'reports.exportPortfolio': 'Экспорт портфолио',
   'reports.exportPortfolioTitle':
     'Страница для публикации с завершёнными проектами, достигнутыми целями и сильными навыками',
-  'reports.exportProOnly': 'Экспорт — функция Pro.',
+  'reports.exportProOnly': 'Расширенный экспорт (CSV, PDF) — функция Pro.',
   'reports.moreDetail': 'Больше деталей',
   'reports.moreDetailHint': 'Инсайты · распределение · экспорт',
   'reports.exportPdfTitle': 'Открыть отчёт для печати (Печать → Сохранить как PDF)',

@@ -459,7 +459,8 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
       if (!wiped) {
         return {
           ok: false,
-          message: 'Could not delete your account. Nothing was removed — please try again.',
+          message:
+            'Could not delete your account. Your account still exists and this device was not cleared — please try again.',
         };
       }
 
