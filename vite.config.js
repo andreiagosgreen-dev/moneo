@@ -109,12 +109,20 @@ export default defineConfig({
       },
     },
   },
+  // Without explicit entries, the dep optimizer globs **/*.html and would crawl
+  // nested agent worktrees (.claude/worktrees/*) with their own stale src/.
+  optimizeDeps: {
+    entries: ['index.html'],
+  },
   server: {
     host: '0.0.0.0',
     port: 3000,
     strictPort: true,
     hmr: {
       port: 3000,
+    },
+    watch: {
+      ignored: ['**/.claude/worktrees/**'],
     },
   },
 });
