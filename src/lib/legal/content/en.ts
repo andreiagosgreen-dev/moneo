@@ -105,7 +105,7 @@ export const legalEn: LegalSet = {
       {
         heading: '13. Availability and changes to the Service',
         blocks: [
-          'We work to keep Moneo available and your data safe, but we cannot promise the Service will always be uninterrupted or error-free. Because data is stored on your device first, clearing your browser data can erase it. Keep your own backups (for example with the Pro export) of anything important.',
+          'We work to keep Moneo available and your data safe, but we cannot promise the Service will always be uninterrupted or error-free. Because data is stored on your device first, clearing your browser data can erase it. Keep your own backups of anything important (for example with the free JSON export in Settings).',
           'We may add, change or remove features. If we stop offering Pro altogether, we will refund the unused part of any prepaid subscription.',
         ],
       },
@@ -180,6 +180,7 @@ export const legalEn: LegalSet = {
               'Google Calendar (optional, Pro): if you connect it, a token that lets us read your calendar events (read-only) to show conflicts with your plan. Events are fetched when needed and not stored by us. You can disconnect at any time.',
               'Error reports: if the app crashes, a technical error message and stack trace. Reports are not linked to your account and are not meant to contain your content.',
               'Security data: IP address and request data, processed briefly by our hosting provider and by bot protection on the sign-in form, to protect the Service against abuse.',
+              'Usage statistics: Cloudflare Web Analytics counts page views and measures page performance. It records the page address, referring site, country, and browser and device type, and shows us only aggregated totals. It uses no cookies, does not use your browser storage to track you, and does not identify you or follow you across other sites.',
               'Messages you send us: your email address and the content of your message.',
             ],
           },
@@ -203,6 +204,7 @@ export const legalEn: LegalSet = {
             list: [
               'To provide the Service you asked for — account, sync, Pro features and billing status (performance of a contract).',
               'To keep the Service secure and working — bot protection, rate limits and error reports (our legitimate interest in a safe, reliable app).',
+              'To understand, in aggregate, which pages are used and how fast they load — cookieless Cloudflare Web Analytics (our legitimate interest in improving the Service).',
               'For optional features you turn on — Google Calendar, focus buddy, your own AI key (your consent, which you can withdraw at any time by turning the feature off).',
               'To comply with legal obligations, for example keeping records when the law requires it.',
             ],
@@ -216,7 +218,7 @@ export const legalEn: LegalSet = {
           {
             list: [
               'Supabase — authentication and cloud database (hosted in the EU, Ireland). Also sends sign-in, confirmation and password-reset emails, directly or through an email delivery provider we configure.',
-              'Cloudflare — hosting, content delivery, security, and Turnstile bot protection on sign-in forms (global network).',
+              'Cloudflare — hosting, content delivery, security, Turnstile bot protection on sign-in forms, and cookieless Web Analytics (global network).',
               'Lemon Squeezy — checkout, payments, taxes, invoices and refunds, as Merchant of Record (an independent controller for billing data; USA).',
               'Google — sign-in with Google and, if you connect it, Google Calendar (USA).',
               'Sentry (Functional Software, Inc.) — error reports (data stored in the EU, Germany).',
@@ -241,6 +243,7 @@ export const legalEn: LegalSet = {
               'Data on your device: until you delete it or clear your browser data.',
               'Account and cloud data: until you delete your account. Deletion removes it from our live database right away; copies in encrypted backups expire within 30 days.',
               'Error reports: up to 90 days.',
+              'Usage statistics: kept by Cloudflare only as aggregated totals that do not identify you.',
               'Security logs at our hosting provider: short periods, typically days.',
               'Support emails: as long as needed to handle your request, and at most 2 years.',
               'Billing records: kept by Lemon Squeezy for as long as tax and accounting laws require.',
@@ -256,7 +259,7 @@ export const legalEn: LegalSet = {
             list: [
               'Delete data on this device: Settings → "Delete all data on this device".',
               'Delete your account and cloud data: Account → "Delete account". If you have an active subscription, cancel it first in the customer portal.',
-              'Export: Pro users can export sessions as CSV/PDF. For any other request, write to {email}.',
+              'Access and portability: in Settings, anyone can export all their Moneo data as a JSON file, free of charge, and import it again on another device. Pro adds extra report formats (CSV/PDF). For any other request, write to {email}.',
               'Stop cloud sync by signing out; your data stays on your device.',
             ],
           },
@@ -266,7 +269,7 @@ export const legalEn: LegalSet = {
       {
         heading: '10. Cookies and local storage',
         blocks: [
-          'Moneo uses no advertising cookies, no analytics and no tracking pixels. We use your browser’s local storage to save your data and your sign-in session, which is strictly necessary for the app to work. Cloudflare and Turnstile may set strictly necessary security cookies to tell people from bots. The Lemon Squeezy checkout, which opens on Lemon Squeezy’s own site, uses its own cookies.',
+          'Moneo uses no advertising cookies, no advertising trackers, no tracking pixels and no cross-site tracking. For usage statistics we use Cloudflare Web Analytics, which is cookieless and does not store anything in your browser to recognize you. We use your browser’s local storage to save your data and your sign-in session, which is strictly necessary for the app to work. Cloudflare and Turnstile may set strictly necessary security cookies to tell people from bots. The Lemon Squeezy checkout, which opens on Lemon Squeezy’s own site, uses its own cookies.',
           'Fonts are served from our own domain; we do not load Google Fonts or other third-party trackers.',
         ],
       },

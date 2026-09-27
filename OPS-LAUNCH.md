@@ -310,7 +310,7 @@ Nota: GitHub opreste singur workflow-urile programate intr-un repo public dupa 6
 
 ## PASUL 8b — Pagini legale + contact
 
-**[REPO]** Pagini publice: `https://moneo.bond/terms`, `https://moneo.bond/privacy`, `https://moneo.bond/refund` (engleza = textul obligatoriu; romana = traducere completa; celelalte limbi vad engleza + nota). Toate datele (vanzator, tara, email suport, data „Ultima actualizare”, 14 zile rambursare) sunt intr-un singur fisier: `src/lib/legal/seller.ts`. Emailul de suport actual: `atsolutionsrl@gmail.com`. Linkuri Terms · Privacy · Refund · Contact apar pe Pricing, Login, Setari, Help si „More”.
+**[REPO]** Pagini publice: `https://moneo.bond/terms`, `https://moneo.bond/privacy`, `https://moneo.bond/refund` (engleza = textul obligatoriu; romana = traducere completa; celelalte limbi vad engleza + nota). Toate datele (vanzator, tara, email suport, data „Ultima actualizare”, 14 zile rambursare) sunt intr-un singur fisier: `src/lib/legal/seller.ts`. Emailul de suport actual: `atsolutionsrl.md@gmail.com` (cu `.md` — fara el e alta casuta Gmail). Linkuri Terms · Privacy · Refund · Contact apar pe Pricing, Login, Setari, Help si „More”.
 
 **[TU]**
 

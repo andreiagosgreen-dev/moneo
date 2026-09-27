@@ -712,7 +712,7 @@ VITE_SENTRY_DSN=xxx
 
 #### Direct Support
 
-- **Email:** atsolutionsrl@gmail.com (source of truth: `SUPPORT_EMAIL` in `src/lib/legal/seller.ts`; switch to support@moneo.bond once email forwarding exists)
+- **Email:** atsolutionsrl.md@gmail.com (source of truth: `SUPPORT_EMAIL` in `src/lib/legal/seller.ts`; switch to support@moneo.bond once email forwarding exists)
 - **Chat:** Intercom (future, $49/month)
 - **Ticket System:** Zendesk (future)
 

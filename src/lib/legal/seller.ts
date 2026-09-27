@@ -12,7 +12,7 @@ export const SELLER = {
   country: { en: 'the Republic of Moldova', ro: 'Republica Moldova' },
 } as const;
 
-export const SUPPORT_EMAIL = 'atsolutionsrl@gmail.com';
+export const SUPPORT_EMAIL = 'atsolutionsrl.md@gmail.com';
 export const SUPPORT_MAILTO = `mailto:${SUPPORT_EMAIL}`;
 
 export const SITE_URL = 'https://moneo.bond';

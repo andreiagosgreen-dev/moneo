@@ -32,9 +32,17 @@ const SOURCES = import.meta.glob<string>('/src/**/*.{ts,tsx}', {
 });
 
 describe('seller constants', () => {
-  it('has a usable support email and mailto link', () => {
-    expect(SUPPORT_EMAIL).toMatch(/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i);
+  it('has the owner-confirmed support email and mailto link', () => {
+    expect(SUPPORT_EMAIL).toBe('atsolutionsrl.md@gmail.com');
     expect(SUPPORT_MAILTO).toBe(`mailto:${SUPPORT_EMAIL}`);
+  });
+
+  it('never uses the look-alike mailbox without ".md" (a different Gmail inbox)', () => {
+    const wrong = ['atsolutionsrl', 'gmail.com'].join('@');
+    const hits = Object.entries(SOURCES)
+      .filter(([, src]) => src.toLowerCase().includes(wrong))
+      .map(([path]) => path);
+    expect(hits).toEqual([]);
   });
 
   it('pins a fixed last-updated date and a 14-day refund window', () => {
@@ -52,9 +60,12 @@ describe('seller constants', () => {
   it('keeps the support email in one place only', () => {
     expect(Object.keys(SOURCES).length).toBeGreaterThan(50);
     expect(SOURCES['/src/lib/legal/seller.ts']).toContain(SUPPORT_EMAIL);
+    // The complimentary-Pro allowlist lists the owner's account, not a contact address.
+    const allowed = ['/src/lib/legal/seller.ts', '/src/lib/billing/complimentaryPro.ts'];
     const offenders = Object.entries(SOURCES)
       .filter(
-        ([path, src]) => !path.endsWith('/lib/legal/seller.ts') && src.includes(SUPPORT_EMAIL),
+        ([path, src]) =>
+          !allowed.includes(path) && !path.endsWith('.test.ts') && src.includes(SUPPORT_EMAIL),
       )
       .map(([path]) => path);
     expect(offenders).toEqual([]);
@@ -145,6 +156,50 @@ describe('legal content', () => {
       expect(privacy).toContain(name);
     }
     expect(privacy).toContain('133/2011');
-    expect(privacy).toContain('no analytics');
+  });
+
+  it('describes cookieless Cloudflare Web Analytics instead of claiming none', () => {
+    for (const lang of LANGS) {
+      const privacy = allText(getLegalDoc('privacy', lang));
+      expect(privacy.split('Cloudflare Web Analytics').length - 1, lang).toBeGreaterThanOrEqual(3);
+    }
+    const en = allText(getLegalDoc('privacy', 'en'));
+    expect(en).not.toMatch(/no analytics/i);
+    expect(en).toContain('cookieless');
+    expect(en).toContain('no cross-site tracking');
+    expect(en).toContain('legitimate interest in improving the Service');
+  });
+
+  it('points access/portability to the free JSON export, not a Pro-only export', () => {
+    for (const lang of LANGS) {
+      const text = [allText(getLegalDoc('privacy', lang)), allText(getLegalDoc('terms', lang))];
+      for (const t of text) {
+        expect(t).toContain('JSON');
+        expect(t).not.toMatch(/Pro users can export|utilizatorii Pro pot exporta|exportul Pro/);
+      }
+    }
+  });
+
+  it('keeps Pro active until the end of the paid period after cancelling', () => {
+    expect(allText(getLegalDoc('terms', 'en'))).toContain(
+      'you keep Pro until the end of the period you already paid for',
+    );
+    expect(allText(getLegalDoc('terms', 'ro'))).toContain(
+      'păstrezi Pro până la sfârșitul perioadei deja plătite',
+    );
+  });
+
+  it('Romanian lists have the same number of items as the English ones', () => {
+    for (const id of LEGAL_DOCS) {
+      const en = getLegalDoc(id, 'en');
+      const ro = getLegalDoc(id, 'ro');
+      en.sections.forEach((s, i) =>
+        s.blocks.forEach((b, j) => {
+          const rb = ro.sections[i].blocks[j];
+          if (typeof b === 'string') expect(typeof rb, `${id} §${i + 1}.${j}`).toBe('string');
+          else expect(typeof rb === 'string' ? -1 : rb.list.length).toBe(b.list.length);
+        }),
+      );
+    }
   });
 });

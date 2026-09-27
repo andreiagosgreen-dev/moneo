@@ -105,7 +105,7 @@ export const legalRo: LegalSet = {
       {
         heading: '13. Disponibilitatea și schimbările Serviciului',
         blocks: [
-          'Ne străduim să menținem Moneo disponibil și datele tale în siguranță, dar nu putem promite că Serviciul va funcționa mereu fără întreruperi sau erori. Pentru că datele sunt salvate întâi pe dispozitiv, ștergerea datelor din browser le poate șterge. Păstrează-ți propriile copii (de exemplu cu exportul Pro) pentru tot ce e important.',
+          'Ne străduim să menținem Moneo disponibil și datele tale în siguranță, dar nu putem promite că Serviciul va funcționa mereu fără întreruperi sau erori. Pentru că datele sunt salvate întâi pe dispozitiv, ștergerea datelor din browser le poate șterge. Păstrează-ți propriile copii pentru tot ce e important (de exemplu cu exportul JSON gratuit din Setări).',
           'Putem adăuga, modifica sau elimina funcții. Dacă renunțăm complet la Pro, îți rambursăm partea nefolosită din orice abonament plătit în avans.',
         ],
       },
@@ -180,6 +180,7 @@ export const legalRo: LegalSet = {
               'Google Calendar (opțional, Pro): dacă îl conectezi, un token care ne permite să citim evenimentele din calendar (doar citire), ca să arătăm suprapunerile cu planul tău. Evenimentele sunt citite la nevoie și nu le stocăm. Poți deconecta oricând.',
               'Rapoarte de eroare: dacă aplicația se blochează, un mesaj tehnic de eroare și traseul erorii (stack trace). Rapoartele nu sunt legate de contul tău și nu sunt menite să conțină conținutul tău.',
               'Date de securitate: adresa IP și datele cererii, prelucrate pe scurt de furnizorul de găzduire și de protecția anti-bot de pe formularul de autentificare, ca să protejăm Serviciul de abuz.',
+              'Statistici de utilizare: Cloudflare Web Analytics numără vizualizările de pagină și măsoară viteza paginilor. Înregistrează adresa paginii, site-ul de pe care ai venit, țara, tipul de browser și de dispozitiv și ne arată doar totaluri agregate. Nu folosește cookie-uri, nu folosește stocarea browserului ca să te urmărească și nu te identifică și nici nu te urmărește pe alte site-uri.',
               'Mesajele pe care ni le trimiți: adresa ta de email și conținutul mesajului.',
             ],
           },
@@ -203,6 +204,7 @@ export const legalRo: LegalSet = {
             list: [
               'Ca să-ți oferim Serviciul cerut — cont, sincronizare, funcții Pro și starea abonamentului (executarea unui contract).',
               'Ca să menținem Serviciul sigur și funcțional — protecție anti-bot, limitarea cererilor și rapoarte de eroare (interesul nostru legitim pentru o aplicație sigură și fiabilă).',
+              'Ca să înțelegem, la nivel agregat, ce pagini sunt folosite și cât de repede se încarcă — Cloudflare Web Analytics, fără cookie-uri (interesul nostru legitim de a îmbunătăți Serviciul).',
               'Pentru funcțiile opționale pe care le activezi — Google Calendar, partenerul de focus, propria cheie AI (consimțământul tău, pe care îl poți retrage oricând dezactivând funcția).',
               'Ca să respectăm obligațiile legale, de exemplu păstrarea unor evidențe când legea o cere.',
             ],
@@ -216,7 +218,7 @@ export const legalRo: LegalSet = {
           {
             list: [
               'Supabase — autentificare și bază de date în cloud (găzduită în UE, Irlanda). Trimite și emailurile de autentificare, confirmare și resetare a parolei, direct sau printr-un furnizor de livrare email configurat de noi.',
-              'Cloudflare — găzduire, livrare de conținut, securitate și protecția anti-bot Turnstile pe formularele de autentificare (rețea globală).',
+              'Cloudflare — găzduire, livrare de conținut, securitate, protecția anti-bot Turnstile pe formularele de autentificare și Web Analytics fără cookie-uri (rețea globală).',
               'Lemon Squeezy — checkout, plăți, taxe, facturi și rambursări, ca Merchant of Record (operator independent pentru datele de facturare; SUA).',
               'Google — autentificarea cu Google și, dacă îl conectezi, Google Calendar (SUA).',
               'Sentry (Functional Software, Inc.) — rapoarte de eroare (date stocate în UE, Germania).',
@@ -241,6 +243,7 @@ export const legalRo: LegalSet = {
               'Datele de pe dispozitiv: până le ștergi tu sau ștergi datele browserului.',
               'Datele contului și din cloud: până îți ștergi contul. Ștergerea le elimină imediat din baza de date activă; copiile din backup-urile criptate expiră în cel mult 30 de zile.',
               'Rapoartele de eroare: până la 90 de zile.',
+              'Statisticile de utilizare: păstrate de Cloudflare doar ca totaluri agregate, care nu te identifică.',
               'Jurnalele de securitate la furnizorul de găzduire: perioade scurte, de obicei câteva zile.',
               'Emailurile către suport: cât e nevoie ca să rezolvăm cererea, dar cel mult 2 ani.',
               'Evidențele de facturare: păstrate de Lemon Squeezy cât cer legile fiscale și contabile.',
@@ -256,7 +259,7 @@ export const legalRo: LegalSet = {
             list: [
               'Ștergerea datelor de pe dispozitiv: Setări → „Șterge toate datele de pe acest dispozitiv”.',
               'Ștergerea contului și a datelor din cloud: Cont → „Șterge contul”. Dacă ai un abonament activ, anulează-l întâi din portalul clientului.',
-              'Export: utilizatorii Pro pot exporta sesiunile în CSV/PDF. Pentru orice altă cerere, scrie-ne la {email}.',
+              'Acces și portabilitate: din Setări, oricine își poate exporta gratuit toate datele Moneo într-un fișier JSON și le poate importa apoi pe alt dispozitiv. Pro adaugă formate de raport în plus (CSV/PDF). Pentru orice altă cerere, scrie-ne la {email}.',
               'Oprești sincronizarea în cloud deconectându-te; datele rămân pe dispozitivul tău.',
             ],
           },
@@ -266,7 +269,7 @@ export const legalRo: LegalSet = {
       {
         heading: '10. Cookie-uri și stocare locală',
         blocks: [
-          'Moneo nu folosește cookie-uri de publicitate, analytics sau pixeli de urmărire. Folosim stocarea locală a browserului ca să salvăm datele tale și sesiunea de autentificare, lucru strict necesar pentru funcționarea aplicației. Cloudflare și Turnstile pot seta cookie-uri de securitate strict necesare, ca să deosebească oamenii de boți. Checkout-ul Lemon Squeezy, care se deschide pe site-ul Lemon Squeezy, folosește propriile cookie-uri.',
+          'Moneo nu folosește cookie-uri de publicitate, instrumente de urmărire publicitară, pixeli de urmărire sau urmărire între site-uri. Pentru statisticile de utilizare folosim Cloudflare Web Analytics, care nu folosește cookie-uri și nu salvează nimic în browser ca să te recunoască. Folosim stocarea locală a browserului ca să salvăm datele tale și sesiunea de autentificare, lucru strict necesar pentru funcționarea aplicației. Cloudflare și Turnstile pot seta cookie-uri de securitate strict necesare, ca să deosebească oamenii de boți. Checkout-ul Lemon Squeezy, care se deschide pe site-ul Lemon Squeezy, folosește propriile cookie-uri.',
           'Fonturile sunt servite de pe domeniul nostru; nu încărcăm Google Fonts sau alte instrumente de urmărire ale terților.',
         ],
       },
