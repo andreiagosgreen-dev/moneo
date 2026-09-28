@@ -2090,7 +2090,7 @@ export const de: Record<TKey, string> = {
   'account.deleteAccount': 'Konto löschen',
   'account.deleteConfirmTitle': 'Konto löschen?',
   'account.deleteConfirmBody':
-    'Dies löscht dein Konto dauerhaft — du kannst dich nicht mehr anmelden — sowie alle synchronisierten Daten (Sitzungen, Bereiche, Einstellungen, Abo). Dies kann nicht rückgängig gemacht werden.',
+    'Dies löscht dein Konto dauerhaft — du kannst dich nicht mehr anmelden — sowie alle darin gespeicherten Daten (Sitzungen, Bereiche, Einstellungen, Abo und bei Pro auch deine Projekte, Aufgaben, Gewohnheiten, dein Journal und den Rest deiner Planung). Dies kann nicht rückgängig gemacht werden.',
   'account.cancel': 'Abbrechen',
   'account.openCabinet': 'Mein Bereich öffnen',
   'account.subscriptionStatus': 'Abo',
