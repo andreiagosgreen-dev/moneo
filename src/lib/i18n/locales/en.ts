@@ -130,7 +130,7 @@ export const en = {
   'land.faq.title': 'Frequently asked questions',
   'land.faq.free.q': 'Is Moneo free?',
   'land.faq.free.a':
-    'Yes. The focus timer, the day plan, 3 projects, habits and the journal are free forever. Pro adds unlimited projects and goals, the full AI assistant, exports, all your data saved to your account on every device, and more.',
+    'Yes. The focus timer, the day plan, 3 projects, habits and the journal are free forever. Pro adds unlimited projects and goals, AI with your own AI key (optional), exports, all your data saved to your account on every device, and more.',
   'land.faq.account.q': 'Do I need an account?',
   'land.faq.account.a':
     'No. Open Moneo and start — everything works without an account and is saved on this device. With a free account, your focus sessions, areas and settings are saved to it too; with Pro, all your data is.',
@@ -929,7 +929,7 @@ export const en = {
 
   'pay.title': 'Upgrade to Pro',
   'pay.sub':
-    'Get the full AI assistant, unlimited projects and goals, CSV/PDF exports and a personalized look. Sync between devices covers your focus sessions, areas and settings.',
+    'Get unlimited projects and goals, AI with your own key (optional), CSV/PDF exports and a personalized look. Sync between devices covers your focus sessions, areas and settings.',
   'pay.signin': 'Please sign in to upgrade to Pro',
   'pay.unavailable': 'Payment isn’t available right now. Please contact support.',
   'pay.current': 'Current',
@@ -956,7 +956,8 @@ export const en = {
   'pay.plan.monthly.desc': 'For people who plan and focus every day',
   'pay.plan.monthly.f0': 'Everything in Free',
   'pay.plan.monthly.f1': 'Unlimited projects, goals & OKRs',
-  'pay.plan.monthly.f2': 'Full AI assistant, all insights & plans with your own AI key (optional)',
+  'pay.plan.monthly.f2':
+    'AI assistant with your own AI key (optional) · the built-in planner works without one',
   'pay.plan.monthly.f3': 'Export reports to CSV (Excel) and PDF',
   'pay.plan.monthly.f4': 'Weekly time blocks, sprint charts & kanban work limits',
   'pay.plan.monthly.f5':
@@ -1023,7 +1024,7 @@ export const en = {
     'Goals cascade Vision → Weekly with auto rollup; generate starter tasks or send one to today’s plan. OKRs track quarterly key results with sliders.',
   'help.s.aipath.t': 'AI path',
   'help.s.aipath.b':
-    'Plan tab: describe a goal or skill, answer up to 3 questions, review the visual draft, then approve. At most one project and 20 tasks per approval; week drafts never overfill a day. Auto-prepare is optional. After sessions, 4-tap feedback tunes future estimates.',
+    'Plan tab: describe a goal or skill, answer up to 3 questions, review the visual draft, then approve. At most one project and 20 tasks per approval; week drafts never overfill a day. Auto-prepare is optional. After sessions, 4-tap feedback tunes future estimates. With Pro you can add your own AI key for AI-written plans; without a key, the built-in planner builds them.',
   'help.s.assistant.t': 'Assistant',
   'help.s.assistant.b':
     'Ask “what should I work on?” or type “add task Draft proposal p1 tomorrow for Client”. Free gets 2 quick actions; Pro unlocks full chat.',
@@ -1926,12 +1927,13 @@ export const en = {
     'Upgrade to Moneo Pro for priority coaching, deadline alerts, and your best focus window.',
   'pricing.title': 'Moneo pricing',
   'pricing.sub':
-    'Start free — no card, no account needed. Pro adds the full AI assistant, advanced planning, CSV/PDF exports and a personalized look.',
+    'Start free — no card, no account needed. Pro adds advanced planning, AI with your own key (optional), CSV/PDF exports and a personalized look.',
   'pricing.back': '← Back to Moneo',
   'pricing.unlimited': 'Unlimited',
   'pricing.row.ivy': 'Priority tasks per day (Ivy Lee method)',
   'pricing.row.plan': 'Step-by-step goal plans',
   'pricing.row.jsonExport': 'Full data export (JSON)',
+  'pricing.row.insights': 'Personal insights',
   'pricing.compareFeature': 'Feature',
   'pricing.compareFree': 'Free',
   'pricing.comparePro': 'Pro',
@@ -2155,7 +2157,6 @@ export const en = {
   'pricing.perMonth': 'month',
   'pricing.perYear': 'year',
   'pricing.upgradeButton': 'Upgrade',
-  'pricing.trialNote': 'Cancel anytime. All plans include a 7-day free trial.',
   'pricing.signInAlert': 'Please sign in to upgrade to Pro',
   'pricing.checkoutUnavailable': 'Checkout is not available. Please contact support.',
   'pricing.plan.free.name': 'Free',
@@ -2171,7 +2172,8 @@ export const en = {
   'pricing.feature.localFirst': 'Local-first, private by design',
   'pricing.feature.allFree': 'All Free features',
   'pricing.feature.unlimitedProjects': 'Unlimited projects, goals & OKRs',
-  'pricing.feature.fullAi': 'Full AI assistant + all insights',
+  'pricing.feature.fullAi':
+    'AI assistant with your own AI key (optional) · the built-in planner works without one',
   'pricing.feature.reportsExport': 'Reports, CSV/PDF export & billable time',
   'pricing.feature.timeBlocking': 'Time blocking, sprints & kanban',
   'pricing.feature.cloudSync': 'Cloud sync across devices',
