@@ -9,7 +9,10 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['*.svg', '*.png', '*.jpg', '*.jpeg', '*.ico', 'brand/*.png'],
+      // includeAssets / manifest icons bypass workbox.globIgnores, so only list
+      // what globPatterns below cannot pick up (the .ico favicon).
+      includeAssets: ['*.ico'],
+      includeManifestIcons: false,
       manifest: {
         id: '/',
         name: 'Moneo - Focus Timer',
@@ -19,7 +22,7 @@ export default defineConfig({
         lang: 'en',
         start_url: '/',
         scope: '/',
-        theme_color: '#0d1310',
+        theme_color: '#0f1117',
         background_color: '#0d1310',
         display: 'standalone',
         orientation: 'portrait',
@@ -61,9 +64,25 @@ export default defineConfig({
         // Do NOT precache woff/woff2 — Pro font packs balloon precache to ~10MB
         // and can break SW install / leave a stuck black shell after deploy.
         // Fonts still load on demand with long-cache hashed URLs from R2.
+        // Brand artwork (1200px logos, Lemon covers, store header) and og.png
+        // are multi-MB and not needed offline; the nav mark is runtime-cached.
         globPatterns: ['**/*.{js,css,html,svg,png}'],
-        globIgnores: ['**/*.{woff,woff2}'],
+        globIgnores: ['**/*.{woff,woff2}', 'brand/*-1200.png', 'brand/*-1600x300.png', 'og.png'],
         runtimeCaching: [
+          {
+            urlPattern: /\/brand\/.*\.png$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'brand-images-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
           // Same-origin Fontsource woff2 (excluded from precache intentionally —
           // see PR #53). CacheFirst so offline still gets fonts after first visit.
           {

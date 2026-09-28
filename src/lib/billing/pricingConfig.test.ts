@@ -87,7 +87,7 @@ describe('pricingConfig — single source of truth', () => {
 
   it('builds comparison rows from live limits (no hardcoded numbers)', () => {
     const rows = getComparisonRows();
-    expect(rows.length).toBe(10);
+    expect(rows.length).toBe(11);
     const projects = rows[0];
     expect(projects.labelKey).toBe('pay.plan.monthly.f1');
     expect(projects.free).toEqual({ kind: 'limit', value: FREE_PROJECTS_LIMIT });
@@ -122,6 +122,26 @@ describe('pricingConfig — single source of truth', () => {
     expect(row?.pro).toEqual({ kind: 'key', key: 'pricing.sync.pro' });
     expect(en['pricing.sync.free'].toLowerCase()).toMatch(/session/);
     expect(en['pricing.sync.free'].toLowerCase()).not.toMatch(/all/);
+  });
+
+  it('markets AI only as bring-your-own-key, never a full hosted assistant', () => {
+    const keys = [
+      'pay.plan.monthly.f2',
+      'pay.sub',
+      'pricing.sub',
+      'land.faq.free.a',
+      'pricing.feature.fullAi',
+    ] as const;
+    for (const key of keys) {
+      const copy = en[key].toLowerCase();
+      expect(copy).not.toMatch(/full ai/);
+      expect(copy).toMatch(/own (ai )?key/);
+    }
+    expect(en['pay.plan.monthly.f2'].toLowerCase()).toMatch(/built-in planner/);
+    const ai = getComparisonRows().find((r) => r.labelKey === 'pay.plan.monthly.f2');
+    expect(ai?.free).toEqual({ kind: 'dash' });
+    const insights = getComparisonRows().find((r) => r.labelKey === 'pricing.row.insights');
+    expect(insights?.free).toEqual({ kind: 'limit', value: FREE_LIMITS.insights });
   });
 
   it('markets Pro look as light, accents, fonts and interior atmospheres', () => {

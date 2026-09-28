@@ -127,7 +127,7 @@ export const de: Record<TKey, string> = {
   'land.faq.title': 'Häufige Fragen',
   'land.faq.free.q': 'Ist Moneo kostenlos?',
   'land.faq.free.a':
-    'Ja. Fokus-Timer, Tagesplan, 3 Projekte, Gewohnheiten und Journal sind für immer kostenlos. Pro bringt unbegrenzt viele Projekte und Ziele, den vollen KI-Assistenten, Exporte, alle deine Daten im Konto auf jedem Gerät und mehr.',
+    'Ja. Fokus-Timer, Tagesplan, 3 Projekte, Gewohnheiten und Journal sind für immer kostenlos. Pro bringt unbegrenzt viele Projekte und Ziele, KI mit eigenem Schlüssel (optional), Exporte, alle deine Daten im Konto auf jedem Gerät und mehr.',
   'land.faq.account.q': 'Brauche ich ein Konto?',
   'land.faq.account.a':
     'Nein. Öffne Moneo und leg los — alles funktioniert ohne Konto und wird auf diesem Gerät gespeichert. Mit einem kostenlosen Konto werden dort auch Fokussitzungen, Bereiche und Einstellungen gespeichert, mit Pro alle deine Daten.',
@@ -921,7 +921,7 @@ export const de: Record<TKey, string> = {
 
   'pay.title': 'Upgrade auf Pro',
   'pay.sub':
-    'Voller KI-Assistent, unbegrenzte Projekte und Ziele, CSV/PDF-Exporte und ein individueller Look. Der Abgleich zwischen Geräten umfasst Fokussitzungen, Bereiche und Einstellungen.',
+    'Unbegrenzte Projekte und Ziele, KI mit eigenem Schlüssel (optional), CSV/PDF-Exporte und ein individueller Look. Der Abgleich zwischen Geräten umfasst Fokussitzungen, Bereiche und Einstellungen.',
   'pay.signin': 'Melde dich an für Pro-Upgrade',
   'pay.unavailable': 'Bezahlung gerade nicht möglich. Bitte kontaktiere den Support.',
   'pay.current': 'Aktuell',
@@ -949,7 +949,7 @@ export const de: Record<TKey, string> = {
   'pay.plan.monthly.f0': 'Alles aus Free',
   'pay.plan.monthly.f1': 'Unbegrenzte Projekte, Ziele & OKRs',
   'pay.plan.monthly.f2':
-    'Voller KI-Assistent, alle Signale & Pläne mit eigenem KI-Schlüssel (optional)',
+    'KI-Assistent mit eigenem Schlüssel (optional) · der integrierte Planer funktioniert auch ohne',
   'pay.plan.monthly.f3': 'Berichte als CSV (Excel) und PDF exportieren',
   'pay.plan.monthly.f4': 'Wöchentliche Zeitblöcke, Sprint-Diagramme & Arbeitslimits im Kanban',
   'pay.plan.monthly.f5':
@@ -1015,7 +1015,7 @@ export const de: Record<TKey, string> = {
     'Ziele kaskadieren Vision → Woche mit Auto-Rollup; Starter-Aufgaben generieren oder eine in den Tagesplan schicken. OKRs tracken Quartals-Ergebnisse mit Slidern.',
   'help.s.aipath.t': 'KI-Pfad',
   'help.s.aipath.b':
-    'Plan-Tab: Ziel oder Skill beschreiben, bis 3 Fragen beantworten, visuellen Draft prüfen, freigeben. Max ein Projekt und 20 Aufgaben pro Freigabe; Wochen-Drafts füllen den Tag nie. Auto-Prepare ist optional. Nach Sessions stimmt 4-Tap-Feedback Schätzungen.',
+    'Plan-Tab: Ziel oder Skill beschreiben, bis 3 Fragen beantworten, visuellen Draft prüfen, freigeben. Max ein Projekt und 20 Aufgaben pro Freigabe; Wochen-Drafts füllen den Tag nie. Auto-Prepare ist optional. Nach Sessions stimmt 4-Tap-Feedback Schätzungen. Mit Pro kannst du einen eigenen KI-Schlüssel hinzufügen, damit die KI Pläne schreibt; ohne Schlüssel erstellt sie der integrierte Planer.',
   'help.s.assistant.t': 'Assistent',
   'help.s.assistant.b':
     'Frag “what should I work on?” oder tippe “add task Draft proposal p1 tomorrow for Client”. Free kriegt 2 Schnellaktionen; Pro schaltet vollen Chat frei.',
@@ -1936,12 +1936,13 @@ export const de: Record<TKey, string> = {
     'Upgrade auf Moneo Pro für Prioritäts-Coaching, Deadline-Alarme und deine Power-Stunden.',
   'pricing.title': 'Moneo-Preise',
   'pricing.sub':
-    'Kostenlos starten – ohne Karte, ohne Konto. Pro bringt den vollen KI-Assistenten, erweiterte Planung, CSV/PDF-Exporte und einen individuellen Look.',
+    'Kostenlos starten – ohne Karte, ohne Konto. Pro bringt erweiterte Planung, KI mit eigenem Schlüssel (optional), CSV/PDF-Exporte und einen individuellen Look.',
   'pricing.back': '← Zurück zu Moneo',
   'pricing.unlimited': 'Unbegrenzt',
   'pricing.row.ivy': 'Top-Aufgaben pro Tag (Ivy-Lee-Methode)',
   'pricing.row.plan': 'Schritt-für-Schritt-Pläne für Ziele',
   'pricing.row.jsonExport': 'Vollständiger Datenexport (JSON)',
+  'pricing.row.insights': 'Persönliche Signale',
   'pricing.compareFeature': 'Feature',
   'pricing.compareFree': 'Free',
   'pricing.comparePro': 'Pro',
@@ -2169,7 +2170,6 @@ export const de: Record<TKey, string> = {
   'pricing.perMonth': 'Monat',
   'pricing.perYear': 'Jahr',
   'pricing.upgradeButton': 'Upgraden',
-  'pricing.trialNote': 'Jederzeit kündbar. Alle Pläne enthalten 7 Tage kostenlose Testphase.',
   'pricing.signInAlert': 'Melde dich an, um auf Pro zu upgraden',
   'pricing.checkoutUnavailable': 'Checkout nicht verfügbar. Bitte kontaktiere den Support.',
   'pricing.plan.free.name': 'Kostenlos',
@@ -2185,7 +2185,8 @@ export const de: Record<TKey, string> = {
   'pricing.feature.localFirst': 'Local-first, privat by design',
   'pricing.feature.allFree': 'Alle Free-Funktionen',
   'pricing.feature.unlimitedProjects': 'Unbegrenzte Projekte, Ziele & OKRs',
-  'pricing.feature.fullAi': 'Vollständiger KI-Assistent + alle Insights',
+  'pricing.feature.fullAi':
+    'KI-Assistent mit eigenem Schlüssel (optional) · der integrierte Planer funktioniert auch ohne',
   'pricing.feature.reportsExport': 'Berichte, CSV/PDF-Export & abrechenbare Zeit',
   'pricing.feature.timeBlocking': 'Zeitblöcke, Sprints & Kanban',
   'pricing.feature.cloudSync': 'Cloud-Sync geräteübergreifend',

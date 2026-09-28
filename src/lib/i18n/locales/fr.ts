@@ -128,7 +128,7 @@ export const fr: Record<TKey, string> = {
   'land.faq.title': 'Questions fréquentes',
   'land.faq.free.q': 'Moneo est-il gratuit ?',
   'land.faq.free.a':
-    'Oui. Le minuteur de concentration, le plan du jour, 3 projets, les habitudes et le journal sont gratuits pour toujours. Pro ajoute des projets et objectifs illimités, l’assistant IA complet, les exports, toutes vos données enregistrées dans votre compte sur chaque appareil, et plus encore.',
+    'Oui. Le minuteur de concentration, le plan du jour, 3 projets, les habitudes et le journal sont gratuits pour toujours. Pro ajoute des projets et objectifs illimités, l’IA avec votre propre clé (facultatif), les exports, toutes vos données enregistrées dans votre compte sur chaque appareil, et plus encore.',
   'land.faq.account.q': 'Ai-je besoin d’un compte ?',
   'land.faq.account.a':
     'Non. Ouvrez Moneo et commencez — tout fonctionne sans compte et est enregistré sur cet appareil. Avec un compte gratuit, vos sessions de focus, zones et réglages y sont aussi enregistrés ; avec Pro, toutes vos données.',
@@ -920,7 +920,7 @@ export const fr: Record<TKey, string> = {
 
   'pay.title': 'Passer à Pro',
   'pay.sub':
-    'Profitez de l’assistant IA complet, de projets et objectifs illimités, des exports CSV/PDF et d’un look personnalisé. La synchronisation entre appareils couvre vos sessions de focus, zones et réglages.',
+    'Profitez de projets et objectifs illimités, de l’IA avec votre propre clé (facultatif), des exports CSV/PDF et d’un look personnalisé. La synchronisation entre appareils couvre vos sessions de focus, zones et réglages.',
   'pay.signin': 'Connectez-vous pour passer à Pro',
   'pay.unavailable': 'Paiement indisponible pour le moment. Contactez le support.',
   'pay.current': 'Actuel',
@@ -948,7 +948,7 @@ export const fr: Record<TKey, string> = {
   'pay.plan.monthly.f0': 'Tout de Free',
   'pay.plan.monthly.f1': 'Projets, objectifs et OKR illimités',
   'pay.plan.monthly.f2':
-    'Assistant IA complet, tous les signaux et plans avec votre propre clé IA (facultatif)',
+    'Assistant IA avec votre propre clé (facultatif) · le planificateur intégré fonctionne aussi sans',
   'pay.plan.monthly.f3': 'Export des rapports en CSV (Excel) et PDF',
   'pay.plan.monthly.f4':
     'Blocs de temps hebdo, graphiques de sprint et limites de travail en kanban',
@@ -1015,7 +1015,7 @@ export const fr: Record<TKey, string> = {
     'Les objectifs cascadent Vision → Semaine avec rollup auto ; génèrent des tâches de démarrage ou en envoient une dans le plan du jour. Les OKR suivent des résultats trimestriels avec curseurs.',
   'help.s.aipath.t': 'Chemin IA',
   'help.s.aipath.b':
-    'Onglet Plan : décrivez objectif ou compétence, répondez à max 3 questions, vérifiez le brouillon visuel, puis approuvez. Max un projet et 20 tâches par approbation ; les brouillons semaine ne remplissent jamais le jour. L’auto-prépa est facultative. Après les sessions, le feedback en 4 touches règle les estimations.',
+    'Onglet Plan : décrivez objectif ou compétence, répondez à max 3 questions, vérifiez le brouillon visuel, puis approuvez. Max un projet et 20 tâches par approbation ; les brouillons semaine ne remplissent jamais le jour. L’auto-prépa est facultative. Après les sessions, le feedback en 4 touches règle les estimations. Avec Pro, vous pouvez ajouter votre propre clé IA pour des plans rédigés par l’IA ; sans clé, le planificateur intégré s’en charge.',
   'help.s.assistant.t': 'Assistant',
   'help.s.assistant.b':
     'Demandez « what should I work on? » ou tapez « add task Draft proposal p1 tomorrow for Client ». Free a 2 actions rapides ; Pro débloque le chat complet.',
@@ -1947,12 +1947,13 @@ export const fr: Record<TKey, string> = {
     'Passez à Moneo Pro : coaching prioritaire, alertes d’échéances et vos heures de pointe.',
   'pricing.title': 'Tarifs Moneo',
   'pricing.sub':
-    'Commencez gratuitement, sans carte ni compte. Pro ajoute l’assistant IA complet, une planification avancée, les exports CSV/PDF et un look personnalisé.',
+    'Commencez gratuitement, sans carte ni compte. Pro ajoute une planification avancée, l’IA avec votre propre clé (facultatif), les exports CSV/PDF et un look personnalisé.',
   'pricing.back': '← Retour à Moneo',
   'pricing.unlimited': 'Illimité',
   'pricing.row.ivy': 'Tâches prioritaires par jour (méthode Ivy Lee)',
   'pricing.row.plan': 'Plans pas à pas pour vos objectifs',
   'pricing.row.jsonExport': 'Export complet des données (JSON)',
+  'pricing.row.insights': 'Signaux personnalisés',
   'pricing.compareFeature': 'Fonction',
   'pricing.compareFree': 'Free',
   'pricing.comparePro': 'Pro',
@@ -2179,7 +2180,6 @@ export const fr: Record<TKey, string> = {
   'pricing.perMonth': 'mois',
   'pricing.perYear': 'an',
   'pricing.upgradeButton': 'Passer à Pro',
-  'pricing.trialNote': 'Annulez à tout moment. Tous les forfaits incluent 7 jours d’essai gratuit.',
   'pricing.signInAlert': 'Connectez-vous pour passer à Pro',
   'pricing.checkoutUnavailable': 'Le paiement n’est pas disponible. Contactez le support.',
   'pricing.plan.free.name': 'Gratuit',
@@ -2195,7 +2195,8 @@ export const fr: Record<TKey, string> = {
   'pricing.feature.localFirst': 'Local-first, privé par conception',
   'pricing.feature.allFree': 'Toutes les fonctions Free',
   'pricing.feature.unlimitedProjects': 'Projets, objectifs et OKR illimités',
-  'pricing.feature.fullAi': 'Assistant IA complet + tous les insights',
+  'pricing.feature.fullAi':
+    'Assistant IA avec votre propre clé (facultatif) · le planificateur intégré fonctionne aussi sans',
   'pricing.feature.reportsExport': 'Rapports, export CSV/PDF et temps facturable',
   'pricing.feature.timeBlocking': 'Blocs de temps, sprints et kanban',
   'pricing.feature.cloudSync': 'Synchro cloud entre appareils',

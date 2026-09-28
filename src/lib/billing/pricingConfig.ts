@@ -166,9 +166,14 @@ export function getComparisonRows(): ComparisonRow[] {
       pro: { kind: 'key', key: 'pricing.unlimited' },
     },
     {
-      labelKey: 'pay.plan.monthly.f2',
+      labelKey: 'pricing.row.insights',
       free: { kind: 'limit', value: FREE_LIMITS.insights },
       pro: { kind: 'key', key: 'pricing.unlimited' },
+    },
+    {
+      labelKey: 'pay.plan.monthly.f2',
+      free: { kind: 'dash' },
+      pro: { kind: 'check' },
     },
     {
       labelKey: 'pricing.row.jsonExport',

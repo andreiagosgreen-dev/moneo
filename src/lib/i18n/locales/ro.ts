@@ -127,7 +127,7 @@ export const ro: Record<TKey, string> = {
   'land.faq.title': 'Întrebări frecvente',
   'land.faq.free.q': 'Moneo e gratuit?',
   'land.faq.free.a':
-    'Da. Cronometrul de concentrare, planul zilei, 3 proiecte, obiceiurile și jurnalul sunt gratuite pentru totdeauna. Pro adaugă proiecte și obiective nelimitate, asistentul AI complet, exporturi, toate datele salvate în cont pe orice dispozitiv și altele.',
+    'Da. Cronometrul de concentrare, planul zilei, 3 proiecte, obiceiurile și jurnalul sunt gratuite pentru totdeauna. Pro adaugă proiecte și obiective nelimitate, AI cu cheia ta (opțional), exporturi, toate datele salvate în cont pe orice dispozitiv și altele.',
   'land.faq.account.q': 'Am nevoie de cont?',
   'land.faq.account.a':
     'Nu. Deschizi Moneo și începi — totul funcționează fără cont și se salvează pe acest dispozitiv. Cu un cont gratuit, în cont se salvează și sesiunile de focus, ariile și setările; cu Pro, toate datele tale.',
@@ -922,7 +922,7 @@ export const ro: Record<TKey, string> = {
 
   'pay.title': 'Treci la Pro',
   'pay.sub':
-    'Primești asistentul AI complet, proiecte și obiective nelimitate, exporturi CSV/PDF și un aspect personalizat. Sincronizarea între dispozitive include sesiunile de focus, ariile și setările.',
+    'Primești proiecte și obiective nelimitate, AI cu cheia ta (opțional), exporturi CSV/PDF și un aspect personalizat. Sincronizarea între dispozitive include sesiunile de focus, ariile și setările.',
   'pay.signin': 'Conectează-te ca să treci la Pro',
   'pay.unavailable': 'Plata nu e disponibilă momentan. Scrie-ne la suport.',
   'pay.current': 'Actual',
@@ -950,7 +950,7 @@ export const ro: Record<TKey, string> = {
   'pay.plan.monthly.f0': 'Tot ce e în Free',
   'pay.plan.monthly.f1': 'Proiecte, obiective și OKR-uri nelimitate',
   'pay.plan.monthly.f2':
-    'Asistent AI complet, toate semnalele personalizate și planuri cu propria cheie AI (opțional)',
+    'Asistent AI cu cheia ta (opțional) · planificatorul integrat funcționează și fără',
   'pay.plan.monthly.f3': 'Export rapoarte în CSV (Excel) și PDF',
   'pay.plan.monthly.f4':
     'Blocuri de timp în calendar, grafice de sprint și limite de lucru pe kanban',
@@ -1017,7 +1017,7 @@ export const ro: Record<TKey, string> = {
     'Obiectivele cascadează Viziune → Săptămânal cu adunare automată; generează sarcini de pornire sau trimite una în planul de azi. OKR-urile urmăresc rezultate cheie trimestriale cu slidere.',
   'help.s.aipath.t': 'Cale AI',
   'help.s.aipath.b':
-    'Tabul Plan: descrie un obiectiv sau o abilitate, răspunde la max 3 întrebări, verifică draftul vizual, apoi aprobă. Maximum un proiect și 20 de sarcini per aprobare; drafturile săptămânii nu umplu niciodată ziua. Pregătirea automată e opțională. După sesiuni, feedback-ul în 4 atingeri reglează estimările.',
+    'Tabul Plan: descrie un obiectiv sau o abilitate, răspunde la max 3 întrebări, verifică draftul vizual, apoi aprobă. Maximum un proiect și 20 de sarcini per aprobare; drafturile săptămânii nu umplu niciodată ziua. Pregătirea automată e opțională. După sesiuni, feedback-ul în 4 atingeri reglează estimările. Cu Pro poți adăuga propria cheie AI pentru planuri scrise de AI; fără cheie, planificatorul integrat le face singur.',
   'help.s.assistant.t': 'Asistent',
   'help.s.assistant.b':
     'Întreabă „what should I work on?” sau scrie „add task Draft proposal p1 tomorrow for Client”. Gratis primește 2 acțiuni rapide; Pro deblochează chat complet.',
@@ -1935,12 +1935,13 @@ export const ro: Record<TKey, string> = {
     'Treci la Moneo Pro pentru coaching prioritar, alerte de scadențe și fereastra ta de focus maxim.',
   'pricing.title': 'Prețuri Moneo',
   'pricing.sub':
-    'Începe gratuit, fără card și fără cont. Pro îți aduce asistentul AI complet, planificare avansată, exporturi CSV/PDF și un aspect personalizat.',
+    'Începe gratuit, fără card și fără cont. Pro îți aduce planificare avansată, AI cu cheia ta (opțional), exporturi CSV/PDF și un aspect personalizat.',
   'pricing.back': '← Înapoi la Moneo',
   'pricing.unlimited': 'Nelimitat',
   'pricing.row.ivy': 'Sarcini prioritare pe zi (metoda Ivy Lee)',
   'pricing.row.plan': 'Planuri pas cu pas pentru obiective',
   'pricing.row.jsonExport': 'Export complet al datelor (JSON)',
+  'pricing.row.insights': 'Semnale personalizate',
   'pricing.compareFeature': 'Funcție',
   'pricing.compareFree': 'Gratuit',
   'pricing.comparePro': 'Pro',
@@ -2166,7 +2167,6 @@ export const ro: Record<TKey, string> = {
   'pricing.perMonth': 'lună',
   'pricing.perYear': 'an',
   'pricing.upgradeButton': 'Treci la Pro',
-  'pricing.trialNote': 'Anulezi oricând. Toate planurile includ 7 zile de probă gratuită.',
   'pricing.signInAlert': 'Conectează-te ca să treci la Pro',
   'pricing.checkoutUnavailable': 'Checkout indisponibil momentan. Contactează suportul.',
   'pricing.plan.free.name': 'Gratuit',
@@ -2182,7 +2182,8 @@ export const ro: Record<TKey, string> = {
   'pricing.feature.localFirst': 'Local-first, privat prin design',
   'pricing.feature.allFree': 'Toate funcțiile Free',
   'pricing.feature.unlimitedProjects': 'Proiecte, scopuri și OKR-uri nelimitate',
-  'pricing.feature.fullAi': 'Asistent AI complet + toate insight-urile',
+  'pricing.feature.fullAi':
+    'Asistent AI cu cheia ta (opțional) · planificatorul integrat funcționează și fără',
   'pricing.feature.reportsExport': 'Rapoarte, export CSV/PDF și timp facturabil',
   'pricing.feature.timeBlocking': 'Blocuri de timp, sprinturi și kanban',
   'pricing.feature.cloudSync': 'Sincronizare cloud pe toate dispozitivele',
