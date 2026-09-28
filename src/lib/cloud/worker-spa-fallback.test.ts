@@ -1,8 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
+  KNOWN_CLIENT_ROUTE_LIST,
+  getCacheControl,
+  getContentType,
+  isKnownClientRoute,
   isStaticAssetPath,
   isRevalidateAlwaysPath,
 } from '../../../cloudflare/workers/staticAssetPath';
+import { LEGAL_PATHS } from '../legal/seller';
+import { LANDING_PATH } from '../landing';
+import appSource from '../../App.tsx?raw';
 
 describe('isStaticAssetPath', () => {
   it('treats hashed build assets as static (no SPA HTML fallback)', () => {
@@ -35,5 +42,60 @@ describe('isRevalidateAlwaysPath', () => {
   it('leaves hashed assets on immutable long-cache', () => {
     expect(isRevalidateAlwaysPath('/assets/index-BED1igKF.js')).toBe(false);
     expect(isRevalidateAlwaysPath('/icon-192.png')).toBe(false);
+  });
+});
+
+describe('getContentType', () => {
+  it('serves SEO files as text, not octet-stream', () => {
+    expect(getContentType('/sitemap.xml')).toBe('application/xml; charset=utf-8');
+    expect(getContentType('/robots.txt')).toBe('text/plain; charset=utf-8');
+  });
+
+  it('keeps web app manifest and build asset types', () => {
+    expect(getContentType('/manifest.webmanifest')).toBe('application/manifest+json');
+    expect(getContentType('/assets/index-BED1igKF.js')).toBe('application/javascript');
+    expect(getContentType('/index.html')).toBe('text/html');
+    expect(getContentType('/favicon.ico')).toBe('image/x-icon');
+    expect(getContentType('/no-extension')).toBe('application/octet-stream');
+  });
+});
+
+describe('getCacheControl', () => {
+  it('caches sitemap and robots for one hour, not immutable', () => {
+    expect(getCacheControl('/sitemap.xml')).toBe('public, max-age=3600');
+    expect(getCacheControl('/robots.txt')).toBe('public, max-age=3600');
+  });
+
+  it('revalidates the shell and keeps hashed assets immutable', () => {
+    expect(getCacheControl('/index.html')).toBe('public, max-age=0, must-revalidate');
+    expect(getCacheControl('/manifest.webmanifest')).toBe('public, max-age=0, must-revalidate');
+    expect(getCacheControl('/assets/index-BED1igKF.js')).toBe(
+      'public, max-age=31536000, immutable',
+    );
+  });
+});
+
+describe('isKnownClientRoute', () => {
+  it('accepts router paths, tolerating trailing slash and case', () => {
+    expect(isKnownClientRoute('/')).toBe(true);
+    expect(isKnownClientRoute('/welcome')).toBe(true);
+    expect(isKnownClientRoute('/pricing/')).toBe(true);
+    expect(isKnownClientRoute('/Account')).toBe(true);
+    expect(isKnownClientRoute('/account/calendar-callback')).toBe(true);
+    expect(isKnownClientRoute('/reset-password')).toBe(true);
+  });
+
+  it('rejects unknown paths so the shell is served as 404', () => {
+    expect(isKnownClientRoute('/nope')).toBe(false);
+    expect(isKnownClientRoute('/wp-admin')).toBe(false);
+    expect(isKnownClientRoute('/account/other')).toBe(false);
+    expect(isKnownClientRoute('/pricing/extra')).toBe(false);
+  });
+
+  it('covers every route declared in the app router', () => {
+    const declared = [...appSource.matchAll(/path="(\/[^"]*)"/g)].map((m) => m[1]);
+    expect(declared.length).toBeGreaterThan(0);
+    const expected = new Set(['/', LANDING_PATH, ...Object.values(LEGAL_PATHS), ...declared]);
+    expect(new Set(KNOWN_CLIENT_ROUTE_LIST)).toEqual(expected);
   });
 });

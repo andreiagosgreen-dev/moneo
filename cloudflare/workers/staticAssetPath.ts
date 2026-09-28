@@ -42,3 +42,70 @@ export function isRevalidateAlwaysPath(filePath: string): boolean {
     filePath === '/index.html' || filePath === '/sw.js' || filePath === '/manifest.webmanifest'
   );
 }
+
+/** Unhashed SEO files: crawlers should see edits within the hour. */
+const HOURLY_CACHE_PATHS = new Set(['/sitemap.xml', '/robots.txt']);
+
+const CONTENT_TYPES: Record<string, string> = {
+  html: 'text/html',
+  css: 'text/css',
+  js: 'application/javascript',
+  mjs: 'application/javascript',
+  json: 'application/json',
+  map: 'application/json',
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  svg: 'image/svg+xml',
+  ico: 'image/x-icon',
+  woff: 'font/woff',
+  woff2: 'font/woff2',
+  ttf: 'font/ttf',
+  otf: 'font/otf',
+  wasm: 'application/wasm',
+  webmanifest: 'application/manifest+json',
+  xml: 'application/xml; charset=utf-8',
+  txt: 'text/plain; charset=utf-8',
+};
+
+export function getContentType(filePath: string): string {
+  const base = filePath.split('/').pop() || '';
+  const dot = base.lastIndexOf('.');
+  const ext = dot > 0 ? base.slice(dot + 1).toLowerCase() : '';
+  return CONTENT_TYPES[ext] || 'application/octet-stream';
+}
+
+export function getCacheControl(filePath: string): string {
+  if (isRevalidateAlwaysPath(filePath)) return 'public, max-age=0, must-revalidate';
+  if (HOURLY_CACHE_PATHS.has(filePath)) return 'public, max-age=3600';
+  return 'public, max-age=31536000, immutable';
+}
+
+/**
+ * Every path the SPA router renders on purpose (`src/App.tsx` routes plus
+ * `/welcome` from `src/main.tsx`). Anything else still gets the SPA shell,
+ * but with status 404 so crawlers don't index junk URLs.
+ */
+const KNOWN_CLIENT_ROUTES = new Set([
+  '/',
+  '/welcome',
+  '/help',
+  '/pricing',
+  '/login',
+  '/reset-password',
+  '/account',
+  '/account/calendar-callback',
+  '/terms',
+  '/privacy',
+  '/refund',
+]);
+
+export const KNOWN_CLIENT_ROUTE_LIST: readonly string[] = [...KNOWN_CLIENT_ROUTES];
+
+/** React Router matches case-insensitively and ignores a trailing slash. */
+export function isKnownClientRoute(pathname: string): boolean {
+  const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+  return KNOWN_CLIENT_ROUTES.has((path || '/').toLowerCase());
+}

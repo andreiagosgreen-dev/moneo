@@ -35,7 +35,12 @@ import {
   mergeHeaders,
   canonicalRedirect,
 } from './security';
-import { isStaticAssetPath, isRevalidateAlwaysPath } from './staticAssetPath';
+import {
+  getCacheControl,
+  getContentType,
+  isKnownClientRoute,
+  isStaticAssetPath,
+} from './staticAssetPath';
 
 export { isStaticAssetPath } from './staticAssetPath';
 
@@ -230,16 +235,12 @@ export default {
     const object = await env.R2_BUCKET?.get(r2Key);
 
     if (object) {
-      const contentType = getContentType(filePath);
-
       return new Response(object.body, {
         headers: mergeHeaders(SEC, cors, {
-          'Content-Type': contentType,
+          'Content-Type': getContentType(filePath),
           // index.html + SW + manifest must revalidate so clients pick up
           // new builds; hashed assets stay immutable.
-          'Cache-Control': isRevalidateAlwaysPath(filePath)
-            ? 'public, max-age=0, must-revalidate'
-            : 'public, max-age=31536000, immutable',
+          'Cache-Control': getCacheControl(filePath),
         }),
       });
     }
@@ -256,10 +257,12 @@ export default {
       });
     }
 
-    // SPA fallback: return index.html for client routes (e.g. /privacy, /terms)
+    // SPA fallback: return index.html for client routes (e.g. /privacy, /terms).
+    // Unknown paths still get the shell (the app renders), but as a 404.
     const indexObject = await env.R2_BUCKET?.get('index.html');
     if (indexObject) {
       return new Response(indexObject.body, {
+        status: isKnownClientRoute(url.pathname) ? 200 : 404,
         headers: mergeHeaders(SEC, cors, {
           'Content-Type': 'text/html',
           'Cache-Control': 'public, max-age=0, must-revalidate',
@@ -273,21 +276,3 @@ export default {
     });
   },
 };
-
-function getContentType(filePath: string): string {
-  const ext = filePath.split('.').pop()?.toLowerCase();
-  const contentTypes: Record<string, string> = {
-    html: 'text/html',
-    css: 'text/css',
-    js: 'application/javascript',
-    json: 'application/json',
-    png: 'image/png',
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    svg: 'image/svg+xml',
-    woff: 'font/woff',
-    woff2: 'font/woff2',
-    webmanifest: 'application/manifest+json',
-  };
-  return contentTypes[ext || ''] || 'application/octet-stream';
-}
