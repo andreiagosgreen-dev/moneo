@@ -1,8 +1,13 @@
 /* The full app, loaded on demand so the public landing page stays light.
- * Core Mono fonts (Inter + Literata) are in main.tsx; the rest — Cal Sans,
- * JetBrains Mono and the Pro font packs — ship with the app chunk. */
-import '@fontsource/cal-sans/400.css';
+ * main.tsx only loads the faces the landing renders (Inter 400/600, Literata
+ * 600); the remaining core weights, Cal Sans, JetBrains Mono and the Pro font
+ * packs ship with the app chunk. */
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/700.css';
 import '@fontsource/inter/800.css';
+import '@fontsource/literata/400.css';
+import '@fontsource/literata/500.css';
+import '@fontsource/cal-sans/400.css';
 import '@fontsource/jetbrains-mono/400.css';
 import '@fontsource/jetbrains-mono/500.css';
 import '@fontsource/jetbrains-mono/600.css';

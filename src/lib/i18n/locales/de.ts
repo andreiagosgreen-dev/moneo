@@ -921,7 +921,7 @@ export const de: Record<TKey, string> = {
 
   'pay.title': 'Upgrade auf Pro',
   'pay.sub':
-    'Unbegrenzte Projekte und Ziele, KI mit eigenem Schlüssel (optional), CSV/PDF-Exporte und ein individueller Look. Der Abgleich zwischen Geräten umfasst Fokussitzungen, Bereiche und Einstellungen.',
+    'Unbegrenzte Projekte und Ziele, KI mit eigenem Schlüssel (optional), CSV/PDF-Exporte und ein individueller Look. Alle deine Daten — Projekte, Aufgaben, Gewohnheiten, Journal, Lebenskarte, Ziele und Pläne — werden in deinem Konto gespeichert und zwischen Geräten abgeglichen.',
   'pay.signin': 'Melde dich an für Pro-Upgrade',
   'pay.unavailable': 'Bezahlung gerade nicht möglich. Bitte kontaktiere den Support.',
   'pay.current': 'Aktuell',

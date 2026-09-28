@@ -920,7 +920,7 @@ export const fr: Record<TKey, string> = {
 
   'pay.title': 'Passer à Pro',
   'pay.sub':
-    'Profitez de projets et objectifs illimités, de l’IA avec votre propre clé (facultatif), des exports CSV/PDF et d’un look personnalisé. La synchronisation entre appareils couvre vos sessions de focus, zones et réglages.',
+    'Profitez de projets et objectifs illimités, de l’IA avec votre propre clé (facultatif), des exports CSV/PDF et d’un look personnalisé. Toutes vos données — projets, tâches, habitudes, journal, carte de vie, objectifs et plans — sont enregistrées dans votre compte et synchronisées entre appareils.',
   'pay.signin': 'Connectez-vous pour passer à Pro',
   'pay.unavailable': 'Paiement indisponible pour le moment. Contactez le support.',
   'pay.current': 'Actuel',

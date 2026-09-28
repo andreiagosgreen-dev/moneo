@@ -922,7 +922,7 @@ export const ro: Record<TKey, string> = {
 
   'pay.title': 'Treci la Pro',
   'pay.sub':
-    'Primești proiecte și obiective nelimitate, AI cu cheia ta (opțional), exporturi CSV/PDF și un aspect personalizat. Sincronizarea între dispozitive include sesiunile de focus, ariile și setările.',
+    'Primești proiecte și obiective nelimitate, AI cu cheia ta (opțional), exporturi CSV/PDF și un aspect personalizat. Toate datele tale — proiecte, sarcini, obiceiuri, jurnal, harta vieții, obiective și planuri — se salvează în cont și se sincronizează între dispozitive.',
   'pay.signin': 'Conectează-te ca să treci la Pro',
   'pay.unavailable': 'Plata nu e disponibilă momentan. Scrie-ne la suport.',
   'pay.current': 'Actual',

@@ -3,10 +3,53 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// Above-the-fold faces on the landing: hero title (Literata 600) and body copy
+// (Inter 400). Latin subset only — other subsets still load via unicode-range.
+const PRELOAD_FONTS = [
+  /\/literata-latin-600-normal-[\w-]+\.woff2$/,
+  /\/inter-latin-400-normal-[\w-]+\.woff2$/,
+];
+
+function preloadLandingFonts() {
+  let base = '/';
+  return {
+    name: 'moneo-preload-landing-fonts',
+    apply: 'build',
+    configResolved(config) {
+      base = config.base;
+    },
+    transformIndexHtml: {
+      order: 'post',
+      handler(_html, ctx) {
+        if (!ctx.bundle) return [];
+        const files = Object.keys(ctx.bundle);
+        return PRELOAD_FONTS.flatMap((re) => {
+          const file = files.find((f) => re.test(`/${f}`));
+          if (!file) return [];
+          return [
+            {
+              tag: 'link',
+              attrs: {
+                rel: 'preload',
+                as: 'font',
+                type: 'font/woff2',
+                href: `${base}${file}`,
+                crossorigin: '',
+              },
+              injectTo: 'head',
+            },
+          ];
+        });
+      },
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    preloadLandingFonts(),
     VitePWA({
       registerType: 'autoUpdate',
       // includeAssets / manifest icons bypass workbox.globIgnores, so only list

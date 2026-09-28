@@ -927,7 +927,7 @@ export const es: Record<TKey, string> = {
 
   'pay.title': 'Pasa a Pro',
   'pay.sub':
-    'Obtén proyectos y metas ilimitados, IA con tu propia clave (opcional), exportaciones CSV/PDF y un aspecto a tu gusto. La sincronización entre dispositivos incluye tus sesiones de foco, áreas y ajustes.',
+    'Obtén proyectos y metas ilimitados, IA con tu propia clave (opcional), exportaciones CSV/PDF y un aspecto a tu gusto. Todos tus datos — proyectos, tareas, hábitos, diario, mapa de vida, metas y planes — se guardan en tu cuenta y se sincronizan entre dispositivos.',
   'pay.signin': 'Inicia sesión para pasar a Pro',
   'pay.unavailable': 'El pago no está disponible ahora. Escríbenos a soporte.',
   'pay.current': 'Actual',

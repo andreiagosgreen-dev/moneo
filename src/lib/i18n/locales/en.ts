@@ -929,7 +929,7 @@ export const en = {
 
   'pay.title': 'Upgrade to Pro',
   'pay.sub':
-    'Get unlimited projects and goals, AI with your own key (optional), CSV/PDF exports and a personalized look. Sync between devices covers your focus sessions, areas and settings.',
+    'Get unlimited projects and goals, AI with your own key (optional), CSV/PDF exports and a personalized look. All your data — projects, tasks, habits, journal, life map, goals and plans — is saved to your account and synced between devices.',
   'pay.signin': 'Please sign in to upgrade to Pro',
   'pay.unavailable': 'Payment isn’t available right now. Please contact support.',
   'pay.current': 'Current',
