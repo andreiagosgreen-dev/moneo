@@ -2079,7 +2079,7 @@ export const en = {
   'account.deleteAccount': 'Delete account',
   'account.deleteConfirmTitle': 'Delete your account?',
   'account.deleteConfirmBody':
-    'This permanently deletes your account — you won’t be able to sign in again — plus all synced data (sessions, areas, settings, subscription). This can’t be undone.',
+    'This permanently deletes your account — you won’t be able to sign in again — and all data saved in it (sessions, areas, settings, subscription and, on Pro, your projects, tasks, habits, journal and the rest of your planning). This can’t be undone.',
   'account.cancel': 'Cancel',
   'account.openCabinet': 'Open my cabinet',
   'account.subscriptionStatus': 'Subscription',

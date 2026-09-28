@@ -2076,7 +2076,7 @@ export const es: Record<TKey, string> = {
   'account.deleteAccount': 'Eliminar cuenta',
   'account.deleteConfirmTitle': '¿Eliminar tu cuenta?',
   'account.deleteConfirmBody':
-    'Esto elimina tu cuenta de forma permanente — no podrás volver a iniciar sesión — además de todos los datos sincronizados (sesiones, áreas, ajustes, suscripción). No se puede deshacer.',
+    'Esto elimina tu cuenta de forma permanente — no podrás volver a iniciar sesión — y todos los datos guardados en ella (sesiones, áreas, ajustes, suscripción y, con Pro, tus proyectos, tareas, hábitos, diario y el resto de tu planificación). No se puede deshacer.',
   'account.cancel': 'Cancelar',
   'account.openCabinet': 'Abrir mi gabinete',
   'account.subscriptionStatus': 'Suscripción',

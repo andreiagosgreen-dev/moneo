@@ -2088,7 +2088,7 @@ export const it: Record<TKey, string> = {
   'account.deleteAccount': 'Elimina account',
   'account.deleteConfirmTitle': 'Eliminare il tuo account?',
   'account.deleteConfirmBody':
-    'Questo elimina definitivamente il tuo account — non potrai più accedere — oltre a tutti i dati sincronizzati (sessioni, aree, impostazioni, abbonamento). Non può essere annullato.',
+    'Questo elimina definitivamente il tuo account — non potrai più accedere — e tutti i dati salvati al suo interno (sessioni, aree, impostazioni, abbonamento e, con Pro, i tuoi progetti, attività, abitudini, diario e il resto della pianificazione). Non può essere annullato.',
   'account.cancel': 'Annulla',
   'account.openCabinet': 'Apri il mio spazio',
   'account.subscriptionStatus': 'Abbonamento',

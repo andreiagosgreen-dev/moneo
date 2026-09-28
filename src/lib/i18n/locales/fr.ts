@@ -2100,7 +2100,7 @@ export const fr: Record<TKey, string> = {
   'account.deleteAccount': 'Supprimer le compte',
   'account.deleteConfirmTitle': 'Supprimer votre compte ?',
   'account.deleteConfirmBody':
-    'Cela supprime définitivement votre compte — vous ne pourrez plus vous reconnecter — ainsi que toutes les données synchronisées (sessions, zones, paramètres, abonnement). Cette action est irréversible.',
+    'Cela supprime définitivement votre compte — vous ne pourrez plus vous reconnecter — ainsi que toutes les données qui y sont enregistrées (sessions, zones, paramètres, abonnement et, avec Pro, vos projets, tâches, habitudes, journal et le reste de votre planification). Cette action est irréversible.',
   'account.cancel': 'Annuler',
   'account.openCabinet': 'Ouvrir mon espace',
   'account.subscriptionStatus': 'Abonnement',

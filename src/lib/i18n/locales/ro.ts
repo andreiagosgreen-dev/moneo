@@ -2087,7 +2087,7 @@ export const ro: Record<TKey, string> = {
   'account.deleteAccount': 'Șterge contul',
   'account.deleteConfirmTitle': 'Ștergi contul?',
   'account.deleteConfirmBody':
-    'Această acțiune șterge definitiv contul tău — nu te vei mai putea conecta — plus toate datele sincronizate (sesiuni, arii, setări, abonament). Nu poate fi anulată.',
+    'Această acțiune șterge definitiv contul tău — nu te vei mai putea conecta — și toate datele salvate în el (sesiuni, arii, setări, abonament și, pentru Pro, proiectele, sarcinile, obiceiurile, jurnalul și restul planificării). Nu poate fi anulată.',
   'account.cancel': 'Anulează',
   'account.openCabinet': 'Deschide cabinetul meu',
   'account.subscriptionStatus': 'Abonament',
