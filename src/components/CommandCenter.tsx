@@ -89,7 +89,7 @@ export default function CommandCenter({
   return (
     <section className="card px-5 py-5 sm:px-6" aria-label={t('commandCenter.title')}>
       <header className="flex items-baseline justify-between gap-2">
-        <div>
+        <div className="min-w-0">
           <p className="text-[13px] font-semibold uppercase tracking-[0.08em] text-accent">
             {t('commandCenter.title')}
           </p>

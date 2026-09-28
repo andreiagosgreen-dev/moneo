@@ -535,7 +535,6 @@
   font-size: 12px;
   opacity: 0.85;
 }
-
 .mono-h2 {
   font-family: var(--mono-font-display);
   font-size: 21px;
@@ -1024,6 +1023,12 @@
 .mono-pad {
   padding-inline: 20px;
 }
+/* Same inset as .mono-pad on phones/tablets; the desktop rail layout already has its gutter. */
+@media (max-width: 1023px) {
+  .mono-pad-mobile {
+    padding-inline: 20px;
+  }
+}
 .mono-sec {
   margin-top: 22px;
 }
@@ -1232,6 +1237,27 @@
   stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+.mono-nav-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Below 360px the 1fr grid can't fit six labels (ru/fr pushed "More" off-screen).
+   Flex rows size to the label, share leftover space and only ellipsize as a last resort. */
+@media (max-width: 359px) {
+  .mono-nav {
+    display: flex;
+    gap: 0;
+    padding-inline: 4px;
+  }
+  .mono-nav-item {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 11px;
+    letter-spacing: 0;
+  }
 }
 .mono-nav-item.active {
   color: var(--mono-accent);

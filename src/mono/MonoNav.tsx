@@ -132,7 +132,7 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette }: Pro
               className={`mono-nav-item${on ? ' active' : ''}${it.deskOnly ? ' is-desk-only' : ''}${it.id === 'more' ? ' is-mobile-more' : ''}`}
             >
               <svg viewBox="0 0 24 24" aria-hidden dangerouslySetInnerHTML={{ __html: it.icon }} />
-              {t(it.label)}
+              <span className="mono-nav-label">{t(it.label)}</span>
             </button>
           );
         })}

@@ -240,7 +240,7 @@ export default function MonoAzi({
 
       {habits}
 
-      {more}
+      {more ? <div className="mono-pad-mobile">{more}</div> : null}
     </div>
   );
 }

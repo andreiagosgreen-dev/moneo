@@ -308,7 +308,7 @@ export default function GoalsCard({
 
       {!atCapacity ? (
         <div className="mt-3 space-y-2">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
             <input
               type="text"
               value={draft}
@@ -317,7 +317,7 @@ export default function GoalsCard({
               onKeyDown={(e) => e.key === 'Enter' && add()}
               placeholder={t('goal.ph')}
               aria-label={t('goal.add')}
-              className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
+              className="h-9 min-w-0 grow basis-full rounded-lg sm:basis-0 bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
             />
             <select
               value={draftLevel}
@@ -325,7 +325,7 @@ export default function GoalsCard({
                 setDraftLevel(e.target.value as GoalLevel);
                 setDraftParent('');
               }}
-              className="h-9 shrink-0 rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+              className="h-9 min-w-0 grow rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none sm:shrink-0 sm:grow-0"
               aria-label={t('goal.level')}
             >
               {GOAL_LEVELS.map((l) => (
