@@ -1259,6 +1259,18 @@
     letter-spacing: 0;
   }
 }
+/* 360–399px: six 1fr columns are ~56px, so "Proiecte"/"Rapoarte" at 13px touch the edges. */
+@media (min-width: 360px) and (max-width: 399px) {
+  .mono-nav {
+    gap: 0;
+    padding-inline: 4px;
+  }
+  .mono-nav-item {
+    padding-inline: 1px;
+    font-size: 12px;
+    letter-spacing: 0;
+  }
+}
 .mono-nav-item.active {
   color: var(--mono-accent);
   background: var(--mono-accent-soft);

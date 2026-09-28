@@ -4,14 +4,11 @@ import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom';
 import './index.css';
 import './mono/tokens.css';
 import './mono/mono.css';
-/* Core Mono fonts (Fontsource, bundled locally — offline + PWA safe). The
- * remaining families ship with the app chunk (AppRoot.tsx). */
+/* Only the faces the landing renders (Fontsource, bundled locally — offline +
+ * PWA safe); vite.config.js preloads two of them. Every other weight and
+ * family ships with the app chunk (AppRoot.tsx). */
 import '@fontsource/inter/400.css';
-import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
-import '@fontsource/inter/700.css';
-import '@fontsource/literata/400.css';
-import '@fontsource/literata/500.css';
 import '@fontsource/literata/600.css';
 import AppErrorBoundary from './components/AppErrorBoundary';
 import { initErrorReporting } from './lib/errorReporting';

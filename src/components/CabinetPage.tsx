@@ -1,7 +1,6 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import BrandMark from './BrandMark';
-import PricingCard from './PricingCard';
 import NotificationsSettings from './NotificationsSettings';
 import SyncPanel from './account/SyncPanel';
 import GoogleCalendarConnect from './account/GoogleCalendarConnect';
@@ -25,6 +24,7 @@ import { loadAtmosphere, resolveAtmosphere } from '../mono/atmosphere';
 import MonoCloudSync from '../mono/MonoCloudSync';
 
 const MonoRankCard = lazy(() => import('../mono/MonoRankCard'));
+const PricingCard = lazy(() => import('./PricingCard'));
 
 function Spinner() {
   return (
@@ -192,7 +192,9 @@ export default function CabinetPage() {
             </div>
           )}
           <div className="mt-4">
-            <PricingCard />
+            <Suspense fallback={null}>
+              <PricingCard />
+            </Suspense>
           </div>
         </section>
 
