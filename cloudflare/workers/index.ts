@@ -12,13 +12,7 @@
  */
 
 import { handleAccountDelete } from './account';
-import { classifySubscriptionEvent } from './billing';
-import {
-  accessPeriodEnd,
-  normalizeStatus,
-  resolvePlanId,
-  type LemonSubscriptionAttributes,
-} from './subscriptionAccess';
+import { handleLemonSqueezyWebhook } from './lemonWebhook';
 import { handleCustomerPortal } from './portal';
 import { handleAIPlan } from './ai';
 import {
@@ -35,12 +29,9 @@ import {
 } from './focusBuddy';
 import { handleSyncRecords } from './proSync';
 import {
-  MAX_WEBHOOK_BODY_BYTES,
   buildSecurityHeaders,
   clientIp,
-  createDeduper,
   createRateLimiter,
-  declaredBodyTooLarge,
   mergeHeaders,
   canonicalRedirect,
 } from './security';
@@ -57,8 +48,6 @@ const calendarEventsLimiter = createRateLimiter({ windowMs: 60_000, max: 20 });
 const buddyLimiter = createRateLimiter({ windowMs: 60_000, max: 20 });
 /** Pro sync pushes are debounced client-side; a first upload is a handful of batches. */
 const syncLimiter = createRateLimiter({ windowMs: 60_000, max: 60 });
-/** Webhook replay window: same (event, subscription) applies once per hour. */
-const webhookDeduper = createDeduper(3_600_000);
 
 const SEC = buildSecurityHeaders();
 
@@ -99,6 +88,8 @@ export interface Env {
   /** Comma-separated Lemon variant/product ids per interval (public, not secrets). */
   LEMON_YEARLY_IDS?: string;
   LEMON_MONTHLY_IDS?: string;
+  /** "true" lets Lemon test-mode webhooks grant Pro; anything else ignores them. */
+  ALLOW_TEST_MODE?: string;
 }
 
 const DEFAULT_ALLOWED_ORIGINS = 'https://moneo.bond';
@@ -282,141 +273,6 @@ export default {
     });
   },
 };
-
-async function handleLemonSqueezyWebhook(request: Request, env: Env): Promise<Response> {
-  // Fail closed: never process unsigned payloads.
-  if (!env.LEMON_SQUEEZY_WEBHOOK_SECRET) {
-    return api({ error: 'Webhook not configured' }, 503);
-  }
-
-  // Faza 5A: cheap pre-read size gate (chunked/lying senders are re-checked
-  // after the read below).
-  if (declaredBodyTooLarge(request, MAX_WEBHOOK_BODY_BYTES)) {
-    return api({ error: 'Payload too large' }, 413);
-  }
-
-  const rawBody = await request.text();
-  if (rawBody.length > MAX_WEBHOOK_BODY_BYTES) {
-    return api({ error: 'Payload too large' }, 413);
-  }
-  const signature = request.headers.get('x-signature');
-
-  const isValid = await verifyLemonSqueezySignature(
-    rawBody,
-    signature,
-    env.LEMON_SQUEEZY_WEBHOOK_SECRET,
-  );
-  if (!isValid) {
-    return api({ error: 'Invalid signature' }, 401);
-  }
-
-  let payload: any;
-  try {
-    payload = JSON.parse(rawBody);
-  } catch {
-    return api({ error: 'Invalid JSON' }, 400);
-  }
-
-  // Faza 0.3: only subscription-lifecycle events may write. Malformed
-  // payloads are rejected (not retryable); anything else is acknowledged
-  // without side effects so retries stay idempotent.
-  const classified = classifySubscriptionEvent(payload);
-  if (classified.action === 'reject') {
-    return api({ error: classified.reason ?? 'Invalid payload' }, 400);
-  }
-
-  const eventName = payload?.meta?.event_name;
-  if (classified.action === 'ignore') {
-    return api({ ok: true, ignored: eventName }, 200);
-  }
-
-  // Faza 5A: replay best-effort — the same (event, subscription) applies
-  // once per window even if Lemon Squeezy (or an attacker replaying a
-  // captured valid request) delivers it again.
-  const subscriptionRef = String(payload?.data?.id ?? '');
-  if (!webhookDeduper(`${eventName}:${subscriptionRef}`)) {
-    return api({ ok: true, deduped: true }, 200);
-  }
-
-  const customData = payload?.meta?.custom_data;
-  const userId = customData?.user_id;
-
-  if (!userId) {
-    return api({ ok: true, message: 'No custom user_id in payload, skipping' }, 200);
-  }
-
-  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
-    // Logged by the platform; respond 500 so the sender retries once
-    // the service role credentials are provisioned.
-    return api({ error: 'Database not configured' }, 500);
-  }
-
-  const data = payload?.data;
-  const attrs: LemonSubscriptionAttributes = data?.attributes || {};
-  const planId = resolvePlanId(attrs, {
-    yearlyIds: env.LEMON_YEARLY_IDS,
-    monthlyIds: env.LEMON_MONTHLY_IDS,
-  });
-
-  try {
-    const response = await fetch(`${env.SUPABASE_URL}/rest/v1/subscriptions`, {
-      method: 'POST',
-      headers: {
-        apikey: env.SUPABASE_SERVICE_ROLE_KEY,
-        Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'resolution=merge-duplicates',
-      },
-      body: JSON.stringify({
-        user_id: userId,
-        lemon_customer_id: String(attrs.customer_id || ''),
-        lemon_subscription_id: String(data?.id || ''),
-        status: normalizeStatus(attrs.status),
-        plan_id: planId,
-        current_period_end: accessPeriodEnd(attrs),
-        updated_at: new Date().toISOString(),
-      }),
-    });
-
-    if (response.status === 409) {
-      // FK miss: the account is gone (e.g. the cancellation its deletion
-      // triggered). Acknowledge so Lemon stops retrying.
-      return api({ ok: true, skipped: 'unknown user' }, 200);
-    }
-    if (!response.ok) {
-      // Faza 5A: never echo upstream bodies to the webhook caller.
-      return api({ error: 'Upstream update failed' }, 500);
-    }
-  } catch {
-    return api({ error: 'Database error' }, 500);
-  }
-
-  return api({ ok: true, event: eventName, user_id: userId }, 200);
-}
-
-async function verifyLemonSqueezySignature(
-  rawBody: string,
-  signatureHeader: string | null,
-  secret: string,
-): Promise<boolean> {
-  if (!signatureHeader || !secret) return false;
-  try {
-    const encoder = new TextEncoder();
-    const key = await crypto.subtle.importKey(
-      'raw',
-      encoder.encode(secret),
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['verify'],
-    );
-    const sigBytes = new Uint8Array(
-      signatureHeader.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || [],
-    );
-    return await crypto.subtle.verify('HMAC', key, sigBytes, encoder.encode(rawBody));
-  } catch {
-    return false;
-  }
-}
 
 function getContentType(filePath: string): string {
   const ext = filePath.split('.').pop()?.toLowerCase();

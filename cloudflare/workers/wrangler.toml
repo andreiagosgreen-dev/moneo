@@ -41,6 +41,10 @@ SUPABASE_URL = "https://yvkguiiqojwyosvkxzbt.supabase.co"
 # the checkout page). Fallback when unset: "Yearly"/"Monthly" in product name.
 LEMON_YEARLY_IDS = "2156050,1380216"
 LEMON_MONTHLY_IDS = "2156059,1380224"
+# Lemon test-mode webhooks (`meta.test_mode: true`) are acknowledged without
+# granting Pro. Set to "true" only while testing checkout in Lemon Test mode,
+# then back to "false" and redeploy.
+ALLOW_TEST_MODE = "false"
 
 # KV namespace for caching
 [[kv_namespaces]]

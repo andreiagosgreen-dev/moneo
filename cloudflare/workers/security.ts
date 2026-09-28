@@ -144,6 +144,36 @@ export function createDeduper(
   };
 }
 
+export interface ReplayGuard {
+  /** True when the key was marked inside the TTL. */
+  seen(key: string, now?: number): boolean;
+  mark(key: string, now?: number): void;
+}
+
+/**
+ * Two-phase replay guard: callers check `seen` first and `mark` only once
+ * the side effect succeeded, so a failed write never swallows the retry.
+ */
+export function createReplayGuard(ttlMs: number, maxKeys = 5000): ReplayGuard {
+  const marked = new Map<string, number>();
+  return {
+    seen(key: string, now: number = Date.now()): boolean {
+      const prev = marked.get(key);
+      return prev !== undefined && now - prev < ttlMs;
+    },
+    mark(key: string, now: number = Date.now()): void {
+      marked.set(key, now);
+      if (marked.size > maxKeys) {
+        const cutoff = now - ttlMs;
+        for (const [k, ts] of marked) {
+          if (ts <= cutoff) marked.delete(k);
+          if (marked.size <= maxKeys) break;
+        }
+      }
+    },
+  };
+}
+
 /**
  * Cheap pre-read body guard from Content-Length. Chunked/lying senders
  * are caught by the post-read length check in the handler.

@@ -11,10 +11,16 @@ function req(method: string, body: string, headers: Record<string, string> = {})
   } as unknown as Request;
 }
 
-const okFetch = (async () => ({
-  ok: true,
-  json: async () => ({ id: 'u-1' }),
-})) as unknown as FetchImpl;
+/** Auth resolves `u-1`; the subscriptions lookup returns `subRows`. */
+function fetchFor(subRows: unknown[], email = 'u1@example.com'): FetchImpl {
+  return (async (url: string) => ({
+    ok: true,
+    json: async () =>
+      String(url).includes('/rest/v1/subscriptions') ? subRows : { id: 'u-1', email },
+  })) as unknown as FetchImpl;
+}
+
+const okFetch = fetchFor([{ status: 'active', current_period_end: null }]);
 
 const ENV = { SUPABASE_URL: 'https://x.supabase.co', SUPABASE_SERVICE_ROLE_KEY: 'srv' };
 const AUTH = { Authorization: 'Bearer good-token', 'cf-connecting-ip': 'ai-t' };
@@ -68,6 +74,57 @@ describe('handleAIPlan', () => {
       ),
     );
     expect(bad.status).toBe(401);
+  });
+
+  it('gates the planner on server-side Pro (Free → 403 not_pro, before the model)', async () => {
+    const calls: string[] = [];
+    const freeFetch = (async (url: string) => {
+      calls.push(String(url));
+      return {
+        ok: true,
+        json: async () =>
+          String(url).includes('/rest/v1/subscriptions') ? [] : { id: 'u-1', email: 'f@x.com' },
+      };
+    }) as unknown as FetchImpl;
+    const free = await statusOf(
+      await handleAIPlan(
+        req('POST', BODY, { ...AUTH, 'cf-connecting-ip': 'ai-pro1' }),
+        { ...ENV, AI_API_KEY: 'k' },
+        freeFetch,
+      ),
+    );
+    expect(free.status).toBe(403);
+    expect(free.json).toMatchObject({ code: 'not_pro' });
+    expect(calls.some((u) => u.includes('chat/completions'))).toBe(false);
+
+    const lapsed = await statusOf(
+      await handleAIPlan(
+        req('POST', BODY, { ...AUTH, 'cf-connecting-ip': 'ai-pro2' }),
+        ENV,
+        fetchFor([{ status: 'cancelled', current_period_end: '2000-01-01T00:00:00Z' }]),
+      ),
+    );
+    expect(lapsed.status).toBe(403);
+
+    const pro = await statusOf(
+      await handleAIPlan(
+        req('POST', BODY, { ...AUTH, 'cf-connecting-ip': 'ai-pro3' }),
+        ENV,
+        okFetch,
+      ),
+    );
+    expect(pro.status).toBe(501);
+  });
+
+  it('lets complimentary Pro emails through without a paid row', async () => {
+    const { status } = await statusOf(
+      await handleAIPlan(
+        req('POST', BODY, { ...AUTH, 'cf-connecting-ip': 'ai-pro4' }),
+        { ...ENV, PRO_COMPLIMENTARY_EMAILS: 'comp@example.com' },
+        fetchFor([], 'Comp@Example.com'),
+      ),
+    );
+    expect(status).toBe(501);
   });
 
   it('rejects oversized and malformed bodies', async () => {

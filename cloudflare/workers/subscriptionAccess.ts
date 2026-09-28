@@ -44,6 +44,7 @@ export interface LemonSubscriptionAttributes {
   product_name?: unknown;
   renews_at?: unknown;
   ends_at?: unknown;
+  updated_at?: unknown;
 }
 
 export interface PlanIdConfig {

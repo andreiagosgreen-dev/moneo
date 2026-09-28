@@ -13,9 +13,8 @@
  */
 
 import { bearerToken, verifyUser, type FetchImpl } from './account';
-import { hasComplimentaryPro, resolveComplimentaryAllowlist } from './complimentaryPro';
+import { hasServerProAccess } from './proAccess';
 import { buildSecurityHeaders, declaredBodyTooLarge, mergeHeaders } from './security';
-import { hasPaidProAccess } from './subscriptionAccess';
 
 export interface ProSyncEnv {
   SUPABASE_URL?: string;
@@ -117,31 +116,6 @@ export function validateRecords(input: unknown, now: number): SyncRecordInput[] 
   return [...byKey.values()];
 }
 
-export async function isProForSync(
-  env: ProSyncEnv,
-  userId: string,
-  email: string | null,
-  fetchImpl: FetchImpl,
-): Promise<boolean> {
-  if (hasComplimentaryPro(email, resolveComplimentaryAllowlist(env.PRO_COMPLIMENTARY_EMAILS))) {
-    return true;
-  }
-  try {
-    const res = await fetchImpl(
-      `${env.SUPABASE_URL}/rest/v1/subscriptions?user_id=eq.${encodeURIComponent(userId)}&select=status,current_period_end&limit=1`,
-      { headers: restHeaders(env.SUPABASE_SERVICE_ROLE_KEY!) },
-    );
-    if (!res.ok) return false;
-    const rows = (await res.json()) as Array<{
-      status?: string;
-      current_period_end?: string | null;
-    }>;
-    return hasPaidProAccess(rows[0]?.status, rows[0]?.current_period_end);
-  } catch {
-    return false;
-  }
-}
-
 /** PostgREST codes for "function / relation does not exist" (migration 0011 not applied). */
 const NOT_MIGRATED_CODES: ReadonlySet<string> = new Set(['PGRST202', '42883', '42P01', 'PGRST205']);
 
@@ -164,7 +138,7 @@ export async function handleSyncRecords(
   const user = await verifyUser(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, token, fetchImpl);
   if (!user) return json({ error: 'Invalid or expired session' }, 401);
 
-  if (!(await isProForSync(env, user.userId, user.email, fetchImpl))) {
+  if (!(await hasServerProAccess(env, user.userId, user.email, fetchImpl))) {
     return json({ error: 'Full sync is a Pro feature', code: 'not_pro' }, 403);
   }
 
