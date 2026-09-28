@@ -72,6 +72,10 @@ export class WorkerPlanner implements PlannerProvider {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(sanitizePlanRequest(input)),
       });
+      if (res.status === 403) {
+        const err = (await res.json().catch(() => null)) as { code?: unknown } | null;
+        if (err?.code === 'not_pro') return { ok: false, reason: 'not-pro' };
+      }
       if (!res.ok) return { ok: false, reason: `http-${res.status}` };
       const data = (await res.json()) as { path?: BuiltPath };
       if (!data || !data.path || !Array.isArray(data.path.tasks)) {

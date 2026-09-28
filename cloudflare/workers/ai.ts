@@ -2,7 +2,8 @@
  * Server-side AI planner endpoint (Faza 6, arhitectură sigură).
  *
  * The model is called ONLY here, never in the browser: no API key ever
- * reaches the client. JWT identity, strict input validation, layered
+ * reaches the client. JWT identity, server-side Pro check (paid Lemon row
+ * or complimentary allowlist; Free → 403 `not_pro`), strict input validation, layered
  * rate limits, minimal context (goal text + two numbers — no sessions,
  * no journal, no habits) and an audit trail without goal text.
  *
@@ -12,7 +13,8 @@
  * marked once a key exists.
  */
 
-import { bearerToken, verifyUserToken, type FetchImpl } from './account';
+import { bearerToken, verifyUser, type FetchImpl } from './account';
+import { hasServerProAccess } from './proAccess';
 import {
   buildSecurityHeaders,
   clientIp,
@@ -28,6 +30,7 @@ export interface AIEnv {
   AI_MODEL?: string;
   /** Optional OpenAI-compatible base URL (server-only). */
   AI_BASE_URL?: string;
+  PRO_COMPLIMENTARY_EMAILS?: string;
 }
 
 const aiLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
@@ -88,13 +91,13 @@ export async function handleAIPlan(
   }
   const token = bearerToken(request);
   if (!token) return api({ error: 'Missing or invalid authorization' }, 401);
-  const userId = await verifyUserToken(
-    env.SUPABASE_URL,
-    env.SUPABASE_SERVICE_ROLE_KEY,
-    token,
-    fetchImpl,
-  );
-  if (!userId) return api({ error: 'Invalid or expired session' }, 401);
+  const user = await verifyUser(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, token, fetchImpl);
+  if (!user) return api({ error: 'Invalid or expired session' }, 401);
+  const userId = user.userId;
+
+  if (!(await hasServerProAccess(env, userId, user.email, fetchImpl))) {
+    return api({ error: 'AI planner is a Pro feature', code: 'not_pro' }, 403);
+  }
 
   if (declaredBodyTooLarge(request, MAX_AI_BODY_BYTES)) {
     return api({ error: 'Payload too large' }, 413);

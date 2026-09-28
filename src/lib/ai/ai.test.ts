@@ -318,6 +318,20 @@ describe('providers + consent', () => {
     expect((await dead.buildPath({ text: 'x' })).ok).toBe(false);
   });
 
+  it('WorkerPlanner maps the server Pro gate to reason not-pro', async () => {
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify({ error: 'AI planner is a Pro feature', code: 'not_pro' }), {
+        status: 403,
+      })) as typeof fetch;
+    try {
+      const planner = new WorkerPlanner('/api/ai/plan', async () => 'tok');
+      expect(await planner.buildPath({ text: 'x' })).toEqual({ ok: false, reason: 'not-pro' });
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
   it('consent defaults off and round-trips', () => {
     expect(saveAIConsent({ autoPrepare: true, at: 123 })).toBe(true);
     expect(loadAIConsent()).toEqual({ autoPrepare: true, at: 123 });
