@@ -1136,7 +1136,7 @@ export default function App() {
                   )}
                   {tab === 'plan' && (
                     <Suspense fallback={<TabFallback label="Plan" />}>
-                      <main className="mt-2 grid items-stretch gap-5 md:grid-cols-2 md:gap-6">
+                      <main className="mono-pad-mobile mt-2 grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 md:gap-6">
                         <div
                           className="reveal flex min-h-0 flex-col"
                           style={{ animationDelay: '90ms' }}
@@ -1401,7 +1401,7 @@ export default function App() {
                   )}
                   {tab === 'graph' && (
                     <Suspense fallback={<TabFallback label="Graph" />}>
-                      <main className="mt-2 grid items-stretch gap-6">
+                      <main className="mono-pad-mobile mt-2 grid grid-cols-1 items-stretch gap-6">
                         <div className="reveal" style={{ animationDelay: '90ms' }}>
                           <GraphCard
                             links={links}
@@ -1416,7 +1416,7 @@ export default function App() {
                   )}
                   {tab === 'settings' && (
                     <Suspense fallback={<TabFallback label="Settings" />}>
-                      <main className="mt-2 grid items-start gap-6 md:grid-cols-2">
+                      <main className="mono-pad-mobile mt-2 grid grid-cols-1 items-start gap-6 md:grid-cols-2">
                         <div className="reveal" style={{ animationDelay: '90ms' }}>
                           <SettingsCard
                             settings={settings}

@@ -267,7 +267,7 @@ export default function StatsCard({
       {/* weekly insights — derived, compact, never per-tick */}
       {(topIntentions.length > 0 || areaRows.length > 0) && (
         <div className="mt-7 border-t border-line pt-5">
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {topIntentions.length > 0 && (
               <div>
                 <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">

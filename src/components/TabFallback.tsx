@@ -5,7 +5,7 @@
 export default function TabFallback({ label }: { label: string }) {
   return (
     <main
-      className="mt-2 grid items-start gap-6 md:grid-cols-2"
+      className="mono-pad-mobile mt-2 grid grid-cols-1 items-start gap-6 md:grid-cols-2"
       aria-busy="true"
       aria-label={`${label} loading`}
     >
