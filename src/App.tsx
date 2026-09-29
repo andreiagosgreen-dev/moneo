@@ -69,7 +69,6 @@ import {
   loadPlans,
   planForDay,
   addTaskToDay,
-  planDoneCount,
   dayPlanHasLinkedTask,
   IVY_MAX_TASKS,
   IVY_FREE_MAX_TASKS,
@@ -180,6 +179,8 @@ import { useMoments } from './hooks/useMoments';
 import { computeXp, levelFromXp } from './lib/xp';
 import { computeBadges } from './lib/badges';
 import { isTodayInTz, dayKeyInTz } from './lib/timezone';
+import { dueStatus } from './lib/taskDue';
+import { dayProgress } from './lib/dayProgress';
 import { loadSyncState, onSyncStateChange } from './lib/sync/syncState';
 
 /* Boot once: restore settings, history and the paused timer position. */
@@ -678,14 +679,12 @@ export default function App() {
     });
   }, [nextPlanItemId, nextPlanItemText]);
 
-  const focusStats = (() => {
-    const todaySessions = history.filter((s) => isTodayInTz(s.at, auth.timezone));
-    return {
-      sessions: todaySessions.length,
-      focusMin: todaySessions.reduce((sum, s) => sum + s.min, 0),
-      done: todayPlan?.tasks.filter((x) => x.done).length ?? 0,
-    };
-  })();
+  const todayProgress = dayProgress(todayPlan, history, todayKey, auth.timezone);
+  const focusStats = {
+    sessions: history.filter((s) => isTodayInTz(s.at, auth.timezone)).length,
+    focusMin: todayProgress.focusMin,
+    done: todayProgress.done,
+  };
   const focusUpNext = (todayPlan?.tasks ?? []).map((x) => ({
     id: x.id,
     title: x.text,
@@ -726,6 +725,7 @@ export default function App() {
   };
 
   const nowMs = Date.now();
+  const taskById = useMemo(() => new Map(tasks.map((x) => [x.id, x])), [tasks]);
   const nextBlock = nextFocusBlock(
     timeBlocks,
     weekdayOfKey(todayKey),
@@ -959,14 +959,20 @@ export default function App() {
                     <main>
                       <MonoAzi
                         dayKey={todayKey}
-                        doneCount={planDoneCount(todayPlan)}
-                        totalCount={todayPlan?.tasks.length ?? 0}
-                        items={(todayPlan?.tasks ?? []).map((x) => ({
-                          id: x.id,
-                          text: x.text,
-                          meta: typeof x.estimateMin === 'number' ? fmtDur(x.estimateMin) : '',
-                          done: x.done,
-                        }))}
+                        doneCount={todayProgress.done}
+                        totalCount={todayProgress.total}
+                        focusMinToday={todayProgress.focusMin}
+                        items={(todayPlan?.tasks ?? []).map((x) => {
+                          const linked = x.taskId ? taskById.get(x.taskId) : undefined;
+                          return {
+                            id: x.id,
+                            text: x.text,
+                            meta: typeof x.estimateMin === 'number' ? fmtDur(x.estimateMin) : '',
+                            done: x.done,
+                            priority: linked?.priority,
+                            due: linked ? dueStatus(linked.dueAt, nowMs, auth.timezone) : null,
+                          };
+                        })}
                         maxTasks={todayMaxTasks}
                         morningLabel={t('today.morning')}
                         shutdownLabel={t('today.shutdown')}

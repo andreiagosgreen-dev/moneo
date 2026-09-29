@@ -767,6 +767,100 @@
   background: #fff;
 }
 
+.mono-progress[data-tone='accent'] > span {
+  background: var(--mono-accent);
+}
+.mono-progress[data-size='sm'] {
+  height: 5px;
+}
+
+/* ---------- progress ring (shared; .mono-ring is the Focus timer) ---------- */
+.mono-pring {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+}
+.mono-pring svg {
+  position: absolute;
+  inset: 0;
+}
+.mono-pring-track {
+  stroke: color-mix(in oklab, var(--mono-fg) 12%, transparent);
+  fill: none;
+}
+.mono-pring-bar {
+  stroke: var(--mono-accent);
+  fill: none;
+  transition: stroke-dashoffset 400ms var(--mono-ease);
+}
+.mono-pring[data-tone='fg'] .mono-pring-bar {
+  stroke: var(--mono-fg-2);
+}
+.mono-pring-center {
+  position: relative;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 15px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mono-pring-bar {
+    transition: none;
+  }
+}
+
+/* ---------- pills (priority, due) ---------- */
+.mono-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--mono-r-pill);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.mono-pill-neutral {
+  background: var(--mono-bg-2);
+  color: var(--mono-muted);
+}
+.mono-pill-accent {
+  background: var(--mono-accent-soft);
+  color: var(--mono-accent-2);
+}
+[data-theme='dark'] .mono-pill-accent {
+  color: var(--mono-accent);
+}
+.mono-pill-danger {
+  background: color-mix(in oklab, var(--mono-danger) 14%, transparent);
+  color: var(--mono-danger);
+}
+.mono-pill-outline {
+  background: transparent;
+  color: var(--mono-muted);
+  box-shadow: inset 0 0 0 1px var(--mono-border-2);
+}
+/* Finished items: dimmed, never red. */
+.mono-pill-done {
+  opacity: 0.55;
+}
+.mono-pill-done.mono-pill-danger {
+  background: var(--mono-bg-2);
+  color: var(--mono-muted);
+}
+.mono-azi-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.mono-azi-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 /* ---------- progress meter (session payoff) ---------- */
 .mono-meter {
   margin-top: 12px;

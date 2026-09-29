@@ -61,12 +61,77 @@ describe('MonoAzi', () => {
   it('renders progress, priorities and program', () => {
     const c = render(screen());
     expect(c.textContent).toContain("Today's plan");
-    expect(c.textContent).toContain('2 of 5 done');
-    expect(c.textContent).toContain('40%');
+    expect(c.textContent).toContain('2 of 5 · 40%');
     expect(c.textContent).toContain('Priorities');
     expect(c.textContent).toContain('Schiță pentru capitolul 3');
     expect(c.textContent).toContain('PROGRAM');
-    expect(c.querySelector('[role="progressbar"]')!.getAttribute('aria-valuenow')).toBe('40');
+    const ring = c.querySelector('.mono-pring')!;
+    expect(ring.getAttribute('role')).toBe('img');
+    expect(ring.getAttribute('aria-label')).toBe('Today: 2 of 5 done (40%)');
+    expect(c.querySelector('[role="progressbar"]')).toBeNull();
+  });
+
+  it('shows focus minutes today, or a gentle empty line', () => {
+    expect(render(screen({ focusMinToday: 75 })).textContent).toContain('1h 15m of focus today');
+    expect(render(screen()).textContent).toContain('No focus yet today');
+  });
+
+  it('hides the count line but keeps the ring for an empty plan', () => {
+    const c = render(screen({ items: [], totalCount: 0, doneCount: 0 }));
+    expect(c.textContent).not.toContain('NaN');
+    expect(c.textContent).not.toContain('of 0');
+    expect(c.querySelector('.mono-pring')).toBeTruthy();
+    expect(c.textContent).toContain('0%');
+  });
+
+  it('shows priority and due pills for linked items only', () => {
+    const c = render(
+      screen({
+        items: [
+          {
+            id: 'a',
+            text: 'Linked late',
+            meta: '',
+            done: false,
+            priority: 'p0',
+            due: { kind: 'overdue', days: 1 },
+          },
+          {
+            id: 'b',
+            text: 'Normal soon',
+            meta: '',
+            done: false,
+            priority: 'p2',
+            due: { kind: 'future', days: 3 },
+          },
+          { id: 'c', text: 'Freeform', meta: '25m', done: false },
+        ],
+      }),
+    );
+    const pills = Array.from(c.querySelectorAll('.mono-pill')).map((x) => x.textContent);
+    expect(pills).toEqual(['Urgent', '1 day overdue', 'In 3 days']);
+    expect(c.querySelectorAll('.mono-pill-danger').length).toBe(2);
+    expect(c.querySelectorAll('.mono-azi-pills').length).toBe(2);
+  });
+
+  it('dims pills of finished items', () => {
+    const c = render(
+      screen({
+        items: [
+          {
+            id: 'a',
+            text: 'Done late',
+            meta: '',
+            done: true,
+            priority: 'p1',
+            due: { kind: 'overdue', days: 2 },
+          },
+        ],
+      }),
+    );
+    const pills = c.querySelectorAll('.mono-pill');
+    expect(pills.length).toBe(2);
+    pills.forEach((x) => expect(x.classList.contains('mono-pill-done')).toBe(true));
   });
 
   it('toggles + adds tasks', () => {

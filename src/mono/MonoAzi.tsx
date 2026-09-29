@@ -3,19 +3,25 @@ import MonoHead from './MonoHead';
 import MonoCard from './MonoCard';
 import MonoBtn from './MonoBtn';
 import MonoTick from './MonoTick';
-import MonoProgress from './MonoProgress';
+import MonoRing from './MonoRing';
+import MonoPill from './MonoPill';
 import MonoPath from './MonoPath';
 import MonoCoach from './MonoCoach';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import { dayLabel } from './monoDate';
 import type { MonoTab } from './MonoNav';
 import { pickProgramCoach } from '../lib/guidance/programCoach';
+import type { TaskPriority } from '../lib/tasks';
+import { dueTone, priorityTone, type DueStatus } from '../lib/taskDue';
 
 export interface MonoAziItem {
   id: string;
   text: string;
   meta: string;
   done: boolean;
+  /** Only for items linked to a task via taskId. */
+  priority?: TaskPriority;
+  due?: DueStatus | null;
 }
 
 interface Props {
@@ -23,6 +29,8 @@ interface Props {
   dayKey: string;
   doneCount: number;
   totalCount: number;
+  /** Focus minutes completed today (account timezone). */
+  focusMinToday?: number;
   items: MonoAziItem[];
   maxTasks: number;
   morningLabel: string;
@@ -50,6 +58,7 @@ export default function MonoAzi({
   dayKey,
   doneCount,
   totalCount,
+  focusMinToday = 0,
   items,
   maxTasks,
   morningLabel,
@@ -66,12 +75,17 @@ export default function MonoAzi({
   habits,
   more,
 }: Props) {
-  const { t, tag, fmtNum } = useI18n();
+  const { t, tp, tag, fmtNum, fmtDur } = useI18n();
   const [draft, setDraft] = useState('');
   const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
   const full = totalCount >= maxTasks;
   const hasItems = items.length > 0;
   const hasOpen = items.some((x) => !x.done);
+  const dueLabel = (due: DueStatus): string => {
+    if (due.kind === 'today') return t('task.due.today');
+    if (due.kind === 'tomorrow') return t('task.due.tomorrow');
+    return tp(due.kind === 'overdue' ? 'task.due.overdue' : 'task.due.inDays', due.days);
+  };
   const openCount = items.filter((x) => !x.done).length;
   const coachKind = pickProgramCoach({
     screen: 'today',
@@ -79,6 +93,25 @@ export default function MonoAzi({
     planOpenCount: openCount,
     hasBlocks: false,
   });
+
+  const pills = (item: MonoAziItem) => {
+    const showPrio = item.priority === 'p0' || item.priority === 'p1';
+    if (!showPrio && !item.due) return null;
+    return (
+      <div className="mono-azi-pills">
+        {showPrio && item.priority ? (
+          <MonoPill tone={priorityTone(item.priority)} done={item.done}>
+            {t(`task.prio.${item.priority}` as 'task.prio.p0')}
+          </MonoPill>
+        ) : null}
+        {item.due ? (
+          <MonoPill tone={dueTone(item.due)} done={item.done}>
+            {dueLabel(item.due)}
+          </MonoPill>
+        ) : null}
+      </div>
+    );
+  };
 
   const submit = () => {
     const clean = draft.trim();
@@ -150,24 +183,37 @@ export default function MonoAzi({
 
       <div className="mono-pad" style={{ marginTop: 14 }}>
         <MonoCard>
-          <div className="mono-between">
-            <div>
-              <div className="mono-h3">
-                {t('mono.azi.count', { done: fmtNum(doneCount), total: fmtNum(totalCount) })}
-              </div>
+          <div className="mono-azi-summary">
+            <MonoRing
+              value={pct}
+              size={64}
+              label={t('mono.azi.ringAria', {
+                done: fmtNum(doneCount),
+                total: fmtNum(totalCount),
+                pct: fmtNum(pct),
+              })}
+            >
+              {fmtNum(pct)}%
+            </MonoRing>
+            <div className="mono-list-grow">
+              {totalCount > 0 ? (
+                <div className="mono-h3">
+                  {t('mono.azi.dayRing', {
+                    done: fmtNum(doneCount),
+                    total: fmtNum(totalCount),
+                    pct: fmtNum(pct),
+                  })}
+                </div>
+              ) : null}
+              <p className="mono-meta" style={{ marginTop: totalCount > 0 ? 3 : 0 }}>
+                {focusMinToday > 0
+                  ? t('mono.azi.focusToday', { dur: fmtDur(focusMinToday) })
+                  : t('mono.azi.focusNone')}
+              </p>
               <p className="mono-meta" style={{ marginTop: 3 }}>
                 {t('mono.azi.motto')}
               </p>
             </div>
-            <div
-              className="mono-num"
-              style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-0.02em' }}
-            >
-              {fmtNum(pct)}%
-            </div>
-          </div>
-          <div style={{ marginTop: 14 }}>
-            <MonoProgress value={pct} label={t('mono.azi.title')} />
           </div>
         </MonoCard>
       </div>
@@ -209,6 +255,7 @@ export default function MonoAzi({
                     >
                       {item.text}
                     </div>
+                    {pills(item)}
                     {item.meta && <div className="mono-meta">{item.meta}</div>}
                   </div>
                 </div>
