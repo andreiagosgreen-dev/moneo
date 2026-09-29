@@ -4,6 +4,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type KeyboardEvent,
   type ReactNode,
   type RefObject,
 } from 'react';
@@ -11,7 +12,15 @@ import { Link } from 'react-router-dom';
 import type { Dictionary } from '../lib/i18n';
 import type { Locale, TKey, Vars } from '../lib/i18n/types';
 import { LOCALES, isLocale, saveLocale } from '../lib/i18n/meta';
-import { FREE_PRICE, PLAN_FEATURE_KEYS, PRO_PRICES, SYNC_SCOPE_KEY } from '../lib/billing/prices';
+import {
+  FREE_PRICE,
+  PLAN_FEATURE_KEYS,
+  PRO_PRICES,
+  SYNC_SCOPE_KEY,
+  formatUsd,
+  yearlySavings,
+} from '../lib/billing/prices';
+import { LANDING_FACTS } from './landingFacts';
 import {
   ADULT_AGE,
   DIGITAL_CONSENT_AGE,
@@ -24,27 +33,31 @@ import {
 } from '../lib/legal/seller';
 import { loadLandingDictionary } from './dictionaries';
 import {
-  HERO_DESKTOP_MEDIA,
+  DEVICE_SCREENS,
   HERO_DESKTOP_SIZES,
   PHONE_SIZES,
   SHOTS,
   shotLang,
   shotSrc,
   shotSrcSet,
+  type Device,
+  type Screen,
   type ShotId,
   type ShotLang,
 } from './heroImages';
 import {
   IconBook,
   IconBriefcase,
+  IconCalendarWeek,
   IconCap,
   IconCheck,
-  IconFolder,
   IconGlobe,
-  IconLock,
-  IconPalette,
-  IconPhone,
-  IconRepeat,
+  IconGrid,
+  IconHome,
+  IconMatrix,
+  IconStar,
+  IconSun,
+  IconTimer,
 } from './icons';
 import './landing.css';
 
@@ -62,14 +75,27 @@ type T = (key: TKey, vars?: Vars) => string;
 /* React 18 has no typed `fetchPriority` prop; the lowercase attribute passes through. */
 const HIGH_PRIORITY = { fetchpriority: 'high' } as Record<string, string>;
 
-const BLANK_PIXEL =
-  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-
-const AUDIENCES: Array<{ id: 'pupils' | 'students' | 'pros'; icon: ReactNode }> = [
+const AUDIENCES: Array<{ id: 'pupils' | 'students' | 'pros' | 'life'; icon: ReactNode }> = [
   { id: 'pupils', icon: <IconBook /> },
   { id: 'students', icon: <IconCap /> },
   { id: 'pros', icon: <IconBriefcase /> },
+  { id: 'life', icon: <IconHome /> },
 ];
+
+const SHOT_ALT: Record<ShotId, TKey> = {
+  'focus-desktop': 'land.shot.focus.alt',
+  'today-desktop': 'land.shot.todayDesktop.alt',
+  'habits-desktop': 'land.shot.habits.alt',
+  'week-desktop': 'land.shot.week.alt',
+  'focus-phone': 'land.shot.focusPhone.alt',
+  'today-phone': 'land.shot.today.alt',
+  'habits-phone': 'land.shot.habits.alt',
+  'week-phone': 'land.shot.week.alt',
+  'growth-phone': 'land.shot.growth.alt',
+};
+
+const DEVICES: readonly Device[] = ['laptop', 'phone'];
+const PHONE_QUERY = '(max-width: 767.98px)';
 
 const SHOWCASE: Array<{ id: 'focus' | 'today' | 'growth'; shot: ShotId; alt: TKey }> = [
   { id: 'focus', shot: 'focus-phone', alt: 'land.shot.focusPhone.alt' },
@@ -77,14 +103,16 @@ const SHOWCASE: Array<{ id: 'focus' | 'today' | 'growth'; shot: ShotId; alt: TKe
   { id: 'growth', shot: 'growth-phone', alt: 'land.shot.growth.alt' },
 ];
 
-const TILES: Array<{ id: string; icon: ReactNode }> = [
-  { id: 'projects', icon: <IconFolder /> },
-  { id: 'habits', icon: <IconRepeat /> },
-  { id: 'atm', icon: <IconPalette /> },
-  { id: 'private', icon: <IconLock /> },
-  { id: 'langs', icon: <IconGlobe /> },
-  { id: 'install', icon: <IconPhone /> },
+const ALL_IN_ONE: Array<{ id: string; icon: ReactNode }> = [
+  { id: 'ritual', icon: <IconSun /> },
+  { id: 'focus', icon: <IconTimer /> },
+  { id: 'habits', icon: <IconGrid /> },
+  { id: 'matrix', icon: <IconMatrix /> },
+  { id: 'week', icon: <IconCalendarWeek /> },
+  { id: 'xp', icon: <IconStar /> },
 ];
+
+const SAVINGS = yearlySavings();
 
 const FREE_FEATURES: readonly TKey[] = [...PLAN_FEATURE_KEYS.free, SYNC_SCOPE_KEY];
 const PRO_FEATURES: readonly TKey[] = PLAN_FEATURE_KEYS.proMonthly;
@@ -180,6 +208,114 @@ function Shot({
         {...(eager ? HIGH_PRIORITY : {})}
       />
     </picture>
+  );
+}
+
+/** Arrow keys move and select within a tablist (roving tabindex). */
+function onTabArrow(
+  e: KeyboardEvent<HTMLButtonElement>,
+  idx: number,
+  count: number,
+  refs: Array<HTMLButtonElement | null>,
+  pick: (i: number) => void,
+) {
+  const delta = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+  if (delta === 0) return;
+  e.preventDefault();
+  const next = (idx + delta + count) % count;
+  pick(next);
+  refs[next]?.focus();
+}
+
+function DeviceMockup({ t, lang }: { t: T; lang: ShotLang }) {
+  const [device, setDevice] = useState<Device>(() =>
+    typeof window !== 'undefined' && window.matchMedia?.(PHONE_QUERY).matches ? 'phone' : 'laptop',
+  );
+  const [screen, setScreen] = useState<Screen>('focus');
+  const [touched, setTouched] = useState(false);
+  const deviceRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const screenRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const screens = DEVICE_SCREENS[device];
+  const current = screens.find((s) => s.screen === screen) ?? screens[0];
+  const pickDevice = (i: number) => {
+    setTouched(true);
+    setDevice(DEVICES[i]);
+  };
+  const pickScreen = (i: number) => {
+    setTouched(true);
+    setScreen(screens[i].screen);
+  };
+  const eager = !touched && current.screen === 'focus';
+  const shot = (
+    <Shot
+      key={current.shot}
+      lang={lang}
+      id={current.shot}
+      alt={t(SHOT_ALT[current.shot])}
+      sizes={device === 'laptop' ? HERO_DESKTOP_SIZES : PHONE_SIZES}
+      eager={eager}
+    />
+  );
+
+  return (
+    <div className="lnd-mock">
+      <div className="lnd-seg" role="tablist" aria-label={t('land.device.aria')}>
+        {DEVICES.map((d, i) => (
+          <button
+            key={d}
+            ref={(el) => {
+              deviceRefs.current[i] = el;
+            }}
+            id={`lnd-device-${d}`}
+            type="button"
+            role="tab"
+            aria-selected={device === d}
+            aria-controls="lnd-mock-panel"
+            tabIndex={device === d ? 0 : -1}
+            className="lnd-seg-btn"
+            onClick={() => pickDevice(i)}
+            onKeyDown={(e) => onTabArrow(e, i, DEVICES.length, deviceRefs.current, pickDevice)}
+          >
+            {t(d === 'laptop' ? 'land.device.laptop' : 'land.device.phone')}
+          </button>
+        ))}
+      </div>
+      <div
+        id="lnd-mock-panel"
+        role="tabpanel"
+        aria-labelledby={`lnd-device-${device}`}
+        className="lnd-mock-stage"
+      >
+        {device === 'laptop' ? (
+          <div className="lnd-laptop">
+            <div className="lnd-laptop-screen">{shot}</div>
+            <div className="lnd-laptop-base" aria-hidden />
+          </div>
+        ) : (
+          <div className="lnd-phone-frame">{shot}</div>
+        )}
+      </div>
+      <div className="lnd-chips" role="tablist" aria-label={t('land.screen.aria')}>
+        {screens.map((s, i) => (
+          <button
+            key={s.screen}
+            ref={(el) => {
+              screenRefs.current[i] = el;
+            }}
+            type="button"
+            role="tab"
+            aria-selected={current.screen === s.screen}
+            aria-controls="lnd-mock-panel"
+            tabIndex={current.screen === s.screen ? 0 : -1}
+            className="lnd-chip"
+            onClick={() => pickScreen(i)}
+            onKeyDown={(e) => onTabArrow(e, i, screens.length, screenRefs.current, pickScreen)}
+          >
+            {t(`land.screen.${s.screen}` as TKey)}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -286,7 +422,11 @@ export default function LandingPage({
             <div className="lnd-hero-copy">
               <p className="lnd-eyebrow">{t('land.hero.eyebrow')}</p>
               <h1 id="lnd-hero-title" className="lnd-h1">
-                {t('land.hero.title')}
+                {withToken(
+                  t('land.hero.title'),
+                  '{mark}',
+                  <mark className="lnd-mark">{t('land.hero.mark')}</mark>,
+                )}
               </h1>
               <p className="lnd-lead">{t('land.hero.sub')}</p>
               <div className="lnd-ctas">
@@ -298,46 +438,39 @@ export default function LandingPage({
               <p className="lnd-trust">{t('land.hero.trust')}</p>
             </div>
             <div className="lnd-hero-visual">
-              <div className="lnd-window">
-                <div className="lnd-window-bar" aria-hidden>
-                  <span />
-                  <span />
-                  <span />
-                </div>
-                <picture>
-                  <source media="(max-width: 767.98px)" srcSet={BLANK_PIXEL} />
-                  <source
-                    media={HERO_DESKTOP_MEDIA}
-                    type="image/avif"
-                    srcSet={shotSrcSet(lang, 'focus-desktop', 'avif')}
-                    sizes={HERO_DESKTOP_SIZES}
-                  />
-                  <source
-                    media={HERO_DESKTOP_MEDIA}
-                    type="image/webp"
-                    srcSet={shotSrcSet(lang, 'focus-desktop', 'webp')}
-                    sizes={HERO_DESKTOP_SIZES}
-                  />
-                  <img
-                    src={shotSrc(lang, 'focus-desktop', 1440, 'webp')}
-                    width={SHOTS['focus-desktop'].width}
-                    height={SHOTS['focus-desktop'].height}
-                    alt={t('land.shot.focus.alt')}
-                    decoding="async"
-                    {...HIGH_PRIORITY}
-                  />
-                </picture>
-              </div>
-              <div className="lnd-phone lnd-hero-phone">
-                <Shot
-                  lang={lang}
-                  id="focus-phone"
-                  alt={t('land.shot.focusPhone.alt')}
-                  sizes={PHONE_SIZES}
-                  eager
-                />
-              </div>
+              <DeviceMockup t={t} lang={lang} />
             </div>
+          </div>
+        </section>
+
+        <section className="lnd-stats-wrap" aria-label={t('land.stats.aria')}>
+          <div className="lnd-wrap">
+            <ul className="lnd-stats">
+              <li>
+                <span>
+                  {withToken(
+                    t('land.stats.langs'),
+                    '{n}',
+                    <strong>{LANDING_FACTS.languages}</strong>,
+                  )}
+                </span>
+              </li>
+              <li>
+                <span>
+                  {withToken(
+                    t('land.stats.atm'),
+                    '{n}',
+                    <strong>{LANDING_FACTS.atmospheres}</strong>,
+                  )}
+                </span>
+              </li>
+              <li>
+                <span>{t('land.stats.offline')}</span>
+              </li>
+              <li>
+                <span>{t('land.stats.free')}</span>
+              </li>
+            </ul>
           </div>
         </section>
 
@@ -349,7 +482,7 @@ export default function LandingPage({
                 {t('land.who.title')}
               </h2>
             </header>
-            <ul className="lnd-grid-3">
+            <ul className="lnd-grid-4">
               {AUDIENCES.map((a) => (
                 <li key={a.id} className="lnd-card lnd-audience lnd-reveal">
                   <span className="lnd-icon">{a.icon}</span>
@@ -392,17 +525,6 @@ export default function LandingPage({
                 </li>
               ))}
             </ul>
-            <ul className="lnd-tiles">
-              {TILES.map((f) => (
-                <li key={f.id} className="lnd-tile lnd-reveal">
-                  <span className="lnd-icon lnd-icon-sm">{f.icon}</span>
-                  <div>
-                    <h3 className="lnd-h4">{t(`land.feat.${f.id}.t` as TKey)}</h3>
-                    <p>{t(`land.feat.${f.id}.b` as TKey)}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
           </div>
         </section>
 
@@ -425,6 +547,30 @@ export default function LandingPage({
                 </li>
               ))}
             </ol>
+          </div>
+        </section>
+
+        <section id="all-in-one" className="lnd-section" aria-labelledby="lnd-all-title">
+          <div className="lnd-wrap">
+            <header className="lnd-section-head lnd-reveal">
+              <p className="lnd-eyebrow">{t('land.all.eyebrow')}</p>
+              <h2 id="lnd-all-title" className="lnd-h2">
+                {t('land.all.title')}
+              </h2>
+              <p className="lnd-lead lnd-all-sub">{t('land.all.sub')}</p>
+            </header>
+            <ul className="lnd-tiles">
+              {ALL_IN_ONE.map((f) => (
+                <li key={f.id} className="lnd-tile lnd-reveal">
+                  <span className="lnd-icon lnd-icon-sm">{f.icon}</span>
+                  <div>
+                    <h3 className="lnd-h4">{t(`land.all.${f.id}.t` as TKey)}</h3>
+                    <p>{t(`land.all.${f.id}.b` as TKey)}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <p className="lnd-note">{t('land.all.tm')}</p>
           </div>
         </section>
 
@@ -472,9 +618,9 @@ export default function LandingPage({
                   {t('land.price.pro.or', { price: PRO_PRICES.yearly })}
                   <br />
                   <span className="lnd-accent">
-                    {t('pay.yearlyEquiv', {
-                      price: PRO_PRICES.yearlyMonthly,
-                      n: PRO_PRICES.monthsFree,
+                    {t('land.price.save', {
+                      saved: formatUsd(SAVINGS.saved),
+                      pct: SAVINGS.pct,
                     })}
                   </span>
                 </p>
@@ -571,7 +717,7 @@ export default function LandingPage({
               <img src="/landing/mark-64.webp" width={28} height={28} alt="" loading="lazy" />
               <span>Moneo</span>
             </span>
-            <p>{t('land.hero.title')}</p>
+            <p>{t('land.hero.title', { mark: t('land.hero.mark') })}</p>
           </div>
           <nav className="lnd-footer-nav" aria-label={t('land.foot.nav')}>
             <Link to={LEGAL_PATHS.terms}>{t('foot.terms')}</Link>
