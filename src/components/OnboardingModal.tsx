@@ -19,7 +19,8 @@ const ORDER: Step[] = ['goal', 'task', 'start'];
  * Soft Pro mentions live only behind real gates (sync / export), not here.
  */
 export default function OnboardingModal({ onDone, onQuickStart }: Props) {
-  const { t } = useI18n();
+  const i18n = useI18n();
+  const { t } = i18n;
   const [step, setStep] = useState<Step>('goal');
   const [goalTitle, setGoalTitle] = useState('');
   const [taskTitle, setTaskTitle] = useState('');
@@ -28,7 +29,7 @@ export default function OnboardingModal({ onDone, onQuickStart }: Props) {
   const goTask = () => {
     const clean = goalTitle.trim();
     if (!clean) return;
-    setTaskTitle((prev) => prev || suggestTasksForGoal(clean)[0] || '');
+    setTaskTitle((prev) => prev || suggestTasksForGoal(clean, i18n)[0] || '');
     setStep('task');
   };
 

@@ -8,6 +8,7 @@ import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
 import { projectCompletion, type Task } from './tasks';
 import { createI18n, type I18n } from './i18n';
+import type { TKey } from './i18n/types';
 
 /** Default English translator — keeps helpers usable without a provider. */
 const EN_I18N = createI18n('en');
@@ -414,64 +415,45 @@ export function goalBlockers(goals: Goal[], tasks: Task[], goal: Goal): Goal[] {
 
 /* ---------------- rule-based task generation (Phase 4.3) ---------------- */
 
-const GOAL_BLUEPRINTS: Array<{ match: RegExp; steps: string[] }> = [
+const GOAL_BLUEPRINTS: Array<{ match: RegExp; steps: TKey[] }> = [
   {
     match: /learn|study|course|master/i,
-    steps: [
-      'Define what "done" looks like',
-      'Complete the first module',
-      'Build a practice exercise',
-      'Teach it back in writing',
-    ],
+    steps: ['goal.sugg.learn1', 'goal.sugg.learn2', 'goal.sugg.learn3', 'goal.sugg.learn4'],
   },
   {
     match: /launch|ship|release|publish/i,
-    steps: [
-      'Write a one-paragraph scope',
-      'Build the smallest version',
-      'Test with one real user',
-      'Announce publicly',
-    ],
+    steps: ['goal.sugg.launch1', 'goal.sugg.launch2', 'goal.sugg.launch3', 'goal.sugg.launch4'],
   },
   {
     match: /write|book|article|blog/i,
-    steps: ['Outline the headlines', 'Ugly first draft', 'Edit pass with examples', 'Publish'],
+    steps: ['goal.sugg.write1', 'goal.sugg.write2', 'goal.sugg.write3', 'goal.sugg.write4'],
   },
   {
     match: /fit|health|run|gym|sport/i,
-    steps: [
-      'Baseline week: track everything',
-      'Schedule 3 sessions',
-      'Log every session',
-      'Review and adjust',
-    ],
+    steps: ['goal.sugg.fit1', 'goal.sugg.fit2', 'goal.sugg.fit3', 'goal.sugg.fit4'],
   },
   {
     match: /save|money|debt|budget/i,
-    steps: [
-      'Compute the exact number',
-      'Automate one transfer',
-      'Cut one recurring expense',
-      'Monthly review',
-    ],
+    steps: ['goal.sugg.save1', 'goal.sugg.save2', 'goal.sugg.save3', 'goal.sugg.save4'],
   },
 ];
 
-const DEFAULT_STEPS = [
-  'Define done in one sentence',
-  'Split into 3 concrete milestones',
-  'Do the first concrete step',
-  'Weekly review',
+const DEFAULT_STEPS: TKey[] = [
+  'goal.sugg.default1',
+  'goal.sugg.default2',
+  'goal.sugg.default3',
+  'goal.sugg.default4',
 ];
 
-/** Suggest starter tasks for a goal title (Roadmap 4.3, rule-based). */
-export function suggestTasksForGoal(title: string): string[] {
+/**
+ * Suggest starter tasks for a goal title (Roadmap 4.3, rule-based), in the
+ * caller's locale — the strings become user data once a task is created.
+ */
+export function suggestTasksForGoal(title: string, i18n: I18n = EN_I18N): string[] {
   const clean = title.trim();
   if (!clean) return [];
-  for (const bp of GOAL_BLUEPRINTS) {
-    if (bp.match.test(clean)) return [...bp.steps];
-  }
-  return [...DEFAULT_STEPS];
+  const bp = GOAL_BLUEPRINTS.find((b) => b.match.test(clean));
+  return (bp ? bp.steps : DEFAULT_STEPS).map((k) => i18n.t(k));
 }
 
 /* ---------------- SMART check + conflicts (Roadmap 4.3/4.2) ---------------- */

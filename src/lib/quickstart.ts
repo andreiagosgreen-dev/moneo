@@ -14,6 +14,7 @@
 import { createProjectObject, type Project } from './projects';
 import { createTaskObject, type Task } from './tasks';
 import { createGoalObject, suggestTasksForGoal, type Goal } from './goals';
+import { createI18n, type I18n } from './i18n';
 
 export interface QuickStartPlan {
   /** Null when the goal cap is hit — project progress still pays off. */
@@ -31,9 +32,11 @@ export interface QuickStartInput {
   existingProject?: Project | null;
   /** False when the goal cap is hit. Defaults to true. */
   createGoal?: boolean;
+  /** Locale for suggested/fallback task titles. Defaults to English. */
+  i18n?: I18n;
 }
 
-const FALLBACK_TASK = 'Take the first concrete step';
+const EN_I18N = createI18n('en');
 
 /**
  * Build the quickstart objects. Returns null for a blank goal title —
@@ -43,7 +46,9 @@ export function planQuickStart(input: QuickStartInput): QuickStartPlan | null {
   const cleanGoal = input.goalTitle.trim().slice(0, 80);
   if (!cleanGoal) return null;
   const cleanTask = (input.taskTitle ?? '').trim().slice(0, 80);
-  const taskTitle = cleanTask || suggestTasksForGoal(cleanGoal)[0] || FALLBACK_TASK;
+  const i18n = input.i18n ?? EN_I18N;
+  const taskTitle =
+    cleanTask || suggestTasksForGoal(cleanGoal, i18n)[0] || i18n.t('goal.sugg.fallback');
 
   const createdProject = !input.existingProject;
   const project = input.existingProject ?? createProjectObject(cleanGoal.slice(0, 60), 'personal');

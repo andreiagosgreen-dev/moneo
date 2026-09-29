@@ -22,6 +22,8 @@ import {
   type Goal,
 } from './goals';
 import type { Task } from './tasks';
+import { createI18n } from './i18n';
+import { ro } from './i18n/locales/ro';
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
   return {
@@ -168,6 +170,14 @@ describe('suggestTasksForGoal', () => {
   it('falls back to generic steps, empty on blank', () => {
     expect(suggestTasksForGoal('Reorganize garage')).toContain('Weekly review');
     expect(suggestTasksForGoal('   ')).toEqual([]);
+  });
+
+  it('speaks the caller locale', () => {
+    const roI18n = createI18n('ro', ro);
+    expect(suggestTasksForGoal('Să alerg 5 km', roI18n)[0]).toBe(
+      'Descrie într-o propoziție când e gata',
+    );
+    expect(suggestTasksForGoal('Learn React', roI18n)).toContain('Fă un exercițiu practic');
   });
 });
 
