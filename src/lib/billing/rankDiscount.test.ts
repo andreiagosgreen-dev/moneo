@@ -36,11 +36,9 @@ describe('rank discount client', () => {
     expect(
       parseDiscountStatus({
         eligible: true,
-        offer: 'first_month',
         rank: 'practitioner',
         level: 10,
         percent: 20,
-        plan: 'pro-monthly',
         discountCode: 'MONEOABC123',
         expiresAt: '2026-10-13T12:00:00.000Z',
       }),
@@ -52,15 +50,10 @@ describe('rank discount client', () => {
     expect(parseDiscountStatus({ eligible: true, rank: 'god' })).toBeNull();
     const s = parseDiscountStatus({
       eligible: true,
-      offer: 'first_month',
       rank: 'expert',
-      plan: 'pro-monthly',
       discountCode: 'bad code&x=1',
     });
     expect(s?.discountCode).toBeUndefined();
-    expect(
-      parseDiscountStatus({ eligible: true, offer: null, rank: 'expert', plan: null })?.eligible,
-    ).toBe(false);
   });
 
   it('hides the offer when the Worker is not configured or the user is signed out', async () => {
@@ -76,9 +69,7 @@ describe('rank discount client', () => {
       token,
       respond(403, {
         eligible: false,
-        offer: 'first_month',
         rank: 'beginner',
-        plan: 'pro-monthly',
         reason: 'rank_too_low',
         code: 'not_eligible',
       }),
@@ -87,7 +78,7 @@ describe('rank discount client', () => {
   });
 
   it('sends the bearer token and method', async () => {
-    const f = respond(200, { eligible: false, rank: 'beginner', offer: null, plan: null });
+    const f = respond(200, { eligible: false, rank: 'beginner' });
     await requestRankDiscount('POST', token, f);
     const [url, init] = (f as unknown as ReturnType<typeof vi.fn>).mock.calls[0];
     expect(url).toBe('/api/billing/discount');

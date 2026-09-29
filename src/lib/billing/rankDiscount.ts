@@ -8,18 +8,14 @@
 
 import type { RankId } from '../xpCore';
 
-export type DiscountOffer = 'first_month' | 'yearly_switch';
+export type DiscountReason = 'too_new' | 'rank_too_low' | 'already_pro' | 'claimed';
 
-export type DiscountReason =
-  'too_new' | 'rank_too_low' | 'already_pro' | 'already_yearly' | 'claimed';
-
+/** First month of Pro monthly — the only plan a rank discount applies to. */
 export interface RankDiscountStatus {
   eligible: boolean;
-  offer: DiscountOffer | null;
   rank: RankId;
   level: number;
   percent: number;
-  plan: 'pro-monthly' | 'pro-yearly' | null;
   reason?: DiscountReason;
   targetRank?: RankId;
   targetLevel?: number;
@@ -46,20 +42,16 @@ export function parseDiscountStatus(body: unknown): RankDiscountStatus | null {
   if (typeof b.eligible !== 'boolean' || typeof b.rank !== 'string' || !RANK_IDS.has(b.rank)) {
     return null;
   }
-  const offer = b.offer === 'first_month' || b.offer === 'yearly_switch' ? b.offer : null;
-  const plan = b.plan === 'pro-monthly' || b.plan === 'pro-yearly' ? b.plan : null;
   const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : undefined);
   const code =
     typeof b.discountCode === 'string' && /^[A-Z0-9]{3,64}$/.test(b.discountCode)
       ? b.discountCode
       : undefined;
   return {
-    eligible: b.eligible && offer !== null && plan !== null,
-    offer,
+    eligible: b.eligible,
     rank: b.rank as RankId,
     level: num(b.level) ?? 1,
     percent: num(b.percent) ?? 0,
-    plan,
     reason: typeof b.reason === 'string' ? (b.reason as DiscountReason) : undefined,
     targetRank:
       typeof b.targetRank === 'string' && RANK_IDS.has(b.targetRank)

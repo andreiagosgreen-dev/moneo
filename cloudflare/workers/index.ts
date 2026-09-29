@@ -98,10 +98,9 @@ export interface Env {
   LEMON_MONTHLY_IDS?: string;
   /** "true" lets Lemon test-mode webhooks grant Pro; anything else ignores them. */
   ALLOW_TEST_MODE?: string;
-  /** Lemon store + numeric variant ids the rank discount codes are created for (public). */
+  /** Lemon store + monthly numeric variant id the rank discount codes are created for (public). */
   LEMON_STORE_ID?: string;
   LEMON_MONTHLY_VARIANT_ID?: string;
-  LEMON_YEARLY_VARIANT_ID?: string;
   KV_CACHE?: DiscountKV;
 }
 
@@ -201,7 +200,7 @@ export default {
     }
 
     // Rank discount codes: JWT-gated, rank recomputed from synced data,
-    // one code per account per offer. 503 `not_configured` without the Lemon key.
+    // one first-month code per account. 503 `not_configured` without the Lemon key.
     if (url.pathname === '/api/billing/discount') {
       return handleRankDiscount(request, env);
     }

@@ -2112,17 +2112,12 @@ export const es: Record<TKey, string> = {
     'La XP de las sesiones de foco te acompaña a tus otros dispositivos cuando la sincronización está activada. Con Pro, las tareas y los hábitos también se sincronizan; en Free solo cuentan en el dispositivo donde los completaste.',
   'mono.discount.eyebrow': 'Recompensa de rango',
   'mono.discount.firstMonth': 'Eres {rank}: tienes un {pct}% de descuento en tu primer mes',
-  'mono.discount.yearly': 'Eres {rank}: {pct}% de descuento al pasar al plan anual',
   'mono.discount.terms': 'Código de un solo uso, válido {days} días, uno por cuenta.',
   'mono.discount.code': 'Tu código: {code} · válido hasta el {date}',
   'mono.discount.cta': 'Usar mi descuento',
   'mono.discount.ctaBusy': 'Preparando tu código…',
-  'mono.discount.yearlyNote':
-    'Después de comprar el plan anual, cancela el mensual en «Gestionar suscripción» para no pagar dos veces.',
   'mono.discount.hintRank':
     'Llega a {rank} (nivel {level}) y obtén un {pct}% de descuento en tu primer mes de Pro.',
-  'mono.discount.hintRankYearly':
-    'Llega a {rank} (nivel {level}) y obtén un {pct}% de descuento al pasar al plan anual.',
   'mono.discount.hintTooNew':
     'Los descuentos por rango se desbloquean cuando tu cuenta tiene {days} días.',
   'mono.discount.verified':

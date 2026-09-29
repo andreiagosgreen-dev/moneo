@@ -1,9 +1,8 @@
 /**
- * Rank-based Pro discounts (`GET|POST /api/billing/discount`).
- *
- * - Free accounts: a percentage off the FIRST month of Pro monthly
- *   (Apprentice 10%, Practitioner 20%, Expert/Master 30%).
- * - Pro monthly subscribers from Practitioner: 15% off switching to yearly.
+ * Rank-based Pro discount (`GET|POST /api/billing/discount`): accounts
+ * without Pro get a percentage off the FIRST month of Pro monthly
+ * (Apprentice 10%, Practitioner 20%, Expert/Master 30%). Accounts that
+ * already have Pro get no offer.
  *
  * The rank is never taken from the client. It is recomputed here with the
  * app's own rules (`src/lib/xpCore.ts`) from what the account has synced to
@@ -12,7 +11,7 @@
  * the account's creation and now counts, so back-dated uploads cannot buy a
  * rank; phase/project bonuses are skipped because they carry no date.
  *
- * Each account gets at most one code per offer, ever: the claim is written to
+ * Each account gets at most one code, ever: the claim is written to
  * KV only after Lemon Squeezy created the single-use code, and a live claim
  * is handed back instead of minting a new one. Without the Lemon API key (or
  * store / variant / KV config) the endpoint answers 503 `not_configured` and
@@ -50,21 +49,17 @@ export interface DiscountEnv {
   LEMON_SQUEEZY_API_KEY?: string;
   LEMON_STORE_ID?: string;
   LEMON_MONTHLY_VARIANT_ID?: string;
-  LEMON_YEARLY_VARIANT_ID?: string;
   PRO_COMPLIMENTARY_EMAILS?: string;
   KV_CACHE?: DiscountKV;
 }
 
-export type DiscountOffer = 'first_month' | 'yearly_switch';
-
-export type DiscountReason =
-  'too_new' | 'rank_too_low' | 'already_pro' | 'already_yearly' | 'claimed';
+export type DiscountReason = 'too_new' | 'rank_too_low' | 'already_pro' | 'claimed';
 
 const DAY_MS = 86_400_000;
 export const MIN_ACCOUNT_AGE_DAYS = 7;
 export const CODE_VALID_DAYS = 14;
-export const YEARLY_SWITCH_PERCENT = 15;
-export const YEARLY_SWITCH_MIN_RANK: RankId = 'practitioner';
+/** Lowest rank with a discount (Apprentice / Ucenic). */
+export const FIRST_DISCOUNT_RANK: RankId = 'apprentice';
 export const FIRST_MONTH_PERCENT: Record<RankId, number> = {
   beginner: 0,
   apprentice: 10,
@@ -77,25 +72,20 @@ const LOCK_TTL_S = 60;
 const PAGE_SIZE = 1000;
 const MAX_PAGES = 20;
 
-export function claimKey(userId: string, offer: DiscountOffer): string {
-  return offer === 'first_month' ? `discount:${userId}` : `discount:yearly:${userId}`;
+export function claimKey(userId: string): string {
+  return `discount:${userId}`;
 }
 
 function lockKey(userId: string): string {
   return `discount-lock:${userId}`;
 }
 
-function rankIndex(id: RankId): number {
-  return RANKS.findIndex((r) => r.id === id);
-}
-
 function firstLevelOf(id: RankId): number {
-  return RANKS[rankIndex(id)].firstLevel;
+  return RANKS.find((r) => r.id === id)?.firstLevel ?? 1;
 }
 
-export function percentFor(offer: DiscountOffer, rank: RankId): number {
-  if (offer === 'first_month') return FIRST_MONTH_PERCENT[rank];
-  return rankIndex(rank) >= rankIndex(YEARLY_SWITCH_MIN_RANK) ? YEARLY_SWITCH_PERCENT : 0;
+export function percentFor(rank: RankId): number {
+  return FIRST_MONTH_PERCENT[rank];
 }
 
 /* ---------- server-side XP ---------- */
@@ -137,11 +127,10 @@ export function computeServerXp(input: ServerXpInput, from: number, to: number):
 
 /* ---------- eligibility (pure) ---------- */
 
-export type ProState = 'none' | 'monthly' | 'yearly' | 'complimentary';
+export type ProState = 'none' | 'pro';
 
 export interface DiscountClaim {
   code: string;
-  offer: DiscountOffer;
   percent: number;
   /** Epoch ms. */
   expiresAt: number;
@@ -151,13 +140,10 @@ export interface DiscountClaim {
 
 export interface DiscountStatus {
   eligible: boolean;
-  offer: DiscountOffer | null;
   rank: RankId;
   level: number;
   xp: number;
   percent: number;
-  /** Plan the code applies to (checkout target). */
-  plan: 'pro-monthly' | 'pro-yearly' | null;
   reason?: DiscountReason;
   /** ISO date the account becomes old enough (reason `too_new`). */
   eligibleFrom?: string;
@@ -175,7 +161,7 @@ export interface EligibilityInput {
   accountCreatedAt: number | undefined;
   xp: number;
   pro: ProState;
-  claims: Partial<Record<DiscountOffer, DiscountClaim | null>>;
+  claim: DiscountClaim | null;
 }
 
 export function evaluateDiscount(input: EligibilityInput): DiscountStatus {
@@ -183,44 +169,31 @@ export function evaluateDiscount(input: EligibilityInput): DiscountStatus {
   const rank = rankForLevel(level).id;
   const base = { rank, level, xp: input.xp };
 
-  if (input.pro === 'complimentary' || input.pro === 'yearly') {
-    return {
-      ...base,
-      eligible: false,
-      offer: null,
-      percent: 0,
-      plan: null,
-      reason: input.pro === 'yearly' ? 'already_yearly' : 'already_pro',
-    };
+  if (input.pro === 'pro') {
+    return { ...base, eligible: false, percent: 0, reason: 'already_pro' };
   }
 
-  const offer: DiscountOffer = input.pro === 'monthly' ? 'yearly_switch' : 'first_month';
-  const plan = offer === 'first_month' ? 'pro-monthly' : 'pro-yearly';
-  const claim = input.claims[offer];
+  const claim = input.claim;
   if (claim) {
     if (claim.expiresAt > input.now) {
       return {
         ...base,
         eligible: true,
-        offer,
-        plan,
         percent: claim.percent,
         discountCode: claim.code,
         expiresAt: new Date(claim.expiresAt).toISOString(),
       };
     }
-    return { ...base, eligible: false, offer, plan, percent: claim.percent, reason: 'claimed' };
+    return { ...base, eligible: false, percent: claim.percent, reason: 'claimed' };
   }
 
-  const percent = percentFor(offer, rank);
+  const percent = percentFor(rank);
   const minAge = MIN_ACCOUNT_AGE_DAYS * DAY_MS;
   const created = input.accountCreatedAt;
   if (created === undefined || !Number.isFinite(created) || input.now - created < minAge) {
     return {
       ...base,
       eligible: false,
-      offer,
-      plan,
       percent,
       reason: 'too_new',
       ...(created !== undefined && Number.isFinite(created)
@@ -230,21 +203,18 @@ export function evaluateDiscount(input: EligibilityInput): DiscountStatus {
   }
 
   if (percent <= 0) {
-    const targetRank: RankId = offer === 'first_month' ? 'apprentice' : YEARLY_SWITCH_MIN_RANK;
     return {
       ...base,
       eligible: false,
-      offer,
-      plan,
       percent: 0,
       reason: 'rank_too_low',
-      targetRank,
-      targetLevel: firstLevelOf(targetRank),
-      targetPercent: percentFor(offer, targetRank),
+      targetRank: FIRST_DISCOUNT_RANK,
+      targetLevel: firstLevelOf(FIRST_DISCOUNT_RANK),
+      targetPercent: percentFor(FIRST_DISCOUNT_RANK),
     };
   }
 
-  return { ...base, eligible: true, offer, plan, percent };
+  return { ...base, eligible: true, percent };
 }
 
 /* ---------- Lemon Squeezy ---------- */
@@ -407,22 +377,20 @@ async function loadProState(
   now: number,
 ): Promise<ProState | null> {
   if (hasComplimentaryPro(email, resolveComplimentaryAllowlist(env.PRO_COMPLIMENTARY_EMAILS))) {
-    return 'complimentary';
+    return 'pro';
   }
   try {
     const res = await fetchImpl(
-      `${env.SUPABASE_URL}/rest/v1/subscriptions?user_id=eq.${encodeURIComponent(userId)}&select=plan_id,status,current_period_end&limit=1`,
+      `${env.SUPABASE_URL}/rest/v1/subscriptions?user_id=eq.${encodeURIComponent(userId)}&select=status,current_period_end&limit=1`,
       { headers: restHeaders(env.SUPABASE_SERVICE_ROLE_KEY) },
     );
     if (!res.ok) return null;
     const rows = (await res.json()) as Array<{
-      plan_id?: unknown;
       status?: string;
       current_period_end?: string | null;
     }>;
     const row = Array.isArray(rows) ? rows[0] : undefined;
-    if (!row || !hasPaidProAccess(row.status, row.current_period_end, now)) return 'none';
-    return row.plan_id === 'pro-yearly' ? 'yearly' : 'monthly';
+    return row && hasPaidProAccess(row.status, row.current_period_end, now) ? 'pro' : 'none';
   } catch {
     return null;
   }
@@ -435,7 +403,6 @@ export function parseClaim(raw: string | null): DiscountClaim | null {
     if (typeof c.code !== 'string' || typeof c.expiresAt !== 'number') return null;
     return {
       code: c.code,
-      offer: c.offer === 'yearly_switch' ? 'yearly_switch' : 'first_month',
       percent: typeof c.percent === 'number' ? c.percent : 0,
       expiresAt: c.expiresAt,
       discountId: typeof c.discountId === 'string' ? c.discountId : '',
@@ -484,7 +451,6 @@ export async function handleRankDiscount(
     LEMON_SQUEEZY_API_KEY,
     LEMON_STORE_ID,
     LEMON_MONTHLY_VARIANT_ID,
-    LEMON_YEARLY_VARIANT_ID,
     KV_CACHE,
   } = env;
   if (
@@ -493,7 +459,6 @@ export async function handleRankDiscount(
     !LEMON_SQUEEZY_API_KEY ||
     !LEMON_STORE_ID ||
     !LEMON_MONTHLY_VARIANT_ID ||
-    !LEMON_YEARLY_VARIANT_ID ||
     !KV_CACHE
   ) {
     return json({ error: 'Discounts are not configured', code: 'not_configured' }, 503);
@@ -505,13 +470,9 @@ export async function handleRankDiscount(
   if (!user) return json({ error: 'Invalid or expired session' }, 401);
 
   const windowFrom = user.createdAt ?? nowMs;
-  let firstClaimRaw: string | null;
-  let yearlyClaimRaw: string | null;
+  let claimRaw: string | null;
   try {
-    [firstClaimRaw, yearlyClaimRaw] = await Promise.all([
-      KV_CACHE.get(claimKey(user.userId, 'first_month')),
-      KV_CACHE.get(claimKey(user.userId, 'yearly_switch')),
-    ]);
+    claimRaw = await KV_CACHE.get(claimKey(user.userId));
   } catch {
     return json({ error: 'Could not read discount state', code: 'storage' }, 502);
   }
@@ -534,14 +495,11 @@ export async function handleRankDiscount(
     accountCreatedAt: user.createdAt,
     xp: computeServerXp(xpInput, windowFrom, nowMs),
     pro,
-    claims: {
-      first_month: parseClaim(firstClaimRaw),
-      yearly_switch: parseClaim(yearlyClaimRaw),
-    },
+    claim: parseClaim(claimRaw),
   });
 
   if (request.method === 'GET') return json(status, 200);
-  if (!status.eligible || !status.offer) {
+  if (!status.eligible) {
     return json({ ...status, error: 'Not eligible', code: 'not_eligible' }, 403);
   }
   if (status.discountCode) return json(status, 200);
@@ -556,18 +514,17 @@ export async function handleRankDiscount(
     return json({ error: 'Could not reserve a code', code: 'storage' }, 502);
   }
 
-  const offer = status.offer;
   const code = (deps.newCode ?? generateDiscountCode)();
   const expiresAt = nowMs + CODE_VALID_DAYS * DAY_MS;
   const discountId = await createLemonDiscount(
     {
       apiKey: LEMON_SQUEEZY_API_KEY,
       storeId: LEMON_STORE_ID,
-      variantId: offer === 'first_month' ? LEMON_MONTHLY_VARIANT_ID : LEMON_YEARLY_VARIANT_ID,
+      variantId: LEMON_MONTHLY_VARIANT_ID,
       code,
       percent: status.percent,
       expiresAt,
-      name: `Moneo ${status.rank} ${status.percent}% ${offer === 'first_month' ? 'first month' : 'yearly switch'}`,
+      name: `Moneo ${status.rank} ${status.percent}% first month`,
     },
     fetchImpl,
   );
@@ -578,14 +535,13 @@ export async function handleRankDiscount(
 
   const claim: DiscountClaim = {
     code,
-    offer,
     percent: status.percent,
     expiresAt,
     discountId,
     createdAt: nowMs,
   };
   try {
-    await KV_CACHE.put(claimKey(user.userId, offer), JSON.stringify(claim));
+    await KV_CACHE.put(claimKey(user.userId), JSON.stringify(claim));
   } catch {
     /* the code exists in Lemon; hand it out rather than strand it */
   }

@@ -2125,17 +2125,12 @@ export const it: Record<TKey, string> = {
     'Gli XP delle sessioni di focus ti seguono sugli altri dispositivi quando la sincronizzazione è attiva. Con Pro si sincronizzano anche attività e abitudini; con Free contano solo sul dispositivo in cui le hai completate.',
   'mono.discount.eyebrow': 'Premio di grado',
   'mono.discount.firstMonth': 'Sei {rank}: hai il {pct}% di sconto sul primo mese',
-  'mono.discount.yearly': 'Sei {rank}: {pct}% di sconto passando all’annuale',
   'mono.discount.terms': 'Codice monouso, valido {days} giorni, uno per account.',
   'mono.discount.code': 'Il tuo codice: {code} · valido fino al {date}',
   'mono.discount.cta': 'Usa il mio sconto',
   'mono.discount.ctaBusy': 'Preparazione del codice…',
-  'mono.discount.yearlyNote':
-    'Dopo aver acquistato l’annuale, annulla il mensile da «Gestisci abbonamento» per non pagare due volte.',
   'mono.discount.hintRank':
     'Raggiungi {rank} (livello {level}) per avere il {pct}% di sconto sul primo mese di Pro.',
-  'mono.discount.hintRankYearly':
-    'Raggiungi {rank} (livello {level}) per avere il {pct}% di sconto passando all’annuale.',
   'mono.discount.hintTooNew':
     'Gli sconti di grado si sbloccano quando il tuo account ha {days} giorni.',
   'mono.discount.verified':

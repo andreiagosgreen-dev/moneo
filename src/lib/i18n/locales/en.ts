@@ -2113,17 +2113,12 @@ export const en = {
     'XP from focus sessions follows you to your other devices when sync is on. With Pro, tasks and habits sync too; on Free they count only on the device where you completed them.',
   'mono.discount.eyebrow': 'Rank reward',
   'mono.discount.firstMonth': 'You’re {rank} — you get {pct}% off your first month',
-  'mono.discount.yearly': 'You’re {rank} — {pct}% off when you switch to yearly',
   'mono.discount.terms': 'Single-use code, valid for {days} days, one per account.',
   'mono.discount.code': 'Your code: {code} · valid until {date}',
   'mono.discount.cta': 'Use my discount',
   'mono.discount.ctaBusy': 'Preparing your code…',
-  'mono.discount.yearlyNote':
-    'After buying yearly, cancel the monthly plan from Manage subscription so you are not billed twice.',
   'mono.discount.hintRank':
     'Reach {rank} (level {level}) to get {pct}% off your first month of Pro.',
-  'mono.discount.hintRankYearly':
-    'Reach {rank} (level {level}) to get {pct}% off switching to yearly.',
   'mono.discount.hintTooNew': 'Rank discounts unlock once your account is {days} days old.',
   'mono.discount.verified':
     'This rank counts the activity synced to your account since you created it.',

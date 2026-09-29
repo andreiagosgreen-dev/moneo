@@ -83,7 +83,6 @@ function env(kv: DiscountKV, overrides: Partial<DiscountEnv> = {}): DiscountEnv 
     LEMON_SQUEEZY_API_KEY: 'lemon-key',
     LEMON_STORE_ID: '478882',
     LEMON_MONTHLY_VARIANT_ID: '2156059',
-    LEMON_YEARLY_VARIANT_ID: '2156050',
     KV_CACHE: kv,
     ...overrides,
   };
@@ -111,30 +110,22 @@ function lemonCalls(f: ReturnType<typeof mockFetch>) {
 
 describe('percentFor', () => {
   it('maps ranks to the first-month percentage', () => {
-    expect(percentFor('first_month', 'beginner')).toBe(0);
-    expect(percentFor('first_month', 'apprentice')).toBe(10);
-    expect(percentFor('first_month', 'practitioner')).toBe(20);
-    expect(percentFor('first_month', 'expert')).toBe(30);
-    expect(percentFor('first_month', 'master')).toBe(30);
-  });
-
-  it('gives 15% for the yearly switch only from Practitioner', () => {
-    expect(percentFor('yearly_switch', 'apprentice')).toBe(0);
-    expect(percentFor('yearly_switch', 'practitioner')).toBe(15);
-    expect(percentFor('yearly_switch', 'master')).toBe(15);
+    expect(percentFor('beginner')).toBe(0);
+    expect(percentFor('apprentice')).toBe(10);
+    expect(percentFor('practitioner')).toBe(20);
+    expect(percentFor('expert')).toBe(30);
+    expect(percentFor('master')).toBe(30);
   });
 });
 
 describe('evaluateDiscount', () => {
-  const base = { now: NOW, accountCreatedAt: NOW - 30 * DAY, pro: 'none' as const, claims: {} };
+  const base = { now: NOW, accountCreatedAt: NOW - 30 * DAY, pro: 'none' as const, claim: null };
 
   it('derives the rank from XP and the percent from the rank', () => {
     expect(evaluateDiscount({ ...base, xp: xpAtLevel(4) })).toMatchObject({
       eligible: true,
-      offer: 'first_month',
       rank: 'apprentice',
       percent: 10,
-      plan: 'pro-monthly',
     });
     expect(evaluateDiscount({ ...base, xp: xpAtLevel(9) }).percent).toBe(20);
     expect(evaluateDiscount({ ...base, xp: xpAtLevel(15) }).percent).toBe(30);
@@ -160,31 +151,31 @@ describe('evaluateDiscount', () => {
     );
   });
 
-  it('hides offers from yearly and complimentary Pro', () => {
-    expect(evaluateDiscount({ ...base, pro: 'yearly', xp: 99999 }).reason).toBe('already_yearly');
-    expect(evaluateDiscount({ ...base, pro: 'complimentary', xp: 99999 }).reason).toBe(
-      'already_pro',
-    );
+  it('shows no offer to accounts that already have Pro', () => {
+    expect(evaluateDiscount({ ...base, pro: 'pro', xp: 99999 })).toMatchObject({
+      eligible: false,
+      reason: 'already_pro',
+    });
   });
 
   it('returns a live claim and refuses a second code after it expired', () => {
     const claim = {
       code: 'MONEOX',
-      offer: 'first_month' as const,
       percent: 20,
       expiresAt: NOW + DAY,
       discountId: '1',
       createdAt: NOW - DAY,
     };
-    expect(evaluateDiscount({ ...base, xp: 0, claims: { first_month: claim } })).toMatchObject({
+    expect(evaluateDiscount({ ...base, xp: 0, claim })).toMatchObject({
       eligible: true,
       discountCode: 'MONEOX',
       percent: 20,
     });
     const expired = { ...claim, expiresAt: NOW - 1 };
-    expect(
-      evaluateDiscount({ ...base, xp: 99999, claims: { first_month: expired } }),
-    ).toMatchObject({ eligible: false, reason: 'claimed' });
+    expect(evaluateDiscount({ ...base, xp: 99999, claim: expired })).toMatchObject({
+      eligible: false,
+      reason: 'claimed',
+    });
   });
 });
 
@@ -272,7 +263,6 @@ describe('handleRankDiscount', () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({
       eligible: true,
-      offer: 'first_month',
       rank: 'practitioner',
       percent: 20,
     });
@@ -288,7 +278,6 @@ describe('handleRankDiscount', () => {
     expect(body).toMatchObject({
       discountCode: 'MONEOTESTCODE1',
       percent: 20,
-      plan: 'pro-monthly',
     });
     expect(body.expiresAt).toBe(new Date(NOW + CODE_VALID_DAYS * DAY).toISOString());
 
@@ -310,7 +299,7 @@ describe('handleRankDiscount', () => {
     expect(sent.data.relationships.store.data).toEqual({ type: 'stores', id: '478882' });
     expect(sent.data.relationships.variants.data).toEqual([{ type: 'variants', id: '2156059' }]);
 
-    const stored = JSON.parse(kv.data.get(claimKey(USER, 'first_month')) ?? '{}');
+    const stored = JSON.parse(kv.data.get(claimKey(USER)) ?? '{}');
     expect(stored).toMatchObject({ code: 'MONEOTESTCODE1', discountId: '9001', percent: 20 });
     expect(kv.data.has(`discount-lock:${USER}`)).toBe(false);
   });
@@ -330,9 +319,8 @@ describe('handleRankDiscount', () => {
 
   it('does not mint a new code once the claimed one expired', async () => {
     const kv = memoryKv({
-      [claimKey(USER, 'first_month')]: JSON.stringify({
+      [claimKey(USER)]: JSON.stringify({
         code: 'MONEOOLD',
-        offer: 'first_month',
         percent: 10,
         expiresAt: NOW - 1,
         discountId: '1',
@@ -382,45 +370,28 @@ describe('handleRankDiscount', () => {
     expect(await res.json()).toMatchObject({ reason: 'too_new' });
   });
 
-  it('offers Practitioner+ monthly subscribers 15% off yearly', async () => {
-    const kv = memoryKv();
-    const f = mockFetch({
-      sessions: sessionRows(26, 240),
-      subscription: { plan_id: 'pro-monthly', status: 'active', current_period_end: null },
-    });
-    const res = await handleRankDiscount(req('POST'), env(kv), deps(f));
-    expect(res.status).toBe(200);
-    expect(await res.json()).toMatchObject({
-      offer: 'yearly_switch',
-      percent: 15,
-      plan: 'pro-yearly',
-    });
-    const sent = JSON.parse(String(lemonCalls(f)[0][1]?.body));
-    expect(sent.data.relationships.variants.data).toEqual([{ type: 'variants', id: '2156050' }]);
-    expect(kv.data.has(claimKey(USER, 'yearly_switch'))).toBe(true);
+  it('existing Pro subscribers (monthly or yearly) get no offer and no code', async () => {
+    for (const plan_id of ['pro-monthly', 'pro-yearly']) {
+      const kv = memoryKv();
+      const f = mockFetch({
+        sessions: sessionRows(26, 240),
+        subscription: { plan_id, status: 'active', current_period_end: null },
+      });
+      const res = await handleRankDiscount(req('POST'), env(kv), deps(f));
+      expect(res.status).toBe(403);
+      expect(await res.json()).toMatchObject({ eligible: false, reason: 'already_pro' });
+      expect(lemonCalls(f)).toHaveLength(0);
+      expect(kv.data.size).toBe(0);
+    }
   });
 
-  it('tells an Apprentice monthly subscriber to reach Practitioner', async () => {
-    const f = mockFetch({
-      sessions: sessionRows(3, 240),
-      subscription: { plan_id: 'pro-monthly', status: 'active', current_period_end: null },
-    });
-    const res = await handleRankDiscount(req('GET'), env(memoryKv()), deps(f));
-    expect(await res.json()).toMatchObject({
-      eligible: false,
-      offer: 'yearly_switch',
-      reason: 'rank_too_low',
-      targetRank: 'practitioner',
-    });
-  });
-
-  it('shows nothing to yearly subscribers', async () => {
+  it('a lapsed subscription counts as no Pro', async () => {
     const f = mockFetch({
       sessions: sessionRows(26, 240),
-      subscription: { plan_id: 'pro-yearly', status: 'active', current_period_end: null },
+      subscription: { plan_id: 'pro-monthly', status: 'expired', current_period_end: null },
     });
     const res = await handleRankDiscount(req('GET'), env(memoryKv()), deps(f));
-    expect(await res.json()).toMatchObject({ eligible: false, reason: 'already_yearly' });
+    expect(await res.json()).toMatchObject({ eligible: true, percent: 20 });
   });
 
   it('counts synced tasks and habit check-ins from user_records', async () => {

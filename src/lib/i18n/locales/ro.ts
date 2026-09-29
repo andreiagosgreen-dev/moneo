@@ -2126,17 +2126,12 @@ export const ro: Record<TKey, string> = {
     'XP-ul din sesiunile de focus te urmează pe celelalte dispozitive când sincronizarea e pornită. Cu Pro se sincronizează și sarcinile și obiceiurile; în planul Gratuit contează doar pe dispozitivul pe care le-ai bifat.',
   'mono.discount.eyebrow': 'Recompensă de rang',
   'mono.discount.firstMonth': 'Ai rangul {rank} — primești {pct}% la prima lună',
-  'mono.discount.yearly': 'Ai rangul {rank} — primești {pct}% la trecerea pe anual',
   'mono.discount.terms': 'Cod de unică folosință, valabil {days} zile, unul per cont.',
   'mono.discount.code': 'Codul tău: {code} · valabil până la {date}',
   'mono.discount.cta': 'Folosește reducerea',
   'mono.discount.ctaBusy': 'Se pregătește codul…',
-  'mono.discount.yearlyNote':
-    'După ce cumperi planul anual, anulează-l pe cel lunar din Gestionează abonamentul, ca să nu plătești de două ori.',
   'mono.discount.hintRank':
     'Ajungi la {rank} (nivelul {level}) și primești {pct}% la prima lună de Pro.',
-  'mono.discount.hintRankYearly':
-    'Ajungi la {rank} (nivelul {level}) și primești {pct}% la trecerea pe anual.',
   'mono.discount.hintTooNew': 'Reducerile de rang se deblochează când contul are {days} zile.',
   'mono.discount.verified':
     'Rangul de aici numără activitatea sincronizată în cont de când l-ai creat.',

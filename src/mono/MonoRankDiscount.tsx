@@ -40,27 +40,21 @@ export default function MonoRankDiscount({ className = '' }: { className?: strin
     };
   }, [userId, auth.isPro]);
 
-  if (!userId || !status || !status.offer) return null;
+  if (!userId || !status) return null;
 
   const hint =
     status.reason === 'too_new'
       ? t('mono.discount.hintTooNew', { days: DISCOUNT_MIN_ACCOUNT_DAYS })
       : status.reason === 'rank_too_low' && status.targetRank && status.targetLevel
-        ? t(
-            status.offer === 'yearly_switch'
-              ? 'mono.discount.hintRankYearly'
-              : 'mono.discount.hintRank',
-            {
-              rank: t(RANK_KEYS[status.targetRank]),
-              level: fmtNum(status.targetLevel),
-              pct: fmtNum(status.targetPercent ?? 0),
-            },
-          )
+        ? t('mono.discount.hintRank', {
+            rank: t(RANK_KEYS[status.targetRank]),
+            level: fmtNum(status.targetLevel),
+            pct: fmtNum(status.targetPercent ?? 0),
+          })
         : null;
   if (!status.eligible && !hint) return null;
 
   const openCheckout = async () => {
-    if (!status.plan) return;
     setError(false);
     let code = status.discountCode;
     if (!code) {
@@ -79,7 +73,7 @@ export default function MonoRankDiscount({ className = '' }: { className?: strin
         return;
       }
     }
-    const url = buildCheckoutUrl(status.plan, userId, code);
+    const url = buildCheckoutUrl('pro-monthly', userId, code);
     if (!url || !openExternal(url)) setError(true);
   };
 
@@ -100,12 +94,7 @@ export default function MonoRankDiscount({ className = '' }: { className?: strin
         {status.eligible ? (
           <>
             <h3 className="mono-h2 mono-discount-title">
-              {t(
-                status.offer === 'yearly_switch'
-                  ? 'mono.discount.yearly'
-                  : 'mono.discount.firstMonth',
-                { rank: rankName, pct: fmtNum(status.percent) },
-              )}
+              {t('mono.discount.firstMonth', { rank: rankName, pct: fmtNum(status.percent) })}
             </h3>
             <p className="mono-meta">
               {t('mono.discount.terms', { days: DISCOUNT_CODE_VALID_DAYS })}
@@ -117,9 +106,6 @@ export default function MonoRankDiscount({ className = '' }: { className?: strin
                   date: expires.toLocaleDateString(tag),
                 })}
               </p>
-            )}
-            {status.offer === 'yearly_switch' && (
-              <p className="mono-meta">{t('mono.discount.yearlyNote')}</p>
             )}
             <button
               type="button"

@@ -2126,17 +2126,12 @@ export const de: Record<TKey, string> = {
     'XP aus Fokus-Sitzungen begleitet dich auf deine anderen Geräte, wenn der Abgleich an ist. Mit Pro werden auch Aufgaben und Gewohnheiten abgeglichen; in Free zählen sie nur auf dem Gerät, auf dem du sie erledigt hast.',
   'mono.discount.eyebrow': 'Rang-Belohnung',
   'mono.discount.firstMonth': 'Du bist {rank} — {pct}% Rabatt auf deinen ersten Monat',
-  'mono.discount.yearly': 'Du bist {rank} — {pct}% Rabatt beim Wechsel auf jährlich',
   'mono.discount.terms': 'Einmal-Code, {days} Tage gültig, einer pro Konto.',
   'mono.discount.code': 'Dein Code: {code} · gültig bis {date}',
   'mono.discount.cta': 'Rabatt nutzen',
   'mono.discount.ctaBusy': 'Code wird erstellt…',
-  'mono.discount.yearlyNote':
-    'Kündige nach dem Kauf des Jahresplans den Monatsplan unter „Abo verwalten“, damit du nicht doppelt zahlst.',
   'mono.discount.hintRank':
     'Erreiche {rank} (Stufe {level}) und erhalte {pct}% Rabatt auf deinen ersten Pro-Monat.',
-  'mono.discount.hintRankYearly':
-    'Erreiche {rank} (Stufe {level}) und erhalte {pct}% Rabatt beim Wechsel auf jährlich.',
   'mono.discount.hintTooNew':
     'Rang-Rabatte werden freigeschaltet, sobald dein Konto {days} Tage alt ist.',
   'mono.discount.verified':
