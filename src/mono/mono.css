@@ -4526,3 +4526,85 @@
   margin: 0;
   flex: 1 1 200px;
 }
+
+/* Life templates */
+.mono-tpl {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 20px 0;
+}
+.mono-tpl-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 640px) {
+  .mono-tpl-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .mono-tpl-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.mono-tpl-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--mono-border);
+  border-radius: 14px;
+  background: var(--mono-surface);
+}
+.mono-tpl-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.mono-tpl-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+.mono-tpl-name {
+  margin: 4px 0 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.mono-tpl-card .mono-meta {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.mono-tpl-counts {
+  font-variant-numeric: tabular-nums;
+}
+.mono-tpl-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+.mono-tpl-actions .mono-btn {
+  min-height: 44px;
+}
+.mono-tpl-lock {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.mono-tpl-dev > summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
