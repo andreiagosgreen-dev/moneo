@@ -83,7 +83,7 @@ test.describe('Today ring and pills', () => {
     await page.getByRole('tab', { name: 'Today' }).click();
 
     await expect(page.getByText('1 day overdue')).toBeVisible();
-    await expect(page.getByText('in 3 days')).toBeVisible();
+    await expect(page.getByText('In 3 days')).toBeVisible();
     await expect(page.getByText('Urgent', { exact: true })).toBeVisible();
     await expect(page.getByText('0 of 2 · 0%')).toBeVisible();
 

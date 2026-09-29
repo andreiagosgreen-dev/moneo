@@ -109,7 +109,7 @@ describe('MonoAzi', () => {
       }),
     );
     const pills = Array.from(c.querySelectorAll('.mono-pill')).map((x) => x.textContent);
-    expect(pills).toEqual(['Urgent', '1 day overdue', 'in 3 days']);
+    expect(pills).toEqual(['Urgent', '1 day overdue', 'In 3 days']);
     expect(c.querySelectorAll('.mono-pill-danger').length).toBe(2);
     expect(c.querySelectorAll('.mono-azi-pills').length).toBe(2);
   });
