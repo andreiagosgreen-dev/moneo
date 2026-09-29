@@ -8,6 +8,7 @@
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
 import { dayKeyInTz, currentStreakInTz } from './timezone';
+import { noonPlusDays } from './dayKeys';
 import { quadrantCounts, quadrantFocus } from './eisenhower';
 import { pickFrog } from './frog';
 import { goalForProject, goalProgress, rootGoals } from './goals';
@@ -110,13 +111,6 @@ export interface ParsedTaskCommand {
 }
 
 const ADD_TRIGGERS = /^(please\s+)?(add|create|new|todo|remind me to)\b/i;
-
-function noonPlusDays(now: number, days: number): number {
-  const d = new Date(now);
-  d.setHours(12, 0, 0, 0);
-  d.setDate(d.getDate() + days);
-  return d.getTime();
-}
 
 const WEEKDAYS = [
   'sunday',

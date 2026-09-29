@@ -148,11 +148,52 @@ describe('MonoAzi', () => {
     expect(input).toBeTruthy();
   });
 
-  it('disables the form when the list is full', () => {
+  it('keeps the field open when the list is full (overflow goes to the inbox)', () => {
     const c = render(screen({ totalCount: 6 }));
     const input = c.querySelector('#mono-azi-new') as HTMLInputElement;
-    expect(input.disabled).toBe(true);
+    expect(input.disabled).toBe(false);
     expect(input.placeholder).toBe('List is full (6).');
+  });
+
+  it('previews recognised tokens and blocks a submit with no title', () => {
+    const onAdd = vi.fn();
+    const c = render(screen({ onAdd }));
+    const input = c.querySelector('#mono-azi-new') as HTMLInputElement;
+    const type = (value: string) =>
+      act(() => {
+        const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+        setter.call(input, value);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    const submit = c.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+    type('Gym tomorrow 7:00 !1 30 min');
+    const preview = c.querySelector('#mono-azi-qa')!;
+    expect(preview.textContent).toContain('Urgent');
+    expect(preview.textContent).toContain('30m');
+    expect(submit.disabled).toBe(false);
+
+    type('tomorrow 7:00');
+    expect(submit.disabled).toBe(true);
+
+    type('Call mom');
+    expect(preview.textContent).toBe('');
+  });
+
+  it('keeps the draft when nothing was saved', () => {
+    const onAdd = vi.fn(() => false);
+    const c = render(screen({ onAdd }));
+    const input = c.querySelector('#mono-azi-new') as HTMLInputElement;
+    act(() => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+      setter.call(input, 'Read');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    act(() => {
+      input.form!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+    expect(onAdd).toHaveBeenCalledWith('Read');
+    expect(input.value).toBe('Read');
   });
 
   it('shows an empty priorities card with plural add placeholder (no thick blank bar)', () => {

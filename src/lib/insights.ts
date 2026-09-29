@@ -372,7 +372,11 @@ function nextTaskRule(
     });
   const best = ranked[0];
   const proj = projectById.get(best.task.projectId);
-  const projName = proj ? i18n.t('ins.next.inProject', { name: proj.name }) : '';
+  const projName = proj
+    ? i18n.t('ins.next.inProject', { name: proj.name })
+    : best.task.projectId === ''
+      ? i18n.t('ins.next.inProject', { name: i18n.t('mono.inbox.title') })
+      : '';
   return {
     id: 'nextTask',
     tier: 'pro',

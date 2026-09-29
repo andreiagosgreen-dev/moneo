@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { MONO_NAV_ITEMS, type MonoTab } from '../mono/MonoNav';
+import { QuickPills } from '../mono/MonoQuickPreview';
 import type { Task } from '../lib/tasks';
 import type { Project } from '../lib/projects';
 import type { Goal } from '../lib/goals';
+import { hasQuickTokens, parseQuickAdd } from '../lib/quickAdd';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
 
@@ -12,6 +14,7 @@ interface PaletteItem {
   key: string;
   kind: TKey;
   title: string;
+  meta?: ReactNode;
   run: () => void;
 }
 
@@ -26,6 +29,8 @@ interface Props {
   onToggleTimer: () => void;
   onSelectProject: (id: string) => void;
   onSelectTask: (id: string, projectId: string) => void;
+  /** Saves the query as a task (quick-add syntax). */
+  onQuickAdd?: (text: string) => boolean;
 }
 
 export default function CommandPalette({
@@ -39,8 +44,9 @@ export default function CommandPalette({
   onToggleTimer,
   onSelectProject,
   onSelectTask,
+  onQuickAdd,
 }: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [query, setQuery] = useState('');
   const [highlight, setHighlight] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -79,6 +85,7 @@ export default function CommandPalette({
       }
       out.push({ key: `tab-${tb.id}`, kind: 'nav.kind.action', title, run: () => onTab(tb.id) });
     }
+    const commandHits = out.length;
 
     if (q.length >= 2) {
       for (const p of projects) {
@@ -113,6 +120,22 @@ export default function CommandPalette({
       }
     }
 
+    const raw = query.trim();
+    if (onQuickAdd && raw.length > 0 && !out.some((i) => i.title.toLowerCase() === q)) {
+      const parsed = parseQuickAdd(raw, locale);
+      if (parsed.title) {
+        const add: PaletteItem = {
+          key: 'action-add-task',
+          kind: 'nav.kind.action',
+          title: t('palette.addTask', { title: parsed.title }),
+          meta: hasQuickTokens(parsed) ? <QuickPills q={parsed} /> : undefined,
+          run: () => onQuickAdd(raw),
+        };
+        // A matching command (timer, "Go to …") keeps Enter; otherwise adding comes first.
+        out.splice(commandHits > 0 ? commandHits : 0, 0, add);
+      }
+    }
+
     return out.slice(0, 9);
   }, [
     query,
@@ -121,10 +144,12 @@ export default function CommandPalette({
     goals,
     running,
     t,
+    locale,
     onTab,
     onToggleTimer,
     onSelectProject,
     onSelectTask,
+    onQuickAdd,
   ]);
 
   useEffect(() => setHighlight(0), [items.length]);
@@ -199,6 +224,7 @@ export default function CommandPalette({
                     {t(item.kind)}
                   </span>
                   <span className="min-w-0 truncate text-[13px] text-cream/90">{item.title}</span>
+                  {item.meta ? <span className="ml-auto shrink-0">{item.meta}</span> : null}
                 </button>
               </li>
             ))

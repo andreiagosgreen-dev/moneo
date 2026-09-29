@@ -11,6 +11,8 @@ import MonoCheckin from './mono/MonoCheckin';
 import MonoReportInsights from './mono/MonoReportInsights';
 import MonoOrar from './mono/MonoOrar';
 import MonoProiecte from './mono/MonoProiecte';
+import MonoInbox from './mono/MonoInbox';
+import MonoToast from './mono/MonoToast';
 import MonoRapoarte from './mono/MonoRapoarte';
 import MonoCrestere from './mono/MonoCrestere';
 import MonoViata from './mono/MonoViata';
@@ -68,7 +70,10 @@ import {
   FREE_PROJECTS_LIMIT,
   type Project,
 } from './lib/projects';
-import { loadTasks, saveTasks, type Task } from './lib/tasks';
+import { loadTasks, removeTask, saveTasks, type Task } from './lib/tasks';
+import { hasQuickTokens, parseQuickAdd } from './lib/quickAdd';
+import { assignProject, createInboxTask, inboxTasks } from './lib/inbox';
+import { applyTriage, buildSuggestions, type Suggestion, type TriageAction } from './lib/triage';
 import {
   loadPlans,
   planForDay,
@@ -186,7 +191,7 @@ import { isTodayInTz, dayKeyInTz } from './lib/timezone';
 import { dueStatus } from './lib/taskDue';
 import { dayProgress } from './lib/dayProgress';
 import { buildLastWeekRecap, loadRecapSeen, saveRecapSeen, shouldShowRecap } from './lib/weekRecap';
-import { mondayOf } from './lib/dayKeys';
+import { addDays, mondayOf } from './lib/dayKeys';
 import { loadSyncState, onSyncStateChange } from './lib/sync/syncState';
 
 /* Boot once: restore settings, history and the paused timer position. */
@@ -357,7 +362,7 @@ export default function App() {
   }, [estProfiles]);
   // App sits above LocaleProvider, so it localizes via a memo directly.
   const appI18n = useMemo(() => createI18n(locale, i18nDict), [locale, i18nDict]);
-  const { t, fmtDur, fmtClock } = appI18n;
+  const { t, fmtDur, fmtClock, fmtDayKey } = appI18n;
   const xp = useMemo(
     () => computeXp({ history, tasks, habitLog, phases, projects }),
     [history, tasks, habitLog, phases, projects],
@@ -756,6 +761,114 @@ export default function App() {
     return r.added;
   };
 
+  /* ---------- quick capture: inbox, toast, morning triage ---------- */
+  const [toast, setToast] = useState<{
+    message: string;
+    action?: { label: string; onClick: () => void };
+  } | null>(null);
+  useEffect(() => {
+    if (!toast) return;
+    const id = window.setTimeout(() => setToast(null), toast.action ? 6000 : 3500);
+    return () => window.clearTimeout(id);
+  }, [toast]);
+
+  const handleQuickAdd = (text: string): boolean => {
+    const q = parseQuickAdd(text, locale, Date.now());
+    if (!hasQuickTokens(q)) {
+      const r = addTaskToDay(ivyPlans, todayKey, text.trim(), todayMaxTasks);
+      if (r.added) {
+        setIvyPlans(r.plans);
+        return true;
+      }
+      const task = createInboxTask(q);
+      if (!task) return false;
+      setTasks([...tasks, task]);
+      setToast({ message: t('mono.qa.planFull') });
+      return true;
+    }
+    const task = createInboxTask(q);
+    if (!task) return false;
+    setTasks([...tasks, task]);
+    const dueKey = q.dueAt === null ? todayKey : dayKeyInTz(q.dueAt, auth.timezone);
+    if (dueKey === todayKey) {
+      const r = addTaskToDay(
+        ivyPlans,
+        todayKey,
+        task.title,
+        todayMaxTasks,
+        task.estimateMin,
+        task.id,
+      );
+      if (r.added) setIvyPlans(r.plans);
+      else setToast({ message: t('mono.qa.planFull') });
+      return true;
+    }
+    const day = dueKey === addDays(todayKey, 1) ? t('mono.qa.tomorrow') : fmtDayKey(dueKey);
+    const date =
+      q.hasTime && q.dueAt !== null
+        ? t('mono.qa.at', {
+            date: day,
+            time: fmtClock(new Date(q.dueAt).getHours() * 60 + new Date(q.dueAt).getMinutes()),
+          })
+        : day;
+    setToast({ message: t('mono.qa.savedFor', { date }) });
+    return true;
+  };
+
+  const inboxList = inboxTasks(tasks).filter(
+    (x) => !dayPlanHasLinkedTask(ivyPlans, todayKey, x.id),
+  );
+  const dropTasks = (id: string) => {
+    const after = removeTask(tasks, id);
+    const kept = new Set(after.map((x) => x.id));
+    const removed = tasks.filter((x) => !kept.has(x.id));
+    setTasks(after);
+    return () => {
+      setTasks((prev) => {
+        const have = new Set(prev.map((x) => x.id));
+        return [...prev, ...removed.filter((x) => !have.has(x.id))];
+      });
+    };
+  };
+  const handleInboxDelete = (id: string) => {
+    const undo = dropTasks(id);
+    setToast({
+      message: t('mono.inbox.deleted'),
+      action: {
+        label: t('mono.inbox.undo'),
+        onClick: () => {
+          undo();
+          setToast(null);
+        },
+      },
+    });
+  };
+  const handleInboxToday = (id: string) => {
+    const task = tasks.find((x) => x.id === id);
+    if (!task) return;
+    if (!addLinkedTaskToPlan(task)) setToast({ message: t('mono.triage.full') });
+  };
+
+  const lastTriageUndo = useRef<(() => void) | null>(null);
+  const handleTriage = (s: Suggestion, action: TriageAction) => {
+    if (action === 'drop' && s.taskId) {
+      lastTriageUndo.current = dropTasks(s.taskId);
+      return { ok: true };
+    }
+    const r = applyTriage({ tasks, plans: ivyPlans }, s, action, {
+      todayKey,
+      maxTasks: todayMaxTasks,
+      now: Date.now(),
+    });
+    if (r.tasks !== tasks) setTasks(r.tasks);
+    if (r.plans !== ivyPlans) setIvyPlans(r.plans);
+    return r.reason ? { ok: r.ok, reason: r.reason } : { ok: r.ok };
+  };
+  const handleTriageUndo = () => {
+    lastTriageUndo.current?.();
+    lastTriageUndo.current = null;
+  };
+
   const nowMs = Date.now();
   const taskById = useMemo(() => new Map(tasks.map((x) => [x.id, x])), [tasks]);
   const nextBlock = nextFocusBlock(
@@ -917,10 +1030,15 @@ export default function App() {
                   goNav('focus');
                 }}
                 onSelectTask={(id, projectId) => {
+                  if (!projectId) {
+                    goNav('projects');
+                    return;
+                  }
                   handleSelectProject(projectId);
                   handleSelectTask(id);
                   goNav('focus');
                 }}
+                onQuickAdd={handleQuickAdd}
               />
               <div className="mono mono-shell">
                 <div className="mono-shell-inner">
@@ -1011,10 +1129,7 @@ export default function App() {
                         onMorning={() => setMorningOpen(true)}
                         onShutdown={() => setShutdownOpen(true)}
                         onToggle={handleToggleTask}
-                        onAdd={(text) => {
-                          const r = addTaskToDay(ivyPlans, todayKey, text, todayMaxTasks);
-                          if (r.added) setIvyPlans(r.plans);
-                        }}
+                        onAdd={handleQuickAdd}
                         onGoWork={() => goFill('focus')}
                         onPath={goFill}
                         motto={{ text: dayMotto.text, source: dayMotto.source }}
@@ -1420,6 +1535,15 @@ export default function App() {
                     <Suspense fallback={<TabFallback label="Projects" />}>
                       <main>
                         <MonoProiecte activeCount={projects.filter((p) => !p.archived).length}>
+                          <MonoInbox
+                            tasks={inboxList}
+                            projects={projects}
+                            onToday={handleInboxToday}
+                            onAssign={(id, projectId) =>
+                              setTasks(assignProject(tasks, id, projectId))
+                            }
+                            onDelete={handleInboxDelete}
+                          />
                           <ProjectsCard
                             projects={projects}
                             history={history}
@@ -1581,6 +1705,14 @@ export default function App() {
                   timezone={auth.timezone}
                   isPro={auth.isPro}
                   onDone={() => setMorningOpen(false)}
+                  triage={buildSuggestions({
+                    tasks,
+                    plans: ivyPlans,
+                    todayKey,
+                    timezone: auth.timezone,
+                  })}
+                  onTriage={handleTriage}
+                  onTriageUndo={handleTriageUndo}
                 />
               )}
               {shutdownOpen && (
@@ -1610,6 +1742,7 @@ export default function App() {
                   <MonoCelebrate moment={moments.current} onDone={moments.dismiss} />
                 </Suspense>
               )}
+              <MonoToast message={toast?.message ?? null} action={toast?.action ?? null} />
             </div>
           </LocaleProvider>
         }

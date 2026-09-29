@@ -38,7 +38,8 @@ export default function SavedFiltersBar({
   const [dueWithinDays, setDueWithinDays] = useState('');
 
   const active = filters.find((f) => f.id === activeId) ?? null;
-  const projectName = (id: string) => projects.find((p) => p.id === id)?.name ?? '';
+  const projectName = (id: string) =>
+    id ? (projects.find((p) => p.id === id)?.name ?? '') : t('mono.inbox.title');
 
   const matches = useMemo(() => {
     if (!active) return [];
@@ -182,7 +183,7 @@ export default function SavedFiltersBar({
             matches.map((task) => (
               <button
                 key={task.id}
-                onClick={() => onSelectProject(task.projectId)}
+                onClick={() => task.projectId && onSelectProject(task.projectId)}
                 className="press flex w-full items-center justify-between gap-2 rounded-lg bg-ink/40 px-3 py-2 text-left ring-1 ring-inset ring-line hover:ring-accent/40"
               >
                 <span className="min-w-0 flex-1 truncate text-[12px] text-cream">{task.title}</span>
