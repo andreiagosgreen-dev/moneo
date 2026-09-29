@@ -37,8 +37,7 @@ beforeEach(() => {
 });
 
 describe('MonoCoach', () => {
-  it('shows question, hint, examples and fires onExample', () => {
-    const onExample = vi.fn();
+  it('shows question and hint without pre-written example entries', () => {
     const c = render(
       createElement(LocaleProvider, {
         locale: 'en',
@@ -46,20 +45,36 @@ describe('MonoCoach', () => {
         children: createElement(MonoCoach, {
           kind: 'aziEmpty',
           dayKey: '2026-9-26',
-          onExample,
         }),
       }),
     );
     expect(c.textContent).toContain('Guide');
     expect(c.textContent).toContain('What should you finish today?');
-    expect(c.textContent).toContain('Draft the chapter outline');
-    const chip = Array.from(c.querySelectorAll('button')).find((b) =>
-      (b.textContent ?? '').includes('Draft the chapter outline'),
+    const buttons = Array.from(c.querySelectorAll('button')).map((b) => b.textContent);
+    expect(buttons).toEqual(['Dismiss']);
+  });
+
+  it('fires the CTA when provided', () => {
+    const onCta = vi.fn();
+    const c = render(
+      createElement(LocaleProvider, {
+        locale: 'en',
+        onLocaleChange: () => {},
+        children: createElement(MonoCoach, {
+          kind: 'aziDone',
+          dayKey: '2026-9-26',
+          onCta,
+          ctaLabel: 'Close the day',
+        }),
+      }),
+    );
+    const cta = Array.from(c.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Close the day',
     )!;
     act(() => {
-      chip.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      cta.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
-    expect(onExample).toHaveBeenCalledWith('Draft the chapter outline');
+    expect(onCta).toHaveBeenCalledTimes(1);
   });
 
   it('dismisses and can show again', () => {

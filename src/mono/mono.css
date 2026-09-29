@@ -172,12 +172,6 @@
   color: var(--mono-fg);
   background: color-mix(in oklab, var(--mono-muted) 14%, transparent);
 }
-.mono-coach-examples {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-}
 .mono-coach-restore {
   display: flex;
   justify-content: flex-end;

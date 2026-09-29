@@ -18,17 +18,6 @@ export interface ProgramCoachInput {
   hasBlocks: boolean;
 }
 
-/** How many example chips each kind shows (1-based i18n keys .ex1 …). */
-export const COACH_EXAMPLE_COUNT: Record<ProgramCoachKind, number> = {
-  aziEmpty: 3,
-  aziOpen: 0,
-  aziDone: 0,
-  focusEmpty: 0,
-  focusOpen: 2,
-  orarEmpty: 2,
-  orarHas: 0,
-};
-
 /** Optional primary CTA wired by the host screen. */
 export type ProgramCoachCta = 'goWork' | 'writePlan' | 'shutdown';
 
