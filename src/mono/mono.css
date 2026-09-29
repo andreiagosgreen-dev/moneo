@@ -4289,3 +4289,112 @@
   flex: none;
   align-self: center;
 }
+
+/* Focus extras: ambient sound, zen, estimate */
+.atm-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 12px;
+}
+.atm-tool {
+  min-height: 44px;
+  min-width: 44px;
+  justify-content: center;
+}
+.atm-amb-pop {
+  margin: 12px auto 0;
+  width: min(22rem, 100%);
+  padding: 12px 14px;
+  border: 1px solid var(--mono-border-2);
+  border-radius: 14px;
+  background: var(--mono-surface);
+  text-align: left;
+}
+.mono-amb,
+.mono-amb-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mono-amb-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+.mono-amb-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.mono-amb-opt input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--mono-accent);
+}
+.mono-amb-opt.is-locked {
+  color: var(--mono-muted);
+  cursor: default;
+}
+.mono-amb-vol {
+  flex: 1 1 120px;
+  min-width: 0;
+  min-height: 44px;
+  accent-color: var(--mono-accent);
+}
+.mono-amb-hint {
+  margin: 4px 0 0;
+}
+.mono-amb-wake {
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--mono-border);
+}
+.atm-est {
+  margin-top: 8px;
+  text-align: center;
+}
+.atm-zen-task {
+  margin: 4px 0 0;
+  text-align: center;
+  font-weight: 600;
+}
+.atm.is-zen {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: auto;
+  min-height: 100dvh;
+  background: var(--mono-bg);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+.atm.is-zen .atm-board {
+  display: flex;
+  justify-content: center;
+  min-height: 100dvh;
+  align-items: center;
+}
+.atm.is-zen .atm-aside {
+  display: none;
+}
+.atm:fullscreen {
+  background: var(--mono-bg);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .atm.is-zen {
+    animation: mono-zen-in 240ms var(--mono-ease) both;
+  }
+}
+@keyframes mono-zen-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

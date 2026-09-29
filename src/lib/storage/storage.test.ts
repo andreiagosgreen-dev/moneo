@@ -72,6 +72,7 @@ describe('centralized storage keys', () => {
       aiByok: 'moneo:ai-byok',
       roadmaps: 'moneo:roadmaps',
       activeRoadmapId: 'moneo:active-roadmap-id',
+      focusPrefs: 'moneo:focus-prefs',
     });
   });
 });

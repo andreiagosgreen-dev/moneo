@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type RefObject } from 'react';
 import MonoHead from './MonoHead';
+import MonoAmbientPicker from './MonoAmbientPicker';
+import type { AmbientLayer } from '../lib/ambient';
+import type { EstimateResult } from '../lib/estimates';
 import MonoBtn from './MonoBtn';
 import MonoChip from './MonoChip';
 import MonoTick from './MonoTick';
@@ -81,6 +84,23 @@ interface Props {
   planOpenCount?: number;
   /** Color skin (picked in Settings). Defaults to Hârtie for class fallback. */
   atmosphere?: Atmosphere;
+  ambient?: {
+    on: boolean;
+    layers: AmbientLayer[];
+    isPro: boolean;
+    onToggle: () => void;
+    onChange: (layers: AmbientLayer[]) => void;
+    wakeLock: boolean;
+    onWakeLock: (on: boolean) => void;
+  };
+  fullscreen?: {
+    active: boolean;
+    supported: boolean;
+    onToggle: () => void;
+    rootRef?: RefObject<HTMLDivElement>;
+  };
+  /** Selected task's estimate vs. tracked focus; null hides the line. */
+  estimate?: EstimateResult | null;
 }
 
 /** Focus screen — one shared layout for every atmosphere; only colors change. */
@@ -119,6 +139,9 @@ export default function MonoFocus({
   planTaskCount,
   planOpenCount,
   atmosphere = 'hartie',
+  ambient,
+  fullscreen,
+  estimate,
 }: Props) {
   const { t, tag, fmtDur, fmtNum } = useI18n();
   const { mm, ss } = fmtClock(Math.max(0, remaining));
@@ -126,6 +149,9 @@ export default function MonoFocus({
 
   const [feedbackFor, setFeedbackFor] = useState<number | null>(null);
   const [coachKind, setCoachKind] = useState<SessionFeedback | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const zen = fullscreen?.active === true;
+  const minLabel = (n: number) => `${fmtNum(n)} ${t('set.unit.min')}`;
 
   useEffect(() => {
     setFeedbackFor(null);
@@ -315,18 +341,87 @@ export default function MonoFocus({
       />
     ) : null;
 
+  const estimateLine = estimate ? (
+    <p className="atm-hint atm-est" data-testid="focus-estimate">
+      {t('mono.focus.est', {
+        est: minLabel(estimate.estimateMin),
+        act: minLabel(estimate.actualMin),
+      })}
+    </p>
+  ) : null;
+
+  const tools =
+    ambient || fullscreen ? (
+      <div className="atm-tools">
+        {ambient ? (
+          <>
+            <button
+              type="button"
+              className="mono-chip atm-tool"
+              aria-pressed={ambient.on}
+              title={ambient.on ? t('mono.focus.soundOn') : t('mono.focus.soundOff')}
+              onClick={ambient.onToggle}
+            >
+              <span aria-hidden>♪</span> {t('mono.focus.sound')}
+            </button>
+            <button
+              type="button"
+              className="mono-chip atm-tool"
+              aria-expanded={pickerOpen}
+              aria-controls="atm-amb-pop"
+              onClick={() => setPickerOpen((v) => !v)}
+            >
+              {t('mono.focus.amb.choose')} <span aria-hidden>{pickerOpen ? '▴' : '▾'}</span>
+            </button>
+          </>
+        ) : null}
+        {fullscreen ? (
+          <button
+            type="button"
+            className="mono-chip atm-tool"
+            aria-pressed={zen}
+            aria-label={zen ? t('mono.focus.fullExit') : t('mono.focus.full')}
+            onClick={fullscreen.onToggle}
+          >
+            <span aria-hidden>{zen ? '⤡' : '⤢'}</span>
+          </button>
+        ) : null}
+      </div>
+    ) : null;
+
+  const ambientPop =
+    ambient && pickerOpen ? (
+      <div id="atm-amb-pop" className="atm-amb-pop">
+        <MonoAmbientPicker
+          layers={ambient.layers}
+          isPro={ambient.isPro}
+          onChange={ambient.onChange}
+          wakeLock={ambient.wakeLock}
+          onWakeLock={ambient.onWakeLock}
+        />
+      </div>
+    ) : null;
+
   // Single shared composition for ALL atmospheres (colors via CSS tokens only).
   return (
-    <div className={`atm atm-${atmosphere}`}>
+    <div ref={fullscreen?.rootRef} className={`atm atm-${atmosphere}${zen ? ' is-zen' : ''}`}>
       <div className="atm-desk">
-        <MonoHead eyebrow={dayLabel(tag)} title={t('mono.focus.greet')} sub={t('mono.focus.sub')} />
-        {onPath ? <MonoPath active="focus" onGo={onPath} /> : null}
+        {zen ? null : (
+          <MonoHead
+            eyebrow={dayLabel(tag)}
+            title={t('mono.focus.greet')}
+            sub={t('mono.focus.sub')}
+          />
+        )}
+        {onPath && !zen ? <MonoPath active="focus" onGo={onPath} /> : null}
         <div className="atm-board mono-pad">
           <section className="atm-stage" aria-label={title}>
             <p className="mono-eyebrow">{title}</p>
             {ring}
+            {zen && taskTitle ? <p className="atm-zen-task">{taskTitle}</p> : null}
             {intentionField}
-            {presets}
+            {estimateLine}
+            {zen ? null : presets}
             <div className="atm-actions">
               <MonoBtn type="button" variant="primary" onClick={onToggle}>
                 {startLabel}
@@ -335,8 +430,10 @@ export default function MonoFocus({
                 {t('mono.atm.reset')}
               </MonoBtn>
             </div>
+            {tools}
+            {ambientPop}
           </section>
-          <aside className="atm-aside" aria-label={t('mono.focus.secNext')}>
+          <aside className="atm-aside" aria-label={t('mono.focus.secNext')} hidden={zen}>
             <div className="atm-aside-head">
               <p className="atm-aside-title">{t('mono.focus.secToday')}</p>
               <MonoChip onClick={onSeePlan}>{t('mono.focus.seePlan')}</MonoChip>
@@ -355,7 +452,7 @@ export default function MonoFocus({
               <MonoStat value={fmtNum(stats.done)} caption={t('mono.focus.sDone')} />
             </div>
           </aside>
-          {context}
+          {zen ? null : context}
         </div>
       </div>
 
@@ -368,6 +465,11 @@ export default function MonoFocus({
           {summary.impact && summary.impact.kind === 'project' && (
             <MonoProgressMeter impact={summary.impact} />
           )}
+          {estimate ? (
+            <p className="mono-meta" style={{ marginTop: 6 }}>
+              {t(`mono.focus.est.${estimate.verdict}` as TKey)}
+            </p>
+          ) : null}
           {onFeedback && feedbackFor !== summary.id && (
             <div
               style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}

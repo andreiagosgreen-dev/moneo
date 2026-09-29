@@ -116,6 +116,8 @@ export const STORAGE_KEYS = {
   roadmaps: 'moneo:roadmaps',
   /** Active roadmap id for spine strip. */
   activeRoadmapId: 'moneo:active-roadmap-id',
+  /** Focus ambient sound + wake lock preferences — local only, never synced. */
+  focusPrefs: 'moneo:focus-prefs',
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

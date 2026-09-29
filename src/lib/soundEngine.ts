@@ -51,6 +51,11 @@ function getCtx(): AudioContext | null {
   }
 }
 
+/** Shared AudioContext (resumed); null when Web Audio is unavailable. */
+export function getAudioContext(): AudioContext | null {
+  return getCtx();
+}
+
 /* ------------------------------------------------------------------ */
 /*  Built-in synthesis                                                 */
 /* ------------------------------------------------------------------ */

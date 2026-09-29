@@ -7,6 +7,8 @@ import { localDayKey } from '../lib/projects';
 import type { Habit, HabitLog } from '../lib/habits';
 import type { Session } from '../lib/store';
 import type { EnergyEntry } from '../lib/energy';
+import type { Task } from '../lib/tasks';
+import { estimateAccuracy } from '../lib/estimates';
 import { useI18n } from '../lib/i18n/LocaleContext';
 
 interface Props {
@@ -16,6 +18,8 @@ interface Props {
   energyLog: EnergyEntry[];
   timezone: string;
   isPro: boolean;
+  /** Enables the Pro estimate-accuracy line. */
+  tasks?: Task[];
   now?: number;
 }
 
@@ -131,9 +135,14 @@ export default function MonoReportInsights({
   energyLog,
   timezone,
   isPro,
+  tasks,
   now = Date.now(),
 }: Props) {
   const { t, tp, fmtNum, fmtDur, fmtDayKey, fmtClock } = useI18n();
+  const accuracy = useMemo(
+    () => (isPro && tasks ? estimateAccuracy(tasks, history) : null),
+    [isPro, tasks, history],
+  );
   const ins = useMemo(
     () =>
       buildReportInsights({
@@ -275,6 +284,11 @@ export default function MonoReportInsights({
               </div>
             )}
       </div>
+      {accuracy ? (
+        <p className="mono-meta" style={{ marginTop: 10 }} data-testid="estimate-accuracy">
+          {t('rep.ins.estimates', { pct: fmtNum(accuracy.pct) })}
+        </p>
+      ) : null}
     </section>
   );
 }
