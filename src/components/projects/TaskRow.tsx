@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { TaskStatus, TaskPriority, TaskRecurrence } from '../../lib/tasks';
+import type { TaskStatus, TaskPriority } from '../../lib/tasks';
 import {
   createSubtaskObject,
   canNest,
@@ -9,7 +9,7 @@ import {
   setBlockedBy,
   blockingTasks,
   canComplete,
-  setRecurrence,
+  setRepeat,
   setDueAt,
   setNotes,
   setTaskPoints,
@@ -23,7 +23,9 @@ import {
   impactEffort,
   syncParentCompletion,
 } from '../../lib/tasks';
-import { PRIORITY_LABELS, STATUS_KEYS, TASK_RECURRENCES, TASK_POINTS } from '../../lib/tasks';
+import { PRIORITY_LABELS, STATUS_KEYS, TASK_POINTS } from '../../lib/tasks';
+import { describeRule, ruleFromLegacy } from '../../lib/recurrence';
+import MonoRepeatPicker from '../../mono/MonoRepeatPicker';
 import { TrashIcon } from './icons';
 import type { TaskRowProps } from './types';
 import { openExternal, safeExternalUrl } from '../../lib/links';
@@ -52,11 +54,10 @@ function formatDueLong(dueAt: number, tag: string): string {
   }
 }
 
-const RECURRENCE_LABELS: Record<TaskRecurrence, string> = {
-  none: 'task.rec.none',
-  daily: 'task.rec.daily',
-  weekly: 'task.rec.weekly',
-};
+function localKey(ms: number): string {
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
 
 /** Recursive task row: nesting, blockers, recurrence, due dates, notes. */
 export default function TaskRow({
@@ -75,7 +76,8 @@ export default function TaskRow({
   const [blockerPick, setBlockerPick] = useState('');
   const [linkDraft, setLinkDraft] = useState('');
   const [completeFlash, setCompleteFlash] = useState(0);
-  const { t, tp, tag, fmtNum, fmtDur } = useI18n();
+  const i18n = useI18n();
+  const { t, tp, tag, fmtNum, fmtDur } = i18n;
 
   const done = task.status === 'completed';
   const gate = canComplete(task, tasks);
@@ -87,10 +89,16 @@ export default function TaskRow({
     (t) => t.projectId === projectId && t.id !== task.id && !(task.blockedBy ?? []).includes(t.id),
   );
   const overdue = task.dueAt !== undefined && !done && task.dueAt < startOfToday();
+  const dueKey = task.dueAt !== undefined ? localKey(task.dueAt) : undefined;
+  const legacy =
+    task.recurrence === 'daily' || task.recurrence === 'weekly' ? task.recurrence : null;
+  const rule =
+    task.repeat ?? (legacy ? ruleFromLegacy(legacy, dueKey ?? localKey(Date.now())) : null);
+  const ruleText = rule ? describeRule(rule, i18n) : '';
   const hasHiddenBadges =
     task.milestone === true ||
     (!done && blockers.length > 0) ||
-    (task.recurrence !== undefined && task.recurrence !== 'none') ||
+    rule !== null ||
     typeof task.points === 'number' ||
     typeof task.estimateMin === 'number';
 
@@ -181,12 +189,12 @@ export default function TaskRow({
             ⛔ {fmtNum(blockers.length)}
           </span>
         )}
-        {task.recurrence && task.recurrence !== 'none' && (
+        {ruleText && (
           <span
-            className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-sage ring-1 ring-inset ring-line"
-            title={t('task.repeats', { rec: t(RECURRENCE_LABELS[task.recurrence] as TKey) })}
+            className="max-w-[40%] shrink truncate rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] text-sage ring-1 ring-inset ring-line"
+            title={t('task.repeats', { rec: ruleText })}
           >
-            ↻ {t(task.recurrence === 'daily' ? 'task.recD' : 'task.recW')}
+            ↻ {ruleText}
           </span>
         )}
         {typeof task.points === 'number' && (
@@ -285,14 +293,12 @@ export default function TaskRow({
                 ⛔ {blockers.length}
               </span>
             )}
-            {task.recurrence && task.recurrence !== 'none' && (
+            {ruleText && (
               <span
-                className="shrink-0 rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-sage ring-1 ring-inset ring-line"
-                title={t('taskRow.repeats', {
-                  recurrence: t(RECURRENCE_LABELS[task.recurrence] as TKey),
-                })}
+                className="rounded bg-ink/60 px-1.5 py-0.5 font-mono text-[9px] text-sage ring-1 ring-inset ring-line"
+                title={t('taskRow.repeats', { recurrence: ruleText })}
               >
-                ↻ {task.recurrence === 'daily' ? 'D' : 'W'}
+                ↻ {ruleText}
               </span>
             )}
             {typeof task.points === 'number' && (
@@ -352,20 +358,6 @@ export default function TaskRow({
               title={t('task.dueTitle')}
             />
             <select
-              value={task.recurrence ?? 'none'}
-              onChange={(e) =>
-                onTasksChange(setRecurrence(tasks, task.id, e.target.value as TaskRecurrence))
-              }
-              className="h-8 rounded-lg bg-ink/50 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
-              title={t('task.recTitle')}
-            >
-              {TASK_RECURRENCES.map((r) => (
-                <option key={r} value={r}>
-                  {t(RECURRENCE_LABELS[r] as TKey)}
-                </option>
-              ))}
-            </select>
-            <select
               value={typeof task.points === 'number' ? task.points : ''}
               onChange={(e) =>
                 onTasksChange(
@@ -422,6 +414,12 @@ export default function TaskRow({
               ◆
             </button>
           </div>
+
+          <MonoRepeatPicker
+            value={rule}
+            dueKey={dueKey}
+            onChange={(r) => onTasksChange(setRepeat(tasks, task.id, r))}
+          />
 
           {/* notes */}
           <textarea

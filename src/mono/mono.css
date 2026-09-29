@@ -4247,3 +4247,45 @@
 .mono-toast.show.has-action {
   pointer-events: auto;
 }
+
+/* ---------- repeat picker + snooze ---------- */
+.mono-repeat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mono-repeat-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.mono-repeat-kind {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+.mono-repeat-every {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.mono-repeat-num {
+  width: 5.5em;
+  min-height: 44px;
+}
+.mono-repeat-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mono-repeat-days .mono-chip {
+  padding: 0 12px;
+  font-size: 14px;
+}
+.mono-repeat-sum {
+  margin: 0;
+}
+.mono-azi-snooze {
+  flex: none;
+  align-self: center;
+}

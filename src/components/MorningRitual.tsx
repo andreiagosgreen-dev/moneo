@@ -97,8 +97,13 @@ export default function MorningRitual({
   const [cards] = useState<Suggestion[]>(() => (onTriage ? (triage ?? []) : []));
   const [triageDone, setTriageDone] = useState(false);
   const hasTriage = cards.length > 0;
-  const stepTitles: TKey[] = hasTriage ? ['mono.triage.step', ...STEP_TITLES] : STEP_TITLES;
-  const stepHeads: TKey[] = hasTriage ? ['mono.triage.head', ...STEP_HEADS] : STEP_HEADS;
+  const suggest = cards.some((c) => c.reason !== 'inbox');
+  const stepTitles: TKey[] = hasTriage
+    ? [suggest ? 'mono.triage.suggest' : 'mono.triage.step', ...STEP_TITLES]
+    : STEP_TITLES;
+  const stepHeads: TKey[] = hasTriage
+    ? [suggest ? 'mono.triage.suggestHead' : 'mono.triage.head', ...STEP_HEADS]
+    : STEP_HEADS;
   /** Planning stage: -1 while sorting the inbox, then 0..2. */
   const stage = step - (hasTriage ? 1 : 0);
 

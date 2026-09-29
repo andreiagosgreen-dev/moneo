@@ -169,6 +169,16 @@ describe('carryForNewDay', () => {
     expect('taskId' in today.tasks[1]).toBe(false);
   });
 
+  it('marks carried items and keeps their estimate', () => {
+    const todayKey = dayKeyInTz(Date.now(), TZ);
+    const yKey = dayKeyInTz(Date.now() - 24 * 3600_000, TZ);
+    const yesterdayPlan = setDayPlan([], yKey, [
+      { id: 't1', text: 'Left over', done: false, rank: 1, estimateMin: 50 },
+    ]);
+    const today = carryForNewDay(yesterdayPlan, TZ).plans.find((p) => p.dateKey === todayKey)!;
+    expect(today.tasks[0]).toMatchObject({ carried: true, estimateMin: 50 });
+  });
+
   it('does nothing when today already has a plan', () => {
     const todayKey = dayKeyInTz(Date.now(), TZ);
     const withToday = setDayPlan([], todayKey, [
