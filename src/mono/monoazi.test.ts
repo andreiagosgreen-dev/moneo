@@ -93,7 +93,7 @@ describe('MonoAzi', () => {
   it('shows an empty priorities card with plural add placeholder (no thick blank bar)', () => {
     const c = render(screen({ items: [], totalCount: 0, doneCount: 0, program: undefined }));
     expect(c.textContent).toContain('What should you finish today?');
-    expect(c.textContent).toContain('Draft the chapter outline');
+    expect(c.textContent).not.toContain('Draft the chapter outline');
     expect(c.textContent).toContain('Write the list. Work in order.');
     const input = c.querySelector('#mono-azi-new') as HTMLInputElement;
     expect(input.placeholder).toBe('Add tasks for today');
