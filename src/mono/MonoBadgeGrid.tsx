@@ -1,23 +1,8 @@
 import { useI18n } from '../lib/i18n/LocaleContext';
-import type { TKey } from '../lib/i18n/types';
 import type { Badge, BadgeId } from '../lib/badges';
 import { RANKS, XP_RULES } from '../lib/xp';
 import { RANK_KEYS } from './rankLabel';
-
-const RANK_BADGES = ['apprentice', 'practitioner', 'expert'] as const;
-type RankBadgeId = (typeof RANK_BADGES)[number];
-
-const BADGE_KEYS: Record<Exclude<BadgeId, RankBadgeId>, { name: TKey; how: TKey }> = {
-  firstFocus: { name: 'mono.rewards.firstFocus.name', how: 'mono.rewards.firstFocus.how' },
-  focus10h: { name: 'mono.rewards.focus10h.name', how: 'mono.rewards.focus10h.how' },
-  streak7: { name: 'mono.rewards.streak7.name', how: 'mono.rewards.streak7.how' },
-  firstProject: { name: 'mono.rewards.firstProject.name', how: 'mono.rewards.firstProject.how' },
-  tasks50: { name: 'mono.rewards.tasks50.name', how: 'mono.rewards.tasks50.how' },
-};
-
-function isRankBadge(id: BadgeId): id is RankBadgeId {
-  return (RANK_BADGES as readonly BadgeId[]).includes(id);
-}
+import { BADGE_KEYS, isRankBadge } from './badgeLabel';
 
 /** Compact grid of earned (highlighted) and locked (dimmed, with how-to) badges. */
 export default function MonoBadgeGrid({ badges }: { badges: Badge[] }) {
