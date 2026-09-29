@@ -366,6 +366,7 @@ export default function App() {
     start,
     toggle,
     reset,
+    switchMode,
     setRoundLength,
     updateSettings,
   } = useTimer({
