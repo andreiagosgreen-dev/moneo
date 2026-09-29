@@ -2123,6 +2123,19 @@ export const it: Record<TKey, string> = {
     'Gradi: {ranks}. Ogni grado ha alcuni gradini e ogni nuovo livello richiede un po’ più del precedente.',
   'mono.xp.deviceNote':
     'Gli XP delle sessioni di focus ti seguono sugli altri dispositivi quando la sincronizzazione è attiva. Con Pro si sincronizzano anche attività e abitudini; con Free contano solo sul dispositivo in cui le hai completate.',
+  'mono.discount.eyebrow': 'Premio di grado',
+  'mono.discount.firstMonth': 'Sei {rank}: hai il {pct}% di sconto sul primo mese',
+  'mono.discount.terms': 'Codice monouso, valido {days} giorni, uno per account.',
+  'mono.discount.code': 'Il tuo codice: {code} · valido fino al {date}',
+  'mono.discount.cta': 'Usa il mio sconto',
+  'mono.discount.ctaBusy': 'Preparazione del codice…',
+  'mono.discount.hintRank':
+    'Raggiungi {rank} (livello {level}) per avere il {pct}% di sconto sul primo mese di Pro.',
+  'mono.discount.hintTooNew':
+    'Gli sconti di grado si sbloccano quando il tuo account ha {days} giorni.',
+  'mono.discount.verified':
+    'Questo grado conta l’attività sincronizzata sul tuo account da quando l’hai creato.',
+  'mono.discount.error': 'Impossibile preparare il codice. Riprova tra un minuto.',
   'filters.newView': '+ Nuova vista',
   'filters.cancel': 'Annulla',
   'filters.remove': 'Rimuovi vista',

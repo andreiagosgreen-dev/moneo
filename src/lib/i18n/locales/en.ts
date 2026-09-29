@@ -2111,6 +2111,18 @@ export const en = {
     'Ranks: {ranks}. Each rank has a few steps, and every new level takes a little longer than the last.',
   'mono.xp.deviceNote':
     'XP from focus sessions follows you to your other devices when sync is on. With Pro, tasks and habits sync too; on Free they count only on the device where you completed them.',
+  'mono.discount.eyebrow': 'Rank reward',
+  'mono.discount.firstMonth': 'You’re {rank} — you get {pct}% off your first month',
+  'mono.discount.terms': 'Single-use code, valid for {days} days, one per account.',
+  'mono.discount.code': 'Your code: {code} · valid until {date}',
+  'mono.discount.cta': 'Use my discount',
+  'mono.discount.ctaBusy': 'Preparing your code…',
+  'mono.discount.hintRank':
+    'Reach {rank} (level {level}) to get {pct}% off your first month of Pro.',
+  'mono.discount.hintTooNew': 'Rank discounts unlock once your account is {days} days old.',
+  'mono.discount.verified':
+    'This rank counts the activity synced to your account since you created it.',
+  'mono.discount.error': 'Couldn’t prepare your code. Try again in a minute.',
   'filters.newView': '+ New view',
   'filters.cancel': 'Cancel',
   'filters.remove': 'Remove view',

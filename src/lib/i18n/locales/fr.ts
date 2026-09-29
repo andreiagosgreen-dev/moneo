@@ -2133,6 +2133,19 @@ export const fr: Record<TKey, string> = {
     'Rangs : {ranks}. Chaque rang compte quelques paliers, et chaque nouveau niveau demande un peu plus que le précédent.',
   'mono.xp.deviceNote':
     'L’XP des sessions de focus vous suit sur vos autres appareils quand la synchronisation est active. Avec Pro, les tâches et les habitudes se synchronisent aussi ; en Free, elles ne comptent que sur l’appareil où vous les avez terminées.',
+  'mono.discount.eyebrow': 'Récompense de rang',
+  'mono.discount.firstMonth': 'Tu es {rank} — {pct} % de réduction sur ton premier mois',
+  'mono.discount.terms': 'Code à usage unique, valable {days} jours, un par compte.',
+  'mono.discount.code': 'Ton code : {code} · valable jusqu’au {date}',
+  'mono.discount.cta': 'Utiliser ma réduction',
+  'mono.discount.ctaBusy': 'Préparation du code…',
+  'mono.discount.hintRank':
+    'Atteins {rank} (niveau {level}) pour obtenir {pct} % sur ton premier mois Pro.',
+  'mono.discount.hintTooNew':
+    'Les réductions de rang se débloquent quand ton compte a {days} jours.',
+  'mono.discount.verified':
+    'Ce rang compte l’activité synchronisée sur ton compte depuis sa création.',
+  'mono.discount.error': 'Impossible de préparer ton code. Réessaie dans une minute.',
   'filters.newView': '+ Nouvelle vue',
   'filters.cancel': 'Annuler',
   'filters.remove': 'Supprimer la vue',

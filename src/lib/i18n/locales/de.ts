@@ -2124,6 +2124,20 @@ export const de: Record<TKey, string> = {
     'Ränge: {ranks}. Jeder Rang hat ein paar Stufen, und jede neue Stufe braucht etwas mehr als die vorige.',
   'mono.xp.deviceNote':
     'XP aus Fokus-Sitzungen begleitet dich auf deine anderen Geräte, wenn der Abgleich an ist. Mit Pro werden auch Aufgaben und Gewohnheiten abgeglichen; in Free zählen sie nur auf dem Gerät, auf dem du sie erledigt hast.',
+  'mono.discount.eyebrow': 'Rang-Belohnung',
+  'mono.discount.firstMonth': 'Du bist {rank} — {pct}% Rabatt auf deinen ersten Monat',
+  'mono.discount.terms': 'Einmal-Code, {days} Tage gültig, einer pro Konto.',
+  'mono.discount.code': 'Dein Code: {code} · gültig bis {date}',
+  'mono.discount.cta': 'Rabatt nutzen',
+  'mono.discount.ctaBusy': 'Code wird erstellt…',
+  'mono.discount.hintRank':
+    'Erreiche {rank} (Stufe {level}) und erhalte {pct}% Rabatt auf deinen ersten Pro-Monat.',
+  'mono.discount.hintTooNew':
+    'Rang-Rabatte werden freigeschaltet, sobald dein Konto {days} Tage alt ist.',
+  'mono.discount.verified':
+    'Dieser Rang zählt die Aktivität, die seit der Kontoerstellung mit deinem Konto synchronisiert wurde.',
+  'mono.discount.error':
+    'Der Code konnte nicht erstellt werden. Versuch es in einer Minute erneut.',
   'filters.newView': '+ Neue Ansicht',
   'filters.cancel': 'Abbrechen',
   'filters.remove': 'Ansicht entfernen',

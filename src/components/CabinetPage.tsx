@@ -25,6 +25,7 @@ import { loadAtmosphere, resolveAtmosphere } from '../mono/atmosphere';
 import MonoCloudSync from '../mono/MonoCloudSync';
 
 const MonoRankCard = lazy(() => import('../mono/MonoRankCard'));
+const MonoRankDiscount = lazy(() => import('../mono/MonoRankDiscount'));
 const PricingCard = lazy(() => import('./PricingCard'));
 
 function Spinner() {
@@ -162,6 +163,10 @@ export default function CabinetPage() {
             <MonoRankCard xp={xp} badges={badges} />
           </Suspense>
         </div>
+
+        <Suspense fallback={null}>
+          <MonoRankDiscount />
+        </Suspense>
 
         <section className="card px-6 py-5">
           <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-faint">

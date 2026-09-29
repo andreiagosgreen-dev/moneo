@@ -2124,6 +2124,18 @@ export const ro: Record<TKey, string> = {
     'Ranguri: {ranks}. Fiecare rang are câteva trepte, iar fiecare nivel nou cere puțin mai mult decât precedentul.',
   'mono.xp.deviceNote':
     'XP-ul din sesiunile de focus te urmează pe celelalte dispozitive când sincronizarea e pornită. Cu Pro se sincronizează și sarcinile și obiceiurile; în planul Gratuit contează doar pe dispozitivul pe care le-ai bifat.',
+  'mono.discount.eyebrow': 'Recompensă de rang',
+  'mono.discount.firstMonth': 'Ai rangul {rank} — primești {pct}% la prima lună',
+  'mono.discount.terms': 'Cod de unică folosință, valabil {days} zile, unul per cont.',
+  'mono.discount.code': 'Codul tău: {code} · valabil până la {date}',
+  'mono.discount.cta': 'Folosește reducerea',
+  'mono.discount.ctaBusy': 'Se pregătește codul…',
+  'mono.discount.hintRank':
+    'Ajungi la {rank} (nivelul {level}) și primești {pct}% la prima lună de Pro.',
+  'mono.discount.hintTooNew': 'Reducerile de rang se deblochează când contul are {days} zile.',
+  'mono.discount.verified':
+    'Rangul de aici numără activitatea sincronizată în cont de când l-ai creat.',
+  'mono.discount.error': 'Nu am putut pregăti codul. Încearcă din nou peste un minut.',
   'filters.newView': '+ Vedere nouă',
   'filters.cancel': 'Anulează',
   'filters.remove': 'Elimină vederea',

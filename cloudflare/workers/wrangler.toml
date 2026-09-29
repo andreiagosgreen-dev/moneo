@@ -45,6 +45,12 @@ LEMON_MONTHLY_IDS = "2156059,1380224"
 # granting Pro. Set to "true" only while testing checkout in Lemon Test mode,
 # then back to "false" and redeploy.
 ALLOW_TEST_MODE = "false"
+# Rank discount codes (/api/billing/discount, first month of Pro monthly) are
+# created in this store and limited to this numeric variant id (public). Needs
+# the LEMON_SQUEEZY_API_KEY secret; without it the endpoint answers 503
+# not_configured.
+LEMON_STORE_ID = "478882"
+LEMON_MONTHLY_VARIANT_ID = "2156059"
 
 # KV namespace for caching
 [[kv_namespaces]]
