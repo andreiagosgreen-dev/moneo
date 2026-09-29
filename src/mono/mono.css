@@ -809,6 +809,220 @@
   }
 }
 
+/* ---------- habit month grid ---------- */
+.mono-hgrid-switch {
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.mono-hgrid-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.mono-hgrid-title {
+  margin: 0;
+  text-align: center;
+}
+.mono-hgrid-title::first-letter {
+  text-transform: uppercase;
+}
+.mono-hgrid-nav {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--mono-border);
+  border-radius: var(--mono-r-btn);
+  background: transparent;
+  color: var(--mono-fg-2);
+  cursor: pointer;
+}
+.mono-hgrid-nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.mono-hgrid-nav svg,
+.mono-hcell svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mono-hgrid-nav svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+.mono-hgrid-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+}
+.mono-hgrid {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.mono-hgrid th,
+.mono-hgrid td {
+  padding: 2px;
+  text-align: center;
+}
+.mono-hgrid .is-tint {
+  background: color-mix(in oklab, var(--mono-accent) 8%, transparent);
+}
+.mono-hgrid-day {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--mono-muted);
+  scroll-snap-align: start;
+}
+.mono-hgrid-day > span {
+  display: block;
+}
+.mono-hgrid-day.is-today {
+  color: var(--mono-accent);
+  font-weight: 700;
+}
+.mono-hgrid-corner,
+.mono-hgrid-name {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--mono-raised, var(--mono-surface));
+}
+.mono-hgrid .mono-hgrid-name {
+  padding: 4px 10px 4px 0;
+  text-align: left;
+  font-weight: 500;
+}
+.mono-hgrid-namebox {
+  width: clamp(132px, 36vw, 200px);
+}
+.mono-hgrid-label {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13.5px;
+  color: var(--mono-fg);
+}
+.mono-hgrid-meter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+.mono-hgrid-meter .mono-progress {
+  flex: 1;
+}
+.mono-hgrid-pct {
+  min-width: 3.5ch;
+  text-align: right;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--mono-muted);
+}
+.mono-hcell {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: var(--mono-bg-2);
+  color: var(--mono-bg);
+  cursor: pointer;
+  transition: background var(--mono-dur) var(--mono-ease);
+}
+.mono-hcell svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.5;
+}
+.mono-hcell[aria-pressed='true'] {
+  background: var(--mono-accent);
+}
+.mono-hcell.is-today {
+  box-shadow: inset 0 0 0 2px var(--mono-accent);
+}
+.mono-hcell.is-before {
+  opacity: 0.5;
+}
+.mono-hcell:disabled {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--mono-border);
+  cursor: default;
+  opacity: 0.5;
+}
+@media (pointer: coarse) {
+  .mono-hcell {
+    width: 44px;
+    height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mono-hcell {
+    transition: none;
+  }
+}
+.mono-hgrid-summary {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+@media (min-width: 720px) {
+  .mono-hgrid-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+.mono-hgrid-total {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mono-wbars {
+  display: block;
+  max-width: 100%;
+  overflow: visible;
+}
+.mono-wbars-track {
+  fill: color-mix(in oklab, var(--mono-fg) 10%, transparent);
+}
+.mono-wbars-bar {
+  fill: var(--mono-accent);
+}
+.mono-wbars-label {
+  fill: var(--mono-muted);
+  font-size: 10px;
+  font-family: inherit;
+}
+.mono-hgrid-top {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mono-hgrid-top li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13.5px;
+}
+.mono-hgrid-top li > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ---------- pills (priority, due) ---------- */
 .mono-pill {
   display: inline-flex;
@@ -2770,7 +2984,9 @@
 .mono-chip:focus-visible,
 .mono-tick:focus-visible,
 .mono-nav-item:focus-visible,
-.mono-horizon-chip:focus-visible {
+.mono-horizon-chip:focus-visible,
+.mono-hgrid-nav:focus-visible,
+.mono-hcell:focus-visible {
   outline: 2px solid var(--mono-accent);
   outline-offset: 2px;
 }

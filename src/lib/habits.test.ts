@@ -62,6 +62,21 @@ describe('habits', () => {
     expect(toggleHabitDay(log, 'h1', '2026-9-16')).toEqual({ h1: [] });
   });
 
+  it('keeps day keys in calendar order (October after September)', () => {
+    const log = toggleHabitDay({ h1: ['2026-9-30', '2026-9-9'] }, 'h1', '2026-10-1');
+    expect(log.h1).toEqual(['2026-9-9', '2026-9-30', '2026-10-1']);
+  });
+
+  it('caps the log at the newest 365 days, not the lexically largest', () => {
+    const days: string[] = [];
+    for (let i = 0; i < 365; i++) days.push(key(NOW - i * DAY));
+    const log = toggleHabitDay({ h1: days }, 'h1', '2026-10-1');
+    expect(log.h1).toHaveLength(365);
+    expect(log.h1[log.h1.length - 1]).toBe('2026-10-1');
+    expect(log.h1).toContain('2026-9-16');
+    expect(log.h1).not.toContain(key(NOW - 364 * DAY));
+  });
+
   it('counts daily streaks with a yesterday bridge', () => {
     const log = {
       h1: [key(NOW), key(NOW - DAY), key(NOW - 2 * DAY)],

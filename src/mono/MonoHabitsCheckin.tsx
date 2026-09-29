@@ -1,7 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import MonoCard from './MonoCard';
 import MonoTick from './MonoTick';
 import MonoBtn from './MonoBtn';
+import MonoChip from './MonoChip';
+import MonoHabitMonth from './MonoHabitMonth';
 import { activeHabits, isHabitDue, toggleHabitDay, type Habit, type HabitLog } from '../lib/habits';
 import { localDayKey } from '../lib/projects';
 import { useI18n } from '../lib/i18n/LocaleContext';
@@ -26,6 +28,7 @@ export default function MonoHabitsCheckin({
   const { t, fmtNum } = useI18n();
   const todayKey = localDayKey(now);
   const active = useMemo(() => activeHabits(habits), [habits]);
+  const [view, setView] = useState<'today' | 'month'>('today');
 
   const doneToday = active.filter((h) => (habitLog[h.id] ?? []).includes(todayKey)).length;
   const total = active.length;
@@ -56,42 +59,63 @@ export default function MonoHabitsCheckin({
         </MonoCard>
       ) : (
         <>
-          <MonoCard style={{ padding: '8px 16px' }}>
-            {active.map((h) => {
-              const doneSet = new Set(habitLog[h.id] ?? []);
-              const checked = doneSet.has(todayKey);
-              const due = isHabitDue(h, habitLog, now);
-              const metaParts: string[] = [
-                h.frequency === 'weekly'
-                  ? t('life.hab.perWeek', { n: fmtNum(h.targetPerWeek) })
-                  : t('life.hab.daily'),
-              ];
-              if (!due && !checked) metaParts.push(t('life.hab.paused'));
+          <div
+            className="mono-row mono-hgrid-switch"
+            role="group"
+            aria-label={t('mono.habits.viewAria')}
+          >
+            <MonoChip type="button" pressed={view === 'today'} onClick={() => setView('today')}>
+              {t('mono.habits.viewToday')}
+            </MonoChip>
+            <MonoChip type="button" pressed={view === 'month'} onClick={() => setView('month')}>
+              {t('mono.habits.viewMonth')}
+            </MonoChip>
+          </div>
+          {view === 'month' ? (
+            <MonoHabitMonth
+              habits={habits}
+              habitLog={habitLog}
+              onHabitLogChange={onHabitLogChange}
+              now={now}
+            />
+          ) : (
+            <MonoCard style={{ padding: '8px 16px' }}>
+              {active.map((h) => {
+                const doneSet = new Set(habitLog[h.id] ?? []);
+                const checked = doneSet.has(todayKey);
+                const due = isHabitDue(h, habitLog, now);
+                const metaParts: string[] = [
+                  h.frequency === 'weekly'
+                    ? t('life.hab.perWeek', { n: fmtNum(h.targetPerWeek) })
+                    : t('life.hab.daily'),
+                ];
+                if (!due && !checked) metaParts.push(t('life.hab.paused'));
 
-              return (
-                <div key={h.id} className="mono-list-row">
-                  <MonoTick
-                    checked={checked}
-                    onToggle={() => onHabitLogChange(toggleHabitDay(habitLog, h.id, todayKey))}
-                    label={t(checked ? 'life.hab.undo' : 'life.hab.do', { name: h.name })}
-                  />
-                  <div className="mono-list-grow">
-                    <div
-                      className="mono-h3"
-                      style={
-                        checked
-                          ? { textDecoration: 'line-through', color: 'var(--mono-muted)' }
-                          : undefined
-                      }
-                    >
-                      {h.name}
+                return (
+                  <div key={h.id} className="mono-list-row">
+                    <MonoTick
+                      checked={checked}
+                      onToggle={() => onHabitLogChange(toggleHabitDay(habitLog, h.id, todayKey))}
+                      label={t(checked ? 'life.hab.undo' : 'life.hab.do', { name: h.name })}
+                    />
+                    <div className="mono-list-grow">
+                      <div
+                        className="mono-h3"
+                        style={
+                          checked
+                            ? { textDecoration: 'line-through', color: 'var(--mono-muted)' }
+                            : undefined
+                        }
+                      >
+                        {h.name}
+                      </div>
+                      <div className="mono-meta">{metaParts.join(' · ')}</div>
                     </div>
-                    <div className="mono-meta">{metaParts.join(' · ')}</div>
                   </div>
-                </div>
-              );
-            })}
-          </MonoCard>
+                );
+              })}
+            </MonoCard>
+          )}
           {onManage ? (
             <div style={{ marginTop: 10 }}>
               <MonoBtn variant="ghost" onClick={onManage}>

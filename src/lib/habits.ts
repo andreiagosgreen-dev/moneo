@@ -6,6 +6,7 @@
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
 import { localDayKey } from './projects';
+import { compareDayKeys } from './dayKeys';
 
 export type HabitFrequency = 'daily' | 'weekly';
 
@@ -50,6 +51,13 @@ function dayKeyAt(at: number): string {
   return localDayKey(at);
 }
 
+const LOG_CAP = 365;
+
+/** Newest LOG_CAP days, in chronological order. */
+function capDays(days: string[]): string[] {
+  return [...days].sort(compareDayKeys).slice(-LOG_CAP);
+}
+
 function shiftDayKey(dayKey: string, deltaDays: number): string {
   const [y, m, d] = dayKey.split('-').map(Number);
   const dt = new Date(y, m - 1, d);
@@ -87,7 +95,7 @@ export function loadHabitLog(): HabitLog {
   if (!stored || typeof stored !== 'object') return {};
   const clean: HabitLog = {};
   for (const [k, v] of Object.entries(stored)) {
-    if (Array.isArray(v)) clean[k] = v.filter((d) => typeof d === 'string').slice(-365);
+    if (Array.isArray(v)) clean[k] = capDays(v.filter((d) => typeof d === 'string'));
   }
   return clean;
 }
@@ -95,7 +103,7 @@ export function loadHabitLog(): HabitLog {
 export function saveHabitLog(log: HabitLog): boolean {
   const capped: HabitLog = {};
   for (const [k, v] of Object.entries(log)) {
-    if (Array.isArray(v)) capped[k] = v.slice(-365);
+    if (Array.isArray(v)) capped[k] = capDays(v);
   }
   return write(STORAGE_KEYS.habitLog, capped);
 }
@@ -174,7 +182,7 @@ export function toggleHabitDay(log: HabitLog, habitId: string, dayKey: string): 
   const days = new Set(log[habitId] ?? []);
   if (days.has(dayKey)) days.delete(dayKey);
   else days.add(dayKey);
-  return { ...log, [habitId]: [...days].sort().slice(-365) };
+  return { ...log, [habitId]: capDays([...days]) };
 }
 
 function completions(log: HabitLog, habitId: string): Set<string> {
