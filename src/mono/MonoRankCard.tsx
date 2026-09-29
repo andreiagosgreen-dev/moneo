@@ -1,10 +1,13 @@
 import { memo } from 'react';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import { RANKS, XP_RULES, type XpBreakdown, levelFromXp } from '../lib/xp';
+import type { Badge } from '../lib/badges';
 import { RANK_KEYS, rankLabel } from './rankLabel';
+import MonoBadgeGrid from './MonoBadgeGrid';
 
 interface Props {
   xp: XpBreakdown;
+  badges?: Badge[];
 }
 
 const RING_R = 28;
@@ -14,7 +17,7 @@ const RING_C = 2 * Math.PI * RING_R;
  * Rank + level + progress to the next level, with a short "how you earn XP"
  * explainer. Pure view over the derived XP breakdown — nothing stored here.
  */
-function MonoRankCardBase({ xp }: Props) {
+function MonoRankCardBase({ xp, badges }: Props) {
   const { t, fmtNum, fmtDur } = useI18n();
   const info = levelFromXp(xp.total);
   const pct = Math.round(info.progress * 100);
@@ -87,6 +90,8 @@ function MonoRankCardBase({ xp }: Props) {
           </p>
         </div>
       </div>
+
+      {badges && badges.length > 0 && <MonoBadgeGrid badges={badges} />}
 
       <details className="mono-rank-how">
         <summary>{t('mono.xp.howTitle')}</summary>

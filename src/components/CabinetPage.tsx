@@ -15,6 +15,7 @@ import {
 import { LEMON_MY_ORDERS_URL, buildCustomerPortalUrl } from '../lib/billing/lemonSqueezy';
 import ManageSubscriptionButton from './ManageSubscriptionButton';
 import { computeXp } from '../lib/xp';
+import { computeBadges } from '../lib/badges';
 import { loadHistory } from '../lib/store';
 import { loadTasks } from '../lib/tasks';
 import { loadHabitLog } from '../lib/habits';
@@ -62,17 +63,17 @@ export default function CabinetPage() {
   const [error, setError] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const portalUrl = buildCustomerPortalUrl();
-  const xp = useMemo(
-    () =>
-      computeXp({
-        history: loadHistory(),
-        tasks: loadTasks(),
-        habitLog: loadHabitLog(),
-        phases: loadPhases(),
-        projects: loadProjects(),
-      }),
-    [],
-  );
+  const { xp, badges } = useMemo(() => {
+    const input = {
+      history: loadHistory(),
+      tasks: loadTasks(),
+      habitLog: loadHabitLog(),
+      phases: loadPhases(),
+      projects: loadProjects(),
+    };
+    const breakdown = computeXp(input);
+    return { xp: breakdown, badges: computeBadges({ ...input, totalXp: breakdown.total }) };
+  }, []);
 
   // Lemon's confirmation "Button link" points at /account?billing=success
   // (set per product in the Lemon dashboard). The webhook may land slightly
@@ -158,7 +159,7 @@ export default function CabinetPage() {
           data-atmosphere={resolveAtmosphere(loadAtmosphere(), auth.isPro)}
         >
           <Suspense fallback={null}>
-            <MonoRankCard xp={xp} />
+            <MonoRankCard xp={xp} badges={badges} />
           </Suspense>
         </div>
 
