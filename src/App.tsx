@@ -180,6 +180,7 @@ import { useMoments } from './hooks/useMoments';
 import { computeXp, levelFromXp } from './lib/xp';
 import { computeBadges } from './lib/badges';
 import { isTodayInTz, dayKeyInTz } from './lib/timezone';
+import { dueStatus } from './lib/taskDue';
 import { loadSyncState, onSyncStateChange } from './lib/sync/syncState';
 
 /* Boot once: restore settings, history and the paused timer position. */
@@ -726,6 +727,7 @@ export default function App() {
   };
 
   const nowMs = Date.now();
+  const taskById = useMemo(() => new Map(tasks.map((x) => [x.id, x])), [tasks]);
   const nextBlock = nextFocusBlock(
     timeBlocks,
     weekdayOfKey(todayKey),
@@ -961,12 +963,18 @@ export default function App() {
                         dayKey={todayKey}
                         doneCount={planDoneCount(todayPlan)}
                         totalCount={todayPlan?.tasks.length ?? 0}
-                        items={(todayPlan?.tasks ?? []).map((x) => ({
-                          id: x.id,
-                          text: x.text,
-                          meta: typeof x.estimateMin === 'number' ? fmtDur(x.estimateMin) : '',
-                          done: x.done,
-                        }))}
+                        focusMinToday={focusStats.focusMin}
+                        items={(todayPlan?.tasks ?? []).map((x) => {
+                          const linked = x.taskId ? taskById.get(x.taskId) : undefined;
+                          return {
+                            id: x.id,
+                            text: x.text,
+                            meta: typeof x.estimateMin === 'number' ? fmtDur(x.estimateMin) : '',
+                            done: x.done,
+                            priority: linked?.priority,
+                            due: linked ? dueStatus(linked.dueAt, nowMs, auth.timezone) : null,
+                          };
+                        })}
                         maxTasks={todayMaxTasks}
                         morningLabel={t('today.morning')}
                         shutdownLabel={t('today.shutdown')}
