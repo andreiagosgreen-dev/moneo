@@ -1,5 +1,5 @@
 import { useMemo, lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import MonoNav, { type MonoTab } from './mono/MonoNav';
 import MonoMore from './mono/MonoMore';
 import MonoFocus from './mono/MonoFocus';
@@ -12,6 +12,7 @@ import MonoReportInsights from './mono/MonoReportInsights';
 import MonoOrar from './mono/MonoOrar';
 import MonoProiecte from './mono/MonoProiecte';
 import MonoInbox from './mono/MonoInbox';
+import MonoTemplates from './mono/MonoTemplates';
 import MonoToast from './mono/MonoToast';
 import MonoRapoarte from './mono/MonoRapoarte';
 import MonoCrestere from './mono/MonoCrestere';
@@ -123,6 +124,12 @@ import {
 } from './lib/ai/roadmap';
 import MonoRoadmapStrip from './mono/MonoRoadmapStrip';
 import { loadHabits, loadHabitLog, type Habit, type HabitLog } from './lib/habits';
+import {
+  getLifeTemplate,
+  instantiateLifeTemplate,
+  isTemplateAvailable,
+  type LifeTemplateId,
+} from './lib/lifeTemplates';
 import { loadLifeAreas, type LifeArea } from './lib/lifeAreas';
 import { loadLifeMap, type LifeMapArea } from './lib/lifemap';
 import { loadJournal, type Journal } from './lib/journal';
@@ -439,6 +446,7 @@ export default function App() {
 
   // Idle tab title follows client-side navigation; a live countdown wins.
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   useEffect(() => {
     if (!running && remaining >= total) document.title = titleForPath(pathname, t);
   }, [pathname, running, remaining, total, t]);
@@ -917,6 +925,31 @@ export default function App() {
     setTasks(r.tasks);
     setIvyPlans(r.plans);
     setToast({ message: t('mono.azi.snoozed') });
+  };
+
+  const canCreateProject = auth.isPro || projects.length < FREE_PROJECTS_LIMIT;
+  const handleLifeTemplate = (id: LifeTemplateId) => {
+    const tpl = getLifeTemplate(id);
+    if (!tpl || !isTemplateAvailable(id, auth.isPro) || !canCreateProject) return;
+    const r = instantiateLifeTemplate(tpl, {
+      t,
+      now: Date.now(),
+      isPro: auth.isPro,
+      existingActiveHabits: habits.filter((h) => !h.archived).length,
+    });
+    setProjects([...projects, r.project]);
+    setTasks([...tasks, ...r.tasks]);
+    if (r.habits.length > 0) setHabits([...habits, ...r.habits]);
+    handleSelectProject(r.project.id);
+    const created = t('goal.tpl.created', { name: r.project.name });
+    setToast(
+      r.skippedHabits > 0
+        ? {
+            message: `${created} ${appI18n.tp('goal.tpl.habitsSkipped', r.skippedHabits)}`,
+            action: { label: t('proj.upgrade'), onClick: () => navigate('/pricing') },
+          }
+        : { message: created },
+    );
   };
 
   const nowMs = Date.now();
@@ -1642,6 +1675,11 @@ export default function App() {
                               setTasks(assignProject(tasks, id, projectId))
                             }
                             onDelete={handleInboxDelete}
+                          />
+                          <MonoTemplates
+                            isPro={auth.isPro}
+                            canCreate={canCreateProject}
+                            onCreate={handleLifeTemplate}
                           />
                           <ProjectsCard
                             projects={projects}

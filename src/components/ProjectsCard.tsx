@@ -81,12 +81,6 @@ export default function ProjectsCard({
     setLimitNotice(false);
   };
 
-  const handleToggleTemplates = () => {
-    setShowTemplates(!showTemplates);
-    setShowCreate(false);
-    setLimitNotice(false);
-  };
-
   const handleCreate = () => {
     if (crud.create(newProjectName, newProjectCategory)) {
       setNewProjectName('');
@@ -142,12 +136,6 @@ export default function ProjectsCard({
               {t('proj.csv')}
             </button>
           )}
-          <button
-            onClick={handleToggleTemplates}
-            className="press btn-ghost h-9 rounded-lg px-3 text-[12px] font-semibold"
-          >
-            {showTemplates ? t('cal.cancel') : t('proj.tplShow')}
-          </button>
           <button
             onClick={handleToggleCreate}
             className="press btn-accent h-9 rounded-lg px-3.5 text-[12px] font-bold"
@@ -218,8 +206,6 @@ export default function ProjectsCard({
         />
       )}
 
-      {showTemplates && <TemplateGallery isPro={isPro} onInstantiate={handleInstantiate} />}
-
       {projects.length > 0 && (
         <div className="mt-4">
           <input
@@ -288,6 +274,15 @@ export default function ProjectsCard({
         history={history}
         onRestore={(id) => crud.setArchived(id, false)}
       />
+
+      <details
+        className="mono-tpl-dev mt-4"
+        open={showTemplates}
+        onToggle={(e) => setShowTemplates(e.currentTarget.open)}
+      >
+        <summary>{t('goal.tpl.devTitle')}</summary>
+        {showTemplates && <TemplateGallery isPro={isPro} onInstantiate={handleInstantiate} />}
+      </details>
     </section>
   );
 }
