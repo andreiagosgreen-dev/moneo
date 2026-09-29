@@ -5,6 +5,8 @@ import MonoMore from './mono/MonoMore';
 import MonoFocus from './mono/MonoFocus';
 import MonoAzi from './mono/MonoAzi';
 import MonoHabitsCheckin from './mono/MonoHabitsCheckin';
+import MonoWeek from './mono/MonoWeek';
+import MonoWeekRecap from './mono/MonoWeekRecap';
 import MonoOrar from './mono/MonoOrar';
 import MonoProiecte from './mono/MonoProiecte';
 import MonoRapoarte from './mono/MonoRapoarte';
@@ -181,6 +183,8 @@ import { computeBadges } from './lib/badges';
 import { isTodayInTz, dayKeyInTz } from './lib/timezone';
 import { dueStatus } from './lib/taskDue';
 import { dayProgress } from './lib/dayProgress';
+import { buildLastWeekRecap, loadRecapSeen, saveRecapSeen, shouldShowRecap } from './lib/weekRecap';
+import { mondayOf } from './lib/dayKeys';
 import { loadSyncState, onSyncStateChange } from './lib/sync/syncState';
 
 /* Boot once: restore settings, history and the paused timer position. */
@@ -679,6 +683,32 @@ export default function App() {
     });
   }, [nextPlanItemId, nextPlanItemText]);
 
+  const lastWeekRecap = useMemo(
+    () =>
+      buildLastWeekRecap({
+        history,
+        tasks,
+        habitLog,
+        phases,
+        projects,
+        timezone: auth.timezone,
+        todayKey,
+      }),
+    [history, tasks, habitLog, phases, projects, auth.timezone, todayKey],
+  );
+  const [recapSeen, setRecapSeen] = useState<string | null>(loadRecapSeen);
+  const showRecap = shouldShowRecap({
+    todayKey,
+    seenMonday: recapSeen,
+    recap: lastWeekRecap,
+    firstRun: showOnboarding,
+  });
+  const dismissRecap = () => {
+    const monday = mondayOf(todayKey);
+    saveRecapSeen(monday);
+    setRecapSeen(monday);
+  };
+
   const todayProgress = dayProgress(todayPlan, history, todayKey, auth.timezone);
   const focusStats = {
     sessions: history.filter((s) => isTodayInTz(s.at, auth.timezone)).length,
@@ -986,6 +1016,15 @@ export default function App() {
                         onGoWork={() => goFill('focus')}
                         onPath={goFill}
                         motto={{ text: dayMotto.text, source: dayMotto.source }}
+                        recap={
+                          showRecap ? (
+                            <MonoWeekRecap
+                              recap={lastWeekRecap}
+                              onDismiss={dismissRecap}
+                              onOpenReports={() => goNav('reports')}
+                            />
+                          ) : undefined
+                        }
                         estimates={
                           todayEstimates > 0 ? (
                             <div style={{ marginTop: 10 }}>
@@ -1157,6 +1196,17 @@ export default function App() {
                           dayKey={todayKey}
                           hasBlocks={timeBlocks.length > 0}
                         >
+                          <div style={{ marginBottom: 18 }}>
+                            <MonoWeek
+                              plans={ivyPlans}
+                              tasks={tasks}
+                              history={history}
+                              habits={habits}
+                              habitLog={habitLog}
+                              timezone={auth.timezone}
+                              onOpenToday={() => goNav('today')}
+                            />
+                          </div>
                           <CalendarCard
                             history={history}
                             projects={projects}

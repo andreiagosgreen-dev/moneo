@@ -45,6 +45,8 @@ interface Props {
   onPath?: (tab: MonoTab) => void;
   /** Optional attributed daily motto (calm, one line). */
   motto?: { text: string; source: string };
+  /** "Last week" summary card, shown at the start of a new week. */
+  recap?: ReactNode;
   estimates?: ReactNode;
   /** Optional schedule strip — omit when empty noise (Orar owns blocks). */
   program?: ReactNode;
@@ -70,6 +72,7 @@ export default function MonoAzi({
   onGoWork,
   onPath,
   motto,
+  recap,
   estimates,
   program,
   habits,
@@ -167,6 +170,11 @@ export default function MonoAzi({
         <p className="mono-azi-motto-line">
           “{motto.text}”<span className="mono-azi-motto-src"> — {motto.source}</span>
         </p>
+      ) : null}
+      {recap ? (
+        <div className="mono-pad" style={{ marginBottom: 14 }}>
+          {recap}
+        </div>
       ) : null}
 
       <div className="mono-pad">

@@ -104,6 +104,8 @@ export const STORAGE_KEYS = {
   celebratePrefs: 'moneo:celebrate-prefs',
   /** Last XP level already celebrated — XP itself is derived, never stored. */
   xpSeen: 'moneo:xp-seen',
+  /** Monday of the week whose "last week" summary was dismissed — local only, never synced. */
+  weekRecapSeen: 'moneo:week-recap-seen',
   /** Saved task filters / Smart Views (Faza 18). */
   savedFilters: 'moneo:saved-filters',
   /** Advanced planning visibility (Kanban/Sprints/Gantt/Waterfall) — local only. */
