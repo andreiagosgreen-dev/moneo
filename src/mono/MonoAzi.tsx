@@ -105,7 +105,7 @@ export default function MonoAzi({
       </label>
       <input
         id="mono-azi-new"
-        className="mono-field"
+        className="mono-field mono-ph-fit"
         type="text"
         value={draft}
         disabled={full}
