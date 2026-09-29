@@ -310,7 +310,6 @@ export default function MonoFocus({
       <MonoCoach
         kind={programCoachKind}
         dayKey={dayKey}
-        onExample={programCoachKind === 'focusOpen' ? (text) => onIntention(text) : undefined}
         onCta={programCoachKind === 'focusEmpty' ? onSeePlan : undefined}
         ctaLabel={programCoachKind === 'focusEmpty' ? t('mono.focus.writePlan') : undefined}
       />

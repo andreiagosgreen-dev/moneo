@@ -1233,13 +1233,9 @@ export const de: Record<TKey, string> = {
     'Dieser Export stammt aus einer neueren Moneo-Version. Aktualisiere die App und versuche es erneut.',
   'mono.export.err.invalidShape': 'Die Exportdatei ist beschädigt oder unvollständig.',
   'mono.export.err.write': 'Import fehlgeschlagen – deine bisherigen Daten wurden behalten.',
-  'mono.coach.examples': 'Beispiele',
   'mono.coach.aziEmpty.q': 'Was lohnt sich heute zu beenden?',
   'mono.coach.aziEmpty.hint':
     'Schreib 1–3 konkrete Ergebnisse — keine vagen Wünsche. Von oben nach unten.',
-  'mono.coach.aziEmpty.ex1': 'Kapitelgliederung skizzieren',
-  'mono.coach.aziEmpty.ex2': 'Kunden-Update senden',
-  'mono.coach.aziEmpty.ex3': '30 Min. Spaziergang',
   'mono.coach.aziOpen.q': 'Mit dem obersten offenen Punkt starten?',
   'mono.coach.aziOpen.hint':
     'Die Liste ist dein Programm. Öffne Fokus und bleib beim ersten Offenen.',
@@ -1250,13 +1246,9 @@ export const de: Record<TKey, string> = {
     'Schreib zuerst die heutige Liste. Fokus arbeitet nur dein geschriebenes Programm.',
   'mono.coach.focusOpen.q': 'Arbeitest du jetzt am obersten Punkt?',
   'mono.coach.focusOpen.hint': 'Eins nach dem anderen. Nenn es in der Absicht, dann Start.',
-  'mono.coach.focusOpen.ex1': 'Kapitel 3 — Datenstrukturen',
-  'mono.coach.focusOpen.ex2': 'Drei E-Mails beantworten',
   'mono.coach.orarEmpty.q': 'Wann arbeitest du am besten?',
   'mono.coach.orarEmpty.hint':
     'Optionale Fokusfenster schützen Zeit. Die Heute-Liste entscheidet trotzdem was.',
-  'mono.coach.orarEmpty.ex1': '09:00–11:00 Tiefenarbeit',
-  'mono.coach.orarEmpty.ex2': '14:00–16:00 Tiefenarbeit',
   'mono.coach.orarHas.q': 'Fenster gesetzt — der Liste vertrauen?',
   'mono.coach.orarHas.hint': 'Blöcke schützen wann. Heutige Prioritäten entscheiden was.',
   'mono.life.kicker': 'Richtung',

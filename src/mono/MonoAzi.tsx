@@ -177,7 +177,6 @@ export default function MonoAzi({
           <MonoCoach
             kind={coachKind}
             dayKey={dayKey}
-            onExample={coachKind === 'aziEmpty' ? (text) => setDraft(text) : undefined}
             onCta={coachKind === 'aziDone' ? onShutdown : undefined}
             ctaLabel={coachKind === 'aziDone' ? shutdownLabel : undefined}
           />

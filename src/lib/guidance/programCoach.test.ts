@@ -6,7 +6,6 @@ import {
   pickProgramCoach,
   showCoachAgain,
   COACH_CTA,
-  COACH_EXAMPLE_COUNT,
 } from './programCoach';
 
 describe('pickProgramCoach', () => {
@@ -101,8 +100,7 @@ describe('coach dismiss storage', () => {
 });
 
 describe('coach metadata', () => {
-  it('maps examples and CTAs for every kind', () => {
-    expect(COACH_EXAMPLE_COUNT.aziEmpty).toBe(3);
+  it('maps CTAs for every kind', () => {
     expect(COACH_CTA.aziOpen).toBe('goWork');
     expect(COACH_CTA.focusEmpty).toBe('writePlan');
     expect(COACH_CTA.aziDone).toBe('shutdown');
