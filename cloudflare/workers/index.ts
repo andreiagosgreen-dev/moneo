@@ -14,6 +14,7 @@
 import { handleAccountDelete } from './account';
 import { handleLemonSqueezyWebhook } from './lemonWebhook';
 import { handleCustomerPortal } from './portal';
+import { handleRankDiscount, type DiscountKV } from './discount';
 import { handleAIPlan } from './ai';
 import {
   handleCalendarConnect,
@@ -53,6 +54,8 @@ const calendarEventsLimiter = createRateLimiter({ windowMs: 60_000, max: 20 });
 const buddyLimiter = createRateLimiter({ windowMs: 60_000, max: 20 });
 /** Pro sync pushes are debounced client-side; a first upload is a handful of batches. */
 const syncLimiter = createRateLimiter({ windowMs: 60_000, max: 60 });
+/** Status is read on two screens; minting happens at most once per offer. */
+const discountLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
 
 const SEC = buildSecurityHeaders();
 
@@ -95,6 +98,11 @@ export interface Env {
   LEMON_MONTHLY_IDS?: string;
   /** "true" lets Lemon test-mode webhooks grant Pro; anything else ignores them. */
   ALLOW_TEST_MODE?: string;
+  /** Lemon store + numeric variant ids the rank discount codes are created for (public). */
+  LEMON_STORE_ID?: string;
+  LEMON_MONTHLY_VARIANT_ID?: string;
+  LEMON_YEARLY_VARIANT_ID?: string;
+  KV_CACHE?: DiscountKV;
 }
 
 const DEFAULT_ALLOWED_ORIGINS = 'https://moneo.bond';
@@ -154,7 +162,9 @@ export default {
                 ? buddyLimiter
                 : url.pathname === '/api/sync/records'
                   ? syncLimiter
-                  : webhookLimiter;
+                  : url.pathname === '/api/billing/discount'
+                    ? discountLimiter
+                    : webhookLimiter;
       if (!limiter(`${clientIp(request)}:${url.pathname}`)) {
         return new Response(JSON.stringify({ error: 'Too many requests' }), {
           status: 429,
@@ -188,6 +198,12 @@ export default {
     // Same-origin, JWT-gated; the Lemon Squeezy API key never leaves the Worker.
     if (url.pathname === '/api/billing/portal') {
       return handleCustomerPortal(request, env);
+    }
+
+    // Rank discount codes: JWT-gated, rank recomputed from synced data,
+    // one code per account per offer. 503 `not_configured` without the Lemon key.
+    if (url.pathname === '/api/billing/discount') {
+      return handleRankDiscount(request, env);
     }
 
     // Server-side AI planner (Faza 6): JWT-gated, rate-limited, audited.

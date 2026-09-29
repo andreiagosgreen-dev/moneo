@@ -70,6 +70,7 @@ export interface DeleteRowsResult {
 interface SupabaseUser {
   id?: unknown;
   email?: unknown;
+  created_at?: unknown;
 }
 
 function json(body: Record<string, unknown>, status: number): Response {
@@ -91,6 +92,8 @@ export function bearerToken(request: Request): string | null {
 export interface VerifiedUser {
   userId: string;
   email: string | null;
+  /** Epoch ms the Auth user was created; absent when Supabase did not say. */
+  createdAt?: number;
 }
 
 /**
@@ -113,9 +116,11 @@ export async function verifyUser(
     if (!res.ok) return null;
     const user = (await res.json()) as SupabaseUser;
     if (typeof user.id !== 'string' || user.id.length === 0) return null;
+    const createdAt = typeof user.created_at === 'string' ? Date.parse(user.created_at) : NaN;
     return {
       userId: user.id,
       email: typeof user.email === 'string' && user.email.length > 0 ? user.email : null,
+      ...(Number.isFinite(createdAt) ? { createdAt } : {}),
     };
   } catch {
     return null;
