@@ -120,7 +120,7 @@ function Stepper({
     'press btn-ghost flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none';
   return (
     <div className="flex items-center justify-between gap-3 py-3">
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <div
           className={`text-[14px] font-semibold ${accent ? '' : 'text-cream/90'}`}
           style={accent ? { color: 'var(--accent)' } : undefined}
@@ -173,7 +173,7 @@ function Toggle({
       aria-checked={on}
       className="press group flex w-full items-center justify-between gap-3 rounded-xl px-1 py-3 text-left"
     >
-      <span>
+      <span className="min-w-0 flex-1">
         <span className="block text-[14px] font-semibold text-cream/90">{label}</span>
         <span className="block text-[12px] text-faint">{hint}</span>
       </span>
@@ -312,7 +312,7 @@ export default function SettingsCard({
           onStep={step}
         />
         <div className="flex items-center justify-between gap-3 py-3">
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="text-[14px] font-semibold text-cream/90">{t('set.cap')}</div>
             <div className="text-[12px] text-faint">{t('set.capH')}</div>
           </div>
@@ -370,11 +370,11 @@ export default function SettingsCard({
         {settings.sound && (
           <>
             <div className="flex items-center justify-between gap-3 py-3">
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="text-[14px] font-semibold text-cream/90">{t('set.soundType')}</div>
                 <div className="text-[12px] text-faint">{t('set.soundTypeH')}</div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 <select
                   value={settings.soundType}
                   onChange={(e) => onChange({ soundType: e.target.value as SoundType })}
@@ -413,7 +413,7 @@ export default function SettingsCard({
             </div>
             {settings.soundType === 'custom' && (
               <div className="flex items-center justify-between gap-3 py-3">
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="text-[14px] font-semibold text-cream/90">{t('set.customUp')}</div>
                   <div className="text-[12px] text-faint">
                     {hasCustom ? t('set.customHas') : t('set.customFormats')}
@@ -454,11 +454,11 @@ export default function SettingsCard({
               </div>
             )}
             <div className="flex items-center justify-between gap-3 py-3">
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="text-[14px] font-semibold text-cream/90">{t('set.volume')}</div>
                 <div className="text-[12px] text-faint">{t('set.volumeH')}</div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex shrink-0 items-center gap-3">
                 <input
                   type="range"
                   min="0"
@@ -627,8 +627,8 @@ function AppearanceSection({
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3 py-3 max-sm:flex-wrap">
-        <div className="min-w-0">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 py-3">
+        <div className="min-w-[min(100%,12rem)] flex-1">
           <div className="text-[14px] font-semibold text-cream/90">{t('set.mode')}</div>
           <div className="text-[12px] text-faint">
             {isPro ? t('set.modePro') : t('set.modeFree')}
@@ -649,14 +649,14 @@ function AppearanceSection({
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+      <div className="flex flex-col gap-2 py-3">
         <div className="min-w-0">
           <div className="text-[14px] font-semibold text-cream/90">{t('set.accent')}</div>
           <div className="text-[12px] text-faint">
             {isPro ? t('set.accentPro') : t('set.accentFree')}
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-1.5 sm:shrink-0">
+        <div className="flex max-w-full flex-wrap items-center gap-1.5">
           {(
             [
               'auto',
@@ -703,7 +703,7 @@ function AppearanceSection({
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 py-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-2 py-3">
         <div className="min-w-0">
           <div className="text-[14px] font-semibold text-cream/90">{t('set.font')}</div>
           <div className="text-[12px] text-faint">
@@ -718,7 +718,7 @@ function AppearanceSection({
             </Link>
           )}
         </div>
-        <div className="flex max-w-full flex-wrap items-center gap-1.5 sm:max-w-[min(100%,22rem)] sm:justify-end">
+        <div className="flex max-w-full flex-wrap items-center gap-1.5">
           {FONT_OPTIONS.map((f) => {
             const locked = isProFont(f) && !isPro;
             return (
@@ -731,8 +731,8 @@ function AppearanceSection({
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3 py-3 max-sm:flex-wrap">
-        <div className="min-w-0">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 py-3">
+        <div className="min-w-[min(100%,12rem)] flex-1">
           <div className="text-[14px] font-semibold text-cream/90">{t('set.size')}</div>
           <div className="text-[12px] text-faint">{t('set.sizeH')}</div>
         </div>

@@ -50,6 +50,8 @@ import CabinetPage from './components/CabinetPage';
 import CalendarCallback from './components/CalendarCallback';
 import ResetPasswordPage from './components/ResetPasswordPage';
 import { titleForPath } from './lib/routeTitle';
+import { isKnownClientRoute } from './lib/knownRoutes';
+import MonoNotFound from './mono/MonoNotFound';
 import CommandCenter from './components/CommandCenter';
 import CommandPalette from './components/CommandPalette';
 import PostSessionReflection from './components/PostSessionReflection';
@@ -365,6 +367,7 @@ export default function App() {
     toggle,
     reset,
     switchMode,
+    setRoundLength,
     updateSettings,
   } = useTimer({
     settings,
@@ -426,6 +429,7 @@ export default function App() {
     isPro: auth.isPro,
     frogLog,
     timeBlocks,
+    firstRun: showOnboarding,
   });
 
   usePersonalDataPersistence({
@@ -587,6 +591,7 @@ export default function App() {
     saveAtmosphere(atmosphere);
   }, [atmosphere, paintedAtmosphere]);
 
+  const [quickStartPending, setQuickStartPending] = useState(false);
   const dismissOnboarding = () => {
     setShowOnboarding(false);
     markOnboardingSeen();
@@ -602,6 +607,7 @@ export default function App() {
       taskTitle,
       existingProject: canProject ? null : (live[0] ?? null),
       createGoal: auth.isPro || goals.filter((g) => !g.archived).length < FREE_GOALS_LIMIT,
+      i18n: appI18n,
     });
     if (!plan || (!canProject && live.length === 0)) {
       dismissOnboarding();
@@ -626,7 +632,19 @@ export default function App() {
     setIntentionDraft(plan.task.title);
     dismissOnboarding();
     goNav('focus');
+    setQuickStartPending(true);
   };
+  // The round captures intention/project/task at arming time, so start only
+  // after the quickstart selection has rendered into the timer context.
+  useEffect(() => {
+    if (!quickStartPending) return;
+    if (mode !== 'focus') {
+      switchMode('focus');
+      return;
+    }
+    setQuickStartPending(false);
+    if (!running) start();
+  }, [quickStartPending, running, mode, switchMode, start]);
   useEffect(() => saveSelectedArea(selectedAreaId), [selectedAreaId]);
   /* ---------- focus areas (CRUD moves to Settings in MONO-5) ---------- */
 
@@ -675,8 +693,7 @@ export default function App() {
 
   const handlePreset = (min: number) => {
     if (running) return;
-    updateSettings({ focusMin: min });
-    if (mode !== 'focus') switchMode('focus');
+    setRoundLength(min);
   };
   const handleToggleTask = (id: string) => {
     const r = togglePlanItem(ivyPlans, todayKey, id, tasks);
@@ -756,6 +773,14 @@ export default function App() {
       isPro={auth.isPro}
     />
   );
+
+  if (!isKnownClientRoute(pathname)) {
+    return (
+      <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={setLocale}>
+        <MonoNotFound />
+      </LocaleProvider>
+    );
+  }
 
   return (
     <Routes>
@@ -872,7 +897,7 @@ export default function App() {
                         running={running}
                         remaining={remaining}
                         total={total}
-                        focusMin={settings.focusMin}
+                        focusMin={mode === 'focus' ? total / 60 : settings.focusMin}
                         intention={intentionDraft}
                         onIntention={setIntentionDraft}
                         onIntentionEnter={() => {
@@ -1463,7 +1488,7 @@ export default function App() {
                 </div>
               </div>
 
-              {morningOpen && (
+              {morningOpen && !showOnboarding && (
                 <MorningRitual
                   plans={ivyPlans}
                   plansChange={setIvyPlans}

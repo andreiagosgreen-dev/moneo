@@ -20,7 +20,14 @@ test.describe('upgrade without an account', () => {
     await upgrade.nth(1).click();
 
     await expect(page).toHaveURL(/\/login\?upgrade=pro-yearly$/);
-    await expect(page.getByText('Please sign in to upgrade to Pro')).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Create your account to go Pro' }),
+    ).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Create account' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    await expect(page.getByRole('tab', { name: 'Sign in' })).toBeVisible();
     await expect(page.getByRole('textbox').first()).toBeVisible();
     expect(dialogs).toEqual([]);
   });

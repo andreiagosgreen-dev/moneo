@@ -195,7 +195,7 @@ export default function MonoFocus({
   const intentionField = (
     <input
       id="mono-intent"
-      className="mono-field atm-intent"
+      className="mono-field atm-intent mono-ph-fit"
       type="text"
       value={intention}
       placeholder={t('mono.focus.intentPh')}

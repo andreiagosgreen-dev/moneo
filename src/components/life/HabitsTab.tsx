@@ -185,7 +185,7 @@ export default function HabitsTab({
               onKeyDown={(e) => e.key === 'Enter' && draft.trim() && add(draft, freq)}
               placeholder={t('life.hab.ph')}
               aria-label={t('life.hab.add')}
-              className="h-10 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-[14px] text-cream ring-1 ring-inset ring-line placeholder:text-sage/70 focus:ring-accent focus:outline-none"
+              className="mono-ph-fit h-10 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-[14px] text-cream ring-1 ring-inset ring-line placeholder:text-sage/70 focus:ring-accent focus:outline-none"
             />
             <select
               value={freq}

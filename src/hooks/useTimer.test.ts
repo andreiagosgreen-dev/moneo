@@ -173,6 +173,39 @@ describe('useTimer', () => {
     }
   });
 
+  it('sets the current round length without saving it as the default', () => {
+    const setSettings = vi.fn();
+    const sessions: Session[] = [];
+    const h = harness({ setSettings, onSession: (entry) => sessions.push(entry) });
+    try {
+      act(() => {
+        h.api().switchMode('short');
+      });
+      act(() => {
+        h.api().setRoundLength(5);
+      });
+      expect(h.api().mode).toBe('focus');
+      expect(h.api().total).toBe(300);
+      expect(h.api().remaining).toBe(300);
+      expect(setSettings).not.toHaveBeenCalled();
+      act(() => {
+        h.api().toggle();
+      });
+      act(() => {
+        vi.advanceTimersByTime(301_000);
+      });
+      expect(sessions).toHaveLength(1);
+      expect(sessions[0].min).toBe(5);
+      act(() => {
+        h.api().skip();
+      });
+      expect(h.api().mode).toBe('focus');
+      expect(h.api().total).toBe(DEFAULT_SETTINGS.focusMin * 60);
+    } finally {
+      h.cleanup();
+    }
+  });
+
   it('responds to Space (toggle) and R (reset) keys', () => {
     const h = harness();
     try {

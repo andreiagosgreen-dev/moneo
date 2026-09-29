@@ -30,10 +30,16 @@ function Spinner() {
  * AccountButton modal and the dedicated /login page — one implementation,
  * one place to fix bugs or add a provider.
  */
-export default function AuthForm({ onAuthenticated }: { onAuthenticated?: () => void }) {
+export default function AuthForm({
+  onAuthenticated,
+  initialTab = 'signin',
+}: {
+  onAuthenticated?: () => void;
+  initialTab?: 'signin' | 'signup';
+}) {
   const { t } = useI18n();
   const auth = useAuth();
-  const [tab, setTab] = useState<'signin' | 'signup'>('signin');
+  const [tab, setTab] = useState<'signin' | 'signup'>(initialTab);
   const [forgot, setForgot] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

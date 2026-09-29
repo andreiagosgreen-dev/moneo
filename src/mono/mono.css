@@ -1332,11 +1332,16 @@
   }
   .mono-rail-brand {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    gap: 6px;
     padding: 0 12px 12px;
     margin-bottom: 4px;
     border-bottom: 1px solid var(--mono-border);
+  }
+  .mono-rail-brand-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
   .mono-rail-mark {
     width: 22px;
@@ -1457,11 +1462,17 @@
     border-radius: 12px;
   }
   .mono-rail-tag {
-    margin: 0 4px;
-    font-size: 11px;
+    margin: 0;
+    min-width: 0;
+    font-size: 12px;
     line-height: 1.35;
     color: var(--mono-muted);
-    opacity: 0.85;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow-wrap: anywhere;
   }
   .mono-nav {
     display: flex;
@@ -3405,5 +3416,46 @@
 @media (prefers-reduced-motion: reduce) {
   .mono-rank-bar {
     transition: none;
+  }
+}
+
+/* Touch hit areas: at least 44px on phones/touch screens; the visible chip stays compact. */
+@media (max-width: 719px), (pointer: coarse) {
+  .mono-tick,
+  .mono-coach-dismiss,
+  .mono-path-step {
+    position: relative;
+  }
+  .mono-tick::after,
+  .mono-coach-dismiss::after,
+  .mono-path-step::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+  }
+  .mono-coach-dismiss::after {
+    inset: -10px -4px;
+  }
+  .mono-path-step::after {
+    inset: -6px -2px;
+  }
+  .mono-legal-links {
+    gap: 0 14px;
+  }
+  .mono-legal-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
+
+/* Long placeholders on narrow phones: shrink a little, then ellipsize instead of clipping. */
+.mono-ph-fit,
+.mono-ph-fit::placeholder {
+  text-overflow: ellipsis;
+}
+@media (max-width: 419px) {
+  .mono-ph-fit::placeholder {
+    font-size: 0.85em;
   }
 }

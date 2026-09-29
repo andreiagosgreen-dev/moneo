@@ -84,28 +84,7 @@ export function getCacheControl(filePath: string): string {
 }
 
 /**
- * Every path the SPA router renders on purpose (`src/App.tsx` routes plus
- * `/welcome` from `src/main.tsx`). Anything else still gets the SPA shell,
- * but with status 404 so crawlers don't index junk URLs.
+ * Unknown paths still get the SPA shell, but with status 404 so crawlers
+ * don't index junk URLs. The route list is shared with the client router.
  */
-const KNOWN_CLIENT_ROUTES = new Set([
-  '/',
-  '/welcome',
-  '/help',
-  '/pricing',
-  '/login',
-  '/reset-password',
-  '/account',
-  '/account/calendar-callback',
-  '/terms',
-  '/privacy',
-  '/refund',
-]);
-
-export const KNOWN_CLIENT_ROUTE_LIST: readonly string[] = [...KNOWN_CLIENT_ROUTES];
-
-/** React Router matches case-insensitively and ignores a trailing slash. */
-export function isKnownClientRoute(pathname: string): boolean {
-  const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
-  return KNOWN_CLIENT_ROUTES.has((path || '/').toLowerCase());
-}
+export { KNOWN_CLIENT_ROUTE_LIST, isKnownClientRoute } from '../../src/lib/knownRoutes';

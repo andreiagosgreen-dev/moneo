@@ -245,6 +245,25 @@ export function useTimer({
     gotoMode(applySkip(modeRef.current), false);
   };
 
+  /** Arm an idle focus round with `min` minutes without touching saved settings;
+   * the next round goes back to `settings.focusMin`. A paused, partly-run focus
+   * round is left untouched. */
+  const setRoundLength = (min: number) => {
+    if (runningRef.current) return;
+    if (modeRef.current === 'focus' && remainingRef.current !== totalRef.current) return;
+    if (modeRef.current !== 'focus') {
+      modeRef.current = 'focus';
+      setMode('focus');
+      captureRoundMeta();
+    }
+    const d = min * 60;
+    setTotal(d);
+    setRemaining(d);
+    totalRef.current = d;
+    remainingRef.current = d;
+    roundMinRef.current = min;
+  };
+
   const updateSettings = (patch: Partial<Settings>) => {
     // Stamp every edit so settings sync can use last-write-wins.
     const next = { ...settings, ...patch, updatedAt: Date.now() };
@@ -340,6 +359,7 @@ export function useTimer({
     reset,
     skip,
     switchMode,
+    setRoundLength,
     updateSettings,
   };
 }

@@ -217,9 +217,11 @@ describe('legal content', () => {
     expect(ro).toContain('legea aplicabilă');
     expect(ro).not.toMatch(/cel puțin 16/);
 
-    expect(enStrings['legal.ageNote'].replace('{n}', String(DIGITAL_CONSENT_AGE))).toBe(
-      'Under 16? Ask a parent or guardian first.',
-    );
+    expect(
+      enStrings['legal.ageNote']
+        .replace('{min}', String(MIN_ACCOUNT_AGE))
+        .replace('{n}', String(ADULT_AGE)),
+    ).toBe('Accounts are for ages 13+. Under 18? Get a parent’s or guardian’s permission first.');
 
     const landingMinors = enStrings['land.faq.minors.a']
       .replace('{min}', String(MIN_ACCOUNT_AGE))

@@ -109,15 +109,18 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette }: Pro
   return (
     <nav className="mono-nav" role="tablist" aria-label={t('mono.nav.aria')}>
       <div className="mono-rail-brand">
-        <img
-          className="mono-rail-mark"
-          src="/brand/moneo-mark-1200.png"
-          alt=""
-          width={22}
-          height={22}
-          decoding="async"
-        />
-        <span className="mono-rail-name">Moneo</span>
+        <div className="mono-rail-brand-row">
+          <img
+            className="mono-rail-mark"
+            src="/brand/moneo-mark-1200.png"
+            alt=""
+            width={22}
+            height={22}
+            decoding="async"
+          />
+          <span className="mono-rail-name">Moneo</span>
+        </div>
+        <p className="mono-rail-tag">{t('foot.tag')}</p>
       </div>
 
       <div className="mono-rail-primary">
@@ -193,8 +196,6 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette }: Pro
         >
           {t('mono.nav.newSession')}
         </button>
-
-        <p className="mono-rail-tag">{t('foot.tag')}</p>
       </div>
     </nav>
   );

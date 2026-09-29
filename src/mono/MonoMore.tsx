@@ -1,4 +1,6 @@
+import { Link } from 'react-router-dom';
 import MonoHead from './MonoHead';
+import { useAuth } from '../lib/authProvider';
 import MonoLegalLinks from './MonoLegalLinks';
 import type { MonoTab } from './MonoNav';
 import { useI18n } from '../lib/i18n/LocaleContext';
@@ -26,6 +28,7 @@ interface Props {
 
 export default function MonoMore({ tab, onOpen }: Props) {
   const { t } = useI18n();
+  const signedIn = useAuth().status === 'authenticated';
   return (
     <div className="mono-more">
       <MonoHead eyebrow={t('mono.nav.more')} title={t('mono.nav.moreTitle')} />
@@ -57,6 +60,22 @@ export default function MonoMore({ tab, onOpen }: Props) {
               </li>
             );
           })}
+          <li>
+            <Link to={signedIn ? '/account' : '/login'} className="mono-more-item no-underline">
+              <span className="mono-more-num" aria-hidden>
+                {ENTRIES.length + 1}
+              </span>
+              <span className="mono-more-copy">
+                <span className="mono-h3">{t('mono.more.account')}</span>
+                <span className="mono-meta">
+                  {t(signedIn ? 'mono.more.accountHint' : 'mono.more.signInHint')}
+                </span>
+              </span>
+              <span className="mono-more-chev" aria-hidden>
+                ›
+              </span>
+            </Link>
+          </li>
         </ol>
 
         <MonoLegalLinks showAbout showHelp />
