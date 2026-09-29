@@ -7,6 +7,8 @@ import {
   lifeBalance,
   reorderLifeMapArea,
   suggestNextStep,
+  templateHintKey,
+  templateNameKey,
   updateLifeMapArea,
   weeklyReview,
   type LifeMapArea,
@@ -156,7 +158,7 @@ export default function LifeMapCard({
   };
 
   const applyTemplate = (id: string) => {
-    const fresh = instantiateTemplate(id);
+    const fresh = instantiateTemplate(id, t);
     areasChange(fresh);
     setSelectedId(fresh[0]?.id ?? null);
   };
@@ -205,9 +207,11 @@ export default function LifeMapCard({
               onClick={() => applyTemplate(tpl.id)}
               className="press rounded-xl bg-ink/40 px-4 py-3.5 text-left ring-1 ring-inset ring-line hover:ring-accent/50"
             >
-              <span className="block text-[14px] font-semibold text-cream">{tpl.name}</span>
+              <span className="block text-[14px] font-semibold text-cream">
+                {t(templateNameKey(tpl.id))}
+              </span>
               <span className="mt-0.5 block text-[12px] leading-relaxed text-faint">
-                {tpl.hint}
+                {t(templateHintKey(tpl.id))}
               </span>
               <span className="mt-1 block font-mono text-[10px] text-sage">
                 {tpl.areas.length > 0

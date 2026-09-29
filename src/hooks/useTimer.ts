@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import {
-  MODE_META,
   durationFor,
   fmtClock,
   playChime,
@@ -312,14 +311,13 @@ export function useTimer({
   /* ---------- living chrome ---------- */
 
   useEffect(() => {
-    const { label } = MODE_META[mode];
     if (running || remaining < total) {
       const { mm, ss } = fmtClock(remaining);
-      document.title = `${mm}:${ss} · ${label} — Moneo`;
+      document.title = `${mm}:${ss} · ${t(`timer.mode.${mode}.label` as TKey)} — Moneo`;
     } else {
-      document.title = 'Moneo — Focus Timer';
+      document.title = t('route.title.default');
     }
-  }, [running, remaining, total, mode]);
+  }, [running, remaining, total, mode, t]);
 
   const toggleRef = useRef(toggle);
   const resetRef = useRef(reset);

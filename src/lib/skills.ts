@@ -36,14 +36,14 @@ export interface Skill {
 }
 
 export const SKILL_CATEGORIES: SkillCategory[] = [
+  'other',
+  'soft',
+  'design',
+  'data',
   'frontend',
   'backend',
   'mobile',
   'devops',
-  'data',
-  'design',
-  'soft',
-  'other',
 ];
 
 export const CATEGORY_LABELS: Record<SkillCategory, TKey> = {

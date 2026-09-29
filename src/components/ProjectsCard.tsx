@@ -116,12 +116,7 @@ export default function ProjectsCard({
   return (
     <section className="card px-6 py-6 sm:px-7" aria-label={t('proj.aria')}>
       <header className="flex items-center justify-between gap-3">
-        <div>
-          <h2 className="font-display text-xl font-bold tracking-tight text-cream">
-            {t('proj.title')}
-          </h2>
-          <p className="mt-0.5 text-[12px] text-sage">{t('proj.sub')}</p>
-        </div>
+        <p className="text-[12px] text-sage">{t('proj.sub')}</p>
         <div className="flex flex-wrap items-center justify-end gap-2">
           {history.length > 0 && (
             <button

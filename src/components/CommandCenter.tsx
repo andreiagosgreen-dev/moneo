@@ -6,7 +6,7 @@ import {
   type Task,
   tasksForProject,
   projectCompletion,
-  STATUS_LABELS,
+  STATUS_KEYS,
   TASK_STATUSES,
 } from '../lib/tasks';
 import { type Goal, goalForProject, goalAncestry } from '../lib/goals';
@@ -15,6 +15,7 @@ import { buildReport } from '../lib/reports';
 import { effectiveQuadrant, QUADRANT_META } from '../lib/eisenhower';
 import { type Habit, type HabitLog, habitStreak } from '../lib/habits';
 import { useI18n } from '../lib/i18n/LocaleContext';
+import type { TKey } from '../lib/i18n';
 
 interface Props {
   projects: Project[];
@@ -143,7 +144,7 @@ export default function CommandCenter({
               className="rounded-xl bg-ink/40 px-3 py-2.5 ring-1 ring-inset ring-line"
             >
               <p className="flex items-center justify-between text-[12px] font-semibold uppercase tracking-[0.06em] text-sage">
-                {STATUS_LABELS[status]}
+                {t(STATUS_KEYS[status] as TKey)}
                 <span>{colTotal}</span>
               </p>
               <ul className="mt-1.5 space-y-1">

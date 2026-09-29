@@ -9,7 +9,7 @@
  */
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
-import { createI18n, type I18n } from './i18n';
+import { createI18n, type I18n, type TKey } from './i18n';
 
 /** Default English translator — keeps lib helpers usable without a provider. */
 const EN_I18N = createI18n('en');
@@ -50,309 +50,112 @@ export interface LifeMapArea {
   updatedAt: number;
 }
 
+export interface LifeMapTemplateArea {
+  /** Area slug: name key `lifemap.tpl.area.<key>`, intention `lifemap.tpl.<id>.i.<key>`. */
+  key: string;
+  icon: string;
+  color: string;
+  currentScore: number;
+  desiredScore: number;
+  importance: number;
+}
+
 export interface LifeMapTemplate {
   id: string;
-  name: string;
-  hint: string;
-  areas: Array<{
-    name: string;
-    icon: string;
-    color: string;
-    currentScore: number;
-    desiredScore: number;
-    importance: number;
-    intention: string;
-  }>;
+  areas: LifeMapTemplateArea[];
 }
 
 const PALETTE = ['#3ecf8e', '#7aa5ff', '#f5a524', '#f483b8', '#a78bfa', '#5eead4'];
 
+function area(
+  key: string,
+  icon: string,
+  color: string,
+  currentScore: number,
+  desiredScore: number,
+  importance: number,
+): LifeMapTemplateArea {
+  return { key, icon, color, currentScore, desiredScore, importance };
+}
+
 export const LIFE_MAP_TEMPLATES: LifeMapTemplate[] = [
   {
     id: 'balanced',
-    name: 'Balanced life',
-    hint: 'Body, mind, people and work in one view',
     areas: [
-      {
-        name: 'Health',
-        icon: '❤️',
-        color: PALETTE[0],
-        currentScore: 6,
-        desiredScore: 8,
-        importance: 5,
-        intention: 'Move a little every day.',
-      },
-      {
-        name: 'Relationships',
-        icon: '🧡',
-        color: PALETTE[3],
-        currentScore: 6,
-        desiredScore: 8,
-        importance: 4,
-        intention: 'Call one person this week.',
-      },
-      {
-        name: 'Learning',
-        icon: '📚',
-        color: PALETTE[1],
-        currentScore: 5,
-        desiredScore: 7,
-        importance: 4,
-        intention: 'Read ten pages daily.',
-      },
-      {
-        name: 'Work',
-        icon: '💼',
-        color: PALETTE[2],
-        currentScore: 7,
-        desiredScore: 8,
-        importance: 4,
-        intention: 'Protect deep mornings.',
-      },
-      {
-        name: 'Money',
-        icon: '💰',
-        color: PALETTE[5],
-        currentScore: 5,
-        desiredScore: 7,
-        importance: 3,
-        intention: 'Save a fixed share.',
-      },
-      {
-        name: 'Fun',
-        icon: '🎨',
-        color: PALETTE[4],
-        currentScore: 5,
-        desiredScore: 7,
-        importance: 3,
-        intention: 'One playful hour weekly.',
-      },
-      {
-        name: 'Home',
-        icon: '🌿',
-        color: '#94a3b8',
-        currentScore: 6,
-        desiredScore: 8,
-        importance: 3,
-        intention: 'Clear one surface today.',
-      },
-      {
-        name: 'Meaning',
-        icon: '◎',
-        color: '#c4b5fd',
-        currentScore: 5,
-        desiredScore: 8,
-        importance: 4,
-        intention: 'Ten quiet minutes.',
-      },
+      area('health', '❤️', PALETTE[0], 6, 8, 5),
+      area('relationships', '🧡', PALETTE[3], 6, 8, 4),
+      area('learning', '📚', PALETTE[1], 5, 7, 4),
+      area('work', '💼', PALETTE[2], 7, 8, 4),
+      area('money', '💰', PALETTE[5], 5, 7, 3),
+      area('fun', '🎨', PALETTE[4], 5, 7, 3),
+      area('home', '🌿', '#94a3b8', 6, 8, 3),
+      area('meaning', '◎', '#c4b5fd', 5, 8, 4),
     ],
   },
   {
     id: 'student',
-    name: 'Student',
-    hint: 'Study, health and friends during term time',
     areas: [
-      {
-        name: 'Study',
-        icon: '📚',
-        color: PALETTE[1],
-        currentScore: 6,
-        desiredScore: 9,
-        importance: 5,
-        intention: 'Two focused blocks daily.',
-      },
-      {
-        name: 'Health',
-        icon: '❤️',
-        color: PALETTE[0],
-        currentScore: 5,
-        desiredScore: 7,
-        importance: 4,
-        intention: 'Walk between lectures.',
-      },
-      {
-        name: 'Friends',
-        icon: '🧡',
-        color: PALETTE[3],
-        currentScore: 6,
-        desiredScore: 8,
-        importance: 4,
-        intention: 'One evening out weekly.',
-      },
-      {
-        name: 'Money',
-        icon: '💰',
-        color: PALETTE[5],
-        currentScore: 4,
-        desiredScore: 6,
-        importance: 3,
-        intention: 'Track every expense.',
-      },
-      {
-        name: 'Rest',
-        icon: '😴',
-        color: PALETTE[4],
-        currentScore: 5,
-        desiredScore: 8,
-        importance: 4,
-        intention: 'No screens after midnight.',
-      },
+      area('study', '📚', PALETTE[1], 6, 9, 5),
+      area('health', '❤️', PALETTE[0], 5, 7, 4),
+      area('friends', '🧡', PALETTE[3], 6, 8, 4),
+      area('money', '💰', PALETTE[5], 4, 6, 3),
+      area('rest', '😴', PALETTE[4], 5, 8, 4),
     ],
   },
   {
     id: 'freelancer',
-    name: 'Freelancer',
-    hint: 'Clients, pipeline and staying human',
     areas: [
-      {
-        name: 'Clients',
-        icon: '💼',
-        color: PALETTE[2],
-        currentScore: 7,
-        desiredScore: 8,
-        importance: 5,
-        intention: 'Reply within a day.',
-      },
-      {
-        name: 'Pipeline',
-        icon: '📈',
-        color: PALETTE[1],
-        currentScore: 5,
-        desiredScore: 8,
-        importance: 5,
-        intention: 'Two outreach touches weekly.',
-      },
-      {
-        name: 'Craft',
-        icon: '🎨',
-        color: PALETTE[4],
-        currentScore: 6,
-        desiredScore: 8,
-        importance: 4,
-        intention: 'Ship one improvement weekly.',
-      },
-      {
-        name: 'Health',
-        icon: '❤️',
-        color: PALETTE[0],
-        currentScore: 5,
-        desiredScore: 7,
-        importance: 4,
-        intention: 'Lunch away from the desk.',
-      },
-      {
-        name: 'Rest',
-        icon: '😴',
-        color: PALETTE[4],
-        currentScore: 4,
-        desiredScore: 7,
-        importance: 3,
-        intention: 'Weekends stay work-free.',
-      },
+      area('clients', '💼', PALETTE[2], 7, 8, 5),
+      area('pipeline', '📈', PALETTE[1], 5, 8, 5),
+      area('craft', '🎨', PALETTE[4], 6, 8, 4),
+      area('health', '❤️', PALETTE[0], 5, 7, 4),
+      area('rest', '😴', PALETTE[4], 4, 7, 3),
     ],
   },
   {
     id: 'founder',
-    name: 'Founder',
-    hint: 'Product, growth and personal runway',
     areas: [
-      {
-        name: 'Product',
-        icon: '🚀',
-        color: PALETTE[2],
-        currentScore: 6,
-        desiredScore: 9,
-        importance: 5,
-        intention: 'One shippable slice weekly.',
-      },
-      {
-        name: 'Growth',
-        icon: '📈',
-        color: PALETTE[1],
-        currentScore: 5,
-        desiredScore: 8,
-        importance: 5,
-        intention: 'Talk to one user daily.',
-      },
-      {
-        name: 'Runway',
-        icon: '💰',
-        color: PALETTE[5],
-        currentScore: 5,
-        desiredScore: 7,
-        importance: 4,
-        intention: 'Know the months left.',
-      },
-      {
-        name: 'Health',
-        icon: '❤️',
-        color: PALETTE[0],
-        currentScore: 4,
-        desiredScore: 7,
-        importance: 4,
-        intention: 'Exercise three times weekly.',
-      },
-      {
-        name: 'Family',
-        icon: '👪',
-        color: PALETTE[3],
-        currentScore: 5,
-        desiredScore: 8,
-        importance: 5,
-        intention: 'Dinner together daily.',
-      },
+      area('product', '🚀', PALETTE[2], 6, 9, 5),
+      area('growth', '📈', PALETTE[1], 5, 8, 5),
+      area('runway', '💰', PALETTE[5], 5, 7, 4),
+      area('health', '❤️', PALETTE[0], 4, 7, 4),
+      area('family', '👪', PALETTE[3], 5, 8, 5),
     ],
   },
   {
     id: 'recovery',
-    name: 'Recovery',
-    hint: 'Gentle rebuild after burnout or illness',
     areas: [
-      {
-        name: 'Sleep',
-        icon: '😴',
-        color: PALETTE[4],
-        currentScore: 4,
-        desiredScore: 8,
-        importance: 5,
-        intention: 'Same bedtime nightly.',
-      },
-      {
-        name: 'Movement',
-        icon: '🚶',
-        color: PALETTE[0],
-        currentScore: 3,
-        desiredScore: 6,
-        importance: 4,
-        intention: 'Ten gentle minutes.',
-      },
-      {
-        name: 'People',
-        icon: '🧡',
-        color: PALETTE[3],
-        currentScore: 4,
-        desiredScore: 7,
-        importance: 4,
-        intention: 'One low-key visit weekly.',
-      },
-      {
-        name: 'Calm work',
-        icon: '🌿',
-        color: PALETTE[5],
-        currentScore: 3,
-        desiredScore: 6,
-        importance: 3,
-        intention: 'Ninety minutes, then stop.',
-      },
+      area('sleep', '😴', PALETTE[4], 4, 8, 5),
+      area('movement', '🚶', PALETTE[0], 3, 6, 4),
+      area('people', '🧡', PALETTE[3], 4, 7, 4),
+      area('calmWork', '🌿', PALETTE[5], 3, 6, 3),
     ],
   },
   {
     id: 'blank',
-    name: 'Blank',
-    hint: 'Start empty and add your own areas',
     areas: [],
   },
 ];
+
+/** Translation keys for a template's display name and hint. */
+export function templateNameKey(templateId: string): TKey {
+  return `lifemap.tpl.${templateId}.name` as TKey;
+}
+
+export function templateHintKey(templateId: string): TKey {
+  return `lifemap.tpl.${templateId}.hint` as TKey;
+}
+
+/** Translation keys for a template area's name and starter intention. */
+export function templateAreaKeys(
+  templateId: string,
+  areaKey: string,
+): { name: TKey; intention: TKey } {
+  return {
+    name: `lifemap.tpl.area.${areaKey}` as TKey,
+    intention: `lifemap.tpl.${templateId}.i.${areaKey}` as TKey,
+  };
+}
 
 function clampScore(v: unknown): number {
   return typeof v === 'number' && Number.isFinite(v) ? Math.min(10, Math.max(1, Math.round(v))) : 5;
@@ -405,26 +208,36 @@ function newId(): string {
   return `lm-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-/** Instantiate a template into editable areas (ids are fresh every time). */
-export function instantiateTemplate(templateId: string): LifeMapArea[] {
-  const template = LIFE_MAP_TEMPLATES.find((t) => t.id === templateId);
+/**
+ * Instantiate a template into editable areas (ids are fresh every time).
+ * Names and intentions are resolved in the user's language at creation time;
+ * after that they are plain user data.
+ */
+export function instantiateTemplate(
+  templateId: string,
+  t: (key: TKey) => string = EN_I18N.t,
+): LifeMapArea[] {
+  const template = LIFE_MAP_TEMPLATES.find((x) => x.id === templateId);
   if (!template) return [];
   const now = Date.now();
-  return template.areas.map((a) => ({
-    id: newId(),
-    name: a.name,
-    color: a.color,
-    icon: a.icon,
-    currentScore: a.currentScore,
-    desiredScore: a.desiredScore,
-    importance: a.importance,
-    intention: a.intention,
-    linkedGoalIds: [],
-    linkedProjectIds: [],
-    linkedHabitIds: [],
-    createdAt: now,
-    updatedAt: now,
-  }));
+  return template.areas.map((a) => {
+    const keys = templateAreaKeys(template.id, a.key);
+    return {
+      id: newId(),
+      name: t(keys.name).slice(0, 40),
+      color: a.color,
+      icon: a.icon,
+      currentScore: a.currentScore,
+      desiredScore: a.desiredScore,
+      importance: a.importance,
+      intention: t(keys.intention).slice(0, 140),
+      linkedGoalIds: [],
+      linkedProjectIds: [],
+      linkedHabitIds: [],
+      createdAt: now,
+      updatedAt: now,
+    };
+  });
 }
 
 export interface AreaUpdates {

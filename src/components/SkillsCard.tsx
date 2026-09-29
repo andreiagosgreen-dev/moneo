@@ -49,7 +49,7 @@ export default function SkillsCard({
   isPro = false,
 }: Props) {
   const [draft, setDraft] = useState('');
-  const [draftCategory, setDraftCategory] = useState<SkillCategory>('frontend');
+  const [draftCategory, setDraftCategory] = useState<SkillCategory>('other');
   const [openId, setOpenId] = useState<string | null>(null);
   const [resourceDraft, setResourceDraft] = useState('');
   /** One-shot level-up flash per skill (Faza 16) — meaningful, not a loop. */

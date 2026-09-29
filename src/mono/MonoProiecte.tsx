@@ -9,13 +9,10 @@ interface Props {
 
 /** Projects screen shell (V1 prototype): count head + content. */
 export default function MonoProiecte({ activeCount, children }: Props) {
-  const { t, fmtNum } = useI18n();
+  const { t, tp } = useI18n();
   return (
     <div>
-      <MonoHead
-        eyebrow={t('mono.proj.active', { n: fmtNum(activeCount) })}
-        title={t('mono.nav.proiecte')}
-      />
+      <MonoHead eyebrow={tp('mono.proj.active', activeCount)} title={t('mono.nav.proiecte')} />
       <div className="mono-pad">{children}</div>
     </div>
   );

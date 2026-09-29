@@ -74,14 +74,7 @@ export const TASK_STATUSES: TaskStatus[] = ['pending', 'in_progress', 'blocked',
 
 export const TASK_PRIORITIES: TaskPriority[] = ['p0', 'p1', 'p2', 'p3'];
 
-export const STATUS_LABELS: Record<TaskStatus, string> = {
-  pending: 'To do',
-  in_progress: 'In progress',
-  blocked: 'Blocked',
-  completed: 'Done',
-};
-
-/** Translation keys mirroring STATUS_LABELS (UI renders via t()). */
+/** Translation keys for task statuses (UI renders via t()). */
 export const STATUS_KEYS: Record<TaskStatus, string> = {
   pending: 'task.status.pending',
   in_progress: 'task.status.in_progress',
