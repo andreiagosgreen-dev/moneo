@@ -75,6 +75,13 @@ describe('MonoNav', () => {
     expect(brand!.textContent).toContain('Moneo');
   });
 
+  it('shows the tagline under the logo, not in the rail foot', () => {
+    const c = render(withProviders('focus', () => {}));
+    const tag = c.querySelector('.mono-rail-brand .mono-rail-tag');
+    expect(tag?.textContent).toBe('Moneo — build focus. See it grow.');
+    expect(c.querySelector('.mono-rail-foot .mono-rail-tag')).toBeNull();
+  });
+
   it('groups account foot as identity, tools, then new-session CTA', () => {
     const c = render(withProviders('focus', () => {}));
     const foot = c.querySelector('.mono-rail-foot');

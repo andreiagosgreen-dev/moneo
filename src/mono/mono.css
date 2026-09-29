@@ -1332,11 +1332,16 @@
   }
   .mono-rail-brand {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    gap: 6px;
     padding: 0 12px 12px;
     margin-bottom: 4px;
     border-bottom: 1px solid var(--mono-border);
+  }
+  .mono-rail-brand-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
   .mono-rail-mark {
     width: 22px;
@@ -1457,11 +1462,17 @@
     border-radius: 12px;
   }
   .mono-rail-tag {
-    margin: 0 4px;
-    font-size: 11px;
+    margin: 0;
+    min-width: 0;
+    font-size: 12px;
     line-height: 1.35;
     color: var(--mono-muted);
-    opacity: 0.85;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow-wrap: anywhere;
   }
   .mono-nav {
     display: flex;
