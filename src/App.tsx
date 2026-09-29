@@ -73,7 +73,13 @@ import {
 import { loadTasks, removeTask, saveTasks, type Task } from './lib/tasks';
 import { hasQuickTokens, parseQuickAdd } from './lib/quickAdd';
 import { assignProject, createInboxTask, inboxTasks } from './lib/inbox';
-import { applyTriage, buildSuggestions, type Suggestion, type TriageAction } from './lib/triage';
+import {
+  applyTriage,
+  buildSuggestions,
+  snoozeToTomorrow,
+  type Suggestion,
+  type TriageAction,
+} from './lib/triage';
 import {
   loadPlans,
   planForDay,
@@ -849,24 +855,29 @@ export default function App() {
     if (!addLinkedTaskToPlan(task)) setToast({ message: t('mono.triage.full') });
   };
 
-  const lastTriageUndo = useRef<(() => void) | null>(null);
+  const triageCtx = { todayKey, maxTasks: todayMaxTasks, now: Date.now() };
+  const lastTriageDrop = useRef<{ tasks: Task[]; plans: typeof ivyPlans } | null>(null);
   const handleTriage = (s: Suggestion, action: TriageAction) => {
-    if (action === 'drop' && s.taskId) {
-      lastTriageUndo.current = dropTasks(s.taskId);
-      return { ok: true };
-    }
-    const r = applyTriage({ tasks, plans: ivyPlans }, s, action, {
-      todayKey,
-      maxTasks: todayMaxTasks,
-      now: Date.now(),
-    });
+    const r = applyTriage({ tasks, plans: ivyPlans }, s, action, triageCtx);
+    if (r.ok && action === 'drop') lastTriageDrop.current = { tasks, plans: ivyPlans };
     if (r.tasks !== tasks) setTasks(r.tasks);
     if (r.plans !== ivyPlans) setIvyPlans(r.plans);
     return r.reason ? { ok: r.ok, reason: r.reason } : { ok: r.ok };
   };
+  // Undo is offered only right after a drop, so restoring the snapshot is safe.
   const handleTriageUndo = () => {
-    lastTriageUndo.current?.();
-    lastTriageUndo.current = null;
+    const snap = lastTriageDrop.current;
+    if (!snap) return;
+    setTasks(snap.tasks);
+    setIvyPlans(snap.plans);
+    lastTriageDrop.current = null;
+  };
+  const handleSnooze = (planItemId: string) => {
+    const r = snoozeToTomorrow({ tasks, plans: ivyPlans }, planItemId, triageCtx);
+    if (r.plans === ivyPlans) return;
+    setTasks(r.tasks);
+    setIvyPlans(r.plans);
+    setToast({ message: t('mono.azi.snoozed') });
   };
 
   const nowMs = Date.now();
@@ -1114,15 +1125,21 @@ export default function App() {
                         focusMinToday={todayProgress.focusMin}
                         items={(todayPlan?.tasks ?? []).map((x) => {
                           const linked = x.taskId ? taskById.get(x.taskId) : undefined;
+                          const due = linked ? dueStatus(linked.dueAt, nowMs, auth.timezone) : null;
                           return {
                             id: x.id,
                             text: x.text,
                             meta: typeof x.estimateMin === 'number' ? fmtDur(x.estimateMin) : '',
                             done: x.done,
                             priority: linked?.priority,
-                            due: linked ? dueStatus(linked.dueAt, nowMs, auth.timezone) : null,
+                            due,
+                            snooze:
+                              x.carried === true ||
+                              due?.kind === 'overdue' ||
+                              due?.kind === 'today',
                           };
                         })}
+                        onSnooze={handleSnooze}
                         maxTasks={todayMaxTasks}
                         morningLabel={t('today.morning')}
                         shutdownLabel={t('today.shutdown')}

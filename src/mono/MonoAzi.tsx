@@ -24,6 +24,8 @@ export interface MonoAziItem {
   /** Only for items linked to a task via taskId. */
   priority?: TaskPriority;
   due?: DueStatus | null;
+  /** Offer one-tap "tomorrow" (overdue, due today or carried over). */
+  snooze?: boolean;
 }
 
 interface Props {
@@ -42,6 +44,8 @@ interface Props {
   onToggle: (id: string) => void;
   /** Return false to keep the draft (nothing was saved). */
   onAdd: (text: string) => boolean | void;
+  /** Move one item to tomorrow's list. */
+  onSnooze?: (id: string) => void;
   /** Jump to Focus to work the list. */
   onGoWork?: () => void;
   /** Path map navigation. */
@@ -74,6 +78,7 @@ export default function MonoAzi({
   onShutdown,
   onToggle,
   onAdd,
+  onSnooze,
   onGoWork,
   onPath,
   motto,
@@ -282,6 +287,19 @@ export default function MonoAzi({
                     {pills(item)}
                     {item.meta && <div className="mono-meta">{item.meta}</div>}
                   </div>
+                  {onSnooze && item.snooze && !item.done ? (
+                    <button
+                      type="button"
+                      className="mono-week-nav mono-azi-snooze"
+                      aria-label={t('mono.azi.snooze', { title: item.text })}
+                      title={t('mono.azi.snooze', { title: item.text })}
+                      onClick={() => onSnooze(item.id)}
+                    >
+                      <svg viewBox="0 0 20 20" aria-hidden="true">
+                        <path d="M4 10h11M11 5.5l4.5 4.5-4.5 4.5" />
+                      </svg>
+                    </button>
+                  ) : null}
                 </div>
               ))}
             </MonoCard>

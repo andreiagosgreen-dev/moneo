@@ -1,6 +1,7 @@
 /* Task management within projects — local-first, additive. */
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
+import { legacyFromRule, nextDueKey, normalizeRule, type RepeatRule } from './recurrence';
 
 export type TaskStatus = 'pending' | 'in_progress' | 'blocked' | 'completed';
 
@@ -21,6 +22,8 @@ export interface Task {
   blockedBy?: string[];
   /** Recurrence rule; completing a recurring task spawns the next instance. */
   recurrence?: TaskRecurrence;
+  /** Flexible repeat rule; wins over `recurrence`, which mirrors it for older clients. */
+  repeat?: RepeatRule;
   /** Optional due date in epoch ms (local noon unless `dueHasTime`). */
   dueAt?: number;
   /** `dueAt` carries a time of day chosen by the user. */
@@ -134,6 +137,7 @@ export function loadTasks(): Task[] {
       ...(t.recurrence === 'daily' || t.recurrence === 'weekly'
         ? { recurrence: t.recurrence }
         : {}),
+      ...(normalizeRule(t.repeat) ? { repeat: normalizeRule(t.repeat)! } : {}),
       ...(typeof t.dueAt === 'number' && Number.isFinite(t.dueAt) ? { dueAt: t.dueAt } : {}),
       ...(typeof t.dueAt === 'number' && Number.isFinite(t.dueAt) && t.dueHasTime === true
         ? { dueHasTime: true as const }
@@ -507,6 +511,18 @@ function nextDueAt(recurrence: TaskRecurrence, from: number): number {
   return from + (recurrence === 'weekly' ? 7 * DAY_MS : DAY_MS);
 }
 
+function localKey(ms: number): string {
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+
+/** Local noon of `key`, or the time of day of `timeFrom` when given. */
+function atLocalKey(key: string, timeFrom?: number): number {
+  const [y, m, d] = key.split('-').map(Number);
+  const src = timeFrom !== undefined ? new Date(timeFrom) : null;
+  return new Date(y, m - 1, d, src ? src.getHours() : 12, src ? src.getMinutes() : 0).getTime();
+}
+
 /**
  * Complete a task, spawning the next instance when it recurs.
  * Returns the updated list plus the spawned task (if any). Never throws.
@@ -521,7 +537,20 @@ export function completeTask(
   if (!canComplete(task, tasks).ok) return { tasks, spawned: null };
   let next = updateTaskStatus(tasks, taskId, 'completed');
   let spawned: Task | null = null;
-  if (task.recurrence === 'daily' || task.recurrence === 'weekly') {
+  if (task.repeat) {
+    const dueKey = localKey(task.dueAt ?? now);
+    const key = nextDueKey(task.repeat, dueKey, localKey(now));
+    spawned = {
+      ...createTaskObject(task.projectId, task.title, task.priority),
+      ...(task.parentId ? { parentId: task.parentId } : {}),
+      repeat: task.repeat,
+      recurrence: legacyFromRule(task.repeat),
+      dueAt: atLocalKey(key, task.dueHasTime ? task.dueAt : undefined),
+      ...(task.dueHasTime && task.dueAt !== undefined ? { dueHasTime: true as const } : {}),
+      ...(typeof task.estimateMin === 'number' ? { estimateMin: task.estimateMin } : {}),
+    };
+    next = [...next, spawned];
+  } else if (task.recurrence === 'daily' || task.recurrence === 'weekly') {
     const base = Math.max(task.dueAt ?? now, now);
     spawned = {
       ...createTaskObject(task.projectId, task.title, task.priority),
@@ -538,8 +567,26 @@ export function setRecurrence(tasks: Task[], taskId: string, recurrence: TaskRec
   return tasks.map((t) => {
     if (t.id !== taskId) return t;
     const next: Task = { ...t, updatedAt: Date.now() };
+    delete next.repeat;
     if (recurrence === 'none') delete next.recurrence;
     else next.recurrence = recurrence;
+    return next;
+  });
+}
+
+/** Set (or clear with null) the repeat rule; also writes the closest legacy `recurrence`. */
+export function setRepeat(tasks: Task[], taskId: string, rule: RepeatRule | null): Task[] {
+  const clean = rule ? normalizeRule(rule) : null;
+  return tasks.map((t) => {
+    if (t.id !== taskId) return t;
+    const next: Task = { ...t, updatedAt: Date.now() };
+    if (clean) {
+      next.repeat = clean;
+      next.recurrence = legacyFromRule(clean);
+    } else {
+      delete next.repeat;
+      delete next.recurrence;
+    }
     return next;
   });
 }

@@ -13,6 +13,7 @@ import {
   setDueAt,
   setNotes,
   setRecurrence,
+  setRepeat,
   setTaskMilestone,
   addTaskLink,
   removeTaskLink,
@@ -187,6 +188,49 @@ describe('recurrence / due dates / notes', () => {
     const tasks = [makeTask({ id: 'a', recurrence: 'weekly', dueAt: now + 1_000 })];
     const { spawned } = completeTask(tasks, 'a', now);
     expect(spawned!.dueAt).toBe(now + 1_000 + 7 * 24 * 60 * 60 * 1000);
+  });
+
+  it('repeat rules spawn on the next matching day at local noon', () => {
+    const due = new Date(2027, 0, 31, 12).getTime();
+    const tasks = [
+      makeTask({
+        id: 'a',
+        repeat: { kind: 'months', every: 1, day: 31 },
+        dueAt: due,
+        estimateMin: 30,
+      }),
+    ];
+    const { spawned } = completeTask(tasks, 'a', new Date(2027, 0, 31, 9).getTime());
+    expect(spawned).toMatchObject({
+      repeat: { kind: 'months', every: 1, day: 31 },
+      recurrence: 'weekly',
+      dueAt: new Date(2027, 1, 28, 12).getTime(),
+      estimateMin: 30,
+    });
+    expect(spawned!.dueHasTime).toBeUndefined();
+  });
+
+  it('repeat rules keep a chosen time and skip past a late completion', () => {
+    const tasks = [
+      makeTask({
+        id: 'a',
+        repeat: { kind: 'weekdays' },
+        dueAt: new Date(2026, 8, 18, 7, 30).getTime(),
+        dueHasTime: true,
+      }),
+    ];
+    const { spawned } = completeTask(tasks, 'a', new Date(2026, 8, 30, 20).getTime());
+    expect(spawned!.dueAt).toBe(new Date(2026, 9, 1, 7, 30).getTime());
+    expect(spawned!.dueHasTime).toBe(true);
+  });
+
+  it('setRepeat writes the legacy mirror; setRecurrence drops the rule', () => {
+    const tasks = [makeTask({ id: 'a' })];
+    const rep = setRepeat(tasks, 'a', { kind: 'weekdays' });
+    expect(rep[0]).toMatchObject({ repeat: { kind: 'weekdays' }, recurrence: 'daily' });
+    expect(setRepeat(rep, 'a', null)[0]).not.toHaveProperty('repeat');
+    expect(setRepeat(rep, 'a', null)[0]).not.toHaveProperty('recurrence');
+    expect(setRecurrence(rep, 'a', 'weekly')[0]).not.toHaveProperty('repeat');
   });
 
   it('refuses to complete a blocked task even via completeTask', () => {

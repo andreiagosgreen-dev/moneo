@@ -18,6 +18,8 @@ export interface IvyTask {
   estimateMin?: number;
   /** Real Task this entry mirrors, if any. Absent = plain freeform text. */
   taskId?: string;
+  /** Rolled over unfinished from yesterday (morning triage asks about it). */
+  carried?: true;
 }
 
 export interface IvyPlan {
@@ -53,6 +55,7 @@ export function loadPlans(): IvyPlan[] {
             ? { estimateMin: Math.min(480, Math.max(5, Math.round(t.estimateMin))) }
             : {}),
           ...(typeof t.taskId === 'string' && t.taskId ? { taskId: t.taskId } : {}),
+          ...(t.carried === true ? { carried: true as const } : {}),
         }))
         .sort((a, b) => a.rank - b.rank),
     }));
@@ -242,7 +245,9 @@ export function carryForNewDay(
     text: t.text,
     done: false,
     rank: i + 1,
+    ...(typeof t.estimateMin === 'number' ? { estimateMin: t.estimateMin } : {}),
     ...(t.taskId ? { taskId: t.taskId } : {}),
+    carried: true as const,
   }));
   return {
     plans: setDayPlan(plans, todayKey, tasks),
