@@ -70,7 +70,13 @@ import {
   FREE_PROJECTS_LIMIT,
   type Project,
 } from './lib/projects';
-import { loadTasks, removeTask, saveTasks, type Task } from './lib/tasks';
+import { getMinutesForTask, loadTasks, removeTask, saveTasks, type Task } from './lib/tasks';
+import { loadFocusPrefs, saveFocusPrefs, type FocusPrefs } from './lib/focusPrefs';
+import { estimateVsActual } from './lib/estimates';
+import type { AmbientLayer } from './lib/ambient';
+import { useAmbient } from './hooks/useAmbient';
+import { useWakeLock } from './hooks/useWakeLock';
+import { useFullscreen } from './hooks/useFullscreen';
 import { hasQuickTokens, parseQuickAdd } from './lib/quickAdd';
 import { assignProject, createInboxTask, inboxTasks } from './lib/inbox';
 import {
@@ -674,6 +680,37 @@ export default function App() {
   const showGettingStarted = history.length === 0 && projects.length === 0 && tasks.length === 0;
   const selectedTask = tasks.find((x) => x.id === selectedTaskId) ?? null;
 
+  /* ---------- Focus extras: ambient sound, wake lock, zen ---------- */
+  const [focusPrefs, setFocusPrefs] = useState<FocusPrefs>(loadFocusPrefs);
+  const updateFocusPrefs = (patch: Partial<FocusPrefs>) =>
+    setFocusPrefs((prev) => {
+      const next = { ...prev, ...patch };
+      saveFocusPrefs(next);
+      return next;
+    });
+  const ambient = useAmbient({
+    running,
+    phase: mode,
+    prefs: focusPrefs,
+    atmosphere: paintedAtmosphere,
+    isPro: auth.isPro,
+  });
+  useWakeLock(focusPrefs.wakeLock && running);
+  const focusRootRef = useRef<HTMLDivElement>(null);
+  const zen = useFullscreen(focusRootRef);
+  const zenActive = zen.active;
+  const zenToggle = zen.toggle;
+  useEffect(() => {
+    if (tab !== 'focus' && zenActive) zenToggle();
+  }, [tab, zenActive, zenToggle]);
+  const handleFocusToggle = () => {
+    if (focusPrefs.ambientOn && !running) ambient.prime();
+    toggle();
+  };
+  const focusEstimate = selectedTask
+    ? estimateVsActual(selectedTask.estimateMin, getMinutesForTask(selectedTask.id, history))
+    : null;
+
   /* ---------- Mono Focus + Azi: one daily spine (Ivy plan) ---------- */
   const todayKey = dayKeyInTz(Date.now(), auth.timezone);
   const todayPlan = planForDay(ivyPlans, todayKey);
@@ -1089,7 +1126,7 @@ export default function App() {
                         }
                         taskTitle={selectedTask?.title}
                         onFeedback={handleSessionFeedback}
-                        onToggle={toggle}
+                        onToggle={handleFocusToggle}
                         onReset={reset}
                         onPreset={handlePreset}
                         onToggleTask={handleToggleTask}
@@ -1099,6 +1136,31 @@ export default function App() {
                         planTaskCount={todayPlan?.tasks.length ?? 0}
                         planOpenCount={todayPlan?.tasks.filter((x) => !x.done).length ?? 0}
                         atmosphere={paintedAtmosphere}
+                        ambient={{
+                          on: focusPrefs.ambientOn,
+                          layers: ambient.layers,
+                          isPro: auth.isPro,
+                          onToggle: () => {
+                            ambient.prime();
+                            updateFocusPrefs({ ambientOn: !focusPrefs.ambientOn });
+                          },
+                          onChange: (layers: AmbientLayer[]) => {
+                            ambient.prime();
+                            updateFocusPrefs({
+                              ambient: layers.length > 0 ? layers : null,
+                              ambientOn: layers.length > 0,
+                            });
+                          },
+                          wakeLock: focusPrefs.wakeLock,
+                          onWakeLock: (on: boolean) => updateFocusPrefs({ wakeLock: on }),
+                        }}
+                        fullscreen={{
+                          active: zen.active,
+                          supported: zen.supported,
+                          onToggle: zen.toggle,
+                          rootRef: focusRootRef,
+                        }}
+                        estimate={focusEstimate}
                       />
                       {activeRm ? (
                         <div className="mono-pad" style={{ marginTop: 14 }}>
@@ -1126,10 +1188,17 @@ export default function App() {
                         items={(todayPlan?.tasks ?? []).map((x) => {
                           const linked = x.taskId ? taskById.get(x.taskId) : undefined;
                           const due = linked ? dueStatus(linked.dueAt, nowMs, auth.timezone) : null;
+                          const est = x.estimateMin ?? linked?.estimateMin;
+                          const actual = linked ? getMinutesForTask(linked.id, history) : 0;
                           return {
                             id: x.id,
                             text: x.text,
-                            meta: typeof x.estimateMin === 'number' ? fmtDur(x.estimateMin) : '',
+                            meta:
+                              typeof est === 'number' && actual > 0
+                                ? t('mono.azi.estMeta', { act: fmtDur(actual), est: fmtDur(est) })
+                                : typeof x.estimateMin === 'number'
+                                  ? fmtDur(x.estimateMin)
+                                  : '',
                             done: x.done,
                             priority: linked?.priority,
                             due,
@@ -1618,6 +1687,7 @@ export default function App() {
                               energyLog={energyLog}
                               timezone={auth.timezone}
                               isPro={auth.isPro}
+                              tasks={tasks}
                             />
                           </div>
                           <div className="reveal" style={{ animationDelay: '60ms' }}>
