@@ -1,18 +1,21 @@
+import type { TKey } from './i18n/types';
+
 /** Idle tab title per route; the running timer's countdown takes precedence. */
-const ROUTE_TITLES: Record<string, string> = {
-  '/pricing': 'Pricing — Moneo',
-  '/help': 'Help — Moneo',
-  '/privacy': 'Privacy Policy — Moneo',
-  '/terms': 'Terms of Service — Moneo',
-  '/refund': 'Refund Policy — Moneo',
-  '/login': 'Sign in — Moneo',
-  '/reset-password': 'Reset password — Moneo',
-  '/account': 'Account — Moneo',
+const ROUTE_TITLE_KEYS: Record<string, TKey> = {
+  '/pricing': 'route.title.pricing',
+  '/help': 'route.title.help',
+  '/privacy': 'route.title.privacy',
+  '/terms': 'route.title.terms',
+  '/refund': 'route.title.refund',
+  '/login': 'route.title.login',
+  '/reset-password': 'route.title.resetPassword',
+  '/account': 'route.title.account',
 };
 
-export const DEFAULT_TITLE = 'Moneo — Focus Timer';
+export const DEFAULT_TITLE_KEY: TKey = 'route.title.default';
 
-export function titleForPath(pathname: string): string {
+export function titleForPath(pathname: string, t: (key: TKey) => string): string {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
-  return ROUTE_TITLES[path] ?? DEFAULT_TITLE;
+  const key = ROUTE_TITLE_KEYS[path];
+  return key ? `${t(key)} — Moneo` : t(DEFAULT_TITLE_KEY);
 }

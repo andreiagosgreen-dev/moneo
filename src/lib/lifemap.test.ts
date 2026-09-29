@@ -11,10 +11,15 @@ import {
   reorderLifeMapArea,
   saveLifeMap,
   suggestNextStep,
+  templateAreaKeys,
+  templateHintKey,
+  templateNameKey,
   updateLifeMapArea,
   weeklyReview,
   type LifeMapArea,
 } from './lifemap';
+import { createI18n, en } from './i18n';
+import { ro } from './i18n/locales/ro';
 
 function makeArea(overrides: Partial<LifeMapArea> = {}): LifeMapArea {
   return {
@@ -47,6 +52,25 @@ describe('templates', () => {
     expect(first).toHaveLength(8);
     expect(first[0].id).not.toBe(second[0].id);
     expect(first[0].linkedGoalIds).toEqual([]);
+  });
+
+  it('resolves template names, hints and area text through i18n', () => {
+    const roT = createI18n('ro', ro).t;
+    for (const tpl of LIFE_MAP_TEMPLATES) {
+      for (const dict of [en, ro] as Array<Record<string, string>>) {
+        expect(dict[templateNameKey(tpl.id)]).toBeTruthy();
+        expect(dict[templateHintKey(tpl.id)]).toBeTruthy();
+        for (const a of tpl.areas) {
+          const keys = templateAreaKeys(tpl.id, a.key);
+          expect(dict[keys.name]).toBeTruthy();
+          expect(dict[keys.intention]).toBeTruthy();
+        }
+      }
+    }
+    expect(instantiateTemplate('student')[0].name).toBe('Study');
+    const [study] = instantiateTemplate('student', roT);
+    expect(study.name).toBe('Studiu');
+    expect(study.intention).not.toBe(instantiateTemplate('student')[0].intention);
   });
 
   it('blank template and unknown ids yield nothing', () => {

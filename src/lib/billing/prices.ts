@@ -35,12 +35,7 @@ export const PLAN_FEATURE_KEYS = {
     'pay.plan.monthly.f6',
     'pay.plan.monthly.f7',
   ],
-  proYearly: [
-    'pay.plan.yearly.f0',
-    'pay.plan.yearly.f1',
-    'pay.plan.yearly.f2',
-    'pay.plan.yearly.f3',
-  ],
+  proYearly: ['pay.plan.yearly.f0', 'pay.plan.yearly.f1', 'pay.plan.yearly.f3'],
 } as const satisfies Record<string, readonly TKey[]>;
 
 /** What a free account syncs, and what Pro adds (shown under the plans). */

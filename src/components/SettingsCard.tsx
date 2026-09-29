@@ -210,7 +210,7 @@ export default function SettingsCard({
   onAtmosphere,
   synced = false,
 }: Props) {
-  const { t } = useI18n();
+  const { t, tp } = useI18n();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasCustom, setHasCustom] = useState(false);
   const [celebrate, setCelebrate] = useState<CelebratePrefs>(loadCelebratePrefs);
@@ -299,7 +299,7 @@ export default function SettingsCard({
           label={t('set.s.cycle')}
           hint={t('set.s.cycleH')}
           value={settings.longEvery}
-          unit={t('set.unit.rnd')}
+          unit={tp('set.unit.round', settings.longEvery)}
           field="longEvery"
           onStep={step}
         />
@@ -307,7 +307,7 @@ export default function SettingsCard({
           label={t('set.s.goal')}
           hint={t('set.s.goalH')}
           value={settings.dailyGoal}
-          unit={t('set.unit.ses')}
+          unit={tp('set.unit.session', settings.dailyGoal)}
           field="dailyGoal"
           onStep={step}
         />

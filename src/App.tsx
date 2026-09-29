@@ -407,8 +407,8 @@ export default function App() {
   // Idle tab title follows client-side navigation; a live countdown wins.
   const { pathname } = useLocation();
   useEffect(() => {
-    if (!running && remaining >= total) document.title = titleForPath(pathname);
-  }, [pathname, running, remaining, total]);
+    if (!running && remaining >= total) document.title = titleForPath(pathname, t);
+  }, [pathname, running, remaining, total, t]);
 
   const {
     ivyPlans,

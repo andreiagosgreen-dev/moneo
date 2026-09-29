@@ -47,7 +47,7 @@ export const legalRo: LegalSet = {
       {
         heading: '3. Serviciul',
         blocks: [
-          'Moneo te ajută să-ți planifici ziua și să lucrezi în sesiuni de concentrare. Funcționează „local întâi”: majoritatea funcțiilor merg fără cont, iar datele tale sunt salvate în browser, pe dispozitivul tău.',
+          'Moneo te ajută să-ți planifici ziua și să lucrezi în sesiuni de concentrare. Datele se salvează întâi pe dispozitiv: majoritatea funcțiilor merg fără cont, iar datele tale sunt salvate în browser, pe dispozitivul tău.',
           'Cu un cont poți sincroniza în baza noastră de date din cloud sesiunile de concentrare, ariile de focus și setările. Cu Pro, și celelalte date de planificare (proiecte, sarcini, planuri, obiective, obiceiuri, jurnal și date similare) se salvează în contul tău și se sincronizează între dispozitive. Pe planul Free, aceste date de planificare rămân pe dispozitivul tău.',
         ],
       },
@@ -171,7 +171,7 @@ export const legalRo: LegalSet = {
     title: 'Politica de confidențialitate',
     updated: UPDATED,
     intro: [
-      'Această politică explică ce date personale prelucrează Moneo, de ce, cine ne ajută să le prelucrăm și ce opțiuni și drepturi ai. Moneo funcționează „local întâi”: implicit, datele tale rămân în browser, pe dispozitivul tău.',
+      'Această politică explică ce date personale prelucrează Moneo, de ce, cine ne ajută să le prelucrăm și ce opțiuni și drepturi ai. În Moneo, datele se salvează întâi pe dispozitiv: implicit, datele tale rămân în browser, pe dispozitivul tău.',
     ],
     sections: [
       {

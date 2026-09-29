@@ -326,13 +326,7 @@ export default function ReportsCard({
   return (
     <section className="card px-6 py-6 sm:px-7" aria-label={t('rep.aria')}>
       {/* header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="font-display text-xl font-bold tracking-tight text-cream">
-            {t('rep.title')}
-          </h2>
-          <p className="mt-1 text-[12px] text-sage">{t('rep.sub')}</p>
-        </div>
+      <div className="flex flex-wrap items-center justify-end gap-3">
         <div className="flex gap-1 rounded-xl bg-ink/60 p-1 ring-1 ring-line">
           <Tab active={range === 'week'} onClick={() => setRange('week')}>
             {t('rep.range.week')}

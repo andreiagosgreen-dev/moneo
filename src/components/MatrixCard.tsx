@@ -42,7 +42,7 @@ export default function MatrixCard({
   onAddToPlan,
 }: Props) {
   const i18n = useI18n();
-  const { t, tag, fmtDur, fmtNum } = i18n;
+  const { t, tp, tag, fmtDur, fmtNum } = i18n;
   // Snapshot per mount: the board re-derives whenever tasks/history change.
   const now = useMemo(() => Date.now(), []);
   const counts = useMemo(() => quadrantCounts(tasks, now), [tasks, now]);
@@ -70,9 +70,7 @@ export default function MatrixCard({
             {t(isPro ? 'matrix.subPro' : 'matrix.subFree')}
           </p>
         </div>
-        <span className="text-[13px] font-medium text-sage">
-          {t('matrix.active', { n: fmtNum(total) })}
-        </span>
+        <span className="text-[13px] font-medium text-sage">{tp('matrix.active', total)}</span>
       </header>
 
       {focus && focus.quadrant && (
