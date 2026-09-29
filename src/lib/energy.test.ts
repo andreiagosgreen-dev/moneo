@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import {
   breakAdvice,
+  dailyCheckinFor,
+  dailyCheckinId,
+  logDailyCheckin,
   energyAdvice,
   energyMean,
   hourlyAverage,
@@ -91,5 +94,48 @@ describe('energy', () => {
     }));
     expect(restAdvice(sixDays, now)).toContain('day off');
     expect(restAdvice([], now)).toBeNull();
+  });
+});
+
+describe('daily check-in', () => {
+  it('creates one record per day and updates it in place', () => {
+    let entries = logDailyCheckin([], '2026-9-16', { energy: 4 }, at(9));
+    expect(entries).toEqual([{ id: 'daily-2026-9-16', at: at(9), level: 8, daily: true }]);
+    entries = logDailyCheckin(entries, '2026-9-16', { mood: 5 }, at(10));
+    entries = logDailyCheckin(entries, '2026-9-16', { energy: 2 }, at(11));
+    expect(entries).toHaveLength(1);
+    expect(dailyCheckinFor(entries, '2026-9-16')).toEqual({ energy: 2, mood: 5 });
+    expect(dailyCheckinId('2026-9-16')).toBe('daily-2026-9-16');
+  });
+
+  it('needs energy before mood and clamps to 1-5', () => {
+    const none = logDailyCheckin([], '2026-9-16', { mood: 3 });
+    expect(none).toEqual([]);
+    const entries = logDailyCheckin([], '2026-9-16', { energy: 9, mood: 0 }, at(9));
+    expect(dailyCheckinFor(entries, '2026-9-16')).toEqual({ energy: 5, mood: 1 });
+    expect(dailyCheckinFor(entries, '2026-9-17')).toEqual({ energy: null, mood: null });
+  });
+
+  it('keeps mood and daily through the loader', () => {
+    const entries = logDailyCheckin([], '2026-9-16', { energy: 3, mood: 4 }, at(9));
+    saveEnergyLog([...entries, { id: 'x', at: at(8), level: 7, mood: 9 }]);
+    const loaded = loadEnergyLog();
+    expect(loaded.find((e) => e.id === 'daily-2026-9-16')).toMatchObject({
+      level: 6,
+      mood: 4,
+      daily: true,
+    });
+    expect(loaded.find((e) => e.id === 'x')).toMatchObject({ mood: 5 });
+    expect(loaded.find((e) => e.id === 'x')?.daily).toBeUndefined();
+    saveEnergyLog([]);
+  });
+
+  it('leaves hourly peaks to the hourly log', () => {
+    let entries = logEnergy([], 5, at(9));
+    entries = logEnergy(entries, 5, at(9, -1));
+    entries = logDailyCheckin(entries, '2026-9-15', { energy: 5 }, at(20, -1));
+    entries = logDailyCheckin(entries, '2026-9-14', { energy: 5 }, at(20, -2));
+    expect(peakHours(entries, NOON, 3).map((p) => p.hour)).toEqual([9]);
+    expect(energyMean(entries, NOON)).toBe(7.5);
   });
 });

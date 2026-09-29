@@ -75,7 +75,7 @@ function expectedFor(frequency: HabitFrequency, targetPerWeek: number, eligible:
 }
 
 /** Earliest of the creation day and the first logged day (back-fill counts). */
-function startKeyOf(habit: Habit, logged: string[]): string {
+export function habitStartKey(habit: Habit, logged: string[]): string {
   let start = localDayKey(habit.createdAt);
   for (const key of logged) {
     if (parseDayKey(key) && compareDayKeys(key, start) < 0) start = key;
@@ -96,7 +96,7 @@ export function buildHabitMonth(
   const perHabit = active.map((habit) => {
     const logged = log[habit.id] ?? [];
     const doneSet = new Set(logged);
-    const startKey = startKeyOf(habit, logged);
+    const startKey = habitStartKey(habit, logged);
     const cells: HabitMonthCell[] = keys.map((key) => ({
       key,
       done: doneSet.has(key),

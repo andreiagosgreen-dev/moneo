@@ -8,6 +8,7 @@ import type { IvyPlan } from '../lib/ivyLee';
 import type { Task } from '../lib/tasks';
 import type { Session } from '../lib/store';
 import type { Habit, HabitLog } from '../lib/habits';
+import type { EnergyEntry } from '../lib/energy';
 import { useI18n } from '../lib/i18n/LocaleContext';
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
   history: Session[];
   habits: Habit[];
   habitLog: HabitLog;
+  energyLog?: EnergyEntry[];
   timezone: string;
   onOpenToday: () => void;
   now?: number;
@@ -32,6 +34,7 @@ export default function MonoWeek({
   history,
   habits,
   habitLog,
+  energyLog,
   timezone,
   onOpenToday,
   now = Date.now(),
@@ -44,8 +47,19 @@ export default function MonoWeek({
   const offset = Math.round(dayKeyDiff(currentMonday, mondayKey) / 7);
 
   const days = useMemo(
-    () => buildWeek({ mondayKey, todayKey, timezone, plans, tasks, history, habits, habitLog }),
-    [mondayKey, todayKey, timezone, plans, tasks, history, habits, habitLog],
+    () =>
+      buildWeek({
+        mondayKey,
+        todayKey,
+        timezone,
+        plans,
+        tasks,
+        history,
+        habits,
+        habitLog,
+        energyLog,
+      }),
+    [mondayKey, todayKey, timezone, plans, tasks, history, habits, habitLog, energyLog],
   );
   const fmt = useMemo(
     () => ({
@@ -182,6 +196,13 @@ export default function MonoWeek({
                         done: fmtNum(d.habitsDone),
                         total: fmtNum(d.habitsTotal),
                       })}
+                    </span>
+                  ) : null}
+                  {d.energy !== null ? (
+                    <span className="mono-week-checkin">
+                      {d.mood !== null
+                        ? t('mono.checkin.summary', { e: fmtNum(d.energy), m: fmtNum(d.mood) })
+                        : t('mono.checkin.summaryEnergy', { e: fmtNum(d.energy) })}
                     </span>
                   ) : null}
                 </span>

@@ -52,6 +52,8 @@ interface Props {
   program?: ReactNode;
   /** Habit check-in for today (Mono surface; full Life stays under More). */
   habits?: ReactNode;
+  /** Daily energy + mood check-in. */
+  checkin?: ReactNode;
   more?: ReactNode;
 }
 
@@ -76,6 +78,7 @@ export default function MonoAzi({
   estimates,
   program,
   habits,
+  checkin,
   more,
 }: Props) {
   const { t, tp, tag, fmtNum, fmtDur } = useI18n();
@@ -293,6 +296,8 @@ export default function MonoAzi({
       ) : null}
 
       {habits}
+
+      {checkin}
 
       {more ? <div className="mono-pad-mobile">{more}</div> : null}
     </div>

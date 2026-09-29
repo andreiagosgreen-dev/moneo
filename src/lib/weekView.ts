@@ -10,6 +10,7 @@ import { activeHabits, type Habit, type HabitLog } from './habits';
 import { localDayKey } from './projects';
 import { dayKeyInTz } from './timezone';
 import { compareDayKeys, weekKeys } from './dayKeys';
+import { dailyCheckinFor, type EnergyEntry } from './energy';
 
 export interface WeekDueTask {
   id: string;
@@ -36,6 +37,9 @@ export interface WeekDay {
   habitsDone: number;
   habitsTotal: number;
   due: WeekDueTask[];
+  /** Daily check-in (1–5), null when not logged. */
+  energy: number | null;
+  mood: number | null;
 }
 
 export interface WeekInput {
@@ -47,6 +51,7 @@ export interface WeekInput {
   history: Session[];
   habits: Habit[];
   habitLog: HabitLog;
+  energyLog?: EnergyEntry[];
 }
 
 const PRIORITY_ORDER: Record<TaskPriority, number> = { p0: 0, p1: 1, p2: 2, p3: 3 };
@@ -97,6 +102,7 @@ export function buildWeek(input: WeekInput): WeekDay[] {
     );
     // Weekly habits only count on the days they were ticked, so done ≤ total.
     const weeklyTicked = ticked.filter((h) => h.frequency === 'weekly').length;
+    const checkin = dailyCheckinFor(input.energyLog ?? [], key);
     return {
       key,
       isToday: key === todayKey,
@@ -109,6 +115,8 @@ export function buildWeek(input: WeekInput): WeekDay[] {
       habitsDone: ticked.length,
       habitsTotal: Math.max(ticked.length, dailyDue.length + weeklyTicked),
       due: due.get(key) ?? [],
+      energy: checkin.energy,
+      mood: checkin.mood,
     };
   });
 }
