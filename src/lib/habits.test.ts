@@ -4,9 +4,12 @@ import {
   FREE_HABITS_LIMIT,
   HABIT_TEMPLATES,
   activeHabits,
+  canFreeze,
   createHabitObject,
   deleteHabit,
+  freezeYesterday,
   habitStreak,
+  skipSetFor,
   habitSuccessRate,
   isHabitDue,
   loadHabitLog,
@@ -99,6 +102,86 @@ describe('habits', () => {
       ],
     };
     expect(habitStreak(habit, log, NOW)).toBe(2);
+  });
+
+  it('does not break a weekly streak while the current week is still open', () => {
+    const monday = new Date(2026, 8, 14, 9, 0).getTime();
+    const habit = makeHabit({ frequency: 'weekly', targetPerWeek: 2 });
+    const log = { h1: [key(monday), key(monday - 7 * DAY), key(monday - 6 * DAY)] };
+    expect(habitStreak(habit, log, NOW)).toBe(1);
+  });
+
+  it('time off and frozen days neither break nor extend a daily streak', () => {
+    const log = { h1: [key(NOW), key(NOW - 3 * DAY), key(NOW - 4 * DAY)] };
+    expect(habitStreak(makeHabit(), log, NOW)).toBe(1);
+    const skip = new Set([key(NOW - DAY), key(NOW - 2 * DAY)]);
+    expect(habitStreak(makeHabit(), log, NOW, { skip })).toBe(3);
+    const frozen = makeHabit({ frozen: [key(NOW - DAY)] });
+    expect(habitStreak(frozen, log, NOW, { skip: skipSetFor(frozen, [key(NOW - 2 * DAY)]) })).toBe(
+      3,
+    );
+    const onVacation = { h1: [key(NOW - DAY)] };
+    expect(habitStreak(makeHabit(), onVacation, NOW, { skip: new Set([key(NOW - DAY)]) })).toBe(1);
+  });
+
+  it('a week with 4+ time-off days counts as met-or-skipped', () => {
+    const monday = new Date(2026, 8, 14, 9, 0).getTime();
+    const habit = makeHabit({ frequency: 'weekly', targetPerWeek: 2 });
+    const log = {
+      h1: [key(monday), key(monday + DAY), key(monday - 14 * DAY), key(monday - 13 * DAY)],
+    };
+    expect(habitStreak(habit, log, NOW)).toBe(1);
+    const lastWeek = [0, 1, 2, 3].map((i) => key(monday - 7 * DAY + i * DAY));
+    expect(habitStreak(habit, log, NOW, { skip: new Set(lastWeek) })).toBe(2);
+    expect(habitStreak(habit, log, NOW, { skip: new Set(lastWeek.slice(0, 3)) })).toBe(1);
+  });
+
+  it('canFreeze: daily, yesterday missed, streak ≥ 3, once per week', () => {
+    // NOW is Wednesday; yesterday Tuesday missed, Mon/Sun/Sat done.
+    const log = { h1: [key(NOW - 2 * DAY), key(NOW - 3 * DAY), key(NOW - 4 * DAY)] };
+    const h = makeHabit();
+    expect(canFreeze(h, log, [], NOW)).toBe(true);
+    expect(canFreeze(makeHabit({ frequency: 'weekly' }), log, [], NOW)).toBe(false);
+    expect(canFreeze(h, { h1: [key(NOW - 2 * DAY), key(NOW - 3 * DAY)] }, [], NOW)).toBe(false);
+    expect(canFreeze(h, { h1: [...log.h1, key(NOW - DAY)] }, [], NOW)).toBe(false);
+    expect(canFreeze(h, log, [key(NOW - DAY)], NOW)).toBe(false);
+    // A freeze already used this week (Monday).
+    expect(canFreeze(makeHabit({ frozen: [key(NOW - 2 * DAY)] }), log, [], NOW)).toBe(false);
+    // Last week's freeze does not count.
+    expect(canFreeze(makeHabit({ frozen: [key(NOW - 9 * DAY)] }), log, [], NOW)).toBe(true);
+  });
+
+  it('freezeYesterday keeps the streak without adding to it', () => {
+    const log = {
+      h1: [1, 2, 3, 4, 5].map((i) => key(NOW - (i + 1) * DAY)),
+    };
+    const [frozen] = freezeYesterday([makeHabit()], 'h1', NOW);
+    expect(frozen.frozen).toEqual([key(NOW - DAY)]);
+    expect(habitStreak(makeHabit(), log, NOW)).toBe(0);
+    expect(habitStreak(frozen, log, NOW, { skip: skipSetFor(frozen, []) })).toBe(5);
+    expect(canFreeze(frozen, log, [], NOW)).toBe(false);
+  });
+
+  it('loader validates frozen days and icons', () => {
+    localStorage.setItem(
+      'moneo:habits',
+      JSON.stringify([
+        {
+          id: 'a',
+          name: 'Read',
+          frequency: 'daily',
+          targetPerWeek: 7,
+          frozen: ['2026-9-10', 'junk', '2026-9-2', '2026-9-10', 4],
+          icon: '📚',
+        },
+      ]),
+    );
+    const [h] = loadHabits();
+    expect(h.frozen).toEqual(['2026-9-2', '2026-9-10']);
+    expect(h.icon).toBe('📚');
+    expect(updateHabit([h], 'a', { icon: null })[0].icon).toBeUndefined();
+    expect(createHabitObject('Run', 'daily', 7, '🏃')?.icon).toBe('🏃');
+    expect(createHabitObject('Run', 'daily', 7, 'x')?.icon).toBeUndefined();
   });
 
   it('reports due state and 30-day success rate', () => {

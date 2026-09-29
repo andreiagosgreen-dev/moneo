@@ -31,7 +31,14 @@ export default function MonoInbox({ tasks, projects, onToday, onAssign, onDelete
           {tasks.map((task) => (
             <li key={task.id} className="mono-inbox-row">
               <div className="mono-list-grow">
-                <div className="mono-h3">{task.title}</div>
+                <div className="mono-h3">
+                  {task.icon ? (
+                    <span className="mono-icon-inline" aria-hidden>
+                      {task.icon}
+                    </span>
+                  ) : null}
+                  {task.title}
+                </div>
                 <QuickPills
                   q={{
                     dueAt: task.dueAt ?? null,

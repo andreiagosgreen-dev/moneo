@@ -6,7 +6,8 @@
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
 import { localDayKey } from './projects';
-import { compareDayKeys } from './dayKeys';
+import { addDays, compareDayKeys, mondayOf, parseDayKey } from './dayKeys';
+import { isAllowedIcon } from './icons';
 
 export type HabitFrequency = 'daily' | 'weekly';
 
@@ -19,6 +20,10 @@ export interface Habit {
   /** Habit-stacking link: do this right after another habit. */
   stackAfter?: string;
   archived?: boolean;
+  /** Days covered by a streak freeze (neither break nor extend the streak). */
+  frozen?: string[];
+  /** Glyph from the curated `ICONS` list. */
+  icon?: string;
   createdAt: number;
   updatedAt: number;
 }
@@ -65,6 +70,14 @@ function shiftDayKey(dayKey: string, deltaDays: number): string {
   return localDayKey(dt.getTime());
 }
 
+const FROZEN_CAP = 60;
+
+function cleanFrozen(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const keys = raw.filter((d): d is string => typeof d === 'string' && parseDayKey(d) !== null);
+  return [...new Set(keys)].sort(compareDayKeys).slice(-FROZEN_CAP);
+}
+
 /** Load habits (active + archived), validating additive fields. */
 export function loadHabits(): Habit[] {
   const stored = read<Habit[]>(STORAGE_KEYS.habits);
@@ -81,6 +94,8 @@ export function loadHabits(): Habit[] {
           : 3,
       ...(typeof h.stackAfter === 'string' && h.stackAfter ? { stackAfter: h.stackAfter } : {}),
       ...(h.archived === true ? { archived: true as const } : {}),
+      ...(cleanFrozen(h.frozen).length > 0 ? { frozen: cleanFrozen(h.frozen) } : {}),
+      ...(isAllowedIcon(h.icon) ? { icon: h.icon } : {}),
       createdAt: typeof h.createdAt === 'number' ? h.createdAt : Date.now(),
       updatedAt: typeof h.updatedAt === 'number' ? h.updatedAt : Date.now(),
     }));
@@ -112,6 +127,7 @@ export function createHabitObject(
   name: string,
   frequency: HabitFrequency = 'daily',
   targetPerWeek = 3,
+  icon?: string,
 ): Habit | null {
   const clean = name.trim().slice(0, 80);
   if (!clean) return null;
@@ -121,6 +137,7 @@ export function createHabitObject(
     name: clean,
     frequency,
     targetPerWeek: Math.min(7, Math.max(1, Math.round(targetPerWeek) || 3)),
+    ...(isAllowedIcon(icon) ? { icon } : {}),
     createdAt: now,
     updatedAt: now,
   };
@@ -132,6 +149,7 @@ export interface HabitUpdates {
   targetPerWeek?: number;
   stackAfter?: string | null;
   archived?: boolean;
+  icon?: string | null;
 }
 
 export function updateHabit(habits: Habit[], id: string, updates: HabitUpdates): Habit[] {
@@ -150,6 +168,10 @@ export function updateHabit(habits: Habit[], id: string, updates: HabitUpdates):
     if (updates.archived !== undefined) {
       if (updates.archived) next.archived = true;
       else delete next.archived;
+    }
+    if (updates.icon !== undefined) {
+      if (isAllowedIcon(updates.icon)) next.icon = updates.icon;
+      else delete next.icon;
     }
     return next;
   });
@@ -189,38 +211,45 @@ function completions(log: HabitLog, habitId: string): Set<string> {
   return new Set(log[habitId] ?? []);
 }
 
+export interface StreakOptions {
+  /** Days that neither break nor extend the streak (time off ∪ frozen). */
+  skip?: Set<string>;
+}
+
+const WALK_CAP = 3660;
+/** A week with this many skipped days counts as met-or-skipped. */
+const WEEK_SKIP_MIN = 4;
+
 /** Consecutive daily completions ending today (yesterday-bridged like frog streaks). */
-function dailyStreak(log: HabitLog, habitId: string, now: number): number {
+function dailyStreak(log: HabitLog, habitId: string, now: number, skip: Set<string>): number {
   const done = completions(log, habitId);
   let cursor = dayKeyAt(now);
   if (!done.has(cursor)) cursor = shiftDayKey(cursor, -1);
   let streak = 0;
-  while (done.has(cursor)) {
-    streak += 1;
+  for (let i = 0; i < WALK_CAP; i++) {
+    if (done.has(cursor)) streak += 1;
+    else if (!skip.has(cursor)) break;
     cursor = shiftDayKey(cursor, -1);
   }
   return streak;
 }
 
-/** Consecutive weeks meeting the weekly target, ending this week. */
-function weeklyStreak(habit: Habit, log: HabitLog, now: number): number {
+/** Consecutive weeks meeting the weekly target; the unfinished current week never breaks it. */
+function weeklyStreak(habit: Habit, log: HabitLog, now: number, skip: Set<string>): number {
   const done = completions(log, habit.id);
+  const thisWeek = startOfWeekKey(now);
   let streak = 0;
-  let weekStart = startOfWeekKey(now);
-  for (;;) {
+  let weekStart = thisWeek;
+  for (let w = 0; w < WALK_CAP / 7; w++) {
     let count = 0;
+    let skipped = 0;
     for (let i = 0; i < 7; i++) {
-      if (done.has(shiftDayKey(weekStart, i))) count += 1;
+      const k = shiftDayKey(weekStart, i);
+      if (done.has(k)) count += 1;
+      else if (skip.has(k)) skipped += 1;
     }
-    const isCurrentWeek = weekStart === startOfWeekKey(now);
-    if (count >= habit.targetPerWeek) {
-      streak += 1;
-    } else if (isCurrentWeek && count > 0) {
-      // Current week still in progress with activity — don't break yet.
-      break;
-    } else {
-      break;
-    }
+    if (count >= habit.targetPerWeek) streak += 1;
+    else if (weekStart !== thisWeek && skipped < WEEK_SKIP_MIN) break;
     weekStart = shiftDayKey(weekStart, -7);
   }
   return streak;
@@ -234,10 +263,61 @@ function startOfWeekKey(now: number): string {
   return localDayKey(d.getTime());
 }
 
-export function habitStreak(habit: Habit, log: HabitLog, now: number = Date.now()): number {
+export function habitStreak(
+  habit: Habit,
+  log: HabitLog,
+  now: number = Date.now(),
+  opts: StreakOptions = {},
+): number {
+  const skip = opts.skip ?? new Set<string>();
   return habit.frequency === 'weekly'
-    ? weeklyStreak(habit, log, now)
-    : dailyStreak(log, habit.id, now);
+    ? weeklyStreak(habit, log, now, skip)
+    : dailyStreak(log, habit.id, now, skip);
+}
+
+/** Time off ∪ this habit's frozen days. */
+export function skipSetFor(habit: Habit, timeOff: string[]): Set<string> {
+  return new Set([...timeOff, ...(habit.frozen ?? [])]);
+}
+
+const FREEZE_MIN_STREAK = 3;
+
+/**
+ * Daily habits only: yesterday missed and not skipped, a streak of ≥ 3 up to
+ * the day before, and no frozen day yet in the current Mon–Sun week.
+ */
+export function canFreeze(
+  habit: Habit,
+  log: HabitLog,
+  timeOff: string[],
+  now: number = Date.now(),
+): boolean {
+  if (habit.frequency !== 'daily' || habit.archived) return false;
+  const today = dayKeyAt(now);
+  const yesterday = addDays(today, -1);
+  const done = completions(log, habit.id);
+  const skip = skipSetFor(habit, timeOff);
+  if (done.has(yesterday) || skip.has(yesterday)) return false;
+  const monday = mondayOf(today);
+  if ((habit.frozen ?? []).some((d) => compareDayKeys(d, monday) >= 0)) return false;
+  let cursor = addDays(today, -2);
+  let streak = 0;
+  for (let i = 0; i < WALK_CAP && streak < FREEZE_MIN_STREAK; i++) {
+    if (done.has(cursor)) streak += 1;
+    else if (!skip.has(cursor)) break;
+    cursor = addDays(cursor, -1);
+  }
+  return streak >= FREEZE_MIN_STREAK;
+}
+
+/** Cover yesterday with a freeze; keeps the newest 60 entries. */
+export function freezeYesterday(habits: Habit[], id: string, now: number = Date.now()): Habit[] {
+  const yesterday = addDays(dayKeyAt(now), -1);
+  return habits.map((h) =>
+    h.id === id
+      ? { ...h, frozen: cleanFrozen([...(h.frozen ?? []), yesterday]), updatedAt: Date.now() }
+      : h,
+  );
 }
 
 /** Share of trailing days completed (daily) — 0..1. */

@@ -4,7 +4,16 @@ import MonoTick from './MonoTick';
 import MonoBtn from './MonoBtn';
 import MonoChip from './MonoChip';
 import MonoHabitMonth from './MonoHabitMonth';
-import { activeHabits, isHabitDue, toggleHabitDay, type Habit, type HabitLog } from '../lib/habits';
+import MonoFlame from './MonoFlame';
+import {
+  activeHabits,
+  habitStreak,
+  isHabitDue,
+  skipSetFor,
+  toggleHabitDay,
+  type Habit,
+  type HabitLog,
+} from '../lib/habits';
 import { localDayKey } from '../lib/projects';
 import { useI18n } from '../lib/i18n/LocaleContext';
 
@@ -14,18 +23,21 @@ interface Props {
   onHabitLogChange: (log: HabitLog) => void;
   /** Open full Life / habits management (under More today). */
   onManage?: () => void;
+  /** Time-off days keep streaks intact. */
+  timeOff?: string[];
   now?: number;
 }
 
-/** Short Mono habit check-in for Today — toggle only, no streaks/CRUD. */
+/** Short Mono habit check-in for Today — toggle plus streak line (2+ days); no CRUD. */
 export default function MonoHabitsCheckin({
   habits,
   habitLog,
   onHabitLogChange,
   onManage,
+  timeOff = [],
   now = Date.now(),
 }: Props) {
-  const { t, fmtNum } = useI18n();
+  const { t, tp, fmtNum } = useI18n();
   const todayKey = localDayKey(now);
   const active = useMemo(() => activeHabits(habits), [habits]);
   const [view, setView] = useState<'today' | 'month'>('today');
@@ -90,6 +102,7 @@ export default function MonoHabitsCheckin({
                     : t('life.hab.daily'),
                 ];
                 if (!due && !checked) metaParts.push(t('life.hab.paused'));
+                const streak = habitStreak(h, habitLog, now, { skip: skipSetFor(h, timeOff) });
 
                 return (
                   <div key={h.id} className="mono-list-row">
@@ -107,9 +120,23 @@ export default function MonoHabitsCheckin({
                             : undefined
                         }
                       >
+                        {h.icon ? (
+                          <span className="mono-icon-inline" aria-hidden>
+                            {h.icon}
+                          </span>
+                        ) : null}
                         {h.name}
                       </div>
-                      <div className="mono-meta">{metaParts.join(' · ')}</div>
+                      <div className="mono-meta">
+                        {metaParts.join(' · ')}
+                        {streak >= 2 ? (
+                          <span className="mono-streak">
+                            {' · '}
+                            <MonoFlame size={13} />
+                            {tp('mono.habits.streak', streak)}
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 );

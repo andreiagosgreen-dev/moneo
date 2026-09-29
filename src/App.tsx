@@ -77,6 +77,7 @@ import type { AmbientLayer } from './lib/ambient';
 import { useAmbient } from './hooks/useAmbient';
 import { useWakeLock } from './hooks/useWakeLock';
 import { useFullscreen } from './hooks/useFullscreen';
+import { MonoVacationBanner } from './mono/MonoVacation';
 import { hasQuickTokens, parseQuickAdd } from './lib/quickAdd';
 import { assignProject, createInboxTask, inboxTasks } from './lib/inbox';
 import {
@@ -459,6 +460,7 @@ export default function App() {
     frogLog,
     timeBlocks,
     firstRun: showOnboarding,
+    timeOff,
   });
 
   usePersonalDataPersistence({
@@ -1206,6 +1208,7 @@ export default function App() {
                               x.carried === true ||
                               due?.kind === 'overdue' ||
                               due?.kind === 'today',
+                            icon: linked?.icon,
                           };
                         })}
                         onSnooze={handleSnooze}
@@ -1219,6 +1222,15 @@ export default function App() {
                         onGoWork={() => goFill('focus')}
                         onPath={goFill}
                         motto={{ text: dayMotto.text, source: dayMotto.source }}
+                        banner={
+                          timeOff.includes(todayKey) ? (
+                            <MonoVacationBanner
+                              timeOff={timeOff}
+                              onChange={setTimeOff}
+                              todayKey={todayKey}
+                            />
+                          ) : undefined
+                        }
                         recap={
                           showRecap ? (
                             <MonoWeekRecap
@@ -1282,6 +1294,7 @@ export default function App() {
                             habitLog={habitLog}
                             onHabitLogChange={setHabitLog}
                             onManage={openTodayHabitsManage}
+                            timeOff={timeOff}
                           />
                         }
                         checkin={

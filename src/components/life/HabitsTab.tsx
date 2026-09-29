@@ -4,19 +4,26 @@ import {
   FREE_HABITS_LIMIT,
   HABIT_TEMPLATES,
   activeHabits,
+  canFreeze,
   createHabitObject,
   deleteHabit,
+  freezeYesterday,
   habitStreak,
   habitSuccessRate,
   isHabitDue,
+  skipSetFor,
   toggleHabitDay,
   updateHabit,
   type HabitLog,
 } from '../../lib/habits';
 import { localDayKey } from '../../lib/projects';
+import { addDays } from '../../lib/dayKeys';
 import type { LifeCardProps } from './types';
 import { useI18n } from '../../lib/i18n/LocaleContext';
 import type { TKey } from '../../lib/i18n/types';
+import MonoFlame from '../../mono/MonoFlame';
+import MonoIconPicker from '../../mono/MonoIconPicker';
+import MonoVacation from '../../mono/MonoVacation';
 
 /** Template name → translation key (created habits carry the shown name). */
 const TEMPLATE_KEYS: Record<string, TKey> = {
@@ -35,25 +42,30 @@ export default function HabitsTab({
   habitsChange,
   habitLog,
   habitLogChange,
+  timeOff,
+  timeOffChange,
   isPro = false,
 }: LifeCardProps) {
   const [draft, setDraft] = useState('');
+  const [draftIcon, setDraftIcon] = useState<string | undefined>(undefined);
   const [freq, setFreq] = useState<HabitFrequency>('daily');
   const [showTemplates, setShowTemplates] = useState(false);
-  const { t, fmtNum } = useI18n();
+  const { t, tp, fmtNum } = useI18n();
   const now = Date.now();
   const todayKey = localDayKey(now);
+  const yesterdayKey = addDays(todayKey, -1);
   const active = useMemo(() => activeHabits(habits), [habits]);
   const atCapacity = !isPro && active.length >= FREE_HABITS_LIMIT;
 
   const commitLog = (log: HabitLog) => habitLogChange(log);
 
-  const add = (name: string, frequency: HabitFrequency, target = 3) => {
+  const add = (name: string, frequency: HabitFrequency, target = 3, icon?: string) => {
     if (atCapacity) return;
-    const habit = createHabitObject(name, frequency, target);
+    const habit = createHabitObject(name, frequency, target, icon);
     if (!habit) return;
     habitsChange([...habits, habit]);
     setDraft('');
+    setDraftIcon(undefined);
     setShowTemplates(false);
   };
 
@@ -72,7 +84,9 @@ export default function HabitsTab({
           {active.map((h) => {
             const doneSet = new Set(habitLog[h.id] ?? []);
             const doneToday = doneSet.has(todayKey);
-            const streak = isPro ? habitStreak(h, habitLog, now) : 0;
+            const streak = habitStreak(h, habitLog, now, { skip: skipSetFor(h, timeOff) });
+            const freezable = canFreeze(h, habitLog, timeOff, now);
+            const frozenYesterday = (h.frozen ?? []).includes(yesterdayKey);
             const due = isHabitDue(h, habitLog, now);
             const rate = isPro ? habitSuccessRate(habitLog, h.id, now, 30) : null;
             const stackName = h.stackAfter ? habits.find((x) => x.id === h.stackAfter)?.name : null;
@@ -105,6 +119,10 @@ export default function HabitsTab({
                       <path d="M4 12.5l5 5L20 6.5" />
                     </svg>
                   </button>
+                  <MonoIconPicker
+                    value={h.icon}
+                    onChange={(icon) => habitsChange(updateHabit(habits, h.id, { icon }))}
+                  />
                   <div className="min-w-0 flex-1">
                     <span
                       className={`truncate text-[13px] font-medium text-cream/90 ${doneToday ? 'line-through' : ''}`}
@@ -138,12 +156,26 @@ export default function HabitsTab({
                       ))}
                     </select>
                   )}
-                  {isPro && streak > 1 && (
-                    <span
-                      className="shrink-0 font-mono text-[11px] text-sage"
-                      title={t('life.hab.streak')}
+                  {streak > 1 && (
+                    <span className="mono-streak shrink-0 font-mono text-[11px]">
+                      <MonoFlame />
+                      <span aria-hidden>{fmtNum(streak)}</span>
+                      <span className="sr-only">{tp('mono.habits.streak', streak)}</span>
+                    </span>
+                  )}
+                  {freezable && (
+                    <button
+                      type="button"
+                      onClick={() => habitsChange(freezeYesterday(habits, h.id, now))}
+                      className="press shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium text-sage ring-1 ring-inset ring-line hover:text-cream"
+                      title={t('mono.habits.freezeHint')}
                     >
-                      🔥{fmtNum(streak)}
+                      {t('mono.habits.freeze')}
+                    </button>
+                  )}
+                  {!freezable && frozenYesterday && (
+                    <span className="shrink-0 font-mono text-[10px] text-sage">
+                      {t('mono.habits.frozen')}
                     </span>
                   )}
                   {isPro && rate !== null && (
@@ -177,12 +209,16 @@ export default function HabitsTab({
       {!atCapacity ? (
         <div className="mt-3">
           <div className="flex items-center gap-2">
+            <MonoIconPicker
+              value={draftIcon}
+              onChange={(icon) => setDraftIcon(icon ?? undefined)}
+            />
             <input
               type="text"
               value={draft}
               maxLength={80}
               onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && draft.trim() && add(draft, freq)}
+              onKeyDown={(e) => e.key === 'Enter' && draft.trim() && add(draft, freq, 3, draftIcon)}
               placeholder={t('life.hab.ph')}
               aria-label={t('life.hab.add')}
               className="mono-ph-fit h-10 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-[14px] text-cream ring-1 ring-inset ring-line placeholder:text-sage/70 focus:ring-accent focus:outline-none"
@@ -197,7 +233,7 @@ export default function HabitsTab({
               <option value="weekly">{t('life.hab.weeklyOpt')}</option>
             </select>
             <button
-              onClick={() => draft.trim() && add(draft, freq)}
+              onClick={() => draft.trim() && add(draft, freq, 3, draftIcon)}
               disabled={!draft.trim()}
               className="press btn-accent flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
               aria-label={t('life.hab.add')}
@@ -241,6 +277,9 @@ export default function HabitsTab({
           </div>
         )
       )}
+      <div className="mono mt-5" style={{ background: 'transparent', color: 'inherit' }}>
+        <MonoVacation timeOff={timeOff} onChange={timeOffChange} todayKey={todayKey} />
+      </div>
     </div>
   );
 }
