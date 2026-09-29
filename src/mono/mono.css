@@ -3413,6 +3413,29 @@
   background: transparent;
   background-image: none;
 }
+.mono-discount {
+  display: grid;
+  gap: 6px;
+}
+.mono-discount-title {
+  margin: 0;
+}
+.mono-discount-code {
+  font-family: var(--mono-font-mono, ui-monospace, monospace);
+  color: var(--mono-fg);
+}
+.mono-discount-cta {
+  margin-top: 8px;
+  width: 100%;
+}
+.mono-discount-cta:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.mono-discount-error {
+  color: var(--mono-fg);
+  font-weight: 600;
+}
 @media (prefers-reduced-motion: reduce) {
   .mono-rank-bar {
     transition: none;

@@ -66,8 +66,13 @@ function variantForPlan(planId: Plan): string | null {
  * so the webhook can attribute the subscription. Null when billing is not
  * configured (free plan, missing store/base/variant, or non-https base).
  * Fail-closed: never invent a buy URL or open-redirect the buyer (Faza 5A).
+ * A Lemon discount code (uppercase letters/digits) is prefilled when given.
  */
-export function buildCheckoutUrl(planId: Plan, userId: string): string | null {
+export function buildCheckoutUrl(
+  planId: Plan,
+  userId: string,
+  discountCode?: string,
+): string | null {
   const config = getLemonSqueezyConfig();
   const variant = variantForPlan(planId);
   if (planId === 'free' || !config.checkoutUrl || !config.storeId || !variant) {
@@ -81,7 +86,11 @@ export function buildCheckoutUrl(planId: Plan, userId: string): string | null {
   } catch {
     return null;
   }
-  return `${base}/buy/${variant}?checkout[custom][user_id]=${encodeURIComponent(userId)}`;
+  const url = `${base}/buy/${variant}?checkout[custom][user_id]=${encodeURIComponent(userId)}`;
+  if (discountCode && /^[A-Z0-9]{3,64}$/.test(discountCode)) {
+    return `${url}&checkout[discount_code]=${discountCode}`;
+  }
+  return url;
 }
 
 /**

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../lib/authProvider';
 import { initiateCheckout, type Plan } from '../lib/billing/lemonSqueezy';
@@ -22,6 +22,8 @@ import { REFUND_DAYS, SUPPORT_EMAIL, SUPPORT_MAILTO } from '../lib/legal/seller'
 import MonoLegalLinks from '../mono/MonoLegalLinks';
 import ManageSubscriptionButton from './ManageSubscriptionButton';
 import LegalInline from './legal/LegalInline';
+
+const MonoRankDiscount = lazy(() => import('../mono/MonoRankDiscount'));
 
 function CheckIcon() {
   return (
@@ -109,6 +111,10 @@ export default function PricingPage() {
           </button>
         </section>
       )}
+
+      <Suspense fallback={null}>
+        <MonoRankDiscount className="mt-6" />
+      </Suspense>
 
       {payError && (
         <p role="alert" className="mt-4 text-[12px] font-medium text-tomato">
