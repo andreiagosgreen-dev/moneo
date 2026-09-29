@@ -14,13 +14,24 @@ export interface EnergyEntry {
   id: string;
   at: number;
   level: number; // 1-10
+  /** 1-5, only on daily check-ins. */
+  mood?: number;
+  /** Written by the Today check-in, one record per day (`daily-<dayKey>`). */
+  daily?: true;
 }
 
 export const MIN_LEVEL = 1;
 export const MAX_LEVEL = 10;
 export const MAX_ENTRIES = 500;
+/** The Today check-in asks 1-5; energy is stored as `level = energy * 2`. */
+export const DAILY_SCALE = 5;
 const MIN_SAMPLES_PER_HOUR = 2;
 const MIN_SAMPLES_FOR_ADVICE = 5;
+const DAILY_PREFIX = 'daily-';
+
+function clampDaily(n: number): number {
+  return Math.min(DAILY_SCALE, Math.max(1, Math.round(n)));
+}
 
 export function loadEnergyLog(): EnergyEntry[] {
   const stored = read<EnergyEntry[]>(STORAGE_KEYS.energyLog);
@@ -34,13 +45,67 @@ export function loadEnergyLog(): EnergyEntry[] {
         typeof e.level === 'number' &&
         Number.isFinite(e.level),
     )
-    .map((e) => ({
-      id: typeof e.id === 'string' ? e.id : `${e.at}-${Math.random()}`,
-      at: e.at,
-      level: Math.min(MAX_LEVEL, Math.max(MIN_LEVEL, Math.round(e.level))),
-    }))
+    .map((e) => {
+      const entry: EnergyEntry = {
+        id: typeof e.id === 'string' ? e.id : `${e.at}-${Math.random()}`,
+        at: e.at,
+        level: Math.min(MAX_LEVEL, Math.max(MIN_LEVEL, Math.round(e.level))),
+      };
+      if (typeof e.mood === 'number' && Number.isFinite(e.mood)) entry.mood = clampDaily(e.mood);
+      if (e.daily === true) entry.daily = true;
+      return entry;
+    })
     .sort((a, b) => a.at - b.at)
     .slice(-MAX_ENTRIES);
+}
+
+export function dailyCheckinId(dayKey: string): string {
+  return `${DAILY_PREFIX}${dayKey}`;
+}
+
+/** Day key of a daily check-in record, or null for hourly entries. */
+export function dailyCheckinDay(entry: EnergyEntry): string | null {
+  if (!entry.daily || !entry.id.startsWith(DAILY_PREFIX)) return null;
+  return entry.id.slice(DAILY_PREFIX.length);
+}
+
+/**
+ * Create or update the day's check-in. Energy is required to create the
+ * record; a mood-only patch on a missing day leaves the log unchanged.
+ * The id is deterministic, so re-tapping and Pro sync converge on one record.
+ */
+export function logDailyCheckin(
+  entries: EnergyEntry[],
+  dayKey: string,
+  patch: { energy?: number; mood?: number },
+  at: number = Date.now(),
+): EnergyEntry[] {
+  const id = dailyCheckinId(dayKey);
+  const valid = (n: number | undefined): n is number => typeof n === 'number' && Number.isFinite(n);
+  const hasEnergy = valid(patch.energy);
+  const hasMood = valid(patch.mood);
+  if (!hasEnergy && !hasMood) return entries;
+  const current = entries.find((e) => e.id === id);
+  if (!current && !hasEnergy) return entries;
+  const next: EnergyEntry = current
+    ? { ...current, daily: true }
+    : { id, at, level: MIN_LEVEL, daily: true };
+  if (hasEnergy) next.level = clampDaily(patch.energy as number) * 2;
+  if (hasMood) next.mood = clampDaily(patch.mood as number);
+  const rest = entries.filter((e) => e.id !== id);
+  return [...rest, next].sort((a, b) => a.at - b.at).slice(-MAX_ENTRIES);
+}
+
+export function dailyCheckinFor(
+  entries: EnergyEntry[],
+  dayKey: string,
+): { energy: number | null; mood: number | null } {
+  const entry = entries.find((e) => e.id === dailyCheckinId(dayKey) && e.daily);
+  if (!entry) return { energy: null, mood: null };
+  return {
+    energy: clampDaily(entry.level / 2),
+    mood: typeof entry.mood === 'number' ? entry.mood : null,
+  };
 }
 
 export function saveEnergyLog(entries: EnergyEntry[]): boolean {
@@ -76,9 +141,13 @@ export interface HourBucket {
 export interface EnergySample {
   at: number;
   level: number;
+  daily?: boolean;
 }
 
-/** Average level per hour of day over the trailing window. */
+/**
+ * Average level per hour of day over the trailing window. Daily check-ins
+ * are skipped: the time of the tap says nothing about hourly energy.
+ */
 export function hourlyAverage(
   entries: EnergySample[],
   now: number = Date.now(),
@@ -87,6 +156,7 @@ export function hourlyAverage(
   const start = now - Math.max(1, days) * 24 * 60 * 60 * 1000;
   const buckets = new Map<number, { sum: number; n: number }>();
   for (const e of entries) {
+    if (e.daily) continue;
     if (e.at < start || e.at > now) continue;
     const hour = new Date(e.at).getHours();
     const b = buckets.get(hour) ?? { sum: 0, n: 0 };
@@ -117,7 +187,7 @@ export function energyAdvice(
   now: number = Date.now(),
   i18n: I18n = EN_I18N,
 ): string | null {
-  if (entries.length < MIN_SAMPLES_FOR_ADVICE) {
+  if (entries.filter((e) => !e.daily).length < MIN_SAMPLES_FOR_ADVICE) {
     return i18n.t('life.e.needMore');
   }
   const peaks = peakHours(entries, now, 1);

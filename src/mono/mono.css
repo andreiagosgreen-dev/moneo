@@ -1209,6 +1209,96 @@
   margin-top: 12px;
 }
 
+/* ---------- daily check-in (Today) ---------- */
+.mono-checkin-row {
+  display: flex;
+  gap: 8px;
+}
+.mono-checkin-btn {
+  flex: 1 1 0;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--mono-fg) 7%, transparent);
+  color: var(--mono-fg);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.mono-checkin-btn[aria-checked='true'] {
+  background: var(--mono-accent);
+  color: var(--mono-bg);
+}
+.mono-checkin-btn:focus-visible {
+  outline: 2px solid var(--mono-accent);
+  outline-offset: 2px;
+}
+.mono-checkin-ends {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+.mono-checkin-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.mono-checkin-change {
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* ---------- reports insights ---------- */
+.mono-ins {
+  margin-bottom: 22px;
+}
+.mono-ins-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+@media (min-width: 720px) {
+  .mono-ins-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.mono-ins-card {
+  min-width: 0;
+}
+.mono-ins-habit {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.mono-histo {
+  display: block;
+  width: 100%;
+  height: 64px;
+}
+.mono-histo-track {
+  fill: color-mix(in oklab, var(--mono-fg) 10%, transparent);
+}
+.mono-histo-bar {
+  fill: color-mix(in oklab, var(--mono-accent) 55%, transparent);
+}
+.mono-histo-bar.is-best {
+  fill: var(--mono-accent);
+}
+.mono-histo-bar.is-worst {
+  fill: var(--mono-muted);
+}
+
+.mono-week-checkin {
+  color: var(--mono-muted);
+}
+
 /* ---------- pills (priority, due) ---------- */
 .mono-pill {
   display: inline-flex;

@@ -7,6 +7,8 @@ import MonoAzi from './mono/MonoAzi';
 import MonoHabitsCheckin from './mono/MonoHabitsCheckin';
 import MonoWeek from './mono/MonoWeek';
 import MonoWeekRecap from './mono/MonoWeekRecap';
+import MonoCheckin from './mono/MonoCheckin';
+import MonoReportInsights from './mono/MonoReportInsights';
 import MonoOrar from './mono/MonoOrar';
 import MonoProiecte from './mono/MonoProiecte';
 import MonoRapoarte from './mono/MonoRapoarte';
@@ -1081,6 +1083,13 @@ export default function App() {
                             onManage={openTodayHabitsManage}
                           />
                         }
+                        checkin={
+                          <MonoCheckin
+                            entries={energyLog}
+                            onChange={setEnergyLog}
+                            timezone={auth.timezone}
+                          />
+                        }
                         more={
                           <>
                             {!showGettingStarted && (
@@ -1203,6 +1212,7 @@ export default function App() {
                               history={history}
                               habits={habits}
                               habitLog={habitLog}
+                              energyLog={energyLog}
                               timezone={auth.timezone}
                               onOpenToday={() => goNav('today')}
                             />
@@ -1459,6 +1469,16 @@ export default function App() {
                     <Suspense fallback={<TabFallback label="Reports" />}>
                       <main>
                         <MonoRapoarte>
+                          <div className="reveal" style={{ animationDelay: '40ms' }}>
+                            <MonoReportInsights
+                              habits={habits}
+                              habitLog={habitLog}
+                              history={history}
+                              energyLog={energyLog}
+                              timezone={auth.timezone}
+                              isPro={auth.isPro}
+                            />
+                          </div>
                           <div className="reveal" style={{ animationDelay: '60ms' }}>
                             <WeeklyRecapCard
                               history={history}
