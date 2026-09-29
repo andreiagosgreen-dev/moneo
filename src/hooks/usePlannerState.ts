@@ -9,7 +9,7 @@ import {
 } from '../lib/ivyLee';
 import { dayKeyInTz } from '../lib/timezone';
 import { dayCapacity } from '../lib/ritual';
-import { loadRitualDay, shouldShowMorningRitual, nextDayKey } from '../lib/ritual';
+import { loadRitualDay, saveRitualDay, shouldShowMorningRitual, nextDayKey } from '../lib/ritual';
 import { weekdayOfKey, type TimeBlock } from '../lib/timeBlocks';
 import type { FrogLog } from '../lib/frog';
 
@@ -23,9 +23,17 @@ export interface UsePlannerStateOptions {
   isPro: boolean;
   frogLog: FrogLog;
   timeBlocks: TimeBlock[];
+  /** First-run onboarding is showing: day 0 gets no morning ritual. */
+  firstRun?: boolean;
 }
 
-export function usePlannerState({ timezone, isPro, frogLog, timeBlocks }: UsePlannerStateOptions) {
+export function usePlannerState({
+  timezone,
+  isPro,
+  frogLog,
+  timeBlocks,
+  firstRun = false,
+}: UsePlannerStateOptions) {
   const [ivyPlans, setIvyPlans] = useState(loadPlans);
   const [morningOpen, setMorningOpen] = useState(false);
   const [shutdownOpen, setShutdownOpen] = useState(false);
@@ -39,12 +47,19 @@ export function usePlannerState({ timezone, isPro, frogLog, timeBlocks }: UsePla
     });
   }, [timezone]);
 
-  // Morning ritual: first open of the day, before noon, once.
+  // Morning ritual: first open of the day, before noon, once. Never on the
+  // first-run day — onboarding owns day 0; the ritual starts tomorrow.
   const autoRitualFired = useRef(false);
+  const firstRunRef = useRef(firstRun);
   useEffect(() => {
     if (autoRitualFired.current) return;
     autoRitualFired.current = true;
-    if (shouldShowMorningRitual(Date.now(), timezone, loadRitualDay())) {
+    const now = Date.now();
+    if (firstRunRef.current) {
+      saveRitualDay(dayKeyInTz(now, timezone));
+      return;
+    }
+    if (shouldShowMorningRitual(now, timezone, loadRitualDay())) {
       setMorningOpen(true);
     }
   }, [timezone]);

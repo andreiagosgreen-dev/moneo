@@ -3,6 +3,7 @@ import { createElement, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 import { LocaleProvider } from '../lib/i18n/LocaleContext';
+import { ro } from '../lib/i18n/locales/ro';
 import OnboardingModal from './OnboardingModal';
 
 // Enables React 18 act() flushing outside RTL.
@@ -11,12 +12,16 @@ import OnboardingModal from './OnboardingModal';
 let root: Root | null = null;
 let container: HTMLDivElement | null = null;
 
-function renderModal(props: { onDone: () => void; onQuickStart: (g: string, t: string) => void }) {
+function renderModal(
+  props: { onDone: () => void; onQuickStart: (g: string, t: string) => void },
+  lang: 'en' | 'ro' = 'en',
+) {
   container = document.createElement('div');
   document.body.appendChild(container);
   root = createRoot(container);
   const el: ReactElement = createElement(LocaleProvider, {
-    locale: 'en',
+    locale: lang,
+    dictionary: lang === 'ro' ? ro : undefined,
     onLocaleChange: () => {},
     children: createElement(OnboardingModal, props),
   });
@@ -94,5 +99,13 @@ describe('OnboardingModal quickstart', () => {
     clickButton(el, 'Use this step');
     clickButton(el, 'Start focusing');
     expect(onQuickStart).toHaveBeenCalledWith('Get fit', 'Run 2km');
+  });
+
+  it('pre-fills the suggested step in the UI language', () => {
+    const el = renderModal({ onDone: () => {}, onQuickStart: () => {} }, 'ro');
+    typeInto(el.querySelector('input')!, 'Să termin licența');
+    clickButton(el, ro['onb.next']);
+    const taskInput = el.querySelector('input') as HTMLInputElement;
+    expect(taskInput.value).toBe('Descrie într-o propoziție când e gata');
   });
 });

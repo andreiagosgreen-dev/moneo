@@ -7,8 +7,9 @@ import LegalInline from './legal/LegalInline';
 import MonoLegalLinks from '../mono/MonoLegalLinks';
 import { useAuth } from '../lib/authProvider';
 import { useI18n } from '../lib/i18n/LocaleContext';
-import { DIGITAL_CONSENT_AGE } from '../lib/legal/seller';
+import { ADULT_AGE, MIN_ACCOUNT_AGE } from '../lib/legal/seller';
 import { UPGRADE_PARAM, parsePaidPlan, pricingPathForUpgrade } from '../lib/billing/upgradeIntent';
+import { loadAtmosphere, resolveAtmosphere } from '../mono/atmosphere';
 
 /**
  * Dedicated full-page auth screen — email/password (shared AuthForm) plus
@@ -35,7 +36,10 @@ export default function LoginPage() {
     : `${window.location.origin}/login`;
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
+    <div
+      className="atm-root relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10"
+      data-atmosphere={resolveAtmosphere(loadAtmosphere(), auth.isPro)}
+    >
       <div className="bg-glow bg-glow-focus is-on" aria-hidden />
       <div className="bg-grid" aria-hidden />
       <div className="bg-grain" aria-hidden />
@@ -44,17 +48,11 @@ export default function LoginPage() {
         <div className="flex flex-col items-center text-center">
           <BrandMark size={36} />
           <h1 className="mt-4 font-display text-2xl font-bold tracking-tight text-cream">
-            {t('login.title')}
+            {t(upgradePlan ? 'login.upgradeTitle' : 'login.title')}
           </h1>
-          <p className="mt-1.5 text-[13px] text-faint">{t('login.subtitle')}</p>
-          {upgradePlan && (
-            <p
-              role="status"
-              className="mt-3 rounded-lg bg-accent/10 px-3 py-2 text-[12px] font-semibold text-accent"
-            >
-              {t('pay.signin')}
-            </p>
-          )}
+          <p className="mt-1.5 text-[13px] text-faint">
+            {t(upgradePlan ? 'login.upgradeSubtitle' : 'login.subtitle')}
+          </p>
         </div>
 
         <div className="mt-6">
@@ -69,7 +67,7 @@ export default function LoginPage() {
           <span className="h-px flex-1 bg-line" />
         </div>
 
-        <AuthForm />
+        <AuthForm initialTab={upgradePlan ? 'signup' : 'signin'} />
 
         <p className="mt-4 text-center text-[12px] leading-relaxed text-faint">
           <LegalInline
@@ -82,7 +80,7 @@ export default function LoginPage() {
             linkClassName="font-semibold text-sage underline underline-offset-2 hover:text-cream"
           />
           <br />
-          {t('legal.ageNote', { n: DIGITAL_CONSENT_AGE })}
+          {t('legal.ageNote', { min: MIN_ACCOUNT_AGE, n: ADULT_AGE })}
         </p>
 
         <p className="mt-6 text-center">

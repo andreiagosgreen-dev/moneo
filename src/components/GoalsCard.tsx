@@ -165,7 +165,7 @@ export default function GoalsCard({
 
   const generateTasks = (goal: Goal) => {
     const { project } = ensureGoalProject(goal);
-    const titles = suggestTasksForGoal(goal.title);
+    const titles = suggestTasksForGoal(goal.title, i18n);
     let next = tasks;
     for (const title of titles) {
       next = [...next, createTaskObject(project.id, title, 'p2')];
@@ -182,7 +182,7 @@ export default function GoalsCard({
     const openTask = tasksForProject(tasks, project.id).find((t) => t.status !== 'completed');
     const task =
       openTask ??
-      createTaskObject(project.id, suggestTasksForGoal(goal.title)[0] ?? goal.title, 'p2');
+      createTaskObject(project.id, suggestTasksForGoal(goal.title, i18n)[0] ?? goal.title, 'p2');
     if (!openTask) onTasksChange([...tasks, task]);
     const { plans, added } = addTaskToDay(
       ivyPlans,

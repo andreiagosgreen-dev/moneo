@@ -428,6 +428,7 @@ export default function App() {
     isPro: auth.isPro,
     frogLog,
     timeBlocks,
+    firstRun: showOnboarding,
   });
 
   usePersonalDataPersistence({
@@ -589,6 +590,7 @@ export default function App() {
     saveAtmosphere(atmosphere);
   }, [atmosphere, paintedAtmosphere]);
 
+  const [quickStartPending, setQuickStartPending] = useState(false);
   const dismissOnboarding = () => {
     setShowOnboarding(false);
     markOnboardingSeen();
@@ -604,6 +606,7 @@ export default function App() {
       taskTitle,
       existingProject: canProject ? null : (live[0] ?? null),
       createGoal: auth.isPro || goals.filter((g) => !g.archived).length < FREE_GOALS_LIMIT,
+      i18n: appI18n,
     });
     if (!plan || (!canProject && live.length === 0)) {
       dismissOnboarding();
@@ -628,7 +631,19 @@ export default function App() {
     setIntentionDraft(plan.task.title);
     dismissOnboarding();
     goNav('focus');
+    setQuickStartPending(true);
   };
+  // The round captures intention/project/task at arming time, so start only
+  // after the quickstart selection has rendered into the timer context.
+  useEffect(() => {
+    if (!quickStartPending) return;
+    if (mode !== 'focus') {
+      switchMode('focus');
+      return;
+    }
+    setQuickStartPending(false);
+    if (!running) start();
+  }, [quickStartPending, running, mode, switchMode, start]);
   useEffect(() => saveSelectedArea(selectedAreaId), [selectedAreaId]);
   /* ---------- focus areas (CRUD moves to Settings in MONO-5) ---------- */
 
@@ -1472,7 +1487,7 @@ export default function App() {
                 </div>
               </div>
 
-              {morningOpen && (
+              {morningOpen && !showOnboarding && (
                 <MorningRitual
                   plans={ivyPlans}
                   plansChange={setIvyPlans}

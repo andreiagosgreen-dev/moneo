@@ -119,5 +119,10 @@ describe('MonoMore', () => {
       plan.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
     expect(onOpen).toHaveBeenCalledWith('plan');
+    const account = Array.from(c.querySelectorAll('a')).find((el) =>
+      el.textContent?.includes('Account'),
+    );
+    expect(account?.getAttribute('href')).toBe('/login');
+    expect(account?.textContent).toContain('Sign in / Create account');
   });
 });

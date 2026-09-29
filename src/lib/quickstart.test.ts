@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { planQuickStart } from './quickstart';
 import { createProjectObject, type Project } from './projects';
+import { createI18n } from './i18n';
+import { ro } from './i18n/locales/ro';
 
 function existingProject(): Project {
   return { ...createProjectObject('Side quest', 'work'), id: 'p-exist' };
@@ -23,6 +25,11 @@ describe('planQuickStart', () => {
   it('prefers the user-typed task over the suggestion', () => {
     const plan = planQuickStart({ goalTitle: 'Learn React', taskTitle: 'Finish hooks chapter' });
     expect(plan?.task.title).toBe('Finish hooks chapter');
+  });
+
+  it('suggests the first task in the caller locale', () => {
+    const plan = planQuickStart({ goalTitle: 'Organizez garajul', i18n: createI18n('ro', ro) });
+    expect(plan?.task.title).toBe('Descrie într-o propoziție când e gata');
   });
 
   it('returns null for a blank goal', () => {
