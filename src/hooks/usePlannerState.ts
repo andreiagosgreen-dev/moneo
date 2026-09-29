@@ -25,6 +25,8 @@ export interface UsePlannerStateOptions {
   timeBlocks: TimeBlock[];
   /** First-run onboarding is showing: day 0 gets no morning ritual. */
   firstRun?: boolean;
+  /** Time-off days: the morning ritual does not open by itself. */
+  timeOff?: string[];
 }
 
 export function usePlannerState({
@@ -33,7 +35,9 @@ export function usePlannerState({
   frogLog,
   timeBlocks,
   firstRun = false,
+  timeOff = [],
 }: UsePlannerStateOptions) {
+  const timeOffRef = useRef(timeOff);
   const [ivyPlans, setIvyPlans] = useState(loadPlans);
   const [morningOpen, setMorningOpen] = useState(false);
   const [shutdownOpen, setShutdownOpen] = useState(false);
@@ -59,6 +63,7 @@ export function usePlannerState({
       saveRitualDay(dayKeyInTz(now, timezone));
       return;
     }
+    if (timeOffRef.current.includes(dayKeyInTz(now, timezone))) return;
     if (shouldShowMorningRitual(now, timezone, loadRitualDay())) {
       setMorningOpen(true);
     }

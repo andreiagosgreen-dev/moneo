@@ -2,6 +2,7 @@
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
 import { legacyFromRule, nextDueKey, normalizeRule, type RepeatRule } from './recurrence';
+import { isAllowedIcon } from './icons';
 
 export type TaskStatus = 'pending' | 'in_progress' | 'blocked' | 'completed';
 
@@ -40,6 +41,8 @@ export interface Task {
   links?: string[];
   /** Estimated minutes to complete (rituals + overcommit). Absent = unestimated. */
   estimateMin?: number;
+  /** Glyph from the curated `ICONS` list. */
+  icon?: string;
 }
 
 export type TaskQuadrant = 'q1' | 'q2' | 'q3' | 'q4';
@@ -155,6 +158,7 @@ export function loadTasks(): Task[] {
         ? { estimateMin: Math.min(480, Math.max(5, Math.round(t.estimateMin))) }
         : {}),
       ...(t.milestone === true ? { milestone: true as const } : {}),
+      ...(isAllowedIcon(t.icon) ? { icon: t.icon } : {}),
       ...(Array.isArray(t.links) && t.links.some((l) => typeof l === 'string' && l.trim())
         ? {
             links: t.links
@@ -244,6 +248,17 @@ export function renameTask(tasks: Task[], taskId: string, title: string): Task[]
   const clean = title.trim();
   if (!clean) return tasks;
   return tasks.map((t) => (t.id === taskId ? { ...t, title: clean, updatedAt: Date.now() } : t));
+}
+
+/** Set or clear (null / unknown glyph) a task's icon. */
+export function setTaskIcon(tasks: Task[], taskId: string, icon: string | null): Task[] {
+  return tasks.map((t) => {
+    if (t.id !== taskId) return t;
+    const next: Task = { ...t, updatedAt: Date.now() };
+    if (isAllowedIcon(icon)) next.icon = icon;
+    else delete next.icon;
+    return next;
+  });
 }
 
 export function setTaskPriority(tasks: Task[], taskId: string, priority: TaskPriority): Task[] {
@@ -548,6 +563,7 @@ export function completeTask(
       dueAt: atLocalKey(key, task.dueHasTime ? task.dueAt : undefined),
       ...(task.dueHasTime && task.dueAt !== undefined ? { dueHasTime: true as const } : {}),
       ...(typeof task.estimateMin === 'number' ? { estimateMin: task.estimateMin } : {}),
+      ...(task.icon ? { icon: task.icon } : {}),
     };
     next = [...next, spawned];
   } else if (task.recurrence === 'daily' || task.recurrence === 'weekly') {
@@ -557,6 +573,7 @@ export function completeTask(
       ...(task.parentId ? { parentId: task.parentId } : {}),
       recurrence: task.recurrence,
       dueAt: nextDueAt(task.recurrence, base),
+      ...(task.icon ? { icon: task.icon } : {}),
     };
     next = [...next, spawned];
   }

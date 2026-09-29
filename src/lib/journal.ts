@@ -6,6 +6,7 @@ import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
 import { localDayKey } from './projects';
 import { createI18n, type I18n } from './i18n';
+import { addDays, compareDayKeys, dayKeyDiff, parseDayKey } from './dayKeys';
 
 /** Default English translator — keeps helpers usable without a provider. */
 const EN_I18N = createI18n('en');
@@ -238,19 +239,26 @@ export function weeklySummary(
 /* ---------------- days off / vacation (Roadmap 5.5) ---------------- */
 
 /** Planned days off as local day keys ("YYYY-M-D"), capped at a year. */
+const TIME_OFF_CAP = 365;
+/** Longest single vacation range. */
+export const TIME_OFF_RANGE_MAX = 60;
+
+function cleanTimeOff(days: unknown[]): string[] {
+  return Array.from(
+    new Set(days.filter((d): d is string => typeof d === 'string' && parseDayKey(d) !== null)),
+  )
+    .sort(compareDayKeys)
+    .slice(-TIME_OFF_CAP);
+}
+
 export function loadTimeOff(): string[] {
   const stored = read<string[]>(STORAGE_KEYS.timeOff);
   if (!Array.isArray(stored)) return [];
-  return Array.from(new Set(stored.filter((d) => typeof d === 'string')))
-    .sort()
-    .slice(-365);
+  return cleanTimeOff(stored);
 }
 
 export function saveTimeOff(days: string[]): boolean {
-  const clean = Array.from(new Set(days.filter((d) => typeof d === 'string')))
-    .sort()
-    .slice(-365);
-  return write(STORAGE_KEYS.timeOff, clean);
+  return write(STORAGE_KEYS.timeOff, cleanTimeOff(days));
 }
 
 /** Toggle a day off. Pure. Never throws. */
@@ -258,5 +266,25 @@ export function toggleTimeOff(days: string[], dayKey: string): string[] {
   const set = new Set(days);
   if (set.has(dayKey)) set.delete(dayKey);
   else set.add(dayKey);
-  return [...set].sort().slice(-365);
+  return cleanTimeOff([...set]);
+}
+
+function rangeKeys(fromKey: string, toKey: string): string[] | null {
+  const n = dayKeyDiff(fromKey, toKey);
+  if (!Number.isFinite(n) || n < 0 || n >= TIME_OFF_RANGE_MAX) return null;
+  return Array.from({ length: n + 1 }, (_, i) => addDays(fromKey, i));
+}
+
+/** Add an inclusive range; unchanged when invalid, reversed or over 60 days. */
+export function addTimeOffRange(days: string[], fromKey: string, toKey: string): string[] {
+  const keys = rangeKeys(fromKey, toKey);
+  return keys ? cleanTimeOff([...days, ...keys]) : days;
+}
+
+/** Remove every day in an inclusive range; unchanged when invalid or reversed. */
+export function removeTimeOffRange(days: string[], fromKey: string, toKey: string): string[] {
+  if (!parseDayKey(fromKey) || !parseDayKey(toKey) || compareDayKeys(fromKey, toKey) > 0) {
+    return days;
+  }
+  return days.filter((d) => compareDayKeys(d, fromKey) < 0 || compareDayKeys(d, toKey) > 0);
 }

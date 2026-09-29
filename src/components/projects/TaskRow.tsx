@@ -19,6 +19,7 @@ import {
   removeTaskLink,
   removeTask,
   setTaskPriority,
+  setTaskIcon,
   taskComplexity,
   impactEffort,
   syncParentCompletion,
@@ -26,6 +27,7 @@ import {
 import { PRIORITY_LABELS, STATUS_KEYS, TASK_POINTS } from '../../lib/tasks';
 import { describeRule, ruleFromLegacy } from '../../lib/recurrence';
 import MonoRepeatPicker from '../../mono/MonoRepeatPicker';
+import MonoIconPicker from '../../mono/MonoIconPicker';
 import { TrashIcon } from './icons';
 import type { TaskRowProps } from './types';
 import { openExternal, safeExternalUrl } from '../../lib/links';
@@ -179,6 +181,11 @@ export default function TaskRow({
         >
           <span className="mr-1.5 font-mono text-[10px] text-faint">{wbs}</span>
           {task.milestone === true && <span title={t('task.milestoneHint')}>◆ </span>}
+          {task.icon ? (
+            <span className="mono-icon-inline" aria-hidden>
+              {task.icon}
+            </span>
+          ) : null}
           {task.title}
         </button>
         {!done && blockers.length > 0 && (
@@ -413,6 +420,10 @@ export default function TaskRow({
             >
               ◆
             </button>
+            <MonoIconPicker
+              value={task.icon}
+              onChange={(icon) => onTasksChange(setTaskIcon(tasks, task.id, icon))}
+            />
           </div>
 
           <MonoRepeatPicker

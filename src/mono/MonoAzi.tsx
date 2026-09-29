@@ -26,6 +26,8 @@ export interface MonoAziItem {
   due?: DueStatus | null;
   /** Offer one-tap "tomorrow" (overdue, due today or carried over). */
   snooze?: boolean;
+  /** Linked task icon (decorative). */
+  icon?: string;
 }
 
 interface Props {
@@ -54,6 +56,8 @@ interface Props {
   motto?: { text: string; source: string };
   /** "Last week" summary card, shown at the start of a new week. */
   recap?: ReactNode;
+  /** Status banner above the rituals (e.g. vacation). */
+  banner?: ReactNode;
   estimates?: ReactNode;
   /** Optional schedule strip — omit when empty noise (Orar owns blocks). */
   program?: ReactNode;
@@ -83,6 +87,7 @@ export default function MonoAzi({
   onPath,
   motto,
   recap,
+  banner,
   estimates,
   program,
   habits,
@@ -192,6 +197,11 @@ export default function MonoAzi({
           “{motto.text}”<span className="mono-azi-motto-src"> — {motto.source}</span>
         </p>
       ) : null}
+      {banner ? (
+        <div className="mono-pad" style={{ marginBottom: 14 }}>
+          {banner}
+        </div>
+      ) : null}
       {recap ? (
         <div className="mono-pad" style={{ marginBottom: 14 }}>
           {recap}
@@ -282,6 +292,11 @@ export default function MonoAzi({
                           : undefined
                       }
                     >
+                      {item.icon ? (
+                        <span className="mono-icon-inline" aria-hidden>
+                          {item.icon}
+                        </span>
+                      ) : null}
                       {item.text}
                     </div>
                     {pills(item)}
