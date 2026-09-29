@@ -1,12 +1,13 @@
 /**
  * Captures the real app screens shown on the landing page (Focus, Today,
- * Growth with the rank card) with believable demo data, in Romanian and
- * English, and writes optimized AVIF + WebP variants plus the header mark.
+ * the habit month grid, the week planner and Growth with the rank card) with
+ * believable demo data, in Romanian and English, and writes optimized
+ * AVIF + WebP variants plus the header mark.
  *
  * Outputs (public/landing/):
  *   mark-64.webp
- *   <ro|en>/focus-desktop-{960,1440}.{avif,webp}
- *   <ro|en>/{focus,today,growth}-phone-{360,720}.{avif,webp}
+ *   <ro|en>/{focus,today,habits,week}-desktop-{960,1440}.{avif,webp}
+ *   <ro|en>/{focus,today,habits,week,growth}-phone-{360,720}.{avif,webp}
  *
  * Needs the dev server: `npm run dev`, then `node scripts/landing-shots.mjs`
  * (override the URL with LANDING_SHOTS_URL and the browser binary with
@@ -28,7 +29,16 @@ const DAY = 86_400_000;
 
 const COPY = {
   ro: {
-    tabs: { today: 'Azi', growth: 'Creștere', more: 'Mai mult', priorities: 'Priorități' },
+    tabs: {
+      today: 'Azi',
+      schedule: 'Orar',
+      growth: 'Creștere',
+      more: 'Mai mult',
+      priorities: 'Priorități',
+      habitView: 'Vizualizare obiceiuri',
+      month: 'Lună',
+      week: 'Săptămâna',
+    },
     projects: [
       { id: 'p-thesis', name: 'Lucrare de licență', color: '#c4926a', category: 'learning' },
       { id: 'p-english', name: 'Engleză B2', color: '#7fa37a', category: 'learning' },
@@ -47,7 +57,16 @@ const COPY = {
     habits: ['Citit 20 de minute', 'Mișcare', 'Fără telefon după 22:00'],
   },
   en: {
-    tabs: { today: 'Today', growth: 'Growth', more: 'More', priorities: 'Priorities' },
+    tabs: {
+      today: 'Today',
+      schedule: 'Schedule',
+      growth: 'Growth',
+      more: 'More',
+      priorities: 'Priorities',
+      habitView: 'Habit view',
+      month: 'Month',
+      week: 'This week',
+    },
     projects: [
       { id: 'p-thesis', name: 'Final thesis', color: '#c4926a', category: 'learning' },
       { id: 'p-english', name: 'Spanish B1', color: '#7fa37a', category: 'learning' },
@@ -88,9 +107,11 @@ function demoStorage(lang) {
   }));
 
   const doneDaysAgo = { t2: 3, t6: 6, t8: 9, t1: 0 };
+  const dueInDays = { t3: 2, t5: 4, t7: 1 };
   const tasks = c.tasks.map(([id, projectId, title], i) => {
     const ago = doneDaysAgo[id];
     const done = ago !== undefined;
+    const due = dueInDays[id];
     return {
       id,
       projectId,
@@ -100,6 +121,7 @@ function demoStorage(lang) {
       createdAt: now - 20 * DAY,
       updatedAt: now - (done ? ago : 1) * DAY,
       ...(done ? { completedAt: ago === 0 ? morning + 50 * 60_000 : now - ago * DAY } : {}),
+      ...(due !== undefined ? { dueAt: morning + due * DAY + 8 * 3_600_000 } : {}),
     };
   });
 
@@ -145,7 +167,21 @@ function demoStorage(lang) {
     habitLog[h.id] = days;
   });
 
+  const pastPlan = (ago, doneCount) => ({
+    dateKey: dayKey(now - ago * DAY),
+    tasks: [c.tasks[5], c.tasks[6], c.tasks[7]].map(([taskId, , text], i) => ({
+      id: `i-${ago}-${i}`,
+      text,
+      done: i < doneCount,
+      rank: i + 1,
+      estimateMin: 25,
+      taskId,
+    })),
+  });
   const ivyPlans = [
+    pastPlan(3, 3),
+    pastPlan(2, 2),
+    pastPlan(1, 3),
     {
       dateKey: dayKey(now),
       tasks: [
@@ -155,6 +191,7 @@ function demoStorage(lang) {
       ],
     },
   ];
+  const energyLog = [{ id: `daily-${dayKey(now)}`, at: morning, level: 8, mood: 4, daily: true }];
 
   return {
     'moneo:locale': lang,
@@ -169,6 +206,7 @@ function demoStorage(lang) {
     'moneo:habits': habits,
     'moneo:habit-log': habitLog,
     'moneo:ivy-plans': ivyPlans,
+    'moneo:energy-log': energyLog,
   };
 }
 
@@ -223,6 +261,39 @@ async function openTab(page, name, mobileMore) {
   }
 }
 
+async function dismissRecap(page) {
+  const close = page.locator('.mono-recap-close:visible');
+  if ((await close.count()) > 0) await close.first().click();
+}
+
+async function openHabitMonth(page, tabs) {
+  await openTab(page, tabs.today);
+  await dismissRecap(page);
+  await page
+    .getByRole('group', { name: tabs.habitView })
+    .getByRole('button', { name: tabs.month })
+    .click();
+  const grid = page.getByRole('grid').first();
+  await grid.waitFor();
+  await settle(page);
+  await grid.evaluate((el) => {
+    const top = el.closest('section') ?? el;
+    window.scrollTo(0, top.getBoundingClientRect().top + window.scrollY - 20);
+  });
+  await page.waitForTimeout(300);
+}
+
+async function openWeek(page, tabs) {
+  await openTab(page, tabs.schedule);
+  const week = page.getByRole('region', { name: tabs.week }).first();
+  await week.waitFor();
+  await settle(page);
+  await week.evaluate((el) => {
+    window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 20);
+  });
+  await page.waitForTimeout(300);
+}
+
 await mkdir(join(OUT, 'ro'), { recursive: true });
 await mkdir(join(OUT, 'en'), { recursive: true });
 
@@ -240,6 +311,17 @@ try {
     const desk = await newPage(browser, lang, { width: 1440, height: 900 }, 1, false);
     await settle(desk.page);
     await writeVariants(await desk.page.screenshot(), lang, 'focus-desktop', [960, 1440]);
+
+    await openTab(desk.page, tabs.today);
+    await dismissRecap(desk.page);
+    await settle(desk.page);
+    await writeVariants(await desk.page.screenshot(), lang, 'today-desktop', [960, 1440]);
+
+    await openHabitMonth(desk.page, tabs);
+    await writeVariants(await desk.page.screenshot(), lang, 'habits-desktop', [960, 1440]);
+
+    await openWeek(desk.page, tabs);
+    await writeVariants(await desk.page.screenshot(), lang, 'week-desktop', [960, 1440]);
     await desk.context.close();
 
     const phone = await newPage(browser, lang, { width: 360, height: 779 }, 2, true);
@@ -247,6 +329,7 @@ try {
     await writeVariants(await phone.page.screenshot(), lang, 'focus-phone', [360, 720]);
 
     await openTab(phone.page, tabs.today);
+    await dismissRecap(phone.page);
     await settle(phone.page);
     await phone.page
       .getByText(tabs.priorities, { exact: true })
@@ -256,6 +339,12 @@ try {
       });
     await phone.page.waitForTimeout(300);
     await writeVariants(await phone.page.screenshot(), lang, 'today-phone', [360, 720]);
+
+    await openHabitMonth(phone.page, tabs);
+    await writeVariants(await phone.page.screenshot(), lang, 'habits-phone', [360, 720]);
+
+    await openWeek(phone.page, tabs);
+    await writeVariants(await phone.page.screenshot(), lang, 'week-phone', [360, 720]);
 
     await openTab(phone.page, tabs.growth, tabs.more);
     await phone.page.getByTestId('rank-card').waitFor();

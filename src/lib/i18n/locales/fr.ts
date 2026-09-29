@@ -46,8 +46,9 @@ export const fr: Record<TKey, string> = {
   'land.home': 'Moneo — accueil',
   'land.cta.start': 'Commencer gratuitement',
   'land.cta.pricing': 'Voir les tarifs',
-  'land.hero.eyebrow': 'Pour les élèves, les étudiants et les professionnels',
-  'land.hero.title': 'Concentrez‑vous, planifiez, progressez — jour après jour.',
+  'land.hero.eyebrow': 'Pour l’école, les études, le travail et la vie de tous les jours',
+  'land.hero.title': 'Concentrez‑vous, planifiez, {mark} — jour après jour.',
+  'land.hero.mark': 'progressez',
   'land.hero.sub':
     'Moneo réunit un minuteur de concentration apaisant, un plan simple pour aujourd’hui, vos projets et vos habitudes au même endroit — pour savoir toujours quoi faire ensuite et voir vos progrès.',
   'land.hero.trust': 'Sans carte · Sans compte · Fonctionne hors ligne',
@@ -57,6 +58,25 @@ export const fr: Record<TKey, string> = {
   'land.shot.today.alt':
     'Écran Aujourd’hui de Moneo : les priorités du jour, certaines déjà cochées',
   'land.shot.growth.alt': 'Écran Progression de Moneo : XP, rang actuel et série de jours de focus',
+  'land.shot.todayDesktop.alt':
+    'Écran Aujourd’hui de Moneo sur un ordinateur : l’anneau du jour, les priorités et les habitudes',
+  'land.shot.habits.alt':
+    'Grille mensuelle des habitudes de Moneo : une ligne par habitude, jours cochés et totaux par semaine',
+  'land.shot.week.alt':
+    'Planning de la semaine de Moneo : sept jours avec l’avancement du plan, les minutes de concentration et les échéances',
+  'land.device.aria': 'Appareil de l’aperçu',
+  'land.device.laptop': 'Ordinateur',
+  'land.device.phone': 'Téléphone',
+  'land.screen.aria': 'Écran affiché',
+  'land.screen.focus': 'Focus',
+  'land.screen.today': 'Aujourd’hui',
+  'land.screen.habits': 'Habitudes',
+  'land.screen.week': 'Semaine',
+  'land.stats.aria': 'Moneo en chiffres',
+  'land.stats.langs': '{n} langues',
+  'land.stats.atm': '{n} ambiances de travail',
+  'land.stats.offline': 'Fonctionne aussi hors ligne',
+  'land.stats.free': 'Concentration gratuite, sans limite de temps',
   'land.who.eyebrow': 'Pour qui',
   'land.who.title': 'Pour tous ceux qui veulent en faire plus — sereinement',
   'land.who.pupils.t': 'Élèves',
@@ -77,6 +97,12 @@ export const fr: Record<TKey, string> = {
   'land.who.pros.l1': 'Projets et priorités',
   'land.who.pros.l2': 'Habitudes quotidiennes',
   'land.who.pros.l3': 'Équilibre pro–perso',
+  'land.who.life.t': 'La vie de tous les jours',
+  'land.who.life.b':
+    'Habitudes, sport, un déménagement ou un objectif de lecture — un seul plan, en douceur.',
+  'land.who.life.l1': 'Grille mensuelle des habitudes',
+  'land.who.life.l2': 'Des séries que vous pouvez tenir',
+  'land.who.life.l3': 'Un plan pour la semaine',
   'land.feat.eyebrow': 'Ce que vous obtenez',
   'land.feat.title': 'Tout pour vous concentrer — et rien pour vous distraire',
   'land.feat.focus.t': 'Un minuteur qui vous garde sur la bonne voie',
@@ -88,32 +114,35 @@ export const fr: Record<TKey, string> = {
   'land.feat.growth.t': 'Voyez-vous progresser',
   'land.feat.growth.b':
     'Chaque session de concentration rapporte des XP. Montez en rang, gardez votre série et célébrez la fin d’une phase ou d’un projet entier.',
-  'land.feat.projects.t': 'Projets et plans pas à pas',
-  'land.feat.projects.b':
-    'Découpez les grands objectifs en petites tâches. L’assistant de planification transforme « Je veux apprendre… » en un parcours clair, directement sur votre appareil.',
-  'land.feat.habits.t': 'Des habitudes qui tiennent',
-  'land.feat.habits.b':
-    'De petites habitudes quotidiennes, avec des séries et un rappel en douceur le soir.',
-  'land.feat.atm.t': 'Une ambiance pour chaque humeur',
-  'land.feat.atm.b':
-    'Des thèmes de couleur apaisants pour votre espace de concentration — la même mise en page simple, dans l’ambiance qui vous plaît.',
-  'land.feat.private.t': 'Privé et hors ligne',
-  'land.feat.private.b':
-    'Fonctionne sans internet. Sans compte, vos données sont enregistrées sur cet appareil. Avec Pro, toutes vos données sont enregistrées dans votre compte et vous les retrouvez sur n’importe quel appareil.',
-  'land.feat.langs.t': 'Dans votre langue',
-  'land.feat.langs.b': 'Moneo parle 8 langues, dont le roumain, le russe et l’ukrainien.',
-  'land.feat.install.t': 'Sur votre téléphone, comme une app',
-  'land.feat.install.b':
-    'Ajoutez Moneo à votre écran d’accueil en deux touches — sans passer par un store.',
   'land.how.eyebrow': 'Comment ça marche',
   'land.how.title': 'Prêt en moins d’une minute',
-  'land.how.s1.t': 'Ouvrez Moneo',
-  'land.how.s1.b': 'Sans inscription ni carte. Appuyez simplement sur « Commencer gratuitement ».',
-  'land.how.s2.t': 'Choisissez les priorités du jour',
-  'land.how.s2.b': 'Notez les 3 choses qui comptent aujourd’hui et choisissez par quoi commencer.',
-  'land.how.s3.t': 'Concentrez-vous et suivez vos progrès',
-  'land.how.s3.b':
-    'Lancez une session, faites la pause, recommencez. Votre série, vos XP et vos rapports grandissent avec vous.',
+  'land.how.s1.t': 'Notez ce que vous voulez faire',
+  'land.how.s1.b': 'Les quelques choses qui comptent aujourd’hui, avec vos propres mots.',
+  'land.how.s2.t': 'Lancez le minuteur',
+  'land.how.s2.b': 'Une tâche, un minuteur, aucune distraction.',
+  'land.how.s3.t': 'Regardez vos progrès grandir',
+  'land.how.s3.b': 'Anneaux, séries et XP montrent votre progression.',
+  'land.all.eyebrow': 'Tout en une app',
+  'land.all.title': 'Ce que vous obtenez dans une seule app',
+  'land.all.sub':
+    'Un rituel de planification quotidien comme Sunsama, et le Pomodoro avec habitudes et matrice d’Eisenhower comme TickTick — dans une seule app.',
+  'land.all.tm': 'Sunsama et TickTick sont des marques de leurs propriétaires respectifs.',
+  'land.all.ritual.t': 'Rituel du matin et du soir',
+  'land.all.ritual.b':
+    'Planifiez la journée le matin et clôturez-la le soir — avec une alerte quand vous prévoyez plus que possible.',
+  'land.all.focus.t': 'Concentration Pomodoro',
+  'land.all.focus.b': 'Un minuteur avec des pauses et un son à la fin de chaque session.',
+  'land.all.habits.t': 'Habitudes avec grille mensuelle',
+  'land.all.habits.b': 'Cochez vos habitudes chaque jour et voyez tout le mois d’un coup d’œil.',
+  'land.all.matrix.t': 'Matrice d’Eisenhower',
+  'land.all.matrix.b':
+    'Classez les tâches par urgence et importance, et commencez par l’essentiel.',
+  'land.all.week.t': 'Votre semaine d’un coup d’œil',
+  'land.all.week.b':
+    'Sept jours avec l’avancement du plan, les minutes de concentration, les habitudes et les échéances.',
+  'land.all.xp.t': 'XP, niveaux et badges',
+  'land.all.xp.b':
+    'Chaque minute de concentration, tâche terminée et habitude cochée vous rapproche du niveau suivant.',
   'land.price.eyebrow': 'Tarifs',
   'land.price.title': 'Gratuit pour commencer. Pro quand vous voulez plus.',
   'land.price.free.t': 'Gratuit',
@@ -124,6 +153,7 @@ export const fr: Record<TKey, string> = {
   'land.price.note':
     'Paiement sécurisé via Lemon Squeezy. Résiliable à tout moment. Remboursement intégral sous {days} jours, sans justification.',
   'land.price.refundLink': 'Politique de remboursement',
+  'land.price.save': 'Vous économisez {saved} par an par rapport au mensuel ({pct} %)',
   'land.faq.eyebrow': 'Questions',
   'land.faq.title': 'Questions fréquentes',
   'land.faq.free.q': 'Moneo est-il gratuit ?',

@@ -16,6 +16,35 @@ export const PRO_PRICES = {
   monthsFree: 2,
 } as const;
 
+export interface YearlySavings {
+  monthlyTimes12: number;
+  yearly: number;
+  saved: number;
+  pct: number;
+}
+
+const round2 = (n: number): number => Math.round(n * 100) / 100;
+
+/** "$5.99" → 5.99; anything unparsable → 0. */
+export function parseUsd(price: string): number {
+  const n = Number.parseFloat(String(price).replace(/[^0-9.]/g, ''));
+  return Number.isFinite(n) ? n : 0;
+}
+
+/** Same literal style as PRO_PRICES: "$11.89". */
+export function formatUsd(n: number): string {
+  return `$${round2(n).toFixed(2)}`;
+}
+
+/** Real yearly-vs-monthly savings; the percentage is floored, never overstated. */
+export function yearlySavings(p: { monthly: string; yearly: string } = PRO_PRICES): YearlySavings {
+  const monthlyTimes12 = round2(parseUsd(p.monthly) * 12);
+  const yearly = parseUsd(p.yearly);
+  const saved = Math.max(0, round2(monthlyTimes12 - yearly));
+  const pct = monthlyTimes12 > 0 ? Math.floor((saved / monthlyTimes12) * 100) : 0;
+  return { monthlyTimes12, yearly, saved, pct };
+}
+
 /** Feature rows per plan, as shown on /pricing and the landing page. */
 export const PLAN_FEATURE_KEYS = {
   free: [

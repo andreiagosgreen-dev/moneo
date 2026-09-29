@@ -96,3 +96,54 @@ export const IconPhone = () => (
     <path d="M10.5 18.5h3" />
   </Svg>
 );
+
+export const IconHome = () => (
+  <Svg>
+    <path d="M3.5 11 12 4l8.5 7" />
+    <path d="M5.5 9.5V20h13V9.5" />
+    <path d="M10 20v-5.5h4V20" />
+  </Svg>
+);
+
+export const IconSun = () => (
+  <Svg>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4" />
+  </Svg>
+);
+
+export const IconTimer = () => (
+  <Svg>
+    <circle cx="12" cy="13.5" r="7.5" />
+    <path d="M12 9.5v4l2.5 2M9.5 2.5h5" />
+  </Svg>
+);
+
+export const IconGrid = () => (
+  <Svg>
+    <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" />
+    <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
+    <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
+    <path d="m15 17 1.8 1.8L20 15.5" />
+  </Svg>
+);
+
+export const IconMatrix = () => (
+  <Svg>
+    <rect x="3.5" y="3.5" width="17" height="17" rx="2.5" />
+    <path d="M12 3.5v17M3.5 12h17" />
+  </Svg>
+);
+
+export const IconCalendarWeek = () => (
+  <Svg>
+    <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+    <path d="M3.5 10h17M8 3v4M16 3v4M7 14h2M11 14h2M15 14h2" />
+  </Svg>
+);
+
+export const IconStar = () => (
+  <Svg>
+    <path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z" />
+  </Svg>
+);

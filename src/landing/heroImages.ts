@@ -4,7 +4,16 @@ import type { Locale } from '../lib/i18n/types';
  * Romanian visitors see Romanian UI; everyone else sees English. */
 
 export type ShotLang = 'ro' | 'en';
-export type ShotId = 'focus-desktop' | 'focus-phone' | 'today-phone' | 'growth-phone';
+export type ShotId =
+  | 'focus-desktop'
+  | 'today-desktop'
+  | 'habits-desktop'
+  | 'week-desktop'
+  | 'focus-phone'
+  | 'today-phone'
+  | 'habits-phone'
+  | 'week-phone'
+  | 'growth-phone';
 
 export interface ShotSpec {
   widths: readonly number[];
@@ -13,11 +22,38 @@ export interface ShotSpec {
   height: number;
 }
 
+const DESKTOP: ShotSpec = { widths: [960, 1440], width: 1440, height: 900 };
+const PHONE: ShotSpec = { widths: [360, 720], width: 720, height: 1558 };
+
 export const SHOTS: Record<ShotId, ShotSpec> = {
-  'focus-desktop': { widths: [960, 1440], width: 1440, height: 900 },
-  'focus-phone': { widths: [360, 720], width: 720, height: 1558 },
-  'today-phone': { widths: [360, 720], width: 720, height: 1558 },
-  'growth-phone': { widths: [360, 720], width: 720, height: 1558 },
+  'focus-desktop': DESKTOP,
+  'today-desktop': DESKTOP,
+  'habits-desktop': DESKTOP,
+  'week-desktop': DESKTOP,
+  'focus-phone': PHONE,
+  'today-phone': PHONE,
+  'habits-phone': PHONE,
+  'week-phone': PHONE,
+  'growth-phone': PHONE,
+};
+
+export type Device = 'laptop' | 'phone';
+export type Screen = 'focus' | 'today' | 'habits' | 'week';
+
+/** Screens offered by the hero toggle, per device (only shots that exist). */
+export const DEVICE_SCREENS: Record<Device, ReadonlyArray<{ screen: Screen; shot: ShotId }>> = {
+  laptop: [
+    { screen: 'focus', shot: 'focus-desktop' },
+    { screen: 'today', shot: 'today-desktop' },
+    { screen: 'habits', shot: 'habits-desktop' },
+    { screen: 'week', shot: 'week-desktop' },
+  ],
+  phone: [
+    { screen: 'focus', shot: 'focus-phone' },
+    { screen: 'today', shot: 'today-phone' },
+    { screen: 'habits', shot: 'habits-phone' },
+    { screen: 'week', shot: 'week-phone' },
+  ],
 };
 
 export const HERO_DESKTOP_MEDIA = '(min-width: 768px)';
