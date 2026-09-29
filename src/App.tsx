@@ -178,6 +178,7 @@ import { useGoogleCalendarEvents } from './hooks/useGoogleCalendarEvents';
 import { useTimeCapsules } from './hooks/useTimeCapsules';
 import { useMoments } from './hooks/useMoments';
 import { computeXp, levelFromXp } from './lib/xp';
+import { computeBadges } from './lib/badges';
 import { isTodayInTz, dayKeyInTz } from './lib/timezone';
 import { loadSyncState, onSyncStateChange } from './lib/sync/syncState';
 
@@ -353,6 +354,10 @@ export default function App() {
   const xp = useMemo(
     () => computeXp({ history, tasks, habitLog, phases, projects }),
     [history, tasks, habitLog, phases, projects],
+  );
+  const badges = useMemo(
+    () => computeBadges({ history, tasks, habitLog, phases, projects, totalXp: xp.total }),
+    [history, tasks, habitLog, phases, projects, xp.total],
   );
   const xpLevel = levelFromXp(xp.total).level;
   const moments = useMoments({ tasks, phases, projects, goals, history, level: xpLevel });
@@ -1283,7 +1288,7 @@ export default function App() {
                             className="reveal mono-growth-span"
                             style={{ animationDelay: '60ms' }}
                           >
-                            <MonoRankCard xp={xp} />
+                            <MonoRankCard xp={xp} badges={badges} />
                           </div>
                           <div className="reveal" style={{ animationDelay: '90ms' }}>
                             <GrowthCard history={history} />

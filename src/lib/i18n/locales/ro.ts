@@ -1058,7 +1058,7 @@ export const ro: Record<TKey, string> = {
     'Fă runde de focus și uită-te cum crește inelul zi după zi. Rapoartele, perspectivele și seriile te țin onest.',
   'onb.s3t': 'Planifică, apoi fă',
   'onb.s3b':
-    'Alege deseara sarcinile de top, mănâncă broasca întâi, iar matricea Eisenhower sortează restul. Proiectele, obiectivele și sprinturile urmăresc imaginea mare.',
+    'Alege diseară sarcinile de top, fă întâi sarcina cea mai grea, iar matricea Eisenhower sortează restul. Proiectele, obiectivele și sprinturile urmăresc imaginea mare.',
   'onb.s4t': 'Privat prin design',
   'onb.s4b':
     'Totul trăiește mai întâi pe dispozitivul tău. Conectează-te când vrei sesiunile, ariile și setările sincronizate între dispozitive — istoricul rundelor rămâne al tău.',
@@ -2556,7 +2556,7 @@ export const ro: Record<TKey, string> = {
     'Finalizează tururi de focus și privește inelul de creștere cum se construiește zi de zi. Rapoartele, informațiile și seriile te țin onest.',
   'onboarding.step3.title': 'Planifică, apoi fă',
   'onboarding.step3.body':
-    'Alege task-urile principale de diseară, mănâncă broasca prima dată și lasă matricea Eisenhower să sorteze restul. Proiectele, obiectivele și sprinturile urmăresc imaginea de ansamblu.',
+    'Alege task-urile principale de diseară, fă prima sarcina cea mai grea și lasă matricea Eisenhower să sorteze restul. Proiectele, obiectivele și sprinturile urmăresc imaginea de ansamblu.',
   'onboarding.step4.title': 'Privat prin design',
   'onboarding.step4.body':
     'Totul trăiește mai întâi pe dispozitivul tău. Conectează-te când vrei sincronizare în cloud între dispozitive — istoricul turelor tale rămâne al tău.',
@@ -3095,4 +3095,19 @@ export const ro: Record<TKey, string> = {
   'pricing.row.sync': 'Sincronizare între dispozitive (cu cont)',
   'pricing.sync.free': 'Sesiuni, arii și setări',
   'pricing.sync.pro': 'Toate datele tale',
+  'mono.rewards.title': 'Insigne',
+  'mono.rewards.count': '{n} din {total} obținute',
+  'mono.rewards.earned': 'Obținută',
+  'mono.rewards.progress': '{n} / {target}',
+  'mono.rewards.firstFocus.name': 'Prima rundă',
+  'mono.rewards.firstFocus.how': 'Termină o rundă de focus',
+  'mono.rewards.focus10h.name': '10 ore de focus',
+  'mono.rewards.focus10h.how': 'Adună 10 ore de focus în total',
+  'mono.rewards.streak7.name': '7 zile la rând',
+  'mono.rewards.streak7.how': 'Fă focus 7 zile la rând',
+  'mono.rewards.firstProject.name': 'Primul proiect',
+  'mono.rewards.firstProject.how': 'Termină un proiect cu cel puțin {min} sarcini',
+  'mono.rewards.tasks50.name': '50 de sarcini',
+  'mono.rewards.tasks50.how': 'Bifează 50 de sarcini',
+  'mono.rewards.rank.how': 'Ajungi la nivelul {n}',
 };
