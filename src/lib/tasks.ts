@@ -21,8 +21,10 @@ export interface Task {
   blockedBy?: string[];
   /** Recurrence rule; completing a recurring task spawns the next instance. */
   recurrence?: TaskRecurrence;
-  /** Optional due date in epoch ms. */
+  /** Optional due date in epoch ms (local noon unless `dueHasTime`). */
   dueAt?: number;
+  /** `dueAt` carries a time of day chosen by the user. */
+  dueHasTime?: true;
   /** Free-form notes (Roadmap 2.2). */
   notes?: string;
   /** Manual Eisenhower quadrant override (Roadmap 3.1). Absent = auto-suggest. */
@@ -133,6 +135,9 @@ export function loadTasks(): Task[] {
         ? { recurrence: t.recurrence }
         : {}),
       ...(typeof t.dueAt === 'number' && Number.isFinite(t.dueAt) ? { dueAt: t.dueAt } : {}),
+      ...(typeof t.dueAt === 'number' && Number.isFinite(t.dueAt) && t.dueHasTime === true
+        ? { dueHasTime: true as const }
+        : {}),
       ...(typeof t.notes === 'string' && t.notes
         ? { notes: t.notes.slice(0, MAX_NOTES_LENGTH) }
         : {}),
@@ -543,6 +548,7 @@ export function setDueAt(tasks: Task[], taskId: string, dueAt: number | null): T
   return tasks.map((t) => {
     if (t.id !== taskId) return t;
     const next: Task = { ...t, updatedAt: Date.now() };
+    delete next.dueHasTime;
     if (dueAt !== null && Number.isFinite(dueAt)) next.dueAt = dueAt;
     else delete next.dueAt;
     return next;

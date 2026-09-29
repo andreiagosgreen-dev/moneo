@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import MonoHead from './MonoHead';
 import MonoCard from './MonoCard';
 import MonoBtn from './MonoBtn';
@@ -13,6 +13,8 @@ import type { MonoTab } from './MonoNav';
 import { pickProgramCoach } from '../lib/guidance/programCoach';
 import type { TaskPriority } from '../lib/tasks';
 import { dueTone, priorityTone, type DueStatus } from '../lib/taskDue';
+import { hasQuickTokens, parseQuickAdd } from '../lib/quickAdd';
+import MonoQuickPreview from './MonoQuickPreview';
 
 export interface MonoAziItem {
   id: string;
@@ -38,7 +40,8 @@ interface Props {
   onMorning: () => void;
   onShutdown: () => void;
   onToggle: (id: string) => void;
-  onAdd: (text: string) => void;
+  /** Return false to keep the draft (nothing was saved). */
+  onAdd: (text: string) => boolean | void;
   /** Jump to Focus to work the list. */
   onGoWork?: () => void;
   /** Path map navigation. */
@@ -81,8 +84,11 @@ export default function MonoAzi({
   checkin,
   more,
 }: Props) {
-  const { t, tp, tag, fmtNum, fmtDur } = useI18n();
+  const { t, tp, tag, fmtNum, fmtDur, locale } = useI18n();
   const [draft, setDraft] = useState('');
+  const [focused, setFocused] = useState(false);
+  const parsed = useMemo(() => parseQuickAdd(draft, locale), [draft, locale]);
+  const onlyTokens = hasQuickTokens(parsed) && parsed.title === '';
   const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
   const full = totalCount >= maxTasks;
   const hasItems = items.length > 0;
@@ -121,48 +127,55 @@ export default function MonoAzi({
 
   const submit = () => {
     const clean = draft.trim();
-    if (!clean || full) return;
-    onAdd(clean);
-    setDraft('');
+    if (!clean || onlyTokens) return;
+    if (onAdd(clean) !== false) setDraft('');
   };
 
   const addForm = (
-    <form
-      className="mono-row"
-      style={{ gap: 10, marginTop: hasItems ? 12 : 0 }}
-      onSubmit={(e) => {
-        e.preventDefault();
-        submit();
-      }}
-    >
-      <label
-        htmlFor="mono-azi-new"
-        className="mono-eyebrow"
-        style={{ position: 'absolute', left: -9999 }}
+    <>
+      <form
+        className="mono-row"
+        style={{ gap: 10, marginTop: hasItems ? 12 : 0 }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          submit();
+        }}
       >
-        {t('mono.azi.addPh')}
-      </label>
-      <input
-        id="mono-azi-new"
-        className="mono-field mono-ph-fit"
-        type="text"
-        value={draft}
-        disabled={full}
-        placeholder={full ? t('mono.azi.full', { max: maxTasks }) : t('mono.azi.addPh')}
-        autoComplete="off"
-        style={{ flex: 1 }}
-        onChange={(e) => setDraft(e.target.value)}
-      />
-      <button
-        type="submit"
-        disabled={full || draft.trim().length === 0}
-        aria-label={t('mono.azi.addBtn')}
-        className="mono-btn mono-btn-primary"
-        style={{ padding: '0 18px', minWidth: 52 }}
-      >
-        +
-      </button>
-    </form>
+        <label
+          htmlFor="mono-azi-new"
+          className="mono-eyebrow"
+          style={{ position: 'absolute', left: -9999 }}
+        >
+          {t('mono.azi.addPh')}
+        </label>
+        <input
+          id="mono-azi-new"
+          className="mono-field mono-ph-fit"
+          type="text"
+          value={draft}
+          placeholder={full ? t('mono.azi.full', { max: maxTasks }) : t('mono.azi.addPh')}
+          autoComplete="off"
+          aria-describedby="mono-azi-qa"
+          style={{ flex: 1 }}
+          onChange={(e) => setDraft(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+        />
+        <button
+          type="submit"
+          disabled={draft.trim().length === 0 || onlyTokens}
+          aria-label={t('mono.azi.addBtn')}
+          className="mono-btn mono-btn-primary"
+          style={{ padding: '0 18px', minWidth: 52 }}
+        >
+          +
+        </button>
+      </form>
+      <MonoQuickPreview q={parsed} id="mono-azi-qa" />
+      {focused && draft.trim() === '' ? (
+        <p className="mono-meta mono-qa-hint">{t('mono.qa.hint')}</p>
+      ) : null}
+    </>
   );
 
   return (

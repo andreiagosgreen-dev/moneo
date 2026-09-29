@@ -83,6 +83,14 @@ export function weekKeys(mondayKey: string): string[] {
   return Array.from({ length: 7 }, (_, i) => addDays(mondayKey, i));
 }
 
+/** Epoch ms at device-local noon, `days` calendar days after `now`'s day (DST-safe). */
+export function noonPlusDays(now: number, days: number): number {
+  const d = new Date(now);
+  d.setHours(12, 0, 0, 0);
+  d.setDate(d.getDate() + days);
+  return d.getTime();
+}
+
 export function monthKeys(y: number, m: number): string[] {
   return Array.from({ length: daysInMonth(y, m) }, (_, i) => toDayKey({ y, m, d: i + 1 }));
 }

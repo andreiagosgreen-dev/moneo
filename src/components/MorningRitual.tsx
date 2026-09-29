@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   addTaskToDay,
   renamePlanTask,
@@ -26,6 +26,8 @@ import { OvercommitWarning } from './OvercommitWarning';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
 import { morningBrief } from '../lib/ai/coach';
+import MonoTriage from '../mono/MonoTriage';
+import type { Suggestion, TriageAction } from '../lib/triage';
 
 const ESTIMATE_PRESETS = [15, 25, 50, 90];
 
@@ -47,6 +49,10 @@ interface Props {
   timezone: string;
   isPro?: boolean;
   onDone: () => void;
+  /** Inbox cards to sort first; the step is only shown when non-empty. */
+  triage?: Suggestion[];
+  onTriage?: (s: Suggestion, action: TriageAction) => { ok: boolean; reason?: 'full' };
+  onTriageUndo?: () => void;
 }
 
 function toMin(hhmm: string): number | null {
@@ -78,6 +84,9 @@ export default function MorningRitual({
   timezone,
   isPro = false,
   onDone,
+  triage,
+  onTriage,
+  onTriageUndo,
 }: Props) {
   const now = Date.now();
   const { t, fmtDur } = useI18n();
@@ -85,9 +94,16 @@ export default function MorningRitual({
   const maxTasks = isPro ? IVY_MAX_TASKS : IVY_FREE_MAX_TASKS;
   const [step, setStep] = useState(0);
   const [blocked, setBlocked] = useState(0);
+  const [cards] = useState<Suggestion[]>(() => (onTriage ? (triage ?? []) : []));
+  const [triageDone, setTriageDone] = useState(false);
+  const hasTriage = cards.length > 0;
+  const stepTitles: TKey[] = hasTriage ? ['mono.triage.step', ...STEP_TITLES] : STEP_TITLES;
+  const stepHeads: TKey[] = hasTriage ? ['mono.triage.head', ...STEP_HEADS] : STEP_HEADS;
+  /** Planning stage: -1 while sorting the inbox, then 0..2. */
+  const stage = step - (hasTriage ? 1 : 0);
 
-  const [rows, setRows] = useState<RitualRow[]>(() => {
-    const existing = planForDay(plans, todayKey)?.tasks ?? [];
+  const buildRows = (source: IvyPlan[]): RitualRow[] => {
+    const existing = planForDay(source, todayKey)?.tasks ?? [];
     const out: RitualRow[] = existing.slice(0, maxTasks).map((t) => ({
       id: t.id,
       text: t.text,
@@ -121,7 +137,13 @@ export default function MorningRitual({
       cursor += r.estimate + 15;
     }
     return out;
-  });
+  };
+  const [rows, setRows] = useState<RitualRow[]>(() => buildRows(plans));
+  const finishTriage = useCallback(() => setTriageDone(true), []);
+  const toPlanning = () => {
+    setRows(buildRows(plans));
+    setStep(step + 1);
+  };
 
   const setRow = (i: number, patch: Partial<RitualRow>) =>
     setRows((rs) => rs.map((r, j) => (j === i ? { ...r, ...patch } : r)));
@@ -185,12 +207,12 @@ export default function MorningRitual({
     >
       <div className="dialog-pop card max-h-[90vh] w-full max-w-md overflow-y-auto px-6 py-6">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">
-          {t('morning.kicker', { step: t(STEP_TITLES[step]) })}
+          {t('morning.kicker', { step: t(stepTitles[step]) })}
         </p>
         <h2 className="mt-1.5 font-display text-xl font-bold tracking-tight text-cream">
-          {t(STEP_HEADS[step])}
+          {t(stepHeads[step])}
         </h2>
-        {step === 0 &&
+        {stage === 0 &&
           (() => {
             const frog = pickFrog(tasks, projects, now);
             const line = morningBrief({
@@ -205,7 +227,7 @@ export default function MorningRitual({
           })()}
 
         <div className="mt-3 flex items-center gap-1.5" aria-hidden>
-          {STEP_TITLES.map((tk, i) => (
+          {stepTitles.map((tk, i) => (
             <span
               key={tk}
               className="h-1.5 rounded-full transition-all duration-300"
@@ -217,7 +239,19 @@ export default function MorningRitual({
           ))}
         </div>
 
-        {step === 0 && (
+        {stage === -1 && onTriage ? (
+          <div className="mono mt-4" style={{ background: 'transparent', color: 'inherit' }}>
+            <MonoTriage
+              suggestions={cards}
+              tasks={tasks}
+              onAction={onTriage}
+              onUndo={onTriageUndo}
+              onFinish={finishTriage}
+            />
+          </div>
+        ) : null}
+
+        {stage === 0 && (
           <div className="mt-4 space-y-2">
             {rows.map((r, i) => (
               <div key={i} className="flex items-center gap-2">
@@ -238,7 +272,7 @@ export default function MorningRitual({
           </div>
         )}
 
-        {step === 1 && (
+        {stage === 1 && (
           <div className="mt-4 space-y-2">
             {rows.map((r, i) =>
               r.text.trim() ? (
@@ -279,7 +313,7 @@ export default function MorningRitual({
           </div>
         )}
 
-        {step === 2 && (
+        {stage === 2 && (
           <div className="mt-4 space-y-2">
             {rows.map((r, i) =>
               r.text.trim() ? (
@@ -326,7 +360,7 @@ export default function MorningRitual({
             {t('morning.skip')}
           </button>
           <div className="flex gap-2">
-            {step > 0 && (
+            {stage > 0 && (
               <button
                 onClick={() => setStep(step - 1)}
                 className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px]"
@@ -334,7 +368,15 @@ export default function MorningRitual({
                 {t('morning.back')}
               </button>
             )}
-            {step < 2 ? (
+            {stage === -1 ? (
+              <button
+                onClick={() => triageDone && toPlanning()}
+                disabled={!triageDone}
+                className="press btn-accent rounded-lg px-6 py-2 font-display text-[13px] font-bold disabled:opacity-40"
+              >
+                {t('morning.next')}
+              </button>
+            ) : stage < 2 ? (
               <button
                 onClick={() => canNext && setStep(step + 1)}
                 disabled={!canNext}
