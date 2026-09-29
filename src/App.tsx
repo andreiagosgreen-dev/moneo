@@ -50,6 +50,8 @@ import CabinetPage from './components/CabinetPage';
 import CalendarCallback from './components/CalendarCallback';
 import ResetPasswordPage from './components/ResetPasswordPage';
 import { titleForPath } from './lib/routeTitle';
+import { isKnownClientRoute } from './lib/knownRoutes';
+import MonoNotFound from './mono/MonoNotFound';
 import CommandCenter from './components/CommandCenter';
 import CommandPalette from './components/CommandPalette';
 import PostSessionReflection from './components/PostSessionReflection';
@@ -364,7 +366,7 @@ export default function App() {
     start,
     toggle,
     reset,
-    switchMode,
+    setRoundLength,
     updateSettings,
   } = useTimer({
     settings,
@@ -675,8 +677,7 @@ export default function App() {
 
   const handlePreset = (min: number) => {
     if (running) return;
-    updateSettings({ focusMin: min });
-    if (mode !== 'focus') switchMode('focus');
+    setRoundLength(min);
   };
   const handleToggleTask = (id: string) => {
     const r = togglePlanItem(ivyPlans, todayKey, id, tasks);
@@ -756,6 +757,14 @@ export default function App() {
       isPro={auth.isPro}
     />
   );
+
+  if (!isKnownClientRoute(pathname)) {
+    return (
+      <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={setLocale}>
+        <MonoNotFound />
+      </LocaleProvider>
+    );
+  }
 
   return (
     <Routes>
@@ -872,7 +881,7 @@ export default function App() {
                         running={running}
                         remaining={remaining}
                         total={total}
-                        focusMin={settings.focusMin}
+                        focusMin={mode === 'focus' ? total / 60 : settings.focusMin}
                         intention={intentionDraft}
                         onIntention={setIntentionDraft}
                         onIntentionEnter={() => {
