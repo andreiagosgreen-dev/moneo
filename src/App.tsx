@@ -1536,7 +1536,7 @@ export default function App() {
                     </main>
                   )}
                   {tab === 'orar' && (
-                    <Suspense fallback={<TabFallback label="Schedule" />}>
+                    <Suspense fallback={<TabFallback />}>
                       <main>
                         <MonoOrar
                           timezone={auth.timezone}
@@ -1571,7 +1571,7 @@ export default function App() {
                     </Suspense>
                   )}
                   {tab === 'plan' && (
-                    <Suspense fallback={<TabFallback label="Plan" />}>
+                    <Suspense fallback={<TabFallback />}>
                       <main>
                         <MonoHead title={t('nav.plan')} sub={t('nav.hint.plan')} />
                         <div className="mono-pad mt-2 grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 md:gap-6">
@@ -1690,7 +1690,7 @@ export default function App() {
                     </Suspense>
                   )}
                   {tab === 'growth' && (
-                    <Suspense fallback={<TabFallback label="Growth" />}>
+                    <Suspense fallback={<TabFallback />}>
                       <main>
                         <MonoCrestere>
                           <div
@@ -1746,7 +1746,7 @@ export default function App() {
                     </Suspense>
                   )}
                   {tab === 'move' && (
-                    <Suspense fallback={<TabFallback label="Move" />}>
+                    <Suspense fallback={<TabFallback />}>
                       <main>
                         <MonoMiscare
                           store={workoutStore}
@@ -1760,7 +1760,7 @@ export default function App() {
                     </Suspense>
                   )}
                   {tab === 'map' && (
-                    <Suspense fallback={<TabFallback label="Map" />}>
+                    <Suspense fallback={<TabFallback />}>
                       <main>
                         <MonoViata
                           motto={dayMotto}
@@ -1774,7 +1774,7 @@ export default function App() {
                     </Suspense>
                   )}
                   {tab === 'projects' && (
-                    <Suspense fallback={<TabFallback label="Projects" />}>
+                    <Suspense fallback={<TabFallback />}>
                       <main>
                         <MonoProiecte activeCount={projects.filter((p) => !p.archived).length}>
                           <MonoInbox
@@ -1838,7 +1838,7 @@ export default function App() {
                     </Suspense>
                   )}
                   {tab === 'reports' && (
-                    <Suspense fallback={<TabFallback label="Reports" />}>
+                    <Suspense fallback={<TabFallback />}>
                       <main>
                         <MonoRapoarte>
                           <div className="reveal" style={{ animationDelay: '40ms' }}>
@@ -1879,7 +1879,7 @@ export default function App() {
                     </Suspense>
                   )}
                   {tab === 'graph' && (
-                    <Suspense fallback={<TabFallback label="Graph" />}>
+                    <Suspense fallback={<TabFallback />}>
                       <main className="mono-pad-mobile mt-2 grid grid-cols-1 items-stretch gap-6">
                         <div className="reveal" style={{ animationDelay: '90ms' }}>
                           <GraphCard
@@ -1894,7 +1894,7 @@ export default function App() {
                     </Suspense>
                   )}
                   {tab === 'settings' && (
-                    <Suspense fallback={<TabFallback label="Settings" />}>
+                    <Suspense fallback={<TabFallback />}>
                       <main>
                         <MonoHead title={t('mono.nav.settings')} sub={t('nav.settingsTitle')} />
                         <div className="mono-pad mt-2 reveal" style={{ animationDelay: '90ms' }}>

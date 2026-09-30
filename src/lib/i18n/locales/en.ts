@@ -24,7 +24,7 @@ export const en = {
   'nav.hint.reports': 'Analytics, exports and billable time',
   'nav.brandSub': 'Focus companion',
   'nav.home': 'Moneo home',
-  'nav.search': 'Search…  ( / )',
+  'nav.search': 'Search… ( / )',
   'nav.searchLabel': 'Search tasks, projects and goals',
   'nav.searchEmpty': 'No matches — try a project, task or goal name.',
   'nav.kind.task': 'Task',
@@ -590,7 +590,7 @@ export const en = {
   'ins.streak.building': 'Momentum is building',
   'ins.streak.buildingBody': 'Protect the streak — today’s round keeps it alive.',
   'ins.streak.days': '{n}-day streak',
-  'ins.streak.daysBody.one': 'You’ve focused 1 consecutive session. One round today protects it.',
+  'ins.streak.daysBody.one': 'One focus session in a row. A round today keeps the streak.',
   'ins.window.title': 'Your power hours',
   'ins.window.body': 'You focus best between {a} and {b}. Block that span for your hardest work.',
   'ins.window.reason': 'Your 2-hour peak window is {a}–{b}.',
@@ -1010,7 +1010,7 @@ export const en = {
   'notif.focus': 'Focus Reminder',
   'notif.focusBody': 'Browser reminder at a set time to start focusing',
   'notif.time': 'Reminder Time',
-  'notif.habit': 'Habit Check-in',
+  'notif.habit': 'Habit check-in',
   'notif.habitBody': 'Evening nudge to close out open habits',
   'notif.habitTime': 'Habit Time',
   'notif.disconnect': 'Disconnect Nudge',
@@ -1462,6 +1462,11 @@ export const en = {
   'stats.streak.other': '{n}-day streak',
   'stats.goalDone': 'Daily goal reached — anything more is extra credit.',
   'stats.toGo': '{n} to go for today’s goal',
+  'stats.noStreak': 'No streak yet',
+  'mono.area.work': 'Work',
+  'mono.area.study': 'Study',
+  'mono.area.personal': 'Personal',
+  'mono.loading': 'Loading…',
   'stats.last7': 'Last 7 days',
   'stats.topWeek': 'Top focus · week',
   'stats.byArea': 'By area · week',
@@ -2038,12 +2043,9 @@ export const en = {
     '{pct}% of your focus goes to just {n} things ({names}). The rest is splitting your attention.',
   'ins.pareto.body.other':
     '{pct}% of your focus goes to just {n} things ({names}). The rest is splitting your attention.',
-  'ins.streak.daysBody.few':
-    'You’ve focused {n} consecutive sessions. One round today protects it.',
-  'ins.streak.daysBody.many':
-    'You’ve focused {n} consecutive sessions. One round today protects it.',
-  'ins.streak.daysBody.other':
-    'You’ve focused {n} consecutive sessions. One round today protects it.',
+  'ins.streak.daysBody.few': '{n} focus sessions in a row. A round today keeps the streak.',
+  'ins.streak.daysBody.many': '{n} focus sessions in a row. A round today keeps the streak.',
+  'ins.streak.daysBody.other': '{n} focus sessions in a row. A round today keeps the streak.',
   'ins.neglect.body':
     '{name} drove {share}% of your last 30 days of focus, but hasn’t seen a round in 3+ days. Pick it back up before momentum fades.',
   'ins.pace.upBody':

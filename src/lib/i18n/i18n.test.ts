@@ -75,7 +75,7 @@ describe('Intl formatters', () => {
     expect(createI18n('en').fmtDur(25)).toBe('25m');
     expect(createI18n('en').fmtDur(60)).toBe('1h');
     expect(createI18n('en').fmtDur(135)).toBe('2h 15m');
-    expect(createI18n('ro', ro).fmtDur(135)).toBe('2h 15min');
+    expect(createI18n('ro', ro).fmtDur(135)).toBe('2 h 15 min');
     expect(createI18n('ru', ru).fmtDur(60)).toBe('1 ч');
     expect(createI18n('ru', ru).fmtDur(135)).toBe('2 ч 15 мин');
     expect(createI18n('de', de).fmtDur(135)).toBe('2 Std. 15 Min.');

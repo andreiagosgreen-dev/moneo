@@ -4,6 +4,7 @@ import { ensureAreaCloudId, isUuid } from './areaIdentity';
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { hasKey, safeRead, safeRemove, safeWrite } from './storage/storageAdapter';
 import { dayKeyInTz, trailingWeekDayKeysInTz } from './timezone';
+import type { TKey } from './i18n/types';
 
 /**
  * Focus Areas — lightweight containers answering "which part of my life
@@ -57,6 +58,22 @@ const SEED: Array<{ id: string; name: string }> = [
   { id: 'area:study', name: 'Study' },
   { id: 'area:personal', name: 'Personal' },
 ];
+
+const SEED_LABEL: Record<string, TKey> = {
+  'area:work': 'mono.area.work',
+  'area:study': 'mono.area.study',
+  'area:personal': 'mono.area.personal',
+};
+
+/**
+ * Display name: a seeded area the user never renamed follows the UI language.
+ * The stored name stays the English seed so sync keeps one row per default.
+ */
+export function areaLabel(area: Pick<FocusArea, 'id' | 'name'>, t: (key: TKey) => string): string {
+  const key = SEED_LABEL[area.id];
+  const seed = SEED.find((s) => s.id === area.id);
+  return key && seed && area.name === seed.name ? t(key) : area.name;
+}
 
 export function sanitizeAreaName(raw: unknown): string {
   if (typeof raw !== 'string') return '';
