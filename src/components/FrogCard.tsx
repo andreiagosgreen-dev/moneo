@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import type { Project } from '../lib/projects';
 import { localDayKey } from '../lib/projects';
 import type { Task } from '../lib/tasks';
@@ -42,19 +42,6 @@ export default function FrogCard({
   const frog = useMemo(() => pickFrog(tasks, projects, now), [tasks, projects, now]);
   const stats = useMemo(() => frogStats(frogLog, now), [frogLog, now]);
   const todayEntry = frogLog[todayKey];
-
-  // Record today's pick once (and flip to done when the task completes anywhere).
-  useEffect(() => {
-    if (!frog) return;
-    const entry = frogLog[todayKey];
-    const done = frog.status === 'completed' || entry?.done === true;
-    if (!entry || entry.taskId !== frog.id || entry.done !== done) {
-      const next = recordFrog(frogLog, todayKey, frog.id, done);
-      saveFrogLog(next);
-      frogLogChange(next);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [frog?.id, frog?.status, todayKey]);
 
   const eatFrog = () => {
     if (!frog || frog.status === 'completed') return;
