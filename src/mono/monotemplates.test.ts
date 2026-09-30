@@ -51,7 +51,12 @@ const click = (b: Element) =>
 describe('MonoTemplates', () => {
   it('Free sees 3 usable cards and 5 locked ones linking to pricing', () => {
     const el = render(
-      createElement(MonoTemplates, { isPro: false, canCreate: true, onCreate: vi.fn() }),
+      createElement(MonoTemplates, {
+        isPro: false,
+        canCreate: true,
+        hasProjects: false,
+        onCreate: vi.fn(),
+      }),
     );
     expect(el.querySelectorAll('.mono-tpl-card')).toHaveLength(8);
     expect(el.querySelectorAll('button[aria-label^="Use "]')).toHaveLength(3);
@@ -66,7 +71,12 @@ describe('MonoTemplates', () => {
 
   it('Pro sees 8 usable cards', () => {
     const el = render(
-      createElement(MonoTemplates, { isPro: true, canCreate: true, onCreate: vi.fn() }),
+      createElement(MonoTemplates, {
+        isPro: true,
+        canCreate: true,
+        hasProjects: false,
+        onCreate: vi.fn(),
+      }),
     );
     expect(el.querySelectorAll('button[aria-label^="Use "]')).toHaveLength(8);
     expect(el.querySelector('a[href="/pricing"]')).toBeNull();
@@ -74,7 +84,12 @@ describe('MonoTemplates', () => {
 
   it('shows task and habit counts', () => {
     const el = render(
-      createElement(MonoTemplates, { isPro: true, canCreate: true, onCreate: vi.fn() }),
+      createElement(MonoTemplates, {
+        isPro: true,
+        canCreate: true,
+        hasProjects: false,
+        onCreate: vi.fn(),
+      }),
     );
     expect(card(el, 'exam').textContent).toContain('Tasks: 5 · Habits: 1');
     expect(card(el, 'moving').textContent).toContain('Tasks: 6 · Habits: 0');
@@ -82,7 +97,9 @@ describe('MonoTemplates', () => {
 
   it('confirms inline: Use → Create calls onCreate once', () => {
     const onCreate = vi.fn();
-    const el = render(createElement(MonoTemplates, { isPro: false, canCreate: true, onCreate }));
+    const el = render(
+      createElement(MonoTemplates, { isPro: false, canCreate: true, hasProjects: false, onCreate }),
+    );
     const exam = card(el, 'exam');
     click(exam.querySelector('button[aria-label="Use Exam prep"]')!);
     expect(onCreate).not.toHaveBeenCalled();
@@ -96,7 +113,9 @@ describe('MonoTemplates', () => {
 
   it('Cancel backs out without creating anything', () => {
     const onCreate = vi.fn();
-    const el = render(createElement(MonoTemplates, { isPro: true, canCreate: true, onCreate }));
+    const el = render(
+      createElement(MonoTemplates, { isPro: true, canCreate: true, hasProjects: false, onCreate }),
+    );
     const sport = card(el, 'sport');
     click(sport.querySelector('button[aria-label="Use Get fit"]')!);
     click(buttons(sport).find((b) => b.textContent === 'Cancel')!);
@@ -104,12 +123,44 @@ describe('MonoTemplates', () => {
     expect(sport.querySelector('button[aria-label="Use Get fit"]')).not.toBeNull();
   });
 
-  it('project limit: no Use button, explains the cap and links to pricing', () => {
+  it('project limit: no Use buttons, one notice for the whole section', () => {
     const onCreate = vi.fn();
-    const el = render(createElement(MonoTemplates, { isPro: false, canCreate: false, onCreate }));
-    const exam = card(el, 'exam');
-    expect(exam.querySelector('button')).toBeNull();
-    expect(exam.textContent).toContain('Free includes 3 projects.');
-    expect(exam.querySelector('a')?.getAttribute('href')).toBe('/pricing');
+    const el = render(
+      createElement(MonoTemplates, { isPro: false, canCreate: false, hasProjects: true, onCreate }),
+    );
+    expect(card(el, 'exam').querySelector('button')).toBeNull();
+    expect(card(el, 'exam').textContent).not.toContain('Free includes 3 projects.');
+    const notes = el.querySelectorAll('[role="note"]');
+    expect(notes).toHaveLength(1);
+    expect(notes[0].textContent).toContain('Free includes 3 projects.');
+    expect(notes[0].querySelector('a')?.getAttribute('href')).toBe('/pricing');
+  });
+
+  it('starts open with no projects and collapsed once there are some', () => {
+    const empty = render(
+      createElement(MonoTemplates, {
+        isPro: false,
+        canCreate: true,
+        hasProjects: false,
+        onCreate: vi.fn(),
+      }),
+    );
+    expect((empty.querySelector('details') as HTMLDetailsElement).open).toBe(true);
+    act(() => {
+      root!.unmount();
+    });
+    container!.remove();
+
+    const busy = render(
+      createElement(MonoTemplates, {
+        isPro: false,
+        canCreate: true,
+        hasProjects: true,
+        onCreate: vi.fn(),
+      }),
+    );
+    const details = busy.querySelector('details') as HTMLDetailsElement;
+    expect(details.open).toBe(false);
+    expect(details.querySelector('summary')?.textContent).toContain('Ready-made systems');
   });
 });
