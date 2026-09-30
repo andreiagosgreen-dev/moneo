@@ -892,7 +892,7 @@ export const uk: Record<TKey, string> = {
   'life.tpl.habit.exercise': 'Вправи 20 хв',
   'life.tpl.habit.read': 'Читати 10 сторінок',
   'life.tpl.habit.meditate': 'Медитація 10 хв',
-  'life.tpl.habit.inbox': 'Inbox zero',
+  'life.tpl.habit.inbox': 'Нуль у вхідних',
   'life.tpl.habit.strength': 'Силове тренування',
   'life.tpl.habit.review': 'Тижневий огляд',
   'life.tpl.habit.family': 'Подзвонити родині',

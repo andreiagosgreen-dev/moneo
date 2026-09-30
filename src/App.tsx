@@ -1,6 +1,6 @@
 import { useMemo, lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
-import MonoNav, { type MonoTab } from './mono/MonoNav';
+import MonoNav, { MONO_NAV_ITEMS, type MonoTab } from './mono/MonoNav';
 import MonoMore from './mono/MonoMore';
 import MonoHead from './mono/MonoHead';
 import MonoFocus from './mono/MonoFocus';
@@ -173,13 +173,8 @@ import MorningRitual from './components/MorningRitual';
 import ShutdownRitual from './components/ShutdownRitual';
 import { OvercommitWarning } from './components/OvercommitWarning';
 import {
-  createI18n,
-  loadDictionary,
-  loadLocale,
-  en as enDict,
-  type Dictionary,
-  type Locale,
-} from './lib/i18n';
+import { createI18n, loadDictionary, type Dictionary, type Locale } from './lib/i18n';
+import { initialAppTab } from './lib/appLaunch';
 import { LocaleProvider } from './lib/i18n/LocaleContext';
 import {
   loadEstimateProfiles,
@@ -321,12 +316,18 @@ const BOOT = (() => {
   };
 })();
 
-export default function App() {
+export interface AppProps {
+  initialLocale: Locale;
+  initialDictionary: Dictionary;
+}
+
+export default function App({ initialLocale, initialDictionary }: AppProps) {
   const auth = useAuth();
   const [tab, setTab] = useState<MonoTab>(() =>
-    BOOT.history.length === 0 && BOOT.projects.length === 0 && BOOT.tasks.length === 0
-      ? 'today'
-      : 'focus',
+    initialAppTab(
+      window.location.search,
+      BOOT.history.length > 0 || BOOT.projects.length > 0 || BOOT.tasks.length > 0,
+    ),
   );
   /** Origin tab after a jump-to-fill — Back button returns here. */
   const [returnTo, setReturnTo] = useState<MonoTab | null>(null);
@@ -434,19 +435,17 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(() => !loadOnboardingSeen());
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(BOOT.selectedProjectId);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [locale, setLocale] = useState<Locale>(loadLocale);
-  const [i18nDict, setI18nDict] = useState<Dictionary>(enDict);
-
-  // Load the active locale dictionary on boot and whenever the user switches.
-  useEffect(() => {
-    let cancelled = false;
-    loadDictionary(locale).then((dict) => {
-      if (!cancelled) setI18nDict(dict);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [locale]);
+  const [locale, setLocale] = useState<Locale>(initialLocale);
+  const [i18nDict, setI18nDict] = useState<Dictionary>(initialDictionary);
+  const localeRequestRef = useRef(0);
+  const changeLocale = async (next: Locale) => {
+    const request = ++localeRequestRef.current;
+    if (next === locale) return;
+    const dictionary = await loadDictionary(next);
+    if (request !== localeRequestRef.current) return;
+    setI18nDict(dictionary);
+    setLocale(next);
+  };
   // Faza 6 estimate learner: self-persisted profiles (not part of sync state).
   const [estProfiles, setEstProfiles] = useState<EstimateProfiles>(loadEstimateProfiles);
   useEffect(() => {
@@ -1214,7 +1213,14 @@ export default function App() {
                 onQuickAdd={handleQuickAdd}
               />
               <div className="mono mono-shell">
-                <div className="mono-shell-inner">
+                <div
+                  id="mono-tabpanel"
+                  role="tabpanel"
+                  aria-label={t(
+                    MONO_NAV_ITEMS.find((item) => item.id === tab)?.label ?? 'mono.nav.more',
+                  )}
+                  className="mono-shell-inner"
+                >
                   {returnTo && returnTo !== tab ? (
                     <MonoReturn to={returnTo} onBack={goBack} />
                   ) : null}

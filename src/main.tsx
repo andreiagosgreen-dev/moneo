@@ -33,7 +33,15 @@ applyAtmosphere(loadAtmosphere());
 initErrorReporting();
 
 const loadApp = () => import('./AppRoot');
-const AppRoot = lazy(loadApp);
+const AppRoot = lazy(async () => {
+  const locale = loadLocale();
+  const [mod, i18n] = await Promise.all([loadApp(), import('./lib/i18n')]);
+  const dictionary = await i18n.loadDictionary(locale);
+  const Root = mod.default;
+  return {
+    default: () => <Root initialLocale={locale} initialDictionary={dictionary} />,
+  };
+});
 
 const Landing = lazy(async () => {
   const locale = loadLocale();

@@ -77,7 +77,7 @@ describe('MonoSettings', () => {
       c.querySelector(`[data-testid="set-${id}"] summary`)?.textContent;
     expect(summary('timer')).toContain('Focus 30 min · Break 5 min · Daily goal: 6');
     expect(summary('alerts')).toContain('Chime off');
-    expect(summary('look')).toContain('Ritual · Light');
+    expect(summary('look')).toContain('Ritual · Theme: Light');
     expect(summary('lang')).toContain('English');
     expect(summary('plan')).toContain('You are on Free');
     expect(c.textContent).toContain('Saved on this device');

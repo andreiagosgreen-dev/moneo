@@ -56,11 +56,18 @@ import '@fontsource/newsreader/600.css';
 import '@fontsource/newsreader/700.css';
 import App from './App';
 import { AuthProvider } from './lib/authProvider';
+import type { Dictionary, Locale } from './lib/i18n';
 
-export default function AppRoot() {
+export default function AppRoot({
+  initialLocale,
+  initialDictionary,
+}: {
+  initialLocale: Locale;
+  initialDictionary: Dictionary;
+}) {
   return (
     <AuthProvider>
-      <App />
+      <App initialLocale={initialLocale} initialDictionary={initialDictionary} />
     </AuthProvider>
   );
 }

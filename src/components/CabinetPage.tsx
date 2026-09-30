@@ -96,7 +96,10 @@ export default function CabinetPage() {
 
   if (auth.status !== 'authenticated' || !auth.user) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-4">
+      <div
+        className="atm-root mono-public flex min-h-screen items-center justify-center px-4"
+        data-atmosphere={resolveAtmosphere(loadAtmosphere(), auth.isPro)}
+      >
         <div className="card px-7 py-8 text-center">
           <p className="text-sm text-faint">
             {auth.status === 'loading' ? t('account.checking') : t('cabinet.subtitle')}
@@ -117,7 +120,10 @@ export default function CabinetPage() {
   const user = auth.user;
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div
+      className="atm-root mono-public relative min-h-screen overflow-hidden"
+      data-atmosphere={resolveAtmosphere(loadAtmosphere(), auth.isPro)}
+    >
       <div className="bg-grid" aria-hidden />
       <div className="bg-grain" aria-hidden />
 
