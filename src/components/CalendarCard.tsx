@@ -72,7 +72,12 @@ export default function CalendarCard({
   externalEvents = [],
 }: Props) {
   const [adding, setAdding] = useState(false);
-  const [view, setView] = useState<'week' | 'list'>('week');
+  // Below `sm` the week grid stacks into seven tall timelines, so phones start on the list.
+  const [view, setView] = useState<'week' | 'list'>(() =>
+    typeof window !== 'undefined' && window.matchMedia?.('(max-width: 639.98px)').matches
+      ? 'list'
+      : 'week',
+  );
   const { t, tp, tag, fmtDur, fmtClock } = useI18n();
 
   /** Locale weekday names (Jan 4 2026 was a Sunday). */
@@ -167,6 +172,7 @@ export default function CalendarCard({
             <button
               key={v}
               onClick={() => setView(v)}
+              aria-pressed={view === v}
               className={`press shrink-0 rounded-lg px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] transition-colors ${
                 view === v ? 'bg-cream/10 text-cream' : 'text-faint hover:text-sage'
               }`}
@@ -331,6 +337,10 @@ export default function CalendarCard({
             );
           })}
         </div>
+      ) : !anyBlocks ? (
+        <p className="mt-3 px-1 text-[13px] text-sage">
+          {t(isPro ? 'cal.emptyPro' : 'cal.emptyFree')}
+        </p>
       ) : (
         <ul className="mt-3 space-y-2">
           {weekKeys.map((key) => {
@@ -398,6 +408,15 @@ export default function CalendarCard({
                           <span className="shrink-0 font-mono text-[10px] text-faint">
                             {projects.find((p) => p.id === b.projectId)?.name ?? t('cal.deleted')}
                           </span>
+                        )}
+                        {isPro && (
+                          <button
+                            onClick={() => commit(deleteBlock(blocks, b.id))}
+                            className="press shrink-0 rounded p-1.5 text-cream/40 hover:text-tomato"
+                            aria-label={t('cal.delBlock', { label: b.label })}
+                          >
+                            <TrashIcon />
+                          </button>
                         )}
                       </li>
                     ))}
