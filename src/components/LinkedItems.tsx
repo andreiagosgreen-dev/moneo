@@ -107,24 +107,34 @@ export default function LinkedItems({
   };
 
   return (
-    <div className="mt-2">
-      <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
-        {t('linkedItems.heading')}
-      </p>
+    <div className="mono-stack" style={{ gap: 8 }}>
+      <p className="mono-caption">{t('linkedItems.heading')}</p>
       {mine.length > 0 && (
-        <div className="mt-1.5 flex flex-wrap gap-1.5">
+        <div className="mono-inline" style={{ gap: 6 }}>
           {mine.map((link) => {
             const side = otherSide(link, entityType, entityId);
             return (
               <span
                 key={link.id}
-                className="flex items-center gap-1 rounded-full bg-ink/60 px-2.5 py-1 font-mono text-[10px] text-sage ring-1 ring-inset ring-line"
+                className="mono-tag"
+                style={{ fontSize: 13.5, padding: '4px 10px' }}
               >
-                <span className="text-faint">{t(TYPE_LABEL[side.type])}</span>
-                <span className="max-w-[160px] truncate">{resolveTitle(side.type, side.id)}</span>
+                <span>{t(TYPE_LABEL[side.type])}</span>
+                <span
+                  style={{
+                    maxWidth: 160,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    color: 'var(--mono-fg)',
+                  }}
+                >
+                  {resolveTitle(side.type, side.id)}
+                </span>
                 <button
                   onClick={() => onLinksChange(removeLink(links, link.id))}
-                  className="press text-faint hover:text-tomato"
+                  className="mono-link-btn"
+                  style={{ minHeight: 24, textDecoration: 'none', color: 'inherit' }}
                   aria-label={t('linkedItems.removeLink')}
                 >
                   ✕
@@ -135,7 +145,7 @@ export default function LinkedItems({
         </div>
       )}
 
-      <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+      <div className="mono-inline" style={{ gap: 6 }}>
         {otherTypes.map((type) => (
           <button
             key={type}
@@ -143,11 +153,8 @@ export default function LinkedItems({
               setPickType(pickType === type ? null : type);
               setFilter('');
             }}
-            className={`press rounded-full px-2.5 py-1 font-mono text-[10px] ring-1 ring-inset ${
-              pickType === type
-                ? 'text-accent ring-accent/50'
-                : 'text-faint ring-line hover:text-cream'
-            }`}
+            aria-pressed={pickType === type}
+            className="mono-chip mono-chip-sm"
           >
             + {t(TYPE_LABEL[type])}
           </button>
@@ -155,28 +162,29 @@ export default function LinkedItems({
       </div>
 
       {pickType && (
-        <div className="mt-1.5">
+        <div className="mono-stack" style={{ gap: 8 }}>
           {pickType !== 'journal' && (
             <input
               type="text"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               placeholder={t('linkedItems.searchPlaceholder')}
-              className="h-8 w-full rounded-lg bg-ink/50 px-2.5 text-[12px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
+              aria-label={t('linkedItems.searchPlaceholder')}
+              className="mono-field mono-field-sm"
             />
           )}
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
+          <div className="mono-inline" style={{ gap: 6 }}>
             {candidatesFor(pickType).map((c) => (
               <button
                 key={c.id}
                 onClick={() => addLink(pickType, c.id)}
-                className="press rounded-lg bg-ink/50 px-2.5 py-1.5 font-mono text-[11px] text-sage ring-1 ring-inset ring-line hover:text-cream"
+                className="mono-btn mono-btn-ghost mono-btn-sm"
               >
                 {c.title}
               </button>
             ))}
             {candidatesFor(pickType).length === 0 && (
-              <p className="font-mono text-[10px] text-faint">{t('linkedItems.noCandidates')}</p>
+              <p className="mono-caption">{t('linkedItems.noCandidates')}</p>
             )}
           </div>
         </div>

@@ -149,22 +149,19 @@ export default function RoadmapPanel({
   const doneCount = roadmap ? roadmap.steps.filter((s) => s.done).length : 0;
 
   return (
-    <div className="mt-4 space-y-3 rounded-xl bg-ink/30 px-3 py-3 ring-1 ring-line">
-      <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent">
+    <div className="mono-item mono-stack">
+      <p className="mono-eyebrow" style={{ margin: 0 }}>
         {t('assist.roadmap.kicker')}
       </p>
 
-      <div className="flex flex-wrap gap-1.5" role="group" aria-label={t('assist.roadmap.groups')}>
+      <div className="mono-inline" role="group" aria-label={t('assist.roadmap.groups')}>
         {ROADMAP_GROUPS.map((g) => (
           <button
             key={g}
             type="button"
             onClick={() => pickGroup(g)}
-            className={`press rounded-full px-2.5 py-1 font-mono text-[11px] ring-1 ring-inset ${
-              group === g
-                ? 'bg-accent/20 text-cream ring-accent/50'
-                : 'text-sage ring-line hover:text-cream'
-            }`}
+            aria-pressed={group === g}
+            className="mono-chip mono-chip-sm"
           >
             {t(GROUP_KEY[g])}
           </button>
@@ -177,11 +174,13 @@ export default function RoadmapPanel({
         rows={2}
         maxLength={500}
         placeholder={t('assist.roadmap.goalPh')}
-        className="w-full resize-y rounded-lg bg-ink/40 px-3 py-2 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
+        aria-label={t('assist.roadmap.goalPh')}
+        className="mono-field"
+        style={{ resize: 'vertical' }}
       />
 
-      <div className="flex flex-wrap items-center gap-2">
-        <label className="flex items-center gap-2 text-[12px] text-sage">
+      <div className="mono-inline">
+        <label className="mono-row mono-caption" style={{ gap: 8 }}>
           {t('assist.roadmap.hoursWeek')}
           <input
             type="number"
@@ -191,33 +190,39 @@ export default function RoadmapPanel({
             onChange={(e) =>
               setHoursPerWeek(Math.min(40, Math.max(1, Number(e.target.value) || 1)))
             }
-            className="h-8 w-16 rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line"
+            className="mono-field mono-field-sm mono-field-auto"
+            style={{ width: 72 }}
           />
         </label>
         <button
           type="button"
           onClick={build}
           disabled={busy || !goal.trim()}
-          className="press btn-accent rounded-lg px-3 py-2 text-[12px] font-semibold disabled:opacity-40"
+          className="mono-btn mono-btn-primary mono-btn-sm"
         >
           {busy ? t('assist.roadmap.building') : t('assist.roadmap.build')}
         </button>
       </div>
 
-      <details className="rounded-lg bg-ink/20 px-2 py-1.5 ring-1 ring-inset ring-line/60">
-        <summary className="cursor-pointer font-mono text-[11px] text-sage hover:text-cream">
-          {t('assist.roadmap.aiSettings')}
+      <details className="mono-set-group">
+        <summary className="mono-set-summary" style={{ minHeight: 44, padding: '8px 12px' }}>
+          <span className="mono-caption" style={{ flex: 1 }}>
+            {t('assist.roadmap.aiSettings')}
+          </span>
+          <span className="mono-tpl-chev" aria-hidden="true">
+            ›
+          </span>
         </summary>
-        <div className="mt-2 space-y-2 pb-1">
-          {!byokOk ? <p className="text-[11px] text-faint">{t('assist.roadmap.byokPro')}</p> : null}
+        <div className="mono-set-body mono-stack" style={{ padding: '0 12px 12px' }}>
+          {!byokOk ? <p className="mono-caption">{t('assist.roadmap.byokPro')}</p> : null}
           <div className="grid gap-2 sm:grid-cols-2">
-            <label className="block text-[11px] text-sage">
+            <label className="mono-stack mono-caption" style={{ gap: 4 }}>
               {t('assist.roadmap.provider')}
               <select
                 value={byokOk ? cfg.provider : 'local'}
                 disabled={!byokOk}
                 onChange={(e) => persistCfg({ ...cfg, provider: e.target.value as ByokProvider })}
-                className="mt-1 h-9 w-full rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none disabled:opacity-50"
+                className="mono-field mono-field-sm"
               >
                 {(byokOk ? BYOK_PROVIDERS : (['local'] as ByokProvider[])).map((p) => (
                   <option key={p} value={p}>
@@ -226,7 +231,7 @@ export default function RoadmapPanel({
                 ))}
               </select>
             </label>
-            <label className="block text-[11px] text-sage">
+            <label className="mono-stack mono-caption" style={{ gap: 4 }}>
               {t('assist.roadmap.apiKey')}
               <input
                 type="password"
@@ -235,14 +240,14 @@ export default function RoadmapPanel({
                 disabled={!byokOk || cfg.provider === 'local'}
                 onChange={(e) => persistCfg({ ...cfg, key: e.target.value })}
                 placeholder={t('assist.roadmap.apiKeyPh')}
-                className="mt-1 h-9 w-full rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none disabled:opacity-50"
+                className="mono-field mono-field-sm"
               />
             </label>
           </div>
           {byokOk && cfg.provider !== 'local' ? (
-            <p className="text-[11px] text-faint">{t('assist.roadmap.keyHint')}</p>
+            <p className="mono-caption">{t('assist.roadmap.keyHint')}</p>
           ) : null}
-          <label className="flex items-center gap-2 text-[12px] text-sage">
+          <label className="mono-row mono-caption" style={{ gap: 8 }}>
             <input
               type="checkbox"
               checked={byokOk && cfg.webSearch}
@@ -251,36 +256,39 @@ export default function RoadmapPanel({
             />
             {t('assist.roadmap.webSearch')}
             {!byokOk || cfg.provider !== 'gemini' ? (
-              <span className="text-faint">({t('assist.roadmap.webSearchHint')})</span>
+              <span>({t('assist.roadmap.webSearchHint')})</span>
             ) : null}
           </label>
         </div>
       </details>
 
-      {status ? <p className="text-[12px] text-sage">{status}</p> : null}
+      {status ? <p className="mono-caption">{status}</p> : null}
 
       {draftPath ? (
-        <div className="space-y-2 rounded-lg bg-ink/40 px-3 py-2 ring-1 ring-inset ring-accent/30">
-          <p className="text-[12px] font-semibold text-cream">{t('assist.roadmap.draft')}</p>
-          <ul className="space-y-1 text-[12px] text-sage">
+        <div className="mono-note mono-stack">
+          <p style={{ fontWeight: 600 }}>{t('assist.roadmap.draft')}</p>
+          <ul className="mono-stack" style={{ gap: 4 }}>
             {draftPath.tasks.slice(0, 12).map((task) => (
               <li key={task.draftId}>
-                {task.title} <span className="text-faint">({fmtNum(task.pomodoros * 25)}m)</span>
+                {task.title}{' '}
+                <span className="mono-caption" style={{ display: 'inline' }}>
+                  ({fmtNum(task.pomodoros * 25)}m)
+                </span>
               </li>
             ))}
           </ul>
-          <div className="flex flex-wrap gap-2">
+          <div className="mono-inline">
             <button
               type="button"
               onClick={approveDraft}
-              className="press btn-accent rounded-lg px-3 py-1.5 text-[12px] font-semibold"
+              className="mono-btn mono-btn-primary mono-btn-sm"
             >
               {t('assist.roadmap.approve')}
             </button>
             <button
               type="button"
               onClick={() => setDraftPath(null)}
-              className="press rounded-lg px-3 py-1.5 text-[12px] text-sage ring-1 ring-inset ring-line"
+              className="mono-btn mono-btn-ghost mono-btn-sm"
             >
               {t('assist.roadmap.discard')}
             </button>
@@ -289,7 +297,10 @@ export default function RoadmapPanel({
       ) : null}
 
       {roadmap ? (
-        <div className="space-y-3 border-t border-line/60 pt-3">
+        <div
+          className="mono-stack"
+          style={{ paddingTop: 12, borderTop: '1px solid var(--mono-border)' }}
+        >
           <div className="mono-rm-hero">
             <RoadmapProgressRing
               pct={pct}
@@ -300,16 +311,16 @@ export default function RoadmapPanel({
               size={52}
             />
             <div className="mono-rm-hero-meta">
-              <p className="text-[14px] font-semibold text-cream">{roadmap.title}</p>
+              <p className="mono-h3">{roadmap.title}</p>
               {eta ? (
-                <p className="text-[11px] text-sage">
+                <p className="mono-caption">
                   {t('assist.roadmap.etaShort', {
                     days: fmtNum(eta.daysLeft),
                     pace: fmtNum(eta.paceMinPerDay),
                   })}
                 </p>
               ) : null}
-              <p className="mt-1 text-[12px] text-accent">
+              <p className="mono-caption" style={{ marginTop: 4, color: 'var(--mono-accent)' }}>
                 {next
                   ? t('assist.roadmap.next', { step: next.title })
                   : t('assist.roadmap.stripDone')}
@@ -319,8 +330,8 @@ export default function RoadmapPanel({
 
           <RoadmapJourneyTrack steps={roadmap.steps} />
 
-          <div className="flex flex-wrap items-center gap-2">
-            <label className="flex items-center gap-1 text-[11px] text-sage">
+          <div className="mono-inline">
+            <label className="mono-row mono-caption" style={{ gap: 8 }}>
               {t('assist.roadmap.pace')}
               <input
                 type="number"
@@ -332,13 +343,14 @@ export default function RoadmapPanel({
                     setPlannedPace(roadmap, Number(e.target.value) || roadmap.plannedMinPerDay),
                   )
                 }
-                className="h-7 w-14 rounded bg-ink/40 px-1 text-cream ring-1 ring-inset ring-line"
+                className="mono-field mono-field-sm mono-field-auto"
+                style={{ width: 80 }}
               />
             </label>
             {roadmap.projectId && onWorkFocus ? (
               <button
                 type="button"
-                className="press rounded-md px-2 py-1 font-mono text-[11px] text-accent ring-1 ring-inset ring-accent/40"
+                className="mono-btn mono-btn-primary mono-btn-sm"
                 onClick={() => onWorkFocus(roadmap.projectId!, next?.taskId ?? null)}
               >
                 {t('assist.roadmap.openFocus')}
@@ -348,14 +360,15 @@ export default function RoadmapPanel({
 
           <RoadmapJourneyTrail steps={roadmap.steps}>
             {(step) => (
-              <div className="flex items-start gap-2 rounded-lg bg-ink/40 px-2 py-1.5 ring-1 ring-inset ring-line">
+              <div className="mono-item mono-row" style={{ gap: 8, padding: '6px 10px' }}>
                 <input
                   type="checkbox"
                   checked={step.done}
                   onChange={(e) =>
                     onRoadmapChange(updateStep(roadmap, step.id, { done: e.target.checked }))
                   }
-                  className="mt-1"
+                  aria-label={step.title}
+                  style={{ accentColor: 'var(--mono-accent)' }}
                 />
                 <input
                   type="text"
@@ -363,7 +376,8 @@ export default function RoadmapPanel({
                   onChange={(e) =>
                     onRoadmapChange(updateStep(roadmap, step.id, { title: e.target.value }))
                   }
-                  className="min-w-0 flex-1 bg-transparent text-[12px] text-cream focus:outline-none"
+                  className="mono-field mono-field-sm"
+                  style={{ flex: 1, minWidth: 0, background: 'transparent' }}
                 />
                 <input
                   type="number"
@@ -377,13 +391,16 @@ export default function RoadmapPanel({
                       }),
                     )
                   }
-                  className="h-7 w-14 rounded bg-ink/50 px-1 text-[11px] text-cream ring-1 ring-inset ring-line"
+                  className="mono-field mono-field-sm mono-field-auto"
+                  style={{ width: 72 }}
                   title={t('assist.roadmap.stepMin')}
+                  aria-label={t('assist.roadmap.stepMin')}
                 />
                 <button
                   type="button"
                   aria-label={t('assist.roadmap.moveUp')}
-                  className="text-[11px] text-sage"
+                  className="mono-link-btn"
+                  style={{ textDecoration: 'none' }}
                   onClick={() => onRoadmapChange(moveStep(roadmap, step.id, -1))}
                 >
                   ↑
@@ -391,7 +408,8 @@ export default function RoadmapPanel({
                 <button
                   type="button"
                   aria-label={t('assist.roadmap.moveDown')}
-                  className="text-[11px] text-sage"
+                  className="mono-link-btn"
+                  style={{ textDecoration: 'none' }}
                   onClick={() => onRoadmapChange(moveStep(roadmap, step.id, 1))}
                 >
                   ↓
@@ -399,7 +417,8 @@ export default function RoadmapPanel({
                 <button
                   type="button"
                   aria-label={t('assist.roadmap.deleteStep')}
-                  className="text-[11px] text-tomato"
+                  className="mono-link-btn"
+                  style={{ textDecoration: 'none', color: 'var(--mono-danger)' }}
                   onClick={() => onRoadmapChange(removeStep(roadmap, step.id))}
                 >
                   ×
@@ -408,17 +427,20 @@ export default function RoadmapPanel({
             )}
           </RoadmapJourneyTrail>
 
-          <div className="flex gap-2">
+          <div className="mono-row" style={{ gap: 8 }}>
             <input
               type="text"
               value={newStep}
               onChange={(e) => setNewStep(e.target.value)}
               placeholder={t('assist.roadmap.addStep')}
-              className="h-8 min-w-0 flex-1 rounded-lg bg-ink/40 px-2 text-[12px] text-cream ring-1 ring-inset ring-line"
+              aria-label={t('assist.roadmap.addStep')}
+              className="mono-field mono-field-sm"
+              style={{ flex: 1, minWidth: 0 }}
             />
             <button
               type="button"
-              className="press rounded-lg px-2 text-[12px] text-cream ring-1 ring-inset ring-line"
+              aria-label={t('assist.roadmap.addStep')}
+              className="mono-btn mono-btn-ghost mono-btn-sm"
               onClick={() => {
                 if (!newStep.trim()) return;
                 if (onAddStep) onAddStep(newStep.trim());

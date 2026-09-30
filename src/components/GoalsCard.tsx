@@ -250,20 +250,16 @@ export default function GoalsCard({
   };
 
   return (
-    <section className="card flex h-full flex-col px-6 py-6 sm:px-7" aria-label={t('goal.aria')}>
-      <header className="flex items-baseline justify-between gap-3">
-        <div>
-          <h2 className="font-display text-xl font-bold tracking-tight text-cream">
-            {t('goal.title')}
-          </h2>
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.14em] text-sage">
-            {isPro ? t('goal.subPro') : t('goal.subFree', { n: fmtNum(FREE_GOALS_LIMIT) })}
-          </p>
-        </div>
+    <section className="mono-card mono-panel" aria-label={t('goal.aria')}>
+      <header className="mono-panel-head">
+        <h2 className="mono-h2">{t('goal.title')}</h2>
+        <p className="mono-meta">
+          {isPro ? t('goal.subPro') : t('goal.subFree', { n: fmtNum(FREE_GOALS_LIMIT) })}
+        </p>
       </header>
 
       {conflicts.length > 0 && (
-        <p className="mt-3 rounded-lg bg-tomato/10 px-3 py-2 font-mono text-[11px] text-tomato ring-1 ring-inset ring-tomato/30">
+        <p className="mono-note mono-note-danger">
           {tp('goal.clash', conflicts.length, {
             a: conflicts[0].a.title,
             b: conflicts[0].b.title,
@@ -273,15 +269,15 @@ export default function GoalsCard({
       )}
 
       {roots.length === 0 ? (
-        <div className="empty-panel mt-4">
-          <p className="text-[13px] leading-relaxed text-sage">
+        <div className="mono-empty">
+          <p className="mono-meta">
             {t('goal.emptyA')}
             <br />
             {t('goal.emptyB')}
           </p>
         </div>
       ) : (
-        <ul className="mt-4 space-y-2">
+        <ul className="mono-stack">
           {visibleRoots.map((g) => (
             <GoalNode
               key={g.id}
@@ -307,25 +303,25 @@ export default function GoalsCard({
       )}
 
       {!atCapacity ? (
-        <div className="mt-3 space-y-2">
-          <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
-            <input
-              type="text"
-              value={draft}
-              maxLength={80}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && add()}
-              placeholder={t('goal.ph')}
-              aria-label={t('goal.add')}
-              className="h-9 min-w-0 grow basis-full rounded-lg sm:basis-0 bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
-            />
+        <div className="mono-stack">
+          <input
+            type="text"
+            value={draft}
+            maxLength={80}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && add()}
+            placeholder={t('goal.ph')}
+            aria-label={t('goal.add')}
+            className="mono-field"
+          />
+          <div className="mono-inline">
             <select
               value={draftLevel}
               onChange={(e) => {
                 setDraftLevel(e.target.value as GoalLevel);
                 setDraftParent('');
               }}
-              className="h-9 min-w-0 grow rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none sm:shrink-0 sm:grow-0"
+              className="mono-field mono-field-sm"
               aria-label={t('goal.level')}
             >
               {GOAL_LEVELS.map((l) => (
@@ -337,17 +333,16 @@ export default function GoalsCard({
             <button
               onClick={add}
               disabled={!draft.trim()}
-              className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
-              aria-label={t('goal.add')}
+              className="mono-btn mono-btn-primary mono-btn-sm"
             >
-              +
+              {t('goal.add')}
             </button>
           </div>
           {validParents(goals, draftLevel).length > 0 && (
             <select
               value={draftParent}
               onChange={(e) => setDraftParent(e.target.value)}
-              className="h-9 w-full rounded-lg bg-ink/40 px-2 text-sm text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+              className="mono-field mono-field-sm"
               aria-label={t('goal.parent')}
             >
               <option value="">{t('goal.noParent')}</option>
@@ -361,34 +356,32 @@ export default function GoalsCard({
         </div>
       ) : (
         !isPro && (
-          <div className="mt-3 rounded-xl border border-accent/30 bg-accent/10 p-3.5">
-            <p className="text-[12px] leading-relaxed text-cream">
-              {t('goal.cap', { n: fmtNum(FREE_GOALS_LIMIT) })}
-            </p>
-            <p className="mt-1 font-mono text-[11px] text-faint">{t('goal.capBody')}</p>
+          <div className="mono-note">
+            <p>{t('goal.cap', { n: fmtNum(FREE_GOALS_LIMIT) })}</p>
+            <p className="mono-caption">{t('goal.capBody')}</p>
           </div>
         )
       )}
 
       {archived.length > 0 && (
-        <div className="mt-3 border-t border-line/60 pt-2">
+        <div>
           <button
             onClick={() => setShowArchived(!showArchived)}
-            className="press font-mono text-[11px] uppercase tracking-[0.18em] text-faint hover:text-sage"
+            aria-expanded={showArchived}
+            className="mono-link-btn"
           >
             {t('goal.archived', { n: fmtNum(archived.length) })} {showArchived ? '▴' : '▾'}
           </button>
           {showArchived && (
-            <ul className="mt-2 space-y-1">
+            <ul className="mono-stack">
               {archived.map((g) => (
-                <li
-                  key={g.id}
-                  className="flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 opacity-70"
-                >
-                  <span className="truncate text-[13px] text-cream/80">{g.title}</span>
+                <li key={g.id} className="mono-between" style={{ gap: 8, opacity: 0.75 }}>
+                  <span className="mono-meta" style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+                    {g.title}
+                  </span>
                   <button
                     onClick={() => goalsChange(updateGoal(goals, g.id, { archived: false }))}
-                    className="press shrink-0 font-mono text-[11px] text-faint hover:text-cream"
+                    className="mono-btn mono-btn-ghost mono-btn-sm"
                   >
                     {t('goal.restore')}
                   </button>
@@ -459,45 +452,39 @@ function GoalNode({
 
   return (
     <li>
-      <div className="rounded-xl bg-ink/40 px-3.5 py-3 ring-1 ring-inset ring-line">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowDetails(!showDetails)}
-            className="min-w-0 flex-1 truncate text-left text-sm font-semibold text-cream hover:text-accent"
-          >
+      <div className="mono-item">
+        <div className="mono-row" style={{ gap: 10 }}>
+          <button onClick={() => setShowDetails(!showDetails)} className="mono-item-title">
             {goal.title}
           </button>
-          <span className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-faint">
-            {t(GOAL_SHORT_KEYS[goal.level] as TKey)}
-          </span>
-          <span className="shrink-0 font-mono text-[11px] text-sage">{pct}%</span>
+          <span className="mono-tag">{t(GOAL_SHORT_KEYS[goal.level] as TKey)}</span>
+          <span className="mono-caption">{pct}%</span>
           <button
             onClick={() => setShowDetails(!showDetails)}
-            className="press shrink-0 rounded p-1 font-mono text-[11px] text-faint hover:text-cream"
+            className="mono-btn mono-btn-ghost mono-btn-sm"
+            aria-expanded={showDetails}
             aria-label={t(showDetails ? 'goal.hideDetails' : 'goal.showDetails')}
           >
             ⋯
           </button>
         </div>
-        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-ink/80 ring-1 ring-line">
-          <div
-            className="h-full rounded-full transition-all duration-500"
-            style={{
-              width: `${pct}%`,
-              background: 'linear-gradient(90deg, var(--accent-deep), var(--accent))',
-            }}
-          />
+        <div className="mono-progress" style={{ marginTop: 10 }}>
+          <span style={{ width: `${pct}%` }} />
         </div>
         {showDetails && (
-          <div className="mt-2.5 space-y-2 border-t border-line/60 pt-2.5">
-            <div className="flex flex-wrap items-center gap-2">
+          <div
+            className="mono-stack"
+            style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--mono-border)' }}
+          >
+            <div className="mono-inline">
               <select
                 value={goal.projectId ?? ''}
                 onChange={(e) =>
                   goalsChange(updateGoal(goals, goal.id, { projectId: e.target.value || null }))
                 }
-                className="h-8 min-w-0 flex-1 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+                className="mono-field mono-field-sm"
                 title={t('goal.linkTitle')}
+                aria-label={t('goal.linkTitle')}
               >
                 <option value="">{t('goal.noProject')}</option>
                 {liveProjects.map((p) => (
@@ -521,12 +508,13 @@ function GoalNode({
                       }),
                     );
                 }}
-                className="h-8 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+                className="mono-field mono-field-sm mono-field-auto"
                 title={t('goal.targetDate')}
+                aria-label={t('goal.targetDate')}
               />
             </div>
             {!goal.projectId && kids.length === 0 && (
-              <div className="flex items-center gap-2">
+              <div className="mono-row" style={{ gap: 10 }}>
                 <input
                   type="range"
                   min={0}
@@ -535,22 +523,16 @@ function GoalNode({
                   onChange={(e) =>
                     goalsChange(updateGoal(goals, goal.id, { progress: Number(e.target.value) }))
                   }
-                  className="h-1.5 flex-1 accent-[var(--accent)]"
+                  style={{ flex: 1, accentColor: 'var(--mono-accent)' }}
                   aria-label={t('goal.manual')}
                 />
-                <span className="font-mono text-[11px] text-sage">{goal.progress ?? 0}%</span>
+                <span className="mono-caption">{goal.progress ?? 0}%</span>
               </div>
             )}
-            {linked && (
-              <p className="font-mono text-[10px] text-faint">
-                {t('goal.mirrors', { name: linked.name })}
-              </p>
-            )}
+            {linked && <p className="mono-caption">{t('goal.mirrors', { name: linked.name })}</p>}
             {goal.targetDate && (
-              <div className="space-y-1">
-                <label className="font-mono text-[10px] text-faint">
-                  {t('goals.node.capsuleNoteLabel')}
-                </label>
+              <label className="mono-stack" style={{ gap: 6 }}>
+                <span className="mono-caption">{t('goals.node.capsuleNoteLabel')}</span>
                 <textarea
                   value={goal.capsuleNote ?? ''}
                   onChange={(e) =>
@@ -559,19 +541,21 @@ function GoalNode({
                   placeholder={t('goals.node.capsuleNotePlaceholder')}
                   rows={2}
                   maxLength={500}
-                  className="w-full resize-none rounded-lg bg-ink/60 px-2 py-1.5 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+                  className="mono-field mono-field-sm"
+                  style={{ resize: 'none' }}
                   title={t('goals.node.capsuleNoteTitle')}
                 />
-              </div>
+              </label>
             )}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="mono-inline">
               <select
                 value={goal.lifeAreaId ?? ''}
                 onChange={(e) =>
                   goalsChange(updateGoal(goals, goal.id, { lifeAreaId: e.target.value || null }))
                 }
-                className="h-8 min-w-0 flex-1 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+                className="mono-field mono-field-sm"
                 title={t('goal.areaTitle')}
+                aria-label={t('goal.areaTitle')}
               >
                 <option value="">{t('goal.noArea')}</option>
                 {lifeAreas.map((a) => (
@@ -581,18 +565,18 @@ function GoalNode({
                 ))}
               </select>
               <span
-                className="shrink-0 font-mono text-[10px] text-sage"
+                className="mono-caption"
                 title={smart.tips.length > 0 ? smart.tips.join(' ') : t('goal.smartFull')}
               >
                 {t('goals.node.smartScore', { score: String(smart.score) })}
               </span>
             </div>
             {blockers.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
+              <div className="mono-inline" style={{ gap: 6 }}>
                 {blockers.map((b) => (
                   <span
                     key={b.id}
-                    className="flex items-center gap-1 rounded-full bg-tomato/15 px-2 py-0.5 font-mono text-[10px] text-tomato"
+                    className="mono-pill mono-pill-danger"
                     title={t('goal.depTitle')}
                   >
                     ⛔ {b.title}
@@ -606,7 +590,8 @@ function GoalNode({
                           ),
                         )
                       }
-                      className="press hover:text-cream"
+                      className="mono-link-btn"
+                      style={{ minHeight: 24, textDecoration: 'none', color: 'inherit' }}
                       aria-label={t('goal.depRemove', { title: b.title })}
                     >
                       ✕
@@ -616,7 +601,7 @@ function GoalNode({
               </div>
             )}
             {depCandidates.length > 0 && (
-              <div className="flex items-center gap-1.5">
+              <div className="mono-inline">
                 <select
                   value=""
                   onChange={(e) => {
@@ -625,7 +610,7 @@ function GoalNode({
                       setGoalBlockedBy(goals, goal.id, [...(goal.blockedBy ?? []), e.target.value]),
                     );
                   }}
-                  className="h-8 min-w-0 flex-1 rounded-lg bg-ink/60 px-2 text-[12px] text-cream ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+                  className="mono-field mono-field-sm"
                   title={t('goal.depFirst')}
                   aria-label={t('goal.depAdd')}
                 >
@@ -638,12 +623,11 @@ function GoalNode({
                 </select>
               </div>
             )}
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="mono-inline">
               {onWorkFocus && (
                 <button
                   onClick={() => onWorkFocus(goal)}
-                  className="press rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-on-accent ring-1 ring-inset ring-accent/40"
-                  style={{ background: 'var(--accent)' }}
+                  className="mono-btn mono-btn-primary mono-btn-sm"
                   title={t('goal.workFocusTitle')}
                 >
                   {t('goal.workFocus')}
@@ -651,21 +635,21 @@ function GoalNode({
               )}
               <button
                 onClick={() => onGenerate(goal)}
-                className="press rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream disabled:opacity-40"
+                className="mono-btn mono-btn-ghost mono-btn-sm"
                 title={t('goal.genTitle')}
               >
                 {t('goal.gen')}
               </button>
               <button
                 onClick={() => onSendToToday(goal)}
-                className="press rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-sage ring-1 ring-inset ring-line hover:text-cream"
+                className="mono-btn mono-btn-ghost mono-btn-sm"
                 title={t('goal.todayTitle')}
               >
                 {t('goal.today')}
               </button>
               <button
                 onClick={() => goalsChange(updateGoal(goals, goal.id, { archived: true }))}
-                className="press rounded-lg px-2.5 py-1.5 text-[11px] text-faint ring-1 ring-inset ring-line hover:text-cream"
+                className="mono-btn mono-btn-ghost mono-btn-sm"
               >
                 {t('goal.archive')}
               </button>
@@ -676,7 +660,8 @@ function GoalNode({
                     onLinksChange(cleanupLinksFor(links, 'goal', goal.id));
                   }
                 }}
-                className="press ml-auto rounded-lg px-2.5 py-1.5 text-[11px] text-faint ring-1 ring-inset ring-line hover:text-tomato"
+                className="mono-btn mono-btn-ghost mono-btn-sm mono-btn-danger"
+                style={{ marginLeft: 'auto' }}
               >
                 {t('goal.delete')}
               </button>
@@ -695,7 +680,7 @@ function GoalNode({
         )}
       </div>
       {kids.length > 0 && (
-        <ul className="ml-4 mt-2 space-y-2 border-l-2 border-line/50 pl-2">
+        <ul className="mono-stack mono-tree">
           {kids.map((k) => (
             <GoalNode
               key={k.id}

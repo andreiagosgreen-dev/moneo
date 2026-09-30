@@ -4675,11 +4675,317 @@
   flex-direction: column;
   gap: 16px;
 }
+.mono-set-rows > * + * {
+  border-top: 1px solid var(--mono-border);
+}
+.mono-set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+}
+.mono-set-row-col {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+.mono-set-row-wrap {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+.mono-set-copy {
+  min-width: 0;
+  flex: 1;
+}
+.mono-set-row-wrap > .mono-set-copy {
+  min-width: min(100%, 12rem);
+}
+.mono-set-label {
+  display: block;
+  font-size: 15.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--mono-fg-2);
+}
+.mono-set-hint {
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: color-mix(in oklab, var(--mono-muted) 60%, var(--mono-fg) 40%);
+}
+.mono-set-ctl {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+.mono-set-value {
+  display: inline-flex;
+  min-width: 5rem;
+  align-items: baseline;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--mono-bg-2);
+  font-family: var(--mono-font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--mono-fg-2);
+}
+.mono-set-value small {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mono-muted);
+}
+.mono-set-toggle {
+  width: 100%;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.mono-switch {
+  position: relative;
+  width: 46px;
+  height: 26px;
+  flex: 0 0 auto;
+  border-radius: var(--mono-r-pill);
+  background: var(--mono-border-2);
+  transition: background var(--mono-dur) var(--mono-ease);
+}
+.mono-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--mono-surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform var(--mono-dur) var(--mono-ease);
+}
+[aria-checked='true'] > .mono-switch {
+  background: var(--mono-accent);
+}
+[aria-checked='true'] > .mono-switch::after {
+  transform: translateX(20px);
+  background: #fff;
+}
+.mono-set-toggle:focus-visible {
+  outline: 2px solid var(--mono-accent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+.mono-swatch {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px var(--mono-border-2);
+  font-family: var(--mono-font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mono-muted);
+  cursor: pointer;
+}
+.mono-swatch[aria-pressed='true'] {
+  box-shadow:
+    0 0 0 2px var(--mono-surface),
+    0 0 0 4px var(--mono-fg-2);
+}
+.mono-swatch:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.mono-btn-icon {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+}
 .mono-lang-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 10px;
+}
+
+/* Panels: Plan cards and settings internals in the Mono language */
+.mono-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  min-width: 0;
+}
+.mono-panel-head .mono-meta {
+  margin-top: 4px;
+  font-size: 14.5px;
+}
+.mono-note {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--mono-accent-soft);
+  color: var(--mono-fg-2);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.mono-note-danger {
+  background: color-mix(in oklab, var(--mono-danger) 12%, transparent);
+  color: var(--mono-danger);
+}
+.mono-btn-sm {
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 14.5px;
+}
+.mono-btn-danger:not(:disabled):hover {
+  color: var(--mono-danger);
+  box-shadow: inset 0 0 0 1px var(--mono-danger);
+}
+.mono-field-sm {
+  min-height: 42px;
+  padding: 8px 12px;
+  font-size: 15px;
+}
+.mono-field-auto {
+  width: auto;
+  flex: 0 0 auto;
+}
+.mono-chip-sm {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 14px;
+}
+.mono-item {
+  padding: 12px 14px;
+  border: 1px solid var(--mono-border);
+  border-radius: 12px;
+  background: var(--mono-surface);
+}
+.mono-item-title {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  padding: 0;
+  background: none;
+  border: 0;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--mono-fg-2);
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.mono-item-title:hover {
+  color: var(--mono-accent);
+}
+.mono-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.mono-inline > .mono-field:not(.mono-field-auto) {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+.mono-caption {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: color-mix(in oklab, var(--mono-muted) 60%, var(--mono-fg) 40%);
+}
+.mono-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+ul.mono-stack {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mono-plan-current {
+  border-color: var(--mono-accent);
+  background: var(--mono-accent-soft);
+}
+.mono-plan-price {
+  margin: 8px 0 0;
+  font-family: var(--mono-font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--mono-fg-2);
+}
+.mono-plan-price small {
+  font-family: var(--mono-font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--mono-muted);
+}
+ul.mono-plan-features {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--mono-border);
+  gap: 8px;
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--mono-fg);
+}
+.mono-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 16rem;
+  margin: 0;
+  padding: 0 4px 0 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.mono-bubble {
+  max-width: 92%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--mono-bg-2);
+  color: var(--mono-fg);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.mono-bubble-user {
+  margin-left: auto;
+  background: var(--mono-accent-soft);
+  color: var(--mono-fg-2);
+}
+.mono-greet {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--mono-bg-2);
+}
+.mono-greet p {
+  min-width: 0;
+  flex: 1;
+  margin: 0;
+  font-size: 14.5px;
+  color: var(--mono-fg);
+}
+ul.mono-tree {
+  margin: 10px 0 0 14px;
+  padding-left: 12px;
+  border-left: 2px solid var(--mono-border);
 }
 
 /* Move (fitness) */
