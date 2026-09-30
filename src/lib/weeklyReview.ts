@@ -78,12 +78,12 @@ export function weeklyNarrative(input: WeeklyReviewInput, i18n: I18n = EN_I18N):
     return t('weeklyReview.empty');
   }
 
-  const lines: string[] = [t('weeklyReview.header', { date: localDayKey(now) })];
+  const lines: string[] = [t('weeklyReview.header', { date: i18n.fmtDayKey(localDayKey(now)) })];
 
   if (byProject.length > 0) {
     const best = byProject[0];
     lines.push(
-      t('weeklyReview.bestLine', { name: best.project.name, minutes: String(best.minutes) }),
+      t('weeklyReview.bestLine', { name: best.project.name, dur: i18n.fmtDur(best.minutes) }),
     );
   }
 

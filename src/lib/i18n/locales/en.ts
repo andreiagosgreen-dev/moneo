@@ -3029,7 +3029,7 @@ export const en = {
   'weeklyReview.title': 'Weekly review',
   'weeklyReview.empty': 'No focus sessions or stagnating tasks this week — quiet week.',
   'weeklyReview.header': 'Weekly review — {date}',
-  'weeklyReview.bestLine': 'Best work this week: {name} ({minutes}m focused).',
+  'weeklyReview.bestLine': 'Best work this week: {name} ({dur} focused).',
   'weeklyReview.stagnatingLine': 'Stagnating: {list}.',
   'weeklyReview.noStagnation': 'Nothing stagnating — everything open is fresh.',
   'weeklyReview.decisionOverdue':
@@ -3374,4 +3374,5 @@ export const en = {
   'goal.tpl.declutter.task.donate': 'Take a bag to donate',
   'goal.tpl.declutter.task.sell': 'List things to sell',
   'goal.tpl.declutter.habit.tidy': 'Tidy 10 minutes',
+  'recap.tasksDone': '{pct}% of tasks done',
 };
