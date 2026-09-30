@@ -29,6 +29,8 @@ interface Props {
   timezone: string;
   selectedProjectId: string | null;
   selectedTaskId: string | null;
+  /** Project-task ids already on today's plan. */
+  planTaskIds?: ReadonlySet<string>;
 }
 
 const MAX_BOARD_CARDS = 3;
@@ -45,6 +47,7 @@ export default function CommandCenter({
   timezone,
   selectedProjectId,
   selectedTaskId,
+  planTaskIds,
 }: Props) {
   const { t, tp, fmtDayKey } = useI18n();
 
@@ -193,7 +196,7 @@ export default function CommandCenter({
                 {focusTask.title}
               </p>
               <p className="mt-0.5 text-[13px] text-sage">
-                {t(QUADRANT_META[effectiveQuadrant(focusTask)].title)}
+                {t(QUADRANT_META[effectiveQuadrant(focusTask, Date.now(), planTaskIds)].title)}
                 {activeHabit && streak > 0 && ` · ${tp('commandCenter.streak', streak)}`}
               </p>
             </>

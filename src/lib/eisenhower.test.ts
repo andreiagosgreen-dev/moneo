@@ -107,6 +107,39 @@ describe('board aggregation', () => {
   });
 });
 
+describe("today's plan", () => {
+  const planned = new Set(['c']);
+  const tasks = [
+    makeTask({ id: 'a', priority: 'p0', dueAt: NOW + HOUR }),
+    makeTask({ id: 'b', priority: 'p1' }),
+    makeTask({ id: 'c', priority: 'p2', title: 'Planned' }),
+  ];
+
+  it('never suggests Eliminate for a planned task', () => {
+    expect(suggestQuadrant(tasks[2], NOW)).toBe('q4');
+    expect(suggestQuadrant(tasks[2], NOW, planned)).toBe('q1');
+    expect(isUrgent(tasks[2], NOW, planned)).toBe(true);
+    expect(isImportant(tasks[2], planned)).toBe(true);
+  });
+
+  it('keeps the manual override for planned tasks', () => {
+    const t = makeTask({ id: 'c', priority: 'p2', quadrant: 'q4' });
+    expect(effectiveQuadrant(t, NOW, planned)).toBe('q4');
+  });
+
+  it('moves planned tasks across the board aggregates', () => {
+    expect(quadrantCounts(tasks, NOW, planned)).toEqual({ q1: 2, q2: 1, q3: 0, q4: 0 });
+    expect(tasksInQuadrant(tasks, 'q4', NOW, planned)).toEqual([]);
+    expect(quadrantMinutes(tasks, [{ taskId: 'c', min: 20 }], NOW, planned).q1).toBe(20);
+  });
+
+  it('lets the focus pick land on a planned task', () => {
+    const focus = quadrantFocus([tasks[2]], NOW, undefined, planned);
+    expect(focus.quadrant).toBe('q1');
+    expect(focus.task!.title).toBe('Planned');
+  });
+});
+
 describe('quadrantFocus', () => {
   it('picks Q1 first with the most urgent task', () => {
     const tasks = [

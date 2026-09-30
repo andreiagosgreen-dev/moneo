@@ -33,28 +33,44 @@ export const QUADRANT_TEXT_KEYS: Record<
 /** Due within this window counts as urgent (overdue always counts). */
 export const URGENT_WINDOW_MS = 48 * 60 * 60 * 1000;
 
-export function isUrgent(task: Task, now: number = Date.now()): boolean {
+/** Ids of tasks on today's plan: the user already chose them for today. */
+export type PlannedIds = ReadonlySet<string>;
+
+export function isUrgent(task: Task, now: number = Date.now(), planned?: PlannedIds): boolean {
+  if (planned?.has(task.id)) return true;
   if (typeof task.dueAt !== 'number' || !Number.isFinite(task.dueAt)) return false;
   return task.dueAt <= now + URGENT_WINDOW_MS;
 }
 
-export function isImportant(task: Task): boolean {
+export function isImportant(task: Task, planned?: PlannedIds): boolean {
+  if (planned?.has(task.id)) return true;
   return task.priority === 'p0' || task.priority === 'p1';
 }
 
-/** Automatic quadrant from priority + due date (manual override wins). */
-export function suggestQuadrant(task: Task, now: number = Date.now()): TaskQuadrant {
-  const urgent = isUrgent(task, now);
-  const important = isImportant(task);
+/**
+ * Automatic quadrant from priority + due date (manual override wins).
+ * A task on today's plan counts as urgent and important, never "Eliminate".
+ */
+export function suggestQuadrant(
+  task: Task,
+  now: number = Date.now(),
+  planned?: PlannedIds,
+): TaskQuadrant {
+  const urgent = isUrgent(task, now, planned);
+  const important = isImportant(task, planned);
   if (urgent && important) return 'q1';
   if (!urgent && important) return 'q2';
   if (urgent && !important) return 'q3';
   return 'q4';
 }
 
-export function effectiveQuadrant(task: Task, now: number = Date.now()): TaskQuadrant {
+export function effectiveQuadrant(
+  task: Task,
+  now: number = Date.now(),
+  planned?: PlannedIds,
+): TaskQuadrant {
   if (task.quadrant && TASK_QUADRANTS.includes(task.quadrant)) return task.quadrant;
-  return suggestQuadrant(task, now);
+  return suggestQuadrant(task, now, planned);
 }
 
 /** Incomplete tasks only — the board is for action, not archives. */
@@ -66,8 +82,9 @@ export function tasksInQuadrant(
   tasks: Task[],
   quadrant: TaskQuadrant,
   now: number = Date.now(),
+  planned?: PlannedIds,
 ): Task[] {
-  return actionableTasks(tasks).filter((t) => effectiveQuadrant(t, now) === quadrant);
+  return actionableTasks(tasks).filter((t) => effectiveQuadrant(t, now, planned) === quadrant);
 }
 
 export interface QuadrantCounts {
@@ -77,9 +94,13 @@ export interface QuadrantCounts {
   q4: number;
 }
 
-export function quadrantCounts(tasks: Task[], now: number = Date.now()): QuadrantCounts {
+export function quadrantCounts(
+  tasks: Task[],
+  now: number = Date.now(),
+  planned?: PlannedIds,
+): QuadrantCounts {
   const counts: QuadrantCounts = { q1: 0, q2: 0, q3: 0, q4: 0 };
-  for (const t of actionableTasks(tasks)) counts[effectiveQuadrant(t, now)] += 1;
+  for (const t of actionableTasks(tasks)) counts[effectiveQuadrant(t, now, planned)] += 1;
   return counts;
 }
 
@@ -88,6 +109,7 @@ export function quadrantMinutes(
   tasks: Task[],
   history: Array<{ taskId?: string; min: number }>,
   now: number = Date.now(),
+  planned?: PlannedIds,
 ): QuadrantCounts {
   const minutes: QuadrantCounts = { q1: 0, q2: 0, q3: 0, q4: 0 };
   const index = new Map(tasks.map((t) => [t.id, t]));
@@ -95,7 +117,7 @@ export function quadrantMinutes(
     if (!s.taskId || typeof s.min !== 'number') continue;
     const task = index.get(s.taskId);
     if (!task) continue;
-    minutes[effectiveQuadrant(task, now)] += s.min;
+    minutes[effectiveQuadrant(task, now, planned)] += s.min;
   }
   return minutes;
 }
@@ -124,6 +146,7 @@ export function quadrantFocus(
   tasks: Task[],
   now: number = Date.now(),
   i18n: I18n = EN_I18N,
+  planned?: PlannedIds,
 ): QuadrantFocus {
   const order: TaskQuadrant[] = ['q1', 'q2', 'q3', 'q4'];
   const headlines: Record<TaskQuadrant, string> = {
@@ -133,7 +156,7 @@ export function quadrantFocus(
     q4: i18n.t('matrix.head.q4'),
   };
   for (const q of order) {
-    const inQ = tasksInQuadrant(tasks, q, now);
+    const inQ = tasksInQuadrant(tasks, q, now, planned);
     if (inQ.length > 0) return { quadrant: q, headline: headlines[q], task: topTask(inQ) };
   }
   return { quadrant: null, headline: i18n.t('matrix.head.clear'), task: null };

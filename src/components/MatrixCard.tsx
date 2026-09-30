@@ -45,14 +45,14 @@ export default function MatrixCard({
   const { t, tp, tag, fmtDur, fmtNum } = i18n;
   // Snapshot per mount: the board re-derives whenever tasks/history change.
   const now = useMemo(() => Date.now(), []);
-  const counts = useMemo(() => quadrantCounts(tasks, now), [tasks, now]);
+  const counts = useMemo(() => quadrantCounts(tasks, now, planTaskIds), [tasks, now, planTaskIds]);
   const minutes = useMemo(
-    () => (isPro ? quadrantMinutes(tasks, history, now) : null),
-    [tasks, history, isPro, now],
+    () => (isPro ? quadrantMinutes(tasks, history, now, planTaskIds) : null),
+    [tasks, history, isPro, now, planTaskIds],
   );
   const focus = useMemo(
-    () => (isPro ? quadrantFocus(tasks, now, i18n) : null),
-    [tasks, isPro, now, i18n],
+    () => (isPro ? quadrantFocus(tasks, now, i18n, planTaskIds) : null),
+    [tasks, isPro, now, i18n, planTaskIds],
   );
   const total = counts.q1 + counts.q2 + counts.q3 + counts.q4;
 
@@ -100,7 +100,7 @@ export default function MatrixCard({
         <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
           {TASK_QUADRANTS.map((q: TaskQuadrant) => {
             const meta = QUADRANT_TEXT_KEYS[q];
-            const inQ = tasksInQuadrant(tasks, q, now);
+            const inQ = tasksInQuadrant(tasks, q, now, planTaskIds);
             return (
               <div key={q} className="rounded-xl bg-ink/40 px-3.5 py-3 ring-1 ring-inset ring-line">
                 <div className="flex items-baseline justify-between gap-2">
@@ -121,7 +121,8 @@ export default function MatrixCard({
                   <ul className="mt-2 space-y-1.5">
                     {inQ.slice(0, 5).map((task) => {
                       const badge = dueBadge(task, tag);
-                      const auto = effectiveQuadrant(task, now) === q && task.quadrant !== q;
+                      const auto =
+                        effectiveQuadrant(task, now, planTaskIds) === q && task.quadrant !== q;
                       return (
                         <li
                           key={task.id}

@@ -187,9 +187,25 @@ export default function AssistantCard({
     const text = raw.trim();
     if (!text || (!isPro && !isQuickAllowed(text))) return;
     let log = appendMessage(messages, 'user', text);
+    const todayKey = dayKeyInTz(Date.now(), timezone);
+    const plannedIds = new Set(
+      (ivyPlans.find((p) => p.dateKey === todayKey)?.tasks ?? [])
+        .map((x) => x.taskId)
+        .filter((id): id is string => !!id),
+    );
     const reply = respondTo(
       text,
-      { tasks, projects, history, timezone, goals, energyLog, sprints, selectedProjectId },
+      {
+        tasks,
+        projects,
+        history,
+        timezone,
+        goals,
+        energyLog,
+        sprints,
+        selectedProjectId,
+        plannedIds,
+      },
       tone,
       i18n,
       focusTaskId,

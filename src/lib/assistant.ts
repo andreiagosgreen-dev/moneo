@@ -254,6 +254,8 @@ export interface AssistantContext {
   /** Same data the Command Center surfaces (Faza 31) — makes suggestions contextual, not generic. */
   sprints?: Sprint[];
   selectedProjectId?: string | null;
+  /** Task ids on today's plan — never triaged as "Eliminate". */
+  plannedIds?: ReadonlySet<string>;
 }
 
 export type AssistantAction =
@@ -512,7 +514,7 @@ export function respondTo(
   }
 
   if (/work on|next|should i|prioriti|focus/.test(lower)) {
-    const focus = quadrantFocus(ctx.tasks, now, i18n);
+    const focus = quadrantFocus(ctx.tasks, now, i18n, ctx.plannedIds);
     if (!focus.task) return { text: focus.headline, action: null };
     const goal = goalForProject(ctx.goals, focus.task.projectId);
     const goalLine = goal ? ` Part of “${goal.title}”.` : '';
@@ -523,7 +525,7 @@ export function respondTo(
   }
 
   if (/matrix|eisenhower|quadrant|urgent/.test(lower)) {
-    const c = quadrantCounts(ctx.tasks, now);
+    const c = quadrantCounts(ctx.tasks, now, ctx.plannedIds);
     const total = c.q1 + c.q2 + c.q3 + c.q4;
     if (total === 0) return { text: i18n.t('assist.r.matrixEmpty'), action: null };
     return {

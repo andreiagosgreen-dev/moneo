@@ -766,6 +766,10 @@ export default function App() {
   /* ---------- Mono Focus + Azi: one daily spine (Ivy plan) ---------- */
   const todayKey = dayKeyInTz(Date.now(), auth.timezone);
   const todayPlan = planForDay(ivyPlans, todayKey);
+  const planTaskIds = useMemo(
+    () => new Set((todayPlan?.tasks ?? []).map((x) => x.taskId).filter((id): id is string => !!id)),
+    [todayPlan],
+  );
   const todayMaxTasks = auth.isPro ? IVY_MAX_TASKS : IVY_FREE_MAX_TASKS;
   const nextPlanItem = todayPlan?.tasks.find((x) => !x.done) ?? null;
 
@@ -1415,6 +1419,7 @@ export default function App() {
                                     timezone={auth.timezone}
                                     selectedProjectId={selectedProjectId}
                                     selectedTaskId={selectedTaskId}
+                                    planTaskIds={planTaskIds}
                                   />
                                 )}
                                 <FrogCard
@@ -1442,13 +1447,7 @@ export default function App() {
                                   history={history}
                                   onTasksChange={setTasks}
                                   isPro={auth.isPro}
-                                  planTaskIds={
-                                    new Set(
-                                      (todayPlan?.tasks ?? [])
-                                        .map((x) => x.taskId)
-                                        .filter((id): id is string => !!id),
-                                    )
-                                  }
+                                  planTaskIds={planTaskIds}
                                   onAddToPlan={addLinkedTaskToPlan}
                                 />
                                 <div id="today-life-habits">
