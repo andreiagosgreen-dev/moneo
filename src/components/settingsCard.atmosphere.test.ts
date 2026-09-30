@@ -159,4 +159,21 @@ describe('SettingsCard atmospheres', () => {
     });
     expect(onAtmosphere).toHaveBeenCalledWith('merlot');
   });
+
+  it('exposes the selected chips, switches and accent through ARIA state', () => {
+    const c = render(screen({ atmosphere: 'ritual', isPro: true }));
+    const pressed = Array.from(c.querySelectorAll('button[aria-pressed="true"]')).map(
+      (b) => b.textContent,
+    );
+    expect(pressed).toContain('Ritual');
+    expect(pressed).not.toContain('Sanctuary');
+    const switches = c.querySelectorAll('[role="switch"]');
+    expect(switches.length).toBeGreaterThan(0);
+    for (const s of Array.from(switches)) {
+      expect(['true', 'false']).toContain(s.getAttribute('aria-checked'));
+    }
+    const accents = c.querySelectorAll('button.mono-swatch');
+    expect(accents.length).toBeGreaterThan(1);
+    expect(c.querySelectorAll('button.mono-swatch[aria-pressed="true"]').length).toBe(1);
+  });
 });

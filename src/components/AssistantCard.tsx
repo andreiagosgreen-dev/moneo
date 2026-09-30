@@ -391,20 +391,16 @@ export default function AssistantCard({
   };
 
   return (
-    <section className="card flex h-full flex-col px-6 py-6 sm:px-7" aria-label={t('assist.aria')}>
-      <header className="flex items-baseline justify-between gap-3">
+    <section className="mono-card mono-panel" aria-label={t('assist.aria')}>
+      <header className="mono-panel-head mono-between" style={{ gap: 12, alignItems: 'start' }}>
         <div>
-          <h2 className="font-display text-xl font-bold tracking-tight text-cream">
-            {t('assist.title')}
-          </h2>
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.14em] text-sage">
-            {t(isPro ? 'assist.subPro' : 'assist.subFree')}
-          </p>
+          <h2 className="mono-h2">{t('assist.title')}</h2>
+          <p className="mono-meta">{t(isPro ? 'assist.subPro' : 'assist.subFree')}</p>
         </div>
         {messages.length > 0 && (
           <button
             onClick={() => commit([])}
-            className="press font-mono text-[11px] text-faint hover:text-cream"
+            className="mono-btn mono-btn-ghost mono-btn-sm"
             title={t('assist.clearTitle')}
           >
             {t('assist.clear')}
@@ -421,7 +417,7 @@ export default function AssistantCard({
         isPro={isPro}
       />
 
-      <div className="mt-3 flex items-center gap-2 rounded-xl bg-ink/30 px-3 py-2 ring-1 ring-line">
+      <div className="mono-greet">
         {isPro && (
           <select
             value={tone}
@@ -430,7 +426,7 @@ export default function AssistantCard({
               setTone(next);
               saveAssistantTone(next);
             }}
-            className="h-7 rounded-lg bg-ink/40 px-2 font-mono text-[11px] text-sage ring-1 ring-inset ring-line focus:ring-accent focus:outline-none"
+            className="mono-field mono-field-sm mono-field-auto"
             title={t('assist.toneTitle')}
             aria-label={t('assist.toneAria')}
           >
@@ -443,29 +439,22 @@ export default function AssistantCard({
         )}
         <button
           onClick={() => setSpeakOn(!speakOn)}
-          className={`press rounded-md px-2 py-1 font-mono text-[11px] ring-1 ring-inset ${
-            speakOn ? 'text-accent ring-accent/50' : 'text-sage ring-line hover:text-cream'
-          }`}
+          className="mono-chip mono-chip-sm"
           aria-pressed={speakOn}
+          aria-label={t('assist.speakTitle')}
           title={t('assist.speakTitle')}
         >
           {speakOn ? '🔊' : '🔇'}
         </button>
-        <p className="min-w-0 flex-1 truncate text-[12px] text-sage" title={greeting}>
-          {greeting}
-        </p>
+        <p title={greeting}>{greeting}</p>
       </div>
 
       {messages.length > 0 && (
-        <ul ref={scrollRef} className="nice-scroll mt-4 max-h-56 space-y-2 overflow-y-auto pr-1">
+        <ul ref={scrollRef} className="nice-scroll mono-chat">
           {messages.map((m) => (
             <li
               key={m.id}
-              className={`max-w-[92%] rounded-xl px-3 py-2 text-[13px] leading-relaxed ${
-                m.role === 'user'
-                  ? 'ml-auto bg-accent/15 text-cream ring-1 ring-inset ring-accent/30'
-                  : 'bg-ink/40 text-sage ring-1 ring-inset ring-line'
-              }`}
+              className={m.role === 'user' ? 'mono-bubble mono-bubble-user' : 'mono-bubble'}
             >
               {m.text}
             </li>
@@ -473,7 +462,7 @@ export default function AssistantCard({
         </ul>
       )}
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mono-inline">
         {QUICK_ACTIONS.filter((q) => q.message !== 'Add task ').map((q) => {
           const locked = q.pro && !isPro;
           const label = t(QUICK_LABEL_KEYS[q.message] as TKey);
@@ -482,11 +471,7 @@ export default function AssistantCard({
               key={q.label}
               onClick={() => !locked && send(q.message)}
               disabled={locked}
-              className={`press rounded-full px-3.5 py-2 text-[12px] font-semibold ring-1 ring-inset ${
-                locked
-                  ? 'cursor-not-allowed text-sage/70 ring-line/50'
-                  : 'bg-ink/30 text-cream ring-line hover:ring-accent/50'
-              }`}
+              className="mono-chip mono-chip-sm"
               title={locked ? t('assist.locked') : label}
             >
               {locked ? `🔒 ${label}` : label}
@@ -496,14 +481,13 @@ export default function AssistantCard({
       </div>
 
       {isPro ? (
-        <div className="mt-3 flex items-center gap-2">
+        <div className="mono-row" style={{ gap: 8 }}>
           {micSupported && (
             <button
               onClick={listen}
               disabled={listening}
-              className={`press flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${
-                listening ? 'text-accent ring-accent/60' : 'text-sage ring-line hover:text-cream'
-              } disabled:opacity-60`}
+              aria-pressed={listening}
+              className="mono-chip mono-chip-sm"
               title={t('assist.voice')}
               aria-label={t('assist.voiceAria')}
             >
@@ -518,21 +502,20 @@ export default function AssistantCard({
             onKeyDown={(e) => e.key === 'Enter' && send(draft)}
             placeholder={t('assist.ph')}
             aria-label={t('assist.ph')}
-            className="h-9 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-sm text-cream ring-1 ring-inset ring-line placeholder:text-sage focus:ring-accent focus:outline-none"
+            className="mono-field mono-field-sm"
+            style={{ flex: 1, minWidth: 0 }}
           />
           <button
             onClick={() => send(draft)}
             disabled={!draft.trim()}
-            className="press btn-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display text-lg font-bold disabled:opacity-40"
+            className="mono-btn mono-btn-primary mono-btn-sm"
             aria-label={t('assist.send')}
           >
             ↑
           </button>
         </div>
       ) : (
-        <div className="mt-4 rounded-xl border border-accent/40 bg-accent/15 p-4">
-          <p className="text-[13px] leading-relaxed text-cream">{t('assist.proBox')}</p>
-        </div>
+        <p className="mono-note">{t('assist.proBox')}</p>
       )}
     </section>
   );

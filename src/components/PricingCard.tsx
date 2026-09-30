@@ -24,7 +24,7 @@ function CheckIcon() {
       strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="mt-0.5 shrink-0 text-accent"
+      style={{ marginTop: 3, flexShrink: 0, color: 'var(--mono-accent)' }}
       aria-hidden
     >
       <path d="M20 6L9 17l-5-5" />
@@ -39,7 +39,7 @@ function StarIcon() {
       height="14"
       viewBox="0 0 24 24"
       fill="currentColor"
-      className="text-accent"
+      style={{ color: 'var(--mono-accent)' }}
       aria-hidden
     >
       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -69,66 +69,49 @@ export default function PricingCard() {
   };
 
   return (
-    <div className="pricing-surface rounded-2xl border border-line bg-ink/50 px-5 py-6">
-      <div className="flex items-center gap-2">
+    <div className="mono-stack" style={{ gap: 14 }}>
+      <div className="mono-row" style={{ gap: 8 }}>
         <StarIcon />
-        <h3 className="font-display text-[15px] font-bold text-cream">{t('pay.title')}</h3>
+        <h3 className="mono-h3">{t('pay.title')}</h3>
       </div>
-      <p className="mt-2.5 text-[12px] leading-relaxed text-sage">{t('pay.sub')}</p>
+      <p className="mono-meta" style={{ fontSize: 14.5 }}>
+        {t('pay.sub')}
+      </p>
 
-      <div className="mt-5 space-y-4">
+      <ul className="mono-stack" style={{ gap: 12 }}>
         {plans.map((plan) => {
           const isCurrent = plan.id === currentPlan;
           const isPaid = plan.id !== 'free';
 
           return (
-            <div
-              key={plan.id}
-              className={`rounded-xl border p-4 transition-colors ${
-                isCurrent
-                  ? 'border-accent bg-accent/10'
-                  : isPaid
-                    ? 'border-line bg-ink/30 hover:border-accent/40'
-                    : 'border-line/60 bg-ink/20'
-              }`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-display text-sm font-semibold text-cream">
-                      {t(plan.nameKey)}
-                    </h4>
-                    {isCurrent && (
-                      <span className="rounded-md bg-accent/20 px-2 py-0.5 text-[10px] font-semibold text-accent">
-                        {t('pay.current')}
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-1.5 text-[11px] leading-relaxed text-faint">{t(plan.descKey)}</p>
-                  <div className="mt-2.5 font-display text-lg font-bold text-cream">
-                    {plan.price}
-                    {plan.perKey && (
-                      <span className="text-[11px] font-normal text-sage"> {t(plan.perKey)}</span>
-                    )}
-                  </div>
-                  {plan.id === 'pro-yearly' && (
-                    <p className="mt-1 text-[11px] font-medium text-accent">
-                      {t('pay.yearlyEquiv', {
-                        price: PRO_PRICES.yearlyMonthly,
-                        n: PRO_PRICES.monthsFree,
-                      })}
-                    </p>
-                  )}
-                </div>
+            <li key={plan.id} className={isCurrent ? 'mono-item mono-plan-current' : 'mono-item'}>
+              <div className="mono-row" style={{ gap: 8 }}>
+                <h4 className="mono-h3">{t(plan.nameKey)}</h4>
+                {isCurrent && (
+                  <span className="mono-pill mono-pill-accent">{t('pay.current')}</span>
+                )}
               </div>
+              <p className="mono-caption" style={{ marginTop: 4 }}>
+                {t(plan.descKey)}
+              </p>
+              <p className="mono-plan-price">
+                {plan.price}
+                {plan.perKey && <small> {t(plan.perKey)}</small>}
+              </p>
+              {plan.id === 'pro-yearly' && (
+                <p className="mono-caption" style={{ color: 'var(--mono-accent)' }}>
+                  {t('pay.yearlyEquiv', {
+                    price: PRO_PRICES.yearlyMonthly,
+                    n: PRO_PRICES.monthsFree,
+                  })}
+                </p>
+              )}
 
-              <ul className="pricing-feature-list mt-4 space-y-2 border-t border-line/50 pt-3.5">
+              <ul className="mono-stack mono-plan-features">
                 {plan.featureKeys.map((key) => (
-                  <li key={key} className="flex items-start gap-2.5">
+                  <li key={key} className="mono-row" style={{ gap: 10, alignItems: 'flex-start' }}>
                     <CheckIcon />
-                    <span className="min-w-0 flex-1 text-[12px] font-semibold leading-snug text-cream">
-                      {t(key)}
-                    </span>
+                    <span>{t(key)}</span>
                   </li>
                 ))}
               </ul>
@@ -136,28 +119,29 @@ export default function PricingCard() {
               {isPaid && !isCurrent && (
                 <button
                   onClick={() => handleSubscribe(plan.id as PaidPlanId)}
-                  className="press btn-accent mt-4 flex h-9 w-full items-center justify-center rounded-lg font-display text-sm font-bold"
+                  className="mono-btn mono-btn-primary mono-btn-block"
+                  style={{ marginTop: 14 }}
                 >
                   {t('pay.upgrade')}
                 </button>
               )}
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ul>
 
       {payError && (
-        <p role="alert" className="mt-4 text-[12px] font-medium text-tomato">
+        <p role="alert" className="mono-note mono-note-danger">
           {payError}{' '}
-          <a href={SUPPORT_MAILTO} className="font-semibold underline underline-offset-2">
+          <a href={SUPPORT_MAILTO} className="mono-link">
             {SUPPORT_EMAIL}
           </a>
         </p>
       )}
 
-      <p className="mt-5 text-[11px] leading-relaxed text-faint">{t('pay.note')}</p>
-      <p className="mt-3 text-[12px] leading-relaxed text-sage">
-        <span className="font-semibold text-cream">{t(SYNC_SCOPE_KEY)}</span>
+      <p className="mono-caption">{t('pay.note')}</p>
+      <p className="mono-meta" style={{ fontSize: 14.5 }}>
+        <strong style={{ color: 'var(--mono-fg-2)' }}>{t(SYNC_SCOPE_KEY)}</strong>
         {' — '}
         {t(SYNC_NOTE_KEY)}
       </p>

@@ -116,20 +116,19 @@ function Stepper({
 }) {
   const { t } = useI18n();
   const { min, max } = LIMITS[field];
-  const btn =
-    'press btn-ghost flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none';
+  const btn = 'mono-btn mono-btn-ghost mono-btn-icon';
   return (
-    <div className="flex items-center justify-between gap-3 py-3">
-      <div className="min-w-0 flex-1">
+    <div className="mono-set-row">
+      <div className="mono-set-copy">
         <div
-          className={`text-[14px] font-semibold ${accent ? '' : 'text-cream/90'}`}
-          style={accent ? { color: 'var(--accent)' } : undefined}
+          className="mono-set-label"
+          style={accent ? { color: 'var(--mono-accent)' } : undefined}
         >
           {label}
         </div>
-        <div className="text-[12px] text-faint">{hint}</div>
+        <div className="mono-set-hint">{hint}</div>
       </div>
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="mono-set-ctl">
         <button
           className={btn}
           onClick={() => onStep(field, -1)}
@@ -138,9 +137,9 @@ function Stepper({
         >
           <MinusIcon />
         </button>
-        <span className="inline-flex min-w-20 items-baseline justify-center gap-0.5 rounded-lg bg-ink/60 px-2 py-1 font-mono text-sm font-semibold text-cream ring-1 ring-inset ring-line">
+        <span className="mono-set-value">
           {value}
-          <span className="text-[11px] font-medium text-faint">{unit}</span>
+          <small>{unit}</small>
         </span>
         <button
           className={btn}
@@ -171,31 +170,13 @@ function Toggle({
       onClick={onClick}
       role="switch"
       aria-checked={on}
-      className="press group flex w-full items-center justify-between gap-3 rounded-xl px-1 py-3 text-left"
+      className="mono-set-row mono-set-toggle"
     >
-      <span className="min-w-0 flex-1">
-        <span className="block text-[14px] font-semibold text-cream/90">{label}</span>
-        <span className="block text-[12px] text-faint">{hint}</span>
+      <span className="mono-set-copy">
+        <span className="mono-set-label">{label}</span>
+        <span className="mono-set-hint">{hint}</span>
       </span>
-      <span
-        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-300 ${
-          on ? '' : 'settle-track'
-        }`}
-        style={{
-          background: on ? 'var(--accent)' : undefined,
-          boxShadow: on ? '0 0 14px rgb(var(--accent-rgb) / 0.5)' : 'none',
-        }}
-      >
-        <span
-          className={`absolute top-0.5 h-5 w-5 rounded-full shadow transition-all duration-300 ${
-            on ? '' : 'settle-thumb-off'
-          }`}
-          style={{
-            left: on ? 'calc(100% - 1.375rem)' : '0.125rem',
-            background: on ? 'var(--on-accent)' : undefined,
-          }}
-        />
-      </span>
+      <span className="mono-switch" aria-hidden="true" />
     </button>
   );
 }
@@ -212,22 +193,16 @@ export default function SettingsCard({
 }: Props) {
   const { t } = useI18n();
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label={t('set.aria')}>
-      <header className="flex items-baseline justify-between gap-3">
-        <h2 className="font-display text-xl font-bold tracking-tight text-cream">
-          {t('set.title')}
-        </h2>
-        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-          {t(synced ? 'set.savedSynced' : 'set.saved')}
-        </span>
+    <section className="mono-card mono-panel" aria-label={t('set.aria')}>
+      <header className="mono-between" style={{ gap: 12 }}>
+        <h2 className="mono-h2">{t('set.title')}</h2>
+        <span className="mono-caption">{t(synced ? 'set.savedSynced' : 'set.saved')}</span>
       </header>
-      <div className="mt-3">
-        <TimerSettings settings={settings} onChange={onChange} />
-      </div>
-      <div className="mt-2 border-t border-line">
+      <TimerSettings settings={settings} onChange={onChange} />
+      <div style={{ borderTop: '1px solid var(--mono-border)' }}>
         <AlertSettings settings={settings} onChange={onChange} />
       </div>
-      <div className="mt-2 border-t border-line">
+      <div style={{ borderTop: '1px solid var(--mono-border)' }}>
         <SectionLabel text={t('set.theme')} />
         <AppearanceSettings
           theme={theme}
@@ -257,7 +232,7 @@ export function TimerSettings({ settings, onChange }: TimerProps) {
   };
 
   return (
-    <div className="divide-y divide-line/70">
+    <div className="mono-set-rows">
       <Stepper
         label={t('set.s.focus')}
         hint={t('set.s.focusH')}
@@ -299,30 +274,28 @@ export function TimerSettings({ settings, onChange }: TimerProps) {
         field="dailyGoal"
         onStep={step}
       />
-      <div className="flex items-center justify-between gap-3 py-3">
-        <div className="min-w-0 flex-1">
-          <div className="text-[14px] font-semibold text-cream/90">{t('set.cap')}</div>
-          <div className="text-[12px] text-faint">{t('set.capH')}</div>
+      <div className="mono-set-row">
+        <div className="mono-set-copy">
+          <div className="mono-set-label">{t('set.cap')}</div>
+          <div className="mono-set-hint">{t('set.capH')}</div>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="mono-set-ctl">
           <button
             onClick={() =>
               onChange({ weeklyCapacityMin: Math.max(60, settings.weeklyCapacityMin - 60) })
             }
-            className="press btn-ghost flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
+            className="mono-btn mono-btn-ghost mono-btn-icon"
             disabled={settings.weeklyCapacityMin <= 60}
             aria-label={t('set.capDec')}
           >
             <MinusIcon />
           </button>
-          <span className="w-14 text-center font-mono text-[13px] text-cream">
-            {Math.round(settings.weeklyCapacityMin / 60)}h
-          </span>
+          <span className="mono-set-value">{Math.round(settings.weeklyCapacityMin / 60)}h</span>
           <button
             onClick={() =>
               onChange({ weeklyCapacityMin: Math.min(10080, settings.weeklyCapacityMin + 60) })
             }
-            className="press btn-ghost flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
+            className="mono-btn mono-btn-ghost mono-btn-icon"
             disabled={settings.weeklyCapacityMin >= 10080}
             aria-label={t('set.capInc')}
           >
@@ -379,7 +352,7 @@ export function AlertSettings({ settings, onChange }: TimerProps) {
   };
 
   return (
-    <div className="divide-y divide-line/70">
+    <div className="mono-set-rows">
       <Toggle
         label={t('set.auto')}
         hint={t('set.autoH')}
@@ -404,16 +377,16 @@ export function AlertSettings({ settings, onChange }: TimerProps) {
       />
       {settings.sound && (
         <>
-          <div className="flex items-center justify-between gap-3 py-3">
-            <div className="min-w-0 flex-1">
-              <div className="text-[14px] font-semibold text-cream/90">{t('set.soundType')}</div>
-              <div className="text-[12px] text-faint">{t('set.soundTypeH')}</div>
+          <div className="mono-set-row">
+            <div className="mono-set-copy">
+              <div className="mono-set-label">{t('set.soundType')}</div>
+              <div className="mono-set-hint">{t('set.soundTypeH')}</div>
             </div>
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="mono-set-ctl">
               <select
                 value={settings.soundType}
                 onChange={(e) => onChange({ soundType: e.target.value as SoundType })}
-                className="min-w-32 rounded-lg bg-ink/60 px-3 py-2 text-sm font-semibold text-cream ring-1 ring-inset ring-line"
+                className="mono-field mono-field-sm mono-field-auto"
               >
                 {BUILT_IN_SOUNDS.map((s) => (
                   <option key={s} value={s}>
@@ -427,7 +400,7 @@ export function AlertSettings({ settings, onChange }: TimerProps) {
                   if (settings.soundType === 'custom' && !hasCustom) return;
                   playSound(settings.soundType, settings.volume / 100);
                 }}
-                className="press flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-ink/60 text-cream/70 ring-1 ring-inset ring-line hover:text-cream disabled:opacity-40"
+                className="mono-btn mono-btn-ghost mono-btn-icon"
                 aria-label={t('set.preview')}
                 title={t('set.preview')}
               >
@@ -447,14 +420,14 @@ export function AlertSettings({ settings, onChange }: TimerProps) {
             </div>
           </div>
           {settings.soundType === 'custom' && (
-            <div className="flex items-center justify-between gap-3 py-3">
-              <div className="min-w-0 flex-1">
-                <div className="text-[14px] font-semibold text-cream/90">{t('set.customUp')}</div>
-                <div className="text-[12px] text-faint">
+            <div className="mono-set-row">
+              <div className="mono-set-copy">
+                <div className="mono-set-label">{t('set.customUp')}</div>
+                <div className="mono-set-hint">
                   {hasCustom ? t('set.customHas') : t('set.customFormats')}
                 </div>
               </div>
-              <div className="flex shrink-0 items-center gap-2">
+              <div className="mono-set-ctl">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -466,13 +439,13 @@ export function AlertSettings({ settings, onChange }: TimerProps) {
                   <>
                     <button
                       onClick={() => handleRemoveCustom()}
-                      className="press flex h-9 items-center justify-center rounded-lg bg-ink/60 px-3 text-[12px] font-semibold text-cream/70 ring-1 ring-inset ring-line hover:text-cream"
+                      className="mono-btn mono-btn-ghost mono-btn-sm"
                     >
                       {t('set.remove')}
                     </button>
                     <button
                       onClick={() => playSound('custom', settings.volume / 100)}
-                      className="press flex h-9 items-center justify-center rounded-lg bg-ink/60 px-3 text-[12px] font-semibold text-cream/70 ring-1 ring-inset ring-line hover:text-cream"
+                      className="mono-btn mono-btn-ghost mono-btn-sm"
                     >
                       {t('set.test')}
                     </button>
@@ -480,7 +453,7 @@ export function AlertSettings({ settings, onChange }: TimerProps) {
                 ) : (
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="press flex h-9 items-center justify-center rounded-lg bg-ink/60 px-3 text-[12px] font-semibold text-cream/70 ring-1 ring-inset ring-line hover:text-cream"
+                    className="mono-btn mono-btn-ghost mono-btn-sm"
                   >
                     {t('set.upload')}
                   </button>
@@ -488,21 +461,21 @@ export function AlertSettings({ settings, onChange }: TimerProps) {
               </div>
             </div>
           )}
-          <div className="flex items-center justify-between gap-3 py-3">
-            <div className="min-w-0 flex-1">
-              <div className="text-[14px] font-semibold text-cream/90">{t('set.volume')}</div>
-              <div className="text-[12px] text-faint">{t('set.volumeH')}</div>
+          <div className="mono-set-row">
+            <div className="mono-set-copy">
+              <div className="mono-set-label">{t('set.volume')}</div>
+              <div className="mono-set-hint">{t('set.volumeH')}</div>
             </div>
-            <div className="flex shrink-0 items-center gap-3">
+            <div className="mono-set-ctl">
               <input
                 type="range"
                 min="0"
                 max="100"
                 value={settings.volume}
                 onChange={(e) => onChange({ volume: parseInt(e.target.value) })}
-                className="w-32 accent-current"
+                style={{ width: 128, accentColor: 'var(--mono-accent)' }}
               />
-              <span className="font-mono text-[12px] text-faint w-8 text-right">
+              <span className="mono-caption" style={{ width: 40, textAlign: 'right' }}>
                 {settings.volume}%
               </span>
             </div>
@@ -522,11 +495,9 @@ export function AlertSettings({ settings, onChange }: TimerProps) {
 function SectionLabel({ text }: { text: string }) {
   const { t } = useI18n();
   return (
-    <div className="flex items-baseline justify-between gap-3 py-3">
-      <div className="text-[14px] font-semibold text-cream/90">{text}</div>
-      <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-faint">
-        {t('set.appearance')}
-      </span>
+    <div className="mono-set-row">
+      <div className="mono-set-label">{text}</div>
+      <span className="mono-caption">{t('set.appearance')}</span>
     </div>
   );
 }
@@ -549,13 +520,9 @@ function Chip({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`press inline-flex min-h-11 items-center rounded-lg px-3 py-2.5 font-mono text-[12px] font-semibold ring-1 transition-colors disabled:cursor-not-allowed ${
-        selected
-          ? 'bg-ink/70 text-cream ring-accent'
-          : disabled || locked
-            ? 'text-faint ring-line opacity-60'
-            : 'text-sage ring-line hover:text-cream hover:ring-accent/50'
-      }`}
+      aria-pressed={selected}
+      className="mono-chip mono-chip-sm"
+      style={locked && !selected ? { opacity: 0.6 } : undefined}
     >
       {children}
     </button>
@@ -616,25 +583,18 @@ export function AppearanceSettings({
   };
 
   return (
-    <div className="divide-y divide-line/70">
-      <div className="flex flex-col gap-2 py-3">
-        <div className="min-w-0">
-          <div className="text-[14px] font-semibold text-cream/90">{t('set.atm')}</div>
-          <div className="text-[12px] text-faint">{isPro ? t('set.atmPro') : t('set.atmFree')}</div>
+    <div className="mono-set-rows">
+      <div className="mono-set-row mono-set-row-col">
+        <div className="mono-set-copy">
+          <div className="mono-set-label">{t('set.atm')}</div>
+          <div className="mono-set-hint">{isPro ? t('set.atmPro') : t('set.atmFree')}</div>
           {!isPro && (
-            <Link
-              to="/pricing"
-              className="mt-1 inline-block text-[12px] font-semibold text-sage underline-offset-2 hover:text-cream hover:underline"
-            >
+            <Link to="/pricing" className="mono-link-btn" style={{ minHeight: 32, fontSize: 14 }}>
               {t('set.atmUpgrade')}
             </Link>
           )}
         </div>
-        <div
-          className="flex max-w-full flex-wrap items-center gap-1.5"
-          role="radiogroup"
-          aria-label={t('set.atm')}
-        >
+        <div className="mono-inline" style={{ gap: 6 }} role="group" aria-label={t('set.atm')}>
           {ATMOSPHERES.map((id) => {
             const locked = isProAtmosphere(id) && !isPro;
             return (
@@ -652,14 +612,12 @@ export function AppearanceSettings({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 py-3">
-        <div className="min-w-[min(100%,12rem)] flex-1">
-          <div className="text-[14px] font-semibold text-cream/90">{t('set.mode')}</div>
-          <div className="text-[12px] text-faint">
-            {isPro ? t('set.modePro') : t('set.modeFree')}
-          </div>
+      <div className="mono-set-row mono-set-row-wrap">
+        <div className="mono-set-copy">
+          <div className="mono-set-label">{t('set.mode')}</div>
+          <div className="mono-set-hint">{isPro ? t('set.modePro') : t('set.modeFree')}</div>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="mono-set-ctl">
           {THEME_OPTIONS.map((opt) => (
             <Chip
               key={opt}
@@ -674,14 +632,12 @@ export function AppearanceSettings({
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 py-3">
-        <div className="min-w-0">
-          <div className="text-[14px] font-semibold text-cream/90">{t('set.accent')}</div>
-          <div className="text-[12px] text-faint">
-            {isPro ? t('set.accentPro') : t('set.accentFree')}
-          </div>
+      <div className="mono-set-row mono-set-row-col">
+        <div className="mono-set-copy">
+          <div className="mono-set-label">{t('set.accent')}</div>
+          <div className="mono-set-hint">{isPro ? t('set.accentPro') : t('set.accentFree')}</div>
         </div>
-        <div className="flex max-w-full flex-wrap items-center gap-1.5">
+        <div className="mono-inline" style={{ gap: 6 }}>
           {(
             [
               'auto',
@@ -697,53 +653,34 @@ export function AppearanceSettings({
                   key={k}
                   onClick={() => (isPro ? set({ accent: k }) : undefined)}
                   disabled={!isPro}
-                  className="press flex h-11 min-w-11 items-center justify-center rounded-full p-0.5 disabled:cursor-not-allowed"
+                  aria-pressed={active}
+                  className="mono-swatch"
                   style={{
                     background: isAuto
-                      ? undefined
+                      ? 'var(--mono-bg-2)'
                       : ACCENT_PRESETS[k as Exclude<AccentName, 'auto'>].accent,
                   }}
                   title={String(k)}
                   aria-label={t('set.accentAria', { k })}
                 >
-                  <span
-                    className={`flex h-full w-full items-center justify-center rounded-full font-mono text-[9px] font-bold ${
-                      active ? 'bg-cream text-ink shadow ring-1 ring-line' : 'bg-transparent'
-                    }`}
-                    style={
-                      isAuto
-                        ? {
-                            background: active ? 'var(--color-cream)' : 'var(--color-ink)',
-                            border: '1px solid var(--color-line)',
-                            color: 'var(--color-faint)',
-                          }
-                        : undefined
-                    }
-                  >
-                    {isAuto ? 'A' : ''}
-                  </span>
+                  {isAuto ? 'A' : ''}
                 </button>
               );
             })}
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 py-3">
-        <div className="min-w-0">
-          <div className="text-[14px] font-semibold text-cream/90">{t('set.font')}</div>
-          <div className="text-[12px] text-faint">
-            {isPro ? t('set.fontPro') : t('set.fontFree')}
-          </div>
+      <div className="mono-set-row mono-set-row-col">
+        <div className="mono-set-copy">
+          <div className="mono-set-label">{t('set.font')}</div>
+          <div className="mono-set-hint">{isPro ? t('set.fontPro') : t('set.fontFree')}</div>
           {!isPro && (
-            <Link
-              to="/pricing"
-              className="mt-1 inline-block text-[12px] font-semibold text-sage underline-offset-2 hover:text-cream hover:underline"
-            >
+            <Link to="/pricing" className="mono-link-btn" style={{ minHeight: 32, fontSize: 14 }}>
               {t('set.fontUpgrade')}
             </Link>
           )}
         </div>
-        <div className="flex max-w-full flex-wrap items-center gap-1.5">
+        <div className="mono-inline" style={{ gap: 6 }}>
           {FONT_OPTIONS.map((f) => {
             const locked = isProFont(f) && !isPro;
             return (
@@ -756,12 +693,12 @@ export function AppearanceSettings({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 py-3">
-        <div className="min-w-[min(100%,12rem)] flex-1">
-          <div className="text-[14px] font-semibold text-cream/90">{t('set.size')}</div>
-          <div className="text-[12px] text-faint">{t('set.sizeH')}</div>
+      <div className="mono-set-row mono-set-row-wrap">
+        <div className="mono-set-copy">
+          <div className="mono-set-label">{t('set.size')}</div>
+          <div className="mono-set-hint">{t('set.sizeH')}</div>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="mono-set-ctl">
           {FONT_SCALE_OPTIONS.map((s) => (
             <Chip
               key={s}

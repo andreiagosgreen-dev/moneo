@@ -258,16 +258,18 @@ export default function AiPathCard({
   };
 
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label={t('ai.title')}>
-      <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent">
-        {t('ai.kicker')}
-      </p>
-      <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-cream">
-        {t('ai.title')}
-      </h2>
-      <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-sage">{t('ai.subtitle')}</p>
+    <section className="mono-card mono-panel" aria-label={t('ai.title')}>
+      <header className="mono-panel-head">
+        <p className="mono-eyebrow" style={{ margin: '0 0 6px' }}>
+          {t('ai.kicker')}
+        </p>
+        <h2 className="mono-h2">{t('ai.title')}</h2>
+        <p className="mono-meta" style={{ maxWidth: '42rem' }}>
+          {t('ai.subtitle')}
+        </p>
+      </header>
 
-      <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label={t('ai.modeAria')}>
+      <div className="mono-inline" role="group" aria-label={t('ai.modeAria')}>
         {(['goal', 'sprint'] as Mode[]).map((m) => (
           <button
             key={m}
@@ -276,11 +278,7 @@ export default function AiPathCard({
               reset();
             }}
             aria-pressed={mode === m}
-            className={`press rounded-lg px-3.5 py-2 text-[12px] font-semibold ring-1 ring-inset ${
-              mode === m
-                ? 'btn-accent ring-transparent'
-                : 'bg-ink/30 text-cream ring-line hover:ring-accent/50'
-            }`}
+            className="mono-chip mono-chip-sm"
           >
             {t(m === 'goal' ? 'ai.modeGoal' : 'ai.modeSprint')}
           </button>
@@ -288,7 +286,7 @@ export default function AiPathCard({
       </div>
 
       {step === 'input' && (
-        <div className="mt-4">
+        <div className="mono-stack">
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -296,13 +294,14 @@ export default function AiPathCard({
             rows={2}
             placeholder={t(mode === 'goal' ? 'ai.goalPh' : 'ai.skillPh')}
             aria-label={t(mode === 'goal' ? 'ai.goalAria' : 'ai.skillAria')}
-            className="w-full resize-y rounded-xl border border-line bg-ink/60 px-3 py-2.5 text-sm text-cream placeholder:text-faint focus:[border-color:var(--accent)] focus:outline-none"
+            className="mono-field"
+            style={{ resize: 'vertical' }}
           />
-          <div className="mt-2 flex justify-end">
+          <div className="mono-row" style={{ justifyContent: 'flex-end' }}>
             <button
               onClick={startBuild}
               disabled={!text.trim()}
-              className="press btn-accent rounded-lg px-5 py-2 font-display text-[13px] font-bold disabled:opacity-40"
+              className="mono-btn mono-btn-primary mono-btn-sm"
             >
               {t(mode === 'goal' ? 'ai.build' : 'ai.buildSprint')}
             </button>
@@ -311,24 +310,18 @@ export default function AiPathCard({
       )}
 
       {step === 'questions' && (
-        <div className="mt-4 space-y-3">
-          <p className="text-[13px] font-semibold text-cream">{t('ai.questionsTitle')}</p>
+        <div className="mono-stack" style={{ gap: 14 }}>
+          <p className="mono-h3">{t('ai.questionsTitle')}</p>
           {questions.includes('horizon') && (
-            <div>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-faint">
-                {t('ai.q.horizon')}
-              </p>
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
+            <div className="mono-stack" style={{ gap: 6 }}>
+              <p className="mono-caption">{t('ai.q.horizon')}</p>
+              <div className="mono-inline" style={{ gap: 6 }}>
                 {HORIZONS.map((h) => (
                   <button
                     key={h}
                     onClick={() => setHorizon(h)}
                     aria-pressed={horizon === h}
-                    className={`press rounded-lg px-3 py-1.5 font-mono text-[12px] ring-1 ring-inset ${
-                      horizon === h
-                        ? 'text-accent ring-accent/60'
-                        : 'text-faint ring-line hover:text-cream'
-                    }`}
+                    className="mono-chip mono-chip-sm"
                   >
                     {h >= 480
                       ? t('ai.q.life')
@@ -341,21 +334,15 @@ export default function AiPathCard({
             </div>
           )}
           {questions.includes('level') && (
-            <div>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-faint">
-                {t('ai.q.level')}
-              </p>
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
+            <div className="mono-stack" style={{ gap: 6 }}>
+              <p className="mono-caption">{t('ai.q.level')}</p>
+              <div className="mono-inline" style={{ gap: 6 }}>
                 {LEVELS.map((l) => (
                   <button
                     key={l}
                     onClick={() => setLevel(l)}
                     aria-pressed={level === l}
-                    className={`press rounded-lg px-3 py-1.5 font-mono text-[12px] ring-1 ring-inset ${
-                      level === l
-                        ? 'text-accent ring-accent/60'
-                        : 'text-faint ring-line hover:text-cream'
-                    }`}
+                    className="mono-chip mono-chip-sm"
                   >
                     {t(`ai.q.level.${l}` as TKey)}
                   </button>
@@ -364,21 +351,15 @@ export default function AiPathCard({
             </div>
           )}
           {questions.includes('hours') && (
-            <div>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-faint">
-                {t('ai.q.hours')}
-              </p>
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
+            <div className="mono-stack" style={{ gap: 6 }}>
+              <p className="mono-caption">{t('ai.q.hours')}</p>
+              <div className="mono-inline" style={{ gap: 6 }}>
                 {[2, 5, 8, 12].map((h) => (
                   <button
                     key={h}
                     onClick={() => setHours(h)}
                     aria-pressed={hours === h}
-                    className={`press rounded-lg px-3 py-1.5 font-mono text-[12px] ring-1 ring-inset ${
-                      hours === h
-                        ? 'text-accent ring-accent/60'
-                        : 'text-faint ring-line hover:text-cream'
-                    }`}
+                    className="mono-chip mono-chip-sm"
                   >
                     {t('ai.q.hoursPerWeek', { n: h })}
                   </button>
@@ -386,17 +367,14 @@ export default function AiPathCard({
               </div>
             </div>
           )}
-          <div className="flex justify-end gap-2">
+          <div className="mono-row" style={{ justifyContent: 'flex-end', gap: 8 }}>
             <button
               onClick={() => setStep('input')}
-              className="press rounded-lg px-4 py-2 font-mono text-[12px] text-faint hover:text-cream"
+              className="mono-btn mono-btn-ghost mono-btn-sm"
             >
               {t('morning.back')}
             </button>
-            <button
-              onClick={answerAndBuild}
-              className="press btn-accent rounded-lg px-5 py-2 font-display text-[13px] font-bold"
-            >
+            <button onClick={answerAndBuild} className="mono-btn mono-btn-primary mono-btn-sm">
               {t('ai.showPath')}
             </button>
           </div>
@@ -419,15 +397,12 @@ export default function AiPathCard({
       )}
 
       {step === 'done' && (
-        <div className="mt-4 rounded-xl bg-ink/40 px-4 py-3.5 ring-1 ring-inset ring-line">
-          <p className="text-[14px] font-semibold text-cream">{t('ai.done.title')}</p>
-          <p className="mt-1 text-[13px] leading-relaxed text-sage">{resultNote}</p>
-          <p className="mt-1 font-mono text-[11px] text-faint">{t('ai.done.hint')}</p>
-          <div className="mt-2.5 flex justify-end">
-            <button
-              onClick={reset}
-              className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px]"
-            >
+        <div className="mono-item mono-stack" style={{ gap: 6 }}>
+          <p className="mono-h3">{t('ai.done.title')}</p>
+          <p className="mono-meta">{resultNote}</p>
+          <p className="mono-caption">{t('ai.done.hint')}</p>
+          <div className="mono-row" style={{ justifyContent: 'flex-end' }}>
+            <button onClick={reset} className="mono-btn mono-btn-ghost mono-btn-sm">
               {t('ai.done.again')}
             </button>
           </div>
@@ -468,56 +443,54 @@ function RoadmapView({
   const phaseOfTask = (milestoneId: string): string =>
     path?.milestones.find((m) => m.id === milestoneId)?.phaseId ?? '';
   return (
-    <div className="mt-4">
-      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-        {t('ai.draftKicker')}
-      </p>
+    <div className="mono-stack">
+      <p className="mono-caption">{t('ai.draftKicker')}</p>
 
       {path && (
         <>
-          <div className="mt-2 space-y-2">
+          <ul className="mono-stack">
             {path.phases.map((phase) => (
-              <div
-                key={phase.id}
-                className="rounded-xl bg-ink/40 px-4 py-3 ring-1 ring-inset ring-line"
-              >
-                <div className="flex items-baseline justify-between gap-2">
-                  <p className="text-[14px] font-semibold text-cream">
-                    {t(phase.outcome as TKey, { goal: path.goal })}
-                  </p>
-                  <p className="shrink-0 font-mono text-[10px] text-faint">
+              <li key={phase.id} className="mono-item">
+                <div className="mono-between" style={{ gap: 8, alignItems: 'baseline' }}>
+                  <p className="mono-h3">{t(phase.outcome as TKey, { goal: path.goal })}</p>
+                  <p className="mono-caption" style={{ flexShrink: 0 }}>
                     {t('ai.phase.months', { a: phase.months[0], b: phase.months[1] })}
                   </p>
                 </div>
-                <ul className="mt-1.5 space-y-1">
+                <ul className="mono-stack" style={{ gap: 4, marginTop: 6 }}>
                   {path.milestones
                     .filter((m) => m.phaseId === phase.id)
                     .map((m) => (
-                      <li key={m.id} className="text-[12px] text-sage">
+                      <li key={m.id} className="mono-meta" style={{ fontSize: 14.5 }}>
                         ◆ {t(m.title as TKey, { outcome: outcomeText(m.phaseId) })}
                       </li>
                     ))}
                 </ul>
-              </div>
+              </li>
             ))}
-          </div>
-          <details className="mt-2">
-            <summary className="cursor-pointer font-mono text-[11px] text-sage hover:text-cream">
-              {tp('ai.draft.tasks', path.tasks.length, { n: path.totalPomodoros })}
+          </ul>
+          <details className="mono-set-group">
+            <summary className="mono-set-summary" style={{ minHeight: 44, padding: '8px 12px' }}>
+              <span className="mono-caption" style={{ flex: 1 }}>
+                {tp('ai.draft.tasks', path.tasks.length, { n: path.totalPomodoros })}
+              </span>
+              <span className="mono-tpl-chev" aria-hidden="true">
+                ›
+              </span>
             </summary>
-            <ul className="mt-1.5 max-h-44 space-y-1 overflow-y-auto">
+            <ul
+              className="mono-stack mono-set-body"
+              style={{ gap: 6, maxHeight: '14rem', overflowY: 'auto', padding: '0 12px 12px' }}
+            >
               {path.tasks.map((x) => (
-                <li
-                  key={x.draftId}
-                  className="flex items-center gap-2 rounded-lg bg-ink/40 px-3 py-1.5 text-[12px] text-cream/90 ring-1 ring-inset ring-line"
-                >
-                  <span className="min-w-0 flex-1 truncate">
+                <li key={x.draftId} className="mono-between" style={{ gap: 8 }}>
+                  <span className="mono-meta" style={{ fontSize: 14.5, minWidth: 0 }}>
                     {t(x.title as TKey, {
                       goal: path.goal,
                       outcome: outcomeText(phaseOfTask(x.milestoneId)),
                     })}
                   </span>
-                  <span className="shrink-0 font-mono text-[10px] text-faint">
+                  <span className="mono-caption" style={{ flexShrink: 0 }}>
                     ~{x.pomodoros}🍅
                   </span>
                 </li>
@@ -525,7 +498,7 @@ function RoadmapView({
             </ul>
           </details>
           {path.assumptions.map((a) => (
-            <p key={a} className="mt-1.5 font-mono text-[11px] text-faint">
+            <p key={a} className="mono-caption">
               {t(a === 'trimmed-to-20' ? 'ai.assume.trimmed' : 'ai.assume.capacity')}
             </p>
           ))}
@@ -534,76 +507,79 @@ function RoadmapView({
 
       {sprint && (
         <>
-          <div className="mt-2 rounded-xl bg-ink/40 px-4 py-3 ring-1 ring-inset ring-line">
-            <p className="text-[14px] font-semibold text-cream">
-              {t(sprint.outcomeFrame as TKey, sprint.outcomeVars)}
-            </p>
-            <p className="mt-0.5 font-mono text-[11px] text-faint">
+          <div className="mono-item">
+            <p className="mono-h3">{t(sprint.outcomeFrame as TKey, sprint.outcomeVars)}</p>
+            <p className="mono-caption">
               {t('ai.sprint.meta', { weeks: sprint.weeks, pomodoros: sprint.totalPomodoros })}
             </p>
-            <ul className="mt-2 space-y-1">
+            <ul className="mono-stack" style={{ gap: 4, marginTop: 8 }}>
               {sprint.subskillFrames.map((f) => (
-                <li key={f} className="text-[12px] text-sage">
+                <li key={f} className="mono-meta" style={{ fontSize: 14.5 }}>
                   ◆ {t(f as TKey, { skill: sprint.skill })}
                 </li>
               ))}
             </ul>
-            <ul className="mt-2 space-y-1 border-t border-line/60 pt-2">
+            <ul
+              className="mono-stack"
+              style={{
+                gap: 4,
+                marginTop: 8,
+                paddingTop: 8,
+                borderTop: '1px solid var(--mono-border)',
+              }}
+            >
               {sprint.checkpoints.map((c) => (
-                <li key={c.atHours} className="font-mono text-[11px] text-faint">
+                <li key={c.atHours} className="mono-caption">
                   {t('ai.sprint.checkpoint', { h: c.atHours })} → {t(c.proofFrame as TKey)}
                 </li>
               ))}
             </ul>
           </div>
-          <p className="mt-1.5 font-mono text-[11px] text-faint">{t('ai.sprint.honest')}</p>
+          <p className="mono-caption">{t('ai.sprint.honest')}</p>
         </>
       )}
 
-      <div className="mt-3 space-y-1.5 border-t border-line/60 pt-3">
-        <label className="flex cursor-pointer items-center gap-2.5 text-[13px] text-cream/90">
+      <div
+        className="mono-stack"
+        style={{ gap: 8, paddingTop: 12, borderTop: '1px solid var(--mono-border)' }}
+      >
+        <label className="mono-row mono-meta" style={{ gap: 10, cursor: 'pointer' }}>
           <input
             type="checkbox"
             checked={createProject}
             onChange={(e) => onCreateProject(e.target.checked)}
-            className="accent-[var(--accent)]"
+            style={{ accentColor: 'var(--mono-accent)' }}
           />
           {t('ai.approve.create')}
         </label>
         {path && (
-          <label className="flex cursor-pointer items-center gap-2.5 text-[13px] text-cream/90">
+          <label className="mono-row mono-meta" style={{ gap: 10, cursor: 'pointer' }}>
             <input
               type="checkbox"
               checked={draftIntoWeek}
               onChange={(e) => onDraftIntoWeek(e.target.checked)}
-              className="accent-[var(--accent)]"
+              style={{ accentColor: 'var(--mono-accent)' }}
             />
             {t('ai.approve.week')}
           </label>
         )}
-        <label className="flex cursor-pointer items-center gap-2.5 text-[13px] text-cream/90">
+        <label className="mono-row mono-meta" style={{ gap: 10, cursor: 'pointer' }}>
           <input
             type="checkbox"
             checked={consent}
             onChange={onConsent}
-            className="accent-[var(--accent)]"
+            style={{ accentColor: 'var(--mono-accent)' }}
           />
           {t('ai.approve.auto')}
         </label>
-        <p className="font-mono text-[10px] leading-relaxed text-faint">{t('ai.approve.note')}</p>
+        <p className="mono-caption">{t('ai.approve.note')}</p>
       </div>
 
-      <div className="mt-3 flex items-center justify-between gap-2">
-        <button
-          onClick={onBack}
-          className="press rounded-lg px-3 py-2 font-mono text-[12px] text-faint hover:text-cream"
-        >
+      <div className="mono-between" style={{ gap: 8 }}>
+        <button onClick={onBack} className="mono-btn mono-btn-ghost mono-btn-sm">
           {t('morning.back')}
         </button>
-        <button
-          onClick={onApprove}
-          className="press btn-accent rounded-lg px-5 py-2 font-display text-[13px] font-bold"
-        >
+        <button onClick={onApprove} className="mono-btn mono-btn-primary mono-btn-sm">
           {t('ai.approve.go')}
         </button>
       </div>
