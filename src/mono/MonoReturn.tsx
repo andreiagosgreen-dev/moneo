@@ -10,6 +10,7 @@ const SECTION: Record<MonoTab, TKey> = {
   reports: 'mono.nav.rapoarte',
   plan: 'nav.plan',
   growth: 'nav.growth',
+  move: 'nav.move',
   map: 'nav.map',
   graph: 'nav.graph',
   settings: 'mono.nav.settings',

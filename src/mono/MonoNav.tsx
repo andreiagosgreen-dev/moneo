@@ -16,6 +16,7 @@ export type MonoTab =
   | 'reports'
   | 'plan'
   | 'growth'
+  | 'move'
   | 'map'
   | 'graph'
   | 'settings'
@@ -65,6 +66,12 @@ const PRIMARY: Item[] = [
     id: 'growth',
     label: 'nav.growth',
     icon: '<path d="M4 20V10M10 20V6M16 20v-4M20 4l-4 4"/>',
+    deskOnly: true,
+  },
+  {
+    id: 'move',
+    label: 'nav.move',
+    icon: '<path d="M6.5 7v10M3.5 9.5v5M17.5 7v10M20.5 9.5v5M6.5 12h11"/>',
     deskOnly: true,
   },
   {

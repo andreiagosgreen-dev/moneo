@@ -118,6 +118,8 @@ export const STORAGE_KEYS = {
   activeRoadmapId: 'moneo:active-roadmap-id',
   /** Focus ambient sound + wake lock preferences — local only, never synced. */
   focusPrefs: 'moneo:focus-prefs',
+  /** Move module: workout log + linked habit id (local only in stage 1). */
+  workouts: 'moneo:workouts',
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

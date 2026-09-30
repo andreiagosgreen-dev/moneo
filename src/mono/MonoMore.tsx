@@ -7,7 +7,7 @@ import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
 
 interface Entry {
-  id: Extract<MonoTab, 'plan' | 'growth' | 'map' | 'graph' | 'settings'>;
+  id: Extract<MonoTab, 'plan' | 'growth' | 'move' | 'map' | 'graph' | 'settings'>;
   label: TKey;
   hint: TKey;
 }
@@ -16,6 +16,7 @@ interface Entry {
 const ENTRIES: Entry[] = [
   { id: 'plan', label: 'nav.plan', hint: 'nav.hint.plan' },
   { id: 'growth', label: 'nav.growth', hint: 'nav.hint.growth' },
+  { id: 'move', label: 'nav.move', hint: 'nav.hint.move' },
   { id: 'map', label: 'nav.map', hint: 'nav.hint.map' },
   { id: 'graph', label: 'nav.graph', hint: 'nav.hint.graph' },
   { id: 'settings', label: 'nav.settingsLabel', hint: 'nav.settingsTitle' },

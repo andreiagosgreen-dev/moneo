@@ -30,6 +30,7 @@ import LifeCard from './components/LifeCard';
 const StatsCard = lazy(() => import('./components/StatsCard'));
 const SettingsCard = lazy(() => import('./components/SettingsCard'));
 const MonoDataExport = lazy(() => import('./mono/MonoDataExport'));
+const MonoMiscare = lazy(() => import('./mono/MonoMiscare'));
 const ReportsCard = lazy(() => import('./components/ReportsCard'));
 const WeeklyRecapCard = lazy(() => import('./components/WeeklyRecapCard'));
 const GrowthCard = lazy(() => import('./components/GrowthCard'));
@@ -125,7 +126,26 @@ import {
   type Roadmap,
 } from './lib/ai/roadmap';
 import MonoRoadmapStrip from './mono/MonoRoadmapStrip';
-import { loadHabits, loadHabitLog, type Habit, type HabitLog } from './lib/habits';
+import {
+  activeHabits,
+  createHabitObject,
+  FREE_HABITS_LIMIT,
+  loadHabits,
+  loadHabitLog,
+  type Habit,
+  type HabitLog,
+} from './lib/habits';
+import {
+  addWorkout,
+  deleteWorkout,
+  FITNESS_HABIT_ICON,
+  loadWorkouts,
+  markHabitDone,
+  saveWorkouts,
+  type WorkoutEntry,
+  type WorkoutStore,
+} from './lib/fitness/workouts';
+import type { HabitLink } from './mono/MonoWorkoutPlayer';
 import {
   getLifeTemplate,
   instantiateLifeTemplate,
@@ -347,6 +367,32 @@ export default function App() {
   const [roadmaps, setRoadmaps] = useState<Roadmap[]>(BOOT.roadmaps);
   const [habits, setHabits] = useState<Habit[]>(BOOT.habits);
   const [habitLog, setHabitLog] = useState<HabitLog>(BOOT.habitLog);
+  const [workoutStore, setWorkoutStore] = useState<WorkoutStore>(loadWorkouts);
+  const commitWorkouts = (next: WorkoutStore) => {
+    setWorkoutStore(next);
+    saveWorkouts(next);
+  };
+  const handleWorkoutSave = (entry: WorkoutEntry, link: HabitLink) => {
+    let habitId: string | undefined;
+    if (link.kind === 'habit') {
+      habitId = link.id;
+    } else if (link.kind === 'create') {
+      const room = auth.isPro || activeHabits(habits).length < FREE_HABITS_LIMIT;
+      const habit = room ? createHabitObject(link.name, 'weekly', 3, FITNESS_HABIT_ICON) : null;
+      if (habit) {
+        setHabits((prev) => [...prev, habit]);
+        habitId = habit.id;
+      }
+    }
+    if (habitId) {
+      const id = habitId;
+      setHabitLog((prev) => markHabitDone(prev, id, entry.day));
+    }
+    commitWorkouts({
+      ...addWorkout(workoutStore, entry),
+      habitId: habitId ?? workoutStore.habitId,
+    });
+  };
   const [lifeAreas, setLifeAreas] = useState<LifeArea[]>(BOOT.lifeAreas);
   const [lifeMap, setLifeMap] = useState<LifeMapArea[]>(BOOT.lifeMap);
   const [journal, setJournal] = useState<Journal>(BOOT.journal);
@@ -1660,6 +1706,19 @@ export default function App() {
                             {lifeMapCard}
                           </div>
                         </MonoCrestere>
+                      </main>
+                    </Suspense>
+                  )}
+                  {tab === 'move' && (
+                    <Suspense fallback={<TabFallback label="Move" />}>
+                      <main>
+                        <MonoMiscare
+                          store={workoutStore}
+                          habits={habits}
+                          isPro={auth.isPro}
+                          onSave={handleWorkoutSave}
+                          onDelete={(id) => commitWorkouts(deleteWorkout(workoutStore, id))}
+                        />
                       </main>
                     </Suspense>
                   )}
