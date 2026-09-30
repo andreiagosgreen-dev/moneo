@@ -14,12 +14,15 @@ interface Props {
   isPro: boolean;
   /** False when the Free project cap is reached. */
   canCreate: boolean;
+  /** With existing projects the gallery starts collapsed so it doesn't push the list down. */
+  hasProjects: boolean;
   onCreate: (id: LifeTemplateId) => void;
 }
 
 /** "Ready-made systems": one tap sets up a project, its tasks and habits. */
-export default function MonoTemplates({ isPro, canCreate, onCreate }: Props) {
+export default function MonoTemplates({ isPro, canCreate, hasProjects, onCreate }: Props) {
   const { t } = useI18n();
+  const [open, setOpen] = useState(!hasProjects);
   const [confirming, setConfirming] = useState<LifeTemplateId | null>(null);
   const busy = useRef(false);
 
@@ -34,13 +37,29 @@ export default function MonoTemplates({ isPro, canCreate, onCreate }: Props) {
   };
 
   return (
-    <section className="mono-tpl" aria-labelledby="mono-tpl-title" data-testid="life-templates">
-      <p id="mono-tpl-title" className="mono-h3">
-        {t('goal.tpl.title')}
-      </p>
-      <p className="mono-meta" style={{ marginTop: 2 }}>
-        {t('goal.tpl.sub')}
-      </p>
+    <details
+      className="mono-tpl"
+      data-testid="life-templates"
+      open={open}
+      onToggle={(e) => setOpen(e.currentTarget.open)}
+    >
+      <summary className="mono-tpl-summary">
+        <span className="mono-tpl-summary-copy">
+          <span className="mono-h3">{t('goal.tpl.title')}</span>
+          <span className="mono-meta">{t('goal.tpl.sub')}</span>
+        </span>
+        <span className="mono-tpl-chev" aria-hidden>
+          ›
+        </span>
+      </summary>
+      {!canCreate ? (
+        <p className="mono-meta mono-tpl-limit" role="note">
+          {t('goal.tpl.projectLimit')}{' '}
+          <Link to="/pricing" className="mono-link">
+            {t('goal.tpl.unlock')}
+          </Link>
+        </p>
+      ) : null}
       <ul className="mono-tpl-grid">
         {LIFE_TEMPLATES.map((tpl) => {
           const name = t(tplKey.name(tpl.id));
@@ -58,44 +77,39 @@ export default function MonoTemplates({ isPro, canCreate, onCreate }: Props) {
               <p className="mono-meta mono-tpl-counts">
                 {t('goal.tpl.counts', { tasks: tpl.tasks.length, habits: tpl.habits.length })}
               </p>
-              <div className="mono-tpl-actions">
-                {locked ? (
+              {locked ? (
+                <div className="mono-tpl-actions">
                   <Link to="/pricing" className="mono-link mono-tpl-lock">
                     {t('goal.tpl.unlock')}
                   </Link>
-                ) : !canCreate ? (
-                  <>
-                    <p className="mono-meta" role="note">
-                      {t('goal.tpl.projectLimit')}
-                    </p>
-                    <Link to="/pricing" className="mono-link">
-                      {t('goal.tpl.unlock')}
-                    </Link>
-                  </>
-                ) : confirming === tpl.id ? (
-                  <>
-                    <MonoBtn type="button" variant="primary" onClick={() => create(tpl.id)}>
-                      {t('goal.tpl.confirm')}
+                </div>
+              ) : !canCreate ? null : (
+                <div className="mono-tpl-actions">
+                  {confirming === tpl.id ? (
+                    <>
+                      <MonoBtn type="button" variant="primary" onClick={() => create(tpl.id)}>
+                        {t('goal.tpl.confirm')}
+                      </MonoBtn>
+                      <MonoBtn type="button" variant="ghost" onClick={() => setConfirming(null)}>
+                        {t('goal.tpl.cancel')}
+                      </MonoBtn>
+                    </>
+                  ) : (
+                    <MonoBtn
+                      type="button"
+                      variant="ghost"
+                      aria-label={t('goal.tpl.useAria', { name })}
+                      onClick={() => setConfirming(tpl.id)}
+                    >
+                      {t('goal.tpl.use')}
                     </MonoBtn>
-                    <MonoBtn type="button" variant="ghost" onClick={() => setConfirming(null)}>
-                      {t('goal.tpl.cancel')}
-                    </MonoBtn>
-                  </>
-                ) : (
-                  <MonoBtn
-                    type="button"
-                    variant="ghost"
-                    aria-label={t('goal.tpl.useAria', { name })}
-                    onClick={() => setConfirming(tpl.id)}
-                  >
-                    {t('goal.tpl.use')}
-                  </MonoBtn>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </li>
           );
         })}
       </ul>
-    </section>
+    </details>
   );
 }
