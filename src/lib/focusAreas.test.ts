@@ -5,6 +5,7 @@ import {
   AREA_NAME_MAX,
   MAX_AREAS,
   activeAreas,
+  areaLabel,
   armRoundFocus,
   createFocusArea,
   deleteFocusArea,
@@ -268,5 +269,17 @@ describe('selected area persistence', () => {
     expect(loadSelectedArea(areas)).toBeNull();
     localStorage.setItem('moneo:selected-focus-area', '{{{');
     expect(loadSelectedArea(areas)).toBeNull();
+  });
+});
+
+describe('areaLabel', () => {
+  const t = (key: string) => `T:${key}`;
+  it('translates untouched seeded areas', () => {
+    expect(areaLabel({ id: 'area:work', name: 'Work' }, t)).toBe('T:mono.area.work');
+    expect(areaLabel({ id: 'area:personal', name: 'Personal' }, t)).toBe('T:mono.area.personal');
+  });
+  it('keeps names the user chose', () => {
+    expect(areaLabel({ id: 'area:work', name: 'Client X' }, t)).toBe('Client X');
+    expect(areaLabel({ id: 'a1', name: 'Work' }, t)).toBe('Work');
   });
 });

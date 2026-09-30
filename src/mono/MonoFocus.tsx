@@ -20,6 +20,7 @@ import { dayLabel } from './monoDate';
 import { type Atmosphere } from './atmosphere';
 import type { MonoTab } from './MonoNav';
 import { pickProgramCoach } from '../lib/guidance/programCoach';
+import { areaLabel } from '../lib/focusAreas';
 
 const CIRC = 540.35;
 const PRESETS = [5, 25, 45];
@@ -251,7 +252,7 @@ export default function MonoFocus({
             <option value="">{t('timer.noArea')}</option>
             {areas.map((a) => (
               <option key={a.id} value={a.id}>
-                {a.name}
+                {areaLabel(a, t)}
               </option>
             ))}
           </select>

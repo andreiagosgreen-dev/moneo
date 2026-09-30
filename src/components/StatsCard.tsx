@@ -3,6 +3,7 @@ import { type Session, type Settings } from '../lib/store';
 import { getWeeklyTopIntentions } from '../lib/intentions';
 import {
   activeAreas,
+  areaLabel,
   getWeeklyAreaSummary,
   resolveAreaName,
   type FocusArea,
@@ -107,7 +108,10 @@ export default function StatsCard({
     () => getWeeklyTopIntentions(history, 3, timezone),
     [history, timezone],
   );
-  const liveAreas = useMemo(() => activeAreas(areas), [areas]);
+  const liveAreas = useMemo(
+    () => activeAreas(areas).map((a) => ({ ...a, name: areaLabel(a, t) })),
+    [areas, t],
+  );
   const areaRows = useMemo(
     () => getWeeklyAreaSummary(history, timezone).slice(0, 3),
     [history, timezone],
@@ -188,7 +192,7 @@ export default function StatsCard({
             <span className="text-tomato">
               <FlameIcon />
             </span>
-            {tp('stats.streak', streak)}
+            {streak > 0 ? tp('stats.streak', streak) : t('stats.noStreak')}
           </span>
         </div>
       </div>

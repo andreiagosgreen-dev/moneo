@@ -1,13 +1,16 @@
+import { useI18n } from '../lib/i18n/LocaleContext';
+
 /**
  * Calm loading skeleton for lazily-loaded tabs (Roadmap Faza 1.3).
  * Static placeholder — no spinners, no layout shift beyond its own box.
  */
-export default function TabFallback({ label }: { label: string }) {
+export default function TabFallback() {
+  const { t } = useI18n();
   return (
     <main
       className="mono-pad-mobile mt-2 grid grid-cols-1 items-start gap-6 md:grid-cols-2"
       aria-busy="true"
-      aria-label={`${label} loading`}
+      aria-label={t('mono.loading')}
     >
       {[0, 1].map((i) => (
         <div key={i} className="card animate-pulse px-6 py-6 sm:px-7" aria-hidden>

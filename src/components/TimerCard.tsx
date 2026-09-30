@@ -4,7 +4,7 @@ import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
 import { postSessionLine } from '../lib/ai/coach';
 import type { SessionFeedback } from '../lib/ai/types';
-import { AREA_NAME_MAX, MAX_AREAS, type FocusArea } from '../lib/focusAreas';
+import { AREA_NAME_MAX, MAX_AREAS, areaLabel, type FocusArea } from '../lib/focusAreas';
 import { tasksForProject, type Task } from '../lib/tasks';
 
 const MODES: Mode[] = ['focus', 'short', 'long'];
@@ -446,7 +446,7 @@ export default function TimerCard({
               <option value="">{t('timer.noArea')}</option>
               {areas.map((a) => (
                 <option key={a.id} value={a.id}>
-                  {a.name}
+                  {areaLabel(a, t)}
                 </option>
               ))}
             </select>
@@ -487,7 +487,7 @@ export default function TimerCard({
                               setEditingId(null);
                             }
                           }}
-                          aria-label={t('timer.renameArea', { name: a.name })}
+                          aria-label={t('timer.renameArea', { name: areaLabel(a, t) })}
                           className="h-8 w-full min-w-0 rounded-lg border border-line bg-ink/60 px-2 text-[13px] text-cream focus:[border-color:var(--accent)] focus:outline-none"
                           autoFocus
                         />
@@ -509,7 +509,7 @@ export default function TimerCard({
                     ) : (
                       <>
                         <span className="min-w-0 flex-1 truncate text-[13px] text-cream/90">
-                          {a.name}
+                          {areaLabel(a, t)}
                           {selectedArea?.id === a.id && (
                             <span className="ml-2 font-mono text-[10px] uppercase text-faint">
                               {t('timer.selected')}
@@ -519,17 +519,17 @@ export default function TimerCard({
                         <button
                           onClick={() => {
                             setEditingId(a.id);
-                            setEditName(a.name);
+                            setEditName(areaLabel(a, t));
                           }}
                           className={iconBtn}
-                          aria-label={t('timer.renameArea', { name: a.name })}
+                          aria-label={t('timer.renameArea', { name: areaLabel(a, t) })}
                         >
                           <PencilIcon />
                         </button>
                         <button
                           onClick={() => onDeleteArea(a.id)}
                           className={iconBtn}
-                          aria-label={t('timer.deleteArea', { name: a.name })}
+                          aria-label={t('timer.deleteArea', { name: areaLabel(a, t) })}
                         >
                           <TrashIcon />
                         </button>

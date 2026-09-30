@@ -68,7 +68,7 @@ describe('MonoProgressMeter', () => {
 
   it('renders translated payoff (ro)', () => {
     const text = renderMeter('ro', IMPACT);
-    expect(text).toContain('Ai mutat Launch site cu 25m');
+    expect(text).toContain('Ai mutat Launch site cu 25 min');
   });
 
   it('celebrates the milestone at 100%', () => {

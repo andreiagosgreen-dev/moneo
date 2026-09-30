@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { type Session } from '../lib/store';
-import type { FocusArea } from '../lib/focusAreas';
+import { areaLabel, type FocusArea } from '../lib/focusAreas';
 import type { Project } from '../lib/projects';
 import type { Task } from '../lib/tasks';
 import {
@@ -285,9 +285,10 @@ export default function ReportsCard({
   const i18n = useI18n();
   const { t, fmtDur, fmtNum, tag } = i18n;
 
+  const shownAreas = useMemo(() => areas.map((a) => ({ ...a, name: areaLabel(a, t) })), [areas, t]);
   const report: ReportData = useMemo(
-    () => buildReport(history, projects, areas, tasks, range, timezone),
-    [history, projects, areas, tasks, range, timezone],
+    () => buildReport(history, projects, shownAreas, tasks, range, timezone),
+    [history, projects, shownAreas, tasks, range, timezone],
   );
 
   const narrative = useMemo(
