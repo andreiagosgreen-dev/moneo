@@ -1,7 +1,8 @@
 /* Move module: workout log, weekly summary and the habit link.
  *
  * Local-first like the rest of Moneo: stored under STORAGE_KEYS.workouts,
- * included in the JSON export, never sent anywhere in stage 1.
+ * included in the JSON export and, for Pro with account sync on, synced one
+ * record per workout (see `PRO_SYNC_COLLECTIONS`).
  */
 import { STORAGE_KEYS } from '../storage/storageKeys';
 import { safeRead as read, safeWrite as write } from '../storage/storageAdapter';

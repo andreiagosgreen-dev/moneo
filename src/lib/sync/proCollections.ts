@@ -8,6 +8,9 @@ import { STORAGE_KEYS } from '../storage/storageKeys';
  * - map:   plain object keyed by id/day → one record per key.
  * - set:   array of strings → one record per string (union-friendly).
  * - value: the whole stored value is one record.
+ * - object-list: object holding one list field → one record per list item
+ *   (`e:<id>`) plus one `rest` record for every other field, so items added
+ *   on two devices merge instead of overwriting each other.
  *
  * Focus sessions, focus areas and settings are NOT here: they have their own
  * tables and engine (`syncEngine.ts`) and sync for every signed-in user.
@@ -16,7 +19,17 @@ import { STORAGE_KEYS } from '../storage/storageKeys';
  */
 
 export type CollectionShape =
-  { kind: 'list'; idField: string } | { kind: 'map' } | { kind: 'set' } | { kind: 'value' };
+  | { kind: 'list'; idField: string }
+  | { kind: 'map' }
+  | { kind: 'set' }
+  | { kind: 'value' }
+  | {
+      kind: 'object-list';
+      list: string;
+      idField: string;
+      /** Numeric item field the merged list is kept sorted by (ascending). */
+      sortBy?: string;
+    };
 
 export interface ProCollection {
   /** Cloud collection name (`user_records.collection`). Never rename. */
@@ -50,12 +63,19 @@ export const PRO_SYNC_COLLECTIONS: readonly ProCollection[] = [
   { name: 'links', key: STORAGE_KEYS.links, shape: list() },
   { name: 'saved_filters', key: STORAGE_KEYS.savedFilters, shape: list() },
   { name: 'roadmaps', key: STORAGE_KEYS.roadmaps, shape: list() },
+  {
+    name: 'workouts',
+    key: STORAGE_KEYS.workouts,
+    shape: { kind: 'object-list', list: 'log', idField: 'id', sortBy: 'startedAt' },
+  },
 ];
 
 export const PRO_SYNC_KEYS: readonly string[] = PRO_SYNC_COLLECTIONS.map((c) => c.key);
 
 export const MAX_RECORD_ID_LENGTH = 200;
 const VALUE_ID = 'value';
+const REST_ID = 'rest';
+const ITEM_PREFIX = 'e:';
 
 function validId(id: unknown): id is string {
   return typeof id === 'string' && id.length > 0 && id.length <= MAX_RECORD_ID_LENGTH;
@@ -90,6 +110,16 @@ export function splitRecords(shape: CollectionShape, value: unknown): Map<string
     case 'value':
       if (value !== undefined && value !== null) out.set(VALUE_ID, value);
       return out;
+    case 'object-list': {
+      if (!isPlainObject(value)) return out;
+      const { [shape.list]: items, ...rest } = value;
+      if (Object.keys(rest).length > 0) out.set(REST_ID, rest);
+      for (const [id, item] of splitRecords({ kind: 'list', idField: shape.idField }, items)) {
+        const rid = ITEM_PREFIX + id;
+        if (validId(rid)) out.set(rid, item);
+      }
+      return out;
+    }
   }
 }
 
@@ -142,5 +172,32 @@ export function joinRecords(
       if (upserts.has(VALUE_ID)) return upserts.get(VALUE_ID);
       if (deletes.has(VALUE_ID)) return undefined;
       return current;
+    case 'object-list': {
+      const base = isPlainObject(current) ? current : {};
+      const { [shape.list]: items, ...rest } = base;
+      const itemChanges: RecordChanges = { upserts: new Map(), deletes: new Set() };
+      for (const [id, v] of upserts) {
+        if (id.startsWith(ITEM_PREFIX)) itemChanges.upserts.set(id.slice(ITEM_PREFIX.length), v);
+      }
+      for (const id of deletes) {
+        if (id.startsWith(ITEM_PREFIX)) itemChanges.deletes.add(id.slice(ITEM_PREFIX.length));
+      }
+      const list = joinRecords(
+        { kind: 'list', idField: shape.idField },
+        items,
+        itemChanges,
+      ) as unknown[];
+      if (shape.sortBy) {
+        const key = shape.sortBy;
+        const at = (v: unknown) => {
+          const n = isPlainObject(v) ? v[key] : undefined;
+          return typeof n === 'number' && Number.isFinite(n) ? n : 0;
+        };
+        list.sort((a, b) => at(a) - at(b));
+      }
+      const restUpsert = upserts.get(REST_ID);
+      const nextRest = isPlainObject(restUpsert) ? restUpsert : deletes.has(REST_ID) ? {} : rest;
+      return { ...nextRest, [shape.list]: list };
+    }
   }
 }

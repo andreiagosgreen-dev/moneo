@@ -583,6 +583,7 @@ export default function App() {
       [STORAGE_KEYS.links]: () => setLinks(loadLinks()),
       [STORAGE_KEYS.savedFilters]: () => setSavedFilters(loadSavedFilters()),
       [STORAGE_KEYS.roadmaps]: () => setRoadmaps(loadRoadmaps()),
+      [STORAGE_KEYS.workouts]: () => setWorkoutStore(loadWorkouts()),
     };
     for (const key of keys) reloaders[key]?.();
   };

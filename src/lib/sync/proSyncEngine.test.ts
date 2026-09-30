@@ -145,6 +145,32 @@ describe('runProSync — first sync', () => {
     for (const c of PRO_SYNC_COLLECTIONS) expect(meta.collections[c.name]).toBeDefined();
   });
 
+  it('merges workouts logged on two devices instead of overwriting the log', async () => {
+    const { repos, pushCalls } = fakeRepos({
+      rows: [
+        row('workouts', 'e:w2', { id: 'w2', startedAt: 50 }, NOW - 5000),
+        row('workouts', 'rest', { place: 'gym' }, NOW - 5000),
+      ],
+    });
+    const { io, map } = memoryIO({
+      [STORAGE_KEYS.workouts]: { log: [{ id: 'w1', startedAt: 100 }], habitId: 'h1' },
+    });
+    const applied: string[][] = [];
+    await run(repos, io, { onApplied: (keys) => applied.push(keys) });
+
+    expect(map.get(STORAGE_KEYS.workouts)).toEqual({
+      place: 'gym',
+      log: [
+        { id: 'w2', startedAt: 50 },
+        { id: 'w1', startedAt: 100 },
+      ],
+    });
+    expect(applied).toEqual([[STORAGE_KEYS.workouts]]);
+    expect(pushCalls.flat().map((r) => `${r.collection}/${r.record_id}`)).toEqual([
+      'workouts/e:w1',
+    ]);
+  });
+
   it('pulls everything on first run, then incrementally with an overlap window', async () => {
     const { repos, pullCalls } = fakeRepos({
       rows: [row('tasks', 't1', { id: 't1' }, NOW - 1000)],

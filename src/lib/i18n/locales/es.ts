@@ -3419,7 +3419,7 @@ export const es: Record<TKey, string> = {
   'fit.historyVolume': 'Volumen: {kg} kg',
   'fit.deleteAria': 'Eliminar el entreno {name} del {date}',
   'fit.localNote':
-    'Tu registro de entrenos se queda en este dispositivo y va incluido en la exportación de datos.',
+    'Tu registro de entrenos se guarda en este dispositivo y va incluido en la exportación de datos. Con Pro y la sincronización de la cuenta activada, también se sincroniza con tu cuenta.',
   'fit.p.step': 'Ejercicio {i} de {n}',
   'fit.p.set': 'Serie {i} de {n}',
   'fit.p.reps': 'Repeticiones',
