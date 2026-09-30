@@ -88,6 +88,7 @@ test.describe('clean first run', () => {
     await expect(page.getByText('Leftover project').first()).toBeVisible();
 
     await openSettings(page, isMobile);
+    await page.getByTestId('set-data').locator('summary').click();
     await page.getByRole('button', { name: 'Delete all data on this device' }).click();
     await expect(page.getByText('Delete everything on this device?')).toBeVisible();
     await Promise.all([

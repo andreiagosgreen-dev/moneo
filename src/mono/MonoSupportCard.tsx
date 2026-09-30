@@ -4,12 +4,12 @@ import LegalInline from '../components/legal/LegalInline';
 import { useI18n } from '../lib/i18n/LocaleContext';
 
 /** Settings: support email + Help / legal links. */
-export default function MonoSupportCard() {
+export default function MonoSupportCard({ hideTitle = false }: { hideTitle?: boolean }) {
   const { t } = useI18n();
   return (
     <section aria-label={t('legal.cardTitle')}>
       <MonoCard>
-        <p className="mono-eyebrow">{t('legal.cardTitle')}</p>
+        {hideTitle ? null : <p className="mono-eyebrow">{t('legal.cardTitle')}</p>}
         <p className="mono-meta">
           <LegalInline
             text={t('legal.contactBody')}
