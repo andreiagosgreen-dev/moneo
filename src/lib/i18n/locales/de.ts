@@ -3606,4 +3606,15 @@ export const de: Record<TKey, string> = {
   'fit.rt.stretchEvening.name': 'Abend-Dehnen 10 Min.',
   'fit.rt.stretchEvening.desc':
     'Nacken, Schultern, Hüfte und Beinrückseiten vor dem Schlafen lockern.',
+  'set.grp.timer': 'Timer',
+  'set.grp.timerSum': 'Fokus {focus} Min · Pause {short} Min · Tagesziel: {goal}',
+  'set.grp.alerts': 'Ton & Hinweise',
+  'set.grp.alertsOn': 'Signalton an · Lautstärke {vol} %',
+  'set.grp.alertsOff': 'Signalton aus',
+  'set.grp.data': 'Konto & Daten',
+  'set.grp.dataSum': 'Synchronisierung, Export & Import, Daten auf diesem Gerät löschen',
+  'set.grp.plan': 'Tarif',
+  'set.grp.planFree': 'Du nutzt Free — sieh dir an, was Pro bietet',
+  'set.grp.planPro': 'Du nutzt Pro — danke',
+  'set.grp.helpSum': 'Support-E-Mail, Hilfe, AGB und Datenschutz',
 };

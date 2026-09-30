@@ -210,7 +210,133 @@ export default function SettingsCard({
   onAtmosphere,
   synced = false,
 }: Props) {
+  const { t } = useI18n();
+  return (
+    <section className="card px-6 py-6 sm:px-7" aria-label={t('set.aria')}>
+      <header className="flex items-baseline justify-between gap-3">
+        <h2 className="font-display text-xl font-bold tracking-tight text-cream">
+          {t('set.title')}
+        </h2>
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+          {t(synced ? 'set.savedSynced' : 'set.saved')}
+        </span>
+      </header>
+      <div className="mt-3">
+        <TimerSettings settings={settings} onChange={onChange} />
+      </div>
+      <div className="mt-2 border-t border-line">
+        <AlertSettings settings={settings} onChange={onChange} />
+      </div>
+      <div className="mt-2 border-t border-line">
+        <SectionLabel text={t('set.theme')} />
+        <AppearanceSettings
+          theme={theme}
+          onThemeChange={onThemeChange}
+          isPro={isPro}
+          atmosphere={atmosphere}
+          onAtmosphere={onAtmosphere}
+        />
+      </div>
+    </section>
+  );
+}
+
+interface TimerProps {
+  settings: Settings;
+  onChange: (patch: Partial<Settings>) => void;
+}
+
+/** Focus / break lengths, long-break cycle, daily goal, weekly capacity. */
+export function TimerSettings({ settings, onChange }: TimerProps) {
   const { t, tp } = useI18n();
+
+  const step = (field: NumKey, delta: number) => {
+    const { min, max } = LIMITS[field];
+    const next = Math.min(max, Math.max(min, settings[field] + delta));
+    if (next !== settings[field]) onChange({ [field]: next } as Partial<Settings>);
+  };
+
+  return (
+    <div className="divide-y divide-line/70">
+      <Stepper
+        label={t('set.s.focus')}
+        hint={t('set.s.focusH')}
+        value={settings.focusMin}
+        unit={t('set.unit.min')}
+        field="focusMin"
+        accent
+        onStep={step}
+      />
+      <Stepper
+        label={t('set.s.short')}
+        hint={t('set.s.shortH')}
+        value={settings.shortMin}
+        unit={t('set.unit.min')}
+        field="shortMin"
+        onStep={step}
+      />
+      <Stepper
+        label={t('set.s.long')}
+        hint={t('set.s.longH')}
+        value={settings.longMin}
+        unit={t('set.unit.min')}
+        field="longMin"
+        onStep={step}
+      />
+      <Stepper
+        label={t('set.s.cycle')}
+        hint={t('set.s.cycleH')}
+        value={settings.longEvery}
+        unit={tp('set.unit.round', settings.longEvery)}
+        field="longEvery"
+        onStep={step}
+      />
+      <Stepper
+        label={t('set.s.goal')}
+        hint={t('set.s.goalH')}
+        value={settings.dailyGoal}
+        unit={tp('set.unit.session', settings.dailyGoal)}
+        field="dailyGoal"
+        onStep={step}
+      />
+      <div className="flex items-center justify-between gap-3 py-3">
+        <div className="min-w-0 flex-1">
+          <div className="text-[14px] font-semibold text-cream/90">{t('set.cap')}</div>
+          <div className="text-[12px] text-faint">{t('set.capH')}</div>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            onClick={() =>
+              onChange({ weeklyCapacityMin: Math.max(60, settings.weeklyCapacityMin - 60) })
+            }
+            className="press btn-ghost flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
+            disabled={settings.weeklyCapacityMin <= 60}
+            aria-label={t('set.capDec')}
+          >
+            <MinusIcon />
+          </button>
+          <span className="w-14 text-center font-mono text-[13px] text-cream">
+            {Math.round(settings.weeklyCapacityMin / 60)}h
+          </span>
+          <button
+            onClick={() =>
+              onChange({ weeklyCapacityMin: Math.min(10080, settings.weeklyCapacityMin + 60) })
+            }
+            className="press btn-ghost flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
+            disabled={settings.weeklyCapacityMin >= 10080}
+            aria-label={t('set.capInc')}
+          >
+            <PlusIcon />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Auto-start, celebrations, completion sound (built-in or custom), notifications. */
+export function AlertSettings({ settings, onChange }: TimerProps) {
+  const { t } = useI18n();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasCustom, setHasCustom] = useState(false);
   const [celebrate, setCelebrate] = useState<CelebratePrefs>(loadCelebratePrefs);
@@ -252,244 +378,144 @@ export default function SettingsCard({
     void deleteCustomSound().then(() => setHasCustom(false));
   };
 
-  const step = (field: NumKey, delta: number) => {
-    const { min, max } = LIMITS[field];
-    const next = Math.min(max, Math.max(min, settings[field] + delta));
-    if (next !== settings[field]) onChange({ [field]: next } as Partial<Settings>);
-  };
-
   return (
-    <section className="card px-6 py-6 sm:px-7" aria-label={t('set.aria')}>
-      <header className="flex items-baseline justify-between gap-3">
-        <h2 className="font-display text-xl font-bold tracking-tight text-cream">
-          {t('set.title')}
-        </h2>
-        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-          {t(synced ? 'set.savedSynced' : 'set.saved')}
-        </span>
-      </header>
-
-      <div className="mt-3 divide-y divide-line/70">
-        <Stepper
-          label={t('set.s.focus')}
-          hint={t('set.s.focusH')}
-          value={settings.focusMin}
-          unit={t('set.unit.min')}
-          field="focusMin"
-          accent
-          onStep={step}
-        />
-        <Stepper
-          label={t('set.s.short')}
-          hint={t('set.s.shortH')}
-          value={settings.shortMin}
-          unit={t('set.unit.min')}
-          field="shortMin"
-          onStep={step}
-        />
-        <Stepper
-          label={t('set.s.long')}
-          hint={t('set.s.longH')}
-          value={settings.longMin}
-          unit={t('set.unit.min')}
-          field="longMin"
-          onStep={step}
-        />
-        <Stepper
-          label={t('set.s.cycle')}
-          hint={t('set.s.cycleH')}
-          value={settings.longEvery}
-          unit={tp('set.unit.round', settings.longEvery)}
-          field="longEvery"
-          onStep={step}
-        />
-        <Stepper
-          label={t('set.s.goal')}
-          hint={t('set.s.goalH')}
-          value={settings.dailyGoal}
-          unit={tp('set.unit.session', settings.dailyGoal)}
-          field="dailyGoal"
-          onStep={step}
-        />
-        <div className="flex items-center justify-between gap-3 py-3">
-          <div className="min-w-0 flex-1">
-            <div className="text-[14px] font-semibold text-cream/90">{t('set.cap')}</div>
-            <div className="text-[12px] text-faint">{t('set.capH')}</div>
+    <div className="divide-y divide-line/70">
+      <Toggle
+        label={t('set.auto')}
+        hint={t('set.autoH')}
+        on={settings.autoStart}
+        onClick={() => onChange({ autoStart: !settings.autoStart })}
+      />
+      <Toggle
+        label={t('mono.celebrate.setting')}
+        hint={t('mono.celebrate.settingH')}
+        on={celebrate.enabled}
+        onClick={() => {
+          const next = { enabled: !celebrate.enabled };
+          setCelebrate(next);
+          saveCelebratePrefs(next);
+        }}
+      />
+      <Toggle
+        label={t('set.chime')}
+        hint={t('set.chimeH')}
+        on={settings.sound}
+        onClick={() => onChange({ sound: !settings.sound })}
+      />
+      {settings.sound && (
+        <>
+          <div className="flex items-center justify-between gap-3 py-3">
+            <div className="min-w-0 flex-1">
+              <div className="text-[14px] font-semibold text-cream/90">{t('set.soundType')}</div>
+              <div className="text-[12px] text-faint">{t('set.soundTypeH')}</div>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <select
+                value={settings.soundType}
+                onChange={(e) => onChange({ soundType: e.target.value as SoundType })}
+                className="min-w-32 rounded-lg bg-ink/60 px-3 py-2 text-sm font-semibold text-cream ring-1 ring-inset ring-line"
+              >
+                {BUILT_IN_SOUNDS.map((s) => (
+                  <option key={s} value={s}>
+                    {t(SOUND_TKEYS[s])}
+                  </option>
+                ))}
+                <option value="custom">{t('set.sound.custom')}</option>
+              </select>
+              <button
+                onClick={() => {
+                  if (settings.soundType === 'custom' && !hasCustom) return;
+                  playSound(settings.soundType, settings.volume / 100);
+                }}
+                className="press flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-ink/60 text-cream/70 ring-1 ring-inset ring-line hover:text-cream disabled:opacity-40"
+                aria-label={t('set.preview')}
+                title={t('set.preview')}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" stroke="none" />
+                </svg>
+              </button>
+            </div>
           </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <button
-              onClick={() =>
-                onChange({ weeklyCapacityMin: Math.max(60, settings.weeklyCapacityMin - 60) })
-              }
-              className="press btn-ghost flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
-              disabled={settings.weeklyCapacityMin <= 60}
-              aria-label={t('set.capDec')}
-            >
-              <MinusIcon />
-            </button>
-            <span className="w-14 text-center font-mono text-[13px] text-cream">
-              {Math.round(settings.weeklyCapacityMin / 60)}h
-            </span>
-            <button
-              onClick={() =>
-                onChange({ weeklyCapacityMin: Math.min(10080, settings.weeklyCapacityMin + 60) })
-              }
-              className="press btn-ghost flex h-11 w-11 items-center justify-center rounded-lg disabled:opacity-25 disabled:pointer-events-none"
-              disabled={settings.weeklyCapacityMin >= 10080}
-              aria-label={t('set.capInc')}
-            >
-              <PlusIcon />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-2 divide-y divide-line/70 border-t border-line">
-        <Toggle
-          label={t('set.auto')}
-          hint={t('set.autoH')}
-          on={settings.autoStart}
-          onClick={() => onChange({ autoStart: !settings.autoStart })}
-        />
-        <Toggle
-          label={t('mono.celebrate.setting')}
-          hint={t('mono.celebrate.settingH')}
-          on={celebrate.enabled}
-          onClick={() => {
-            const next = { enabled: !celebrate.enabled };
-            setCelebrate(next);
-            saveCelebratePrefs(next);
-          }}
-        />
-        <Toggle
-          label={t('set.chime')}
-          hint={t('set.chimeH')}
-          on={settings.sound}
-          onClick={() => onChange({ sound: !settings.sound })}
-        />
-        {settings.sound && (
-          <>
+          {settings.soundType === 'custom' && (
             <div className="flex items-center justify-between gap-3 py-3">
               <div className="min-w-0 flex-1">
-                <div className="text-[14px] font-semibold text-cream/90">{t('set.soundType')}</div>
-                <div className="text-[12px] text-faint">{t('set.soundTypeH')}</div>
+                <div className="text-[14px] font-semibold text-cream/90">{t('set.customUp')}</div>
+                <div className="text-[12px] text-faint">
+                  {hasCustom ? t('set.customHas') : t('set.customFormats')}
+                </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                <select
-                  value={settings.soundType}
-                  onChange={(e) => onChange({ soundType: e.target.value as SoundType })}
-                  className="min-w-32 rounded-lg bg-ink/60 px-3 py-2 text-sm font-semibold text-cream ring-1 ring-inset ring-line"
-                >
-                  {BUILT_IN_SOUNDS.map((s) => (
-                    <option key={s} value={s}>
-                      {t(SOUND_TKEYS[s])}
-                    </option>
-                  ))}
-                  <option value="custom">{t('set.sound.custom')}</option>
-                </select>
-                <button
-                  onClick={() => {
-                    if (settings.soundType === 'custom' && !hasCustom) return;
-                    playSound(settings.soundType, settings.volume / 100);
-                  }}
-                  className="press flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-ink/60 text-cream/70 ring-1 ring-inset ring-line hover:text-cream disabled:opacity-40"
-                  aria-label={t('set.preview')}
-                  title={t('set.preview')}
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" stroke="none" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            {settings.soundType === 'custom' && (
-              <div className="flex items-center justify-between gap-3 py-3">
-                <div className="min-w-0 flex-1">
-                  <div className="text-[14px] font-semibold text-cream/90">{t('set.customUp')}</div>
-                  <div className="text-[12px] text-faint">
-                    {hasCustom ? t('set.customHas') : t('set.customFormats')}
-                  </div>
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="audio/*,.mp3,.wav,.ogg,.webm"
-                    className="hidden"
-                    onChange={handleUpload}
-                  />
-                  {hasCustom ? (
-                    <>
-                      <button
-                        onClick={() => handleRemoveCustom()}
-                        className="press flex h-9 items-center justify-center rounded-lg bg-ink/60 px-3 text-[12px] font-semibold text-cream/70 ring-1 ring-inset ring-line hover:text-cream"
-                      >
-                        {t('set.remove')}
-                      </button>
-                      <button
-                        onClick={() => playSound('custom', settings.volume / 100)}
-                        className="press flex h-9 items-center justify-center rounded-lg bg-ink/60 px-3 text-[12px] font-semibold text-cream/70 ring-1 ring-inset ring-line hover:text-cream"
-                      >
-                        {t('set.test')}
-                      </button>
-                    </>
-                  ) : (
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="audio/*,.mp3,.wav,.ogg,.webm"
+                  className="hidden"
+                  onChange={handleUpload}
+                />
+                {hasCustom ? (
+                  <>
                     <button
-                      onClick={() => fileInputRef.current?.click()}
+                      onClick={() => handleRemoveCustom()}
                       className="press flex h-9 items-center justify-center rounded-lg bg-ink/60 px-3 text-[12px] font-semibold text-cream/70 ring-1 ring-inset ring-line hover:text-cream"
                     >
-                      {t('set.upload')}
+                      {t('set.remove')}
                     </button>
-                  )}
-                </div>
-              </div>
-            )}
-            <div className="flex items-center justify-between gap-3 py-3">
-              <div className="min-w-0 flex-1">
-                <div className="text-[14px] font-semibold text-cream/90">{t('set.volume')}</div>
-                <div className="text-[12px] text-faint">{t('set.volumeH')}</div>
-              </div>
-              <div className="flex shrink-0 items-center gap-3">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={settings.volume}
-                  onChange={(e) => onChange({ volume: parseInt(e.target.value) })}
-                  className="w-32 accent-current"
-                />
-                <span className="font-mono text-[12px] text-faint w-8 text-right">
-                  {settings.volume}%
-                </span>
+                    <button
+                      onClick={() => playSound('custom', settings.volume / 100)}
+                      className="press flex h-9 items-center justify-center rounded-lg bg-ink/60 px-3 text-[12px] font-semibold text-cream/70 ring-1 ring-inset ring-line hover:text-cream"
+                    >
+                      {t('set.test')}
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="press flex h-9 items-center justify-center rounded-lg bg-ink/60 px-3 text-[12px] font-semibold text-cream/70 ring-1 ring-inset ring-line hover:text-cream"
+                  >
+                    {t('set.upload')}
+                  </button>
+                )}
               </div>
             </div>
-            <Toggle
-              label={t('set.browser')}
-              hint={t('set.browserH')}
-              on={settings.notifications}
-              onClick={() => onChange({ notifications: !settings.notifications })}
-            />
-          </>
-        )}
-      </div>
-
-      <AppearanceSection
-        theme={theme}
-        onThemeChange={onThemeChange}
-        isPro={isPro}
-        atmosphere={atmosphere}
-        onAtmosphere={onAtmosphere}
-      />
-    </section>
+          )}
+          <div className="flex items-center justify-between gap-3 py-3">
+            <div className="min-w-0 flex-1">
+              <div className="text-[14px] font-semibold text-cream/90">{t('set.volume')}</div>
+              <div className="text-[12px] text-faint">{t('set.volumeH')}</div>
+            </div>
+            <div className="flex shrink-0 items-center gap-3">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={settings.volume}
+                onChange={(e) => onChange({ volume: parseInt(e.target.value) })}
+                className="w-32 accent-current"
+              />
+              <span className="font-mono text-[12px] text-faint w-8 text-right">
+                {settings.volume}%
+              </span>
+            </div>
+          </div>
+          <Toggle
+            label={t('set.browser')}
+            hint={t('set.browserH')}
+            on={settings.notifications}
+            onClick={() => onChange({ notifications: !settings.notifications })}
+          />
+        </>
+      )}
+    </div>
   );
 }
 
@@ -555,7 +581,8 @@ const FONT_LABEL_KEYS: Record<FontChoice, TKey> = {
   newsreader: 'set.font.newsreader',
 };
 
-function AppearanceSection({
+/** Atmosphere, light/dark, accent, font, text size. */
+export function AppearanceSettings({
   theme,
   onThemeChange,
   isPro,
@@ -589,9 +616,7 @@ function AppearanceSection({
   };
 
   return (
-    <div className="mt-2 divide-y divide-line/70 border-t border-line">
-      <SectionLabel text={t('set.theme')} />
-
+    <div className="divide-y divide-line/70">
       <div className="flex flex-col gap-2 py-3">
         <div className="min-w-0">
           <div className="text-[14px] font-semibold text-cream/90">{t('set.atm')}</div>

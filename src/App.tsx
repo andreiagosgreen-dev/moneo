@@ -19,8 +19,6 @@ import MonoRapoarte from './mono/MonoRapoarte';
 import MonoCrestere from './mono/MonoCrestere';
 import MonoViata from './mono/MonoViata';
 import MonoReturn from './mono/MonoReturn';
-import MonoLocalData from './mono/MonoLocalData';
-import MonoCloudSync from './mono/MonoCloudSync';
 import GettingStarted from './components/GettingStarted';
 import TabFallback from './components/TabFallback';
 import MatrixCard from './components/MatrixCard';
@@ -28,13 +26,11 @@ import FrogCard from './components/FrogCard';
 import LifeCard from './components/LifeCard';
 
 const StatsCard = lazy(() => import('./components/StatsCard'));
-const SettingsCard = lazy(() => import('./components/SettingsCard'));
-const MonoDataExport = lazy(() => import('./mono/MonoDataExport'));
+const MonoSettings = lazy(() => import('./mono/MonoSettings'));
 const MonoMiscare = lazy(() => import('./mono/MonoMiscare'));
 const ReportsCard = lazy(() => import('./components/ReportsCard'));
 const WeeklyRecapCard = lazy(() => import('./components/WeeklyRecapCard'));
 const GrowthCard = lazy(() => import('./components/GrowthCard'));
-const PricingCard = lazy(() => import('./components/PricingCard'));
 const ProjectsCard = lazy(() => import('./components/ProjectsCard'));
 const InsightsCard = lazy(() => import('./components/InsightsCard'));
 const AssistantCard = lazy(() => import('./components/AssistantCard'));
@@ -43,7 +39,6 @@ const AgileCard = lazy(() => import('./components/AgileCard'));
 const OkrCard = lazy(() => import('./components/OkrCard'));
 const SkillsCard = lazy(() => import('./components/SkillsCard'));
 const LifeMapCard = lazy(() => import('./components/LifeMapCard'));
-const LanguageCard = lazy(() => import('./components/LanguageCard'));
 const AiPathCard = lazy(() => import('./components/AiPathCard'));
 const CalendarCard = lazy(() => import('./components/CalendarCard'));
 const GraphCard = lazy(() => import('./components/GraphCard'));
@@ -51,7 +46,6 @@ const MonoCelebrate = lazy(() => import('./mono/MonoCelebrate'));
 const MonoRankCard = lazy(() => import('./mono/MonoRankCard'));
 const LegalPage = lazy(() => import('./components/legal/LegalPage'));
 import { LEGAL_DOCS, LEGAL_PATHS } from './lib/legal/seller';
-import MonoSupportCard from './mono/MonoSupportCard';
 import HelpPage from './components/HelpPage';
 import PricingPage from './components/PricingPage';
 import LoginPage from './components/LoginPage';
@@ -1860,39 +1854,19 @@ export default function App() {
                     <Suspense fallback={<TabFallback label="Settings" />}>
                       <main>
                         <MonoHead title={t('mono.nav.settings')} sub={t('nav.settingsTitle')} />
-                        <div className="mono-pad mt-2 grid grid-cols-1 items-start gap-6 md:grid-cols-2">
-                          <div className="reveal" style={{ animationDelay: '90ms' }}>
-                            <SettingsCard
-                              settings={settings}
-                              onChange={updateSettings}
-                              theme={theme}
-                              onThemeChange={setTheme}
-                              isPro={auth.isPro}
-                              atmosphere={atmosphere}
-                              onAtmosphere={setAtmosphere}
-                              synced={auth.status === 'authenticated' && syncState.initialized}
-                            />
-                          </div>
-                          <div className="reveal" style={{ animationDelay: '135ms' }}>
-                            <LanguageCard />
-                            {auth.status === 'authenticated' ? (
-                              <div style={{ marginTop: 24 }}>
-                                <MonoCloudSync isPro={auth.isPro} />
-                              </div>
-                            ) : null}
-                            <div style={{ marginTop: 24 }}>
-                              <MonoDataExport user={auth.user} />
-                            </div>
-                            <div style={{ marginTop: 24 }}>
-                              <MonoLocalData signedIn={auth.status === 'authenticated'} />
-                            </div>
-                            <div style={{ marginTop: 24 }}>
-                              <MonoSupportCard />
-                            </div>
-                          </div>
-                          <div className="reveal" style={{ animationDelay: '180ms' }}>
-                            <PricingCard />
-                          </div>
+                        <div className="mono-pad mt-2 reveal" style={{ animationDelay: '90ms' }}>
+                          <MonoSettings
+                            settings={settings}
+                            onChange={updateSettings}
+                            theme={theme}
+                            onThemeChange={setTheme}
+                            isPro={auth.isPro}
+                            atmosphere={atmosphere}
+                            onAtmosphere={setAtmosphere}
+                            synced={auth.status === 'authenticated' && syncState.initialized}
+                            signedIn={auth.status === 'authenticated'}
+                            user={auth.user}
+                          />
                         </div>
                       </main>
                     </Suspense>

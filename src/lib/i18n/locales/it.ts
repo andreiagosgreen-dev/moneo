@@ -3593,4 +3593,16 @@ export const it: Record<TKey, string> = {
   'fit.rt.yogaMorning.desc': 'Risveglio dolce: dalla montagna alla posizione del bambino.',
   'fit.rt.stretchEvening.name': 'Stretching serale 10 min',
   'fit.rt.stretchEvening.desc': 'Sciogli collo, spalle, anche e femorali prima di dormire.',
+  'set.grp.timer': 'Timer',
+  'set.grp.timerSum': 'Focus {focus} min · Pausa {short} min · Obiettivo giornaliero: {goal}',
+  'set.grp.alerts': 'Suono e avvisi',
+  'set.grp.alertsOn': 'Suono attivo · Volume {vol}%',
+  'set.grp.alertsOff': 'Suono disattivato',
+  'set.grp.data': 'Account e dati',
+  'set.grp.dataSum':
+    'Sincronizzazione, esportazione e importazione, eliminazione dei dati da questo dispositivo',
+  'set.grp.plan': 'Piano',
+  'set.grp.planFree': 'Usi Free — scopri cosa aggiunge Pro',
+  'set.grp.planPro': 'Usi Pro — grazie',
+  'set.grp.helpSum': 'E-mail di supporto, aiuto, termini e privacy',
 };
