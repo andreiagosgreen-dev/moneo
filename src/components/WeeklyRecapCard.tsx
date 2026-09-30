@@ -143,7 +143,7 @@ export default function WeeklyRecapCard({ history, projects, tasks, goals, timez
         </div>
       </div>
 
-      <div className="mt-4 flex items-end gap-1" style={{ height: 72 }} aria-hidden="true">
+      <div className="mt-4 flex items-stretch gap-1" style={{ height: 72 }} aria-hidden="true">
         {recap.days.map((d) => {
           const pct = d.min === 0 ? 0 : Math.max(5, (d.min / maxDay) * 100);
           let label = d.key;
@@ -180,7 +180,11 @@ export default function WeeklyRecapCard({ history, projects, tasks, goals, timez
                 <span className="truncate text-[13px] text-cream/90">{p.name}</span>
                 <span className="shrink-0 font-mono text-[12px] text-sage">
                   {fmtDur(p.min)}
-                  {p.pct !== null && <span className="ml-1 text-faint">({fmtNum(p.pct)}%)</span>}
+                  {p.pct !== null && (
+                    <span className="ml-1 text-faint">
+                      · {t('recap.tasksDone', { pct: fmtNum(p.pct) })}
+                    </span>
+                  )}
                 </span>
               </div>
               {p.pct !== null && (

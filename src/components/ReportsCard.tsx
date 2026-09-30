@@ -71,7 +71,7 @@ function DayChart({ data, timezone }: { data: DayBucket[]; timezone: string }) {
   const max = Math.max(1, ...data.map((d) => d.min));
   return (
     <div
-      className="mt-4 flex items-end gap-1.5 rounded-xl bg-ink/25 px-3 pt-3 pb-2 ring-1 ring-line"
+      className="mt-4 flex items-stretch gap-1.5 rounded-xl bg-ink/25 px-3 pt-3 pb-2 ring-1 ring-line"
       style={{ height: 148 }}
     >
       {data.map((d, i) => {

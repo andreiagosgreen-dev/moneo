@@ -125,11 +125,11 @@ export default function HabitsTab({
                   />
                   <div className="min-w-0 flex-1">
                     <span
-                      className={`truncate text-[13px] font-medium text-cream/90 ${doneToday ? 'line-through' : ''}`}
+                      className={`block truncate text-[13px] font-medium text-cream/90 ${doneToday ? 'line-through' : ''}`}
                     >
                       {h.name}
                     </span>
-                    <span className="ml-2 font-mono text-[10px] text-faint">
+                    <span className="block truncate font-mono text-[11px] text-faint">
                       {h.frequency === 'weekly'
                         ? t('life.hab.perWeek', { n: fmtNum(h.targetPerWeek) })
                         : t('life.hab.daily')}
@@ -208,7 +208,7 @@ export default function HabitsTab({
 
       {!atCapacity ? (
         <div className="mt-3">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <MonoIconPicker
               value={draftIcon}
               onChange={(icon) => setDraftIcon(icon ?? undefined)}
@@ -221,7 +221,7 @@ export default function HabitsTab({
               onKeyDown={(e) => e.key === 'Enter' && draft.trim() && add(draft, freq, 3, draftIcon)}
               placeholder={t('life.hab.ph')}
               aria-label={t('life.hab.add')}
-              className="mono-ph-fit h-10 min-w-0 flex-1 rounded-lg bg-ink/40 px-3 text-[14px] text-cream ring-1 ring-inset ring-line placeholder:text-sage/70 focus:ring-accent focus:outline-none"
+              className="mono-ph-fit h-10 min-w-[10rem] flex-1 rounded-lg bg-ink/40 px-3 text-[14px] text-cream ring-1 ring-inset ring-line placeholder:text-sage/70 focus:ring-accent focus:outline-none"
             />
             <select
               value={freq}

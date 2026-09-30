@@ -3035,7 +3035,7 @@ export const uk: Record<TKey, string> = {
   'weeklyReview.title': 'Тижневий огляд',
   'weeklyReview.empty': 'Цього тижня немає фокус-сесій чи застійних завдань — спокійний тиждень.',
   'weeklyReview.header': 'Тижневий огляд — {date}',
-  'weeklyReview.bestLine': 'Найкраща робота цього тижня: {name} ({minutes}хв фокусу).',
+  'weeklyReview.bestLine': 'Найкраща робота цього тижня: {name} ({dur} фокусу).',
   'weeklyReview.stagnatingLine': 'Застоюється: {list}.',
   'weeklyReview.noStagnation': 'Нічого не застоюється — усе відкрите свіже.',
   'weeklyReview.decisionOverdue':
@@ -3381,4 +3381,5 @@ export const uk: Record<TKey, string> = {
   'goal.tpl.declutter.task.donate': 'Віднесіть пакет речей на благодійність',
   'goal.tpl.declutter.task.sell': 'Виставте на продаж те, чим не користуєтеся',
   'goal.tpl.declutter.habit.tidy': 'Лад 10 хвилин',
+  'recap.tasksDone': 'завдань виконано: {pct}%',
 };

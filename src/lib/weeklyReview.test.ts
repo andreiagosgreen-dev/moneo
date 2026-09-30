@@ -98,6 +98,8 @@ describe('weeklyNarrative', () => {
     const text = weeklyNarrative({ history, tasks, projects });
     expect(text).toContain('Launch');
     expect(text).toContain('Write docs');
+    expect(text).not.toMatch(/\d{4}-\d{1,2}-\d{1,2}/);
+    expect(text).toMatch(/\(\d+(h|m)[^)]* focused\)/);
     expect(text).toMatch(/reschedule it or let it go\?/);
   });
 });
