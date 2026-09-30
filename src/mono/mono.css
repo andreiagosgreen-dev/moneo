@@ -4529,10 +4529,40 @@
 
 /* Life templates */
 .mono-tpl {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
   margin: 20px 0;
+}
+.mono-tpl-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+}
+.mono-tpl-summary::-webkit-details-marker {
+  display: none;
+}
+.mono-tpl-summary-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.mono-tpl-chev {
+  color: var(--mono-muted);
+  font-size: 20px;
+  line-height: 1;
+  transition: transform 160ms var(--mono-ease);
+}
+.mono-tpl[open] .mono-tpl-chev {
+  transform: rotate(90deg);
+}
+.mono-tpl-limit {
+  margin: 10px 0 0;
+}
+.mono-tpl[open] .mono-tpl-grid {
+  margin-top: 10px;
 }
 .mono-tpl-grid {
   display: grid;

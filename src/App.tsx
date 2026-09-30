@@ -1679,6 +1679,7 @@ export default function App() {
                           <MonoTemplates
                             isPro={auth.isPro}
                             canCreate={canCreateProject}
+                            hasProjects={projects.length > 0}
                             onCreate={handleLifeTemplate}
                           />
                           <ProjectsCard
