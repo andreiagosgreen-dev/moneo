@@ -194,7 +194,7 @@ export const uk: Record<TKey, string> = {
   'today.shutdownTitle': 'Підбийте підсумок дня й перенесіть відкрите на завтра',
   'today.planned': 'Заплановано {p} · доступно ~{a}',
   'today.more': 'Ще сьогодні',
-  'today.moreHint': 'Матриця і звички на сьогодні',
+  'today.moreHint': 'Командний центр, жаба, матриця і звички',
   'today.advPlan': 'Просунуте планування',
   'today.advSkillsHint': 'OKR · навички',
   'today.advAgileHint': 'Спринти · канбан · водоспад',

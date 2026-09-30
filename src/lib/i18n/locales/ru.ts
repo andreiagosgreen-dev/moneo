@@ -194,7 +194,7 @@ export const ru: Record<TKey, string> = {
   'today.shutdownTitle': 'Подведите итог дня и перенесите открытое на завтра',
   'today.planned': 'Запланировано {p} · доступно ~{a}',
   'today.more': 'Ещё сегодня',
-  'today.moreHint': 'Матрица и привычки на сегодня',
+  'today.moreHint': 'Командный центр, лягушка, матрица и привычки',
   'today.advPlan': 'Продвинутое планирование',
   'today.advSkillsHint': 'OKR · навыки',
   'today.advAgileHint': 'Спринты · канбан · водопад',

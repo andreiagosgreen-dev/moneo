@@ -70,6 +70,7 @@ import {
   saveProjects,
   activeProjects,
   FREE_PROJECTS_LIMIT,
+  localDayKey,
   type Project,
 } from './lib/projects';
 import { getMinutesForTask, loadTasks, removeTask, saveTasks, type Task } from './lib/tasks';
@@ -108,7 +109,7 @@ import {
   type TimeBlock,
 } from './lib/timeBlocks';
 import { loadSkills, transitionAdvice, type Skill } from './lib/skills';
-import { loadFrogLog, pickFrog, type FrogLog } from './lib/frog';
+import { loadFrogLog, pickFrog, recordFrog, saveFrogLog, type FrogLog } from './lib/frog';
 import { mottoForDay } from './lib/guidance/mottos';
 import { buildLifeHubSnapshot } from './lib/guidance/lifeProgress';
 import { loadGoals, saveGoals, FREE_GOALS_LIMIT, type Goal } from './lib/goals';
@@ -961,6 +962,19 @@ export default function App() {
     minuteOfDayInTz(nowMs, auth.timezone),
   );
   const frogPick = pickFrog(tasks, projects, nowMs);
+  const frogDayKey = localDayKey(nowMs);
+  // Lives here, not in FrogCard, so the streak still records while "More today" is collapsed.
+  useEffect(() => {
+    if (!frogPick) return;
+    const entry = frogLog[frogDayKey];
+    const done = frogPick.status === 'completed' || entry?.done === true;
+    if (!entry || entry.taskId !== frogPick.id || entry.done !== done) {
+      const next = recordFrog(frogLog, frogDayKey, frogPick.id, done);
+      saveFrogLog(next);
+      setFrogLog(next);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frogPick?.id, frogPick?.status, frogDayKey]);
   const dayMotto = mottoForDay(todayKey, locale);
   const lifeHub = buildLifeHubSnapshot({
     plan: todayPlan,
@@ -975,7 +989,7 @@ export default function App() {
   // the calm core flow; everything else unfolds after first sessions.
   const engaged = isEngagedUser(history, projects);
   const [todayMoreOpen, setTodayMoreOpen] = useState<boolean | null>(null);
-  const moreIsOpen = todayMoreOpen ?? engaged;
+  const moreIsOpen = todayMoreOpen ?? false;
   const openTodayHabitsManage = () => {
     setTodayMoreOpen(true);
     queueMicrotask(() => {
@@ -1340,53 +1354,49 @@ export default function App() {
                         }
                         more={
                           <>
-                            {!showGettingStarted && (
-                              <div className="mono-sec">
-                                <CommandCenter
-                                  projects={projects}
-                                  tasks={tasks}
-                                  goals={goals}
-                                  sprints={sprints}
-                                  history={history}
-                                  areas={areas}
-                                  habits={habits}
-                                  habitLog={habitLog}
-                                  timezone={auth.timezone}
-                                  selectedProjectId={selectedProjectId}
-                                  selectedTaskId={selectedTaskId}
-                                />
-                              </div>
-                            )}
-                            <div className="mono-sec">
-                              <FrogCard
-                                tasks={tasks}
-                                projects={projects}
-                                frogLog={frogLog}
-                                frogLogChange={setFrogLog}
-                                onTasksChange={setTasks}
-                                isPro={auth.isPro}
-                                onPlan={
-                                  frogPick
-                                    ? dayPlanHasLinkedTask(ivyPlans, todayKey, frogPick.id)
-                                    : false
-                                }
-                                onAddToPlan={
-                                  frogPick
-                                    ? () => {
-                                        addLinkedTaskToPlan(frogPick);
-                                      }
-                                    : undefined
-                                }
-                              />
-                            </div>
                             <div className="mono-sec">
                               <Disclosure
                                 title={t('today.more')}
                                 hint={t('today.moreHint')}
-                                defaultOpen={engaged}
+                                defaultOpen={false}
                                 open={moreIsOpen}
                                 onOpenChange={setTodayMoreOpen}
                               >
+                                {!showGettingStarted && (
+                                  <CommandCenter
+                                    projects={projects}
+                                    tasks={tasks}
+                                    goals={goals}
+                                    sprints={sprints}
+                                    history={history}
+                                    areas={areas}
+                                    habits={habits}
+                                    habitLog={habitLog}
+                                    timezone={auth.timezone}
+                                    selectedProjectId={selectedProjectId}
+                                    selectedTaskId={selectedTaskId}
+                                  />
+                                )}
+                                <FrogCard
+                                  tasks={tasks}
+                                  projects={projects}
+                                  frogLog={frogLog}
+                                  frogLogChange={setFrogLog}
+                                  onTasksChange={setTasks}
+                                  isPro={auth.isPro}
+                                  onPlan={
+                                    frogPick
+                                      ? dayPlanHasLinkedTask(ivyPlans, todayKey, frogPick.id)
+                                      : false
+                                  }
+                                  onAddToPlan={
+                                    frogPick
+                                      ? () => {
+                                          addLinkedTaskToPlan(frogPick);
+                                        }
+                                      : undefined
+                                  }
+                                />
                                 <MatrixCard
                                   tasks={tasks}
                                   history={history}
