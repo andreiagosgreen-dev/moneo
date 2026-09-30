@@ -142,13 +142,13 @@ import {
   type WorkoutStore,
 } from './lib/fitness/workouts';
 import {
-  getCustom,
   isCustomId,
   resolveRoutine,
   routineTitle,
   upsertCustom,
   type CustomRoutine,
 } from './lib/fitness/custom';
+import { isProgramId } from './lib/fitness/program';
 import { getActiveRun, setActiveRun, startRun } from './lib/fitness/player';
 import MonoMoveToday from './mono/MonoMoveToday';
 import type { HabitLink } from './mono/MonoWorkoutPlayer';
@@ -402,7 +402,10 @@ export default function App() {
   };
   const startWorkoutFromToday = (routineId: string) => {
     if (!getActiveRun()) {
-      const steps = isCustomId(routineId) ? getCustom(workoutStore, routineId)?.steps : undefined;
+      const steps =
+        isCustomId(routineId) || isProgramId(routineId)
+          ? resolveRoutine(workoutStore, routineId)?.steps
+          : undefined;
       setActiveRun(startRun(routineId, Date.now(), workoutStore.log, steps));
     }
     goFill('move');

@@ -4,7 +4,9 @@
  * the export and Pro account sync. Building and saving them is Pro; starting
  * one that already exists stays available if Pro lapses.
  */
-import type { TKey } from '../i18n/types';
+import type { TKey, Vars } from '../i18n/types';
+import { cardioKindOf } from './cardio';
+import { isProgramId, programSession, programSteps } from './program';
 import {
   exerciseStep,
   fitKey,
@@ -92,27 +94,54 @@ export function getCustom(store: WorkoutStore, id: string): CustomRoutine | unde
   return store.custom?.find((r) => r.id === id);
 }
 
-/** A built-in or custom routine in the shape the player and cards use. */
-export function resolveRoutine(store: WorkoutStore, id: string): Routine | undefined {
-  const builtIn = getRoutine(id);
-  if (builtIn) return builtIn;
-  const c = getCustom(store, id);
-  if (!c) return undefined;
-  const first = getExercise(c.steps[0].ex);
-  const places = [...new Set(c.steps.flatMap((s) => getExercise(s.ex)?.places ?? []))];
+function asRoutine(id: string, steps: RoutineStep[]): Routine {
+  const first = getExercise(steps[0].ex);
+  const places = [...new Set(steps.flatMap((s) => getExercise(s.ex)?.places ?? []))];
   return {
-    id: c.id,
+    id,
     places,
     type: first?.type ?? 'strength',
     icon: first?.pose ?? 'squat',
-    steps: c.steps,
+    steps,
   };
 }
 
+/**
+ * A built-in, custom or program routine in the shape the player and cards
+ * use. Program sessions carry this week's doses.
+ */
+export function resolveRoutine(
+  store: WorkoutStore,
+  id: string,
+  now: number = Date.now(),
+): Routine | undefined {
+  const builtIn = getRoutine(id);
+  if (builtIn) return builtIn;
+  if (isProgramId(id)) {
+    const steps = store.program ? programSteps(store.program, id, now) : [];
+    return steps.length > 0 ? asRoutine(id, steps) : undefined;
+  }
+  const c = getCustom(store, id);
+  return c ? asRoutine(c.id, c.steps) : undefined;
+}
+
 /** Display name for any routine id found in the log or the plan. */
-export function routineTitle(t: (key: TKey) => string, store: WorkoutStore, id: string): string {
+export function routineTitle(
+  t: (key: TKey, vars?: Vars) => string,
+  store: WorkoutStore,
+  id: string,
+): string {
   if (getRoutine(id)) return t(fitKey.rtName(id));
   if (id === FREE_RUN_ID) return t('fit.free.name');
+  const cardio = cardioKindOf(id);
+  if (cardio) return t(`fit.cardio.${cardio}` as TKey);
+  if (isProgramId(id)) {
+    const session = store.program && programSession(store.program, id);
+    const key = id.slice(2);
+    return session
+      ? t('fit.pp.session', { x: key, focus: t(`fit.pp.focus.${session.focus}` as TKey) })
+      : t('fit.pp.sessionShort', { x: key });
+  }
   return getCustom(store, id)?.name ?? t('fit.d.habitName');
 }
 

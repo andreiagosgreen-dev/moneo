@@ -118,4 +118,27 @@ test.describe('move (fitness)', () => {
     expect(log[0].routineId).toBe('free');
     expect(log[0].sets[0].ex).toBe('plank');
   });
+
+  test('cardio: logs a run with pace; the personal program is Pro', async ({ page, isMobile }) => {
+    await openMove(page, isMobile);
+    await expect(page.getByTestId('fit-pp-pro')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Log cardio' }).click();
+    const form = page.getByTestId('fit-cardio-form');
+    await form.getByRole('button', { name: 'Run', exact: true }).click();
+    await form.getByLabel('Time, min').fill('25');
+    await form.getByLabel('Distance, km (optional)').fill('5');
+    await expect(page.getByTestId('fit-cardio-pace')).toHaveText('Pace: 5:00 /km');
+    await form.getByRole('button', { name: 'Save', exact: true }).click();
+
+    await expect(page.getByRole('status').filter({ hasText: 'Workout saved.' })).toBeVisible();
+    await expect(page.getByTestId('fit-history')).toContainText('5 km · 5:00 /km');
+    await expect(page.getByText('1 workout', { exact: true })).toBeVisible();
+
+    const log = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('moneo:workouts') ?? '{"log":[]}').log,
+    );
+    expect(log).toHaveLength(1);
+    expect(log[0]).toMatchObject({ routineId: 'cardio-run', km: 5, durationSec: 1500 });
+  });
 });
