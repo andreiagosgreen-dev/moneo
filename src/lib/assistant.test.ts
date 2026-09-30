@@ -126,6 +126,14 @@ describe('respondTo', () => {
     expect(respondTo('show my matrix', ctx).text).toContain('Matrix:');
   });
 
+  it("does not count today's planned tasks as ones to drop", () => {
+    const tasks = [makeTask({ id: 'a', title: 'Planned chore', priority: 'p2' })];
+    expect(respondTo('show my matrix', makeCtx({ tasks })).text).toContain('1 to drop');
+    const planned = respondTo('show my matrix', makeCtx({ tasks, plannedIds: new Set(['a']) }));
+    expect(planned.text).toContain('1 first');
+    expect(planned.text).toContain('0 to drop');
+  });
+
   it('reports goals and daily progress', () => {
     const at = Date.now();
     const ctx = makeCtx({
