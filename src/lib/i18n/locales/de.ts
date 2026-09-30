@@ -3442,7 +3442,7 @@ export const de: Record<TKey, string> = {
   'fit.historyVolume': 'Volumen: {kg} kg',
   'fit.deleteAria': 'Workout {name} vom {date} löschen',
   'fit.localNote':
-    'Dein Trainingsprotokoll bleibt auf diesem Gerät und ist im Datenexport enthalten.',
+    'Dein Trainingsprotokoll wird auf diesem Gerät gespeichert und ist im Datenexport enthalten. Mit Pro und aktivierter Kontosynchronisierung wird es auch mit deinem Konto synchronisiert.',
   'fit.p.step': 'Übung {i} von {n}',
   'fit.p.set': 'Satz {i} von {n}',
   'fit.p.reps': 'Wiederholungen',

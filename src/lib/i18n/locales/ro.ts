@@ -3428,7 +3428,7 @@ export const ro: Record<TKey, string> = {
   'fit.historyVolume': 'Volum: {kg} kg',
   'fit.deleteAria': 'Șterge antrenamentul {name} din {date}',
   'fit.localNote':
-    'Jurnalul de antrenamente rămâne pe acest dispozitiv și e inclus în exportul datelor.',
+    'Jurnalul de antrenamente e salvat pe acest dispozitiv și e inclus în exportul datelor. Cu Pro și sincronizarea contului pornită, se sincronizează și în cont.',
   'fit.p.step': 'Exercițiul {i} din {n}',
   'fit.p.set': 'Seria {i} din {n}',
   'fit.p.reps': 'Repetări',

@@ -3402,7 +3402,8 @@ export const en = {
   'fit.historyMeta': '{dur} · Sets: {sets}',
   'fit.historyVolume': 'Volume: {kg} kg',
   'fit.deleteAria': 'Delete workout {name} from {date}',
-  'fit.localNote': 'Your workout log stays on this device and is included in your data export.',
+  'fit.localNote':
+    'Your workout log is saved on this device and included in your data export. With Pro and account sync on, it also syncs to your account.',
   'fit.p.step': 'Exercise {i} of {n}',
   'fit.p.set': 'Set {i} of {n}',
   'fit.p.reps': 'Reps',

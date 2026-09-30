@@ -3431,7 +3431,7 @@ export const it: Record<TKey, string> = {
   'fit.historyVolume': 'Volume: {kg} kg',
   'fit.deleteAria': 'Elimina l’allenamento {name} del {date}',
   'fit.localNote':
-    'Il registro degli allenamenti resta su questo dispositivo ed è incluso nell’esportazione dei dati.',
+    'Il registro degli allenamenti è salvato su questo dispositivo ed è incluso nell’esportazione dei dati. Con Pro e la sincronizzazione dell’account attiva, si sincronizza anche con il tuo account.',
   'fit.p.step': 'Esercizio {i} di {n}',
   'fit.p.set': 'Serie {i} di {n}',
   'fit.p.reps': 'Ripetizioni',

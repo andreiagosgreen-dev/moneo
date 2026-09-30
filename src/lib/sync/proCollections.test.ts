@@ -81,6 +81,25 @@ describe('splitRecords', () => {
     expect(splitRecords({ kind: 'value' }, null).size).toBe(0);
   });
 
+  it('object-list: one record per item plus one for the other fields', () => {
+    const shape = { kind: 'object-list', list: 'log', idField: 'id' } as const;
+    const recs = splitRecords(shape, {
+      log: [{ id: 'w1', n: 1 }, { n: 'no id' }, { id: 'w2', n: 2 }],
+      habitId: 'h1',
+      plan: [{ routineId: 'r', days: [1] }],
+    });
+    expect([...recs.entries()]).toEqual([
+      ['rest', { habitId: 'h1', plan: [{ routineId: 'r', days: [1] }] }],
+      ['e:w1', { id: 'w1', n: 1 }],
+      ['e:w2', { id: 'w2', n: 2 }],
+    ]);
+    expect([...splitRecords(shape, { log: [] }).keys()]).toEqual([]);
+    expect(splitRecords(shape, [{ id: 'w1' }]).size).toBe(0);
+    expect(splitRecords(shape, { log: [{ id: 'x'.repeat(MAX_RECORD_ID_LENGTH - 1) }] }).size).toBe(
+      0,
+    );
+  });
+
   it('never throws on the wrong type', () => {
     expect(splitRecords({ kind: 'list', idField: 'id' }, { not: 'a list' }).size).toBe(0);
     expect(splitRecords({ kind: 'map' }, ['x']).size).toBe(0);
@@ -144,6 +163,59 @@ describe('joinRecords', () => {
     });
   });
 
+  it('object-list: merges items, keeps them sorted, replaces or drops the rest', () => {
+    const shape = { kind: 'object-list', list: 'log', idField: 'id', sortBy: 'startedAt' } as const;
+    const local = {
+      log: [
+        { id: 'a', startedAt: 10 },
+        { id: 'b', startedAt: 30 },
+      ],
+      habitId: 'h1',
+    };
+    expect(
+      joinRecords(shape, local, {
+        upserts: new Map<string, unknown>([
+          ['e:c', { id: 'c', startedAt: 20 }],
+          ['rest', { habitId: 'h2', place: 'gym' }],
+        ]),
+        deletes: new Set(['e:a']),
+      }),
+    ).toEqual({
+      habitId: 'h2',
+      place: 'gym',
+      log: [
+        { id: 'c', startedAt: 20 },
+        { id: 'b', startedAt: 30 },
+      ],
+    });
+    expect(joinRecords(shape, local, { upserts: new Map(), deletes: new Set(['rest']) })).toEqual({
+      log: local.log,
+    });
+    expect(
+      joinRecords(shape, undefined, {
+        upserts: new Map([['e:x', { id: 'x', startedAt: 1 }]]),
+        deletes: new Set(),
+      }),
+    ).toEqual({ log: [{ id: 'x', startedAt: 1 }] });
+  });
+
+  it('object-list: a remote rest record can never replace the list', () => {
+    const shape = { kind: 'object-list', list: 'log', idField: 'id' } as const;
+    expect(
+      joinRecords(
+        shape,
+        { log: [{ id: 'a' }] },
+        { upserts: new Map([['rest', { log: 'junk', place: 'home' }]]), deletes: new Set() },
+      ),
+    ).toEqual({ place: 'home', log: [{ id: 'a' }] });
+  });
+
+  it('syncs the workout log', () => {
+    const c = PRO_SYNC_COLLECTIONS.find((x) => x.key === STORAGE_KEYS.workouts);
+    expect(c?.name).toBe('workouts');
+    expect(c?.shape.kind).toBe('object-list');
+  });
+
   it('round-trips: split then join with no changes is identity', () => {
     for (const c of PRO_SYNC_COLLECTIONS) {
       const sample =
@@ -153,7 +225,9 @@ describe('joinRecords', () => {
             ? { r1: { n: 1 } }
             : c.shape.kind === 'set'
               ? ['r1']
-              : { n: 1 };
+              : c.shape.kind === 'object-list'
+                ? { k: 1, [c.shape.list]: [{ [c.shape.idField]: 'r1', n: 1 }] }
+                : { n: 1 };
       splitRecords(c.shape, sample);
       expect(joinRecords(c.shape, sample, { upserts: new Map(), deletes: new Set() })).toEqual(
         sample,

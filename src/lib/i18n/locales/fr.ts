@@ -3451,7 +3451,7 @@ export const fr: Record<TKey, string> = {
   'fit.historyVolume': 'Volume : {kg} kg',
   'fit.deleteAria': 'Supprimer la séance {name} du {date}',
   'fit.localNote':
-    'Votre journal d’entraînement reste sur cet appareil et fait partie de l’export de vos données.',
+    'Votre journal d’entraînement est enregistré sur cet appareil et fait partie de l’export de vos données. Avec Pro et la synchronisation du compte activée, il est aussi synchronisé avec votre compte.',
   'fit.p.step': 'Exercice {i} sur {n}',
   'fit.p.set': 'Série {i} sur {n}',
   'fit.p.reps': 'Répétitions',

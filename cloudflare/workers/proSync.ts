@@ -45,6 +45,7 @@ export const PRO_SYNC_COLLECTION_NAMES: ReadonlySet<string> = new Set([
   'links',
   'saved_filters',
   'roadmaps',
+  'workouts',
 ]);
 
 export const MAX_SYNC_BODY_BYTES = 2_000_000;
