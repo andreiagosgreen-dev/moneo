@@ -5,6 +5,8 @@ import MonoRing from './MonoRing';
 import MonoExerciseIcon from './MonoExerciseIcon';
 import MonoBodyMap from './MonoBodyMap';
 import MonoExerciseDetail from './MonoExerciseDetail';
+import MonoFitRecords, { recordText } from './MonoFitRecords';
+import MonoRoutineBuilder from './MonoRoutineBuilder';
 import MonoWorkoutPlayer, { fitDose, type HabitLink } from './MonoWorkoutPlayer';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { Habit } from '../lib/habits';
@@ -16,14 +18,28 @@ import {
   filterExercises,
   fitKey,
   getExercise,
-  getRoutine,
   ROUTINES,
   routineMinutes,
   type Equipment,
   type FitPlace,
   type FitType,
   type Muscle,
+  type Routine,
+  type RoutineStep,
 } from '../lib/fitness/library';
+import {
+  FREE_RUN_ID,
+  MAX_CUSTOM,
+  deleteCustom,
+  getCustom,
+  isCustomId,
+  newCustomRoutine,
+  resolveRoutine,
+  routineTitle,
+  upsertCustom,
+  type CustomRoutine,
+} from '../lib/fitness/custom';
+import { newRecords, type NewRecord } from '../lib/fitness/records';
 import {
   heatLevels,
   muscleLoad,
@@ -42,7 +58,8 @@ interface Props {
   store: WorkoutStore;
   habits: Habit[];
   isPro: boolean;
-  onSave: (entry: WorkoutEntry, link: HabitLink) => void;
+  /** `routine`: the free workout also saved as the user's own routine (Pro). */
+  onSave: (entry: WorkoutEntry, link: HabitLink, routine?: CustomRoutine) => void;
   onDelete: (id: string) => void;
   /** Place and schedule changes. */
   onChange: (next: WorkoutStore) => void;
@@ -61,8 +78,9 @@ const scrollTo = (id: string, block: ScrollLogicalPosition = 'start') =>
 export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, onChange }: Props) {
   const { t, tp, tag, fmtDur, fmtDayKey, fmtNum } = useI18n();
   const [playing, setPlaying] = useState<string | null>(() => getActiveRun()?.routineId ?? null);
-  const [saved, setSaved] = useState(false);
+  const [saved, setSaved] = useState<NewRecord[] | null>(null);
   const [detail, setDetail] = useState<string | null>(null);
+  const [building, setBuilding] = useState<string | null>(null);
   const [type, setType] = useState<Any<FitType>>('all');
   const [muscle, setMuscle] = useState<Any<Muscle>>('all');
   const [equipment, setEquipment] = useState<Any<Equipment>>('all');
@@ -95,12 +113,26 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
     [tag],
   );
   const dayName = (d: number) => dayFmt.format(Date.UTC(2024, 0, d === 0 ? 7 : d));
-  const routineName = (id: string) => (getRoutine(id) ? t(fitKey.rtName(id)) : id);
+  const routineName = (id: string) => routineTitle(t, store, id);
+  const custom = store.custom ?? [];
 
   const start = (id: string) => {
-    setSaved(false);
+    setSaved(null);
     setPlaying(id);
     scrollTo('fit-top');
+  };
+  const saveRoutine = (name: string, steps: RoutineStep[], id?: string) => {
+    const existing = id ? getCustom(store, id) : undefined;
+    const next = existing ? { ...existing, name, steps } : newCustomRoutine(name, steps);
+    if (next) onChange(upsertCustom(store, next));
+  };
+  const openBuilder = (id: string) => {
+    setBuilding(id);
+    scrollTo('fit-top');
+  };
+  const closeBuilder = () => {
+    setBuilding(null);
+    requestAnimationFrame(() => scrollTo('fit-my-title'));
   };
   const pickPlace = (p: Any<FitPlace>) => {
     const next = { ...store };
@@ -142,6 +174,74 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
   };
 
   const detailEx = detail ? getExercise(detail) : undefined;
+  const playingRoutine = playing ? resolveRoutine(store, playing) : undefined;
+  const editing = building && building !== 'new' ? getCustom(store, building) : undefined;
+
+  const card = (r: Routine, name: string, desc: string, editable: boolean) => {
+    const days = routineDays(store, r.id);
+    const open = planOpen === r.id;
+    return (
+      <li key={r.id} className="mono-fit-card" data-testid={`fit-rt-${r.id}`}>
+        <MonoExerciseIcon pose={r.icon} size={44} />
+        <div className="mono-fit-card-copy">
+          <p className="mono-fit-name">{name}</p>
+          {desc ? <p className="mono-meta mono-fit-small">{desc}</p> : null}
+          <p className="mono-meta mono-fit-small mono-fit-num">
+            {t(fitKey.type(r.type))} ·{' '}
+            {t('fit.routineMeta', { min: routineMinutes(r), n: r.steps.length })}
+          </p>
+          {days.length > 0 ? (
+            <p className="mono-fit-small mono-fit-planned">
+              {t('fit.plan.on', { days: days.map(dayName).join(', ') })}
+            </p>
+          ) : null}
+          {open ? (
+            <div className="mono-fit-days" role="group" aria-label={t('fit.plan.days', { name })}>
+              {WEEK.map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  className="mono-chip mono-chip-sm"
+                  aria-pressed={days.includes(d)}
+                  onClick={() => toggleDay(r.id, d)}
+                >
+                  {dayName(d)}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          <div className="mono-fit-card-foot">
+            <button
+              type="button"
+              className="mono-link-btn"
+              aria-expanded={open}
+              aria-label={t('fit.plan.aria', { name })}
+              onClick={() => setPlanOpen(open ? null : r.id)}
+            >
+              {open ? t('fit.plan.close') : t('fit.plan.btn')}
+            </button>
+            {editable ? (
+              <button
+                type="button"
+                className="mono-link-btn"
+                aria-label={t('fit.my.editAria', { name })}
+                onClick={() => openBuilder(r.id)}
+              >
+                {t('fit.my.edit')}
+              </button>
+            ) : null}
+            <MonoBtn
+              type="button"
+              aria-label={t('fit.startAria', { name })}
+              onClick={() => start(r.id)}
+            >
+              {t('fit.start')}
+            </MonoBtn>
+          </div>
+        </div>
+      </li>
+    );
+  };
 
   return (
     <div id="fit-top">
@@ -150,24 +250,63 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
         {playing ? (
           <MonoWorkoutPlayer
             routineId={playing}
+            title={routineName(playing)}
+            steps={isCustomId(playing) ? playingRoutine?.steps : undefined}
+            icon={playingRoutine?.icon}
+            place={store.place}
             log={store.log}
             habits={habits}
             preferredHabitId={store.habitId}
             isPro={isPro}
-            onSave={(entry, link) => {
-              onSave(entry, link);
-              setSaved(true);
+            canSaveRoutine={custom.length < MAX_CUSTOM}
+            onSave={(entry, link, draft) => {
+              setSaved(isPro ? newRecords(store.log, entry) : []);
+              const routine = isPro && draft ? newCustomRoutine(draft.name, draft.steps) : null;
+              onSave(entry, link, routine ?? undefined);
             }}
             onClose={() => setPlaying(null)}
           />
+        ) : building && (building === 'new' || editing) ? (
+          <MonoRoutineBuilder
+            key={building}
+            initial={editing}
+            place={store.place}
+            onSave={(name, steps) => {
+              saveRoutine(name, steps, editing?.id);
+              closeBuilder();
+            }}
+            onCancel={closeBuilder}
+            onDelete={
+              editing
+                ? () => {
+                    onChange(deleteCustom(store, editing.id));
+                    closeBuilder();
+                  }
+                : undefined
+            }
+          />
         ) : detailEx ? (
-          <MonoExerciseDetail ex={detailEx} onBack={closeDetail} onOpen={openDetail} />
+          <MonoExerciseDetail
+            ex={detailEx}
+            onBack={closeDetail}
+            onOpen={openDetail}
+            log={store.log}
+            isPro={isPro}
+          />
         ) : (
           <>
             {saved ? (
-              <p className="mono-fit-flash" role="status">
-                {t('fit.d.saved')}
-              </p>
+              <div className="mono-fit-flash" role="status">
+                <p>{t('fit.d.saved')}</p>
+                {saved.map((r) => (
+                  <p key={r.ex} className="mono-fit-record" data-testid="fit-record-toast">
+                    {t('fit.rec.new', {
+                      name: t(fitKey.exName(r.ex)),
+                      value: recordText(t, fmtNum, r.kind, r.value),
+                    })}
+                  </p>
+                ))}
+              </div>
             ) : null}
 
             <section className="mono-card mono-fit-week" aria-labelledby="fit-week-title">
@@ -227,67 +366,60 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
               </h2>
               <p className="mono-meta">{t('fit.routinesSub')}</p>
               <ul className="mono-fit-grid">
-                {routines.map((r) => {
-                  const name = t(fitKey.rtName(r.id));
-                  const days = routineDays(store, r.id);
-                  const open = planOpen === r.id;
-                  return (
-                    <li key={r.id} className="mono-fit-card" data-testid={`fit-rt-${r.id}`}>
-                      <MonoExerciseIcon pose={r.icon} size={44} />
-                      <div className="mono-fit-card-copy">
-                        <p className="mono-fit-name">{name}</p>
-                        <p className="mono-meta mono-fit-small">{t(fitKey.rtDesc(r.id))}</p>
-                        <p className="mono-meta mono-fit-small mono-fit-num">
-                          {t(fitKey.type(r.type))} ·{' '}
-                          {t('fit.routineMeta', { min: routineMinutes(r), n: r.steps.length })}
-                        </p>
-                        {days.length > 0 ? (
-                          <p className="mono-fit-small mono-fit-planned">
-                            {t('fit.plan.on', { days: days.map(dayName).join(', ') })}
-                          </p>
-                        ) : null}
-                        {open ? (
-                          <div
-                            className="mono-fit-days"
-                            role="group"
-                            aria-label={t('fit.plan.days', { name })}
-                          >
-                            {WEEK.map((d) => (
-                              <button
-                                key={d}
-                                type="button"
-                                className="mono-chip mono-chip-sm"
-                                aria-pressed={days.includes(d)}
-                                onClick={() => toggleDay(r.id, d)}
-                              >
-                                {dayName(d)}
-                              </button>
-                            ))}
-                          </div>
-                        ) : null}
-                        <div className="mono-fit-card-foot">
-                          <button
-                            type="button"
-                            className="mono-link-btn"
-                            aria-expanded={open}
-                            aria-label={t('fit.plan.aria', { name })}
-                            onClick={() => setPlanOpen(open ? null : r.id)}
-                          >
-                            {open ? t('fit.plan.close') : t('fit.plan.btn')}
-                          </button>
-                          <MonoBtn
-                            type="button"
-                            aria-label={t('fit.startAria', { name })}
-                            onClick={() => start(r.id)}
-                          >
-                            {t('fit.start')}
-                          </MonoBtn>
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
+                <li className="mono-fit-card mono-fit-card-free" data-testid="fit-free">
+                  <MonoExerciseIcon pose="stand" size={44} />
+                  <div className="mono-fit-card-copy">
+                    <p className="mono-fit-name">{t('fit.free.name')}</p>
+                    <p className="mono-meta mono-fit-small">{t('fit.free.desc')}</p>
+                    <div className="mono-fit-card-foot">
+                      <MonoBtn
+                        type="button"
+                        aria-label={t('fit.startAria', { name: t('fit.free.name') })}
+                        onClick={() => start(FREE_RUN_ID)}
+                      >
+                        {t('fit.start')}
+                      </MonoBtn>
+                    </div>
+                  </div>
+                </li>
+                {routines.map((r) =>
+                  card(r, t(fitKey.rtName(r.id)), t(fitKey.rtDesc(r.id)), false),
+                )}
               </ul>
+            </section>
+
+            <section className="mono-sec" aria-labelledby="fit-my-title">
+              <div className="mono-fit-sechead">
+                <h2 className="mono-h3" id="fit-my-title">
+                  {t('fit.my.title')}
+                  {isPro ? '' : ' · Pro'}
+                </h2>
+                {isPro && custom.length < MAX_CUSTOM ? (
+                  <MonoBtn type="button" variant="ghost" onClick={() => openBuilder('new')}>
+                    + {t('fit.my.create')}
+                  </MonoBtn>
+                ) : null}
+              </div>
+              <p className="mono-meta">{t('fit.my.sub')}</p>
+              {custom.length > 0 ? (
+                <ul className="mono-fit-grid" data-testid="fit-my">
+                  {custom.map((c) => {
+                    const r = resolveRoutine(store, c.id);
+                    return r ? card(r, c.name, '', isPro) : null;
+                  })}
+                </ul>
+              ) : isPro ? (
+                <p className="mono-meta">{t('fit.my.empty')}</p>
+              ) : null}
+              {!isPro ? (
+                <p className="mono-note" data-testid="fit-my-pro">
+                  {t('fit.my.pro')}
+                </p>
+              ) : custom.length >= MAX_CUSTOM ? (
+                <p className="mono-meta mono-fit-small" role="note">
+                  {t('fit.b.max', { n: MAX_CUSTOM })}
+                </p>
+              ) : null}
             </section>
 
             <section className="mono-sec" aria-labelledby="fit-map-title">
@@ -469,6 +601,8 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
                 </MonoBtn>
               ) : null}
             </section>
+
+            <MonoFitRecords log={store.log} isPro={isPro} onOpen={openDetail} />
 
             <section className="mono-sec" aria-labelledby="fit-history-title">
               <h2 className="mono-h3" id="fit-history-title">

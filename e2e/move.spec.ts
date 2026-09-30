@@ -87,4 +87,35 @@ test.describe('move (fitness)', () => {
     await page.getByRole('button', { name: 'Start Home 20 min, no equipment' }).click();
     await expect(page.getByTestId('fit-player')).toBeVisible();
   });
+
+  test('free workout: picks exercises on the go; routines and records are Pro', async ({
+    page,
+    isMobile,
+  }) => {
+    await openMove(page, isMobile);
+    await expect(page.getByTestId('fit-my-pro')).toBeVisible();
+    await expect(page.getByTestId('fit-rec-pro')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Start Free workout' }).click();
+    const player = page.getByTestId('fit-player');
+    await expect(player.getByText('Pick your first exercise')).toBeVisible();
+    await player.getByRole('searchbox', { name: 'Search exercises' }).fill('plank');
+    await player.getByRole('button', { name: 'Add Plank', exact: true }).click();
+    await expect(player.getByRole('heading', { name: 'Plank', level: 3 })).toBeVisible();
+    await player.getByRole('button', { name: 'Set done' }).click();
+    await player.getByRole('button', { name: 'Finish' }).click();
+
+    const done = page.getByTestId('fit-done');
+    await expect(done.getByText('Free workout')).toBeVisible();
+    await expect(done.getByText('With Pro you can save this workout')).toBeVisible();
+    await done.getByRole('button', { name: 'Save workout' }).click();
+    await expect(page.getByTestId('fit-history')).toContainText('Free workout');
+
+    const log = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('moneo:workouts') ?? '{"log":[]}').log,
+    );
+    expect(log).toHaveLength(1);
+    expect(log[0].routineId).toBe('free');
+    expect(log[0].sets[0].ex).toBe('plank');
+  });
 });
