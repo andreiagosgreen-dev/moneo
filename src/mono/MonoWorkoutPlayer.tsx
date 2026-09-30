@@ -1,0 +1,425 @@
+import { useEffect, useMemo, useState } from 'react';
+import MonoBtn from './MonoBtn';
+import MonoExerciseIcon from './MonoExerciseIcon';
+import { useI18n } from '../lib/i18n/LocaleContext';
+import type { I18n } from '../lib/i18n';
+import { activeHabits, FREE_HABITS_LIMIT, type Habit } from '../lib/habits';
+import { fitKey, getExercise, getRoutine, setWorkSec } from '../lib/fitness/library';
+import { findFitnessHabit, newWorkoutEntry, type WorkoutEntry } from '../lib/fitness/workouts';
+import {
+  currentStep,
+  endRest,
+  finishRun,
+  getActiveRun,
+  logSet,
+  nextStep,
+  pauseTimer,
+  repsSet,
+  restLeftMs,
+  runProgress,
+  setActiveRun,
+  shouldSwitchSides,
+  skipExercise,
+  startRun,
+  startTimer,
+  timedSet,
+  timerLeftMs,
+  type RunState,
+} from '../lib/fitness/player';
+
+export type HabitLink =
+  { kind: 'none' } | { kind: 'habit'; id: string } | { kind: 'create'; name: string };
+
+interface Props {
+  routineId: string;
+  log: WorkoutEntry[];
+  habits: Habit[];
+  preferredHabitId?: string;
+  isPro: boolean;
+  onSave: (entry: WorkoutEntry, link: HabitLink) => void;
+  onClose: () => void;
+}
+
+export function fitDose(
+  t: I18n['t'],
+  d: { sets: number; reps?: number; sec?: number; sides?: boolean },
+): string {
+  const base =
+    typeof d.sec === 'number'
+      ? t('fit.dose.time', { sets: d.sets, sec: d.sec })
+      : t('fit.dose.reps', { sets: d.sets, reps: d.reps ?? 0 });
+  return d.sides ? `${base} · ${t('fit.dose.perSide')}` : base;
+}
+
+function clock(ms: number): string {
+  const s = Math.ceil(ms / 1000);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
+function buzz() {
+  try {
+    navigator.vibrate?.(180);
+  } catch {
+    /* not supported */
+  }
+}
+
+/** Guided workout: one exercise at a time, sets, rest countdown, then save. */
+export default function MonoWorkoutPlayer({
+  routineId,
+  log,
+  habits,
+  preferredHabitId,
+  isPro,
+  onSave,
+  onClose,
+}: Props) {
+  const { t } = useI18n();
+  const [run, setRun] = useState<RunState | null>(() => {
+    const parked = getActiveRun();
+    return parked && parked.routineId === routineId ? parked : startRun(routineId, Date.now(), log);
+  });
+  const [now, setNow] = useState(() => Date.now());
+  const [confirmQuit, setConfirmQuit] = useState(false);
+
+  useEffect(() => {
+    setActiveRun(run);
+  }, [run]);
+
+  const ticking = run?.phase === 'rest' || run?.timer?.endsAt !== undefined;
+  useEffect(() => {
+    if (!ticking) return;
+    setNow(Date.now());
+    const id = window.setInterval(() => setNow(Date.now()), 250);
+    return () => window.clearInterval(id);
+  }, [ticking]);
+
+  useEffect(() => {
+    if (!run) return;
+    if (run.phase === 'rest' && restLeftMs(run, now) === 0) {
+      setRun(endRest(run));
+      buzz();
+    } else if (
+      run.phase === 'work' &&
+      run.timer?.endsAt !== undefined &&
+      timerLeftMs(run, now) === 0
+    ) {
+      const set = timedSet(run, now);
+      if (set) setRun(logSet(run, set, now, log));
+      buzz();
+    }
+  }, [now, run, log]);
+
+  if (!run) {
+    return (
+      <section className="mono-fit-player">
+        <MonoBtn type="button" variant="ghost" onClick={onClose}>
+          {t('fit.p.quit')}
+        </MonoBtn>
+      </section>
+    );
+  }
+
+  const quit = () => {
+    setActiveRun(null);
+    onClose();
+  };
+
+  if (run.phase === 'done') {
+    return (
+      <DoneView
+        run={run}
+        habits={habits}
+        preferredHabitId={preferredHabitId}
+        isPro={isPro}
+        onSave={(link) => {
+          const entry = newWorkoutEntry(
+            run.routineId,
+            run.startedAt,
+            run.sets,
+            run.finishedAt ?? Date.now(),
+          );
+          setActiveRun(null);
+          onSave(entry, link);
+          onClose();
+        }}
+        onDiscard={quit}
+      />
+    );
+  }
+
+  const step = currentStep(run);
+  const ex = step ? getExercise(step.ex) : undefined;
+  const routine = getRoutine(run.routineId);
+  if (!step || !ex || !routine) return null;
+
+  const name = t(fitKey.exName(ex.id));
+  const upcoming = nextStep(run);
+  const { done, total } = runProgress(run);
+  const timed = run.timer !== undefined;
+  const running = run.timer?.endsAt !== undefined;
+  const left = timerLeftMs(run, now);
+  const started = timed && left < setWorkSec(step) * 1000;
+
+  const completeSet = () => {
+    const at = Date.now();
+    const set = timed ? timedSet(run, at) : repsSet(run);
+    if (set) setRun(logSet(run, set, at, log));
+  };
+
+  return (
+    <section
+      className="mono-fit-player"
+      aria-labelledby="fit-player-title"
+      data-testid="fit-player"
+    >
+      <div className="mono-fit-player-top">
+        <h2 className="mono-h3" id="fit-player-title">
+          {t(fitKey.rtName(routine.id))}
+        </h2>
+        <MonoBtn type="button" variant="ghost" onClick={() => setConfirmQuit(true)}>
+          {t('fit.p.quit')}
+        </MonoBtn>
+      </div>
+      <div
+        className="mono-fit-progress"
+        role="progressbar"
+        aria-label={t('fit.p.progressAria')}
+        aria-valuemin={0}
+        aria-valuemax={total}
+        aria-valuenow={done}
+      >
+        <span style={{ width: `${total ? Math.round((done / total) * 100) : 0}%` }} />
+      </div>
+
+      {confirmQuit ? (
+        <div className="mono-fit-confirm" role="group" aria-label={t('fit.p.quitAsk')}>
+          <p className="mono-meta">{t('fit.p.quitAsk')}</p>
+          <div className="mono-fit-actions">
+            <MonoBtn type="button" variant="ghost" onClick={quit}>
+              {t('fit.p.quit')}
+            </MonoBtn>
+            <MonoBtn type="button" onClick={() => setConfirmQuit(false)}>
+              {t('fit.p.keep')}
+            </MonoBtn>
+          </div>
+        </div>
+      ) : null}
+
+      {run.phase === 'rest' ? (
+        <div className="mono-fit-stage" data-testid="fit-rest">
+          <p className="mono-eyebrow">{t('fit.p.rest')}</p>
+          <p className="mono-fit-clock" role="timer">
+            {clock(restLeftMs(run, now))}
+          </p>
+          <p className="mono-meta">{t('fit.p.next', { name })}</p>
+          <div className="mono-fit-actions">
+            <MonoBtn type="button" onClick={() => setRun(endRest(run))}>
+              {t('fit.p.skipRest')}
+            </MonoBtn>
+          </div>
+        </div>
+      ) : (
+        <div className="mono-fit-stage">
+          <MonoExerciseIcon pose={ex.pose} size={112} className="mono-fit-hero" />
+          <p className="mono-eyebrow">
+            {t('fit.p.step', { i: run.stepIdx + 1, n: routine.steps.length })} ·{' '}
+            {t('fit.p.set', { i: run.setIdx + 1, n: step.sets })}
+          </p>
+          <h3 className="mono-h2">{name}</h3>
+          <p className="mono-meta mono-fit-cue">{t(fitKey.exCue(ex.id))}</p>
+          <p className="mono-fit-dose">
+            {fitDose(t, { sets: step.sets, reps: step.reps, sec: step.sec, sides: ex.sides })}
+          </p>
+
+          {timed ? (
+            <>
+              <p className="mono-fit-clock" role="timer">
+                {clock(left)}
+              </p>
+              {shouldSwitchSides(run, now) ? (
+                <p className="mono-fit-cue-strong" role="status">
+                  {t('fit.p.switchSides')}
+                </p>
+              ) : null}
+              <div className="mono-fit-actions">
+                {running ? (
+                  <MonoBtn
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setRun(pauseTimer(run, Date.now()))}
+                  >
+                    {t('fit.p.pause')}
+                  </MonoBtn>
+                ) : (
+                  <MonoBtn type="button" onClick={() => setRun(startTimer(run, Date.now()))}>
+                    {started ? t('fit.p.resume') : t('fit.p.startTimer')}
+                  </MonoBtn>
+                )}
+                <MonoBtn
+                  type="button"
+                  variant={running ? 'primary' : 'ghost'}
+                  onClick={completeSet}
+                >
+                  {t('fit.p.setDone')}
+                </MonoBtn>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mono-fit-inputs">
+                <label className="mono-fit-label">
+                  <span className="mono-meta">{t('fit.p.reps')}</span>
+                  <input
+                    className="mono-field"
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    max={1000}
+                    value={run.reps}
+                    onChange={(e) => setRun({ ...run, reps: e.target.value })}
+                  />
+                </label>
+                {ex.weighted ? (
+                  <label className="mono-fit-label">
+                    <span className="mono-meta">{t('fit.p.kg')}</span>
+                    <input
+                      className="mono-field"
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      max={1000}
+                      step={0.5}
+                      value={run.kg}
+                      onChange={(e) => setRun({ ...run, kg: e.target.value })}
+                    />
+                  </label>
+                ) : null}
+              </div>
+              <div className="mono-fit-actions">
+                <MonoBtn type="button" onClick={completeSet}>
+                  {t('fit.p.setDone')}
+                </MonoBtn>
+              </div>
+            </>
+          )}
+
+          {upcoming && run.setIdx + 1 >= step.sets ? (
+            <p className="mono-meta">{t('fit.p.next', { name: t(fitKey.exName(upcoming.ex)) })}</p>
+          ) : null}
+        </div>
+      )}
+
+      <div className="mono-fit-actions mono-fit-secondary">
+        {run.phase === 'work' ? (
+          <MonoBtn
+            type="button"
+            variant="ghost"
+            onClick={() => setRun(skipExercise(run, Date.now(), log))}
+          >
+            {t('fit.p.skipEx')}
+          </MonoBtn>
+        ) : null}
+        <MonoBtn type="button" variant="ghost" onClick={() => setRun(finishRun(run, Date.now()))}>
+          {t('fit.p.finish')}
+        </MonoBtn>
+      </div>
+    </section>
+  );
+}
+
+function DoneView({
+  run,
+  habits,
+  preferredHabitId,
+  isPro,
+  onSave,
+  onDiscard,
+}: {
+  run: RunState;
+  habits: Habit[];
+  preferredHabitId?: string;
+  isPro: boolean;
+  onSave: (link: HabitLink) => void;
+  onDiscard: () => void;
+}) {
+  const { t, fmtDur } = useI18n();
+  const active = useMemo(() => activeHabits(habits), [habits]);
+  const canCreate = isPro || active.length < FREE_HABITS_LIMIT;
+  const suggested = findFitnessHabit(habits, preferredHabitId);
+  const [choice, setChoice] = useState<string>(suggested?.id ?? (canCreate ? 'new' : ''));
+  const routine = getRoutine(run.routineId);
+  const habitName = t('fit.d.habitName');
+  const durSec = Math.max(
+    0,
+    Math.round(((run.finishedAt ?? run.startedAt) - run.startedAt) / 1000),
+  );
+  const hasSets = run.sets.length > 0;
+
+  const save = () => {
+    if (choice === 'new') onSave({ kind: 'create', name: habitName });
+    else if (choice) onSave({ kind: 'habit', id: choice });
+    else onSave({ kind: 'none' });
+  };
+
+  return (
+    <section
+      className="mono-fit-player mono-fit-done"
+      aria-labelledby="fit-done-title"
+      data-testid="fit-done"
+    >
+      {routine ? (
+        <MonoExerciseIcon pose={routine.icon} size={96} className="mono-fit-hero" />
+      ) : null}
+      <h2 className="mono-h2" id="fit-done-title">
+        {t('fit.d.title')}
+      </h2>
+      {routine ? <p className="mono-meta">{t(fitKey.rtName(routine.id))}</p> : null}
+      {hasSets ? (
+        <>
+          <p className="mono-fit-dose">
+            {t('fit.d.stats', {
+              dur: fmtDur(Math.max(1, Math.round(durSec / 60))),
+              sets: run.sets.length,
+            })}
+          </p>
+          <label className="mono-fit-label mono-fit-habit">
+            <span className="mono-meta">{t('fit.d.habit')}</span>
+            <select
+              className="mono-field"
+              value={choice}
+              onChange={(e) => setChoice(e.target.value)}
+            >
+              {active.map((h) => (
+                <option key={h.id} value={h.id}>
+                  {h.icon ? `${h.icon} ${h.name}` : h.name}
+                </option>
+              ))}
+              {canCreate ? (
+                <option value="new">{t('fit.d.createHabit', { name: habitName })}</option>
+              ) : null}
+              <option value="">{t('fit.d.noHabit')}</option>
+            </select>
+          </label>
+          {!canCreate && !suggested ? (
+            <p className="mono-meta" role="note">
+              {t('fit.d.habitLimit')}
+            </p>
+          ) : null}
+        </>
+      ) : (
+        <p className="mono-meta">{t('fit.d.nothing')}</p>
+      )}
+      <div className="mono-fit-actions">
+        {hasSets ? (
+          <MonoBtn type="button" onClick={save}>
+            {t('fit.d.save')}
+          </MonoBtn>
+        ) : null}
+        <MonoBtn type="button" variant="ghost" onClick={onDiscard}>
+          {t('fit.d.discard')}
+        </MonoBtn>
+      </div>
+    </section>
+  );
+}
