@@ -72,7 +72,25 @@ export default function MonoIconPicker({ value, onChange }: Props) {
         aria-controls={gridId}
         onClick={() => setOpen((v) => !v)}
       >
-        {value ? <span aria-hidden>{value}</span> : <span className="mono-icon-dot" aria-hidden />}
+        {value ? (
+          <span aria-hidden>{value}</span>
+        ) : (
+          <svg
+            className="mono-icon-empty"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            aria-hidden
+          >
+            <circle cx="12" cy="12" r="9" />
+            <path d="M8.5 14.5c.9 1.2 2.1 1.8 3.5 1.8s2.6-.6 3.5-1.8" />
+            <path d="M9 9.5h.01M15 9.5h.01" strokeWidth="2.6" />
+          </svg>
+        )}
       </button>
       {open ? (
         <div
