@@ -2,6 +2,7 @@ import { useMemo, lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import MonoNav, { type MonoTab } from './mono/MonoNav';
 import MonoMore from './mono/MonoMore';
+import MonoHead from './mono/MonoHead';
 import MonoFocus from './mono/MonoFocus';
 import MonoAzi from './mono/MonoAzi';
 import MonoHabitsCheckin from './mono/MonoHabitsCheckin';
@@ -1479,117 +1480,120 @@ export default function App() {
                   )}
                   {tab === 'plan' && (
                     <Suspense fallback={<TabFallback label="Plan" />}>
-                      <main className="mono-pad-mobile mt-2 grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 md:gap-6">
-                        <div
-                          className="reveal flex min-h-0 flex-col"
-                          style={{ animationDelay: '90ms' }}
-                        >
-                          <GoalsCard
-                            goals={goals}
-                            goalsChange={setGoals}
-                            projects={projects}
-                            projectsChange={setProjects}
-                            tasks={tasks}
-                            onTasksChange={setTasks}
-                            ivyPlans={ivyPlans}
-                            onIvyPlansChange={setIvyPlans}
-                            timezone={auth.timezone}
-                            lifeAreas={lifeAreas}
-                            skills={skills}
-                            objectives={objectives}
-                            links={links}
-                            onLinksChange={setLinks}
-                            isPro={auth.isPro}
-                            onWorkFocus={handleWorkFocus}
-                          />
-                        </div>
-                        <div
-                          className="reveal flex min-h-0 flex-col"
-                          style={{ animationDelay: '130ms' }}
-                        >
-                          <AssistantCard
-                            messages={chatHistory}
-                            messagesChange={setChatHistory}
-                            tasks={tasks}
-                            projects={projects}
-                            history={history}
-                            timezone={auth.timezone}
-                            goals={goals}
-                            energyLog={energyLog}
-                            ivyPlans={ivyPlans}
-                            onIvyPlansChange={setIvyPlans}
-                            selectedProjectId={selectedProjectId}
-                            sprints={sprints}
-                            onTasksChange={setTasks}
-                            onProjectsChange={setProjects}
-                            phases={phases}
-                            onPhasesChange={setPhases}
-                            roadmaps={roadmaps}
-                            onRoadmapsChange={setRoadmaps}
-                            onWorkFocus={handleWorkFocus}
-                            isPro={auth.isPro}
-                          />
-                        </div>
-                        <div className="reveal md:col-span-2" style={{ animationDelay: '150ms' }}>
-                          <AiPathCard
-                            projects={projects}
-                            projectsChange={setProjects}
-                            tasks={tasks}
-                            tasksChange={setTasks}
-                            ivyPlans={ivyPlans}
-                            plansChange={setIvyPlans}
-                            blocks={timeBlocks}
-                            goals={goals}
-                            goalsChange={setGoals}
-                            phases={phases}
-                            phasesChange={setPhases}
-                            timezone={auth.timezone}
-                            isPro={auth.isPro}
-                          />
-                        </div>
-                        <Disclosure
-                          title={t('today.advPlan')}
-                          hint={t('today.advSkillsHint')}
-                          defaultOpen={engaged}
-                        >
+                      <main>
+                        <MonoHead title={t('nav.plan')} sub={t('nav.hint.plan')} />
+                        <div className="mono-pad mt-2 grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 md:gap-6">
                           <div
-                            className="reveal h-full min-w-0"
-                            style={{ animationDelay: '170ms' }}
+                            className="reveal flex min-h-0 flex-col"
+                            style={{ animationDelay: '90ms' }}
                           >
-                            <OkrCard
+                            <GoalsCard
+                              goals={goals}
+                              goalsChange={setGoals}
+                              projects={projects}
+                              projectsChange={setProjects}
+                              tasks={tasks}
+                              onTasksChange={setTasks}
+                              ivyPlans={ivyPlans}
+                              onIvyPlansChange={setIvyPlans}
+                              timezone={auth.timezone}
+                              lifeAreas={lifeAreas}
+                              skills={skills}
                               objectives={objectives}
-                              objectivesChange={setObjectives}
                               links={links}
                               onLinksChange={setLinks}
-                              goals={goals}
-                              projects={projects}
-                              skills={skills}
                               isPro={auth.isPro}
+                              onWorkFocus={handleWorkFocus}
                             />
                           </div>
                           <div
-                            className="reveal h-full min-w-0"
-                            style={{ animationDelay: '210ms' }}
+                            className="reveal flex min-h-0 flex-col"
+                            style={{ animationDelay: '130ms' }}
                           >
-                            <SkillsCard
-                              skills={skills}
-                              skillsChange={setSkills}
-                              transitionTip={transitionAdvice(
-                                skills,
-                                tasks,
-                                projects,
-                                goals,
-                                appI18n,
-                              )}
-                              links={links}
-                              onLinksChange={setLinks}
-                              goals={goals}
+                            <AssistantCard
+                              messages={chatHistory}
+                              messagesChange={setChatHistory}
+                              tasks={tasks}
                               projects={projects}
-                              objectives={objectives}
+                              history={history}
+                              timezone={auth.timezone}
+                              goals={goals}
+                              energyLog={energyLog}
+                              ivyPlans={ivyPlans}
+                              onIvyPlansChange={setIvyPlans}
+                              selectedProjectId={selectedProjectId}
+                              sprints={sprints}
+                              onTasksChange={setTasks}
+                              onProjectsChange={setProjects}
+                              phases={phases}
+                              onPhasesChange={setPhases}
+                              roadmaps={roadmaps}
+                              onRoadmapsChange={setRoadmaps}
+                              onWorkFocus={handleWorkFocus}
                               isPro={auth.isPro}
                             />
                           </div>
-                        </Disclosure>
+                          <div className="reveal md:col-span-2" style={{ animationDelay: '150ms' }}>
+                            <AiPathCard
+                              projects={projects}
+                              projectsChange={setProjects}
+                              tasks={tasks}
+                              tasksChange={setTasks}
+                              ivyPlans={ivyPlans}
+                              plansChange={setIvyPlans}
+                              blocks={timeBlocks}
+                              goals={goals}
+                              goalsChange={setGoals}
+                              phases={phases}
+                              phasesChange={setPhases}
+                              timezone={auth.timezone}
+                              isPro={auth.isPro}
+                            />
+                          </div>
+                          <Disclosure
+                            title={t('today.advPlan')}
+                            hint={t('today.advSkillsHint')}
+                            defaultOpen={engaged}
+                          >
+                            <div
+                              className="reveal h-full min-w-0"
+                              style={{ animationDelay: '170ms' }}
+                            >
+                              <OkrCard
+                                objectives={objectives}
+                                objectivesChange={setObjectives}
+                                links={links}
+                                onLinksChange={setLinks}
+                                goals={goals}
+                                projects={projects}
+                                skills={skills}
+                                isPro={auth.isPro}
+                              />
+                            </div>
+                            <div
+                              className="reveal h-full min-w-0"
+                              style={{ animationDelay: '210ms' }}
+                            >
+                              <SkillsCard
+                                skills={skills}
+                                skillsChange={setSkills}
+                                transitionTip={transitionAdvice(
+                                  skills,
+                                  tasks,
+                                  projects,
+                                  goals,
+                                  appI18n,
+                                )}
+                                links={links}
+                                onLinksChange={setLinks}
+                                goals={goals}
+                                projects={projects}
+                                objectives={objectives}
+                                isPro={auth.isPro}
+                              />
+                            </div>
+                          </Disclosure>
+                        </div>
                       </main>
                     </Suspense>
                   )}
@@ -1784,38 +1788,41 @@ export default function App() {
                   )}
                   {tab === 'settings' && (
                     <Suspense fallback={<TabFallback label="Settings" />}>
-                      <main className="mono-pad-mobile mt-2 grid grid-cols-1 items-start gap-6 md:grid-cols-2">
-                        <div className="reveal" style={{ animationDelay: '90ms' }}>
-                          <SettingsCard
-                            settings={settings}
-                            onChange={updateSettings}
-                            theme={theme}
-                            onThemeChange={setTheme}
-                            isPro={auth.isPro}
-                            atmosphere={atmosphere}
-                            onAtmosphere={setAtmosphere}
-                            synced={auth.status === 'authenticated' && syncState.initialized}
-                          />
-                        </div>
-                        <div className="reveal" style={{ animationDelay: '135ms' }}>
-                          <LanguageCard />
-                          {auth.status === 'authenticated' ? (
+                      <main>
+                        <MonoHead title={t('mono.nav.settings')} sub={t('nav.settingsTitle')} />
+                        <div className="mono-pad mt-2 grid grid-cols-1 items-start gap-6 md:grid-cols-2">
+                          <div className="reveal" style={{ animationDelay: '90ms' }}>
+                            <SettingsCard
+                              settings={settings}
+                              onChange={updateSettings}
+                              theme={theme}
+                              onThemeChange={setTheme}
+                              isPro={auth.isPro}
+                              atmosphere={atmosphere}
+                              onAtmosphere={setAtmosphere}
+                              synced={auth.status === 'authenticated' && syncState.initialized}
+                            />
+                          </div>
+                          <div className="reveal" style={{ animationDelay: '135ms' }}>
+                            <LanguageCard />
+                            {auth.status === 'authenticated' ? (
+                              <div style={{ marginTop: 24 }}>
+                                <MonoCloudSync isPro={auth.isPro} />
+                              </div>
+                            ) : null}
                             <div style={{ marginTop: 24 }}>
-                              <MonoCloudSync isPro={auth.isPro} />
+                              <MonoDataExport user={auth.user} />
                             </div>
-                          ) : null}
-                          <div style={{ marginTop: 24 }}>
-                            <MonoDataExport user={auth.user} />
+                            <div style={{ marginTop: 24 }}>
+                              <MonoLocalData signedIn={auth.status === 'authenticated'} />
+                            </div>
+                            <div style={{ marginTop: 24 }}>
+                              <MonoSupportCard />
+                            </div>
                           </div>
-                          <div style={{ marginTop: 24 }}>
-                            <MonoLocalData signedIn={auth.status === 'authenticated'} />
+                          <div className="reveal" style={{ animationDelay: '180ms' }}>
+                            <PricingCard />
                           </div>
-                          <div style={{ marginTop: 24 }}>
-                            <MonoSupportCard />
-                          </div>
-                        </div>
-                        <div className="reveal" style={{ animationDelay: '180ms' }}>
-                          <PricingCard />
                         </div>
                       </main>
                     </Suspense>
