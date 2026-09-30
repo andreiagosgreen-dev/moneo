@@ -5,6 +5,8 @@
  * compile error. Identifiers, dates, user content and stored values are
  * never translated — UI chrome only.
  */
+import { fitEn } from './fit/en';
+
 export const en = {
   'nav.focus': 'Focus',
   'nav.today': 'Today',
@@ -3391,9 +3393,7 @@ export const en = {
   'fit.start': 'Start',
   'fit.startAria': 'Start {name}',
   'fit.library': 'Exercise library',
-  'fit.librarySub': 'How to do each move, in one line.',
   'fit.filterAria': 'Filter by place',
-  'fit.cat.all': 'All',
   'fit.dose.reps': '{sets} × {reps}',
   'fit.dose.time': '{sets} × {sec} s',
   'fit.dose.perSide': 'per side',
@@ -3432,18 +3432,8 @@ export const en = {
   'fit.d.discard': 'Discard',
   'fit.d.saved': 'Workout saved.',
   'fit.d.nothing': 'No sets logged yet.',
-  'fit.cat.home': 'Home',
-  'fit.cat.gym': 'Gym',
-  'fit.cat.yoga': 'Yoga',
-  'fit.cat.stretch': 'Stretching',
-  'fit.muscle.legs': 'Legs',
   'fit.muscle.chest': 'Chest',
-  'fit.muscle.back': 'Back',
-  'fit.muscle.core': 'Core',
   'fit.muscle.shoulders': 'Shoulders',
-  'fit.muscle.arms': 'Arms',
-  'fit.muscle.full': 'Full body',
-  'fit.muscle.mobility': 'Mobility',
   'fit.eq.none': 'No equipment',
   'fit.eq.chair': 'Chair',
   'fit.eq.mat': 'Mat',
@@ -3567,4 +3557,5 @@ export const en = {
   'set.grp.planFree': 'You are on Free — see what Pro adds',
   'set.grp.planPro': 'You are on Pro — thank you',
   'set.grp.helpSum': 'Support email, help, terms and privacy',
+  ...fitEn,
 };

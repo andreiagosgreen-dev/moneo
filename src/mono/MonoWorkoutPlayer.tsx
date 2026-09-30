@@ -46,7 +46,9 @@ export function fitDose(
 ): string {
   const base =
     typeof d.sec === 'number'
-      ? t('fit.dose.time', { sets: d.sets, sec: d.sec })
+      ? d.sec >= 120 && d.sec % 60 === 0
+        ? t('fit.dose.min', { sets: d.sets, min: d.sec / 60 })
+        : t('fit.dose.time', { sets: d.sets, sec: d.sec })
       : t('fit.dose.reps', { sets: d.sets, reps: d.reps ?? 0 });
   return d.sides ? `${base} · ${t('fit.dose.perSide')}` : base;
 }
@@ -221,7 +223,13 @@ export default function MonoWorkoutPlayer({
         </div>
       ) : (
         <div className="mono-fit-stage">
-          <MonoExerciseIcon pose={ex.pose} size={112} className="mono-fit-hero" />
+          <MonoExerciseIcon
+            pose={ex.pose}
+            pose2={ex.pose2}
+            animate
+            size={112}
+            className="mono-fit-hero"
+          />
           <p className="mono-eyebrow">
             {t('fit.p.step', { i: run.stepIdx + 1, n: routine.steps.length })} ·{' '}
             {t('fit.p.set', { i: run.setIdx + 1, n: step.sets })}

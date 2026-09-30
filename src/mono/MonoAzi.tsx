@@ -63,6 +63,8 @@ interface Props {
   program?: ReactNode;
   /** Habit check-in for today (Mono surface; full Life stays under More). */
   habits?: ReactNode;
+  /** Workout ring + today's scheduled routine (only when the user trains). */
+  move?: ReactNode;
   /** Daily energy + mood check-in. */
   checkin?: ReactNode;
   more?: ReactNode;
@@ -91,6 +93,7 @@ export default function MonoAzi({
   estimates,
   program,
   habits,
+  move,
   checkin,
   more,
 }: Props) {
@@ -342,6 +345,8 @@ export default function MonoAzi({
       ) : null}
 
       {habits}
+
+      {move}
 
       {checkin}
 

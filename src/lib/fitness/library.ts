@@ -1,16 +1,89 @@
-/* Move module (stage 1): built-in exercise library + ready-made routines.
+/* Move module: exercise taxonomy, ready-made routines and library queries.
  *
- * Content is data, text is i18n: every exercise has `fit.ex.<id>.name|cue`
+ * Content is data, text is i18n: every exercise has `fit.ex.<id>.name|cue|tip`
  * and every routine `fit.rt.<id>.name|desc` in all locales. Pure module.
  */
 import type { TKey } from '../i18n/types';
+import { EXERCISES } from './exercises';
 
-export type FitCategory = 'home' | 'gym' | 'yoga' | 'stretch';
+export { EXERCISES };
+
+export type FitPlace = 'home' | 'outdoor' | 'gym';
+export const FIT_PLACES: readonly FitPlace[] = ['home', 'outdoor', 'gym'];
+
+export type FitType = 'strength' | 'cardio' | 'hiit' | 'yoga' | 'mobility' | 'pilates';
+export const FIT_TYPES: readonly FitType[] = [
+  'strength',
+  'cardio',
+  'hiit',
+  'yoga',
+  'mobility',
+  'pilates',
+];
+
 export type Muscle =
-  'legs' | 'chest' | 'back' | 'core' | 'shoulders' | 'arms' | 'full' | 'mobility';
-export type Equipment = 'none' | 'chair' | 'mat' | 'dumbbell' | 'barbell' | 'machine';
+  | 'chest'
+  | 'shoulders'
+  | 'biceps'
+  | 'triceps'
+  | 'forearms'
+  | 'abs'
+  | 'obliques'
+  | 'traps'
+  | 'lats'
+  | 'lowerBack'
+  | 'glutes'
+  | 'quads'
+  | 'hamstrings'
+  | 'adductors'
+  | 'calves';
+export const MUSCLES: readonly Muscle[] = [
+  'chest',
+  'shoulders',
+  'biceps',
+  'triceps',
+  'forearms',
+  'abs',
+  'obliques',
+  'traps',
+  'lats',
+  'lowerBack',
+  'glutes',
+  'quads',
+  'hamstrings',
+  'adductors',
+  'calves',
+];
 
-export const FIT_CATEGORIES: readonly FitCategory[] = ['home', 'gym', 'yoga', 'stretch'];
+export type Equipment =
+  | 'none'
+  | 'mat'
+  | 'chair'
+  | 'band'
+  | 'rope'
+  | 'dumbbell'
+  | 'kettlebell'
+  | 'pullupBar'
+  | 'bench'
+  | 'barbell'
+  | 'machine'
+  | 'cable';
+export const EQUIPMENT: readonly Equipment[] = [
+  'none',
+  'mat',
+  'chair',
+  'band',
+  'rope',
+  'dumbbell',
+  'kettlebell',
+  'pullupBar',
+  'bench',
+  'barbell',
+  'machine',
+  'cable',
+];
+
+export type FitLevel = 1 | 2 | 3;
 
 export type PoseId =
   | 'stand'
@@ -18,40 +91,112 @@ export type PoseId =
   | 'squat'
   | 'lunge'
   | 'pushup'
+  | 'pushlow'
   | 'plank'
   | 'climber'
   | 'bridge'
+  | 'supine'
+  | 'supinestraight'
+  | 'prone'
   | 'superman'
   | 'crunch'
   | 'dip'
+  | 'diplow'
   | 'bench'
+  | 'benchdown'
   | 'deadlift'
+  | 'deadtop'
   | 'pulldown'
+  | 'pulldown2'
   | 'row'
   | 'press'
+  | 'pressdown'
   | 'legpress'
+  | 'legpress2'
   | 'curl'
   | 'dog'
+  | 'pikelow'
   | 'warrior'
+  | 'warrior1'
   | 'tree'
   | 'cobra'
   | 'child'
   | 'cat'
+  | 'quad'
   | 'triangle'
   | 'fold'
   | 'seated'
   | 'twist'
+  | 'twistlie'
   | 'lying'
   | 'shoulder'
   | 'chest'
-  | 'neck';
+  | 'neck'
+  | 'wallsit'
+  | 'sidelunge'
+  | 'stepup'
+  | 'tiptoe'
+  | 'kickback'
+  | 'birddog'
+  | 'kneeplank'
+  | 'kneelow'
+  | 'inclinepush'
+  | 'inclinelow'
+  | 'hang'
+  | 'pullup'
+  | 'hangknee'
+  | 'invrow'
+  | 'sideplank'
+  | 'bicycle'
+  | 'legraise'
+  | 'vsit'
+  | 'deadbug'
+  | 'hollow'
+  | 'jumpup'
+  | 'run'
+  | 'walk'
+  | 'box'
+  | 'bear'
+  | 'rowerg'
+  | 'swing'
+  | 'carry'
+  | 'pullapart'
+  | 'seatedrow'
+  | 'raise'
+  | 'ohext'
+  | 'ohext2'
+  | 'shrug'
+  | 'hipthrust'
+  | 'legext'
+  | 'legcurl'
+  | 'incline'
+  | 'cablefly'
+  | 'seatpress'
+  | 'bentrow'
+  | 'pushdown'
+  | 'chop'
+  | 'backext'
+  | 'chairpose'
+  | 'pigeon'
+  | 'crow'
+  | 'butterfly'
+  | 'quadstretch'
+  | 'calfstretch'
+  | 'ohstretch'
+  | 'sidelying'
+  | 'clam';
 
 export interface Exercise {
   id: string;
-  category: FitCategory;
-  muscle: Muscle;
+  /** Where it can be done. */
+  places: readonly FitPlace[];
+  type: FitType;
+  /** Main muscle first, then secondary ones. */
+  muscles: readonly Muscle[];
   equipment: Equipment;
   pose: PoseId;
+  /** Second frame of the demo animation. */
+  pose2?: PoseId;
   /** Counted in reps, or held for a number of seconds. */
   mode: 'reps' | 'time';
   sets: number;
@@ -61,399 +206,73 @@ export interface Exercise {
   sides?: boolean;
   /** Logs a weight in kg. */
   weighted?: boolean;
+  level: FitLevel;
 }
-
-const ex = (e: Exercise): Exercise => e;
-
-export const EXERCISES: readonly Exercise[] = [
-  // Home — no equipment (a chair at most)
-  ex({
-    id: 'squat',
-    category: 'home',
-    muscle: 'legs',
-    equipment: 'none',
-    pose: 'squat',
-    mode: 'reps',
-    sets: 3,
-    reps: 15,
-  }),
-  ex({
-    id: 'pushup',
-    category: 'home',
-    muscle: 'chest',
-    equipment: 'none',
-    pose: 'pushup',
-    mode: 'reps',
-    sets: 3,
-    reps: 10,
-  }),
-  ex({
-    id: 'lunge',
-    category: 'home',
-    muscle: 'legs',
-    equipment: 'none',
-    pose: 'lunge',
-    mode: 'reps',
-    sets: 3,
-    reps: 12,
-  }),
-  ex({
-    id: 'plank',
-    category: 'home',
-    muscle: 'core',
-    equipment: 'none',
-    pose: 'plank',
-    mode: 'time',
-    sets: 3,
-    sec: 40,
-  }),
-  ex({
-    id: 'bridge',
-    category: 'home',
-    muscle: 'legs',
-    equipment: 'none',
-    pose: 'bridge',
-    mode: 'reps',
-    sets: 3,
-    reps: 15,
-  }),
-  ex({
-    id: 'climber',
-    category: 'home',
-    muscle: 'full',
-    equipment: 'none',
-    pose: 'climber',
-    mode: 'time',
-    sets: 3,
-    sec: 30,
-  }),
-  ex({
-    id: 'jack',
-    category: 'home',
-    muscle: 'full',
-    equipment: 'none',
-    pose: 'jack',
-    mode: 'time',
-    sets: 2,
-    sec: 45,
-  }),
-  ex({
-    id: 'superman',
-    category: 'home',
-    muscle: 'back',
-    equipment: 'none',
-    pose: 'superman',
-    mode: 'reps',
-    sets: 2,
-    reps: 12,
-  }),
-  ex({
-    id: 'crunch',
-    category: 'home',
-    muscle: 'core',
-    equipment: 'none',
-    pose: 'crunch',
-    mode: 'reps',
-    sets: 3,
-    reps: 15,
-  }),
-  ex({
-    id: 'chairDip',
-    category: 'home',
-    muscle: 'arms',
-    equipment: 'chair',
-    pose: 'dip',
-    mode: 'reps',
-    sets: 3,
-    reps: 10,
-  }),
-  // Gym
-  ex({
-    id: 'backSquat',
-    category: 'gym',
-    muscle: 'legs',
-    equipment: 'barbell',
-    pose: 'squat',
-    mode: 'reps',
-    sets: 4,
-    reps: 8,
-    weighted: true,
-  }),
-  ex({
-    id: 'benchPress',
-    category: 'gym',
-    muscle: 'chest',
-    equipment: 'barbell',
-    pose: 'bench',
-    mode: 'reps',
-    sets: 4,
-    reps: 8,
-    weighted: true,
-  }),
-  ex({
-    id: 'deadlift',
-    category: 'gym',
-    muscle: 'back',
-    equipment: 'barbell',
-    pose: 'deadlift',
-    mode: 'reps',
-    sets: 3,
-    reps: 5,
-    weighted: true,
-  }),
-  ex({
-    id: 'latPulldown',
-    category: 'gym',
-    muscle: 'back',
-    equipment: 'machine',
-    pose: 'pulldown',
-    mode: 'reps',
-    sets: 3,
-    reps: 10,
-    weighted: true,
-  }),
-  ex({
-    id: 'dbRow',
-    category: 'gym',
-    muscle: 'back',
-    equipment: 'dumbbell',
-    pose: 'row',
-    mode: 'reps',
-    sets: 3,
-    reps: 10,
-    sides: true,
-    weighted: true,
-  }),
-  ex({
-    id: 'overheadPress',
-    category: 'gym',
-    muscle: 'shoulders',
-    equipment: 'barbell',
-    pose: 'press',
-    mode: 'reps',
-    sets: 3,
-    reps: 8,
-    weighted: true,
-  }),
-  ex({
-    id: 'legPress',
-    category: 'gym',
-    muscle: 'legs',
-    equipment: 'machine',
-    pose: 'legpress',
-    mode: 'reps',
-    sets: 3,
-    reps: 12,
-    weighted: true,
-  }),
-  ex({
-    id: 'bicepsCurl',
-    category: 'gym',
-    muscle: 'arms',
-    equipment: 'dumbbell',
-    pose: 'curl',
-    mode: 'reps',
-    sets: 3,
-    reps: 12,
-    weighted: true,
-  }),
-  ex({
-    id: 'rdl',
-    category: 'gym',
-    muscle: 'legs',
-    equipment: 'dumbbell',
-    pose: 'deadlift',
-    mode: 'reps',
-    sets: 3,
-    reps: 10,
-    weighted: true,
-  }),
-  ex({
-    id: 'gobletSquat',
-    category: 'gym',
-    muscle: 'legs',
-    equipment: 'dumbbell',
-    pose: 'squat',
-    mode: 'reps',
-    sets: 3,
-    reps: 12,
-    weighted: true,
-  }),
-  // Yoga
-  ex({
-    id: 'mountain',
-    category: 'yoga',
-    muscle: 'mobility',
-    equipment: 'mat',
-    pose: 'stand',
-    mode: 'time',
-    sets: 1,
-    sec: 30,
-  }),
-  ex({
-    id: 'downDog',
-    category: 'yoga',
-    muscle: 'full',
-    equipment: 'mat',
-    pose: 'dog',
-    mode: 'time',
-    sets: 2,
-    sec: 45,
-  }),
-  ex({
-    id: 'warrior2',
-    category: 'yoga',
-    muscle: 'legs',
-    equipment: 'mat',
-    pose: 'warrior',
-    mode: 'time',
-    sets: 1,
-    sec: 30,
-    sides: true,
-  }),
-  ex({
-    id: 'tree',
-    category: 'yoga',
-    muscle: 'legs',
-    equipment: 'mat',
-    pose: 'tree',
-    mode: 'time',
-    sets: 1,
-    sec: 30,
-    sides: true,
-  }),
-  ex({
-    id: 'cobra',
-    category: 'yoga',
-    muscle: 'back',
-    equipment: 'mat',
-    pose: 'cobra',
-    mode: 'time',
-    sets: 2,
-    sec: 30,
-  }),
-  ex({
-    id: 'child',
-    category: 'yoga',
-    muscle: 'mobility',
-    equipment: 'mat',
-    pose: 'child',
-    mode: 'time',
-    sets: 1,
-    sec: 60,
-  }),
-  ex({
-    id: 'catCow',
-    category: 'yoga',
-    muscle: 'back',
-    equipment: 'mat',
-    pose: 'cat',
-    mode: 'time',
-    sets: 1,
-    sec: 60,
-  }),
-  ex({
-    id: 'triangle',
-    category: 'yoga',
-    muscle: 'mobility',
-    equipment: 'mat',
-    pose: 'triangle',
-    mode: 'time',
-    sets: 1,
-    sec: 30,
-    sides: true,
-  }),
-  // Stretching / mobility
-  ex({
-    id: 'forwardFold',
-    category: 'stretch',
-    muscle: 'mobility',
-    equipment: 'none',
-    pose: 'fold',
-    mode: 'time',
-    sets: 1,
-    sec: 45,
-  }),
-  ex({
-    id: 'hipFlexor',
-    category: 'stretch',
-    muscle: 'legs',
-    equipment: 'none',
-    pose: 'lunge',
-    mode: 'time',
-    sets: 1,
-    sec: 30,
-    sides: true,
-  }),
-  ex({
-    id: 'hamstring',
-    category: 'stretch',
-    muscle: 'legs',
-    equipment: 'mat',
-    pose: 'seated',
-    mode: 'time',
-    sets: 1,
-    sec: 45,
-  }),
-  ex({
-    id: 'chestOpener',
-    category: 'stretch',
-    muscle: 'chest',
-    equipment: 'none',
-    pose: 'chest',
-    mode: 'time',
-    sets: 1,
-    sec: 30,
-  }),
-  ex({
-    id: 'neckRoll',
-    category: 'stretch',
-    muscle: 'mobility',
-    equipment: 'none',
-    pose: 'neck',
-    mode: 'time',
-    sets: 1,
-    sec: 30,
-  }),
-  ex({
-    id: 'seatedTwist',
-    category: 'stretch',
-    muscle: 'back',
-    equipment: 'mat',
-    pose: 'twist',
-    mode: 'time',
-    sets: 1,
-    sec: 30,
-    sides: true,
-  }),
-  ex({
-    id: 'figureFour',
-    category: 'stretch',
-    muscle: 'legs',
-    equipment: 'mat',
-    pose: 'lying',
-    mode: 'time',
-    sets: 1,
-    sec: 30,
-    sides: true,
-  }),
-  ex({
-    id: 'shoulderCross',
-    category: 'stretch',
-    muscle: 'shoulders',
-    equipment: 'none',
-    pose: 'shoulder',
-    mode: 'time',
-    sets: 1,
-    sec: 30,
-    sides: true,
-  }),
-];
 
 const BY_ID = new Map(EXERCISES.map((e) => [e.id, e]));
 
 export function getExercise(id: string): Exercise | undefined {
   return BY_ID.get(id);
+}
+
+export interface ExerciseFilter {
+  place?: FitPlace;
+  type?: FitType;
+  muscle?: Muscle;
+  equipment?: Equipment;
+  query?: string;
+}
+
+const fold = (s: string) =>
+  s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+
+/** Library query; `nameOf` lets the search match translated names. */
+export function filterExercises(
+  f: ExerciseFilter,
+  nameOf: (id: string) => string = (id) => id,
+  list: readonly Exercise[] = EXERCISES,
+): Exercise[] {
+  const q = f.query ? fold(f.query) : '';
+  return list.filter(
+    (e) =>
+      (!f.place || e.places.includes(f.place)) &&
+      (!f.type || e.type === f.type) &&
+      (!f.muscle || e.muscles.includes(f.muscle)) &&
+      (!f.equipment || e.equipment === f.equipment) &&
+      (!q || fold(nameOf(e.id)).includes(q) || fold(e.id).includes(q)),
+  );
+}
+
+/** Same main muscle, ranked by shared muscles and usefulness elsewhere. */
+export function exerciseAlternatives(ex: Exercise, limit = 4): Exercise[] {
+  const score = (c: Exercise) =>
+    c.muscles.filter((m) => ex.muscles.includes(m)).length +
+    (c.type === ex.type ? 2 : 0) +
+    (c.places.some((p) => !ex.places.includes(p)) ? 1 : 0) -
+    Math.abs(c.level - ex.level) * 0.5;
+  return EXERCISES.filter((c) => c.id !== ex.id && c.muscles[0] === ex.muscles[0])
+    .map((c) => ({ c, s: score(c) }))
+    .sort((a, b) => b.s - a.s || a.c.id.localeCompare(b.c.id))
+    .slice(0, limit)
+    .map((r) => r.c);
+}
+
+/** One step down / up in difficulty for the same main muscle and type. */
+export function exerciseSteps(ex: Exercise): { easier?: Exercise; harder?: Exercise } {
+  const pick = (level: number) =>
+    EXERCISES.filter(
+      (c) =>
+        c.id !== ex.id && c.level === level && c.type === ex.type && c.muscles[0] === ex.muscles[0],
+    ).sort(
+      (a, b) =>
+        b.places.filter((p) => ex.places.includes(p)).length -
+          a.places.filter((p) => ex.places.includes(p)).length || a.id.localeCompare(b.id),
+    )[0];
+  return { easier: pick(ex.level - 1), harder: pick(ex.level + 1) };
 }
 
 export interface RoutineStep {
@@ -467,7 +286,8 @@ export interface RoutineStep {
 
 export interface Routine {
   id: string;
-  category: FitCategory;
+  places: readonly FitPlace[];
+  type: FitType;
   icon: PoseId;
   steps: RoutineStep[];
 }
@@ -486,7 +306,8 @@ const step = (id: string, restSec: number, over: Partial<RoutineStep> = {}): Rou
 export const ROUTINES: readonly Routine[] = [
   {
     id: 'home20',
-    category: 'home',
+    places: ['home', 'outdoor'],
+    type: 'strength',
     icon: 'squat',
     steps: [
       step('squat', 25),
@@ -500,7 +321,8 @@ export const ROUTINES: readonly Routine[] = [
   },
   {
     id: 'homeCore',
-    category: 'home',
+    places: ['home'],
+    type: 'strength',
     icon: 'plank',
     steps: [
       step('crunch', 15, { sets: 2 }),
@@ -511,8 +333,64 @@ export const ROUTINES: readonly Routine[] = [
     ],
   },
   {
+    id: 'homeDumbbell',
+    places: ['home'],
+    type: 'strength',
+    icon: 'curl',
+    steps: [
+      step('gobletSquat', 60),
+      step('dbShoulderPress', 60),
+      step('dbRow', 45),
+      step('rdl', 60),
+      step('hammerCurl', 45),
+      step('tricepsExtension', 45),
+    ],
+  },
+  {
+    id: 'hiit15',
+    places: ['home', 'outdoor'],
+    type: 'hiit',
+    icon: 'jumpup',
+    steps: [
+      step('jack', 15, { sets: 2, sec: 30 }),
+      step('highKnees', 15),
+      step('jumpSquat', 20),
+      step('climber', 15),
+      step('skaterJump', 20),
+      step('burpee', 30),
+      step('plank', 15, { sets: 2, sec: 30 }),
+    ],
+  },
+  {
+    id: 'parkWorkout',
+    places: ['outdoor'],
+    type: 'strength',
+    icon: 'stepup',
+    steps: [
+      step('inclinePushup', 45),
+      step('stepUp', 45),
+      step('benchDip', 45),
+      step('reverseLunge', 45),
+      step('invertedRow', 60),
+      step('calfRaise', 30),
+      step('sidePlank', 30, { sets: 2 }),
+    ],
+  },
+  {
+    id: 'runIntervals',
+    places: ['outdoor'],
+    type: 'cardio',
+    icon: 'run',
+    steps: [
+      step('briskWalk', 30, { sec: 300 }),
+      step('sprints', 60),
+      step('briskWalk', 0, { sec: 300 }),
+    ],
+  },
+  {
     id: 'gymFull',
-    category: 'gym',
+    places: ['gym'],
+    type: 'strength',
     icon: 'bench',
     steps: [
       step('backSquat', 90),
@@ -525,7 +403,8 @@ export const ROUTINES: readonly Routine[] = [
   },
   {
     id: 'gymLegsBack',
-    category: 'gym',
+    places: ['gym'],
+    type: 'strength',
     icon: 'deadlift',
     steps: [
       step('deadlift', 120),
@@ -537,7 +416,8 @@ export const ROUTINES: readonly Routine[] = [
   },
   {
     id: 'yogaMorning',
-    category: 'yoga',
+    places: ['home', 'outdoor'],
+    type: 'yoga',
     icon: 'tree',
     steps: [
       step('mountain', 15, { sec: 60 }),
@@ -551,8 +431,24 @@ export const ROUTINES: readonly Routine[] = [
     ],
   },
   {
+    id: 'pilatesCore',
+    places: ['home'],
+    type: 'pilates',
+    icon: 'hollow',
+    steps: [
+      step('hundred', 15),
+      step('rollUp', 20),
+      step('singleLegStretch', 20),
+      step('swimming', 15),
+      step('sideLegLift', 15),
+      step('clamshell', 15),
+      step('teaser', 20),
+    ],
+  },
+  {
     id: 'stretchEvening',
-    category: 'stretch',
+    places: ['home', 'gym'],
+    type: 'mobility',
     icon: 'seated',
     steps: [
       step('neckRoll', 10),
@@ -596,9 +492,12 @@ export function routineMinutes(r: Routine): number {
 export const fitKey = {
   exName: (id: string) => `fit.ex.${id}.name` as TKey,
   exCue: (id: string) => `fit.ex.${id}.cue` as TKey,
+  exTip: (id: string) => `fit.ex.${id}.tip` as TKey,
   rtName: (id: string) => `fit.rt.${id}.name` as TKey,
   rtDesc: (id: string) => `fit.rt.${id}.desc` as TKey,
-  cat: (c: FitCategory) => `fit.cat.${c}` as TKey,
+  place: (p: FitPlace) => `fit.place.${p}` as TKey,
+  type: (t: FitType) => `fit.type.${t}` as TKey,
   muscle: (m: Muscle) => `fit.muscle.${m}` as TKey,
   eq: (e: Equipment) => `fit.eq.${e}` as TKey,
+  level: (l: FitLevel) => `fit.level.${l}` as TKey,
 };

@@ -1,4 +1,5 @@
 import type { TKey } from '../types';
+import { fitDe } from './fit/de';
 
 export const de: Record<TKey, string> = {
   'nav.focus': 'Fokus',
@@ -3431,9 +3432,7 @@ export const de: Record<TKey, string> = {
   'fit.start': 'Start',
   'fit.startAria': '{name} starten',
   'fit.library': 'Übungsbibliothek',
-  'fit.librarySub': 'Wie jede Übung geht, in einer Zeile.',
   'fit.filterAria': 'Nach Ort filtern',
-  'fit.cat.all': 'Alle',
   'fit.dose.reps': '{sets} × {reps}',
   'fit.dose.time': '{sets} × {sec} s',
   'fit.dose.perSide': 'pro Seite',
@@ -3473,18 +3472,8 @@ export const de: Record<TKey, string> = {
   'fit.d.discard': 'Verwerfen',
   'fit.d.saved': 'Workout gespeichert.',
   'fit.d.nothing': 'Noch kein Satz erfasst.',
-  'fit.cat.home': 'Zuhause',
-  'fit.cat.gym': 'Studio',
-  'fit.cat.yoga': 'Yoga',
-  'fit.cat.stretch': 'Dehnen',
-  'fit.muscle.legs': 'Beine',
   'fit.muscle.chest': 'Brust',
-  'fit.muscle.back': 'Rücken',
-  'fit.muscle.core': 'Rumpf',
   'fit.muscle.shoulders': 'Schultern',
-  'fit.muscle.arms': 'Arme',
-  'fit.muscle.full': 'Ganzkörper',
-  'fit.muscle.mobility': 'Mobilität',
   'fit.eq.none': 'Ohne Geräte',
   'fit.eq.chair': 'Stuhl',
   'fit.eq.mat': 'Matte',
@@ -3617,4 +3606,5 @@ export const de: Record<TKey, string> = {
   'set.grp.planFree': 'Du nutzt Free — sieh dir an, was Pro bietet',
   'set.grp.planPro': 'Du nutzt Pro — danke',
   'set.grp.helpSum': 'Support-E-Mail, Hilfe, AGB und Datenschutz',
+  ...fitDe,
 };

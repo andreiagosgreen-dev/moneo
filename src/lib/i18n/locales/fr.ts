@@ -1,4 +1,5 @@
 import type { TKey } from '../types';
+import { fitFr } from './fit/fr';
 
 export const fr: Record<TKey, string> = {
   'nav.focus': 'Focus',
@@ -3440,9 +3441,7 @@ export const fr: Record<TKey, string> = {
   'fit.start': 'Démarrer',
   'fit.startAria': 'Démarrer {name}',
   'fit.library': 'Bibliothèque d’exercices',
-  'fit.librarySub': 'Comment faire chaque mouvement, en une ligne.',
   'fit.filterAria': 'Filtrer par lieu',
-  'fit.cat.all': 'Tout',
   'fit.dose.reps': '{sets} × {reps}',
   'fit.dose.time': '{sets} × {sec} s',
   'fit.dose.perSide': 'par côté',
@@ -3482,18 +3481,8 @@ export const fr: Record<TKey, string> = {
   'fit.d.discard': 'Abandonner',
   'fit.d.saved': 'Séance enregistrée.',
   'fit.d.nothing': 'Aucune série enregistrée pour l’instant.',
-  'fit.cat.home': 'Maison',
-  'fit.cat.gym': 'Salle',
-  'fit.cat.yoga': 'Yoga',
-  'fit.cat.stretch': 'Étirements',
-  'fit.muscle.legs': 'Jambes',
   'fit.muscle.chest': 'Pectoraux',
-  'fit.muscle.back': 'Dos',
-  'fit.muscle.core': 'Gainage',
   'fit.muscle.shoulders': 'Épaules',
-  'fit.muscle.arms': 'Bras',
-  'fit.muscle.full': 'Corps entier',
-  'fit.muscle.mobility': 'Mobilité',
   'fit.eq.none': 'Sans matériel',
   'fit.eq.chair': 'Chaise',
   'fit.eq.mat': 'Tapis',
@@ -3624,4 +3613,5 @@ export const fr: Record<TKey, string> = {
   'set.grp.planFree': 'Vous êtes sur Free — voyez ce qu’apporte Pro',
   'set.grp.planPro': 'Vous êtes sur Pro — merci',
   'set.grp.helpSum': 'E-mail d’assistance, aide, conditions et confidentialité',
+  ...fitFr,
 };

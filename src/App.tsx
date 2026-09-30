@@ -133,12 +133,17 @@ import {
   addWorkout,
   deleteWorkout,
   FITNESS_HABIT_ICON,
+  isMoving,
   loadWorkouts,
   markHabitDone,
+  plannedOn,
   saveWorkouts,
   type WorkoutEntry,
   type WorkoutStore,
 } from './lib/fitness/workouts';
+import { fitKey, getRoutine } from './lib/fitness/library';
+import { getActiveRun, setActiveRun, startRun } from './lib/fitness/player';
+import MonoMoveToday from './mono/MonoMoveToday';
 import type { HabitLink } from './mono/MonoWorkoutPlayer';
 import {
   getLifeTemplate,
@@ -386,6 +391,17 @@ export default function App() {
       ...addWorkout(workoutStore, entry),
       habitId: habitId ?? workoutStore.habitId,
     });
+  };
+  const startWorkoutFromToday = (routineId: string) => {
+    if (!getActiveRun()) setActiveRun(startRun(routineId, Date.now(), workoutStore.log));
+    goFill('move');
+  };
+  const moveForDay = (dayKey: string) => {
+    const done = workoutStore.log.some((e) => e.day === dayKey);
+    const planned = plannedOn(workoutStore, dayKey)
+      .filter((id) => getRoutine(id))
+      .map((id) => t(fitKey.rtName(id)));
+    return done || planned.length > 0 ? { planned, done } : null;
   };
   const [lifeAreas, setLifeAreas] = useState<LifeArea[]>(BOOT.lifeAreas);
   const [lifeMap, setLifeMap] = useState<LifeMapArea[]>(BOOT.lifeMap);
@@ -1389,6 +1405,17 @@ export default function App() {
                             timeOff={timeOff}
                           />
                         }
+                        move={
+                          isMoving(workoutStore, nowMs) ? (
+                            <MonoMoveToday
+                              store={workoutStore}
+                              dayKey={frogDayKey}
+                              now={nowMs}
+                              onStart={startWorkoutFromToday}
+                              onOpen={() => goFill('move')}
+                            />
+                          ) : undefined
+                        }
                         checkin={
                           <MonoCheckin
                             entries={energyLog}
@@ -1512,6 +1539,7 @@ export default function App() {
                               energyLog={energyLog}
                               timezone={auth.timezone}
                               onOpenToday={() => goNav('today')}
+                              moveFor={moveForDay}
                             />
                           </div>
                           <CalendarCard
@@ -1711,6 +1739,7 @@ export default function App() {
                           isPro={auth.isPro}
                           onSave={handleWorkoutSave}
                           onDelete={(id) => commitWorkouts(deleteWorkout(workoutStore, id))}
+                          onChange={commitWorkouts}
                         />
                       </main>
                     </Suspense>

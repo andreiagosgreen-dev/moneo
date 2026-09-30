@@ -1,4 +1,5 @@
 import type { TKey } from '../types';
+import { fitRo } from './fit/ro';
 
 /** Română — revizuită uman, cu diacritice corecte (Faza 5). */
 export const ro: Record<TKey, string> = {
@@ -3417,9 +3418,7 @@ export const ro: Record<TKey, string> = {
   'fit.start': 'Start',
   'fit.startAria': 'Pornește {name}',
   'fit.library': 'Biblioteca de exerciții',
-  'fit.librarySub': 'Cum se face fiecare mișcare, într-un rând.',
   'fit.filterAria': 'Filtrează după loc',
-  'fit.cat.all': 'Toate',
   'fit.dose.reps': '{sets} × {reps}',
   'fit.dose.time': '{sets} × {sec} s',
   'fit.dose.perSide': 'pe parte',
@@ -3459,18 +3458,8 @@ export const ro: Record<TKey, string> = {
   'fit.d.discard': 'Renunță',
   'fit.d.saved': 'Antrenament salvat.',
   'fit.d.nothing': 'Nicio serie înregistrată încă.',
-  'fit.cat.home': 'Acasă',
-  'fit.cat.gym': 'Sală',
-  'fit.cat.yoga': 'Yoga',
-  'fit.cat.stretch': 'Stretching',
-  'fit.muscle.legs': 'Picioare',
   'fit.muscle.chest': 'Piept',
-  'fit.muscle.back': 'Spate',
-  'fit.muscle.core': 'Abdomen',
   'fit.muscle.shoulders': 'Umeri',
-  'fit.muscle.arms': 'Brațe',
-  'fit.muscle.full': 'Tot corpul',
-  'fit.muscle.mobility': 'Mobilitate',
   'fit.eq.none': 'Fără echipament',
   'fit.eq.chair': 'Scaun',
   'fit.eq.mat': 'Saltea',
@@ -3597,4 +3586,5 @@ export const ro: Record<TKey, string> = {
   'set.grp.planFree': 'Folosești Free — vezi ce aduce Pro',
   'set.grp.planPro': 'Folosești Pro — mulțumim',
   'set.grp.helpSum': 'E-mail de suport, ajutor, termeni și confidențialitate',
+  ...fitRo,
 };

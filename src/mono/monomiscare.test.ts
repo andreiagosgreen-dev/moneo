@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createElement, type ReactElement } from 'react';
+import { createElement, useState, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 import { LocaleProvider } from '../lib/i18n/LocaleContext';
 import { createHabitObject, type Habit } from '../lib/habits';
+import { EXERCISES } from '../lib/fitness/library';
 import { setActiveRun } from '../lib/fitness/player';
 import type { WorkoutStore } from '../lib/fitness/workouts';
 import MonoMiscare from './MonoMiscare';
@@ -38,19 +39,32 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-const screen = (p: {
+interface ScreenProps {
   store?: WorkoutStore;
   habits?: Habit[];
+  isPro?: boolean;
   onSave?: () => void;
   onDelete?: () => void;
-}) =>
-  createElement(MonoMiscare, {
-    store: p.store ?? { log: [] },
+  onChange?: (next: WorkoutStore) => void;
+}
+
+/** Keeps the store in state, like App does, so place/schedule changes re-render. */
+function Stateful(p: ScreenProps) {
+  const [store, setStore] = useState<WorkoutStore>(p.store ?? { log: [] });
+  return createElement(MonoMiscare, {
+    store,
     habits: p.habits ?? [],
-    isPro: false,
+    isPro: p.isPro ?? false,
     onSave: p.onSave ?? vi.fn(),
     onDelete: p.onDelete ?? vi.fn(),
+    onChange: (next: WorkoutStore) => {
+      p.onChange?.(next);
+      setStore(next);
+    },
   });
+}
+
+const screen = (p: ScreenProps) => createElement(Stateful, p);
 
 const button = (c: HTMLElement, text: string | RegExp) =>
   Array.from(c.querySelectorAll('button')).find((b) =>
@@ -64,17 +78,161 @@ const click = (el: Element | undefined) => {
 };
 
 describe('MonoMiscare', () => {
-  it('lists routines and filters the exercise library by place', () => {
-    const c = render(screen({}));
-    expect(c.querySelectorAll('[data-testid^="fit-rt-"]').length).toBe(6);
-    const rows = () => c.querySelectorAll('[data-testid="fit-library"] li').length;
-    expect(rows()).toBe(10);
-    click(button(c, 'Yoga'));
-    expect(rows()).toBe(8);
-    expect(button(c, 'Yoga')?.getAttribute('aria-pressed')).toBe('true');
-    click(button(c, 'All'));
-    expect(rows()).toBe(36);
+  it('filters routines and the library by the remembered place', () => {
+    const onChange = vi.fn();
+    const c = render(screen({ onChange }));
+    const routines = () => c.querySelectorAll('[data-testid^="fit-rt-"]').length;
+    const count = () => c.querySelector('[data-testid="fit-count"]')?.textContent;
+    expect(routines()).toBe(11);
+    expect(count()).toBe(`${EXERCISES.length} exercises`);
+    expect(c.querySelectorAll('[data-testid="fit-library"] li').length).toBe(20);
     expect(c.textContent).toContain('No workouts yet this week.');
+    expect(c.textContent).toContain('Goal: 3 workouts a week');
+
+    click(button(c, 'Gym'));
+    expect(onChange).toHaveBeenLastCalledWith({ log: [], place: 'gym' });
+    expect(button(c, 'Gym')?.getAttribute('aria-pressed')).toBe('true');
+    expect(c.querySelector('[data-testid="fit-rt-gymFull"]')).toBeTruthy();
+    expect(c.querySelector('[data-testid="fit-rt-home20"]')).toBeNull();
+    const gym = EXERCISES.filter((e) => e.places.includes('gym')).length;
+    expect(count()).toBe(`${gym} exercises`);
+
+    click(button(c, 'Anywhere'));
+    expect(onChange).toHaveBeenLastCalledWith({ log: [] });
+    expect(routines()).toBe(11);
+  });
+
+  it('combines type, muscle, equipment and search filters, then clears them', () => {
+    const c = render(screen({}));
+    const count = () => c.querySelector('[data-testid="fit-count"]')?.textContent;
+    const rows = () =>
+      Array.from(c.querySelectorAll('[data-testid="fit-library"] .mono-fit-name')).map(
+        (n) => n.textContent,
+      );
+
+    click(button(c, 'Yoga'));
+    expect(button(c, 'Yoga')?.getAttribute('aria-pressed')).toBe('true');
+    const yoga = EXERCISES.filter((e) => e.type === 'yoga').length;
+    expect(count()).toBe(`${yoga} exercises`);
+
+    click(button(c, 'All types'));
+    const [muscle, equipment] = Array.from(c.querySelectorAll('.mono-fit-selects select'));
+    act(() => {
+      (muscle as HTMLSelectElement).value = 'chest';
+      muscle.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    act(() => {
+      (equipment as HTMLSelectElement).value = 'barbell';
+      equipment.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    expect(rows()).toContain('Bench press');
+    expect(rows()).not.toContain('Push-up');
+
+    click(button(c, 'Clear filters'));
+    expect(count()).toBe(`${EXERCISES.length} exercises`);
+
+    const search = c.querySelector('input[type="search"]') as HTMLInputElement;
+    act(() => {
+      const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+      set.call(search, 'PUSH-UP');
+      search.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    expect(rows()).toContain('Push-up');
+    expect(rows().every((n) => /push-up/i.test(n ?? ''))).toBe(true);
+  });
+
+  it('pages the library and opens an exercise detail, then goes back', () => {
+    const c = render(screen({}));
+    click(button(c, /^Show more/));
+    expect(c.querySelectorAll('[data-testid="fit-library"] li').length).toBe(40);
+
+    click(c.querySelector('[aria-label="Open Push-up"]') ?? undefined);
+    const detail = c.querySelector('[data-testid="fit-detail"]')!;
+    expect(detail).toBeTruthy();
+    expect(detail.querySelector('h2')?.textContent).toBe('Push-up');
+    expect(detail.textContent).toContain('How to do it');
+    expect(detail.textContent).toContain('Sagging hips. Squeeze glutes and abs.');
+    expect(detail.textContent).toContain('Main');
+    expect(detail.textContent).toContain('Chest');
+    expect(detail.querySelector('.mono-fit-anim')).toBeTruthy();
+    expect(detail.querySelector('[data-muscle="chest"]')?.getAttribute('data-lv')).toBe('3');
+
+    const alt = detail.querySelector('button[aria-label^="Open "]') as HTMLButtonElement;
+    const altName = alt.getAttribute('aria-label')!.slice(5);
+    click(alt);
+    expect(c.querySelector('[data-testid="fit-detail"] h2')?.textContent).toBe(altName);
+
+    click(button(c, /Back to the library/));
+    expect(c.querySelector('[data-testid="fit-detail"]')).toBeNull();
+    expect(c.querySelector('[data-testid="fit-library"]')).toBeTruthy();
+  });
+
+  it('schedules a routine on weekdays and counts it in the weekly goal', () => {
+    const onChange = vi.fn();
+    const c = render(screen({ onChange }));
+    click(c.querySelector('[aria-label="Schedule Home 20 min, no equipment"]') ?? undefined);
+    const days = c.querySelector('[data-testid="fit-rt-home20"] .mono-fit-days')!;
+    const chips = Array.from(days.querySelectorAll('button'));
+    expect(chips).toHaveLength(7);
+    click(chips[0]); // Monday
+    click(chips[2]); // Wednesday
+    expect(onChange).toHaveBeenLastCalledWith({
+      log: [],
+      plan: [{ routineId: 'home20', days: [1, 3] }],
+    });
+    expect(chips[0].getAttribute('aria-pressed')).toBe('true');
+    expect(c.querySelector('[data-testid="fit-rt-home20"] .mono-fit-planned')?.textContent).toMatch(
+      /^Scheduled: Mon, Wed$/,
+    );
+    expect(c.textContent).toContain('0 of 2 scheduled workouts done');
+    click(chips[0]);
+    expect(onChange).toHaveBeenLastCalledWith({
+      log: [],
+      plan: [{ routineId: 'home20', days: [3] }],
+    });
+  });
+
+  it('heats worked muscles on the body map and filters the library on tap', () => {
+    const store: WorkoutStore = {
+      log: [
+        {
+          id: 'w1',
+          routineId: 'home20',
+          day: 'x',
+          startedAt: Date.now() - 3_600_000,
+          durationSec: 600,
+          sets: [{ ex: 'pushup' }, { ex: 'pushup' }],
+        },
+      ],
+    };
+    const c = render(screen({ store }));
+    const chest = c.querySelector('.mono-bmap [role="button"][data-muscle="chest"]')!;
+    expect(chest.getAttribute('data-lv')).toBe('3');
+    expect(chest.getAttribute('aria-label')).toBe('Chest: worked a lot');
+    expect(
+      c.querySelector('.mono-bmap [role="button"][data-muscle="calves"]')?.getAttribute('data-lv'),
+    ).toBe('0');
+    expect(button(c, /^30 days/)?.disabled).toBe(true);
+
+    click(chest);
+    expect(chest.getAttribute('aria-pressed')).toBe('true');
+    const chestCount = EXERCISES.filter((e) => e.muscles.includes('chest')).length;
+    expect(c.querySelector('[data-testid="fit-count"]')?.textContent).toBe(
+      `${chestCount} exercises`,
+    );
+    click(chest);
+    expect(c.querySelector('[data-testid="fit-count"]')?.textContent).toBe(
+      `${EXERCISES.length} exercises`,
+    );
+  });
+
+  it('shows an empty body map hint and unlocks 30 days with Pro', () => {
+    const c = render(screen({ isPro: true }));
+    expect(c.textContent).toContain('Finish a workout and the muscles you trained light up here.');
+    const d30 = button(c, '30 days')!;
+    expect(d30.disabled).toBe(false);
+    click(d30);
+    expect(d30.getAttribute('aria-pressed')).toBe('true');
   });
 
   it('plays a routine: set done, rest, skip rest, finish, save with a new habit', () => {
