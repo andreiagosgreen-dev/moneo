@@ -35,7 +35,9 @@ function click(el: Element) {
 /** Wednesday 2026-9-30, noon UTC. */
 const NOW = Date.UTC(2026, 8, 30, 12);
 
-function week(onOpenToday = vi.fn()) {
+type MoveFor = (dayKey: string) => { planned: string[]; done: boolean } | null;
+
+function week(onOpenToday = vi.fn(), moveFor?: MoveFor) {
   return wrap(
     createElement(MonoWeek, {
       plans: [
@@ -50,6 +52,7 @@ function week(onOpenToday = vi.fn()) {
       habitLog: {},
       timezone: 'UTC',
       onOpenToday,
+      moveFor,
       now: NOW,
     }),
   );
@@ -101,6 +104,24 @@ describe('MonoWeek', () => {
     const details = c.querySelector('.mono-week-details');
     expect(details?.textContent).toContain('Draft the report');
     expect(buttons[1].getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('shows scheduled and finished workouts on their days', () => {
+    const moveFor: MoveFor = (key) =>
+      key === '2026-9-28'
+        ? { planned: ['Home 20 min, no equipment'], done: true }
+        : key === '2026-10-2'
+          ? { planned: ['Morning yoga 15 min'], done: false }
+          : null;
+    const c = render(week(vi.fn(), moveFor));
+    const days = c.querySelectorAll('[role="listitem"]');
+    expect(days[0].querySelector('.mono-week-move')?.textContent).toBe('Workout done');
+    expect(days[4].querySelector('.mono-week-move')?.textContent).toBe('Move: Morning yoga 15 min');
+    expect(days[3].querySelector('.mono-week-move')).toBeNull();
+    click(c.querySelectorAll('.mono-week-btn')[4]);
+    expect(c.querySelector('.mono-week-details')?.textContent).toContain(
+      'Move: Morning yoga 15 min',
+    );
   });
 });
 

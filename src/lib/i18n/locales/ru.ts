@@ -1,4 +1,5 @@
 import type { TKey } from '../types';
+import { fitRu } from './fit/ru';
 
 export const ru: Record<TKey, string> = {
   'nav.focus': 'Фокус',
@@ -3397,9 +3398,7 @@ export const ru: Record<TKey, string> = {
   'fit.start': 'Старт',
   'fit.startAria': 'Начать: {name}',
   'fit.library': 'Библиотека упражнений',
-  'fit.librarySub': 'Как выполнять каждое движение — в одной строке.',
   'fit.filterAria': 'Фильтр по месту',
-  'fit.cat.all': 'Все',
   'fit.dose.reps': '{sets} × {reps}',
   'fit.dose.time': '{sets} × {sec} с',
   'fit.dose.perSide': 'на каждую сторону',
@@ -3439,18 +3438,8 @@ export const ru: Record<TKey, string> = {
   'fit.d.discard': 'Не сохранять',
   'fit.d.saved': 'Тренировка сохранена.',
   'fit.d.nothing': 'Пока нет ни одного подхода.',
-  'fit.cat.home': 'Дом',
-  'fit.cat.gym': 'Зал',
-  'fit.cat.yoga': 'Йога',
-  'fit.cat.stretch': 'Растяжка',
-  'fit.muscle.legs': 'Ноги',
   'fit.muscle.chest': 'Грудь',
-  'fit.muscle.back': 'Спина',
-  'fit.muscle.core': 'Пресс',
   'fit.muscle.shoulders': 'Плечи',
-  'fit.muscle.arms': 'Руки',
-  'fit.muscle.full': 'Всё тело',
-  'fit.muscle.mobility': 'Подвижность',
   'fit.eq.none': 'Без инвентаря',
   'fit.eq.chair': 'Стул',
   'fit.eq.mat': 'Коврик',
@@ -3571,4 +3560,5 @@ export const ru: Record<TKey, string> = {
   'set.grp.planFree': 'У вас Free — посмотрите, что даёт Pro',
   'set.grp.planPro': 'У вас Pro — спасибо',
   'set.grp.helpSum': 'Почта поддержки, помощь, условия и конфиденциальность',
+  ...fitRu,
 };

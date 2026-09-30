@@ -7,6 +7,7 @@ import { STORAGE_KEYS } from '../storage/storageKeys';
 import { safeRead as read, safeWrite as write } from '../storage/storageAdapter';
 import { localDayKey } from '../projects';
 import { activeHabits, toggleHabitDay, type Habit, type HabitLog } from '../habits';
+import { FIT_PLACES, MUSCLES, getExercise, type FitPlace, type Muscle } from './library';
 
 export interface WorkoutSet {
   ex: string;
@@ -25,13 +26,25 @@ export interface WorkoutEntry {
   sets: WorkoutSet[];
 }
 
+/** Weekly schedule of one routine: weekdays 0 = Sunday … 6 = Saturday. */
+export interface WorkoutPlan {
+  routineId: string;
+  days: number[];
+}
+
 export interface WorkoutStore {
   log: WorkoutEntry[];
   /** Habit ticked when a workout is saved. */
   habitId?: string;
+  /** Last place picked in the Move tab. */
+  place?: FitPlace;
+  plan?: WorkoutPlan[];
 }
 
 export const MAX_WORKOUTS = 500;
+const MAX_PLANS = 20;
+/** Weekly target when nothing is scheduled. */
+export const DEFAULT_WEEK_GOAL = 3;
 
 const num = (v: unknown, max: number): number | undefined =>
   typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Math.min(max, v) : undefined;
@@ -81,7 +94,114 @@ export function sanitizeWorkoutStore(v: unknown): WorkoutStore {
     : [];
   const store: WorkoutStore = { log: log.slice(-MAX_WORKOUTS) };
   if (typeof raw.habitId === 'string' && raw.habitId) store.habitId = raw.habitId;
+  if (FIT_PLACES.includes(raw.place as FitPlace)) store.place = raw.place as FitPlace;
+  const plan = Array.isArray(raw.plan)
+    ? raw.plan.map(cleanPlan).filter((p): p is WorkoutPlan => p !== null)
+    : [];
+  if (plan.length > 0) store.plan = plan.slice(0, MAX_PLANS);
   return store;
+}
+
+const isWeekday = (d: unknown): d is number =>
+  typeof d === 'number' && Number.isInteger(d) && d >= 0 && d <= 6;
+
+const cleanDays = (days: unknown[]): number[] =>
+  [...new Set(days.filter(isWeekday))].sort((a, b) => a - b);
+
+function cleanPlan(v: unknown): WorkoutPlan | null {
+  if (!v || typeof v !== 'object') return null;
+  const p = v as Record<string, unknown>;
+  if (typeof p.routineId !== 'string' || !p.routineId || !Array.isArray(p.days)) return null;
+  const days = cleanDays(p.days);
+  return days.length > 0 ? { routineId: p.routineId.slice(0, 40), days } : null;
+}
+
+/** Pure: replace a routine's weekdays (empty removes it from the plan). */
+export function setRoutineDays(
+  store: WorkoutStore,
+  routineId: string,
+  days: number[],
+): WorkoutStore {
+  const clean = cleanDays(days);
+  const rest = (store.plan ?? []).filter((p) => p.routineId !== routineId);
+  const plan = clean.length > 0 ? [...rest, { routineId, days: clean }] : rest;
+  const next: WorkoutStore = { ...store, plan: plan.slice(0, MAX_PLANS) };
+  if (next.plan?.length === 0) delete next.plan;
+  return next;
+}
+
+export function routineDays(store: WorkoutStore, routineId: string): number[] {
+  return store.plan?.find((p) => p.routineId === routineId)?.days ?? [];
+}
+
+/** Routines scheduled on a local day key ("YYYY-M-D"). */
+export function plannedOn(store: WorkoutStore, dayKey: string): string[] {
+  const [y, m, d] = dayKey.split('-').map(Number);
+  const wd = new Date(y, m - 1, d).getDay();
+  if (!Number.isFinite(wd)) return [];
+  return (store.plan ?? []).filter((p) => p.days.includes(wd)).map((p) => p.routineId);
+}
+
+export interface WeekGoal {
+  done: number;
+  goal: number;
+  /** 0–100. */
+  pct: number;
+  /** True when the goal comes from the schedule, not the default. */
+  planned: boolean;
+}
+
+/** This week's workouts against the scheduled sessions (or the default goal). */
+export function weekGoal(store: WorkoutStore, now: number = Date.now()): WeekGoal {
+  const sessions = (store.plan ?? []).reduce((sum, p) => sum + p.days.length, 0);
+  const goal = sessions > 0 ? sessions : DEFAULT_WEEK_GOAL;
+  const done = weekSummary(store.log, now).count;
+  return { done, goal, pct: Math.min(100, Math.round((done / goal) * 100)), planned: sessions > 0 };
+}
+
+/** Worth a card on Today: something is scheduled or trained in the last 2 weeks. */
+export function isMoving(store: WorkoutStore, now: number = Date.now()): boolean {
+  if ((store.plan ?? []).length > 0) return true;
+  const since = now - 14 * 86_400_000;
+  return store.log.some((e) => e.startedAt >= since);
+}
+
+/**
+ * Sets per muscle over the last `days` days: 1 for the main muscle,
+ * 0.5 for each secondary one. Feeds the body map heat levels.
+ */
+export function muscleLoad(
+  log: WorkoutEntry[],
+  days: number,
+  now: number = Date.now(),
+): Partial<Record<Muscle, number>> {
+  const since = now - days * 86_400_000;
+  const out: Partial<Record<Muscle, number>> = {};
+  for (const e of log) {
+    if (e.startedAt < since || e.startedAt > now) continue;
+    for (const s of e.sets) {
+      const ex = getExercise(s.ex);
+      if (!ex) continue;
+      ex.muscles.forEach((m, i) => {
+        out[m] = (out[m] ?? 0) + (i === 0 ? 1 : 0.5);
+      });
+    }
+  }
+  return out;
+}
+
+/** 0 = untouched, 1–3 = relative to the most worked muscle. */
+export function heatLevels(
+  load: Partial<Record<Muscle, number>>,
+): Partial<Record<Muscle, 0 | 1 | 2 | 3>> {
+  const max = Math.max(0, ...Object.values(load).map((v) => v ?? 0));
+  const out: Partial<Record<Muscle, 0 | 1 | 2 | 3>> = {};
+  for (const m of MUSCLES) {
+    const v = load[m] ?? 0;
+    out[m] =
+      v <= 0 || max <= 0 ? 0 : (Math.min(3, Math.max(1, Math.ceil((v / max) * 3))) as 1 | 2 | 3);
+  }
+  return out;
 }
 
 export function loadWorkouts(): WorkoutStore {

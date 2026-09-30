@@ -1,4 +1,5 @@
 import type { TKey } from '../types';
+import { fitUk } from './fit/uk';
 
 export const uk: Record<TKey, string> = {
   'nav.focus': 'Фокус',
@@ -3398,9 +3399,7 @@ export const uk: Record<TKey, string> = {
   'fit.start': 'Старт',
   'fit.startAria': 'Почати: {name}',
   'fit.library': 'Бібліотека вправ',
-  'fit.librarySub': 'Як виконувати кожен рух — в одному рядку.',
   'fit.filterAria': 'Фільтр за місцем',
-  'fit.cat.all': 'Усі',
   'fit.dose.reps': '{sets} × {reps}',
   'fit.dose.time': '{sets} × {sec} с',
   'fit.dose.perSide': 'на кожну сторону',
@@ -3440,18 +3439,8 @@ export const uk: Record<TKey, string> = {
   'fit.d.discard': 'Не зберігати',
   'fit.d.saved': 'Тренування збережено.',
   'fit.d.nothing': 'Поки що жодного підходу.',
-  'fit.cat.home': 'Вдома',
-  'fit.cat.gym': 'Зал',
-  'fit.cat.yoga': 'Йога',
-  'fit.cat.stretch': 'Розтяжка',
-  'fit.muscle.legs': 'Ноги',
   'fit.muscle.chest': 'Груди',
-  'fit.muscle.back': 'Спина',
-  'fit.muscle.core': 'Прес',
   'fit.muscle.shoulders': 'Плечі',
-  'fit.muscle.arms': 'Руки',
-  'fit.muscle.full': 'Усе тіло',
-  'fit.muscle.mobility': 'Рухливість',
   'fit.eq.none': 'Без інвентарю',
   'fit.eq.chair': 'Стілець',
   'fit.eq.mat': 'Килимок',
@@ -3576,4 +3565,5 @@ export const uk: Record<TKey, string> = {
   'set.grp.planFree': 'У вас Free — подивіться, що дає Pro',
   'set.grp.planPro': 'У вас Pro — дякуємо',
   'set.grp.helpSum': 'Пошта підтримки, допомога, умови та конфіденційність',
+  ...fitUk,
 };

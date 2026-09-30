@@ -20,6 +20,8 @@ interface Props {
   energyLog?: EnergyEntry[];
   timezone: string;
   onOpenToday: () => void;
+  /** Workout scheduled / done on a day key (Move tab), shown as a metric. */
+  moveFor?: (dayKey: string) => { planned: string[]; done: boolean } | null;
   now?: number;
 }
 
@@ -37,6 +39,7 @@ export default function MonoWeek({
   energyLog,
   timezone,
   onOpenToday,
+  moveFor,
   now = Date.now(),
 }: Props) {
   const { t, tag, fmtNum, fmtDur, fmtDayKey } = useI18n();
@@ -73,8 +76,20 @@ export default function MonoWeek({
     return p ? fmt[style].format(Date.UTC(p.y, p.m - 1, p.d)) : key;
   };
   const range = `${fmtDayKey(days[0].key)} – ${fmtDayKey(days[6].key)}`;
+  const moves = new Map(days.map((d) => [d.key, moveFor?.(d.key) ?? null]));
+  const moveText = (key: string) => {
+    const m = moves.get(key);
+    if (!m) return null;
+    if (m.done) return t('mono.week.moveDone');
+    return m.planned.length > 0 ? t('mono.week.move', { name: m.planned.join(', ') }) : null;
+  };
   const empty = days.every(
-    (d) => d.planTotal === 0 && d.focusMin === 0 && d.habitsDone === 0 && d.due.length === 0,
+    (d) =>
+      d.planTotal === 0 &&
+      d.focusMin === 0 &&
+      d.habitsDone === 0 &&
+      d.due.length === 0 &&
+      !moveText(d.key),
   );
   const selectedDay = days.find((d) => d.key === selected) ?? null;
 
@@ -198,6 +213,9 @@ export default function MonoWeek({
                       })}
                     </span>
                   ) : null}
+                  {moveText(d.key) ? (
+                    <span className="mono-week-move">{moveText(d.key)}</span>
+                  ) : null}
                   {d.energy !== null ? (
                     <span className="mono-week-checkin">
                       {d.mood !== null
@@ -241,10 +259,15 @@ export default function MonoWeek({
           <p className="mono-eyebrow">
             {t('mono.week.details', { day: dayName(selectedDay.key) })}
           </p>
-          {selectedDay.plan.length === 0 && selectedDay.due.length === 0 ? (
+          {selectedDay.plan.length === 0 &&
+          selectedDay.due.length === 0 &&
+          !moveText(selectedDay.key) ? (
             <p className="mono-meta">{t('mono.week.dayEmpty')}</p>
           ) : (
             <ul className="mono-week-list">
+              {moveText(selectedDay.key) ? (
+                <li className="mono-week-move">{moveText(selectedDay.key)}</li>
+              ) : null}
               {selectedDay.plan.map((x) => (
                 <li key={`p-${x.id}`} className={x.done ? 'is-done' : undefined}>
                   {x.text}

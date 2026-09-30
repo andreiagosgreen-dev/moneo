@@ -5003,8 +5003,15 @@ ul.mono-tree {
 }
 .mono-fit-week {
   display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.mono-fit-week-copy {
+  display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 }
 .mono-fit-grid {
   display: grid;
@@ -5082,27 +5089,29 @@ ul.mono-tree {
   border-bottom: 1px solid var(--mono-border);
 }
 .mono-fit-list > li.mono-fit-row:last-child,
-.mono-fit-list > li:last-child > .mono-fit-ex {
+.mono-fit-list > li:last-child > .mono-fit-rowbtn {
   border-bottom: 0;
 }
-.mono-fit-ex {
-  border-bottom: 1px solid var(--mono-border);
-}
-.mono-fit-ex > .mono-fit-row {
+.mono-fit-rowbtn {
   align-items: center;
-  border-bottom: 0;
+  width: 100%;
+  min-height: 44px;
+  border-top: 0;
+  border-right: 0;
+  border-left: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
-  list-style: none;
 }
-.mono-fit-ex > .mono-fit-row::-webkit-details-marker {
-  display: none;
+.mono-fit-rowbtn:hover .mono-fit-name {
+  color: var(--mono-accent);
 }
-.mono-fit-ex[open] .mono-tpl-chev {
-  transform: rotate(90deg);
-}
-.mono-fit-howto {
-  margin: -4px 0 0;
-  padding: 0 0 12px 56px;
+.mono-fit-rowbtn:focus-visible {
+  outline: 2px solid var(--mono-accent);
+  outline-offset: 2px;
+  border-radius: 8px;
 }
 .mono-fit-row-copy {
   flex: 1;
@@ -5246,4 +5255,229 @@ ul.mono-tree {
 .mono-fit-habit {
   width: 100%;
   max-width: 360px;
+}
+.mono-fit-planned {
+  margin: 0;
+  color: var(--mono-accent);
+  font-weight: 600;
+}
+.mono-fit-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.mono-fit-sechead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.mono-fit-sechead .mono-fit-filters {
+  margin: 0;
+}
+.mono-fit-search {
+  width: 100%;
+  margin-top: 12px;
+}
+.mono-fit-selects {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+.mono-fit-select {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.mono-fit-count {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* Two-frame demo: frames cross-fade; reduced motion keeps the main pose. */
+.mono-fit-anim .mono-fit-f1 {
+  animation: mono-fit-f1 2.4s var(--mono-ease) infinite;
+}
+.mono-fit-anim .mono-fit-f2 {
+  animation: mono-fit-f2 2.4s var(--mono-ease) infinite;
+}
+@keyframes mono-fit-f1 {
+  0%,
+  38% {
+    opacity: 1;
+  }
+  50%,
+  88% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes mono-fit-f2 {
+  0%,
+  38% {
+    opacity: 0;
+  }
+  50%,
+  88% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mono-fit-anim .mono-fit-f1 {
+    animation: none;
+    opacity: 0;
+  }
+  .mono-fit-anim .mono-fit-f2 {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* Body map: muscle fill follows the atmosphere accent. */
+.mono-fit-map {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 8px;
+}
+.mono-bmap {
+  display: block;
+  width: 100%;
+  max-width: 380px;
+  height: auto;
+  overflow: visible;
+}
+.mono-bmap-sm {
+  max-width: 240px;
+}
+.mono-bmap-base {
+  fill: color-mix(in oklab, var(--mono-fg) 7%, transparent);
+}
+.mono-bmap-m,
+.mono-fit-swatch {
+  fill: color-mix(in oklab, var(--mono-fg) 14%, transparent);
+  background: color-mix(in oklab, var(--mono-fg) 14%, transparent);
+}
+.mono-bmap-m > * {
+  transition:
+    fill var(--mono-dur) var(--mono-ease),
+    stroke var(--mono-dur) var(--mono-ease);
+}
+[data-lv='1'].mono-bmap-m,
+[data-lv='1'].mono-fit-swatch {
+  fill: color-mix(in oklab, var(--mono-accent) 38%, transparent);
+  background: color-mix(in oklab, var(--mono-accent) 38%, transparent);
+}
+[data-lv='2'].mono-bmap-m,
+[data-lv='2'].mono-fit-swatch {
+  fill: color-mix(in oklab, var(--mono-accent) 68%, transparent);
+  background: color-mix(in oklab, var(--mono-accent) 68%, transparent);
+}
+[data-lv='3'].mono-bmap-m,
+[data-lv='3'].mono-fit-swatch {
+  fill: var(--mono-accent);
+  background: var(--mono-accent);
+}
+.mono-bmap-m.is-btn {
+  cursor: pointer;
+}
+.mono-bmap-m.is-btn:hover > *,
+.mono-bmap-m.is-btn:focus-visible > * {
+  stroke: var(--mono-fg-2);
+  stroke-width: 1.2;
+}
+.mono-bmap-m.is-btn:focus-visible {
+  outline: none;
+}
+.mono-bmap-m[aria-pressed='true'] > * {
+  stroke: var(--mono-fg);
+  stroke-width: 1.8;
+}
+.mono-bmap-cap {
+  fill: var(--mono-muted);
+  font-size: 9px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+.mono-fit-map-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--mono-muted);
+}
+.mono-fit-swatch {
+  display: inline-block;
+  width: 16px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+/* Exercise detail */
+.mono-fit-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.mono-fit-back {
+  align-self: flex-start;
+  min-height: 44px;
+}
+.mono-fit-x-hero {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+.mono-fit-x-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mono-fit-x-muscles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+.mono-fit-x-muscles .mono-bmap {
+  flex: 1 1 200px;
+}
+.mono-fit-x-dl {
+  display: flex;
+  flex: 1 1 160px;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+}
+.mono-fit-x-dl dd {
+  margin: 0 0 8px;
+}
+.mono-fit-x-text {
+  margin: 6px 0 0;
+  max-width: 60ch;
+  line-height: 1.5;
+}
+.mono-fit-x-tip {
+  margin-top: 10px;
+}
+
+.mono-week-move {
+  color: var(--mono-accent);
+  font-weight: 600;
 }
