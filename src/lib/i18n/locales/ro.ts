@@ -3051,7 +3051,7 @@ export const ro: Record<TKey, string> = {
   'weeklyReview.title': 'Rezumat săptămânal',
   'weeklyReview.empty': 'Nicio sesiune de focus sau sarcină blocată săptămâna asta — liniște.',
   'weeklyReview.header': 'Rezumat săptămânal — {date}',
-  'weeklyReview.bestLine': 'Cel mai bine ai lucrat la: {name} ({minutes}min de focus).',
+  'weeklyReview.bestLine': 'Cel mai bine ai lucrat la: {name} ({dur} de focus).',
   'weeklyReview.stagnatingLine': 'Stagnează: {list}.',
   'weeklyReview.noStagnation': 'Nimic stagnant — tot ce e deschis e recent.',
   'weeklyReview.decisionOverdue':
@@ -3400,4 +3400,5 @@ export const ro: Record<TKey, string> = {
   'goal.tpl.declutter.task.donate': 'Du o sacoșă la donat',
   'goal.tpl.declutter.task.sell': 'Pune la vânzare ce nu mai folosești',
   'goal.tpl.declutter.habit.tidy': 'Fac ordine 10 minute',
+  'recap.tasksDone': '{pct}% din sarcini gata',
 };

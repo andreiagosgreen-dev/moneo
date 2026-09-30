@@ -3065,7 +3065,7 @@ export const de: Record<TKey, string> = {
   'weeklyReview.empty':
     'Keine Fokus-Sitzungen oder stagnierenden Aufgaben diese Woche — ruhige Woche.',
   'weeklyReview.header': 'Wochenrückblick — {date}',
-  'weeklyReview.bestLine': 'Beste Arbeit diese Woche: {name} ({minutes}min Fokus).',
+  'weeklyReview.bestLine': 'Beste Arbeit diese Woche: {name} ({dur} Fokus).',
   'weeklyReview.stagnatingLine': 'Stagniert: {list}.',
   'weeklyReview.noStagnation': 'Nichts stagniert — alles Offene ist frisch.',
   'weeklyReview.decisionOverdue':
@@ -3414,4 +3414,5 @@ export const de: Record<TKey, string> = {
   'goal.tpl.declutter.task.donate': 'Eine Tüte zum Spenden bringen',
   'goal.tpl.declutter.task.sell': 'Ungenutztes zum Verkauf anbieten',
   'goal.tpl.declutter.habit.tidy': '10 Minuten aufräumen',
+  'recap.tasksDone': '{pct} % der Aufgaben erledigt',
 };

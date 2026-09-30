@@ -1709,7 +1709,7 @@
 .stats-week-chart {
   display: flex;
   height: 6.5rem;
-  align-items: flex-end;
+  align-items: stretch;
   gap: 6px;
   padding-inline: 4px;
   box-sizing: border-box;
@@ -4435,11 +4435,8 @@
   outline: 2px solid var(--mono-accent);
   outline-offset: 2px;
 }
-.mono-icon-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--mono-border-2);
+.mono-icon-empty {
+  color: var(--mono-muted);
 }
 .mono-icon-grid {
   position: absolute;
