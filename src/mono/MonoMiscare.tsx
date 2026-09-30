@@ -7,6 +7,9 @@ import MonoBodyMap from './MonoBodyMap';
 import MonoExerciseDetail from './MonoExerciseDetail';
 import MonoFitRecords, { recordText } from './MonoFitRecords';
 import MonoRoutineBuilder from './MonoRoutineBuilder';
+import MonoCardioLog, { paceText } from './MonoCardioLog';
+import MonoProgram from './MonoProgram';
+import MonoProgramSetup from './MonoProgramSetup';
 import MonoWorkoutPlayer, { fitDose, type HabitLink } from './MonoWorkoutPlayer';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { Habit } from '../lib/habits';
@@ -40,7 +43,10 @@ import {
   type CustomRoutine,
 } from '../lib/fitness/custom';
 import { newRecords, type NewRecord } from '../lib/fitness/records';
+import { cardioKindOf, cardioPace } from '../lib/fitness/cardio';
+import { buildProgram, isProgramId } from '../lib/fitness/program';
 import {
+  findFitnessHabit,
   heatLevels,
   muscleLoad,
   recentWorkouts,
@@ -81,6 +87,7 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
   const [saved, setSaved] = useState<NewRecord[] | null>(null);
   const [detail, setDetail] = useState<string | null>(null);
   const [building, setBuilding] = useState<string | null>(null);
+  const [panel, setPanel] = useState<'cardio' | 'program' | null>(null);
   const [type, setType] = useState<Any<FitType>>('all');
   const [muscle, setMuscle] = useState<Any<Muscle>>('all');
   const [equipment, setEquipment] = useState<Any<Equipment>>('all');
@@ -133,6 +140,22 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
   const closeBuilder = () => {
     setBuilding(null);
     requestAnimationFrame(() => scrollTo('fit-my-title'));
+  };
+  const openPanel = (p: 'cardio' | 'program') => {
+    setSaved(null);
+    setPanel(p);
+    scrollTo('fit-top');
+  };
+  const closePanel = (anchor: string) => {
+    setPanel(null);
+    requestAnimationFrame(() => scrollTo(anchor));
+  };
+  const saveCardio = (entry: WorkoutEntry) => {
+    const habit = findFitnessHabit(habits, store.habitId);
+    onSave(entry, habit ? { kind: 'habit', id: habit.id } : { kind: 'none' });
+    setSaved([]);
+    setPanel(null);
+    scrollTo('fit-top');
   };
   const pickPlace = (p: Any<FitPlace>) => {
     const next = { ...store };
@@ -251,7 +274,7 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
           <MonoWorkoutPlayer
             routineId={playing}
             title={routineName(playing)}
-            steps={isCustomId(playing) ? playingRoutine?.steps : undefined}
+            steps={isCustomId(playing) || isProgramId(playing) ? playingRoutine?.steps : undefined}
             icon={playingRoutine?.icon}
             place={store.place}
             log={store.log}
@@ -284,6 +307,18 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
                   }
                 : undefined
             }
+          />
+        ) : panel === 'cardio' ? (
+          <MonoCardioLog onSave={saveCardio} onCancel={() => closePanel('fit-routines-title')} />
+        ) : panel === 'program' && isPro ? (
+          <MonoProgramSetup
+            initial={store.program?.answers}
+            onSave={(answers) => {
+              const program = buildProgram(answers);
+              if (program) onChange({ ...store, program });
+              closePanel('fit-pp-title');
+            }}
+            onCancel={() => closePanel('fit-pp-title')}
           />
         ) : detailEx ? (
           <MonoExerciseDetail
@@ -341,6 +376,18 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
               </div>
             </section>
 
+            <MonoProgram
+              store={store}
+              isPro={isPro}
+              onStart={start}
+              onSetup={() => openPanel('program')}
+              onEnd={() => {
+                const next = { ...store };
+                delete next.program;
+                onChange(next);
+              }}
+            />
+
             <section className="mono-sec" aria-labelledby="fit-place-title">
               <h2 className="mono-h3" id="fit-place-title">
                 {t('fit.place.title')}
@@ -378,6 +425,22 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
                         onClick={() => start(FREE_RUN_ID)}
                       >
                         {t('fit.start')}
+                      </MonoBtn>
+                    </div>
+                  </div>
+                </li>
+                <li className="mono-fit-card mono-fit-card-free" data-testid="fit-cardio">
+                  <MonoExerciseIcon pose="run" size={44} />
+                  <div className="mono-fit-card-copy">
+                    <p className="mono-fit-name">{t('fit.cardio.title')}</p>
+                    <p className="mono-meta mono-fit-small">{t('fit.cardio.desc')}</p>
+                    <div className="mono-fit-card-foot">
+                      <MonoBtn
+                        type="button"
+                        aria-label={t('fit.cardio.formTitle')}
+                        onClick={() => openPanel('cardio')}
+                      >
+                        {t('fit.cardio.log')}
                       </MonoBtn>
                     </div>
                   </div>
@@ -614,16 +677,24 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
                     const name = routineName(w.routineId);
                     const volume = workoutVolume(w.sets);
                     const date = fmtDayKey(w.day);
+                    const dur = fmtDur(Math.max(1, Math.round(w.durationSec / 60)));
+                    const cardio = cardioKindOf(w.routineId);
+                    const pace = cardio ? cardioPace(cardio, w.durationSec, w.km) : undefined;
                     return (
                       <li key={w.id} className="mono-fit-row">
                         <div className="mono-fit-row-copy">
                           <p className="mono-fit-name">{name}</p>
                           <p className="mono-meta mono-fit-small">
                             {date} ·{' '}
-                            {t('fit.historyMeta', {
-                              dur: fmtDur(Math.max(1, Math.round(w.durationSec / 60))),
-                              sets: w.sets.length,
-                            })}
+                            {cardio
+                              ? [
+                                  dur,
+                                  w.km ? t('fit.cardio.dist', { km: fmtNum(w.km) }) : '',
+                                  pace ? paceText(t, fmtNum, pace) : '',
+                                ]
+                                  .filter(Boolean)
+                                  .join(' · ')
+                              : t('fit.historyMeta', { dur, sets: w.sets.length })}
                             {volume > 0
                               ? ` · ${t('fit.historyVolume', { kg: fmtNum(volume) })}`
                               : ''}

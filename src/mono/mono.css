@@ -5594,6 +5594,19 @@ ul.mono-tree {
 .mono-fit-builder-foot {
   justify-content: flex-start;
 }
+.mono-fit-cardio-inputs {
+  justify-content: flex-start;
+  align-items: flex-end;
+}
+.mono-fit-cardio-inputs .mono-fit-label {
+  width: 150px;
+}
+.mono-fit-cardio-inputs .mono-field {
+  font-size: 16px;
+}
+.mono-fit-cardio-inputs .mono-fit-label-date {
+  width: 180px;
+}
 .mono-fit-danger {
   align-self: flex-start;
   min-height: 44px;
@@ -5641,6 +5654,44 @@ ul.mono-tree {
   gap: 8px;
   margin-top: 4px;
   font-variant-numeric: tabular-nums;
+}
+.mono-fit-q {
+  margin: 4px 0 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.mono-fit-q legend {
+  padding: 0;
+  margin-bottom: 8px;
+}
+.mono-fit-pp {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.mono-fit-pp .mono-btn {
+  align-self: flex-start;
+}
+.mono-fit-pp-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--mono-bg-2);
+  overflow: hidden;
+}
+.mono-fit-pp-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--mono-accent);
+}
+.mono-fit-pp-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+  margin-top: 8px;
 }
 
 .mono-week-move {

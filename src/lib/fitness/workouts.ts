@@ -10,6 +10,8 @@ import { localDayKey } from '../projects';
 import { activeHabits, toggleHabitDay, type Habit, type HabitLog } from '../habits';
 import { FIT_PLACES, MUSCLES, getExercise, type FitPlace, type Muscle } from './library';
 import { MAX_CUSTOM, cleanCustom, type CustomRoutine } from './custom';
+import { CARDIO_MUSCLES, cardioKindOf, cardioLoad } from './cardio';
+import { cleanProgram, isProgramActive, programOn, type Program } from './program';
 
 export interface WorkoutSet {
   ex: string;
@@ -26,6 +28,8 @@ export interface WorkoutEntry {
   startedAt: number;
   durationSec: number;
   sets: WorkoutSet[];
+  /** Distance of a cardio session. */
+  km?: number;
 }
 
 /** Weekly schedule of one routine: weekdays 0 = Sunday … 6 = Saturday. */
@@ -43,6 +47,8 @@ export interface WorkoutStore {
   plan?: WorkoutPlan[];
   /** The user's own routines. */
   custom?: CustomRoutine[];
+  /** Personal program (Pro). */
+  program?: Program;
 }
 
 export const MAX_WORKOUTS = 500;
@@ -79,7 +85,7 @@ function cleanEntry(v: unknown): WorkoutEntry | null {
   const sets = Array.isArray(e.sets)
     ? e.sets.map(cleanSet).filter((s): s is WorkoutSet => s !== null)
     : [];
-  return {
+  const out: WorkoutEntry = {
     id: e.id,
     routineId: e.routineId.slice(0, 40),
     day: e.day,
@@ -87,6 +93,9 @@ function cleanEntry(v: unknown): WorkoutEntry | null {
     durationSec: Math.round(durationSec),
     sets,
   };
+  const km = num(e.km, 1000);
+  if (km) out.km = Math.round(km * 100) / 100;
+  return out;
 }
 
 /** Validates anything read from storage/import. Never throws. */
@@ -110,6 +119,8 @@ export function sanitizeWorkoutStore(v: unknown): WorkoutStore {
         .filter((r): r is CustomRoutine => r !== null && !seen.has(r.id) && !!seen.add(r.id))
     : [];
   if (custom.length > 0) store.custom = custom.slice(0, MAX_CUSTOM);
+  const program = cleanProgram(raw.program);
+  if (program) store.program = program;
   return store;
 }
 
@@ -145,12 +156,14 @@ export function routineDays(store: WorkoutStore, routineId: string): number[] {
   return store.plan?.find((p) => p.routineId === routineId)?.days ?? [];
 }
 
-/** Routines scheduled on a local day key ("YYYY-M-D"). */
+/** Routines scheduled on a local day key ("YYYY-M-D"), program session first. */
 export function plannedOn(store: WorkoutStore, dayKey: string): string[] {
   const [y, m, d] = dayKey.split('-').map(Number);
   const wd = new Date(y, m - 1, d).getDay();
   if (!Number.isFinite(wd)) return [];
-  return (store.plan ?? []).filter((p) => p.days.includes(wd)).map((p) => p.routineId);
+  const planned = (store.plan ?? []).filter((p) => p.days.includes(wd)).map((p) => p.routineId);
+  const session = programOn(store.program, dayKey);
+  return session ? [session, ...planned] : planned;
 }
 
 export interface WeekGoal {
@@ -164,7 +177,9 @@ export interface WeekGoal {
 
 /** This week's workouts against the scheduled sessions (or the default goal). */
 export function weekGoal(store: WorkoutStore, now: number = Date.now()): WeekGoal {
-  const sessions = (store.plan ?? []).reduce((sum, p) => sum + p.days.length, 0);
+  const sessions =
+    (store.plan ?? []).reduce((sum, p) => sum + p.days.length, 0) +
+    (isProgramActive(store.program, now) ? store.program.weekdays.length : 0);
   const goal = sessions > 0 ? sessions : DEFAULT_WEEK_GOAL;
   const done = weekSummary(store.log, now).count;
   return { done, goal, pct: Math.min(100, Math.round((done / goal) * 100)), planned: sessions > 0 };
@@ -172,7 +187,7 @@ export function weekGoal(store: WorkoutStore, now: number = Date.now()): WeekGoa
 
 /** Worth a card on Today: something is scheduled or trained in the last 2 weeks. */
 export function isMoving(store: WorkoutStore, now: number = Date.now()): boolean {
-  if ((store.plan ?? []).length > 0) return true;
+  if ((store.plan ?? []).length > 0 || isProgramActive(store.program, now)) return true;
   const since = now - 14 * 86_400_000;
   return store.log.some((e) => e.startedAt >= since);
 }
@@ -190,6 +205,13 @@ export function muscleLoad(
   const out: Partial<Record<Muscle, number>> = {};
   for (const e of log) {
     if (e.startedAt < since || e.startedAt > now) continue;
+    const cardio = cardioKindOf(e.routineId);
+    if (cardio) {
+      const load = cardioLoad(e.durationSec);
+      CARDIO_MUSCLES[cardio].forEach((m, i) => {
+        out[m] = (out[m] ?? 0) + (i === 0 ? load : load / 2);
+      });
+    }
     for (const s of e.sets) {
       const ex = getExercise(s.ex);
       if (!ex) continue;
