@@ -141,7 +141,14 @@ import {
   type WorkoutEntry,
   type WorkoutStore,
 } from './lib/fitness/workouts';
-import { fitKey, getRoutine } from './lib/fitness/library';
+import {
+  getCustom,
+  isCustomId,
+  resolveRoutine,
+  routineTitle,
+  upsertCustom,
+  type CustomRoutine,
+} from './lib/fitness/custom';
 import { getActiveRun, setActiveRun, startRun } from './lib/fitness/player';
 import MonoMoveToday from './mono/MonoMoveToday';
 import type { HabitLink } from './mono/MonoWorkoutPlayer';
@@ -371,7 +378,7 @@ export default function App() {
     setWorkoutStore(next);
     saveWorkouts(next);
   };
-  const handleWorkoutSave = (entry: WorkoutEntry, link: HabitLink) => {
+  const handleWorkoutSave = (entry: WorkoutEntry, link: HabitLink, routine?: CustomRoutine) => {
     let habitId: string | undefined;
     if (link.kind === 'habit') {
       habitId = link.id;
@@ -387,20 +394,24 @@ export default function App() {
       const id = habitId;
       setHabitLog((prev) => markHabitDone(prev, id, entry.day));
     }
+    const logged = addWorkout(workoutStore, entry);
     commitWorkouts({
-      ...addWorkout(workoutStore, entry),
+      ...(routine ? upsertCustom(logged, routine) : logged),
       habitId: habitId ?? workoutStore.habitId,
     });
   };
   const startWorkoutFromToday = (routineId: string) => {
-    if (!getActiveRun()) setActiveRun(startRun(routineId, Date.now(), workoutStore.log));
+    if (!getActiveRun()) {
+      const steps = isCustomId(routineId) ? getCustom(workoutStore, routineId)?.steps : undefined;
+      setActiveRun(startRun(routineId, Date.now(), workoutStore.log, steps));
+    }
     goFill('move');
   };
   const moveForDay = (dayKey: string) => {
     const done = workoutStore.log.some((e) => e.day === dayKey);
     const planned = plannedOn(workoutStore, dayKey)
-      .filter((id) => getRoutine(id))
-      .map((id) => t(fitKey.rtName(id)));
+      .filter((id) => resolveRoutine(workoutStore, id))
+      .map((id) => routineTitle(t, workoutStore, id));
     return done || planned.length > 0 ? { planned, done } : null;
   };
   const [lifeAreas, setLifeAreas] = useState<LifeArea[]>(BOOT.lifeAreas);

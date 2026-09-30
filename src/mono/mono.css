@@ -5477,6 +5477,172 @@ ul.mono-tree {
   margin-top: 10px;
 }
 
+/* Move v3: free workout, my routines, records */
+.mono-fit-flash p {
+  margin: 0;
+}
+.mono-fit-record {
+  margin-top: 4px !important;
+  color: var(--mono-accent);
+}
+.mono-fit-card-free {
+  border-style: dashed;
+  border-color: color-mix(in oklab, var(--mono-accent) 45%, var(--mono-border));
+}
+.mono-fit-card-free .mono-fit-card-foot {
+  justify-content: flex-end;
+}
+.mono-fit-stage-pick {
+  align-items: stretch;
+  text-align: left;
+}
+.mono-fit-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.mono-fit-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.mono-fit-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--mono-accent);
+}
+.mono-fit-add {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--mono-accent-soft);
+  color: var(--mono-accent);
+  font-size: 20px;
+  font-weight: 600;
+}
+.mono-fit-builder {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.mono-fit-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mono-fit-step {
+  padding: 12px;
+  border: 1px solid var(--mono-border);
+  border-radius: 14px;
+  background: var(--mono-surface);
+}
+.mono-fit-step-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mono-fit-step-head .mono-fit-name {
+  flex: 1;
+  min-width: 0;
+}
+.mono-fit-step-tools {
+  display: flex;
+  gap: 2px;
+}
+.mono-fit-icobtn {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--mono-muted);
+  font-size: 18px;
+  cursor: pointer;
+}
+.mono-fit-icobtn:hover:not(:disabled) {
+  background: var(--mono-bg-2);
+  color: var(--mono-fg);
+}
+.mono-fit-icobtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.mono-fit-icobtn:focus-visible {
+  outline: 2px solid var(--mono-accent);
+  outline-offset: 1px;
+}
+.mono-fit-step .mono-fit-inputs {
+  justify-content: flex-start;
+}
+.mono-fit-step .mono-fit-inputs .mono-fit-label {
+  width: 96px;
+}
+.mono-fit-step .mono-fit-inputs .mono-field {
+  font-size: 16px;
+}
+.mono-fit-builder-foot {
+  justify-content: flex-start;
+}
+.mono-fit-danger {
+  align-self: flex-start;
+  min-height: 44px;
+  color: var(--mono-danger);
+}
+.mono-fit-saveas {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 360px;
+  text-align: left;
+}
+.mono-fit-chart {
+  margin: 8px 0 0;
+}
+.mono-fit-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 220px;
+}
+.mono-fit-chart-grid {
+  stroke: var(--mono-border);
+  stroke-dasharray: 3 4;
+  vector-effect: non-scaling-stroke;
+}
+.mono-fit-chart-line {
+  fill: none;
+  stroke: var(--mono-accent);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.mono-fit-chart-dot {
+  fill: color-mix(in oklab, var(--mono-accent) 55%, var(--mono-surface));
+}
+.mono-fit-chart-dot.is-last {
+  fill: var(--mono-accent);
+}
+.mono-fit-chart-cap {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
 .mono-week-move {
   color: var(--mono-accent);
   font-weight: 600;

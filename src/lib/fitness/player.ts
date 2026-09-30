@@ -4,7 +4,8 @@
  * switches and a backgrounded phone without drifting. The UI only ticks
  * `now` and calls these transitions.
  */
-import { getExercise, getRoutine, setWorkSec, type RoutineStep } from './library';
+import { exerciseStep, getExercise, getRoutine, setWorkSec, type RoutineStep } from './library';
+import { FREE_RUN_ID, MAX_CUSTOM_STEPS } from './custom';
 import { lastWeight, type WorkoutEntry, type WorkoutSet } from './workouts';
 
 export type RunPhase = 'work' | 'rest' | 'done';
@@ -18,6 +19,10 @@ export interface RunTimer {
 
 export interface RunState {
   routineId: string;
+  /** Steps of a custom routine or free workout; built-ins resolve by id. */
+  steps?: RoutineStep[];
+  /** Free workout: exercises are added one at a time while training. */
+  free?: true;
   startedAt: number;
   stepIdx: number;
   setIdx: number;
@@ -31,18 +36,27 @@ export interface RunState {
   finishedAt?: number;
 }
 
+export function runSteps(run: RunState): RoutineStep[] {
+  return run.steps ?? getRoutine(run.routineId)?.steps ?? [];
+}
+
 export function currentStep(run: RunState): RoutineStep | undefined {
-  return getRoutine(run.routineId)?.steps[run.stepIdx];
+  return runSteps(run)[run.stepIdx];
 }
 
 export function nextStep(run: RunState): RoutineStep | undefined {
-  return getRoutine(run.routineId)?.steps[run.stepIdx + 1];
+  return runSteps(run)[run.stepIdx + 1];
+}
+
+/** A free workout waiting for its next exercise. */
+export function isPicking(run: RunState): boolean {
+  return run.free === true && run.phase === 'work' && currentStep(run) === undefined;
 }
 
 /** Resets the timer and (on a new exercise) the input drafts. */
 function prep(run: RunState, log: WorkoutEntry[], keepInputs: boolean): RunState {
   const step = currentStep(run);
-  if (!step) return run;
+  if (!step) return { ...run, restEndsAt: undefined, timer: undefined };
   const out: RunState = {
     ...run,
     restEndsAt: undefined,
@@ -59,31 +73,82 @@ function prep(run: RunState, log: WorkoutEntry[], keepInputs: boolean): RunState
   return out;
 }
 
-export function startRun(routineId: string, now: number, log: WorkoutEntry[]): RunState | null {
-  const routine = getRoutine(routineId);
-  if (!routine || routine.steps.length === 0) return null;
-  return prep(
-    { routineId, startedAt: now, stepIdx: 0, setIdx: 0, phase: 'work', sets: [], reps: '', kg: '' },
-    log,
-    false,
-  );
+/** Starts a built-in routine, or a custom one when its `steps` are given. */
+export function startRun(
+  routineId: string,
+  now: number,
+  log: WorkoutEntry[],
+  steps?: RoutineStep[],
+): RunState | null {
+  const list = steps ?? getRoutine(routineId)?.steps;
+  if (!list || list.length === 0) return null;
+  const base: RunState = {
+    routineId,
+    startedAt: now,
+    stepIdx: 0,
+    setIdx: 0,
+    phase: 'work',
+    sets: [],
+    reps: '',
+    kg: '',
+  };
+  if (steps) base.steps = steps.map((s) => ({ ...s }));
+  return prep(base, log, false);
+}
+
+export function startFreeRun(now: number): RunState {
+  return {
+    routineId: FREE_RUN_ID,
+    steps: [],
+    free: true,
+    startedAt: now,
+    stepIdx: 0,
+    setIdx: 0,
+    phase: 'work',
+    sets: [],
+    reps: '',
+    kg: '',
+  };
+}
+
+/** Free workout: queue an exercise; starts it right away when none is active. */
+export function addFreeStep(run: RunState, exId: string, log: WorkoutEntry[]): RunState {
+  if (!run.free || run.phase === 'done' || !getExercise(exId)) return run;
+  const steps = runSteps(run);
+  if (steps.length >= MAX_CUSTOM_STEPS) return run;
+  const next: RunState = { ...run, steps: [...steps, exerciseStep(exId)] };
+  return isPicking(run) ? { ...prep(next, log, false), phase: 'work' } : next;
 }
 
 function done(run: RunState, now: number): RunState {
   return { ...run, phase: 'done', finishedAt: now, timer: undefined, restEndsAt: undefined };
 }
 
+/** Free workout past its last exercise: back to the picker. */
+function toPicker(run: RunState): RunState {
+  return {
+    ...run,
+    stepIdx: runSteps(run).length,
+    setIdx: 0,
+    phase: 'work',
+    timer: undefined,
+    restEndsAt: undefined,
+  };
+}
+
 /** Logs a set and moves on: next set, next exercise (after rest) or done. */
 export function logSet(run: RunState, set: WorkoutSet, now: number, log: WorkoutEntry[]): RunState {
-  const routine = getRoutine(run.routineId);
+  const steps = runSteps(run);
   const step = currentStep(run);
-  if (!routine || !step || run.phase !== 'work') return run;
+  if (!step || run.phase !== 'work') return run;
   const base: RunState = { ...run, sets: [...run.sets, set] };
   let next: RunState;
   if (run.setIdx + 1 < step.sets) {
     next = prep({ ...base, setIdx: run.setIdx + 1 }, log, true);
-  } else if (run.stepIdx + 1 < routine.steps.length) {
+  } else if (run.stepIdx + 1 < steps.length) {
     next = prep({ ...base, stepIdx: run.stepIdx + 1, setIdx: 0 }, log, false);
+  } else if (run.free) {
+    return toPicker(base);
   } else {
     return done(base, now);
   }
@@ -93,9 +158,9 @@ export function logSet(run: RunState, set: WorkoutSet, now: number, log: Workout
 }
 
 export function skipExercise(run: RunState, now: number, log: WorkoutEntry[]): RunState {
-  const routine = getRoutine(run.routineId);
-  if (!routine || run.phase === 'done') return run;
-  if (run.stepIdx + 1 >= routine.steps.length) return done(run, now);
+  const steps = runSteps(run);
+  if (run.phase === 'done' || (run.free && isPicking(run))) return run;
+  if (run.stepIdx + 1 >= steps.length) return run.free ? toPicker(run) : done(run, now);
   return { ...prep({ ...run, stepIdx: run.stepIdx + 1, setIdx: 0 }, log, false), phase: 'work' };
 }
 
@@ -164,7 +229,7 @@ export function shouldSwitchSides(run: RunState, now: number): boolean {
 
 /** Sets finished / planned, for the progress bar. */
 export function runProgress(run: RunState): { done: number; total: number } {
-  const steps = getRoutine(run.routineId)?.steps ?? [];
+  const steps = runSteps(run);
   const total = steps.reduce((sum, s) => sum + s.sets, 0);
   if (run.phase === 'done') return { done: total, total };
   const before = steps.slice(0, run.stepIdx).reduce((sum, s) => sum + s.sets, 0);

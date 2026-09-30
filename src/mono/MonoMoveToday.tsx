@@ -2,7 +2,7 @@ import MonoBtn from './MonoBtn';
 import MonoCard from './MonoCard';
 import MonoRing from './MonoRing';
 import { useI18n } from '../lib/i18n/LocaleContext';
-import { fitKey, getRoutine } from '../lib/fitness/library';
+import { resolveRoutine, routineTitle } from '../lib/fitness/custom';
 import { plannedOn, weekGoal, type WorkoutStore } from '../lib/fitness/workouts';
 
 interface Props {
@@ -18,18 +18,14 @@ interface Props {
 export default function MonoMoveToday({ store, dayKey, onStart, onOpen, now }: Props) {
   const { t, fmtNum } = useI18n();
   const goal = weekGoal(store, now);
-  const planned = plannedOn(store, dayKey).filter((id) => getRoutine(id));
+  const planned = plannedOn(store, dayKey).filter((id) => resolveRoutine(store, id));
   const doneToday = store.log.filter((e) => e.day === dayKey);
   const open = planned.filter((id) => !doneToday.some((e) => e.routineId === id));
-  const name = (id: string) => t(fitKey.rtName(id));
+  const name = (id: string) => routineTitle(t, store, id);
 
   const headline =
     doneToday.length > 0
-      ? t('mono.move.doneToday', {
-          name: getRoutine(doneToday[doneToday.length - 1].routineId)
-            ? name(doneToday[doneToday.length - 1].routineId)
-            : t('fit.d.habitName'),
-        })
+      ? t('mono.move.doneToday', { name: name(doneToday[doneToday.length - 1].routineId) })
       : open.length > 0
         ? t('mono.move.planned', { name: open.map(name).join(', ') })
         : t('mono.move.free');

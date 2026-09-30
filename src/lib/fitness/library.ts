@@ -303,6 +303,13 @@ const step = (id: string, restSec: number, over: Partial<RoutineStep> = {}): Rou
   };
 };
 
+/** Step with the exercise defaults and a rest that suits its type. */
+export function exerciseStep(id: string): RoutineStep {
+  const e = BY_ID.get(id);
+  const heavy = e?.type === 'strength' || e?.type === 'pilates';
+  return step(id, heavy ? 60 : 20);
+}
+
 export const ROUTINES: readonly Routine[] = [
   {
     id: 'home20',

@@ -1,5 +1,8 @@
+import { useMemo } from 'react';
 import MonoExerciseIcon from './MonoExerciseIcon';
 import MonoBodyMap, { type HeatLevel } from './MonoBodyMap';
+import MonoProgressChart from './MonoProgressChart';
+import { holdClock, recordText } from './MonoFitRecords';
 import { fitDose } from './MonoWorkoutPlayer';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import {
@@ -9,16 +12,26 @@ import {
   type Exercise,
   type Muscle,
 } from '../lib/fitness/library';
+import { exerciseBests, exerciseProgress, progressKind } from '../lib/fitness/records';
+import type { WorkoutEntry } from '../lib/fitness/workouts';
 
 interface Props {
   ex: Exercise;
   onBack: () => void;
   onOpen: (id: string) => void;
+  log?: WorkoutEntry[];
+  isPro?: boolean;
 }
 
 /** One exercise, learnable on the spot: demo, muscles, how-to, mistake, swaps. */
-export default function MonoExerciseDetail({ ex, onBack, onOpen }: Props) {
-  const { t } = useI18n();
+export default function MonoExerciseDetail({ ex, onBack, onOpen, log = [], isPro = false }: Props) {
+  const { t, fmtNum } = useI18n();
+  const best = useMemo(() => exerciseBests(log).get(ex.id), [log, ex.id]);
+  const kind = progressKind(best);
+  const points = useMemo(
+    () => (kind ? exerciseProgress(log, ex.id, kind) : []),
+    [log, ex.id, kind],
+  );
   const name = t(fitKey.exName(ex.id));
   const [main, ...secondary] = ex.muscles;
   const levels: Partial<Record<Muscle, HeatLevel>> = { [main]: 3 };
@@ -76,6 +89,42 @@ export default function MonoExerciseDetail({ ex, onBack, onOpen }: Props) {
         <span className="mono-tag">{t(fitKey.eq(ex.equipment))}</span>
         <span className="mono-tag">{t('fit.x.places', { places })}</span>
       </div>
+
+      {best && kind ? (
+        <section className="mono-sec" aria-labelledby="fit-x-prog" data-testid="fit-x-progress">
+          <h3 className="mono-h3" id="fit-x-prog">
+            {t('fit.prog.title')}
+            {isPro ? '' : ' · Pro'}
+          </h3>
+          {isPro ? (
+            <>
+              <p className="mono-fit-name">
+                {t('fit.prog.best', { value: recordText(t, fmtNum, kind, best[kind]!) })}
+              </p>
+              {points.length >= 2 ? (
+                <MonoProgressChart
+                  points={points}
+                  format={(v) => (kind === 'sec' ? holdClock(v) : fmtNum(v))}
+                  label={t('fit.prog.aria', {
+                    metric: t(`fit.prog.${kind}` as const),
+                    from: kind === 'sec' ? holdClock(points[0].value) : fmtNum(points[0].value),
+                    to:
+                      kind === 'sec'
+                        ? holdClock(points[points.length - 1].value)
+                        : fmtNum(points[points.length - 1].value),
+                    n: points.length,
+                  })}
+                />
+              ) : (
+                <p className="mono-meta">{t('fit.prog.one')}</p>
+              )}
+              <p className="mono-meta mono-fit-small">{t(`fit.prog.${kind}` as const)}</p>
+            </>
+          ) : (
+            <p className="mono-note">{t('fit.prog.pro')}</p>
+          )}
+        </section>
+      ) : null}
 
       <section className="mono-sec" aria-labelledby="fit-x-muscles">
         <h3 className="mono-h3" id="fit-x-muscles">

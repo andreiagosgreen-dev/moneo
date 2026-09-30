@@ -9,6 +9,7 @@ import { safeRead as read, safeWrite as write } from '../storage/storageAdapter'
 import { localDayKey } from '../projects';
 import { activeHabits, toggleHabitDay, type Habit, type HabitLog } from '../habits';
 import { FIT_PLACES, MUSCLES, getExercise, type FitPlace, type Muscle } from './library';
+import { MAX_CUSTOM, cleanCustom, type CustomRoutine } from './custom';
 
 export interface WorkoutSet {
   ex: string;
@@ -40,6 +41,8 @@ export interface WorkoutStore {
   /** Last place picked in the Move tab. */
   place?: FitPlace;
   plan?: WorkoutPlan[];
+  /** The user's own routines. */
+  custom?: CustomRoutine[];
 }
 
 export const MAX_WORKOUTS = 500;
@@ -100,6 +103,13 @@ export function sanitizeWorkoutStore(v: unknown): WorkoutStore {
     ? raw.plan.map(cleanPlan).filter((p): p is WorkoutPlan => p !== null)
     : [];
   if (plan.length > 0) store.plan = plan.slice(0, MAX_PLANS);
+  const seen = new Set<string>();
+  const custom = Array.isArray(raw.custom)
+    ? raw.custom
+        .map(cleanCustom)
+        .filter((r): r is CustomRoutine => r !== null && !seen.has(r.id) && !!seen.add(r.id))
+    : [];
+  if (custom.length > 0) store.custom = custom.slice(0, MAX_CUSTOM);
   return store;
 }
 
