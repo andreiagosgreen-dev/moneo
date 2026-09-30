@@ -474,7 +474,7 @@ html:has(.lnd) body {
 .lnd-phone-frame {
   position: relative;
   width: min(72vw, 300px);
-  padding: 8px;
+  padding: 26px 8px 8px;
   border-radius: 36px;
   background: #0b110e;
   box-shadow:
@@ -485,13 +485,13 @@ html:has(.lnd) body {
 .lnd-phone-frame::before {
   content: '';
   position: absolute;
-  top: 14px;
+  top: 10px;
   left: 50%;
   z-index: 1;
-  width: 30%;
-  height: 16px;
+  width: 26%;
+  height: 8px;
   border-radius: 999px;
-  background: #0b110e;
+  background: #1e2723;
   transform: translateX(-50%);
 }
 .lnd-phone-frame img {
