@@ -198,7 +198,7 @@ export const fr: Record<TKey, string> = {
   'today.shutdownTitle': 'Revoyez la journée et reportez le reste à demain',
   'today.planned': 'Planifié {p} · dispo ~{a}',
   'today.more': 'Plus aujourd’hui',
-  'today.moreHint': 'Matrice et habitudes du jour',
+  'today.moreHint': 'Centre de commande, grenouille, matrice et habitudes',
   'today.advPlan': 'Planification avancée',
   'today.advSkillsHint': 'OKR · inventaire de compétences',
   'today.advAgileHint': 'Sprints · kanban · cascade',

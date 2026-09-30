@@ -198,7 +198,7 @@ export const en = {
   'today.shutdownTitle': 'Review today and move open items to tomorrow',
   'today.planned': 'Planned {p} · available ~{a}',
   'today.more': 'More today',
-  'today.moreHint': 'Matrix and habits for today',
+  'today.moreHint': 'Command Center, frog, matrix and habits',
   'today.advPlan': 'Advanced planning',
   'today.advSkillsHint': 'OKRs · skills',
   'today.advAgileHint': 'Sprints · kanban · waterfall',
