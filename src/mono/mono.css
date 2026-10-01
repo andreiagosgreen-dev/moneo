@@ -1545,6 +1545,40 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+.mono-empty-art:has(.mono-art) {
+  width: 112px;
+  height: 112px;
+  border-radius: 32px;
+  background: var(--mono-accent-soft, var(--mono-bg-2));
+  color: var(--mono-fg-2, var(--mono-muted));
+}
+.mono-empty-art .mono-art {
+  width: 72px;
+  height: 72px;
+  stroke-width: 2.2;
+}
+.mono-empty .mono-h3 {
+  margin-top: 4px;
+}
+.mono-empty .mono-btn {
+  margin-top: 6px;
+}
+.mono-art-a {
+  stroke: var(--mono-tint, var(--mono-accent));
+}
+.mono-art-fill {
+  fill: var(--mono-tint, var(--mono-accent));
+}
+.mono-glyph {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 
 /* ---------- toast ---------- */
 .mono-toast {
@@ -4028,6 +4062,20 @@
   opacity: 1;
   box-shadow: inset 0 0 0 1.5px var(--mono-tint, var(--mono-accent));
 }
+.mono-badge-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  color: var(--mono-muted);
+  background: color-mix(in oklab, var(--mono-fg) 6%, transparent);
+}
+.mono-badge.is-earned .mono-badge-icon {
+  color: var(--mono-tint, var(--mono-accent));
+  background: var(--mono-accent-soft, var(--mono-bg-2));
+}
 .mono-badge-name {
   font-size: 14px;
   font-weight: 650;
@@ -4596,8 +4644,17 @@
   gap: 8px;
 }
 .mono-tpl-icon {
-  font-size: 22px;
-  line-height: 1;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  color: var(--mono-tint, var(--mono-accent));
+  background: var(--mono-accent-soft, var(--mono-bg-2));
+}
+.mono-tpl-icon .mono-glyph {
+  width: 22px;
+  height: 22px;
 }
 .mono-tpl-name {
   margin: 4px 0 0;

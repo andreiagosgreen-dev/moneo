@@ -501,7 +501,7 @@ export default function ReportsCard({
               onBlocked: () => setShowExportUpsell(true),
             })
           }
-          className="press btn-accent rounded-lg px-4 py-2.5 font-mono text-[12px] font-semibold"
+          className="press btn-ghost rounded-lg px-4 py-2.5 font-mono text-[12px] font-semibold"
           title={isPro ? undefined : t('rep.exportProTitle')}
         >
           {t('rep.csv')}

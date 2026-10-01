@@ -1400,6 +1400,10 @@ export const it: Record<TKey, string> = {
   'recap.unavailable': 'L’export immagine non va qui — la tua settimana è sopra.',
   'rep.title': 'Resoconti',
   'rep.sub': 'Dove è andato ogni minuto — e cosa ha reso.',
+  'rep.empty.title': 'I tuoi report iniziano qui',
+  'rep.empty.body':
+    'Completa un round di focus e vedrai dove va il tuo tempo: per giorno, progetto e area.',
+  'rep.empty.cta': 'Inizia il primo round',
   'rep.range.week': '7 giorni',
   'rep.range.month': '30 giorni',
   'rep.total': 'focus totale',
@@ -3088,6 +3092,10 @@ export const it: Record<TKey, string> = {
   'linkedItems.noCandidates': 'Ancora niente da collegare.',
   'graph.ariaLabel': 'Grafo delle connessioni',
   'graph.title': 'Grafo',
+  'graph.headSub': 'Come si collegano obiettivi, progetti e competenze.',
+  'graph.emptyTitle': 'Nessun collegamento ancora',
+  'graph.emptyBody':
+    'Apri un obiettivo, un progetto o una competenza e collegalo a qualcos’altro. I collegamenti compaiono qui.',
   'graph.subtitle': '{nodes} nodi · {edges} collegamenti',
   'graph.empty':
     'Ancora nessuna connessione — apri un obiettivo, progetto, abilità o la voce di oggi del diario e collegala a qualcosa.',

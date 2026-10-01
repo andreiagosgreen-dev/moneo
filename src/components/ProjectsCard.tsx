@@ -12,6 +12,9 @@ import { useProjectsCrud } from './projects/useProjectsCrud';
 import SavedFiltersBar from './SavedFiltersBar';
 import { cleanupLinksFor } from '../lib/entityLinks';
 import { useI18n } from '../lib/i18n/LocaleContext';
+import MonoEmpty from '../mono/MonoEmpty';
+import MonoBtn from '../mono/MonoBtn';
+import { MonoArt } from '../mono/MonoArt';
 
 export default function ProjectsCard({
   projects,
@@ -136,12 +139,14 @@ export default function ProjectsCard({
               {t('proj.csv')}
             </button>
           )}
-          <button
-            onClick={handleToggleCreate}
-            className="press btn-accent h-9 rounded-lg px-3.5 text-[12px] font-bold"
-          >
-            {showCreate ? t('cal.cancel') : t('proj.new')}
-          </button>
+          {(projects.length > 0 || showCreate) && (
+            <button
+              onClick={handleToggleCreate}
+              className="press btn-accent h-9 rounded-lg px-3.5 text-[12px] font-bold"
+            >
+              {showCreate ? t('cal.cancel') : t('proj.new')}
+            </button>
+          )}
         </div>
       </header>
 
@@ -227,16 +232,18 @@ export default function ProjectsCard({
 
       <div className="mt-4 space-y-2">
         {projects.length === 0 ? (
-          <div className="empty-panel">
-            <p className="text-sm font-medium text-cream">{t('proj.emptyA')}</p>
-            <p className="mt-1.5 text-[12px] text-sage">{t('proj.emptyB')}</p>
-            <button
-              onClick={handleToggleCreate}
-              className="press btn-accent mt-4 h-9 rounded-lg px-4 text-[12px] font-bold"
-            >
-              {t('proj.new')}
-            </button>
-          </div>
+          showCreate ? null : (
+            <MonoEmpty
+              art={<MonoArt name="folder" />}
+              title={t('proj.emptyA')}
+              body={t('proj.emptyB')}
+              action={
+                <MonoBtn type="button" onClick={handleToggleCreate}>
+                  {t('proj.new')}
+                </MonoBtn>
+              }
+            />
+          )
         ) : filteredActive.length === 0 ? (
           <div className="empty-panel py-6">
             <p className="text-[12px] text-sage">{t('proj.noMatch', { q: filter })}</p>

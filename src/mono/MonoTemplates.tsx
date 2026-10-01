@@ -9,6 +9,18 @@ import {
   tplKey,
   type LifeTemplateId,
 } from '../lib/lifeTemplates';
+import { MonoGlyph, type GlyphName } from './MonoArt';
+
+const TPL_GLYPH: Record<LifeTemplateId, GlyphName> = {
+  exam: 'cap',
+  sport: 'run',
+  moving: 'box',
+  reading: 'book',
+  newHabit: 'target',
+  language: 'globe',
+  jobSearch: 'briefcase',
+  declutter: 'sparkle',
+};
 
 interface Props {
   isPro: boolean;
@@ -68,7 +80,7 @@ export default function MonoTemplates({ isPro, canCreate, hasProjects, onCreate 
             <li key={tpl.id} className="mono-tpl-card" data-testid={`tpl-${tpl.id}`}>
               <div className="mono-tpl-top">
                 <span className="mono-tpl-icon" aria-hidden>
-                  {tpl.icon}
+                  <MonoGlyph name={TPL_GLYPH[tpl.id]} />
                 </span>
                 {locked ? <MonoTag tone="accent">Pro</MonoTag> : null}
               </div>

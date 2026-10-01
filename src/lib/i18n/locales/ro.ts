@@ -1399,6 +1399,10 @@ export const ro: Record<TKey, string> = {
   'recap.unavailable': 'Exportul de imagine nu e disponibil în acest browser.',
   'rep.title': 'Rapoarte',
   'rep.sub': 'Timpul de focus și unde a mers.',
+  'rep.empty.title': 'Rapoartele tale încep aici',
+  'rep.empty.body':
+    'Termină o rundă de focus și vezi unde îți merge timpul: pe zile, pe proiecte și pe arii.',
+  'rep.empty.cta': 'Începe prima rundă',
   'rep.range.week': '7 zile',
   'rep.range.month': '30 zile',
   'rep.total': 'focus total',
@@ -1519,7 +1523,7 @@ export const ro: Record<TKey, string> = {
   'proj.practices': 'Practici și capcane',
   'proj.searchPh': 'Caută proiecte sau etichete…',
   'proj.emptyA': 'Niciun proiect creat încă.',
-  'proj.emptyB': 'Creează un proiect ca să organizezi și să urmărești timpul facturabil.',
+  'proj.emptyB': 'Un proiect adună sarcinile și timpul de focus pentru un singur scop.',
   'proj.noMatch': 'Niciun proiect nu se potrivește cu „{q}”.',
   'proj.archived': 'Arhivate ({n})',
   'proj.restoreTitle': 'Restaurează proiectul',
@@ -3084,6 +3088,10 @@ export const ro: Record<TKey, string> = {
   'linkedItems.noCandidates': 'Nimic de legat încă.',
   'graph.ariaLabel': 'Graful conexiunilor',
   'graph.title': 'Graf',
+  'graph.headSub': 'Cum se leagă obiectivele, proiectele și abilitățile tale.',
+  'graph.emptyTitle': 'Nicio legătură încă',
+  'graph.emptyBody':
+    'Deschide un obiectiv, un proiect sau o abilitate și leag-o de altceva. Legăturile apar aici.',
   'graph.subtitle': '{nodes} noduri · {edges} legături',
   'graph.empty':
     'Nicio conexiune încă — deschide un obiectiv, un proiect, o abilitate sau intrarea de azi din jurnal și leag-o de ceva.',
