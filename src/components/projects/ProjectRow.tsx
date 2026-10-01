@@ -188,7 +188,7 @@ export default function ProjectRow({
                 </span>
               )}
             </div>
-            <div className="mt-0.5 flex items-center gap-2 text-[11px] text-faint">
+            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-faint">
               <span className="capitalize">
                 {t(PROJECT_CATEGORY_KEYS[project.category as ProjectCategory] as TKey)}
               </span>
