@@ -18,6 +18,7 @@ import {
 } from '../lib/billing/pricingConfig';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import { openExternal } from '../lib/links';
+import { loadAtmosphere, resolveAtmosphere } from '../mono/atmosphere';
 import { REFUND_DAYS, SUPPORT_EMAIL, SUPPORT_MAILTO } from '../lib/legal/seller';
 import MonoLegalLinks from '../mono/MonoLegalLinks';
 import ManageSubscriptionButton from './ManageSubscriptionButton';
@@ -59,6 +60,7 @@ function renderValue(v: ComparisonValue): string {
 export default function PricingPage() {
   const { t } = useI18n();
   const auth = useAuth();
+  const atmosphere = resolveAtmosphere(loadAtmosphere(), auth.isPro);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [payError, setPayError] = useState('');
@@ -82,7 +84,10 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="pricing-surface relative z-10 mx-auto max-w-2xl px-4 pb-12 pt-10 sm:px-6">
+    <div
+      className="atm-root mono-public pricing-surface relative z-10 mx-auto max-w-2xl px-4 pb-12 pt-10 sm:px-6"
+      data-atmosphere={atmosphere}
+    >
       <Link to="/" className="press font-mono text-[12px] text-sage hover:text-cream">
         {t('pricing.back')}
       </Link>

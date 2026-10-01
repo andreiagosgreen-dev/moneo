@@ -6,6 +6,8 @@ import type { Objective } from '../lib/okrs';
 import type { EntityLink, LinkEntityType } from '../lib/entityLinks';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
+import MonoEmpty from '../mono/MonoEmpty';
+import { MonoArt } from '../mono/MonoArt';
 
 interface Props {
   links: EntityLink[];
@@ -104,12 +106,11 @@ export default function GraphCard({ links, goals, projects, skills, objectives }
   if (links.length === 0) {
     return (
       <section className="card px-6 py-6 sm:px-7" aria-label={t('graph.ariaLabel')}>
-        <h2 className="font-display text-xl font-bold tracking-tight text-cream">
-          {t('graph.title')}
-        </h2>
-        <p className="mt-3 rounded-xl border border-dashed border-line/60 px-4 py-6 text-center text-[12px] leading-relaxed text-faint">
-          {t('graph.empty')}
-        </p>
+        <MonoEmpty
+          art={<MonoArt name="graph" />}
+          title={t('graph.emptyTitle')}
+          body={t('graph.emptyBody')}
+        />
       </section>
     );
   }
@@ -117,10 +118,7 @@ export default function GraphCard({ links, goals, projects, skills, objectives }
   return (
     <section className="card px-6 py-6 sm:px-7" aria-label={t('graph.ariaLabel')}>
       <header>
-        <h2 className="font-display text-xl font-bold tracking-tight text-cream">
-          {t('graph.title')}
-        </h2>
-        <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
           {t('graph.subtitle', { nodes: nodes.length, edges: links.length })}
         </p>
       </header>

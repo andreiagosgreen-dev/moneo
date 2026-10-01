@@ -3,6 +3,18 @@ import type { Badge, BadgeId } from '../lib/badges';
 import { RANKS, XP_RULES } from '../lib/xp';
 import { RANK_KEYS } from './rankLabel';
 import { BADGE_KEYS, isRankBadge } from './badgeLabel';
+import { MonoGlyph, type GlyphName } from './MonoArt';
+
+const BADGE_GLYPH: Record<BadgeId, GlyphName> = {
+  firstFocus: 'flag',
+  focus10h: 'clock',
+  streak7: 'flame',
+  firstProject: 'folderCheck',
+  tasks50: 'checks',
+  apprentice: 'rank1',
+  practitioner: 'rank2',
+  expert: 'rank3',
+};
 
 /** Compact grid of earned (highlighted) and locked (dimmed, with how-to) badges. */
 export default function MonoBadgeGrid({ badges }: { badges: Badge[] }) {
@@ -39,6 +51,9 @@ export default function MonoBadgeGrid({ badges }: { badges: Badge[] }) {
               data-badge={b.id}
               data-earned={b.earned ? 'true' : 'false'}
             >
+              <span className="mono-badge-icon">
+                <MonoGlyph name={BADGE_GLYPH[b.id]} />
+              </span>
               <span className="mono-badge-name">{name}</span>
               <span className="mono-badge-how">{b.earned ? t('mono.rewards.earned') : how}</span>
               {!b.earned && b.progress && (

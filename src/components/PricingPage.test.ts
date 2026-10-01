@@ -80,6 +80,10 @@ afterEach(() => {
 describe('PricingPage (/pricing)', () => {
   it('renders prices from pricingConfig with a Free vs Pro table (en)', () => {
     const text = renderPage('en');
+    const surface = container!.querySelector('.pricing-surface');
+    const atmosphere = surface?.closest('.atm-root');
+    expect(atmosphere).toBeTruthy();
+    expect(atmosphere?.getAttribute('data-atmosphere')).toBeTruthy();
     expect(text).toContain('Moneo pricing');
     expect(text).toContain('$5.99');
     expect(text).toContain('$59.99');

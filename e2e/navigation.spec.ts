@@ -25,6 +25,15 @@ test.describe('mono navigation', () => {
     await expect(page.getByRole('button', { name: '+ New Project' }).first()).toBeVisible();
   });
 
+  test('the PWA Focus shortcut opens Focus for a clean profile', async ({ page }) => {
+    await page.goto('/?action=focus');
+    await expect(page.getByRole('tab', { name: 'Focus', exact: true })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    await expect(page.locator('.atm-time').first()).toBeVisible();
+  });
+
   test('Graph is reachable (rail on desktop, More on mobile)', async ({ page, isMobile }) => {
     if (isMobile) {
       await page.getByRole('tab', { name: 'More', exact: true }).click();
