@@ -4574,9 +4574,16 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-@media (min-width: 1024px) {
+/* 4 columns only once the content area (minus the 256px rail) is wide enough;
+ * at 1024px the cards were too narrow for "Використати" / "Использовать". */
+@media (min-width: 1280px) {
   .mono-tpl-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .mono-tpl-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 .mono-tpl-card {
@@ -4621,6 +4628,10 @@
 }
 .mono-tpl-actions .mono-btn {
   min-height: 44px;
+  max-width: 100%;
+  padding-inline: 14px;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .mono-tpl-lock {
   display: inline-flex;
@@ -4678,11 +4689,14 @@
 .mono-set-rows > * + * {
   border-top: 1px solid var(--mono-border);
 }
+/* Wraps so long labels (uk/ru/de) drop the control to its own line instead of
+ * being squeezed into a one-word column on narrow phones. */
 .mono-set-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px 12px;
   padding: 12px 0;
 }
 .mono-set-row-col {
@@ -4695,7 +4709,7 @@
   row-gap: 8px;
 }
 .mono-set-copy {
-  min-width: 0;
+  min-width: min(100%, 10rem);
   flex: 1;
 }
 .mono-set-row-wrap > .mono-set-copy {
@@ -4718,6 +4732,7 @@
 .mono-set-ctl {
   display: flex;
   flex-shrink: 0;
+  margin-left: auto;
   align-items: center;
   gap: 8px;
 }

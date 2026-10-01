@@ -285,6 +285,8 @@ html:has(.lnd) body {
   line-height: 1.06;
   letter-spacing: -0.025em;
   text-wrap: balance;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 .lnd-h2 {
   margin: 0;
@@ -295,6 +297,8 @@ html:has(.lnd) body {
   line-height: 1.12;
   letter-spacing: -0.02em;
   text-wrap: balance;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 .lnd-h3 {
   margin: 0 0 8px;
@@ -334,6 +338,11 @@ html:has(.lnd) body {
 .lnd-hero-in {
   display: grid;
   gap: 44px;
+}
+/* Grid items default to min-width:auto, so one long word (fr "Concentrez‑vous,")
+ * would widen the whole hero column past the screen edge. */
+.lnd-hero-in > * {
+  min-width: 0;
 }
 .lnd-ctas {
   display: flex;
@@ -555,6 +564,8 @@ html:has(.lnd) body {
   font-size: 0.95rem;
   line-height: 1.35;
   text-align: center;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 .lnd-stats strong {
   color: var(--mono-fg-2);

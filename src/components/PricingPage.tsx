@@ -191,34 +191,39 @@ export default function PricingPage() {
       )}
 
       <section className="mt-8 overflow-hidden rounded-xl bg-ink/50 ring-1 ring-inset ring-line">
-        <table className="w-full text-left text-[12px]">
-          <thead>
-            <tr className="border-b border-line/60 font-mono text-[11px] uppercase tracking-[0.14em] text-faint">
-              <th scope="col" className="px-4 py-3.5 font-semibold">
-                {t('pricing.compareFeature')}
-              </th>
-              <th scope="col" className="px-4 py-3.5 text-center font-semibold">
-                {t('pricing.compareFree')}
-              </th>
-              <th scope="col" className="px-4 py-3.5 text-center font-semibold">
-                {t('pricing.comparePro')}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.labelKey} className="border-b border-line/40 last:border-0">
-                <td className="px-4 py-3 font-medium text-cream/90">{t(row.labelKey)}</td>
-                <td className="px-4 py-3 text-center font-mono text-sage">
-                  {row.free.kind === 'key' ? t(row.free.key) : renderValue(row.free)}
-                </td>
-                <td className="px-4 py-3 text-center font-mono font-semibold text-cream">
-                  {row.pro.kind === 'key' ? t(row.pro.key) : renderValue(row.pro)}
-                </td>
+        {/* Narrow phones + long words (uk/ru/fr): tighter cells, and scroll as a last resort. */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-[12px]">
+            <thead>
+              <tr className="border-b border-line/60 font-mono text-[11px] uppercase tracking-[0.08em] text-faint sm:tracking-[0.14em]">
+                <th scope="col" className="px-2.5 py-3.5 sm:px-4 font-semibold">
+                  {t('pricing.compareFeature')}
+                </th>
+                <th scope="col" className="px-2.5 py-3.5 sm:px-4 text-center font-semibold">
+                  {t('pricing.compareFree')}
+                </th>
+                <th scope="col" className="px-2.5 py-3.5 sm:px-4 text-center font-semibold">
+                  {t('pricing.comparePro')}
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.labelKey} className="border-b border-line/40 last:border-0">
+                  <td className="px-2.5 py-3 font-medium text-cream/90 [overflow-wrap:anywhere] sm:px-4">
+                    {t(row.labelKey)}
+                  </td>
+                  <td className="px-2.5 py-3 sm:px-4 text-center font-mono text-sage">
+                    {row.free.kind === 'key' ? t(row.free.key) : renderValue(row.free)}
+                  </td>
+                  <td className="px-2.5 py-3 sm:px-4 text-center font-mono font-semibold text-cream">
+                    {row.pro.kind === 'key' ? t(row.pro.key) : renderValue(row.pro)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <p className="mt-6 text-[12px] leading-relaxed text-sage">

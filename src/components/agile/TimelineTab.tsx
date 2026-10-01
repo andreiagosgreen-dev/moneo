@@ -117,15 +117,21 @@ export default function TimelineTab({ projectId, tasks }: TimelineProps) {
           >
             {dayLines
               .filter((d) => d.isWeekStart && d.at >= win.windowStart)
-              .map((d) => (
-                <span
-                  key={d.at}
-                  className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-mono text-[9px] text-faint"
-                  style={{ left: `${pct(d.at)}%` }}
-                >
-                  {t(WEEKDAY_SHORT_KEYS[d.dow])} {new Date(d.at).getDate()}
-                </span>
-              ))}
+              .map((d) => {
+                const at = pct(d.at);
+                // Edge labels hug the track instead of being cut in half.
+                const shift =
+                  at < 15 ? 'translate-x-0' : at > 85 ? '-translate-x-full' : '-translate-x-1/2';
+                return (
+                  <span
+                    key={d.at}
+                    className={`absolute top-1/2 ${shift} -translate-y-1/2 whitespace-nowrap font-mono text-[9px] text-faint`}
+                    style={{ left: `${at}%` }}
+                  >
+                    {t(WEEKDAY_SHORT_KEYS[d.dow])} {new Date(d.at).getDate()}
+                  </span>
+                );
+              })}
           </div>
         </div>
 
