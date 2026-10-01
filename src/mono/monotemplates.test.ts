@@ -49,7 +49,7 @@ const click = (b: Element) =>
   });
 
 describe('MonoTemplates', () => {
-  it('Free sees 3 usable cards and 5 locked ones linking to pricing', () => {
+  it('Free sees 5 usable cards and 13 locked ones linking to pricing', () => {
     const el = render(
       createElement(MonoTemplates, {
         isPro: false,
@@ -58,10 +58,10 @@ describe('MonoTemplates', () => {
         onCreate: vi.fn(),
       }),
     );
-    expect(el.querySelectorAll('.mono-tpl-card')).toHaveLength(8);
-    expect(el.querySelectorAll('button[aria-label^="Use "]')).toHaveLength(3);
+    expect(el.querySelectorAll('.mono-tpl-card')).toHaveLength(18);
+    expect(el.querySelectorAll('button[aria-label^="Use "]')).toHaveLength(5);
     const locked = el.querySelectorAll('a[href="/pricing"]');
-    expect(locked).toHaveLength(5);
+    expect(locked).toHaveLength(13);
     const moving = card(el, 'moving');
     expect(moving.textContent).toContain('Moving house');
     expect(moving.textContent).toContain('Pro');
@@ -69,7 +69,7 @@ describe('MonoTemplates', () => {
     expect(moving.querySelector('button')).toBeNull();
   });
 
-  it('Pro sees 8 usable cards', () => {
+  it('Pro sees 18 usable cards', () => {
     const el = render(
       createElement(MonoTemplates, {
         isPro: true,
@@ -78,7 +78,7 @@ describe('MonoTemplates', () => {
         onCreate: vi.fn(),
       }),
     );
-    expect(el.querySelectorAll('button[aria-label^="Use "]')).toHaveLength(8);
+    expect(el.querySelectorAll('button[aria-label^="Use "]')).toHaveLength(18);
     expect(el.querySelector('a[href="/pricing"]')).toBeNull();
   });
 
@@ -162,5 +162,21 @@ describe('MonoTemplates', () => {
     const details = busy.querySelector('details') as HTMLDetailsElement;
     expect(details.open).toBe(false);
     expect(details.querySelector('summary')?.textContent).toContain('Ready-made systems');
+  });
+
+  it('gives every card its own colour for the icon', () => {
+    const el = render(
+      createElement(MonoTemplates, {
+        isPro: true,
+        canCreate: true,
+        hasProjects: false,
+        onCreate: vi.fn(),
+      }),
+    );
+    const colors = [...el.querySelectorAll<HTMLElement>('.mono-tpl-card')].map((c) =>
+      c.style.getPropertyValue('--tpl-color'),
+    );
+    expect(colors.every((c) => /^#[0-9a-f]{6}$/i.test(c))).toBe(true);
+    expect(new Set(colors).size).toBe(colors.length);
   });
 });
