@@ -182,7 +182,7 @@ export const ro: Record<TKey, string> = {
     'Da. După prima vizită, Moneo merge fără internet. Dacă folosești un cont, modificările se salvează în el imediat ce revii online.',
   'land.faq.ai.q': 'Ce face AI-ul? Cheia mea AI e în siguranță?',
   'land.faq.ai.a':
-    'Asistentul de plan transformă un obiectiv într-un plan pas cu pas și îți sugerează la ce să lucrezi mai departe. Planul gratuit se construiește pe dispozitivul tău. Cu Pro poți conecta, dacă vrei, propria cheie AI (Gemini, OpenAI sau DeepSeek): e păstrată doar pe dispozitivul tău și trimisă direct furnizorului — niciodată serverelor noastre.',
+    'Asistentul de plan transformă un obiectiv într-un plan pas cu pas și îți sugerează la ce să lucrezi mai departe. În planul Gratuit, planificatorul rulează pe dispozitivul tău. Pro include planuri AI de la Moneo — un număr zilnic care crește odată cu rangul — și se trimit doar textul obiectivului și două cifre (luni și ore pe săptămână), niciodată sarcinile, jurnalul sau sesiunile tale. Poți conecta și cheia ta AI (Gemini, OpenAI sau DeepSeek): se păstrează doar pe dispozitivul tău și merge direct la acel furnizor — niciodată pe serverele noastre.',
   'land.faq.support.q': 'Cum contactez suportul?',
   'land.faq.support.a': 'Scrie-ne la {email}. Citim fiecare mesaj.',
   'land.final.title': 'Prima ta sesiune de concentrare e la un clic distanță',

@@ -281,6 +281,19 @@ export default {
       });
     }
 
+    // Prerendered pages (landing per language): `/ro` → `ro/index.html`.
+    const prerendered = r2Key
+      ? await env.R2_BUCKET?.get(`${r2Key.replace(/\/+$/, '')}/index.html`)
+      : null;
+    if (prerendered) {
+      return new Response(prerendered.body, {
+        headers: mergeHeaders(SEC, cors, {
+          'Content-Type': 'text/html',
+          'Cache-Control': 'public, max-age=0, must-revalidate',
+        }),
+      });
+    }
+
     // SPA fallback: return index.html for client routes (e.g. /privacy, /terms).
     // Unknown paths still get the shell (the app renders), but as a 404.
     const indexObject = await env.R2_BUCKET?.get('index.html');

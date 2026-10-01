@@ -181,7 +181,7 @@ export const es: Record<TKey, string> = {
     'Sí. Después de tu primera visita, Moneo funciona sin internet. Si usas una cuenta, tus cambios se guardan en ella en cuanto vuelves a estar en línea.',
   'land.faq.ai.q': '¿Qué hace la IA? ¿Mi clave de IA está segura?',
   'land.faq.ai.a':
-    'El asistente de planes convierte un objetivo en un plan paso a paso y te sugiere en qué trabajar después. El generador de planes gratuito funciona en tu dispositivo. Con Pro puedes conectar, si quieres, tu propia clave de IA (Gemini, OpenAI o DeepSeek): se guarda solo en tu dispositivo y se envía directamente a ese proveedor — nunca a nuestros servidores.',
+    'El asistente de planes convierte un objetivo en un plan paso a paso y te sugiere en qué trabajar después. En el plan gratuito, el planificador funciona en tu dispositivo. Pro incluye planes de IA de Moneo —un cupo diario que crece con tu rango— y solo se envían el texto del objetivo y dos números (meses y horas por semana), nunca tus tareas, tu diario ni tus sesiones. También puedes conectar tu propia clave de IA (Gemini, OpenAI o DeepSeek): se guarda solo en tu dispositivo y va directamente a ese proveedor, nunca a nuestros servidores.',
   'land.faq.support.q': '¿Cómo contacto con soporte?',
   'land.faq.support.a': 'Escríbenos a {email}. Leemos todos los mensajes.',
   'land.final.title': 'Tu primera sesión de concentración está a un clic',

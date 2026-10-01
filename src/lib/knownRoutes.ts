@@ -16,6 +16,14 @@ const KNOWN_CLIENT_ROUTES = new Set([
   '/terms',
   '/privacy',
   '/refund',
+  // Landing in each language (prerendered for search engines; /welcome = English).
+  '/ro',
+  '/ru',
+  '/uk',
+  '/de',
+  '/fr',
+  '/es',
+  '/it',
 ]);
 
 export const KNOWN_CLIENT_ROUTE_LIST: readonly string[] = [...KNOWN_CLIENT_ROUTES];
