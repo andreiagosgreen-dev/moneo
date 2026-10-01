@@ -52,11 +52,15 @@ function preloadLandingFonts() {
  * dashboard and leave the token unset.
  */
 function cloudflareBeacon() {
+  let token = '';
   return {
     name: 'moneo-cloudflare-beacon',
     apply: 'build',
+    configResolved(config) {
+      // Vite's resolved env includes VITE_* from .env files and the process env.
+      token = String(config.env.VITE_CF_BEACON_TOKEN || '').trim();
+    },
     transformIndexHtml() {
-      const token = (process.env.VITE_CF_BEACON_TOKEN || '').trim();
       if (!/^[a-f0-9]{32}$/i.test(token)) return [];
       return [
         {
