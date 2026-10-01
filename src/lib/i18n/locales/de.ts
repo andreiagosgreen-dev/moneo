@@ -3683,4 +3683,9 @@ export const de: Record<TKey, string> = {
   'onb.qs.startHint': 'Ein klarer Fokus. Starte den Timer und arbeite nur daran.',
   'mono.focus.greetRunning': 'Im Fokus.',
   'mono.focus.greetBreak': 'Zeit für eine Pause.',
+  'data.saveFailed':
+    'Speichern fehlgeschlagen — der Browserspeicher ist voll oder blockiert. Exportiere deine Daten oder aktiviere die Synchronisierung.',
+  'data.saveFailedAction': 'Einstellungen öffnen',
+  'pay.switchHint':
+    'Du hast bereits Pro. Wechsle unter „Abo verwalten“ zwischen monatlich und jährlich — ohne zweite Zahlung.',
 };

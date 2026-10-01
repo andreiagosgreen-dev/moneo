@@ -94,6 +94,10 @@ export const STORAGE_KEYS = {
   estimateProfiles: 'moneo:estimate-profiles',
   /** AI standing consent for auto-prepare (Faza 6) — local only, never synced. */
   aiConsent: 'moneo:ai-consent',
+  /** Whether persistent storage was already requested once — local only. */
+  persistAsked: 'moneo:persist-asked',
+  /** Last gifted-Pro answer from the Worker, per user id — local only, never synced. */
+  complimentaryPro: 'moneo:complimentary-pro',
   /** Cross-entity links: goal/project/skill/journal many-to-many edges (Faza 14). */
   links: 'moneo:links',
   /** Time capsule delivery log, goalId → delivered-at ms (Faza 26). */

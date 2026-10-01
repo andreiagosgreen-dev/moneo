@@ -3662,4 +3662,9 @@ export const es: Record<TKey, string> = {
   'onb.qs.startHint': 'Un único foco claro. Inicia el temporizador y trabaja solo en esto.',
   'mono.focus.greetRunning': 'En foco.',
   'mono.focus.greetBreak': 'Hora de un descanso.',
+  'data.saveFailed':
+    'No se pudo guardar: el almacenamiento del navegador está lleno o bloqueado. Exporta tus datos o activa la sincronización.',
+  'data.saveFailedAction': 'Abrir ajustes',
+  'pay.switchHint':
+    'Ya tienes Pro. Cambia entre mensual y anual en «Gestionar suscripción», sin un segundo pago.',
 };

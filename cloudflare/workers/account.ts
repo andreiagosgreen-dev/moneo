@@ -21,6 +21,8 @@ export interface AccountEnv {
   SUPABASE_SERVICE_ROLE_KEY?: string;
   /** Optional: enables cancelling a live Lemon subscription on deletion. */
   LEMON_SQUEEZY_API_KEY?: string;
+  /** Scopes the email lookup of further subscriptions to this store. */
+  LEMON_STORE_ID?: string;
 }
 
 export type FetchImpl = typeof fetch;
@@ -186,12 +188,69 @@ export async function deleteUserRows(
 /** Subscription states Lemon will not charge again. */
 const NON_BILLING_STATUSES: ReadonlySet<string> = new Set(['free', 'cancelled', 'expired']);
 
+/** Lemon statuses that will (or may) charge again. */
+const BILLING_STATUSES: ReadonlySet<string> = new Set([
+  'on_trial',
+  'active',
+  'past_due',
+  'unpaid',
+  'paused',
+]);
+
+function lemonHeaders(lemonApiKey: string): Record<string, string> {
+  return {
+    Accept: 'application/vnd.api+json',
+    'Content-Type': 'application/vnd.api+json',
+    Authorization: `Bearer ${lemonApiKey}`,
+  };
+}
+
+/** Cancel one Lemon subscription; 404 means it is already gone. */
+async function cancelLemonSubscription(
+  subscriptionId: string,
+  lemonApiKey: string,
+  fetchImpl: FetchImpl,
+): Promise<boolean> {
+  const res = await fetchImpl(
+    `https://api.lemonsqueezy.com/v1/subscriptions/${encodeURIComponent(subscriptionId)}`,
+    { method: 'DELETE', headers: lemonHeaders(lemonApiKey) },
+  );
+  return res.ok || res.status === 404;
+}
+
 /**
- * Cancel the caller's live Lemon Squeezy subscription before their rows are
- * wiped — afterwards nothing in Moneo links the buyer to it. Lemon keeps
- * access until the paid period ends and stops renewals. True when there is
- * nothing to cancel, when the cancel succeeds, or when Lemon no longer knows
- * the subscription (404); false aborts the deletion (retryable).
+ * Further live subscriptions bought with the account's email in this store
+ * (e.g. a monthly plan left running next to a yearly one). The account row
+ * keeps only one subscription, so these are found through Lemon itself.
+ */
+async function liveSubscriptionIdsByEmail(
+  email: string,
+  storeId: string | undefined,
+  lemonApiKey: string,
+  fetchImpl: FetchImpl,
+): Promise<string[] | null> {
+  const params = new URLSearchParams({ 'filter[user_email]': email, 'page[size]': '100' });
+  if (storeId) params.set('filter[store_id]', storeId);
+  const res = await fetchImpl(`https://api.lemonsqueezy.com/v1/subscriptions?${params}`, {
+    headers: lemonHeaders(lemonApiKey),
+  });
+  if (!res.ok) return null;
+  const body = (await res.json()) as {
+    data?: Array<{ id?: unknown; attributes?: { status?: unknown } }>;
+  };
+  return (body.data ?? [])
+    .filter((d) => BILLING_STATUSES.has(String(d.attributes?.status)))
+    .map((d) => String(d.id ?? ''))
+    .filter(Boolean);
+}
+
+/**
+ * Cancel every live Lemon Squeezy subscription of the caller before their
+ * rows are wiped — afterwards nothing in Moneo links the buyer to them. Lemon
+ * keeps access until the paid period ends and stops renewals. Covers the
+ * subscription on file plus any other live one under the account's email.
+ * True when there is nothing to cancel or every cancel succeeded (404 counts:
+ * Lemon no longer knows it); false aborts the deletion (retryable).
  */
 export async function cancelLiveSubscription(
   supabaseUrl: string,
@@ -199,6 +258,8 @@ export async function cancelLiveSubscription(
   lemonApiKey: string,
   userId: string,
   fetchImpl: FetchImpl,
+  email: string | null = null,
+  storeId?: string,
 ): Promise<boolean> {
   try {
     const res = await fetchImpl(
@@ -213,21 +274,20 @@ export async function cancelLiveSubscription(
     if (!res.ok) return false;
     const rows = (await res.json()) as Array<{ lemon_subscription_id?: unknown; status?: unknown }>;
     const row = Array.isArray(rows) ? rows[0] : null;
-    const subscriptionId =
+    const ids = new Set<string>();
+    const storedId =
       row && typeof row.lemon_subscription_id === 'string' ? row.lemon_subscription_id : '';
-    if (!subscriptionId || NON_BILLING_STATUSES.has(String(row?.status))) return true;
-    const cancel = await fetchImpl(
-      `https://api.lemonsqueezy.com/v1/subscriptions/${encodeURIComponent(subscriptionId)}`,
-      {
-        method: 'DELETE',
-        headers: {
-          Accept: 'application/vnd.api+json',
-          'Content-Type': 'application/vnd.api+json',
-          Authorization: `Bearer ${lemonApiKey}`,
-        },
-      },
-    );
-    return cancel.ok || cancel.status === 404;
+    if (storedId && !NON_BILLING_STATUSES.has(String(row?.status))) ids.add(storedId);
+    // Without a subscription on file the account never bought through the app.
+    if (email && storedId) {
+      const more = await liveSubscriptionIdsByEmail(email, storeId, lemonApiKey, fetchImpl);
+      if (more === null) return false;
+      for (const id of more) ids.add(id);
+    }
+    for (const id of ids) {
+      if (!(await cancelLemonSubscription(id, lemonApiKey, fetchImpl))) return false;
+    }
+    return true;
   } catch {
     return false;
   }
@@ -276,12 +336,13 @@ export async function handleAccountDelete(
     return json({ error: 'Missing or invalid authorization' }, 401);
   }
 
-  const userId = await verifyUserToken(
+  const verified = await verifyUser(
     env.SUPABASE_URL,
     env.SUPABASE_SERVICE_ROLE_KEY,
     token,
     fetchImpl,
   );
+  const userId = verified?.userId ?? null;
   if (!userId) {
     return json({ error: 'Invalid or expired session' }, 401);
   }
@@ -293,6 +354,8 @@ export async function handleAccountDelete(
       env.LEMON_SQUEEZY_API_KEY,
       userId,
       fetchImpl,
+      verified?.email ?? null,
+      env.LEMON_STORE_ID,
     );
     if (!cancelled) {
       return json({ error: 'Failed to cancel subscription' }, 502);

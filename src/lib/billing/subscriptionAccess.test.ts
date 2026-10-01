@@ -78,13 +78,13 @@ describe('toSubscriptionInfo', () => {
     expect(sub).toEqual({ status: 'free', planId: 'free', currentPeriodEnd: null, isPro: false });
   });
 
-  it('complimentary allowlist still unlocks Pro on top of an expired row', () => {
+  it('gifted Pro still unlocks Pro on top of an expired row', () => {
     const sub = toSubscriptionInfo(
       { status: 'expired', plan_id: 'pro-monthly', current_period_end: PAST },
       NOW,
     );
-    expect(resolveIsPro(sub.isPro, 'vip@example.com', ['vip@example.com'])).toBe(true);
-    expect(resolveIsPro(sub.isPro, 'other@example.com', ['vip@example.com'])).toBe(false);
+    expect(resolveIsPro(sub.isPro, true)).toBe(true);
+    expect(resolveIsPro(sub.isPro, false)).toBe(false);
   });
 });
 

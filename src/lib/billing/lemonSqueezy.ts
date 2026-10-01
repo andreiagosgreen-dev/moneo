@@ -72,6 +72,7 @@ export function buildCheckoutUrl(
   planId: Plan,
   userId: string,
   discountCode?: string,
+  email?: string | null,
 ): string | null {
   const config = getLemonSqueezyConfig();
   const variant = variantForPlan(planId);
@@ -86,7 +87,12 @@ export function buildCheckoutUrl(
   } catch {
     return null;
   }
-  const url = `${base}/buy/${variant}?checkout[custom][user_id]=${encodeURIComponent(userId)}`;
+  let url = `${base}/buy/${variant}?checkout[custom][user_id]=${encodeURIComponent(userId)}`;
+  // Prefill the account email so the Lemon customer matches the Moneo account
+  // (support lookups, and cancelling every subscription on account deletion).
+  if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    url += `&checkout[email]=${encodeURIComponent(email)}`;
+  }
   if (discountCode && /^[A-Z0-9]{3,64}$/.test(discountCode)) {
     return `${url}&checkout[discount_code]=${discountCode}`;
   }
@@ -126,8 +132,12 @@ export function fallbackCustomerPortalUrl(): string {
   return buildCustomerPortalUrl() ?? LEMON_MY_ORDERS_URL;
 }
 
-export function initiateCheckout(planId: Plan, userId: string): string | null {
-  return buildCheckoutUrl(planId, userId);
+export function initiateCheckout(
+  planId: Plan,
+  userId: string,
+  email?: string | null,
+): string | null {
+  return buildCheckoutUrl(planId, userId, undefined, email);
 }
 
 export function getProPlanCheckoutUrl(userId: string): string | null {

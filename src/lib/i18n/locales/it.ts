@@ -3673,4 +3673,9 @@ export const it: Record<TKey, string> = {
   'onb.qs.startHint': 'Un solo obiettivo chiaro. Avvia il timer e lavora solo su questo.',
   'mono.focus.greetRunning': 'In focus.',
   'mono.focus.greetBreak': 'È ora di una pausa.',
+  'data.saveFailed':
+    'Impossibile salvare: lo spazio del browser è pieno o bloccato. Esporta i dati o attiva la sincronizzazione.',
+  'data.saveFailedAction': 'Apri impostazioni',
+  'pay.switchHint':
+    'Hai già Pro. Passa tra mensile e annuale in «Gestisci abbonamento», senza un secondo pagamento.',
 };

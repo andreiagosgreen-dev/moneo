@@ -3663,4 +3663,9 @@ export const ro: Record<TKey, string> = {
   'onb.qs.startHint': 'Un singur lucru clar. Pornește cronometrul și lucrează doar la asta.',
   'mono.focus.greetRunning': 'În focus.',
   'mono.focus.greetBreak': 'E timpul pentru o pauză.',
+  'data.saveFailed':
+    'Nu am putut salva — spațiul de stocare al browserului e plin sau blocat. Exportă datele sau activează sincronizarea.',
+  'data.saveFailedAction': 'Deschide setările',
+  'pay.switchHint':
+    'Ai deja Pro. Treci între lunar și anual din „Gestionează abonamentul” — fără o a doua plată.',
 };
