@@ -3657,4 +3657,6 @@ export const es: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Tasa de éxito de hábitos, tus horas pico, resumen del diario, metas de equilibrio',
   'plan.ent.calendar': 'Google Calendar y Focus Buddy',
+  'pay.switchHint':
+    'Ya tienes Pro. Cambia entre mensual y anual en «Gestionar suscripción», sin un segundo pago.',
 };

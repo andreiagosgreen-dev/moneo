@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/authProvider';
 import { initiateCheckout, type Plan } from '../lib/billing/lemonSqueezy';
+import ManageSubscriptionButton from './ManageSubscriptionButton';
 import { loginPathForUpgrade, type PaidPlanId } from '../lib/billing/upgradeIntent';
 import {
   PRICING_PLANS_DISPLAY,
@@ -54,6 +55,9 @@ export default function PricingCard() {
   const navigate = useNavigate();
   const [payError, setPayError] = useState('');
   const currentPlan: Plan = auth.isPro ? (auth.subscription.planId as Plan) : 'free';
+  // A paying subscriber switches plans in the Lemon portal — a second checkout
+  // would start a second, parallel subscription (double billing).
+  const hasPaidSub = auth.subscription.isPro && auth.subscription.planId !== 'free';
 
   const handleSubscribe = (planId: PaidPlanId) => {
     setPayError('');
@@ -62,7 +66,7 @@ export default function PricingCard() {
       return;
     }
 
-    const checkoutUrl = initiateCheckout(planId, auth.user.userId);
+    const checkoutUrl = initiateCheckout(planId, auth.user.userId, auth.user.email);
     if (!checkoutUrl || !openExternal(checkoutUrl)) {
       setPayError(t('pay.unavailable'));
     }
@@ -116,7 +120,12 @@ export default function PricingCard() {
                 ))}
               </ul>
 
-              {isPaid && !isCurrent && (
+              {isPaid && !isCurrent && hasPaidSub && (
+                <p className="mono-meta" style={{ marginTop: 14 }}>
+                  {t('pay.switchHint')}
+                </p>
+              )}
+              {isPaid && !isCurrent && !hasPaidSub && (
                 <button
                   onClick={() => handleSubscribe(plan.id as PaidPlanId)}
                   className="mono-btn mono-btn-primary mono-btn-block"
@@ -129,6 +138,8 @@ export default function PricingCard() {
           );
         })}
       </ul>
+
+      {hasPaidSub && <ManageSubscriptionButton />}
 
       {payError && (
         <p role="alert" className="mono-note mono-note-danger">

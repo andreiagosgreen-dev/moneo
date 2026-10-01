@@ -3626,4 +3626,6 @@ export const en = {
   'plan.ent.lifeBasics': 'Journal, energy and life wheel',
   'plan.ent.lifeInsights': 'Habit success rate, your peak hours, journal summary, balance targets',
   'plan.ent.calendar': 'Google Calendar and Focus Buddy',
+  'pay.switchHint':
+    'You already have Pro. Switch between monthly and yearly under “Manage subscription” — no second payment.',
 };

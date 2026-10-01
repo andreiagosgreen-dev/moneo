@@ -3668,4 +3668,6 @@ export const it: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Tasso di successo delle abitudini, le tue ore di punta, riepilogo del diario, obiettivi di equilibrio',
   'plan.ent.calendar': 'Google Calendar e Focus Buddy',
+  'pay.switchHint':
+    'Hai già Pro. Passa tra mensile e annuale in «Gestisci abbonamento», senza un secondo pagamento.',
 };

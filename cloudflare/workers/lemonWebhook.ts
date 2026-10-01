@@ -28,6 +28,7 @@ import {
 } from './security';
 import {
   accessPeriodEnd,
+  hasPaidProAccess,
   normalizeStatus,
   resolvePlanId,
   type LemonSubscriptionAttributes,
@@ -109,28 +110,78 @@ async function errorCode(res: Response): Promise<string> {
   }
 }
 
-type StoredOrder = { kind: 'ok'; value: string | null } | { kind: 'no-column' } | { kind: 'error' };
+/** The account's current row (the subscription that grants or last granted Pro). */
+interface StoredSub {
+  subscriptionId: string | null;
+  status: string | null;
+  periodEnd: string | null;
+}
+
+type StoredOrder =
+  | { kind: 'ok'; value: string | null; sub: StoredSub | null }
+  | { kind: 'no-column'; sub: StoredSub | null }
+  | { kind: 'error' };
+
+type StoredRow = {
+  lemon_updated_at?: string | null;
+  lemon_subscription_id?: string | null;
+  status?: string | null;
+  current_period_end?: string | null;
+};
+
+function toStoredSub(row: StoredRow | undefined): StoredSub | null {
+  if (!row) return null;
+  return {
+    subscriptionId: row.lemon_subscription_id || null,
+    status: row.status ?? null,
+    periodEnd: row.current_period_end ?? null,
+  };
+}
 
 async function readStoredOrder(
   env: Required<Pick<LemonWebhookEnv, 'SUPABASE_URL' | 'SUPABASE_SERVICE_ROLE_KEY'>>,
   userId: string,
   fetchImpl: FetchImpl,
 ): Promise<StoredOrder> {
-  try {
-    const res = await fetchImpl(
-      `${env.SUPABASE_URL}/rest/v1/subscriptions?user_id=eq.${encodeURIComponent(userId)}&select=lemon_updated_at&limit=1`,
+  const read = (cols: string) =>
+    fetchImpl(
+      `${env.SUPABASE_URL}/rest/v1/subscriptions?user_id=eq.${encodeURIComponent(userId)}&select=${cols}&limit=1`,
       { headers: restHeaders(env.SUPABASE_SERVICE_ROLE_KEY) },
     );
-    if (!res.ok) {
-      return MISSING_COLUMN_CODES.has(await errorCode(res))
-        ? { kind: 'no-column' }
-        : { kind: 'error' };
+  const base = 'lemon_subscription_id,status,current_period_end';
+  try {
+    const res = await read(`${base},lemon_updated_at`);
+    if (res.ok) {
+      const rows = (await res.json()) as StoredRow[];
+      return { kind: 'ok', value: rows[0]?.lemon_updated_at ?? null, sub: toStoredSub(rows[0]) };
     }
-    const rows = (await res.json()) as Array<{ lemon_updated_at?: string | null }>;
-    return { kind: 'ok', value: rows[0]?.lemon_updated_at ?? null };
+    if (!MISSING_COLUMN_CODES.has(await errorCode(res))) return { kind: 'error' };
+    // Migration 0012 not applied: no ordering, but still read the current row.
+    const legacy = await read(base);
+    if (!legacy.ok) return { kind: 'error' };
+    const rows = (await legacy.json()) as StoredRow[];
+    return { kind: 'no-column', sub: toStoredSub(rows[0]) };
   } catch {
     return { kind: 'error' };
   }
+}
+
+/**
+ * One row per account, so with two Lemon subscriptions (e.g. monthly kept
+ * running after buying yearly) the ending one must not overwrite the one
+ * that still pays: an event from a different subscription that grants no
+ * access is ignored while the stored subscription still grants Pro.
+ */
+export function shouldKeepOtherActiveSubscription(
+  stored: StoredSub | null,
+  incomingId: string,
+  incomingStatus: string,
+  incomingPeriodEnd: string | null,
+  now: number = Date.now(),
+): boolean {
+  if (!stored?.subscriptionId || !incomingId || stored.subscriptionId === incomingId) return false;
+  if (!hasPaidProAccess(stored.status, stored.periodEnd, now)) return false;
+  return !hasPaidProAccess(incomingStatus, incomingPeriodEnd, now);
 }
 
 export async function handleLemonSqueezyWebhook(
@@ -219,16 +270,26 @@ export async function handleLemonSqueezyWebhook(
     return api({ ok: true, skipped: 'stale' }, 200);
   }
 
+  const incomingId = String(data?.id || '');
+  const incomingStatus = normalizeStatus(attrs.status);
+  const incomingPeriodEnd = accessPeriodEnd(attrs);
+  if (
+    shouldKeepOtherActiveSubscription(stored.sub, incomingId, incomingStatus, incomingPeriodEnd)
+  ) {
+    replayGuard.mark(replayKey);
+    return api({ ok: true, skipped: 'other subscription active' }, 200);
+  }
+
   const row: Record<string, unknown> = {
     user_id: userId,
     lemon_customer_id: String(attrs.customer_id || ''),
-    lemon_subscription_id: String(data?.id || ''),
-    status: normalizeStatus(attrs.status),
+    lemon_subscription_id: incomingId,
+    status: incomingStatus,
     plan_id: resolvePlanId(attrs, {
       yearlyIds: env.LEMON_YEARLY_IDS,
       monthlyIds: env.LEMON_MONTHLY_IDS,
     }),
-    current_period_end: accessPeriodEnd(attrs),
+    current_period_end: incomingPeriodEnd,
     updated_at: new Date().toISOString(),
   };
   if (stored.kind === 'ok' && eventUpdatedAt) row.lemon_updated_at = eventUpdatedAt;

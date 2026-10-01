@@ -66,6 +66,8 @@ export default function PricingPage() {
   const [payError, setPayError] = useState('');
   const rows = getComparisonRows();
   const currentPlan: Plan = auth.isPro ? (auth.subscription.planId as Plan) : 'free';
+  // Paying subscribers switch in the Lemon portal, never through a second checkout.
+  const hasPaidSub = auth.subscription.isPro && auth.subscription.planId !== 'free';
   const showManage = auth.subscription.planId !== 'free';
   const intended = parsePaidPlan(searchParams.get(UPGRADE_PARAM));
   const resumePlan =
@@ -79,7 +81,7 @@ export default function PricingPage() {
       navigate(loginPathForUpgrade(planId));
       return;
     }
-    const url = initiateCheckout(planId, auth.user.userId);
+    const url = initiateCheckout(planId, auth.user.userId, auth.user.email);
     if (!url || !openExternal(url)) setPayError(t('pay.unavailable'));
   };
 
@@ -176,7 +178,10 @@ export default function PricingPage() {
                   {t('pay.current')}
                 </p>
               )}
-              {isPaid && !isCurrent && (
+              {isPaid && !isCurrent && hasPaidSub && (
+                <p className="mt-4 text-[12px] leading-relaxed text-sage">{t('pay.switchHint')}</p>
+              )}
+              {isPaid && !isCurrent && !hasPaidSub && (
                 <button
                   onClick={() => handleSubscribe(plan.id as PaidPlanId)}
                   className="press btn-accent mt-5 flex h-10 w-full items-center justify-center rounded-lg font-display text-sm font-bold"
