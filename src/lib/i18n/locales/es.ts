@@ -3667,6 +3667,14 @@ export const es: Record<TKey, string> = {
   'pay.trialBadge': 'Los primeros {n} días gratis',
   'pay.trialCta': 'Probar {n} días gratis',
   'pay.trialNote': 'Si cancelas durante la prueba, no se te cobra nada.',
+  'onb.qs.stepTitle': 'Tu primer paso',
+  'onb.qs.stepHint': 'La parte más pequeña que puedes empezar ahora; puedes editarla.',
+  'onb.qs.startHint': 'Un único foco claro. Inicia el temporizador y trabaja solo en esto.',
+  'mono.focus.greetRunning': 'En foco.',
+  'mono.focus.greetBreak': 'Hora de un descanso.',
+  'data.saveFailed':
+    'No se pudo guardar: el almacenamiento del navegador está lleno o bloqueado. Exporta tus datos o activa la sincronización.',
+  'data.saveFailedAction': 'Abrir ajustes',
   'pay.switchHint':
     'Ya tienes Pro. Cambia entre mensual y anual en «Gestionar suscripción», sin un segundo pago.',
 };

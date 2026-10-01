@@ -3636,6 +3636,14 @@ export const en = {
   'pay.trialBadge': 'First {n} days free',
   'pay.trialCta': 'Start {n}-day free trial',
   'pay.trialNote': 'Cancel during the trial and you won’t be charged.',
+  'onb.qs.stepTitle': 'Your first step',
+  'onb.qs.stepHint': 'The smallest piece you can start right now — edit it if you like.',
+  'onb.qs.startHint': 'One clear focus. Start the timer and work only on this.',
+  'mono.focus.greetRunning': 'In focus.',
+  'mono.focus.greetBreak': 'Time for a break.',
+  'data.saveFailed':
+    'Couldn’t save — your browser storage is full or blocked. Export your data or turn on sync.',
+  'data.saveFailedAction': 'Open settings',
   'pay.switchHint':
     'You already have Pro. Switch between monthly and yearly under “Manage subscription” — no second payment.',
 };

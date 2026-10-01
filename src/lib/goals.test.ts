@@ -18,6 +18,7 @@ import {
   setGoalBlockedBy,
   smartScore,
   suggestTasksForGoal,
+  firstStepFor,
   updateGoal,
   type Goal,
 } from './goals';
@@ -257,5 +258,18 @@ describe('goalConflicts + lifeAreaId', () => {
     const delivered = markCapsuleDelivered({}, 'a', now);
     expect(delivered).toEqual({ a: now });
     expect(capsulesDue(goals, delivered, now)).toHaveLength(0);
+  });
+});
+
+describe('firstStepFor (onboarding)', () => {
+  it('keeps the person’s own intention when no blueprint matches', () => {
+    expect(firstStepFor('Pregătesc oferta pentru client')).toBe('Pregătesc oferta pentru client');
+  });
+  it('uses the blueprint’s first step for a known kind of goal', () => {
+    const known = suggestTasksForGoal('Launch the website')[0];
+    expect(firstStepFor('Launch the website')).toBe(known);
+  });
+  it('is empty for an empty title', () => {
+    expect(firstStepFor('   ')).toBe('');
   });
 });

@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { Settings } from './store';
-import { applyCompletion, applySkip, endsAtFor, remainingAt, shouldPersist } from './timerEngine';
+import {
+  applyCompletion,
+  applySkip,
+  endsAtFor,
+  remainingAt,
+  resumeState,
+  shouldPersist,
+} from './timerEngine';
 
 const baseSettings: Settings = {
   focusMin: 25,
@@ -121,5 +128,31 @@ describe('snapshot persistence gate', () => {
 
   it('persists immediately on discrete state changes (mode/total/cycle)', () => {
     expect(shouldPersist('focus|1500|0', 'short|300|1', true, 10_200, 10_000, 10_000)).toBe(true);
+  });
+});
+
+describe('resumeState (reload during a running round)', () => {
+  const now = 1_000_000_000_000;
+  it('keeps a paused/idle position as saved', () => {
+    expect(resumeState({ remaining: 300, total: 1500 }, now)).toEqual({
+      remaining: 300,
+      endsAt: null,
+      ended: false,
+    });
+  });
+  it('resumes at the same end time while the round is still counting', () => {
+    expect(resumeState({ remaining: 1500, total: 1500, endsAt: now + 600_000 }, now)).toEqual({
+      remaining: 600,
+      endsAt: now + 600_000,
+      ended: false,
+    });
+  });
+  it('reports a round that finished while the app was closed', () => {
+    const r = resumeState({ remaining: 1500, total: 1500, endsAt: now - 5_000 }, now);
+    expect(r).toEqual({ remaining: 0, endsAt: now - 5_000, ended: true });
+  });
+  it('never stretches a round past its planned length (clock jump)', () => {
+    const r = resumeState({ remaining: 1500, total: 1500, endsAt: now + 99_000_000 }, now);
+    expect(r.remaining).toBe(1500);
   });
 });
