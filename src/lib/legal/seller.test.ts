@@ -18,7 +18,7 @@ import {
 import { LEGAL_TOKENS } from './tokens';
 import type { LegalDoc } from './types';
 
-const LANGS: LegalLang[] = ['en', 'ro'];
+const LANGS: LegalLang[] = ['en', 'ro', 'ru', 'uk', 'de', 'fr', 'es', 'it'];
 
 function allText(doc: LegalDoc): string {
   const parts = [doc.title, doc.updated, ...doc.intro];
@@ -77,22 +77,40 @@ describe('seller constants', () => {
 });
 
 describe('legal content', () => {
-  it('shows English everywhere except Romanian', () => {
-    expect(legalLangFor('ro')).toBe('ro');
-    for (const l of ['en', 'ru', 'uk', 'de', 'it', 'fr', 'es'] as const) {
-      expect(legalLangFor(l)).toBe('en');
+  it('shows every interface language its own translation', () => {
+    for (const l of LANGS) expect(legalLangFor(l)).toBe(l);
+  });
+
+  it('every translation mirrors the English structure block by block', () => {
+    for (const lang of LANGS) {
+      for (const id of LEGAL_DOCS) {
+        const en = getLegalDoc(id, 'en');
+        const tr = getLegalDoc(id, lang);
+        expect(tr.intro.length, `${lang} ${id}`).toBe(en.intro.length);
+        expect(tr.sections.length, `${lang} ${id}`).toBe(en.sections.length);
+        tr.sections.forEach((s, i) => {
+          expect(s.blocks.length, `${lang} ${id} §${i + 1}`).toBe(en.sections[i].blocks.length);
+          s.blocks.forEach((b, j) => {
+            const enBlock = en.sections[i].blocks[j];
+            const isList = typeof b !== 'string';
+            expect(isList, `${lang} ${id} §${i + 1}.${j + 1}`).toBe(typeof enBlock !== 'string');
+            if (isList && typeof enBlock !== 'string') {
+              expect(b.list.length, `${lang} ${id} §${i + 1}.${j + 1}`).toBe(enBlock.list.length);
+            }
+          });
+        });
+      }
     }
   });
 
-  it('Romanian mirrors the English structure section by section', () => {
-    for (const id of LEGAL_DOCS) {
-      const en = getLegalDoc(id, 'en');
-      const ro = getLegalDoc(id, 'ro');
-      expect(ro.intro.length, id).toBe(en.intro.length);
-      expect(ro.sections.length, id).toBe(en.sections.length);
-      ro.sections.forEach((s, i) => {
-        expect(s.blocks.length, `${id} §${i + 1}`).toBe(en.sections[i].blocks.length);
-      });
+  it('keeps every link token of the English original in each translation', () => {
+    const tokens = (text: string) => (text.match(/\{[a-z]+\}/g) ?? []).sort();
+    for (const lang of LANGS) {
+      for (const id of LEGAL_DOCS) {
+        expect(tokens(allText(getLegalDoc(id, lang))), `${lang} ${id}`).toEqual(
+          tokens(allText(getLegalDoc(id, 'en'))),
+        );
+      }
     }
   });
 
@@ -138,7 +156,11 @@ describe('legal content', () => {
       for (const id of LEGAL_DOCS) {
         const text = allText(getLegalDoc(id, lang)).toLowerCase();
         const claims = text.split('end-to-end').length - 1;
-        const denials = (text.match(/not end-to-end|nu oferă criptare end-to-end/g) ?? []).length;
+        const denials = (
+          text.match(
+            /not end-to-end|nu oferă criptare end-to-end|non è crittografato end-to-end/g,
+          ) ?? []
+        ).length;
         expect(claims, `${lang}/${id}`).toBe(denials);
       }
     }

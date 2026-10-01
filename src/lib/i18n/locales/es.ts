@@ -1158,7 +1158,7 @@ export const es: Record<TKey, string> = {
   'foot.contact': 'Contacto',
   'legal.nav': 'Información legal y contacto',
   'legal.bindingNote':
-    'Este documento solo está disponible en inglés. La versión en inglés es la jurídicamente vinculante.',
+    'Esta es una traducción de cortesía. La versión en inglés es la jurídicamente vinculante.',
   'legal.showEnglish': 'Leer el original en inglés',
   'legal.showTranslation': 'Mostrar la traducción',
   'legal.agree': 'Al crear una cuenta, aceptas los {terms} y la {privacy}.',

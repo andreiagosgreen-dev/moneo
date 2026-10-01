@@ -1153,7 +1153,7 @@ export const fr: Record<TKey, string> = {
   'foot.contact': 'Contact',
   'legal.nav': 'Mentions légales et contact',
   'legal.bindingNote':
-    "Ce document n'est disponible qu'en anglais. Seule la version anglaise fait foi juridiquement.",
+    'Ceci est une traduction fournie pour plus de commodité. Seule la version anglaise fait foi.',
   'legal.showEnglish': "Lire l'original en anglais",
   'legal.showTranslation': 'Afficher la traduction',
   'legal.agree': 'En créant un compte, vous acceptez les {terms} et la {privacy}.',

@@ -11,9 +11,9 @@ interface Props {
 }
 
 /**
- * Terms / Privacy / Refund. English is authoritative; Romanian is a full
- * translation (with a switch back to the original); every other locale
- * reads the English text under a localized "English is binding" note.
+ * Terms / Privacy / Refund. English is authoritative; every other interface
+ * language shows a full translation under a localized "English is binding"
+ * note, with a switch to the English original.
  */
 export default function LegalPage({ doc }: Props) {
   const { t, locale } = useI18n();
@@ -38,7 +38,7 @@ export default function LegalPage({ doc }: Props) {
         {locale !== 'en' && (
           <p role="note" className="mono-legal-note">
             {t('legal.bindingNote')}
-            {preferred === 'ro' && (
+            {preferred !== 'en' && (
               <>
                 {' '}
                 <button
