@@ -17,6 +17,8 @@ export interface AgileProps {
   selectedProjectId: string | null;
   onSelectProject: (id: string | null) => void;
   isPro?: boolean;
+  /** Start a Focus round on a task (board "▶" on In progress cards). */
+  onWorkFocus?: (projectId: string, taskId: string | null) => void;
 }
 
 export interface BoardProps {
@@ -26,6 +28,7 @@ export interface BoardProps {
   board: BoardConfig;
   commitBoard: (board: BoardConfig) => void;
   isPro: boolean;
+  onWorkFocus?: (projectId: string, taskId: string | null) => void;
 }
 
 export interface SprintsProps {

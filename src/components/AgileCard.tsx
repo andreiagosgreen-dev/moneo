@@ -29,6 +29,7 @@ export default function AgileCard({
   selectedProjectId,
   onSelectProject,
   isPro = false,
+  onWorkFocus,
 }: AgileProps) {
   const [tab, setTab] = useState<AgileTab>('timeline');
   const [board, setBoard] = useState<BoardConfig>(loadBoardConfig);
@@ -127,6 +128,7 @@ export default function AgileCard({
                 board={board}
                 commitBoard={commitBoard}
                 isPro={isPro}
+                onWorkFocus={onWorkFocus}
               />
             )}
             {tab === 'sprints' && (

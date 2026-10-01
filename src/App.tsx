@@ -1830,6 +1830,7 @@ export default function App() {
                                 selectedProjectId={selectedProjectId}
                                 onSelectProject={handleSelectProject}
                                 isPro={auth.isPro}
+                                onWorkFocus={handleWorkFocus}
                               />
                             </Disclosure>
                           </div>
