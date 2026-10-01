@@ -2,6 +2,10 @@ import type { ReactNode } from 'react';
 import { AlertSettings, AppearanceSettings, TimerSettings } from '../components/SettingsCard';
 import LanguageCard from '../components/LanguageCard';
 import PricingCard from '../components/PricingCard';
+import MonoPlanEntitlements from './MonoPlanEntitlements';
+import { currentPlanOf } from '../lib/billing/entitlements';
+import { useAuth } from '../lib/authProvider';
+import { isCancelledButActive } from '../lib/cloud/subscriptionRepository';
 import MonoCloudSync from './MonoCloudSync';
 import MonoDataExport from './MonoDataExport';
 import MonoLocalData from './MonoLocalData';
@@ -121,11 +125,25 @@ export default function MonoSettings({
         title={t('set.grp.plan')}
         hint={t(isPro ? 'set.grp.planPro' : 'set.grp.planFree')}
       >
-        <PricingCard />
+        <div className="mono-set-stack">
+          <PlanEntitlements isPro={isPro} />
+          <PricingCard />
+        </div>
       </Group>
       <Group id="help" title={t('legal.cardTitle')} hint={t('set.grp.helpSum')}>
         <MonoSupportCard hideTitle />
       </Group>
     </div>
+  );
+}
+
+/** Reads the subscription only when the Plan group is open (needs AuthProvider). */
+function PlanEntitlements({ isPro }: { isPro: boolean }) {
+  const { subscription } = useAuth();
+  return (
+    <MonoPlanEntitlements
+      current={currentPlanOf(isPro, subscription)}
+      activeUntil={isCancelledButActive(subscription) ? subscription.currentPeriodEnd : null}
+    />
   );
 }
