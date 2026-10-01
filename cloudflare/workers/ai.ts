@@ -15,6 +15,8 @@
 
 import { bearerToken, verifyUser, type FetchImpl } from './account';
 import { hasServerProAccess } from './proAccess';
+import { computeServerXp, loadServerXpInput } from './discount';
+import { AI_DAILY_RANK_BONUS, levelFromXp, rankForLevel, type RankId } from '../../src/lib/xpCore';
 import {
   buildSecurityHeaders,
   clientIp,
@@ -51,17 +53,57 @@ export function dailyLimitOf(raw: string | undefined): number {
  * Count one plan for this account today. False once the day's allowance is
  * used. Without KV the per-IP limiter is the only guard (never blocks).
  */
-async function takeDailyAllowance(env: AIEnv, userId: string, now: Date): Promise<boolean> {
+async function takeDailyAllowance(
+  env: AIEnv,
+  userId: string,
+  now: Date,
+  bonus = 0,
+): Promise<boolean> {
   const kv = env.KV_CACHE;
   if (!kv) return true;
   const key = `ai-quota:${userId}:${now.toISOString().slice(0, 10)}`;
   try {
     const used = Number.parseInt((await kv.get(key)) ?? '0', 10) || 0;
-    if (used >= dailyLimitOf(env.AI_DAILY_LIMIT)) return false;
+    if (used >= dailyLimitOf(env.AI_DAILY_LIMIT) + Math.max(0, bonus)) return false;
     await kv.put(key, String(used + 1), { expirationTtl: 2 * 86_400 });
     return true;
   } catch {
     return true;
+  }
+}
+
+/**
+ * Pro rank reward: extra plans per day by rank, recomputed from synced data
+ * (same rules as the rank discount) and cached in KV for the UTC day. Any
+ * failure means no bonus — never a block.
+ */
+async function rankBonusFor(
+  env: AIEnv,
+  userId: string,
+  createdAt: number | undefined,
+  now: Date,
+  fetchImpl: FetchImpl,
+): Promise<number> {
+  const kv = env.KV_CACHE;
+  if (!kv || !env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) return 0;
+  const key = `ai-rank:${userId}:${now.toISOString().slice(0, 10)}`;
+  try {
+    const cached = (await kv.get(key)) as RankId | null;
+    if (cached && cached in AI_DAILY_RANK_BONUS) return AI_DAILY_RANK_BONUS[cached];
+    const from = typeof createdAt === 'number' ? createdAt : 0;
+    const input = await loadServerXpInput(
+      env.SUPABASE_URL,
+      env.SUPABASE_SERVICE_ROLE_KEY,
+      userId,
+      from,
+      fetchImpl,
+    );
+    if (!input) return 0;
+    const rank = rankForLevel(levelFromXp(computeServerXp(input, from, now.getTime())).level).id;
+    await kv.put(key, rank, { expirationTtl: 86_400 });
+    return AI_DAILY_RANK_BONUS[rank];
+  } catch {
+    return 0;
   }
 }
 
@@ -214,7 +256,9 @@ export async function handleAIPlan(
     return api({ error: 'AI provider not configured', configured: false }, 501);
   }
 
-  if (!(await takeDailyAllowance(env, userId, new Date()))) {
+  const now = new Date();
+  const bonus = await rankBonusFor(env, userId, user.createdAt, now, fetchImpl);
+  if (!(await takeDailyAllowance(env, userId, now, bonus))) {
     return api({ error: 'Daily AI limit reached', code: 'daily_limit' }, 429);
   }
 

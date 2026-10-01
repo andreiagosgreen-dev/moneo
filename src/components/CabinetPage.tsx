@@ -166,7 +166,7 @@ export default function CabinetPage() {
           data-atmosphere={resolveAtmosphere(loadAtmosphere(), auth.isPro)}
         >
           <Suspense fallback={null}>
-            <MonoRankCard xp={xp} badges={badges} />
+            <MonoRankCard xp={xp} badges={badges} isPro={auth.isPro} />
           </Suspense>
         </div>
 

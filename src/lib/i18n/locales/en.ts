@@ -3628,4 +3628,7 @@ export const en = {
   'plan.ent.calendar': 'Google Calendar and Focus Buddy',
   'assist.roadmap.dailyLimit':
     'Today’s included AI plans are used up — this plan was built on your device. More tomorrow.',
+  'mono.xp.proPerk': 'Rank reward: +{n} included AI plans a day.',
+  'mono.xp.proPerkNext': 'Reach {rank} for +{n} included AI plans a day.',
+  'mono.xp.freePerk': 'With Pro, your rank adds +{n} AI plans a day.',
 };

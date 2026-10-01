@@ -3660,4 +3660,7 @@ export const ro: Record<TKey, string> = {
   'plan.ent.calendar': 'Google Calendar și Focus Buddy',
   'assist.roadmap.dailyLimit':
     'Ai folosit planurile AI incluse pentru azi — acest plan a fost creat pe dispozitiv. Mâine poți genera din nou.',
+  'mono.xp.proPerk': 'Recompensa rangului: +{n} planuri AI incluse pe zi.',
+  'mono.xp.proPerkNext': 'Ajungi {rank} și primești +{n} planuri AI incluse pe zi.',
+  'mono.xp.freePerk': 'Cu Pro, rangul tău îți aduce +{n} planuri AI pe zi.',
 };

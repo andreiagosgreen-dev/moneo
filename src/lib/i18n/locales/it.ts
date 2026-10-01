@@ -3670,4 +3670,7 @@ export const it: Record<TKey, string> = {
   'plan.ent.calendar': 'Google Calendar e Focus Buddy',
   'assist.roadmap.dailyLimit':
     'Hai esaurito i piani IA inclusi di oggi: questo piano è stato creato sul dispositivo. Domani di nuovo.',
+  'mono.xp.proPerk': 'Premio di grado: +{n} piani IA inclusi al giorno.',
+  'mono.xp.proPerkNext': 'Raggiungi {rank} per +{n} piani IA inclusi al giorno.',
+  'mono.xp.freePerk': 'Con Pro, il tuo grado aggiunge +{n} piani IA al giorno.',
 };

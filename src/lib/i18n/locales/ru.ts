@@ -3634,4 +3634,7 @@ export const ru: Record<TKey, string> = {
   'plan.ent.calendar': 'Google Календарь и Focus Buddy',
   'assist.roadmap.dailyLimit':
     'Включённые на сегодня ИИ-планы закончились — этот план создан на устройстве. Завтра снова можно.',
+  'mono.xp.proPerk': 'Награда ранга: +{n} включённых ИИ-планов в день.',
+  'mono.xp.proPerkNext': 'Достигните ранга «{rank}» — +{n} ИИ-планов в день.',
+  'mono.xp.freePerk': 'С Pro ваш ранг даёт +{n} ИИ-планов в день.',
 };
