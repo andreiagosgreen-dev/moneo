@@ -9,11 +9,15 @@
  *                                       with browser fallback
  */
 
-/** Browser-resolved IANA timezone, e.g. "Europe/Chisinau". */
+/**
+ * Browser-resolved IANA timezone, e.g. "Europe/Chisinau". Some headless
+ * browsers and crawlers report "Etc/Unknown", which Intl then rejects, so
+ * anything unusable falls back to UTC.
+ */
 export function getBrowserTimezone(): string {
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return tz && tz.length > 0 ? tz : 'UTC';
+    return isValidIanaTimezone(tz) ? tz : 'UTC';
   } catch {
     return 'UTC';
   }
