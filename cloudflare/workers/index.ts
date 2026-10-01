@@ -43,6 +43,7 @@ import {
   getContentType,
   isKnownClientRoute,
   isStaticAssetPath,
+  withRouteCanonical,
 } from './staticAssetPath';
 
 export { isStaticAssetPath } from './staticAssetPath';
@@ -304,8 +305,12 @@ export default {
     // Unknown paths still get the shell (the app renders), but as a 404.
     const indexObject = await env.R2_BUCKET?.get('index.html');
     if (indexObject) {
-      return new Response(indexObject.body, {
-        status: isKnownClientRoute(url.pathname) ? 200 : 404,
+      const known = isKnownClientRoute(url.pathname);
+      const body = known
+        ? withRouteCanonical(await indexObject.text(), url.pathname)
+        : indexObject.body;
+      return new Response(body, {
+        status: known ? 200 : 404,
         headers: mergeHeaders(SEC, cors, {
           'Content-Type': 'text/html',
           'Cache-Control': 'public, max-age=0, must-revalidate',

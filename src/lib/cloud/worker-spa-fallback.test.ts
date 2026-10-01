@@ -6,6 +6,7 @@ import {
   isKnownClientRoute,
   isStaticAssetPath,
   isRevalidateAlwaysPath,
+  withRouteCanonical,
 } from '../../../cloudflare/workers/staticAssetPath';
 import { LEGAL_PATHS } from '../legal/seller';
 import { LANDING_LANGS, LANDING_PATH } from '../landing';
@@ -103,5 +104,30 @@ describe('isKnownClientRoute', () => {
       ...declared,
     ]);
     expect(new Set(KNOWN_CLIENT_ROUTE_LIST)).toEqual(expected);
+  });
+});
+
+describe('withRouteCanonical', () => {
+  const shell =
+    '<head><link rel="canonical" href="https://moneo.bond/" /><title>Moneo</title></head>';
+
+  it('points the shell canonical at the route itself', () => {
+    expect(withRouteCanonical(shell, '/pricing')).toContain(
+      '<link rel="canonical" href="https://moneo.bond/pricing" />',
+    );
+    expect(withRouteCanonical(shell, '/terms')).not.toContain('href="https://moneo.bond/"');
+  });
+
+  it('normalizes case and a trailing slash like the router', () => {
+    expect(withRouteCanonical(shell, '/Privacy/')).toContain('href="https://moneo.bond/privacy"');
+  });
+
+  it('leaves the home page canonical alone', () => {
+    expect(withRouteCanonical(shell, '/')).toBe(shell);
+  });
+
+  it('is a no-op when the shell has no root canonical', () => {
+    const bare = '<head><title>Moneo</title></head>';
+    expect(withRouteCanonical(bare, '/help')).toBe(bare);
   });
 });
