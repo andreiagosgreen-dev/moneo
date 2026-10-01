@@ -45,6 +45,13 @@ LEMON_MONTHLY_IDS = "2156059,1380224"
 # granting Pro. Set to "true" only while testing checkout in Lemon Test mode,
 # then back to "false" and redeploy.
 ALLOW_TEST_MODE = "false"
+# Included AI planner (Pro). The key is a SECRET:
+#   npx wrangler secret put AI_API_KEY
+# Any OpenAI-compatible API works; defaults: https://api.openai.com/v1 + gpt-4o-mini.
+# AI_BASE_URL = "https://api.openai.com/v1"
+# AI_MODEL = "gpt-4o-mini"
+# Plans per Pro account per UTC day (cost guard, counted in KV_CACHE).
+AI_DAILY_LIMIT = "20"
 # Rank discount codes (/api/billing/discount, first month of Pro monthly) are
 # created in this store and limited to this numeric variant id (public). Needs
 # the LEMON_SQUEEZY_API_KEY secret; without it the endpoint answers 503

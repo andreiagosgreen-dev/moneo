@@ -31,6 +31,86 @@ export interface AIEnv {
   /** Optional OpenAI-compatible base URL (server-only). */
   AI_BASE_URL?: string;
   PRO_COMPLIMENTARY_EMAILS?: string;
+  /** Plans per Pro account per UTC day (cost guard). Default 20. */
+  AI_DAILY_LIMIT?: string;
+  /** Shared KV; holds the per-account daily counters when bound. */
+  KV_CACHE?: {
+    get(key: string): Promise<string | null>;
+    put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
+  };
+}
+
+const DEFAULT_DAILY_LIMIT = 20;
+
+export function dailyLimitOf(raw: string | undefined): number {
+  const n = Number.parseInt(raw ?? '', 10);
+  return Number.isFinite(n) && n > 0 ? Math.min(n, 500) : DEFAULT_DAILY_LIMIT;
+}
+
+/**
+ * Count one plan for this account today. False once the day's allowance is
+ * used. Without KV the per-IP limiter is the only guard (never blocks).
+ */
+async function takeDailyAllowance(env: AIEnv, userId: string, now: Date): Promise<boolean> {
+  const kv = env.KV_CACHE;
+  if (!kv) return true;
+  const key = `ai-quota:${userId}:${now.toISOString().slice(0, 10)}`;
+  try {
+    const used = Number.parseInt((await kv.get(key)) ?? '0', 10) || 0;
+    if (used >= dailyLimitOf(env.AI_DAILY_LIMIT)) return false;
+    await kv.put(key, String(used + 1), { expirationTtl: 2 * 86_400 });
+    return true;
+  } catch {
+    return true;
+  }
+}
+
+/** Same roadmap prompt as the bring-your-own-key path (src/lib/ai/byok.ts). */
+export function planPrompt(v: {
+  goal: string;
+  horizonMonths: number;
+  hoursPerWeek: number;
+  level?: string;
+  kind?: string;
+}): string {
+  const hardware = v.kind === 'build' || /drone|dronă|hardware|robot|diy|pcb/i.test(v.goal);
+  return [
+    'You are a learning/project roadmap assistant for Moneo.',
+    'Return ONLY a JSON object with this shape:',
+    '{"steps":[{"title":"string","estimateMin":number}]}',
+    'Max 12 steps. estimateMin is focused work minutes for that step.',
+    'Write the step titles in the same language as the goal.',
+    hardware
+      ? 'This is a hardware/build goal: include Spec, BOM/parts, assemble, integrate, bench/safety, maiden, iterate. Mention failsafe/safety where relevant.'
+      : 'Prefer concrete executable steps over vague advice.',
+    `Goal: ${v.goal}`,
+    `Horizon months: ${v.horizonMonths}`,
+    `Hours per week available: ${v.hoursPerWeek}`,
+    v.level ? `Level: ${v.level}` : '',
+    v.kind ? `Path kind: ${v.kind}` : '',
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+/** Model JSON -> at most 12 clean steps (title <=160 chars, 5-600 minutes). */
+export function cleanSteps(json: unknown): Array<{ title: string; estimateMin: number }> {
+  const rec = json && typeof json === 'object' ? (json as Record<string, unknown>) : {};
+  const list = Array.isArray(rec.steps) ? rec.steps : Array.isArray(rec.tasks) ? rec.tasks : [];
+  return list
+    .map((s) => {
+      const r = s && typeof s === 'object' ? (s as Record<string, unknown>) : {};
+      const title = typeof r.title === 'string' ? r.title.trim().slice(0, 160) : '';
+      const raw =
+        typeof r.estimateMin === 'number'
+          ? r.estimateMin
+          : typeof r.pomodoros === 'number'
+            ? r.pomodoros * 25
+            : 50;
+      return { title, estimateMin: Math.min(600, Math.max(5, Math.round(raw))) };
+    })
+    .filter((s) => s.title)
+    .slice(0, 12);
 }
 
 const aiLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
@@ -41,6 +121,8 @@ export interface ValidAIRequest {
   goal?: string;
   horizonMonths?: number;
   hoursPerWeek?: number;
+  level?: string;
+  kind?: string;
   reason?: string;
 }
 
@@ -61,7 +143,11 @@ export function validateAIRequest(body: unknown): ValidAIRequest {
   if (!Number.isInteger(hoursPerWeek) || hoursPerWeek < 1 || hoursPerWeek > 40) {
     return { ok: false, reason: 'Bad hoursPerWeek' };
   }
-  return { ok: true, goal, horizonMonths, hoursPerWeek };
+  const level =
+    typeof rec.level === 'string' && /^[a-z]{1,20}$/.test(rec.level) ? rec.level : undefined;
+  const kind =
+    typeof rec.kind === 'string' && /^[a-z]{1,20}$/.test(rec.kind) ? rec.kind : undefined;
+  return { ok: true, goal, horizonMonths, hoursPerWeek, level, kind };
 }
 
 function api(body: Record<string, unknown>, status: number): Response {
@@ -128,6 +214,10 @@ export async function handleAIPlan(
     return api({ error: 'AI provider not configured', configured: false }, 501);
   }
 
+  if (!(await takeDailyAllowance(env, userId, new Date()))) {
+    return api({ error: 'Daily AI limit reached', code: 'daily_limit' }, 429);
+  }
+
   const base = (env.AI_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '');
   const model = env.AI_MODEL || 'gpt-4o-mini';
   try {
@@ -141,17 +231,19 @@ export async function handleAIPlan(
       },
       body: JSON.stringify({
         model,
-        temperature: 0.2,
+        temperature: 0.3,
         response_format: { type: 'json_object' },
         messages: [
-          {
-            role: 'system',
-            content:
-              'Return JSON only: {"tasks":[{"title":string,"pomodoros":number,"priority":"p1"|"p2"|"p3"}]}. Max 20 tasks. No prose.',
-          },
+          { role: 'system', content: 'Return only valid JSON. No markdown outside JSON.' },
           {
             role: 'user',
-            content: `Goal: ${valid.goal}\nHorizon months: ${valid.horizonMonths}\nHours/week: ${valid.hoursPerWeek}`,
+            content: planPrompt({
+              goal: valid.goal!,
+              horizonMonths: valid.horizonMonths!,
+              hoursPerWeek: valid.hoursPerWeek!,
+              level: valid.level,
+              kind: valid.kind,
+            }),
           },
         ],
       }),
@@ -163,50 +255,17 @@ export async function handleAIPlan(
       choices?: Array<{ message?: { content?: string } }>;
     };
     const rawContent = data?.choices?.[0]?.message?.content ?? '';
-    let parsed: { tasks?: Array<{ title?: string; pomodoros?: number; priority?: string }> };
+    let parsed: unknown;
     try {
       parsed = JSON.parse(rawContent);
     } catch {
       return api({ error: 'AI bad payload', configured: true }, 502);
     }
-    const tasks = Array.isArray(parsed.tasks)
-      ? parsed.tasks
-          .filter((t) => t && typeof t.title === 'string' && t.title.trim())
-          .slice(0, 20)
-          .map((t, i) => ({
-            draftId: `ai-${i + 1}`,
-            milestoneId: 'm1',
-            title: String(t.title).trim().slice(0, 120),
-            pomodoros: Math.min(8, Math.max(1, Math.round(Number(t.pomodoros) || 1))),
-            priority: t.priority === 'p1' || t.priority === 'p3' ? t.priority : 'p2',
-          }))
-      : [];
-    if (tasks.length === 0) return api({ error: 'AI empty plan', configured: true }, 502);
-    return api(
-      {
-        path: {
-          goal: valid.goal,
-          kind: 'general',
-          horizonMonths: valid.horizonMonths,
-          level: 'beginner',
-          hoursPerWeek: valid.hoursPerWeek,
-          phases: [
-            {
-              id: 'p1',
-              index: 1,
-              months: [1, Math.min(3, valid.horizonMonths!)],
-              outcome: valid.goal,
-            },
-          ],
-          milestones: [{ id: 'm1', phaseId: 'p1', title: valid.goal }],
-          tasks,
-          totalPomodoros: tasks.reduce((n, t) => n + t.pomodoros, 0),
-          fitsCapacity: true,
-          assumptions: [],
-        },
-      },
-      200,
-    );
+    const steps = cleanSteps(parsed);
+    if (steps.length === 0) return api({ error: 'AI empty plan', configured: true }, 502);
+    // The client turns steps into a full path with the same code as the
+    // bring-your-own-key planner (phases, milestones, capacity).
+    return api({ steps }, 200);
   } catch {
     return api({ error: 'AI provider unreachable', configured: true }, 502);
   }

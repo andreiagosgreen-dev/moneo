@@ -4,11 +4,14 @@ import type { TKey } from '../lib/i18n/types';
 import {
   BYOK_PROVIDERS,
   buildByokPath,
+  hostedPlan,
   loadByokConfig,
   saveByokConfig,
   type ByokConfig,
   type ByokProvider,
+  type PlanSource,
 } from '../lib/ai/byok';
+import { getSupabaseAccessToken } from '../lib/billing/lemonSqueezy';
 import {
   ROADMAP_GROUPS,
   addStep,
@@ -83,7 +86,7 @@ export default function RoadmapPanel({
   const [busy, setBusy] = useState(false);
   const [draftPath, setDraftPath] = useState<BuiltPath | null>(null);
   const [draftSources, setDraftSources] = useState<string[]>([]);
-  const [draftProvider, setDraftProvider] = useState<ByokProvider | 'local-fallback'>('local');
+  const [draftProvider, setDraftProvider] = useState<PlanSource>('local');
   const [status, setStatus] = useState('');
   const [newStep, setNewStep] = useState('');
 
@@ -116,6 +119,9 @@ export default function RoadmapPanel({
         ...(preferred ? { kind: preferred } : {}),
       },
       effective,
+      fetch,
+      // Pro without an own key: Moneo's included AI first, local planner as fallback.
+      isPro ? (input) => hostedPlan(input, getSupabaseAccessToken) : undefined,
     );
     setBusy(false);
     if (!result.ok || !result.path) {
@@ -126,7 +132,15 @@ export default function RoadmapPanel({
     setDraftPath(readable);
     setDraftSources(result.sources ?? []);
     setDraftProvider(result.used);
-    setStatus(result.used === 'local-fallback' ? t('assist.roadmap.fallback') : '');
+    setStatus(
+      result.used === 'local-fallback'
+        ? t(
+            result.reason === 'moneo-daily-limit'
+              ? 'assist.roadmap.dailyLimit'
+              : 'assist.roadmap.fallback',
+          )
+        : '',
+    );
   };
 
   const approveDraft = () => {

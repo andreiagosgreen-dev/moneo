@@ -3638,4 +3638,6 @@ export const uk: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Успішність звичок, ваші пікові години, підсумок щоденника, цілі балансу',
   'plan.ent.calendar': 'Google Календар і Focus Buddy',
+  'assist.roadmap.dailyLimit':
+    'Включені на сьогодні ШІ-плани вичерпано — цей план створено на пристрої. Завтра знову можна.',
 };

@@ -85,6 +85,7 @@ export interface Env {
   LEMON_SQUEEZY_WEBHOOK_SECRET?: string;
   LEMON_SQUEEZY_API_KEY?: string;
   AI_API_KEY?: string;
+  AI_DAILY_LIMIT?: string;
   AI_MODEL?: string;
   /** Comma-separated list of allowed front-end origins. */
   CORS_ORIGINS?: string;

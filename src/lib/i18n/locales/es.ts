@@ -3657,4 +3657,6 @@ export const es: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Tasa de éxito de hábitos, tus horas pico, resumen del diario, metas de equilibrio',
   'plan.ent.calendar': 'Google Calendar y Focus Buddy',
+  'assist.roadmap.dailyLimit':
+    'Ya usaste los planes de IA incluidos de hoy: este plan se creó en tu dispositivo. Mañana podrás de nuevo.',
 };
