@@ -24,6 +24,8 @@ import type { TKey } from '../../lib/i18n/types';
 import MonoFlame from '../../mono/MonoFlame';
 import MonoIconPicker from '../../mono/MonoIconPicker';
 import MonoVacation from '../../mono/MonoVacation';
+import MonoEmpty from '../../mono/MonoEmpty';
+import { MonoArt } from '../../mono/MonoArt';
 
 /** Template name → translation key (created habits carry the shown name). */
 const TEMPLATE_KEYS: Record<string, TKey> = {
@@ -72,13 +74,11 @@ export default function HabitsTab({
   return (
     <div>
       {active.length === 0 ? (
-        <div className="empty-panel">
-          <p>
-            {t('life.hab.emptyA')}
-            <br />
-            {t('life.hab.emptyB')}
-          </p>
-        </div>
+        <MonoEmpty
+          art={<MonoArt name="sprout" />}
+          title={t('life.hab.emptyA')}
+          body={t('life.hab.emptyB')}
+        />
       ) : (
         <ul className="space-y-1.5">
           {active.map((h) => {

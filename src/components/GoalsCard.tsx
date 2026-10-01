@@ -37,6 +37,8 @@ import { cleanupLinksFor, type EntityLink } from '../lib/entityLinks';
 import type { Skill } from '../lib/skills';
 import type { Objective } from '../lib/okrs';
 import LinkedItems from './LinkedItems';
+import MonoEmpty from '../mono/MonoEmpty';
+import { MonoArt } from '../mono/MonoArt';
 import { horizonToGoalLevel, type PlanningHorizon } from '../lib/horizons';
 import type { TKey } from '../lib/i18n/types';
 
@@ -269,13 +271,11 @@ export default function GoalsCard({
       )}
 
       {roots.length === 0 ? (
-        <div className="mono-empty">
-          <p className="mono-meta">
-            {t('goal.emptyA')}
-            <br />
-            {t('goal.emptyB')}
-          </p>
-        </div>
+        <MonoEmpty
+          art={<MonoArt name="target" />}
+          title={t('goal.emptyA')}
+          body={t('goal.emptyB')}
+        />
       ) : (
         <ul className="mono-stack">
           {visibleRoots.map((g) => (

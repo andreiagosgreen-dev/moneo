@@ -66,6 +66,52 @@ describe('MonoNav', () => {
     expect(selected[0].textContent).toMatch(/Plan|Goals/i);
   });
 
+  it('supports arrow-key navigation between tabs', () => {
+    const onTab = vi.fn();
+    const c = render(withProviders('today', onTab));
+    const today = Array.from(c.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find((el) =>
+      el.textContent?.includes('Today'),
+    )!;
+
+    act(() => {
+      today.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+    });
+
+    expect(onTab).toHaveBeenCalledWith('focus');
+    expect(document.activeElement?.id).toBe('mono-tab-focus');
+  });
+
+  it('keeps More as the selected mobile destination for overflow tabs', () => {
+    const originalMatchMedia = window.matchMedia;
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: vi.fn(() => ({
+        matches: true,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    });
+
+    try {
+      const c = render(withProviders('plan', () => {}));
+      const selected = Array.from(c.querySelectorAll('[role="tab"]')).find(
+        (el) => el.getAttribute('aria-selected') === 'true',
+      );
+
+      expect(selected?.textContent).toContain('More');
+      expect(selected?.getAttribute('tabindex')).toBe('0');
+    } finally {
+      if (originalMatchMedia) {
+        Object.defineProperty(window, 'matchMedia', {
+          configurable: true,
+          value: originalMatchMedia,
+        });
+      } else {
+        Reflect.deleteProperty(window, 'matchMedia');
+      }
+    }
+  });
+
   it('shows the brand mark beside the Moneo name', () => {
     const c = render(withProviders('focus', () => {}));
     const brand = c.querySelector('.mono-rail-brand');

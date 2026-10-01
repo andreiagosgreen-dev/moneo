@@ -96,7 +96,7 @@ export default function MonoSettings({
       <Group
         id="look"
         title={t('set.appearance')}
-        hint={`${t(ATMOSPHERE_LABEL[atmosphere])} · ${mode}`}
+        hint={`${t(ATMOSPHERE_LABEL[atmosphere])} · ${t('set.theme')}: ${mode}`}
       >
         <AppearanceSettings
           theme={theme}

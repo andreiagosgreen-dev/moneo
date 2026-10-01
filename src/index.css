@@ -391,6 +391,34 @@ body {
   letter-spacing: -0.01em;
 }
 
+/* Public account/pricing screens share the active Mono atmosphere rather than
+   inheriting the older standalone-page palette. */
+.atm-root.mono-public {
+  --color-ink: var(--mono-bg);
+  --color-pine: var(--mono-bg-2);
+  --color-card: var(--mono-surface);
+  --color-card2: var(--mono-panel);
+  --color-line: var(--mono-border);
+  --color-cream: var(--mono-fg);
+  --color-sage: var(--mono-muted);
+  --color-faint: var(--mono-muted-2);
+  --color-tomato: var(--mono-danger);
+  --accent: var(--mono-accent);
+  --accent-deep: var(--mono-accent-2);
+  --on-accent: var(--atm-on, var(--mono-bg));
+  min-height: 100vh;
+  background-color: var(--mono-bg);
+  color: var(--mono-fg);
+}
+
+.atm-root.mono-public.pricing-surface::before {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background: var(--mono-bg);
+  content: '';
+}
+
 .kbd {
   font-family: var(--mono-font-mono, var(--font-mono));
   font-size: 10px;

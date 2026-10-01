@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect, useState, type KeyboardEvent } from 'react';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
 
@@ -93,6 +93,9 @@ const PRIMARY: Item[] = [
   },
 ];
 
+const MOBILE_QUERY = '(max-width: 1023px)';
+const MOBILE_MORE_TABS: readonly MonoTab[] = ['plan', 'growth', 'move', 'map', 'graph', 'settings'];
+
 /** Every navigable destination (for the ⌘K palette) — rail items minus the mobile overflow. */
 export const MONO_NAV_ITEMS: ReadonlyArray<{ id: MonoTab; label: TKey }> = [
   ...PRIMARY.filter((it) => it.id !== 'more').map(({ id, label }) => ({ id, label })),
@@ -109,12 +112,68 @@ interface Props {
 
 export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette }: Props) {
   const { t } = useI18n();
-  // Plan/Growth/Map are first-class rail items — do not keep More highlighted
-  // when they are open (that made two aria-selected tabs on desktop).
-  const isActive = (id: MonoTab): boolean => tab === id;
+  const [isMobile, setIsMobile] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia(MOBILE_QUERY).matches,
+  );
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+    const media = window.matchMedia(MOBILE_QUERY);
+    const update = () => setIsMobile(media.matches);
+    update();
+    media.addEventListener?.('change', update);
+    return () => media.removeEventListener?.('change', update);
+  }, []);
+
+  // Secondary destinations live in the More hub on mobile, so More represents
+  // the current navigation location while one of those screens is open.
+  const selectedTab: MonoTab = isMobile && MOBILE_MORE_TABS.includes(tab) ? 'more' : tab;
+  const isActive = (id: MonoTab): boolean => selectedTab === id;
+
+  const onTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    const horizontal = event.key === 'ArrowLeft' || event.key === 'ArrowRight';
+    const vertical = event.key === 'ArrowUp' || event.key === 'ArrowDown';
+    const backwards = event.key === 'ArrowLeft' || event.key === 'ArrowUp';
+    const isHome = event.key === 'Home';
+    const isEnd = event.key === 'End';
+    if ((!horizontal && !vertical) || (isMobile ? vertical : horizontal)) {
+      if (!isHome && !isEnd) return;
+    }
+
+    const nav = event.currentTarget.closest('.mono-nav');
+    if (!nav) return;
+    const available = Array.from(nav.querySelectorAll<HTMLButtonElement>('[role="tab"]')).filter(
+      (button) => {
+        const id = button.dataset.navTab as MonoTab | undefined;
+        if (!id) return false;
+        if (isMobile) return !button.dataset.deskOnly && id !== 'settings';
+        return id !== 'more';
+      },
+    );
+    if (available.length === 0) return;
+
+    const current = available.indexOf(event.currentTarget);
+    const nextIndex = isHome
+      ? 0
+      : isEnd
+        ? available.length - 1
+        : (current + (backwards ? -1 : 1) + available.length) % available.length;
+    event.preventDefault();
+    const next = available[nextIndex];
+    next.focus();
+    next.click();
+  };
 
   return (
-    <nav className="mono-nav" role="tablist" aria-label={t('mono.nav.aria')}>
+    <nav
+      className="mono-nav"
+      role="tablist"
+      aria-label={t('mono.nav.aria')}
+      aria-orientation={isMobile ? 'horizontal' : 'vertical'}
+    >
       <div className="mono-rail-brand">
         <div className="mono-rail-brand-row">
           <img
@@ -136,8 +195,14 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette }: Pro
           return (
             <button
               key={it.id}
+              id={`mono-tab-${it.id}`}
+              data-nav-tab={it.id}
+              data-desk-only={it.deskOnly ? 'true' : undefined}
               role="tab"
               aria-selected={on}
+              aria-controls="mono-tabpanel"
+              tabIndex={on ? 0 : -1}
+              onKeyDown={onTabKeyDown}
               onClick={() => onTab(it.id)}
               className={`mono-nav-item${on ? ' active' : ''}${it.deskOnly ? ' is-desk-only' : ''}${it.id === 'more' ? ' is-mobile-more' : ''}`}
             >
@@ -161,8 +226,13 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette }: Pro
         <div className="mono-rail-tools">
           <button
             type="button"
+            id="mono-tab-settings"
+            data-nav-tab="settings"
             role="tab"
             aria-selected={tab === 'settings'}
+            aria-controls="mono-tabpanel"
+            tabIndex={selectedTab === 'settings' ? 0 : -1}
+            onKeyDown={onTabKeyDown}
             onClick={() => onTab('settings')}
             className={`mono-nav-item mono-rail-tool${tab === 'settings' ? ' active' : ''}`}
           >

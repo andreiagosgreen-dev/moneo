@@ -1,8 +1,11 @@
 import { useMemo, lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
-import MonoNav, { type MonoTab } from './mono/MonoNav';
+import MonoNav, { MONO_NAV_ITEMS, type MonoTab } from './mono/MonoNav';
 import MonoMore from './mono/MonoMore';
 import MonoHead from './mono/MonoHead';
+import MonoEmpty from './mono/MonoEmpty';
+import MonoBtn from './mono/MonoBtn';
+import { MonoArt } from './mono/MonoArt';
 import MonoFocus from './mono/MonoFocus';
 import MonoAzi from './mono/MonoAzi';
 import MonoHabitsCheckin from './mono/MonoHabitsCheckin';
@@ -172,14 +175,8 @@ import { loadNotificationPrefs } from './lib/notificationPrefs';
 import MorningRitual from './components/MorningRitual';
 import ShutdownRitual from './components/ShutdownRitual';
 import { OvercommitWarning } from './components/OvercommitWarning';
-import {
-  createI18n,
-  loadDictionary,
-  loadLocale,
-  en as enDict,
-  type Dictionary,
-  type Locale,
-} from './lib/i18n';
+import { createI18n, loadDictionary, type Dictionary, type Locale } from './lib/i18n';
+import { initialAppTab } from './lib/appLaunch';
 import { LocaleProvider } from './lib/i18n/LocaleContext';
 import {
   loadEstimateProfiles,
@@ -321,12 +318,18 @@ const BOOT = (() => {
   };
 })();
 
-export default function App() {
+export interface AppProps {
+  initialLocale: Locale;
+  initialDictionary: Dictionary;
+}
+
+export default function App({ initialLocale, initialDictionary }: AppProps) {
   const auth = useAuth();
   const [tab, setTab] = useState<MonoTab>(() =>
-    BOOT.history.length === 0 && BOOT.projects.length === 0 && BOOT.tasks.length === 0
-      ? 'today'
-      : 'focus',
+    initialAppTab(
+      window.location.search,
+      BOOT.history.length > 0 || BOOT.projects.length > 0 || BOOT.tasks.length > 0,
+    ),
   );
   /** Origin tab after a jump-to-fill — Back button returns here. */
   const [returnTo, setReturnTo] = useState<MonoTab | null>(null);
@@ -434,19 +437,17 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(() => !loadOnboardingSeen());
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(BOOT.selectedProjectId);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [locale, setLocale] = useState<Locale>(loadLocale);
-  const [i18nDict, setI18nDict] = useState<Dictionary>(enDict);
-
-  // Load the active locale dictionary on boot and whenever the user switches.
-  useEffect(() => {
-    let cancelled = false;
-    loadDictionary(locale).then((dict) => {
-      if (!cancelled) setI18nDict(dict);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [locale]);
+  const [locale, setLocale] = useState<Locale>(initialLocale);
+  const [i18nDict, setI18nDict] = useState<Dictionary>(initialDictionary);
+  const localeRequestRef = useRef(0);
+  const changeLocale = async (next: Locale) => {
+    const request = ++localeRequestRef.current;
+    if (next === locale) return;
+    const dictionary = await loadDictionary(next);
+    if (request !== localeRequestRef.current) return;
+    setI18nDict(dictionary);
+    setLocale(next);
+  };
   // Faza 6 estimate learner: self-persisted profiles (not part of sync state).
   const [estProfiles, setEstProfiles] = useState<EstimateProfiles>(loadEstimateProfiles);
   useEffect(() => {
@@ -1099,7 +1100,7 @@ export default function App() {
 
   if (!isKnownClientRoute(pathname)) {
     return (
-      <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={setLocale}>
+      <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={changeLocale}>
         <MonoNotFound />
       </LocaleProvider>
     );
@@ -1112,7 +1113,7 @@ export default function App() {
           key={doc}
           path={LEGAL_PATHS[doc]}
           element={
-            <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={setLocale}>
+            <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={changeLocale}>
               <Suspense fallback={null}>
                 <LegalPage doc={doc} />
               </Suspense>
@@ -1123,7 +1124,7 @@ export default function App() {
       <Route
         path="/help"
         element={
-          <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={setLocale}>
+          <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={changeLocale}>
             <HelpPage />
           </LocaleProvider>
         }
@@ -1131,7 +1132,7 @@ export default function App() {
       <Route
         path="/pricing"
         element={
-          <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={setLocale}>
+          <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={changeLocale}>
             <PricingPage />
           </LocaleProvider>
         }
@@ -1139,7 +1140,7 @@ export default function App() {
       <Route
         path="/login"
         element={
-          <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={setLocale}>
+          <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={changeLocale}>
             <LoginPage />
           </LocaleProvider>
         }
@@ -1147,7 +1148,7 @@ export default function App() {
       <Route
         path="/reset-password"
         element={
-          <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={setLocale}>
+          <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={changeLocale}>
             <ResetPasswordPage />
           </LocaleProvider>
         }
@@ -1155,7 +1156,7 @@ export default function App() {
       <Route
         path="/account"
         element={
-          <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={setLocale}>
+          <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={changeLocale}>
             <CabinetPage />
           </LocaleProvider>
         }
@@ -1163,7 +1164,7 @@ export default function App() {
       <Route
         path="/account/calendar-callback"
         element={
-          <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={setLocale}>
+          <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={changeLocale}>
             <CalendarCallback />
           </LocaleProvider>
         }
@@ -1171,7 +1172,7 @@ export default function App() {
       <Route
         path="*"
         element={
-          <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={setLocale}>
+          <LocaleProvider locale={locale} dictionary={i18nDict} onLocaleChange={changeLocale}>
             <div
               ref={modeWrapRef}
               data-mode={mode}
@@ -1214,7 +1215,14 @@ export default function App() {
                 onQuickAdd={handleQuickAdd}
               />
               <div className="mono mono-shell">
-                <div className="mono-shell-inner">
+                <div
+                  id="mono-tabpanel"
+                  role="tabpanel"
+                  aria-label={t(
+                    MONO_NAV_ITEMS.find((item) => item.id === tab)?.label ?? 'mono.nav.more',
+                  )}
+                  className="mono-shell-inner"
+                >
                   {returnTo && returnTo !== tab ? (
                     <MonoReturn to={returnTo} onBack={goBack} />
                   ) : null}
@@ -1841,47 +1849,65 @@ export default function App() {
                     <Suspense fallback={<TabFallback />}>
                       <main>
                         <MonoRapoarte>
-                          <div className="reveal" style={{ animationDelay: '40ms' }}>
-                            <MonoReportInsights
-                              habits={habits}
-                              habitLog={habitLog}
-                              history={history}
-                              energyLog={energyLog}
-                              timezone={auth.timezone}
-                              isPro={auth.isPro}
-                              tasks={tasks}
-                            />
-                          </div>
-                          <div className="reveal" style={{ animationDelay: '60ms' }}>
-                            <WeeklyRecapCard
-                              history={history}
-                              projects={projects}
-                              tasks={tasks}
-                              goals={goals}
-                              timezone={auth.timezone}
-                            />
-                          </div>
-                          <div className="reveal mono-sec" style={{ animationDelay: '110ms' }}>
-                            <ReportsCard
-                              history={history}
-                              areas={areas}
-                              projects={projects}
-                              tasks={tasks}
-                              goals={goals}
-                              skills={skills}
-                              timezone={auth.timezone}
-                              capacityMin={settings.weeklyCapacityMin}
-                              isPro={auth.isPro}
-                            />
-                          </div>
+                          {history.length === 0 && habits.length === 0 ? (
+                            <div className="reveal mono-card" style={{ animationDelay: '40ms' }}>
+                              <MonoEmpty
+                                art={<MonoArt name="chart" />}
+                                title={t('rep.empty.title')}
+                                body={t('rep.empty.body')}
+                                action={
+                                  <MonoBtn type="button" onClick={() => goNav('focus')}>
+                                    {t('rep.empty.cta')}
+                                  </MonoBtn>
+                                }
+                              />
+                            </div>
+                          ) : (
+                            <>
+                              <div className="reveal" style={{ animationDelay: '40ms' }}>
+                                <MonoReportInsights
+                                  habits={habits}
+                                  habitLog={habitLog}
+                                  history={history}
+                                  energyLog={energyLog}
+                                  timezone={auth.timezone}
+                                  isPro={auth.isPro}
+                                  tasks={tasks}
+                                />
+                              </div>
+                              <div className="reveal" style={{ animationDelay: '60ms' }}>
+                                <WeeklyRecapCard
+                                  history={history}
+                                  projects={projects}
+                                  tasks={tasks}
+                                  goals={goals}
+                                  timezone={auth.timezone}
+                                />
+                              </div>
+                              <div className="reveal mono-sec" style={{ animationDelay: '110ms' }}>
+                                <ReportsCard
+                                  history={history}
+                                  areas={areas}
+                                  projects={projects}
+                                  tasks={tasks}
+                                  goals={goals}
+                                  skills={skills}
+                                  timezone={auth.timezone}
+                                  capacityMin={settings.weeklyCapacityMin}
+                                  isPro={auth.isPro}
+                                />
+                              </div>
+                            </>
+                          )}
                         </MonoRapoarte>
                       </main>
                     </Suspense>
                   )}
                   {tab === 'graph' && (
                     <Suspense fallback={<TabFallback />}>
-                      <main className="mono-pad-mobile mt-2 grid grid-cols-1 items-stretch gap-6">
-                        <div className="reveal" style={{ animationDelay: '90ms' }}>
+                      <main>
+                        <MonoHead title={t('graph.title')} sub={t('graph.headSub')} />
+                        <div className="mono-pad mt-2 reveal" style={{ animationDelay: '90ms' }}>
                           <GraphCard
                             links={links}
                             goals={goals}

@@ -1401,6 +1401,10 @@ export const en = {
   'recap.unavailable': 'Image export is unavailable in this browser.',
   'rep.title': 'Reports',
   'rep.sub': 'Focused time and where it went.',
+  'rep.empty.title': 'Your reports start here',
+  'rep.empty.body':
+    'Finish one focus round and you will see where your time goes: by day, by project and by area.',
+  'rep.empty.cta': 'Start the first round',
   'rep.range.week': '7 days',
   'rep.range.month': '30 days',
   'rep.total': 'total focused',
@@ -1521,7 +1525,7 @@ export const en = {
   'proj.practices': 'Practices & pitfalls',
   'proj.searchPh': 'Search projects or tags…',
   'proj.emptyA': 'No projects created yet.',
-  'proj.emptyB': 'Create a project to organize and track billable time.',
+  'proj.emptyB': 'A project gathers the tasks and focus time for one goal.',
   'proj.noMatch': 'No projects match “{q}”.',
   'proj.archived': 'Archived ({n})',
   'proj.restoreTitle': 'Restore project',
@@ -3061,6 +3065,10 @@ export const en = {
   'linkedItems.noCandidates': 'Nothing to link yet.',
   'graph.ariaLabel': 'Connections graph',
   'graph.title': 'Graph',
+  'graph.headSub': 'How your goals, projects and skills connect.',
+  'graph.emptyTitle': 'No links yet',
+  'graph.emptyBody':
+    'Open a goal, project or skill and link it to something else. The connections show up here.',
   'graph.subtitle': '{nodes} nodes · {edges} links',
   'graph.empty':
     'No connections yet — open a goal, project, skill or today’s journal entry and link it to something.',
