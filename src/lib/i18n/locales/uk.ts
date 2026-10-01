@@ -3640,6 +3640,9 @@ export const uk: Record<TKey, string> = {
   'plan.ent.calendar': 'Google Календар і Focus Buddy',
   'assist.roadmap.dailyLimit':
     'Включені на сьогодні ШІ-плани вичерпано — цей план створено на пристрої. Завтра знову можна.',
+  'mono.xp.proPerk': 'Нагорода рангу: +{n} включених ШІ-планів на день.',
+  'mono.xp.proPerkNext': 'Досягніть рангу «{rank}» — +{n} ШІ-планів на день.',
+  'mono.xp.freePerk': 'З Pro ваш ранг дає +{n} ШІ-планів на день.',
   'onb.qs.stepTitle': 'Ваш перший крок',
   'onb.qs.stepHint': 'Найменша частина, яку можна почати просто зараз, — її можна змінити.',
   'onb.qs.startHint': 'Одна чітка мета. Запустіть таймер і працюйте лише над нею.',

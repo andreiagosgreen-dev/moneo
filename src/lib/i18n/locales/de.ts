@@ -3680,6 +3680,9 @@ export const de: Record<TKey, string> = {
   'plan.ent.calendar': 'Google Kalender und Focus Buddy',
   'assist.roadmap.dailyLimit':
     'Die heutigen inklusiven KI-Pläne sind aufgebraucht — dieser Plan wurde auf deinem Gerät erstellt. Morgen wieder.',
+  'mono.xp.proPerk': 'Rang-Belohnung: +{n} inklusive KI-Pläne pro Tag.',
+  'mono.xp.proPerkNext': 'Erreiche {rank} für +{n} inklusive KI-Pläne pro Tag.',
+  'mono.xp.freePerk': 'Mit Pro bringt dein Rang +{n} KI-Pläne pro Tag.',
   'onb.qs.stepTitle': 'Dein erster Schritt',
   'onb.qs.stepHint': 'Der kleinste Teil, mit dem du jetzt anfangen kannst — du kannst ihn ändern.',
   'onb.qs.startHint': 'Ein klarer Fokus. Starte den Timer und arbeite nur daran.',

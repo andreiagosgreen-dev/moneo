@@ -240,3 +240,30 @@ export function rankForLevel(level: number): RankInfo {
   const tier = lv - rank.firstLevel + 1;
   return { id: rank.id, tier, isNewRank: tier === 1 };
 }
+
+/* ---------- Pro rank reward ---------- */
+
+/**
+ * Extra included-AI plans per day a Pro account earns with its rank, on top of
+ * the base allowance (AI_DAILY_LIMIT). The Worker recomputes the rank from
+ * synced data; the app shows the same table.
+ */
+export const AI_DAILY_RANK_BONUS: Record<RankId, number> = {
+  beginner: 0,
+  apprentice: 5,
+  practitioner: 10,
+  expert: 20,
+  master: 30,
+};
+
+/** The next rank that raises the AI bonus, or null at the top. */
+export function nextAiBonusRank(id: RankId): { id: RankId; bonus: number } | null {
+  const idx = RANKS.findIndex((r) => r.id === id);
+  for (let i = idx + 1; i < RANKS.length; i++) {
+    const next = RANKS[i].id;
+    if (AI_DAILY_RANK_BONUS[next] > AI_DAILY_RANK_BONUS[id]) {
+      return { id: next, bonus: AI_DAILY_RANK_BONUS[next] };
+    }
+  }
+  return null;
+}

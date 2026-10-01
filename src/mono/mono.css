@@ -5923,3 +5923,10 @@ ul.mono-tree {
 .mono-ent-note {
   margin: 4px 0 0;
 }
+
+/* Pro rank reward line on the rank card. */
+.mono-rank-perk {
+  margin-top: 4px;
+  color: var(--mono-accent);
+  font-weight: 600;
+}

@@ -3688,6 +3688,9 @@ export const fr: Record<TKey, string> = {
   'plan.ent.calendar': 'Google Agenda et Focus Buddy',
   'assist.roadmap.dailyLimit':
     'Les plans IA inclus pour aujourd’hui sont épuisés — ce plan a été créé sur ton appareil. À demain.',
+  'mono.xp.proPerk': 'Récompense de rang : +{n} plans IA inclus par jour.',
+  'mono.xp.proPerkNext': 'Atteins {rank} pour +{n} plans IA inclus par jour.',
+  'mono.xp.freePerk': 'Avec Pro, ton rang ajoute +{n} plans IA par jour.',
   'onb.qs.stepTitle': 'Ta première étape',
   'onb.qs.stepHint':
     'Le plus petit morceau que tu peux commencer maintenant — modifie-le si tu veux.',

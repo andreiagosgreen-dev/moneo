@@ -3659,6 +3659,9 @@ export const es: Record<TKey, string> = {
   'plan.ent.calendar': 'Google Calendar y Focus Buddy',
   'assist.roadmap.dailyLimit':
     'Ya usaste los planes de IA incluidos de hoy: este plan se creó en tu dispositivo. Mañana podrás de nuevo.',
+  'mono.xp.proPerk': 'Recompensa de rango: +{n} planes de IA incluidos al día.',
+  'mono.xp.proPerkNext': 'Llega a {rank} para +{n} planes de IA incluidos al día.',
+  'mono.xp.freePerk': 'Con Pro, tu rango suma +{n} planes de IA al día.',
   'onb.qs.stepTitle': 'Tu primer paso',
   'onb.qs.stepHint': 'La parte más pequeña que puedes empezar ahora; puedes editarla.',
   'onb.qs.startHint': 'Un único foco claro. Inicia el temporizador y trabaja solo en esto.',

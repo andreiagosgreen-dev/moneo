@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { useI18n } from '../lib/i18n/LocaleContext';
-import { RANKS, XP_RULES, type XpBreakdown, levelFromXp } from '../lib/xp';
+import { RANKS, XP_RULES, type XpBreakdown, levelFromXp, rankForLevel } from '../lib/xp';
+import { AI_DAILY_RANK_BONUS, nextAiBonusRank } from '../lib/xpCore';
 import type { Badge } from '../lib/badges';
 import { RANK_KEYS, rankLabel } from './rankLabel';
 import MonoBadgeGrid from './MonoBadgeGrid';
@@ -8,6 +9,8 @@ import MonoBadgeGrid from './MonoBadgeGrid';
 interface Props {
   xp: XpBreakdown;
   badges?: Badge[];
+  /** Pro turns the rank into a real reward: extra included-AI plans per day. */
+  isPro?: boolean;
 }
 
 const RING_R = 28;
@@ -17,11 +20,26 @@ const RING_C = 2 * Math.PI * RING_R;
  * Rank + level + progress to the next level, with a short "how you earn XP"
  * explainer. Pure view over the derived XP breakdown — nothing stored here.
  */
-function MonoRankCardBase({ xp, badges }: Props) {
+function MonoRankCardBase({ xp, badges, isPro = false }: Props) {
   const { t, fmtNum, fmtDur } = useI18n();
   const info = levelFromXp(xp.total);
   const pct = Math.round(info.progress * 100);
   const left = info.span - info.into;
+  const rankId = rankForLevel(info.level).id;
+  const aiBonus = AI_DAILY_RANK_BONUS[rankId];
+  const nextBonus = nextAiBonusRank(rankId);
+  const perk = isPro
+    ? aiBonus > 0
+      ? t('mono.xp.proPerk', { n: fmtNum(aiBonus) })
+      : nextBonus
+        ? t('mono.xp.proPerkNext', {
+            rank: t(RANK_KEYS[nextBonus.id]),
+            n: fmtNum(nextBonus.bonus),
+          })
+        : null
+    : aiBonus > 0
+      ? t('mono.xp.freePerk', { n: fmtNum(aiBonus) })
+      : null;
 
   const rules: Array<{ id: string; text: string; earned: number }> = [
     {
@@ -88,6 +106,11 @@ function MonoRankCardBase({ xp, badges }: Props) {
           <p className="mono-meta mono-rank-next">
             {t('mono.xp.toNext', { n: fmtNum(left), level: fmtNum(info.level + 1) })}
           </p>
+          {perk ? (
+            <p className="mono-meta mono-rank-perk" data-testid="rank-perk">
+              {perk}
+            </p>
+          ) : null}
         </div>
       </div>
 
