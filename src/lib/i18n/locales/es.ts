@@ -3665,4 +3665,6 @@ export const es: Record<TKey, string> = {
   'pay.trialBadge': 'Los primeros {n} días gratis',
   'pay.trialCta': 'Probar {n} días gratis',
   'pay.trialNote': 'Si cancelas durante la prueba, no se te cobra nada.',
+  'pay.switchHint':
+    'Ya tienes Pro. Cambia entre mensual y anual en «Gestionar suscripción», sin un segundo pago.',
 };

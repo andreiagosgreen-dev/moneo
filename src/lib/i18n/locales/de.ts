@@ -3686,4 +3686,6 @@ export const de: Record<TKey, string> = {
   'pay.trialBadge': 'Die ersten {n} Tage gratis',
   'pay.trialCta': '{n} Tage gratis testen',
   'pay.trialNote': 'Kündigst du während der Testphase, zahlst du nichts.',
+  'pay.switchHint':
+    'Du hast bereits Pro. Wechsle unter „Abo verwalten“ zwischen monatlich und jährlich — ohne zweite Zahlung.',
 };

@@ -3634,4 +3634,6 @@ export const en = {
   'pay.trialBadge': 'First {n} days free',
   'pay.trialCta': 'Start {n}-day free trial',
   'pay.trialNote': 'Cancel during the trial and you won’t be charged.',
+  'pay.switchHint':
+    'You already have Pro. Switch between monthly and yearly under “Manage subscription” — no second payment.',
 };

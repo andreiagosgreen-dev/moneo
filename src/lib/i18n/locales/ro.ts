@@ -3666,4 +3666,6 @@ export const ro: Record<TKey, string> = {
   'pay.trialBadge': 'Primele {n} zile gratis',
   'pay.trialCta': 'Începe {n} zile gratuit',
   'pay.trialNote': 'Dacă anulezi în perioada de probă, nu plătești nimic.',
+  'pay.switchHint':
+    'Ai deja Pro. Treci între lunar și anual din „Gestionează abonamentul” — fără o a doua plată.',
 };
