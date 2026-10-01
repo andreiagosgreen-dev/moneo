@@ -553,6 +553,8 @@
   color: color-mix(in oklab, var(--mono-muted) 50%, var(--mono-fg) 50%);
   line-height: 1.45;
   margin: 0;
+  /* Long unbroken strings (email addresses, URLs) wrap instead of overflowing. */
+  overflow-wrap: break-word;
 }
 .mono-sec-label {
   font-family: var(--mono-font-mono);
@@ -4866,7 +4868,11 @@
 }
 .mono-set-ctl {
   display: flex;
+  /* Chip groups (e.g. Normal · Comfort · Compact) wrap on narrow phones. */
+  flex-wrap: wrap;
+  justify-content: flex-end;
   flex-shrink: 0;
+  max-width: 100%;
   margin-left: auto;
   align-items: center;
   gap: 8px;
@@ -5929,4 +5935,30 @@ ul.mono-tree {
   margin-top: 4px;
   color: var(--mono-accent);
   font-weight: 600;
+}
+
+/* ---------- Older cards inside the Mono shell ----------
+ * Pre-Mono components (agile board, goals, OKRs, life, reports, calendar…)
+ * still use tiny utility sizes and ALL-CAPS tracked labels. Inside the app
+ * they follow the Mono type scale: nothing under ~12px and sentence-case
+ * labels (Mono eyebrows read faster than ALL-CAPS for young and older eyes). */
+.mono-shell .text-\[9px\] {
+  font-size: 11.5px;
+}
+.mono-shell .text-\[10px\] {
+  font-size: 12px;
+}
+.mono-shell .text-\[11px\] {
+  font-size: 12.5px;
+}
+.mono-shell .text-\[12px\] {
+  font-size: 13.5px;
+}
+.mono-shell .uppercase {
+  text-transform: none;
+}
+.mono-shell .tracking-widest,
+.mono-shell .tracking-wider,
+.mono-shell [class*='tracking-['] {
+  letter-spacing: 0.02em;
 }
