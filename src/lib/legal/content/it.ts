@@ -114,7 +114,6 @@ export const legalIt: LegalSet = {
         heading: '11. Funzioni di IA',
         blocks: [
           'Alcune funzioni suggeriscono piani, passi o risposte. Possono usare regole sul dispositivo o un modello di IA. I risultati dell’IA possono essere errati, incompleti o non aggiornati. Non costituiscono una consulenza professionale (medica, legale, finanziaria o di altro tipo). Verifica i suggerimenti prima di farvi affidamento.',
-          'Pro include piani IA generati da Moneo tramite un fornitore di IA scelto da noi. Hanno una quota giornaliera, che può crescere con il tuo grado XP; possiamo regolare le quote affinché il Servizio resti sostenibile. Esaurita la quota, i piani vengono creati sul tuo dispositivo fino al giorno successivo.',
           'Gli utenti Pro possono anche collegare la propria chiave API di un fornitore di IA (ad esempio Google Gemini, OpenAI o DeepSeek). La chiave è salvata solo nel tuo browser. Le richieste partono direttamente dal tuo browser verso quel fornitore, in base al tuo accordo con esso. Sei responsabile della tua chiave, degli eventuali costi del fornitore e del rispetto delle sue condizioni. Evita di inviare dati personali sensibili alle funzioni di IA.',
         ],
       },
@@ -216,7 +215,6 @@ export const legalIt: LegalSet = {
         blocks: [
           'Per impostazione predefinita, i piani in stile IA sono creati sul tuo dispositivo con semplici regole e nulla viene inviato altrove.',
           'Se hai Pro e aggiungi la tua chiave API per Google Gemini, OpenAI o DeepSeek, l’obiettivo che scrivi e i dettagli di pianificazione (orizzonte, ore a settimana, livello) vengono inviati direttamente dal tuo browser a quel fornitore. Il fornitore li tratta secondo la propria informativa sulla privacy, come tuo fornitore di servizi e non nostro.',
-          'Piani IA inclusi (Pro): solo il testo dell’obiettivo (fino a 500 caratteri), l’orizzonte, le ore a settimana e il livello vengono inviati tramite il nostro server al fornitore di IA configurato su di esso. Non sono inclusi sessioni, attività, diario o dati dell’account. Per applicare la quota giornaliera e il bonus di grado, il nostro server conta i piani per account e per giorno e ricalcola il tuo grado in base all’attività sincronizzata con l’account; il conteggio scade dopo due giorni.',
           'L’input vocale dell’assistente usa il riconoscimento vocale integrato del browser. Alcuni browser (ad esempio Chrome) inviano l’audio ai server del produttore del browser per trascriverlo.',
         ],
       },
@@ -247,7 +245,7 @@ export const legalIt: LegalSet = {
               'Google — accesso con Google e, se lo colleghi, Google Calendar (USA).',
               'Sentry (Functional Software, Inc.) — segnalazioni di errore (dati conservati nell’UE, in Germania).',
               'GitHub (Microsoft) — conserva i nostri backup settimanali crittografati del database (USA).',
-              'I fornitori di IA che scegli tu (Google Gemini, OpenAI, DeepSeek) — solo se aggiungi la tua chiave; e, per i piani IA inclusi in Pro, il fornitore di IA configurato sul nostro server (un’API compatibile con OpenAI).',
+              'I fornitori di IA che scegli tu (Google Gemini, OpenAI, DeepSeek) — solo se aggiungi la tua chiave.',
             ],
           },
           'Non vendiamo i tuoi dati personali e non li condividiamo con inserzionisti o intermediari di dati.',

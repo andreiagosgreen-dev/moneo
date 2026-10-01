@@ -114,7 +114,6 @@ export const legalRo: LegalSet = {
         heading: '11. Funcțiile AI',
         blocks: [
           'Unele funcții sugerează planuri, pași sau răspunsuri. Pot folosi reguli locale sau un model AI. Rezultatele AI pot fi greșite, incomplete sau depășite. Nu sunt sfaturi profesionale (medicale, juridice, financiare sau de alt fel). Verifică sugestiile înainte să te bazezi pe ele.',
-          'Pro include planuri AI generate de Moneo prin intermediul unui furnizor AI ales de noi. Au o limită zilnică, ce poate crește odată cu rangul tău XP; putem ajusta limitele ca Serviciul să rămână sustenabil. Când limita e consumată, planurile sunt create pe dispozitivul tău până a doua zi.',
           'Utilizatorii Pro își pot conecta și propria cheie API pentru un furnizor AI (de exemplu Google Gemini, OpenAI sau DeepSeek). Cheia ta e salvată doar în browser. Cererile merg direct din browserul tău la acel furnizor, în baza acordului tău cu el. Tu răspunzi de cheie, de costurile percepute de furnizor și de respectarea termenilor lui. Evită să trimiți date personale sensibile către funcțiile AI.',
         ],
       },
@@ -216,7 +215,6 @@ export const legalRo: LegalSet = {
         blocks: [
           'Implicit, planurile de tip AI sunt construite pe dispozitivul tău, cu reguli simple, și nu se trimite nimic nicăieri.',
           'Dacă ai Pro și adaugi propria cheie API pentru Google Gemini, OpenAI sau DeepSeek, obiectivul scris de tine și detaliile de planificare (orizontul de timp, orele pe săptămână, nivelul) sunt trimise direct din browserul tău la acel furnizor. Furnizorul le prelucrează conform propriei politici de confidențialitate, ca furnizor al tău, nu al nostru.',
-          'Planuri AI incluse (Pro): prin serverul nostru ajung la furnizorul AI configurat pe server doar textul obiectivului (maximum 500 de caractere), orizontul de timp, orele pe săptămână și nivelul. Nu se includ sesiuni, sarcini, jurnal sau date ale contului. Pentru limita zilnică și bonusul de rang, serverul numără planurile pe cont și pe zi și recalculează rangul din activitatea sincronizată în cont; numărătoarea expiră după două zile.',
           'Dictarea vocală din asistent folosește recunoașterea vocală integrată în browser. Unele browsere (de exemplu Chrome) trimit sunetul către serverele producătorului browserului ca să-l transcrie.',
         ],
       },
@@ -247,7 +245,7 @@ export const legalRo: LegalSet = {
               'Google — autentificarea cu Google și, dacă îl conectezi, Google Calendar (SUA).',
               'Sentry (Functional Software, Inc.) — rapoarte de eroare (date stocate în UE, Germania).',
               'GitHub (Microsoft) — păstrează copiile de siguranță săptămânale, criptate, ale bazei de date (SUA).',
-              'Furnizorii AI aleși chiar de tine (Google Gemini, OpenAI, DeepSeek) — doar dacă adaugi propria cheie; și, pentru planurile AI incluse în Pro, furnizorul AI configurat pe serverul nostru (un API compatibil OpenAI).',
+              'Furnizorii AI aleși chiar de tine (Google Gemini, OpenAI, DeepSeek) — doar dacă adaugi propria cheie.',
             ],
           },
           'Nu vindem datele tale personale și nu le împărtășim cu agenți de publicitate sau brokeri de date.',
