@@ -3678,4 +3678,7 @@ export const de: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Erfolgsquote der Gewohnheiten, deine Spitzenzeiten, Journal-Zusammenfassung, Balance-Ziele',
   'plan.ent.calendar': 'Google Kalender und Focus Buddy',
+  'data.saveFailed':
+    'Speichern fehlgeschlagen — der Browserspeicher ist voll oder blockiert. Exportiere deine Daten oder aktiviere die Synchronisierung.',
+  'data.saveFailedAction': 'Einstellungen öffnen',
 };

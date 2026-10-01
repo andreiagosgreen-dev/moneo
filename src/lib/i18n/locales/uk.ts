@@ -3638,4 +3638,7 @@ export const uk: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Успішність звичок, ваші пікові години, підсумок щоденника, цілі балансу',
   'plan.ent.calendar': 'Google Календар і Focus Buddy',
+  'data.saveFailed':
+    'Не вдалося зберегти — сховище браузера заповнене або заблоковане. Експортуйте дані або ввімкніть синхронізацію.',
+  'data.saveFailedAction': 'Відкрити налаштування',
 };

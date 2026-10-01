@@ -3632,4 +3632,7 @@ export const ru: Record<TKey, string> = {
   'plan.ent.lifeBasics': 'Дневник, энергия и колесо жизни',
   'plan.ent.lifeInsights': 'Успешность привычек, ваши пиковые часы, сводка дневника, цели баланса',
   'plan.ent.calendar': 'Google Календарь и Focus Buddy',
+  'data.saveFailed':
+    'Не удалось сохранить — хранилище браузера заполнено или заблокировано. Экспортируйте данные или включите синхронизацию.',
+  'data.saveFailedAction': 'Открыть настройки',
 };

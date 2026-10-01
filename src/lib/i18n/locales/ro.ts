@@ -3658,4 +3658,7 @@ export const ro: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Rata de reușită a obiceiurilor, orele tale de vârf, rezumatul jurnalului, ținte de echilibru',
   'plan.ent.calendar': 'Google Calendar și Focus Buddy',
+  'data.saveFailed':
+    'Nu am putut salva — spațiul de stocare al browserului e plin sau blocat. Exportă datele sau activează sincronizarea.',
+  'data.saveFailedAction': 'Deschide setările',
 };

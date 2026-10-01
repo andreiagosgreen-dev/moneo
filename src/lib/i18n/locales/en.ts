@@ -3626,4 +3626,7 @@ export const en = {
   'plan.ent.lifeBasics': 'Journal, energy and life wheel',
   'plan.ent.lifeInsights': 'Habit success rate, your peak hours, journal summary, balance targets',
   'plan.ent.calendar': 'Google Calendar and Focus Buddy',
+  'data.saveFailed':
+    'Couldn’t save — your browser storage is full or blocked. Export your data or turn on sync.',
+  'data.saveFailedAction': 'Open settings',
 };

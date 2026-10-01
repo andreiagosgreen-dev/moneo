@@ -18,6 +18,8 @@ import MonoProiecte from './mono/MonoProiecte';
 import MonoInbox from './mono/MonoInbox';
 import MonoTemplates from './mono/MonoTemplates';
 import MonoToast from './mono/MonoToast';
+import { onWriteFailure } from './lib/storage/storageAdapter';
+import { requestPersistentStorage } from './lib/storage/persistence';
 import MonoRapoarte from './mono/MonoRapoarte';
 import MonoCrestere from './mono/MonoCrestere';
 import MonoViata from './mono/MonoViata';
@@ -906,6 +908,30 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
     const id = window.setTimeout(() => setToast(null), toast.action ? 6000 : 3500);
     return () => window.clearTimeout(id);
   }, [toast]);
+
+  // A refused save (storage full / blocked) must never pass silently: say so,
+  // at most once a minute, and point to export / sync in Settings.
+  const lastSaveWarnRef = useRef(0);
+  useEffect(
+    () =>
+      onWriteFailure(() => {
+        const now = Date.now();
+        if (now - lastSaveWarnRef.current < 60_000) return;
+        lastSaveWarnRef.current = now;
+        setToast({
+          message: t('data.saveFailed'),
+          action: { label: t('data.saveFailedAction'), onClick: () => goNav('settings') },
+        });
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t],
+  );
+
+  // Once there is something worth keeping, ask the browser not to evict it.
+  const hasLocalWork = history.length > 0 || tasks.length > 0;
+  useEffect(() => {
+    if (hasLocalWork) void requestPersistentStorage();
+  }, [hasLocalWork]);
 
   const handleQuickAdd = (text: string): boolean => {
     const q = parseQuickAdd(text, locale, Date.now());
