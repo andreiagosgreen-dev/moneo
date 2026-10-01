@@ -88,3 +88,19 @@ export function getCacheControl(filePath: string): string {
  * don't index junk URLs. The route list is shared with the client router.
  */
 export { KNOWN_CLIENT_ROUTE_LIST, isKnownClientRoute } from '../../src/lib/knownRoutes';
+
+const SITE_ORIGIN = 'https://moneo.bond';
+/** Canonical the build writes into the root shell (scripts/prerender-landing.mjs). */
+const ROOT_CANONICAL = `<link rel="canonical" href="${SITE_ORIGIN}/" />`;
+
+/**
+ * The same shell is served for every client route, so without this /pricing,
+ * /terms… would all declare the home page as canonical and Google would fold
+ * them into it. Points the canonical at the route itself (lowercase, no
+ * trailing slash, matching the router and the sitemap).
+ */
+export function withRouteCanonical(html: string, pathname: string): string {
+  const path = pathname.replace(/\/+$/, '').toLowerCase();
+  if (!path) return html;
+  return html.replace(ROOT_CANONICAL, `<link rel="canonical" href="${SITE_ORIGIN}${path}" />`);
+}
