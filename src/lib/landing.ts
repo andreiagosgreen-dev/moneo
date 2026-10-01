@@ -13,6 +13,24 @@ import { isMoneoLocalKey } from './storage/moneoKeys';
 
 export const LANDING_PATH = '/welcome';
 
+/** Landing pages per language (`/welcome` is the English one). */
+export const LANDING_LANGS = ['ro', 'ru', 'uk', 'de', 'fr', 'es', 'it'] as const;
+export type LandingLang = (typeof LANDING_LANGS)[number];
+
+/** `/ro` → 'ro'; null for anything that is not a language landing. */
+export function landingLangFromPath(pathname: string): LandingLang | null {
+  const path = normalizePath(pathname).toLowerCase();
+  const lang = path.slice(1);
+  return path.startsWith('/') && (LANDING_LANGS as readonly string[]).includes(lang)
+    ? (lang as LandingLang)
+    : null;
+}
+
+/** `/welcome` or a language landing such as `/ro`. */
+export function isLandingPath(pathname: string): boolean {
+  return normalizePath(pathname) === LANDING_PATH || landingLangFromPath(pathname) !== null;
+}
+
 export type LandingView = 'landing' | 'app';
 
 /** Supabase keeps the session under `sb-<project-ref>-auth-token`. */
@@ -60,7 +78,7 @@ export function landingView({
   activeInTab = false,
 }: LandingInput): LandingView {
   const path = normalizePath(pathname);
-  if (path === LANDING_PATH) return 'landing';
+  if (isLandingPath(path)) return 'landing';
   if (path !== '/' || !onlyTrackingParams(search)) return 'app';
   if (isFirstVisit(storageKeys)) return 'landing';
   const startedOrSignedIn = storageKeys.some(

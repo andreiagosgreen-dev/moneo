@@ -183,7 +183,7 @@ export const it: Record<TKey, string> = {
     'Sì. Dopo la prima visita Moneo funziona senza internet. Se usi un account, le modifiche vengono salvate appena torni online.',
   'land.faq.ai.q': 'Cosa fa l’AI? La mia chiave AI è al sicuro?',
   'land.faq.ai.a':
-    'L’assistente di pianificazione trasforma un obiettivo in un piano passo passo e ti suggerisce su cosa lavorare dopo. Il generatore di piani gratuito funziona sul tuo dispositivo. Con Pro puoi, se vuoi, collegare la tua chiave AI (Gemini, OpenAI o DeepSeek): resta salvata solo sul tuo dispositivo e viene inviata direttamente a quel fornitore — mai ai nostri server.',
+    'L’assistente dei piani trasforma un obiettivo in un piano passo passo e ti suggerisce su cosa lavorare dopo. Nel piano gratuito il pianificatore gira sul tuo dispositivo. Pro include piani IA di Moneo — una quota giornaliera che cresce con il tuo grado — e vengono inviati solo il testo dell’obiettivo e due numeri (mesi e ore a settimana), mai le tue attività, il diario o le sessioni. Puoi anche collegare la tua chiave IA (Gemini, OpenAI o DeepSeek): resta solo sul tuo dispositivo e va direttamente a quel fornitore, mai ai nostri server.',
   'land.faq.support.q': 'Come contatto l’assistenza?',
   'land.faq.support.a': 'Scrivici a {email}. Leggiamo ogni messaggio.',
   'land.final.title': 'La tua prima sessione di concentrazione è a un clic di distanza',

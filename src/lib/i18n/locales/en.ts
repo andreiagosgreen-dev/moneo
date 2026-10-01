@@ -184,7 +184,7 @@ export const en = {
     'Yes. After your first visit Moneo works without internet. If you use an account, your changes are saved to it as soon as you’re back online.',
   'land.faq.ai.q': 'What does the AI do? Is my AI key safe?',
   'land.faq.ai.a':
-    'The plan assistant turns a goal into a step-by-step plan and suggests what to work on next. The free plan builder runs on your device. With Pro you can connect your own AI key (Gemini, OpenAI or DeepSeek) if you want: it is stored only on your device and sent straight to that provider — never to our servers.',
+    'The plan assistant turns a goal into a step-by-step plan and suggests what to work on next. On the free plan the planner runs on your device. Pro includes AI plans from Moneo — a daily allowance that grows with your rank — and only your goal text and two numbers (months and hours per week) are sent, never your tasks, journal or sessions. You can also connect your own AI key (Gemini, OpenAI or DeepSeek): it is stored only on your device and sent straight to that provider — never to our servers.',
   'land.faq.support.q': 'How do I contact support?',
   'land.faq.support.a': 'Write to us at {email}. We read every message.',
   'land.final.title': 'Your first focus session is one click away',

@@ -8,7 +8,7 @@ import {
   isRevalidateAlwaysPath,
 } from '../../../cloudflare/workers/staticAssetPath';
 import { LEGAL_PATHS } from '../legal/seller';
-import { LANDING_PATH } from '../landing';
+import { LANDING_LANGS, LANDING_PATH } from '../landing';
 import appSource from '../../App.tsx?raw';
 
 describe('isStaticAssetPath', () => {
@@ -95,7 +95,13 @@ describe('isKnownClientRoute', () => {
   it('covers every route declared in the app router', () => {
     const declared = [...appSource.matchAll(/path="(\/[^"]*)"/g)].map((m) => m[1]);
     expect(declared.length).toBeGreaterThan(0);
-    const expected = new Set(['/', LANDING_PATH, ...Object.values(LEGAL_PATHS), ...declared]);
+    const expected = new Set([
+      '/',
+      LANDING_PATH,
+      ...LANDING_LANGS.map((l) => `/${l}`),
+      ...Object.values(LEGAL_PATHS),
+      ...declared,
+    ]);
     expect(new Set(KNOWN_CLIENT_ROUTE_LIST)).toEqual(expected);
   });
 });

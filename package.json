@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && node scripts/prerender-landing.mjs",
     "build:ci": "tsc --noEmit && vitest run && vite build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

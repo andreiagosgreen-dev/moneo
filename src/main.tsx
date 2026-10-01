@@ -13,8 +13,9 @@ import '@fontsource/literata/600.css';
 import AppErrorBoundary from './components/AppErrorBoundary';
 import { initErrorReporting } from './lib/errorReporting';
 import {
-  LANDING_PATH,
   isFirstVisitLanding,
+  isLandingPath,
+  landingLangFromPath,
   isLandingActiveInTab,
   landingView,
   markLandingActive,
@@ -22,7 +23,7 @@ import {
   readStorageKeys,
   type LandingView,
 } from './lib/landing';
-import { loadLocale } from './lib/i18n/meta';
+import { loadLocale, saveLocale } from './lib/i18n/meta';
 import { applyAtmosphere, loadAtmosphere } from './mono/atmosphere';
 import { loadLandingDictionary } from './landing/dictionaries';
 import { preloadLandingHero } from './landing/heroImages';
@@ -44,7 +45,8 @@ const AppRoot = lazy(async () => {
 });
 
 const Landing = lazy(async () => {
-  const locale = loadLocale();
+  // A language landing (/ro, /de, …) shows that language, whatever was stored.
+  const locale = landingLangFromPath(window.location.pathname) ?? loadLocale();
   preloadLandingHero(locale);
   const [mod, dictionary] = await Promise.all([
     import('./landing/LandingPage'),
@@ -66,7 +68,7 @@ function Root() {
   const location = useLocation();
   const navigate = useNavigate();
   const [started, setStarted] = useState(false);
-  const onLanding = location.pathname.replace(/\/+$/, '') === LANDING_PATH;
+  const onLanding = isLandingPath(location.pathname);
   let view: LandingView = 'app';
   if (!started || onLanding) {
     const input = {
@@ -82,10 +84,13 @@ function Root() {
   const startApp = useCallback(() => {
     markLandingSeen();
     markLandingActive(false);
+    // Keep the language the visitor read the landing in.
+    const lang = landingLangFromPath(location.pathname);
+    if (lang) saveLocale(lang);
     setStarted(true);
     window.scrollTo(0, 0);
     if (onLanding) navigate('/');
-  }, [navigate, onLanding]);
+  }, [navigate, onLanding, location.pathname]);
 
   return (
     <Suspense fallback={null}>

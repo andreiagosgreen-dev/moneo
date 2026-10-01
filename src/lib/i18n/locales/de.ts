@@ -181,7 +181,7 @@ export const de: Record<TKey, string> = {
     'Ja. Nach deinem ersten Besuch funktioniert Moneo ohne Internet. Wenn du ein Konto nutzt, werden deine Änderungen dort gespeichert, sobald du wieder online bist.',
   'land.faq.ai.q': 'Was macht die KI? Ist mein KI-Schlüssel sicher?',
   'land.faq.ai.a':
-    'Der Plan-Assistent macht aus einem Ziel einen Schritt-für-Schritt-Plan und schlägt vor, woran du als Nächstes arbeitest. Der kostenlose Plan-Builder läuft auf deinem Gerät. Mit Pro kannst du optional deinen eigenen KI-Schlüssel verbinden (Gemini, OpenAI oder DeepSeek): Er wird nur auf deinem Gerät gespeichert und direkt an diesen Anbieter gesendet — nie an unsere Server.',
+    'Der Plan-Assistent macht aus einem Ziel einen Schritt-für-Schritt-Plan und schlägt vor, woran du als Nächstes arbeitest. Im Gratis-Plan läuft der Planer auf deinem Gerät. Pro enthält KI-Pläne von Moneo — ein Tageskontingent, das mit deinem Rang wächst — und gesendet werden nur dein Zieltext und zwei Zahlen (Monate und Stunden pro Woche), nie deine Aufgaben, dein Journal oder deine Sitzungen. Du kannst auch deinen eigenen KI-Schlüssel (Gemini, OpenAI oder DeepSeek) verbinden: Er bleibt nur auf deinem Gerät und geht direkt an den Anbieter — nie an unsere Server.',
   'land.faq.support.q': 'Wie erreiche ich den Support?',
   'land.faq.support.a': 'Schreib uns an {email}. Wir lesen jede Nachricht.',
   'land.final.title': 'Deine erste Fokus-Session ist nur einen Klick entfernt',
