@@ -101,11 +101,13 @@ describe('OnboardingModal quickstart', () => {
     expect(onQuickStart).toHaveBeenCalledWith('Get fit', 'Run 2km');
   });
 
-  it('pre-fills the suggested step in the UI language', () => {
+  it('starts the first step from the person’s own words, under its own title', () => {
     const el = renderModal({ onDone: () => {}, onQuickStart: () => {} }, 'ro');
     typeInto(el.querySelector('input')!, 'Să termin licența');
     clickButton(el, ro['onb.next']);
     const taskInput = el.querySelector('input') as HTMLInputElement;
-    expect(taskInput.value).toBe('Descrie într-o propoziție când e gata');
+    expect(taskInput.value).toBe('Să termin licența');
+    expect(el.querySelector('h1')!.textContent).toBe(ro['onb.qs.stepTitle']);
+    expect(el.querySelector('h1')!.textContent).not.toBe(ro['onb.qs.title']);
   });
 });

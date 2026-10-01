@@ -3670,4 +3670,14 @@ export const it: Record<TKey, string> = {
   'plan.ent.calendar': 'Google Calendar e Focus Buddy',
   'assist.roadmap.dailyLimit':
     'Hai esaurito i piani IA inclusi di oggi: questo piano è stato creato sul dispositivo. Domani di nuovo.',
+  'onb.qs.stepTitle': 'Il tuo primo passo',
+  'onb.qs.stepHint': 'La parte più piccola che puoi iniziare adesso: puoi modificarla.',
+  'onb.qs.startHint': 'Un solo obiettivo chiaro. Avvia il timer e lavora solo su questo.',
+  'mono.focus.greetRunning': 'In focus.',
+  'mono.focus.greetBreak': 'È ora di una pausa.',
+  'data.saveFailed':
+    'Impossibile salvare: lo spazio del browser è pieno o bloccato. Esporta i dati o attiva la sincronizzazione.',
+  'data.saveFailedAction': 'Apri impostazioni',
+  'pay.switchHint':
+    'Hai già Pro. Passa tra mensile e annuale in «Gestisci abbonamento», senza un secondo pagamento.',
 };

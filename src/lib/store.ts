@@ -40,6 +40,16 @@ export interface Snapshot {
   total: number; // seconds
   remaining: number; // seconds
   cycle: number; // completed focus sessions in the current pomodoro cycle
+  /** Epoch ms the running round ends at; absent while paused or idle. */
+  endsAt?: number;
+  /** The running round's captured metadata, so a reload credits it correctly. */
+  round?: {
+    min: number;
+    intention: string | null;
+    areaId: string | null;
+    projectId: string | null;
+    taskId: string | null;
+  };
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -156,11 +166,30 @@ export function loadSnapshot(): Snapshot | null {
     typeof snap.remaining !== 'number'
   )
     return null;
+  const total = Math.max(60, snap.total);
+  const endsAt =
+    typeof snap.endsAt === 'number' && Number.isFinite(snap.endsAt) && snap.endsAt > 0
+      ? snap.endsAt
+      : undefined;
+  const r = snap.round;
+  const str = (v: unknown) => (typeof v === 'string' && v.length > 0 ? v : null);
+  const round =
+    r && typeof r === 'object' && typeof r.min === 'number' && Number.isFinite(r.min) && r.min > 0
+      ? {
+          min: Math.min(600, r.min),
+          intention: str(r.intention),
+          areaId: str(r.areaId),
+          projectId: str(r.projectId),
+          taskId: str(r.taskId),
+        }
+      : undefined;
   return {
     mode: snap.mode,
-    total: Math.max(60, snap.total),
-    remaining: Math.min(Math.max(1, snap.remaining), Math.max(60, snap.total)),
+    total,
+    remaining: Math.min(Math.max(1, snap.remaining), total),
     cycle: clampNum(snap.cycle, 0, 8, 0),
+    ...(endsAt ? { endsAt } : {}),
+    ...(round ? { round } : {}),
   };
 }
 

@@ -3660,4 +3660,14 @@ export const ro: Record<TKey, string> = {
   'plan.ent.calendar': 'Google Calendar și Focus Buddy',
   'assist.roadmap.dailyLimit':
     'Ai folosit planurile AI incluse pentru azi — acest plan a fost creat pe dispozitiv. Mâine poți genera din nou.',
+  'onb.qs.stepTitle': 'Primul tău pas',
+  'onb.qs.stepHint': 'Cea mai mică bucată pe care o poți începe acum — o poți modifica.',
+  'onb.qs.startHint': 'Un singur lucru clar. Pornește cronometrul și lucrează doar la asta.',
+  'mono.focus.greetRunning': 'În focus.',
+  'mono.focus.greetBreak': 'E timpul pentru o pauză.',
+  'data.saveFailed':
+    'Nu am putut salva — spațiul de stocare al browserului e plin sau blocat. Exportă datele sau activează sincronizarea.',
+  'data.saveFailedAction': 'Deschide setările',
+  'pay.switchHint':
+    'Ai deja Pro. Treci între lunar și anual din „Gestionează abonamentul” — fără o a doua plată.',
 };

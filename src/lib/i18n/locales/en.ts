@@ -3628,4 +3628,14 @@ export const en = {
   'plan.ent.calendar': 'Google Calendar and Focus Buddy',
   'assist.roadmap.dailyLimit':
     'Today’s included AI plans are used up — this plan was built on your device. More tomorrow.',
+  'onb.qs.stepTitle': 'Your first step',
+  'onb.qs.stepHint': 'The smallest piece you can start right now — edit it if you like.',
+  'onb.qs.startHint': 'One clear focus. Start the timer and work only on this.',
+  'mono.focus.greetRunning': 'In focus.',
+  'mono.focus.greetBreak': 'Time for a break.',
+  'data.saveFailed':
+    'Couldn’t save — your browser storage is full or blocked. Export your data or turn on sync.',
+  'data.saveFailedAction': 'Open settings',
+  'pay.switchHint':
+    'You already have Pro. Switch between monthly and yearly under “Manage subscription” — no second payment.',
 };
