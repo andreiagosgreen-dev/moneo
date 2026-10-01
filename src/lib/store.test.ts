@@ -61,6 +61,40 @@ describe('snapshot restoration', () => {
     });
   });
 
+  it('round-trips a running round with its end time and metadata', () => {
+    const round = {
+      min: 45,
+      intention: 'Draft',
+      areaId: null,
+      projectId: 'p1',
+      taskId: 't1',
+    };
+    saveSnapshot({ mode: 'focus', total: 2700, remaining: 2700, cycle: 1, endsAt: 123456, round });
+    expect(loadSnapshot()).toEqual({
+      mode: 'focus',
+      total: 2700,
+      remaining: 2700,
+      cycle: 1,
+      endsAt: 123456,
+      round,
+    });
+  });
+
+  it('drops a corrupt end time or round', () => {
+    localStorage.setItem(
+      'solanum:snapshot',
+      JSON.stringify({
+        mode: 'focus',
+        total: 300,
+        remaining: 100,
+        cycle: 0,
+        endsAt: 'x',
+        round: { min: -1 },
+      }),
+    );
+    expect(loadSnapshot()).toEqual({ mode: 'focus', total: 300, remaining: 100, cycle: 0 });
+  });
+
   it('clamps out-of-range snapshot fields', () => {
     saveSnapshot({ mode: 'focus', total: 10, remaining: 999, cycle: 99 });
     expect(loadSnapshot()).toEqual({
