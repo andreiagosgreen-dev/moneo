@@ -224,6 +224,24 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette }: Pro
         </div>
 
         <div className="mono-rail-tools">
+          {onOpenPalette && (
+            <button
+              type="button"
+              onClick={onOpenPalette}
+              title={`${t('palette.title')} (⌘K)`}
+              className="mono-nav-item mono-rail-tool"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden
+                dangerouslySetInnerHTML={{
+                  __html: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+                }}
+              />
+              <span className="mono-rail-item-label">{t('mono.nav.palette')}</span>
+              <kbd className="mono-rail-kbd">⌘K</kbd>
+            </button>
+          )}
           <button
             type="button"
             id="mono-tab-settings"
@@ -246,24 +264,6 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette }: Pro
             />
             <span className="mono-rail-item-label">{t('mono.nav.settings')}</span>
           </button>
-          {onOpenPalette && (
-            <button
-              type="button"
-              onClick={onOpenPalette}
-              title={`${t('palette.title')} (⌘K)`}
-              className="mono-nav-item mono-rail-tool"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                aria-hidden
-                dangerouslySetInnerHTML={{
-                  __html: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
-                }}
-              />
-              <span className="mono-rail-item-label">{t('mono.nav.palette')}</span>
-              <kbd className="mono-rail-kbd">⌘K</kbd>
-            </button>
-          )}
         </div>
 
         <button
