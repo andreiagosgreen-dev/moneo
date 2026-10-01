@@ -3182,6 +3182,19 @@
   border-color: var(--atm-accent, var(--mono-accent));
   color: var(--atm-on, #fff);
 }
+.atm-rhythm {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+.atm-custom {
+  display: grid;
+  gap: 6px;
+  width: min(100%, 320px);
+}
+.atm-rhythm-hint {
+  text-align: center;
+}
 .atm-preset:disabled {
   opacity: 0.42;
   cursor: not-allowed;

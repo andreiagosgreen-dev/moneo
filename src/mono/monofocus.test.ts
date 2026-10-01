@@ -92,12 +92,45 @@ describe('MonoFocus', () => {
     expect(c.textContent).toContain('Short break');
   });
 
+  it('offers 5–65 minute lengths and shows the paired breaks', () => {
+    const c = render(screen({ focusMin: 45, shortMin: 9, longMin: 27 }));
+    const labels = Array.from(c.querySelectorAll('.atm-presets button[aria-label]')).map((b) =>
+      b.getAttribute('aria-label'),
+    );
+    expect(labels).toEqual(['5 min', '15 min', '25 min', '35 min', '45 min', '55 min', '65 min']);
+    expect(c.querySelector('.atm-rhythm-hint')!.textContent).toBe(
+      '45 min focus · 9 min break · 27 min long break after 4 rounds',
+    );
+  });
+
+  it('sets a custom length through the Custom field', () => {
+    const onPreset = vi.fn();
+    const c = render(screen({ onPreset }));
+    const custom = Array.from(c.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Custom',
+    )!;
+    act(() => {
+      custom.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    const input = c.querySelector('#mono-focus-custom') as HTMLInputElement;
+    act(() => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+      setter.call(input, '40');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    act(() => {
+      input.form!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+    expect(onPreset).toHaveBeenCalledWith(40);
+    expect(c.querySelector('#mono-focus-custom')).toBeNull();
+  });
+
   it('fires preset + toggle + see-plan callbacks', () => {
     const onPreset = vi.fn();
     const onToggle = vi.fn();
     const onSeePlan = vi.fn();
     const c = render(screen({ onPreset, onToggle, onSeePlan }));
-    const chip5 = Array.from(c.querySelectorAll('button')).find((b) => b.textContent === '5 min')!;
+    const chip5 = c.querySelector('button[aria-label="5 min"]') as HTMLButtonElement;
     act(() => {
       chip5.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });

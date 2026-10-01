@@ -3320,6 +3320,13 @@ export const it: Record<TKey, string> = {
   'mono.focus.wake': 'Tieni lo schermo acceso',
   'mono.focus.full': 'Schermo intero',
   'mono.focus.fullExit': 'Esci da schermo intero',
+  'mono.focus.lengthLabel': 'Durata del focus',
+  'mono.focus.pomodoroClassic': 'Pomodoro classico',
+  'mono.focus.custom': 'Personale',
+  'mono.focus.customLabel': 'La tua durata in minuti ({min}–{max})',
+  'mono.focus.customSet': 'Imposta',
+  'mono.focus.rhythmHint':
+    '{focus} di focus · {short} di pausa · {long} di pausa lunga dopo {every} round',
   'mono.focus.est': 'Stimato {est} · Reale {act}',
   'mono.focus.est.under': 'Più veloce del previsto',
   'mono.focus.est.on': 'Esattamente come stimato',

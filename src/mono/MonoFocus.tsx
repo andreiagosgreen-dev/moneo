@@ -21,9 +21,17 @@ import { type Atmosphere } from './atmosphere';
 import type { MonoTab } from './MonoNav';
 import { pickProgramCoach } from '../lib/guidance/programCoach';
 import { areaLabel } from '../lib/focusAreas';
+import {
+  CUSTOM_FOCUS_MAX,
+  CUSTOM_FOCUS_MIN,
+  FOCUS_PRESETS,
+  POMODORO_MIN,
+  isPreset,
+  rhythmFor,
+  sanitizeFocusMin,
+} from '../lib/focusRhythm';
 
 const CIRC = 540.35;
-const PRESETS = [5, 25, 45];
 
 const BREAK_LABEL: Record<Exclude<Mode, 'focus'>, TKey> = {
   short: 'timer.mode.short.label',
@@ -52,6 +60,11 @@ interface Props {
   remaining: number;
   total: number;
   focusMin: number;
+  /** Saved break lengths (paired automatically when a length is picked). */
+  shortMin?: number;
+  longMin?: number;
+  /** Long break comes after this many focus rounds. */
+  longEvery?: number;
   intention: string;
   onIntention: (v: string) => void;
   onIntentionEnter: () => void;
@@ -111,6 +124,9 @@ export default function MonoFocus({
   remaining,
   total,
   focusMin,
+  shortMin,
+  longMin,
+  longEvery = 4,
   intention,
   onIntention,
   onIntentionEnter,
@@ -151,6 +167,8 @@ export default function MonoFocus({
   const [feedbackFor, setFeedbackFor] = useState<number | null>(null);
   const [coachKind, setCoachKind] = useState<SessionFeedback | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [customOpen, setCustomOpen] = useState(false);
+  const [customDraft, setCustomDraft] = useState('');
   const zen = fullscreen?.active === true;
   const minLabel = (n: number) => `${fmtNum(n)} ${t('set.unit.min')}`;
 
@@ -202,20 +220,88 @@ export default function MonoFocus({
     </div>
   );
 
+  const paired = rhythmFor(focusMin);
+  const breakShort = shortMin ?? paired.shortMin;
+  const breakLong = longMin ?? paired.longMin;
+  const customOn = mode === 'focus' && !isPreset(focusMin);
+  const applyCustom = () => {
+    const min = sanitizeFocusMin(customDraft);
+    if (min === null) return;
+    onPreset(min);
+    setCustomOpen(false);
+    setCustomDraft('');
+  };
+
   const presets = (
-    <div className="atm-presets" role="group" aria-label={t('mono.focus.secToday')}>
-      {PRESETS.map((m) => (
+    <div className="atm-rhythm">
+      <div className="atm-presets" role="group" aria-label={t('mono.focus.lengthLabel')}>
+        {FOCUS_PRESETS.map((m) => (
+          <button
+            key={m}
+            type="button"
+            className="atm-preset"
+            aria-pressed={focusMin === m && mode === 'focus'}
+            aria-label={minLabel(m)}
+            title={m === POMODORO_MIN ? t('mono.focus.pomodoroClassic') : undefined}
+            disabled={running}
+            onClick={() => onPreset(m)}
+          >
+            {fmtNum(m)}
+          </button>
+        ))}
         <button
-          key={m}
           type="button"
           className="atm-preset"
-          aria-pressed={focusMin === m && mode === 'focus'}
+          aria-pressed={customOn}
+          aria-expanded={customOpen}
           disabled={running}
-          onClick={() => onPreset(m)}
+          onClick={() => setCustomOpen((o) => !o)}
         >
-          {m} {t('set.unit.min')}
+          {customOn ? minLabel(focusMin) : t('mono.focus.custom')}
         </button>
-      ))}
+      </div>
+      {customOpen && !running ? (
+        <form
+          className="atm-custom"
+          onSubmit={(e) => {
+            e.preventDefault();
+            applyCustom();
+          }}
+        >
+          <label htmlFor="mono-focus-custom" className="mono-meta">
+            {t('mono.focus.customLabel', {
+              min: fmtNum(CUSTOM_FOCUS_MIN),
+              max: fmtNum(CUSTOM_FOCUS_MAX),
+            })}
+          </label>
+          <div className="mono-row" style={{ gap: 8 }}>
+            <input
+              id="mono-focus-custom"
+              className="mono-field"
+              type="number"
+              inputMode="numeric"
+              min={CUSTOM_FOCUS_MIN}
+              max={CUSTOM_FOCUS_MAX}
+              step={1}
+              value={customDraft}
+              placeholder={fmtNum(focusMin)}
+              onChange={(e) => setCustomDraft(e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <MonoBtn type="submit" disabled={sanitizeFocusMin(customDraft) === null}>
+              {t('mono.focus.customSet')}
+            </MonoBtn>
+          </div>
+        </form>
+      ) : null}
+      <p className="mono-meta atm-rhythm-hint">
+        {t('mono.focus.rhythmHint', {
+          focus: minLabel(focusMin),
+          short: minLabel(breakShort),
+          long: minLabel(breakLong),
+          every: fmtNum(longEvery),
+        })}
+      </p>
     </div>
   );
 

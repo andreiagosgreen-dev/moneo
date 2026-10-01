@@ -3300,6 +3300,13 @@ export const uk: Record<TKey, string> = {
   'mono.focus.wake': 'Не вимикати екран',
   'mono.focus.full': 'Повний екран',
   'mono.focus.fullExit': 'Вийти з повного екрана',
+  'mono.focus.lengthLabel': 'Тривалість фокусу',
+  'mono.focus.pomodoroClassic': 'Класичний Pomodoro',
+  'mono.focus.custom': 'Свій',
+  'mono.focus.customLabel': 'Ваша тривалість у хвилинах ({min}–{max})',
+  'mono.focus.customSet': 'Задати',
+  'mono.focus.rhythmHint':
+    '{focus} фокус · {short} перерва · {long} довга перерва після {every} раундів',
   'mono.focus.est': 'Оцінка {est} · Факт {act}',
   'mono.focus.est.under': 'Швидше, ніж планували',
   'mono.focus.est.on': 'Точно за оцінкою',

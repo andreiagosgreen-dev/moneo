@@ -73,6 +73,7 @@ import {
 } from './lib/projects';
 import { getMinutesForTask, loadTasks, removeTask, saveTasks, type Task } from './lib/tasks';
 import { loadFocusPrefs, saveFocusPrefs, type FocusPrefs } from './lib/focusPrefs';
+import { rhythmFor } from './lib/focusRhythm';
 import { estimateVsActual } from './lib/estimates';
 import type { AmbientLayer } from './lib/ambient';
 import { useAmbient } from './hooks/useAmbient';
@@ -863,8 +864,11 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
     selectedProjectId ? tasks.filter((x) => x.projectId === selectedProjectId) : []
   ).map((x) => ({ id: x.id, title: x.title }));
 
+  // Picking a length saves it with its paired breaks (25 → 5 / 15), so the
+  // whole focus → break → long-break cycle follows the chosen rhythm.
   const handlePreset = (min: number) => {
     if (running) return;
+    updateSettings(rhythmFor(min));
     setRoundLength(min);
   };
   const handleToggleTask = (id: string) => {
@@ -1234,6 +1238,9 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                         remaining={remaining}
                         total={total}
                         focusMin={mode === 'focus' ? total / 60 : settings.focusMin}
+                        shortMin={settings.shortMin}
+                        longMin={settings.longMin}
+                        longEvery={settings.longEvery}
                         intention={intentionDraft}
                         onIntention={setIntentionDraft}
                         onIntentionEnter={() => {
