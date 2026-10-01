@@ -35,7 +35,7 @@ persist = true
 [vars]
 SUPABASE_URL = "https://yvkguiiqojwyosvkxzbt.supabase.co"
 # Complimentary Pro emails (Free branding + full unlock). Comma-separated;
-# mirror VITE_PRO_COMPLIMENTARY_EMAILS / COMPLIMENTARY_PRO_EMAILS in code.
+# Server-only gifted-Pro allowlist (also COMPLIMENTARY_PRO_EMAILS in complimentaryPro.ts).
 # PRO_COMPLIMENTARY_EMAILS = "you@example.com,other@example.com"
 # Lemon numeric variant + product ids per billing interval (public — shown on
 # the checkout page). Fallback when unset: "Yearly"/"Monthly" in product name.

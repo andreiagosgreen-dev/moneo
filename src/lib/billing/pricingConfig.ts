@@ -126,14 +126,7 @@ export function canUseByokAi(isPro: boolean): boolean {
 }
 
 /* ---------------- Complimentary Pro (not Lemon-paid) ---------------- */
-export {
-  COMPLIMENTARY_PRO_EMAILS,
-  clientComplimentaryAllowlist,
-  hasComplimentaryPro,
-  parseComplimentaryProEmails,
-  resolveComplimentaryAllowlist,
-  resolveIsPro,
-} from './complimentaryPro';
+export { fetchComplimentaryPro, resolveIsPro } from './complimentaryPro';
 
 /* ---------------- /pricing comparison table ---------------- */
 

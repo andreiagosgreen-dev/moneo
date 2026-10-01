@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useI18n } from '../lib/i18n/LocaleContext';
-import { suggestTasksForGoal } from '../lib/goals';
+import { firstStepFor } from '../lib/goals';
 
 interface Props {
   /** Dismiss without creating anything (marks onboarding seen). */
@@ -29,7 +29,9 @@ export default function OnboardingModal({ onDone, onQuickStart }: Props) {
   const goTask = () => {
     const clean = goalTitle.trim();
     if (!clean) return;
-    setTaskTitle((prev) => prev || suggestTasksForGoal(clean, i18n)[0] || '');
+    // Start from the person's own words: a known kind of goal gets its usual
+    // first step, anything else keeps the intention itself (editable).
+    setTaskTitle((prev) => prev || firstStepFor(clean, i18n));
     setStep('task');
   };
 
@@ -91,7 +93,11 @@ export default function OnboardingModal({ onDone, onQuickStart }: Props) {
         </div>
 
         <h1 className="mt-4 font-display text-2xl font-bold tracking-tight text-cream">
-          {step === 'start' ? taskTitle.trim() || goalTitle.trim() : t('onb.qs.title')}
+          {step === 'start'
+            ? taskTitle.trim() || goalTitle.trim()
+            : step === 'task'
+              ? t('onb.qs.stepTitle')
+              : t('onb.qs.title')}
         </h1>
 
         {step === 'goal' && (
@@ -115,7 +121,7 @@ export default function OnboardingModal({ onDone, onQuickStart }: Props) {
 
         {step === 'task' && (
           <>
-            <p className="mt-2 text-[13px] leading-relaxed text-sage">{t('onb.qs.task')}</p>
+            <p className="mt-2 text-[13px] leading-relaxed text-sage">{t('onb.qs.stepHint')}</p>
             <input
               className="mono-field mono-field-ink mt-4"
               type="text"
@@ -133,7 +139,9 @@ export default function OnboardingModal({ onDone, onQuickStart }: Props) {
 
         {step === 'start' && (
           <p className="mt-2 text-[13px] leading-relaxed text-sage">
-            {goalTitle.trim()} → {taskTitle.trim()}
+            {goalTitle.trim() === taskTitle.trim()
+              ? t('onb.qs.startHint')
+              : `${goalTitle.trim()} → ${taskTitle.trim()}`}
           </p>
         )}
 
