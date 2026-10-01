@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/authProvider';
+import { track } from '../lib/analytics';
 import { initiateCheckout, type Plan } from '../lib/billing/lemonSqueezy';
 import ManageSubscriptionButton from './ManageSubscriptionButton';
 import { loginPathForUpgrade, type PaidPlanId } from '../lib/billing/upgradeIntent';
@@ -65,12 +66,15 @@ export default function PricingCard() {
   const handleSubscribe = (planId: PaidPlanId) => {
     setPayError('');
     if (!auth.user) {
+      track('upgrade_intent', planId);
       navigate(loginPathForUpgrade(planId));
       return;
     }
 
     const checkoutUrl = initiateCheckout(planId, auth.user.userId, auth.user.email);
-    if (!checkoutUrl || !openExternal(checkoutUrl)) {
+    const opened = !!checkoutUrl && openExternal(checkoutUrl);
+    if (opened) track('checkout_open', planId);
+    if (!opened) {
       setPayError(t('pay.unavailable'));
     }
   };

@@ -96,6 +96,7 @@ jobs:
       VITE_TURNSTILE_SITE_KEY: ${{ vars.VITE_TURNSTILE_SITE_KEY }}
       VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
       VITE_PRO_TRIAL_DAYS: ${{ vars.VITE_PRO_TRIAL_DAYS }}
+      VITE_CF_BEACON_TOKEN: ${{ vars.VITE_CF_BEACON_TOKEN }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7

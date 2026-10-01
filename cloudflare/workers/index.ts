@@ -12,6 +12,7 @@
  */
 
 import { handleAccountDelete } from './account';
+import { handleEvent, type AnalyticsDataset } from './events';
 import { handleLemonSqueezyWebhook } from './lemonWebhook';
 import { handleCustomerPortal } from './portal';
 import { handleRankDiscount, type DiscountKV } from './discount';
@@ -86,6 +87,8 @@ export interface Env {
   LEMON_SQUEEZY_API_KEY?: string;
   AI_API_KEY?: string;
   AI_DAILY_LIMIT?: string;
+  /** Workers Analytics Engine dataset for anonymous funnel counters (optional). */
+  EVENTS?: AnalyticsDataset;
   AI_MODEL?: string;
   /** Comma-separated list of allowed front-end origins. */
   CORS_ORIGINS?: string;
@@ -180,6 +183,11 @@ export default {
     // never leaks secret values, just whether each integration is wired.
     if (url.pathname === '/api/health') {
       return api(buildHealthBody(env), 200);
+    }
+
+    // Anonymous funnel counters: allowlisted names only, always 204.
+    if (url.pathname === '/api/event') {
+      return handleEvent(request, env);
     }
 
     // Webhook endpoint for Lemon Squeezy billing events (server-to-server,

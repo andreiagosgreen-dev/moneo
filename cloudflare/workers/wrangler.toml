@@ -52,6 +52,12 @@ ALLOW_TEST_MODE = "false"
 # AI_MODEL = "gpt-4o-mini"
 # Plans per Pro account per UTC day (cost guard, counted in KV_CACHE).
 AI_DAILY_LIMIT = "20"
+
+# Anonymous funnel counters (POST /api/event). Enable Workers Analytics Engine
+# in the Cloudflare dashboard, then uncomment. Without it /api/event is a no-op.
+# [[analytics_engine_datasets]]
+# binding = "EVENTS"
+# dataset = "moneo_events"
 # Rank discount codes (/api/billing/discount, first month of Pro monthly) are
 # created in this store and limited to this numeric variant id (public). Needs
 # the LEMON_SQUEEZY_API_KEY secret; without it the endpoint answers 503

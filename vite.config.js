@@ -45,11 +45,40 @@ function preloadLandingFonts() {
   };
 }
 
+/**
+ * Cloudflare Web Analytics (cookieless page views). Injected only when
+ * VITE_CF_BEACON_TOKEN is set; the CSP already allows the beacon and its
+ * report endpoint. Alternative: enable automatic setup in the Cloudflare
+ * dashboard and leave the token unset.
+ */
+function cloudflareBeacon() {
+  return {
+    name: 'moneo-cloudflare-beacon',
+    apply: 'build',
+    transformIndexHtml() {
+      const token = (process.env.VITE_CF_BEACON_TOKEN || '').trim();
+      if (!/^[a-f0-9]{32}$/i.test(token)) return [];
+      return [
+        {
+          tag: 'script',
+          attrs: {
+            defer: true,
+            src: 'https://static.cloudflareinsights.com/beacon.min.js',
+            'data-cf-beacon': JSON.stringify({ token }),
+          },
+          injectTo: 'body',
+        },
+      ];
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
     preloadLandingFonts(),
+    cloudflareBeacon(),
     VitePWA({
       registerType: 'autoUpdate',
       // includeAssets / manifest icons bypass workbox.globIgnores, so only list
