@@ -3678,6 +3678,11 @@ export const de: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Erfolgsquote der Gewohnheiten, deine Spitzenzeiten, Journal-Zusammenfassung, Balance-Ziele',
   'plan.ent.calendar': 'Google Kalender und Focus Buddy',
+  'onb.qs.stepTitle': 'Dein erster Schritt',
+  'onb.qs.stepHint': 'Der kleinste Teil, mit dem du jetzt anfangen kannst — du kannst ihn ändern.',
+  'onb.qs.startHint': 'Ein klarer Fokus. Starte den Timer und arbeite nur daran.',
+  'mono.focus.greetRunning': 'Im Fokus.',
+  'mono.focus.greetBreak': 'Zeit für eine Pause.',
   'data.saveFailed':
     'Speichern fehlgeschlagen — der Browserspeicher ist voll oder blockiert. Exportiere deine Daten oder aktiviere die Synchronisierung.',
   'data.saveFailedAction': 'Einstellungen öffnen',

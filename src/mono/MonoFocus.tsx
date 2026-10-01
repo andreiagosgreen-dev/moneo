@@ -496,7 +496,13 @@ export default function MonoFocus({
         {zen ? null : (
           <MonoHead
             eyebrow={dayLabel(tag)}
-            title={t('mono.focus.greet')}
+            title={t(
+              isBreak
+                ? 'mono.focus.greetBreak'
+                : running || remaining < total
+                  ? 'mono.focus.greetRunning'
+                  : 'mono.focus.greet',
+            )}
             sub={t('mono.focus.sub')}
           />
         )}

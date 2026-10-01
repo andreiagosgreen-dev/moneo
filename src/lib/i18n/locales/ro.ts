@@ -3658,6 +3658,11 @@ export const ro: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Rata de reușită a obiceiurilor, orele tale de vârf, rezumatul jurnalului, ținte de echilibru',
   'plan.ent.calendar': 'Google Calendar și Focus Buddy',
+  'onb.qs.stepTitle': 'Primul tău pas',
+  'onb.qs.stepHint': 'Cea mai mică bucată pe care o poți începe acum — o poți modifica.',
+  'onb.qs.startHint': 'Un singur lucru clar. Pornește cronometrul și lucrează doar la asta.',
+  'mono.focus.greetRunning': 'În focus.',
+  'mono.focus.greetBreak': 'E timpul pentru o pauză.',
   'data.saveFailed':
     'Nu am putut salva — spațiul de stocare al browserului e plin sau blocat. Exportă datele sau activează sincronizarea.',
   'data.saveFailedAction': 'Deschide setările',

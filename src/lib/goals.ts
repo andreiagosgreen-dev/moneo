@@ -456,6 +456,17 @@ export function suggestTasksForGoal(title: string, i18n: I18n = EN_I18N): string
   return (bp ? bp.steps : DEFAULT_STEPS).map((k) => i18n.t(k));
 }
 
+/**
+ * Onboarding's first step: the usual first step for a recognised kind of goal,
+ * otherwise the person's own intention (never a generic placeholder).
+ */
+export function firstStepFor(title: string, i18n: I18n = EN_I18N): string {
+  const clean = title.trim();
+  if (!clean) return '';
+  const bp = GOAL_BLUEPRINTS.find((b) => b.match.test(clean));
+  return bp ? i18n.t(bp.steps[0]) : clean;
+}
+
 /* ---------------- SMART check + conflicts (Roadmap 4.3/4.2) ---------------- */
 
 export interface SmartCheck {
