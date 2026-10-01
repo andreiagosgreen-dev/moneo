@@ -1,6 +1,7 @@
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../lib/authProvider';
+import { track } from '../lib/analytics';
 import { initiateCheckout, type Plan } from '../lib/billing/lemonSqueezy';
 import {
   UPGRADE_PARAM,
@@ -59,9 +60,14 @@ function renderValue(v: ComparisonValue): string {
  * Local-first: fully readable without an account.
  */
 export default function PricingPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const auth = useAuth();
   const atmosphere = resolveAtmosphere(loadAtmosphere(), auth.isPro);
+  useEffect(() => {
+    track('pricing_view', undefined, locale);
+    // Once per visit to the page.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [payError, setPayError] = useState('');
@@ -81,11 +87,14 @@ export default function PricingPage() {
   const handleSubscribe = (planId: PaidPlanId) => {
     setPayError('');
     if (!auth.user) {
+      track('upgrade_intent', planId);
       navigate(loginPathForUpgrade(planId));
       return;
     }
     const url = initiateCheckout(planId, auth.user.userId, auth.user.email);
-    if (!url || !openExternal(url)) setPayError(t('pay.unavailable'));
+    const opened = !!url && openExternal(url);
+    if (opened) track('checkout_open', planId);
+    if (!opened) setPayError(t('pay.unavailable'));
   };
 
   return (

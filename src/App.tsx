@@ -18,6 +18,7 @@ import MonoProiecte from './mono/MonoProiecte';
 import MonoInbox from './mono/MonoInbox';
 import MonoTemplates from './mono/MonoTemplates';
 import MonoToast from './mono/MonoToast';
+import { track } from './lib/analytics';
 import { onWriteFailure } from './lib/storage/storageAdapter';
 import { requestPersistentStorage } from './lib/storage/persistence';
 import MonoRapoarte from './mono/MonoRapoarte';
@@ -448,6 +449,13 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
   const [theme, setTheme] = useState<UITheme>(loadTheme);
   const [atmosphere, setAtmosphere] = useState<Atmosphere>(loadAtmosphere);
   const [showOnboarding, setShowOnboarding] = useState(() => !loadOnboardingSeen());
+  // Funnel: count each first-run onboarding once per page load.
+  const onboardingTrackedRef = useRef(false);
+  useEffect(() => {
+    if (!showOnboarding || onboardingTrackedRef.current) return;
+    onboardingTrackedRef.current = true;
+    track('onboarding_start');
+  }, [showOnboarding]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(BOOT.selectedProjectId);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [locale, setLocale] = useState<Locale>(initialLocale);
@@ -503,6 +511,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
       selectedTaskId,
     }),
     onSession: (entry) => {
+      if (history.length === 0) track('first_focus_done', undefined, locale);
       // The payoff meter reads history *with* the new entry included.
       const withEntry = [...history, entry];
       const impact = sessionProgressImpact(entry, {
@@ -727,6 +736,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
   // First-run quickstart: one objective → suggested first step → focus round.
   // Honors Free caps: reuses an active project / skips the goal when full.
   const handleQuickStart = (goalTitle: string, taskTitle: string) => {
+    track('onboarding_done', undefined, locale);
     const canProject = auth.isPro || projects.length < FREE_PROJECTS_LIMIT;
     const live = activeProjects(projects);
     const plan = planQuickStart({

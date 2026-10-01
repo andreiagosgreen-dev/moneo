@@ -202,6 +202,7 @@ export const legalEn: LegalSet = {
               'Error reports: if the app crashes, a technical error message and stack trace. Reports are not linked to your account and are not meant to contain your content.',
               'Security data: IP address and request data, processed briefly by our hosting provider and by bot protection on the sign-in form, to protect the Service against abuse.',
               'Usage statistics: Cloudflare Web Analytics counts page views and measures page performance. It records the page address, referring site, country, and browser and device type, and shows us only aggregated totals. It uses no cookies, does not use your browser storage to track you, and does not identify you or follow you across other sites.',
+              'Anonymous product counters: when you reach a few steps in the app (for example finishing the welcome steps, your first focus round, or opening checkout), Moneo counts the step with the chosen plan and the interface language only — no account id, IP address, device id or content — so we can see which parts of Moneo work. Turning on Do Not Track or Global Privacy Control in your browser stops these counters.',
               'Messages you send us: your email address and the content of your message.',
             ],
           },
