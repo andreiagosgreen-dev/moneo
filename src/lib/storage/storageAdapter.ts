@@ -57,6 +57,19 @@ export function onStorageWrite(keys: readonly string[], cb: WriteListener): () =
   };
 }
 
+const failureListeners = new Set<(key: string) => void>();
+
+/**
+ * Notified when the browser refuses a save (storage full, blocked). Saves
+ * never throw, so without this a full disk would lose edits silently.
+ */
+export function onWriteFailure(cb: (key: string) => void): () => void {
+  failureListeners.add(cb);
+  return () => {
+    failureListeners.delete(cb);
+  };
+}
+
 /** Returns true when the write succeeded. */
 export function safeWrite(key: string, value: unknown): boolean {
   try {
@@ -75,6 +88,13 @@ export function safeWrite(key: string, value: unknown): boolean {
     }
     return true;
   } catch {
+    for (const cb of [...failureListeners]) {
+      try {
+        cb(key);
+      } catch {
+        /* a listener must never break the caller */
+      }
+    }
     return false;
   }
 }
