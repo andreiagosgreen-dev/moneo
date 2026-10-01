@@ -3657,4 +3657,9 @@ export const es: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Tasa de éxito de hábitos, tus horas pico, resumen del diario, metas de equilibrio',
   'plan.ent.calendar': 'Google Calendar y Focus Buddy',
+  'onb.qs.stepTitle': 'Tu primer paso',
+  'onb.qs.stepHint': 'La parte más pequeña que puedes empezar ahora; puedes editarla.',
+  'onb.qs.startHint': 'Un único foco claro. Inicia el temporizador y trabaja solo en esto.',
+  'mono.focus.greetRunning': 'En foco.',
+  'mono.focus.greetBreak': 'Hora de un descanso.',
 };

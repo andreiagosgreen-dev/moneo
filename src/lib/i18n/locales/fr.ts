@@ -3686,4 +3686,10 @@ export const fr: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Taux de réussite des habitudes, tes heures de pointe, résumé du journal, objectifs d’équilibre',
   'plan.ent.calendar': 'Google Agenda et Focus Buddy',
+  'onb.qs.stepTitle': 'Ta première étape',
+  'onb.qs.stepHint':
+    'Le plus petit morceau que tu peux commencer maintenant — modifie-le si tu veux.',
+  'onb.qs.startHint': 'Un seul objectif clair. Lance le minuteur et ne travaille que sur ça.',
+  'mono.focus.greetRunning': 'En focus.',
+  'mono.focus.greetBreak': 'C’est l’heure de la pause.',
 };

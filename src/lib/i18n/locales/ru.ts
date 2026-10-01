@@ -3632,4 +3632,10 @@ export const ru: Record<TKey, string> = {
   'plan.ent.lifeBasics': 'Дневник, энергия и колесо жизни',
   'plan.ent.lifeInsights': 'Успешность привычек, ваши пиковые часы, сводка дневника, цели баланса',
   'plan.ent.calendar': 'Google Календарь и Focus Buddy',
+  'onb.qs.stepTitle': 'Ваш первый шаг',
+  'onb.qs.stepHint':
+    'Самая маленькая часть, которую можно начать прямо сейчас, — её можно изменить.',
+  'onb.qs.startHint': 'Одна ясная цель. Запустите таймер и работайте только над ней.',
+  'mono.focus.greetRunning': 'В фокусе.',
+  'mono.focus.greetBreak': 'Время отдохнуть.',
 };

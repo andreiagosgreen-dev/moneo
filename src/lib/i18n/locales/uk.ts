@@ -3638,4 +3638,9 @@ export const uk: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Успішність звичок, ваші пікові години, підсумок щоденника, цілі балансу',
   'plan.ent.calendar': 'Google Календар і Focus Buddy',
+  'onb.qs.stepTitle': 'Ваш перший крок',
+  'onb.qs.stepHint': 'Найменша частина, яку можна почати просто зараз, — її можна змінити.',
+  'onb.qs.startHint': 'Одна чітка мета. Запустіть таймер і працюйте лише над нею.',
+  'mono.focus.greetRunning': 'У фокусі.',
+  'mono.focus.greetBreak': 'Час для перерви.',
 };
