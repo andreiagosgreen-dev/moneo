@@ -95,11 +95,11 @@ describe('legal routes', () => {
     expect(el.querySelector('article')?.getAttribute('lang')).toBe('en');
   });
 
-  it('other locales read the English text under a localized binding note', () => {
+  it('other locales read their translation under a binding note, with a switch to English', () => {
     const el = renderAt('/terms', 'de');
-    expect(el.querySelector('h1')?.textContent).toBe('Terms of Service');
+    expect(el.querySelector('h1')?.textContent).toBe('Nutzungsbedingungen');
     expect(el.querySelector('[role="note"]')?.textContent).toContain(de['legal.bindingNote']);
-    expect(el.querySelector('.mono-legal-switch')).toBeNull();
+    expect(el.querySelector('.mono-legal-switch')).not.toBeNull();
   });
 
   it('unknown paths still fall through to the app', () => {

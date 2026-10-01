@@ -4,12 +4,30 @@
  * When a company is registered, update SELLER here (and review the texts).
  */
 
-export type LegalLang = 'en' | 'ro';
+export type LegalLang = 'en' | 'ro' | 'ru' | 'uk' | 'de' | 'fr' | 'es' | 'it';
 
 export const SELLER = {
   name: 'Teleaga Andrei',
-  entity: { en: 'a private individual', ro: 'persoană fizică' },
-  country: { en: 'the Republic of Moldova', ro: 'Republica Moldova' },
+  entity: {
+    en: 'a private individual',
+    ro: 'persoană fizică',
+    ru: 'физическое лицо',
+    uk: 'фізична особа',
+    de: 'Privatperson',
+    fr: 'personne physique',
+    es: 'persona física',
+    it: 'persona fisica',
+  },
+  country: {
+    en: 'the Republic of Moldova',
+    ro: 'Republica Moldova',
+    ru: 'Республика Молдова',
+    uk: 'Республіка Молдова',
+    de: 'Republik Moldau',
+    fr: 'République de Moldavie',
+    es: 'República de Moldavia',
+    it: 'Repubblica di Moldova',
+  },
 } as const;
 
 export const SUPPORT_EMAIL = 'atsolutionsrl.md@gmail.com';
@@ -41,11 +59,22 @@ export const LEGAL_PATHS: Record<LegalDocId, string> = {
   refund: '/refund',
 };
 
+const LEGAL_DATE_LOCALE: Record<LegalLang, string> = {
+  en: 'en-US',
+  ro: 'ro-RO',
+  ru: 'ru-RU',
+  uk: 'uk-UA',
+  de: 'de-DE',
+  fr: 'fr-FR',
+  es: 'es-ES',
+  it: 'it-IT',
+};
+
 /** "September 27, 2026" / "27 septembrie 2026" — UTC so it never shifts a day. */
 export function formatLegalDate(lang: LegalLang, iso: string = LEGAL_LAST_UPDATED): string {
   const [y, m, d] = iso.split('-').map(Number);
   const date = new Date(Date.UTC(y, m - 1, d));
-  return new Intl.DateTimeFormat(lang === 'ro' ? 'ro-RO' : 'en-US', {
+  return new Intl.DateTimeFormat(LEGAL_DATE_LOCALE[lang], {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
