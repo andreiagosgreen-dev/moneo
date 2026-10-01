@@ -1845,6 +1845,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                                 selectedProjectId={selectedProjectId}
                                 onSelectProject={handleSelectProject}
                                 isPro={auth.isPro}
+                                onWorkFocus={handleWorkFocus}
                               />
                             </Disclosure>
                           </div>

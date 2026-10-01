@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Task, TaskStatus } from '../../lib/tasks';
 import {
   TASK_STATUSES,
@@ -10,6 +10,7 @@ import {
   syncParentCompletion,
 } from '../../lib/tasks';
 import type { BoardProps } from './types';
+import { canPullInto, effectiveWipLimits } from '../../lib/kanbanWip';
 import { useI18n } from '../../lib/i18n/LocaleContext';
 import type { TKey } from '../../lib/i18n/types';
 const STATUS_ORDER: TaskStatus[] = ['pending', 'in_progress', 'blocked', 'completed'];
@@ -21,6 +22,7 @@ export default function BoardTab({
   board,
   commitBoard,
   isPro,
+  onWorkFocus,
 }: BoardProps) {
   const { t, fmtNum } = useI18n();
   const scoped = useMemo(
@@ -50,6 +52,15 @@ export default function BoardTab({
   const [dragId, setDragId] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState<TaskStatus | null>(null);
   const [lanes, setLanes] = useState<'off' | 'priority'>('off');
+  const [wipBlocked, setWipBlocked] = useState<TaskStatus | null>(null);
+  const limits = effectiveWipLimits(board.wipLimits, isPro);
+  const colName = (s: TaskStatus) => board.columnLabels[s] ?? t(STATUS_KEYS[s] as TKey);
+
+  useEffect(() => {
+    if (!wipBlocked) return;
+    const id = window.setTimeout(() => setWipBlocked(null), 5000);
+    return () => window.clearTimeout(id);
+  }, [wipBlocked]);
 
   if (!projectId) {
     return (
@@ -68,6 +79,13 @@ export default function BoardTab({
 
   const moveTo = (task: Task, status: TaskStatus) => {
     if (status === task.status) return;
+    // Kanban pull rule: a full column takes nothing new until something leaves it.
+    const count = scoped.filter((x) => x.status === status).length;
+    if (!canPullInto(status, count, limits)) {
+      setWipBlocked(status);
+      return;
+    }
+    setWipBlocked(null);
     if (status === 'completed') {
       onTasksChange(syncParentCompletion(completeTask(tasks, task.id).tasks, task.id));
     } else {
@@ -172,11 +190,20 @@ export default function BoardTab({
           </div>
         </details>
       )}
+      {wipBlocked && (
+        <p role="status" className="mt-2 font-mono text-[11px] font-bold text-tomato">
+          {t('agile.wipFull', {
+            name: colName(wipBlocked),
+            n: fmtNum(limits[wipBlocked] ?? 0),
+          })}
+        </p>
+      )}
       <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
         {TASK_STATUSES.filter((s) => !board.hidden.includes(s)).map((status) => {
           const col = scoped.filter((t) => t.status === status);
-          const limit = board.wipLimits[status];
-          const over = isPro && limit !== undefined && col.length > limit;
+          const limit = limits[status];
+          const over = limit !== undefined && col.length > limit;
+          const full = limit !== undefined && col.length >= limit;
           const hot = dragOver === status;
           return (
             <div
@@ -198,18 +225,25 @@ export default function BoardTab({
                 <span className="text-[12px] font-bold text-cream">
                   {board.columnLabels[status] ?? t(STATUS_KEYS[status] as TKey)}{' '}
                   <span
-                    className={`font-mono text-[11px] ${over ? 'font-bold text-tomato' : 'text-faint'}`}
+                    className={`font-mono text-[11px] ${
+                      over ? 'font-bold text-tomato' : full ? 'font-bold text-accent' : 'text-faint'
+                    }`}
+                    title={
+                      limit !== undefined && !isPro
+                        ? t('agile.wipFreeTitle', { n: fmtNum(limit) })
+                        : undefined
+                    }
                   >
                     {col.length}
-                    {isPro && limit !== undefined && `/${limit}`}
+                    {limit !== undefined && `/${limit}`}
                   </span>
                 </span>
-                {isPro && (
+                {isPro && status !== 'completed' && (
                   <input
                     type="number"
                     min={1}
                     max={99}
-                    value={limit ?? ''}
+                    value={board.wipLimits[status] ?? ''}
                     onChange={(e) => {
                       const v =
                         e.target.value === ''
@@ -220,7 +254,9 @@ export default function BoardTab({
                       else wipLimits[status] = v;
                       commitBoard({ ...board, wipLimits });
                     }}
-                    placeholder={t('board.wip')}
+                    placeholder={
+                      status === 'in_progress' ? String(limits.in_progress) : t('board.wip')
+                    }
                     className="h-6 w-14 rounded bg-ink/60 px-1.5 font-mono text-[10px] text-cream ring-1 ring-inset ring-line placeholder:text-faint focus:ring-accent focus:outline-none"
                     title={t('agile.wipTitle')}
                   />
@@ -277,6 +313,16 @@ export default function BoardTab({
                             <span className="shrink-0 font-mono text-[10px] text-faint">
                               {t('task.pts', { n: fmtNum(card.points) })}
                             </span>
+                          )}
+                          {onWorkFocus && card.status === 'in_progress' && projectId && (
+                            <button
+                              onClick={() => onWorkFocus(projectId, card.id)}
+                              className="press shrink-0 rounded px-1 font-mono text-[11px] text-accent hover:text-cream"
+                              aria-label={t('agile.focusCard', { title: card.title })}
+                              title={t('agile.focusCard', { title: card.title })}
+                            >
+                              ▶
+                            </button>
                           )}
                           <button
                             onClick={() => move(card, 1)}
