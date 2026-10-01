@@ -1,5 +1,8 @@
 import { useMemo, lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { loadBoot } from './app/boot';
+import { useFocusExtras } from './app/useFocusExtras';
+import { useAppToast } from './app/useAppToast';
 import MonoNav, { MONO_NAV_ITEMS, type MonoTab } from './mono/MonoNav';
 import MonoMore from './mono/MonoMore';
 import MonoHead from './mono/MonoHead';
@@ -19,8 +22,6 @@ import MonoInbox from './mono/MonoInbox';
 import MonoTemplates from './mono/MonoTemplates';
 import MonoToast from './mono/MonoToast';
 import { track } from './lib/analytics';
-import { onWriteFailure } from './lib/storage/storageAdapter';
-import { requestPersistentStorage } from './lib/storage/persistence';
 import MonoRapoarte from './mono/MonoRapoarte';
 import MonoCrestere from './mono/MonoCrestere';
 import MonoViata from './mono/MonoViata';
@@ -66,7 +67,6 @@ import CommandPalette from './components/CommandPalette';
 import PostSessionReflection from './components/PostSessionReflection';
 import {
   loadProjects,
-  loadSelectedProject,
   saveSelectedProject,
   saveProjects,
   activeProjects,
@@ -75,13 +75,9 @@ import {
   type Project,
 } from './lib/projects';
 import { getMinutesForTask, loadTasks, removeTask, saveTasks, type Task } from './lib/tasks';
-import { loadFocusPrefs, saveFocusPrefs, type FocusPrefs } from './lib/focusPrefs';
 import { rhythmFor } from './lib/focusRhythm';
 import { estimateVsActual } from './lib/estimates';
 import type { AmbientLayer } from './lib/ambient';
-import { useAmbient } from './hooks/useAmbient';
-import { useWakeLock } from './hooks/useWakeLock';
-import { useFullscreen } from './hooks/useFullscreen';
 import { MonoVacationBanner } from './mono/MonoVacation';
 import { hasQuickTokens, parseQuickAdd } from './lib/quickAdd';
 import { assignProject, createInboxTask, inboxTasks } from './lib/inbox';
@@ -116,7 +112,7 @@ import { mottoForDay } from './lib/guidance/mottos';
 import { buildLifeHubSnapshot } from './lib/guidance/lifeProgress';
 import { loadGoals, saveGoals, FREE_GOALS_LIMIT, type Goal } from './lib/goals';
 import { planQuickStart } from './lib/quickstart';
-import { loadChatHistory, type ChatMessage } from './lib/assistant';
+import { type ChatMessage } from './lib/assistant';
 import {
   activeRoadmap,
   loadRoadmaps,
@@ -205,24 +201,8 @@ import {
   type Atmosphere,
 } from './mono/atmosphere';
 import OnboardingModal from './components/OnboardingModal';
-import {
-  durationFor,
-  loadHistory,
-  loadSettings,
-  loadSnapshot,
-  type Mode,
-  type Session,
-  type Settings,
-} from './lib/store';
-import { loadIntentionDraft } from './lib/intentions';
-import {
-  activeAreas,
-  armRoundFocus,
-  loadFocusAreas,
-  loadSelectedArea,
-  saveSelectedArea,
-} from './lib/focusAreas';
-import { runLocalMigrations } from './lib/storage/migrations';
+import { loadHistory, loadSettings, type Session, type Settings } from './lib/store';
+import { activeAreas, saveSelectedArea } from './lib/focusAreas';
 import { STORAGE_KEYS } from './lib/storage/storageKeys';
 import { useProSync } from './hooks/useProSync';
 import { sessionProgressImpact, type SessionImpact } from './lib/progress';
@@ -241,96 +221,10 @@ import { dueStatus } from './lib/taskDue';
 import { dayProgress } from './lib/dayProgress';
 import { buildLastWeekRecap, loadRecapSeen, saveRecapSeen, shouldShowRecap } from './lib/weekRecap';
 import { addDays, mondayOf } from './lib/dayKeys';
-import { resumeState } from './lib/timerEngine';
 import { loadSyncState, onSyncStateChange } from './lib/sync/syncState';
 
 /* Boot once: restore settings, history and the paused timer position. */
-const BOOT = (() => {
-  // Advance the local storage schema before any data load (idempotent).
-  runLocalMigrations();
-  const settings = loadSettings();
-  const snap = loadSnapshot();
-  const mode: Mode = snap?.mode ?? 'focus';
-  const total = snap?.mode === mode ? snap.total : durationFor(mode, settings);
-  // A round that was running when the tab closed resumes at its real end time
-  // (or is credited at once if it finished while the app was closed).
-  const resume = snap ? resumeState(snap, Date.now()) : null;
-  const remaining = resume ? Math.min(resume.remaining, total) : total;
-  const resumedRound = resume?.endsAt && snap?.round ? snap.round : null;
-  const intentionDraft = loadIntentionDraft();
-  const areas = loadFocusAreas();
-  const selectedAreaId = loadSelectedArea(areas);
-  const projects = loadProjects();
-  const tasks = loadTasks();
-  const ivyPlans = loadPlans();
-  const timeBlocks = loadBlocks();
-  const skills = loadSkills();
-  const frogLog = loadFrogLog();
-  const goals = loadGoals();
-  const chatHistory = loadChatHistory();
-  const roadmaps = loadRoadmaps();
-  const habits = loadHabits();
-  const habitLog = loadHabitLog();
-  const lifeAreas = loadLifeAreas();
-  const lifeMap = loadLifeMap();
-  const journal = loadJournal();
-  const timeOff = loadTimeOff();
-  const energyLog = loadEnergyLog();
-  const sprints = loadSprints();
-  const objectives = loadObjectives();
-  const phases = loadPhases();
-  const links = loadLinks();
-  const savedFilters = loadSavedFilters();
-  const selectedProjectId = loadSelectedProject(projects);
-  // Round metadata is captured at arming time; boot arms the current round.
-  const roundMeta =
-    mode === 'focus'
-      ? armRoundFocus(intentionDraft, selectedAreaId, areas)
-      : { intention: null, areaId: null };
-  return {
-    settings,
-    history: loadHistory(),
-    mode,
-    total,
-    remaining,
-    cycle: snap?.cycle ?? 0,
-    endsAt: resume?.endsAt ?? null,
-    roundMin: resumedRound?.min ?? (mode === 'focus' ? settings.focusMin : 0),
-    intentionDraft,
-    areas,
-    selectedAreaId,
-    projects,
-    tasks,
-    ivyPlans,
-    timeBlocks,
-    skills,
-    frogLog,
-    goals,
-    chatHistory,
-    roadmaps,
-    habits,
-    habitLog,
-    lifeAreas,
-    lifeMap,
-    journal,
-    timeOff,
-    energyLog,
-    sprints,
-    objectives,
-    phases,
-    links,
-    savedFilters,
-    selectedProjectId,
-    roundIntention: resumedRound ? resumedRound.intention : roundMeta.intention,
-    roundAreaId: resumedRound ? resumedRound.areaId : roundMeta.areaId,
-    roundProjectId: resumedRound
-      ? resumedRound.projectId
-      : mode === 'focus'
-        ? selectedProjectId
-        : null,
-    roundTaskId: resumedRound ? resumedRound.taskId : null,
-  };
-})();
+const BOOT = loadBoot();
 
 export interface AppProps {
   initialLocale: Locale;
@@ -789,32 +683,15 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
   const selectedTask = tasks.find((x) => x.id === selectedTaskId) ?? null;
 
   /* ---------- Focus extras: ambient sound, wake lock, zen ---------- */
-  const [focusPrefs, setFocusPrefs] = useState<FocusPrefs>(loadFocusPrefs);
-  const updateFocusPrefs = (patch: Partial<FocusPrefs>) =>
-    setFocusPrefs((prev) => {
-      const next = { ...prev, ...patch };
-      saveFocusPrefs(next);
-      return next;
+  const { focusPrefs, updateFocusPrefs, ambient, focusRootRef, zen, handleFocusToggle } =
+    useFocusExtras({
+      running,
+      mode,
+      atmosphere: paintedAtmosphere,
+      isPro: auth.isPro,
+      onFocusTab: tab === 'focus',
+      toggle,
     });
-  const ambient = useAmbient({
-    running,
-    phase: mode,
-    prefs: focusPrefs,
-    atmosphere: paintedAtmosphere,
-    isPro: auth.isPro,
-  });
-  useWakeLock(focusPrefs.wakeLock && running);
-  const focusRootRef = useRef<HTMLDivElement>(null);
-  const zen = useFullscreen(focusRootRef);
-  const zenActive = zen.active;
-  const zenToggle = zen.toggle;
-  useEffect(() => {
-    if (tab !== 'focus' && zenActive) zenToggle();
-  }, [tab, zenActive, zenToggle]);
-  const handleFocusToggle = () => {
-    if (focusPrefs.ambientOn && !running) ambient.prime();
-    toggle();
-  };
   const focusEstimate = selectedTask
     ? estimateVsActual(selectedTask.estimateMin, getMinutesForTask(selectedTask.id, history))
     : null;
@@ -920,39 +797,11 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
   };
 
   /* ---------- quick capture: inbox, toast, morning triage ---------- */
-  const [toast, setToast] = useState<{
-    message: string;
-    action?: { label: string; onClick: () => void };
-  } | null>(null);
-  useEffect(() => {
-    if (!toast) return;
-    const id = window.setTimeout(() => setToast(null), toast.action ? 6000 : 3500);
-    return () => window.clearTimeout(id);
-  }, [toast]);
-
-  // A refused save (storage full / blocked) must never pass silently: say so,
-  // at most once a minute, and point to export / sync in Settings.
-  const lastSaveWarnRef = useRef(0);
-  useEffect(
-    () =>
-      onWriteFailure(() => {
-        const now = Date.now();
-        if (now - lastSaveWarnRef.current < 60_000) return;
-        lastSaveWarnRef.current = now;
-        setToast({
-          message: t('data.saveFailed'),
-          action: { label: t('data.saveFailedAction'), onClick: () => goNav('settings') },
-        });
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [t],
-  );
-
-  // Once there is something worth keeping, ask the browser not to evict it.
-  const hasLocalWork = history.length > 0 || tasks.length > 0;
-  useEffect(() => {
-    if (hasLocalWork) void requestPersistentStorage();
-  }, [hasLocalWork]);
+  const { toast, setToast } = useAppToast({
+    t,
+    onOpenSettings: () => goNav('settings'),
+    hasLocalWork: history.length > 0 || tasks.length > 0,
+  });
 
   const handleQuickAdd = (text: string): boolean => {
     const q = parseQuickAdd(text, locale, Date.now());
