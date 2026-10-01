@@ -116,7 +116,6 @@ export const legalDe: LegalSet = {
         heading: '11. KI-Funktionen',
         blocks: [
           'Einige Funktionen schlagen Pläne, Schritte oder Antworten vor. Sie können Regeln auf dem Gerät oder ein KI-Modell verwenden. KI-Ergebnisse können falsch, unvollständig oder veraltet sein. Sie sind keine professionelle (medizinische, rechtliche, finanzielle oder sonstige) Beratung. Bitte prüfe Vorschläge, bevor du dich darauf verlässt.',
-          'Pro enthält KI-Pläne, die Moneo über einen von uns gewählten KI-Anbieter erstellt. Sie haben ein Tageskontingent, das mit deinem XP-Rang wachsen kann; wir können die Kontingente anpassen, damit der Dienst tragfähig bleibt. Ist das Kontingent aufgebraucht, werden Pläne bis zum nächsten Tag auf deinem Gerät erstellt.',
           'Pro-Nutzer können außerdem einen eigenen API-Schlüssel eines KI-Anbieters verbinden (zum Beispiel Google Gemini, OpenAI oder DeepSeek). Dein Schlüssel wird nur in deinem Browser gespeichert. Anfragen gehen direkt von deinem Browser an diesen Anbieter, im Rahmen deiner eigenen Vereinbarung mit ihm. Du bist für deinen Schlüssel, etwaige Kosten des Anbieters und die Einhaltung seiner Bedingungen verantwortlich. Sende keine sensiblen personenbezogenen Daten an KI-Funktionen.',
         ],
       },
@@ -218,7 +217,6 @@ export const legalDe: LegalSet = {
         blocks: [
           'Standardmäßig werden KI-ähnliche Pläne auf deinem Gerät mit einfachen Regeln erstellt, und nichts wird irgendwohin gesendet.',
           'Hast du Pro und fügst einen eigenen API-Schlüssel für Google Gemini, OpenAI oder DeepSeek hinzu, werden das eingegebene Ziel und deine Planungsangaben (Zeithorizont, Stunden pro Woche, Niveau) direkt von deinem Browser an diesen Anbieter gesendet. Der Anbieter verarbeitet sie nach seiner eigenen Datenschutzerklärung als dein Dienstleister, nicht unserer.',
-          'Inklusive KI-Pläne (Pro): Nur der Zieltext (bis zu 500 Zeichen), der Zeithorizont, die Stunden pro Woche und das Niveau werden über unseren Server an den dort konfigurierten KI-Anbieter gesendet. Sitzungen, Aufgaben, Journal oder Kontodaten werden nicht übermittelt. Um das Tageskontingent und den Rangbonus anzuwenden, zählt unser Server die Pläne pro Konto und Tag und berechnet deinen Rang aus der mit deinem Konto synchronisierten Aktivität; die Zählung verfällt nach zwei Tagen.',
           'Die Spracheingabe im Assistenten nutzt die eingebaute Spracherkennung deines Browsers. Manche Browser (zum Beispiel Chrome) senden die Audiodaten zur Umwandlung an die Server des Browserherstellers.',
         ],
       },
@@ -249,7 +247,7 @@ export const legalDe: LegalSet = {
               'Google — Anmeldung mit Google und, falls du ihn verbindest, Google Kalender (USA).',
               'Sentry (Functional Software, Inc.) — Fehlerberichte (Datenspeicherung in der EU, Deutschland).',
               'GitHub (Microsoft) — speichert unsere wöchentlichen verschlüsselten Datenbanksicherungen (USA).',
-              'KI-Anbieter, die du selbst wählst (Google Gemini, OpenAI, DeepSeek) — nur wenn du einen eigenen Schlüssel hinzufügst; und für inklusive KI-Pläne bei Pro der auf unserem Server konfigurierte KI-Anbieter (eine OpenAI-kompatible API).',
+              'KI-Anbieter, die du selbst wählst (Google Gemini, OpenAI, DeepSeek) — nur wenn du einen eigenen Schlüssel hinzufügst.',
             ],
           },
           'Wir verkaufen deine personenbezogenen Daten nicht und geben sie nicht an Werbetreibende oder Datenhändler weiter.',

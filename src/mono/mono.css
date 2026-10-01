@@ -5944,12 +5944,6 @@ ul.mono-tree {
 }
 
 /* Pro rank reward line on the rank card. */
-.mono-rank-perk {
-  margin-top: 4px;
-  color: var(--mono-accent);
-  font-weight: 600;
-}
-
 /* ---------- Older cards inside the Mono shell ----------
  * Pre-Mono components (agile board, goals, OKRs, life, reports, calendar…)
  * still use tiny utility sizes and ALL-CAPS tracked labels. Inside the app

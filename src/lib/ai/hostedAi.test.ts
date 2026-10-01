@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { FetchImpl } from '../../../cloudflare/workers/account';
 import { cleanSteps, dailyLimitOf, handleAIPlan, planPrompt } from '../../../cloudflare/workers/ai';
-import { buildByokPath, hostedPlan } from './byok';
+import { buildByokPath } from './byok';
 
 function req(body: string, ip: string): Request {
   const headers = new Map([
@@ -91,43 +91,15 @@ describe('included AI planner (Worker)', () => {
   });
 });
 
-describe('included AI planner (client)', () => {
+describe('AI planner without an own key', () => {
   const input = { text: 'Învăț React', horizonMonths: 6, hoursPerWeek: 5 };
   const local = { provider: 'local' as const, key: '', webSearch: false };
 
-  it('builds the path from the Worker’s steps', async () => {
-    const ok = (async () => new Response(MODEL, { status: 200 })) as unknown as typeof fetch;
-    const r = await hostedPlan(input, async () => 'tok', ok);
-    expect(r.ok).toBe(true);
-    expect(r.used).toBe('moneo');
-    expect(r.path?.tasks.map((t) => t.title)).toContain('Instalează Node');
-  });
-
-  it('falls back to the local planner quietly when the AI is not set up', async () => {
-    const r = await buildByokPath(input, local, fetch, async () => ({
-      ok: false,
-      reason: 'moneo-http-501',
-      used: 'moneo',
-    }));
+  it('builds the plan on the device and never calls a server', async () => {
+    const fetchSpy = vi.fn(async () => new Response(MODEL, { status: 200 }));
+    const r = await buildByokPath(input, local, fetchSpy as unknown as typeof fetch);
     expect(r.ok).toBe(true);
     expect(r.used).toBe('local');
-  });
-
-  it('says so when the daily allowance is used up', async () => {
-    const r = await buildByokPath(input, local, fetch, async () => ({
-      ok: false,
-      reason: 'moneo-daily-limit',
-      used: 'moneo',
-    }));
-    expect(r.used).toBe('local-fallback');
-    expect(r.reason).toBe('moneo-daily-limit');
-  });
-
-  it('maps the Worker’s daily-limit answer', async () => {
-    const limited = (async () =>
-      new Response(JSON.stringify({ code: 'daily_limit' }), {
-        status: 429,
-      })) as unknown as typeof fetch;
-    expect((await hostedPlan(input, async () => 'tok', limited)).reason).toBe('moneo-daily-limit');
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 });

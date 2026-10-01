@@ -158,7 +158,7 @@ export const ro: Record<TKey, string> = {
   'land.faq.title': 'Întrebări frecvente',
   'land.faq.free.q': 'Moneo e gratuit?',
   'land.faq.free.a':
-    'Da. Cronometrul de focus, planul zilei, 3 proiecte, obiceiurile, jurnalul și biblioteca de exerciții sunt gratuite pentru totdeauna. Pro adaugă proiecte și obiective nelimitate, AI inclus pentru planuri pas cu pas (sau cheia ta), Mișcare Pro, exporturi, toate datele salvate în cont pe orice dispozitiv și altele.',
+    'Da. Cronometrul de focus, planul zilei, 3 proiecte, obiceiurile, jurnalul și biblioteca de exerciții sunt gratuite pentru totdeauna. Pro adaugă proiecte și obiective nelimitate, planuri AI pas cu pas cu cheia ta, Mișcare Pro, exporturi, toate datele salvate în cont pe orice dispozitiv și altele.',
   'land.faq.account.q': 'Am nevoie de cont?',
   'land.faq.account.a':
     'Nu. Deschizi Moneo și începi — totul funcționează fără cont și se salvează pe acest dispozitiv. Cu un cont gratuit, în cont se salvează și sesiunile de focus, ariile și setările; cu Pro, toate datele tale.',
@@ -182,7 +182,7 @@ export const ro: Record<TKey, string> = {
     'Da. După prima vizită, Moneo merge fără internet. Dacă folosești un cont, modificările se salvează în el imediat ce revii online.',
   'land.faq.ai.q': 'Ce face AI-ul? Cheia mea AI e în siguranță?',
   'land.faq.ai.a':
-    'Asistentul de plan transformă un obiectiv într-un plan pas cu pas și îți sugerează la ce să lucrezi mai departe. În planul Gratuit, planificatorul rulează pe dispozitivul tău. Pro include planuri AI de la Moneo — un număr zilnic care crește odată cu rangul — și se trimit doar textul obiectivului și două cifre (luni și ore pe săptămână), niciodată sarcinile, jurnalul sau sesiunile tale. Poți conecta și cheia ta AI (Gemini, OpenAI sau DeepSeek): se păstrează doar pe dispozitivul tău și merge direct la acel furnizor — niciodată pe serverele noastre.',
+    'Asistentul de plan transformă un obiectiv într-un plan pas cu pas și îți sugerează la ce să lucrezi mai departe. Planificatorul integrat rulează pe dispozitivul tău în orice plan. Cu Pro poți conecta cheia ta AI (Gemini — gratuită din Google AI Studio — OpenAI sau DeepSeek): se păstrează doar pe dispozitivul tău, iar cererile merg direct la acel furnizor, niciodată prin serverele noastre. Se trimit doar textul obiectivului și două cifre (luni și ore pe săptămână), niciodată sarcinile, jurnalul sau sesiunile tale.',
   'land.faq.support.q': 'Cum contactez suportul?',
   'land.faq.support.a': 'Scrie-ne la {email}. Citim fiecare mesaj.',
   'land.final.title': 'Prima ta sesiune de concentrare e la un clic distanță',
@@ -1033,7 +1033,7 @@ export const ro: Record<TKey, string> = {
 
   'pay.title': 'Treci la Pro',
   'pay.sub':
-    'Primești proiecte și obiective nelimitate, AI inclus pentru planuri pas cu pas (sau cheia ta), Mișcare Pro, export CSV/PDF și un aspect personalizat. Toate datele tale — proiecte, sarcini, obiceiuri, jurnal, harta vieții, obiective și planuri — se salvează în cont și se sincronizează între dispozitive.',
+    'Primești proiecte și obiective nelimitate, planuri AI pas cu pas cu cheia ta, Mișcare Pro, export CSV/PDF și un aspect personalizat. Toate datele tale — proiecte, sarcini, obiceiuri, jurnal, harta vieții, obiective și planuri — se salvează în cont și se sincronizează între dispozitive.',
   'pay.signin': 'Conectează-te ca să treci la Pro',
   'pay.unavailable': 'Plata nu e disponibilă momentan. Scrie-ne la suport.',
   'pay.current': 'Actual',
@@ -1061,7 +1061,7 @@ export const ro: Record<TKey, string> = {
   'pay.plan.monthly.f0': 'Tot ce e în planul Gratuit',
   'pay.plan.monthly.f1': 'Proiecte, obiective și OKR-uri nelimitate',
   'pay.plan.monthly.f2':
-    'AI inclus pentru planuri pas cu pas — mai multe pe zi pe măsură ce crește rangul · sau cheia ta',
+    'Planuri AI pas cu pas cu cheia ta — Gemini (cheie gratuită), OpenAI sau DeepSeek',
   'pay.plan.monthly.f3': 'Export rapoarte în CSV (Excel) și PDF',
   'pay.plan.monthly.f4':
     'Blocuri de timp în calendar, grafice de sprint și limite de lucru pe kanban',
@@ -1909,7 +1909,8 @@ export const ro: Record<TKey, string> = {
   'assist.roadmap.provider.deepseek': 'DeepSeek',
   'assist.roadmap.apiKey': 'Cheie API',
   'assist.roadmap.apiKeyPh': 'Cheia ta',
-  'assist.roadmap.keyHint': 'Cheia ta rămâne doar pe acest dispozitiv, pentru siguranță.',
+  'assist.roadmap.keyHint':
+    'Cheia ta rămâne doar pe acest dispozitiv. O cheie Gemini gratuită: aistudio.google.com/apikey',
   'assist.roadmap.webSearch': 'Include rezultate web',
   'assist.roadmap.webSearchHint': 'Gemini',
   'assist.roadmap.goalPh': 'Ce vrei să faci?',
@@ -2087,7 +2088,7 @@ export const ro: Record<TKey, string> = {
     'Treci la Moneo Pro pentru alerte de termene, intervalul tău cel mai bun de focus și mai multe sugestii din datele tale.',
   'pricing.title': 'Prețuri Moneo',
   'pricing.sub':
-    'Începe gratuit, fără card și fără cont. Pro îți aduce planificare avansată, AI inclus pentru planuri pas cu pas (sau cheia ta), Mișcare Pro, export CSV/PDF și un aspect personalizat.',
+    'Începe gratuit, fără card și fără cont. Pro îți aduce planificare avansată, planuri AI pas cu pas cu cheia ta, Mișcare Pro, export CSV/PDF și un aspect personalizat.',
   'pricing.back': '← Înapoi la Moneo',
   'pricing.unlimited': 'Nelimitat',
   'pricing.row.ivy': 'Sarcini prioritare pe zi (metoda Ivy Lee)',
@@ -2349,7 +2350,7 @@ export const ro: Record<TKey, string> = {
   'pricing.feature.allFree': 'Tot ce e în planul Gratuit',
   'pricing.feature.unlimitedProjects': 'Proiecte, scopuri și OKR-uri nelimitate',
   'pricing.feature.fullAi':
-    'AI inclus pentru planuri pas cu pas · sau cheia ta · planificatorul integrat merge și fără',
+    'Planuri AI pas cu pas cu cheia ta (Gemini, OpenAI sau DeepSeek) · planificatorul integrat merge și fără',
   'pricing.feature.reportsExport': 'Rapoarte, export CSV/PDF și timp facturabil',
   'pricing.feature.timeBlocking': 'Blocuri de timp, sprinturi și kanban',
   'pricing.feature.cloudSync': 'Sincronizare cloud pe toate dispozitivele',
@@ -3643,7 +3644,7 @@ export const ro: Record<TKey, string> = {
   'plan.ent.skills': 'Abilități',
   'plan.ent.assistant': 'Planuri pas cu pas cu AI',
   'plan.ent.v.quick': 'Planificator pe dispozitiv',
-  'plan.ent.v.fullChat': 'AI inclus + bonus de rang, sau cheia ta',
+  'plan.ent.v.fullChat': 'Cheia ta AI (Gemini, OpenAI, DeepSeek)',
   'plan.ent.moveLibrary': '{n} exerciții, filtre și harta corpului',
   'plan.ent.moveWorkouts':
     'Rutine gata făcute, antrenament liber, jurnal cardio, program săptămânal',
@@ -3658,11 +3659,6 @@ export const ro: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Rata de reușită a obiceiurilor, orele tale de vârf, rezumatul jurnalului, ținte de echilibru',
   'plan.ent.calendar': 'Google Calendar și Focus Buddy',
-  'assist.roadmap.dailyLimit':
-    'Ai folosit planurile AI incluse pentru azi — acest plan a fost creat pe dispozitiv. Mâine poți genera din nou.',
-  'mono.xp.proPerk': 'Recompensa rangului: +{n} planuri AI incluse pe zi.',
-  'mono.xp.proPerkNext': 'Ajungi {rank} și primești +{n} planuri AI incluse pe zi.',
-  'mono.xp.freePerk': 'Cu Pro, rangul tău îți aduce +{n} planuri AI pe zi.',
   'pay.plan.monthly.f8':
     'Mișcare Pro: rutinele tale, recorduri personale, grafice de progres și program personal de antrenament',
   'pay.trialBadge': 'Primele {n} zile gratis',

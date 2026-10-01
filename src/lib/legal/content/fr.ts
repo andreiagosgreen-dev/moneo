@@ -114,7 +114,6 @@ export const legalFr: LegalSet = {
         heading: '11. Fonctions d’IA',
         blocks: [
           'Certaines fonctions suggèrent des plans, des étapes ou des réponses. Elles peuvent utiliser des règles sur l’appareil ou un modèle d’IA. Les résultats de l’IA peuvent être erronés, incomplets ou obsolètes. Ils ne constituent pas un conseil professionnel (médical, juridique, financier ou autre). Vérifie les suggestions avant de t’y fier.',
-          'Pro inclut des plans IA générés par Moneo via un fournisseur d’IA que nous choisissons. Ils sont soumis à un quota quotidien, qui peut augmenter avec ton rang XP ; nous pouvons ajuster les quotas pour que le Service reste viable. Une fois le quota épuisé, les plans sont créés sur ton appareil jusqu’au lendemain.',
           'Les utilisateurs Pro peuvent aussi connecter leur propre clé API d’un fournisseur d’IA (par exemple Google Gemini, OpenAI ou DeepSeek). Ta clé est stockée uniquement dans ton navigateur. Les requêtes partent directement de ton navigateur vers ce fournisseur, dans le cadre de ton propre accord avec lui. Tu es responsable de ta clé, des éventuels frais du fournisseur et du respect de ses conditions. Évite d’envoyer des données personnelles sensibles aux fonctions d’IA.',
         ],
       },
@@ -216,7 +215,6 @@ export const legalFr: LegalSet = {
         blocks: [
           'Par défaut, les plans de type IA sont créés sur ton appareil par des règles simples, et rien n’est envoyé nulle part.',
           'Si tu as Pro et ajoutes ta propre clé API pour Google Gemini, OpenAI ou DeepSeek, l’objectif que tu saisis et tes paramètres de planification (horizon, heures par semaine, niveau) sont envoyés directement de ton navigateur à ce fournisseur. Ce fournisseur les traite selon sa propre politique de confidentialité, en tant que ton prestataire, et non le nôtre.',
-          'Plans IA inclus (Pro) : seuls le texte de l’objectif (jusqu’à 500 caractères), l’horizon, les heures par semaine et le niveau sont envoyés via notre serveur au fournisseur d’IA configuré sur celui-ci. Aucune session, tâche, entrée de journal ni donnée de compte n’est incluse. Pour appliquer le quota quotidien et le bonus de rang, notre serveur compte les plans par compte et par jour et recalcule ton rang à partir de l’activité synchronisée avec ton compte ; ce décompte expire au bout de deux jours.',
           'La saisie vocale de l’assistant utilise la reconnaissance vocale intégrée de ton navigateur. Certains navigateurs (par exemple Chrome) envoient l’audio aux serveurs de l’éditeur du navigateur pour le transcrire.',
         ],
       },
@@ -247,7 +245,7 @@ export const legalFr: LegalSet = {
               'Google — connexion avec Google et, si tu le connectes, Google Agenda (États-Unis).',
               'Sentry (Functional Software, Inc.) — rapports d’erreur (données stockées dans l’UE, en Allemagne).',
               'GitHub (Microsoft) — stocke nos sauvegardes hebdomadaires chiffrées de la base de données (États-Unis).',
-              'Les fournisseurs d’IA que tu choisis toi-même (Google Gemini, OpenAI, DeepSeek) — uniquement si tu ajoutes ta propre clé ; et, pour les plans IA inclus dans Pro, le fournisseur d’IA configuré sur notre serveur (une API compatible OpenAI).',
+              'Les fournisseurs d’IA que tu choisis toi-même (Google Gemini, OpenAI, DeepSeek) — uniquement si tu ajoutes ta propre clé.',
             ],
           },
           'Nous ne vendons pas tes données personnelles et ne les partageons ni avec des annonceurs ni avec des courtiers en données.',

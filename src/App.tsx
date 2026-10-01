@@ -1608,7 +1608,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                             className="reveal mono-growth-span"
                             style={{ animationDelay: '60ms' }}
                           >
-                            <MonoRankCard xp={xp} badges={badges} isPro={auth.isPro} />
+                            <MonoRankCard xp={xp} badges={badges} />
                           </div>
                           <div className="reveal" style={{ animationDelay: '90ms' }}>
                             <GrowthCard history={history} />
