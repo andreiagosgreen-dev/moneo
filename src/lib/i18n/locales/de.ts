@@ -3678,6 +3678,8 @@ export const de: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Erfolgsquote der Gewohnheiten, deine Spitzenzeiten, Journal-Zusammenfassung, Balance-Ziele',
   'plan.ent.calendar': 'Google Kalender und Focus Buddy',
+  'assist.roadmap.dailyLimit':
+    'Die heutigen inklusiven KI-Pläne sind aufgebraucht — dieser Plan wurde auf deinem Gerät erstellt. Morgen wieder.',
   'onb.qs.stepTitle': 'Dein erster Schritt',
   'onb.qs.stepHint': 'Der kleinste Teil, mit dem du jetzt anfangen kannst — du kannst ihn ändern.',
   'onb.qs.startHint': 'Ein klarer Fokus. Starte den Timer und arbeite nur daran.',

@@ -10,6 +10,9 @@ import type { BuiltPath, PathInput } from './types';
 
 export type ByokProvider = 'local' | 'gemini' | 'openai' | 'deepseek';
 
+/** Who produced a plan: a BYOK provider, Moneo's included AI, or the local fallback. */
+export type PlanSource = ByokProvider | 'moneo' | 'local-fallback';
+
 export const BYOK_PROVIDERS: ByokProvider[] = ['local', 'gemini', 'openai', 'deepseek'];
 
 export interface ByokConfig {
@@ -53,7 +56,7 @@ export interface ByokPlanResult {
   sources?: string[];
   reason?: string;
   /** Which engine actually produced the path. */
-  used: ByokProvider | 'local-fallback';
+  used: PlanSource;
 }
 
 function extractJsonObject(text: string): Record<string, unknown> | null {
@@ -250,17 +253,92 @@ async function openAiCompatiblePlan(
 }
 
 /**
+ * Moneo's included AI (Pro): the Worker calls the model with the same prompt
+ * as the BYOK path and returns steps; the path is built here exactly like a
+ * BYOK answer. The browser never holds a model key.
+ */
+export async function hostedPlan(
+  input: PathInput,
+  getAccessToken: () => Promise<string | null>,
+  fetchImpl: typeof fetch = fetch,
+): Promise<ByokPlanResult> {
+  try {
+    const token = await getAccessToken();
+    if (!token) return { ok: false, reason: 'moneo-signed-out', used: 'moneo' };
+    const r = resolveInput(input);
+    const res = await fetchImpl('/api/ai/plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        goal: r.text.slice(0, 500),
+        horizonMonths: r.horizonMonths,
+        hoursPerWeek: Math.min(40, Math.max(1, Math.round(r.hoursPerWeek))),
+        level: r.level,
+        ...(r.kind ? { kind: r.kind } : {}),
+      }),
+    });
+    if (!res.ok) {
+      let code = '';
+      try {
+        code = String(((await res.json()) as { code?: unknown }).code ?? '');
+      } catch {
+        /* no body */
+      }
+      return {
+        ok: false,
+        reason: code === 'daily_limit' ? 'moneo-daily-limit' : `moneo-http-${res.status}`,
+        used: 'moneo',
+      };
+    }
+    const json = (await res.json()) as Record<string, unknown>;
+    const { path } = pathFromModelJson(input, json);
+    if (!Array.isArray(json.steps) || json.steps.length === 0) {
+      return { ok: false, reason: 'moneo-empty', used: 'moneo' };
+    }
+    return { ok: true, path, sources: [], used: 'moneo' };
+  } catch {
+    return { ok: false, reason: 'moneo-network', used: 'moneo' };
+  }
+}
+
+/** Reasons that mean "included AI isn't set up / not for this account" — fall back quietly. */
+const QUIET_HOSTED_MISSES = new Set([
+  'moneo-signed-out',
+  'moneo-http-501',
+  'moneo-http-503',
+  'moneo-http-403',
+]);
+
+/**
  * Build a path with the configured BYOK provider; on failure fall back to local.
+ * Without an own key, `hosted` (Moneo's included AI, Pro) is tried first.
  */
 export async function buildByokPath(
   input: PathInput,
   cfg: ByokConfig = loadByokConfig(),
   fetchImpl: typeof fetch = fetch,
+  hosted?: (input: PathInput) => Promise<ByokPlanResult>,
 ): Promise<ByokPlanResult> {
   const text = input.text?.trim() ?? '';
   if (!text) return { ok: false, reason: 'empty-goal', used: 'local' };
 
   if (cfg.provider === 'local' || !cfg.key) {
+    if (hosted) {
+      const viaMoneo = await hosted(input);
+      if (viaMoneo.ok && viaMoneo.path) return viaMoneo;
+      if (!QUIET_HOSTED_MISSES.has(viaMoneo.reason ?? '')) {
+        try {
+          return {
+            ok: true,
+            path: buildPath(resolveInput(input)),
+            used: 'local-fallback',
+            reason: viaMoneo.reason,
+          };
+        } catch {
+          return { ok: false, reason: 'build-failed', used: 'local' };
+        }
+      }
+    }
     try {
       return { ok: true, path: buildPath(resolveInput(input)), used: 'local' };
     } catch {

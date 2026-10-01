@@ -3626,6 +3626,8 @@ export const en = {
   'plan.ent.lifeBasics': 'Journal, energy and life wheel',
   'plan.ent.lifeInsights': 'Habit success rate, your peak hours, journal summary, balance targets',
   'plan.ent.calendar': 'Google Calendar and Focus Buddy',
+  'assist.roadmap.dailyLimit':
+    'Today’s included AI plans are used up — this plan was built on your device. More tomorrow.',
   'onb.qs.stepTitle': 'Your first step',
   'onb.qs.stepHint': 'The smallest piece you can start right now — edit it if you like.',
   'onb.qs.startHint': 'One clear focus. Start the timer and work only on this.',

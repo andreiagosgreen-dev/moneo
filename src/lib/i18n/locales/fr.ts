@@ -3686,6 +3686,8 @@ export const fr: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Taux de réussite des habitudes, tes heures de pointe, résumé du journal, objectifs d’équilibre',
   'plan.ent.calendar': 'Google Agenda et Focus Buddy',
+  'assist.roadmap.dailyLimit':
+    'Les plans IA inclus pour aujourd’hui sont épuisés — ce plan a été créé sur ton appareil. À demain.',
   'onb.qs.stepTitle': 'Ta première étape',
   'onb.qs.stepHint':
     'Le plus petit morceau que tu peux commencer maintenant — modifie-le si tu veux.',

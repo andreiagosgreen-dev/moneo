@@ -3632,6 +3632,8 @@ export const ru: Record<TKey, string> = {
   'plan.ent.lifeBasics': 'Дневник, энергия и колесо жизни',
   'plan.ent.lifeInsights': 'Успешность привычек, ваши пиковые часы, сводка дневника, цели баланса',
   'plan.ent.calendar': 'Google Календарь и Focus Buddy',
+  'assist.roadmap.dailyLimit':
+    'Включённые на сегодня ИИ-планы закончились — этот план создан на устройстве. Завтра снова можно.',
   'onb.qs.stepTitle': 'Ваш первый шаг',
   'onb.qs.stepHint':
     'Самая маленькая часть, которую можно начать прямо сейчас, — её можно изменить.',

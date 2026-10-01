@@ -5,7 +5,7 @@
 import { safeRead as read, safeWrite as write } from '../storage/storageAdapter';
 import { STORAGE_KEYS } from '../storage/storageKeys';
 import type { BuiltPath, PathKind } from './types';
-import type { ByokProvider } from './byok';
+import type { PlanSource } from './byok';
 import { FREE_ROADMAPS_LIMIT, canAddRoadmap } from '../roadmapLimits';
 
 export { FREE_ROADMAPS_LIMIT, canAddRoadmap };
@@ -52,7 +52,7 @@ export interface Roadmap {
   id: string;
   group: RoadmapGroup;
   title: string;
-  provider: ByokProvider | 'local-fallback';
+  provider: PlanSource;
   steps: RoadmapStep[];
   /** Planned focused minutes per day. */
   plannedMinPerDay: number;
@@ -166,7 +166,7 @@ export function recalcRoadmap(r: Roadmap, actualMinPerDay: number, now = Date.no
 export function roadmapFromBuiltPath(
   path: BuiltPath,
   group: RoadmapGroup,
-  provider: ByokProvider | 'local-fallback',
+  provider: PlanSource,
   sources: string[] = [],
   plannedMinPerDay = 25,
   now = Date.now(),
