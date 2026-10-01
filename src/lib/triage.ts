@@ -10,7 +10,7 @@ import {
   type IvyTask,
 } from './ivyLee';
 import { removeTask, setDueAt, type Task } from './tasks';
-import { dayKeyInTz } from './timezone';
+import { dayKeyInTz, getBrowserTimezone } from './timezone';
 
 export type TriageReason = 'inbox' | 'overdue' | 'dueToday' | 'yesterday';
 export type TriageAction = 'today' | 'tomorrow' | 'later' | 'drop';
@@ -53,7 +53,7 @@ export function buildSuggestions(input: {
   todayKey: string;
   timezone?: string;
 }): Suggestion[] {
-  const tz = input.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const tz = input.timezone ?? getBrowserTimezone();
   const today = planForDay(input.plans, input.todayKey)?.tasks ?? [];
   const itemFor = (id: string) => today.find((i) => i.taskId === id);
   const byId = new Map(input.tasks.map((t) => [t.id, t]));

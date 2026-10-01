@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { dayKey } from './store';
 import {
   currentStreakInTz,
@@ -14,6 +14,22 @@ import {
 describe('timezone policy seam', () => {
   it('resolves a valid IANA browser timezone', () => {
     expect(isValidIanaTimezone(getBrowserTimezone())).toBe(true);
+  });
+
+  it('falls back to UTC when the browser reports an unusable zone', () => {
+    // Headless crawlers report "Etc/Unknown" (Sentry MONEO-7).
+    const real = Intl.DateTimeFormat.prototype.resolvedOptions;
+    const spy = vi
+      .spyOn(Intl.DateTimeFormat.prototype, 'resolvedOptions')
+      .mockImplementation(function (this: Intl.DateTimeFormat) {
+        return { ...real.call(this), timeZone: 'Etc/Unknown' };
+      });
+    try {
+      expect(getBrowserTimezone()).toBe('UTC');
+      expect(getEffectiveTimezone(null)).toBe('UTC');
+    } finally {
+      spy.mockRestore();
+    }
   });
 
   it('accepts real IANA zones and rejects impostors', () => {
