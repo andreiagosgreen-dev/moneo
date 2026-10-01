@@ -50,6 +50,8 @@ export const legalEs: LegalSet = {
         blocks: [
           'Moneo te ayuda a planificar tu día y a hacer sesiones de enfoque. Funciona como «local-first»: la mayoría de las funciones van sin cuenta y tus datos se guardan en tu navegador, en tu dispositivo.',
           'Con una cuenta puedes sincronizar tus sesiones de enfoque, áreas de enfoque y ajustes con nuestra base de datos en la nube. Con Pro, el resto de tus datos de planificación (proyectos, tareas, planes, objetivos, hábitos, entradas del diario y similares) también se guardan en tu cuenta y se sincronizan entre tus dispositivos. En el plan gratuito, esos datos se quedan en tu dispositivo.',
+          'Ayuda, no resultados: Moneo es una herramienta que te ayuda a organizar tu tiempo, tus planes, tus hábitos y tus objetivos. Nosotros damos las herramientas y las sugerencias; lo que consigas depende de ti. No prometemos ningún resultado concreto, por ejemplo mejores notas, aprobar un examen, un empleo, más ingresos, perder peso o un nivel determinado de productividad.',
+          'Salud y ejercicio: Movimiento, la biblioteca de ejercicios y los programas de entrenamiento son información general, no consejo médico, de fisioterapia ni de nutrición, y no sustituyen a un médico ni a un entrenador cualificado. Consulta a un médico antes de empezar un nuevo programa de ejercicio, sobre todo si tienes una enfermedad, una lesión o estás embarazada. Detente si sientes dolor, mareo o falta de aire. Haces ejercicio bajo tu propia responsabilidad y no prometemos ningún resultado concreto.',
         ],
       },
       {

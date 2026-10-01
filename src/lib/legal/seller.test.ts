@@ -255,6 +255,20 @@ describe('legal content', () => {
     expect(landingMinors).toContain('(16 in many EU countries), a parent or guardian must agree');
   });
 
+  it('Terms say Moneo helps but promises no results, and Move is not medical advice', () => {
+    for (const lang of LANGS) {
+      const doc = getLegalDoc('terms', lang);
+      const sec = doc.sections.find((s) => s.heading.startsWith('3.'));
+      expect(sec, lang).toBeDefined();
+      expect(sec!.blocks, lang).toHaveLength(4);
+    }
+    const en = getLegalDoc('terms', 'en').sections.find((s) => s.heading.startsWith('3.'))!;
+    const enText = allText({ ...getLegalDoc('terms', 'en'), intro: [], sections: [en] });
+    expect(enText).toContain('We do not promise any particular outcome');
+    expect(enText).toContain('not medical, physiotherapy or nutrition advice');
+    expect(enText).toContain('Talk to a doctor before you start a new exercise program');
+  });
+
   it('Privacy has a children and students section with guardian contact', () => {
     for (const lang of LANGS) {
       const doc = getLegalDoc('privacy', lang);
