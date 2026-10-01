@@ -157,7 +157,7 @@ export const de: Record<TKey, string> = {
   'land.faq.title': 'Häufige Fragen',
   'land.faq.free.q': 'Ist Moneo kostenlos?',
   'land.faq.free.a':
-    'Ja. Fokus-Timer, Tagesplan, 3 Projekte, Gewohnheiten und Journal sind für immer kostenlos. Pro bringt unbegrenzt viele Projekte und Ziele, KI mit eigenem Schlüssel (optional), Exporte, alle deine Daten im Konto auf jedem Gerät und mehr.',
+    'Ja. Fokus-Timer, Tagesplan, 3 Projekte, Gewohnheiten, Journal und Übungsbibliothek sind für immer kostenlos. Pro bringt unbegrenzte Projekte und Ziele, inklusive KI für Schritt-für-Schritt-Pläne (oder eigener Schlüssel), Bewegung Pro, Exporte, alle Daten im Konto auf jedem Gerät und mehr.',
   'land.faq.account.q': 'Brauche ich ein Konto?',
   'land.faq.account.a':
     'Nein. Öffne Moneo und leg los — alles funktioniert ohne Konto und wird auf diesem Gerät gespeichert. Mit einem kostenlosen Konto werden dort auch Fokussitzungen, Bereiche und Einstellungen gespeichert, mit Pro alle deine Daten.',
@@ -1030,7 +1030,7 @@ export const de: Record<TKey, string> = {
 
   'pay.title': 'Upgrade auf Pro',
   'pay.sub':
-    'Unbegrenzte Projekte und Ziele, KI mit eigenem Schlüssel (optional), CSV/PDF-Exporte und ein individueller Look. Alle deine Daten — Projekte, Aufgaben, Gewohnheiten, Journal, Lebenskarte, Ziele und Pläne — werden in deinem Konto gespeichert und zwischen Geräten abgeglichen.',
+    'Unbegrenzte Projekte und Ziele, inklusive KI für Schritt-für-Schritt-Pläne (oder eigener Schlüssel), Bewegung Pro, CSV/PDF-Export und ein persönlicher Look. Alle deine Daten — Projekte, Aufgaben, Gewohnheiten, Journal, Lebenskarte, Ziele und Pläne — werden im Konto gespeichert und zwischen Geräten synchronisiert.',
   'pay.signin': 'Melde dich an für Pro-Upgrade',
   'pay.unavailable': 'Bezahlung gerade nicht möglich. Bitte kontaktiere den Support.',
   'pay.current': 'Aktuell',
@@ -1057,7 +1057,8 @@ export const de: Record<TKey, string> = {
   'pay.plan.monthly.desc': 'Für alle, die täglich planen und fokussiert arbeiten',
   'pay.plan.monthly.f0': 'Alles aus dem kostenlosen Plan',
   'pay.plan.monthly.f1': 'Unbegrenzte Projekte, Ziele & OKRs',
-  'pay.plan.monthly.f2': 'Inklusive KI für Schritt-für-Schritt-Pläne — mehr pro Tag mit steigendem Rang · oder eigener Schlüssel',
+  'pay.plan.monthly.f2':
+    'Inklusive KI für Schritt-für-Schritt-Pläne — mehr pro Tag mit steigendem Rang · oder eigener Schlüssel',
   'pay.plan.monthly.f3': 'Berichte als CSV (Excel) und PDF exportieren',
   'pay.plan.monthly.f4': 'Wöchentliche Zeitblöcke, Sprint-Diagramme & Arbeitslimits im Kanban',
   'pay.plan.monthly.f5':
@@ -2085,7 +2086,7 @@ export const de: Record<TKey, string> = {
     'Upgrade auf Moneo Pro für Frist-Hinweise, dein bestes Fokus-Zeitfenster und mehr Hinweise aus deinen Daten.',
   'pricing.title': 'Moneo-Preise',
   'pricing.sub':
-    'Kostenlos starten – ohne Karte, ohne Konto. Pro bringt erweiterte Planung, KI mit eigenem Schlüssel (optional), CSV/PDF-Exporte und einen individuellen Look.',
+    'Kostenlos starten — ohne Karte, ohne Konto. Pro bringt erweiterte Planung, inklusive KI für Schritt-für-Schritt-Pläne (oder eigener Schlüssel), Bewegung Pro, CSV/PDF-Export und einen persönlichen Look.',
   'pricing.back': '← Zurück zu Moneo',
   'pricing.unlimited': 'Unbegrenzt',
   'pricing.row.ivy': 'Top-Aufgaben pro Tag (Ivy-Lee-Methode)',
@@ -2352,7 +2353,7 @@ export const de: Record<TKey, string> = {
   'pricing.feature.allFree': 'Alle Free-Funktionen',
   'pricing.feature.unlimitedProjects': 'Unbegrenzte Projekte, Ziele & OKRs',
   'pricing.feature.fullAi':
-    'KI-Assistent mit eigenem Schlüssel (optional) · der integrierte Planer funktioniert auch ohne',
+    'Inklusive KI für Schritt-für-Schritt-Pläne · oder eigener Schlüssel · der eingebaute Planer funktioniert auch ohne',
   'pricing.feature.reportsExport': 'Berichte, CSV/PDF-Export & abrechenbare Zeit',
   'pricing.feature.timeBlocking': 'Zeitblöcke, Sprints & Kanban',
   'pricing.feature.cloudSync': 'Cloud-Sync geräteübergreifend',
@@ -3682,7 +3683,8 @@ export const de: Record<TKey, string> = {
   'mono.xp.proPerk': 'Rang-Belohnung: +{n} inklusive KI-Pläne pro Tag.',
   'mono.xp.proPerkNext': 'Erreiche {rank} für +{n} inklusive KI-Pläne pro Tag.',
   'mono.xp.freePerk': 'Mit Pro bringt dein Rang +{n} KI-Pläne pro Tag.',
-  'pay.plan.monthly.f8': 'Bewegung Pro: eigene Routinen, persönliche Rekorde, Fortschrittsdiagramme und ein persönliches Trainingsprogramm',
+  'pay.plan.monthly.f8':
+    'Bewegung Pro: eigene Routinen, persönliche Rekorde, Fortschrittsdiagramme und ein persönliches Trainingsprogramm',
   'pay.trialBadge': 'Die ersten {n} Tage gratis',
   'pay.trialCta': '{n} Tage gratis testen',
   'pay.trialNote': 'Kündigst du während der Testphase, zahlst du nichts.',

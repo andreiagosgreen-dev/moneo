@@ -159,7 +159,7 @@ export const fr: Record<TKey, string> = {
   'land.faq.title': 'Questions fréquentes',
   'land.faq.free.q': 'Moneo est-il gratuit ?',
   'land.faq.free.a':
-    'Oui. Le minuteur de concentration, le plan du jour, 3 projets, les habitudes et le journal sont gratuits pour toujours. Pro ajoute des projets et objectifs illimités, l’IA avec votre propre clé (facultatif), les exports, toutes vos données enregistrées dans votre compte sur chaque appareil, et plus encore.',
+    'Oui. Le minuteur de focus, le plan du jour, 3 projets, les habitudes, le journal et la bibliothèque d’exercices sont gratuits pour toujours. Pro ajoute projets et objectifs illimités, l’IA incluse pour les plans pas à pas (ou ta propre clé), Mouvement Pro, les exports, toutes tes données dans ton compte sur chaque appareil, et plus.',
   'land.faq.account.q': 'Ai-je besoin d’un compte ?',
   'land.faq.account.a':
     'Non. Ouvrez Moneo et commencez — tout fonctionne sans compte et est enregistré sur cet appareil. Avec un compte gratuit, vos sessions de focus, zones et réglages y sont aussi enregistrés ; avec Pro, toutes vos données.',
@@ -1031,7 +1031,7 @@ export const fr: Record<TKey, string> = {
 
   'pay.title': 'Passer à Pro',
   'pay.sub':
-    'Profitez de projets et objectifs illimités, de l’IA avec votre propre clé (facultatif), des exports CSV/PDF et d’un look personnalisé. Toutes vos données — projets, tâches, habitudes, journal, carte de vie, objectifs et plans — sont enregistrées dans votre compte et synchronisées entre appareils.',
+    'Projets et objectifs illimités, IA incluse pour les plans pas à pas (ou ta propre clé), Mouvement Pro, exports CSV/PDF et un look personnalisé. Toutes tes données — projets, tâches, habitudes, journal, carte de vie, objectifs et plans — sont enregistrées dans ton compte et synchronisées entre appareils.',
   'pay.signin': 'Connectez-vous pour passer à Pro',
   'pay.unavailable': 'Paiement indisponible pour le moment. Contactez le support.',
   'pay.current': 'Actuel',
@@ -1058,7 +1058,8 @@ export const fr: Record<TKey, string> = {
   'pay.plan.monthly.desc': 'Pour celles et ceux qui planifient et se concentrent chaque jour',
   'pay.plan.monthly.f0': 'Tout le plan gratuit',
   'pay.plan.monthly.f1': 'Projets, objectifs et OKR illimités',
-  'pay.plan.monthly.f2': 'IA incluse pour les plans pas à pas — plus par jour à mesure que ton rang monte · ou ta propre clé',
+  'pay.plan.monthly.f2':
+    'IA incluse pour les plans pas à pas — plus par jour à mesure que ton rang monte · ou ta propre clé',
   'pay.plan.monthly.f3': 'Export des rapports en CSV (Excel) et PDF',
   'pay.plan.monthly.f4':
     'Blocs de temps hebdo, graphiques de sprint et limites de travail en kanban',
@@ -2096,7 +2097,7 @@ export const fr: Record<TKey, string> = {
     'Passez à Moneo Pro : alertes d’échéance, votre meilleur créneau de focus et plus de suggestions tirées de vos données.',
   'pricing.title': 'Tarifs Moneo',
   'pricing.sub':
-    'Commencez gratuitement, sans carte ni compte. Pro ajoute une planification avancée, l’IA avec votre propre clé (facultatif), les exports CSV/PDF et un look personnalisé.',
+    'Commence gratuitement — sans carte ni compte. Pro ajoute la planification avancée, l’IA incluse pour les plans pas à pas (ou ta propre clé), Mouvement Pro, les exports CSV/PDF et un look personnalisé.',
   'pricing.back': '← Retour à Moneo',
   'pricing.unlimited': 'Illimité',
   'pricing.row.ivy': 'Tâches prioritaires par jour (méthode Ivy Lee)',
@@ -2361,7 +2362,7 @@ export const fr: Record<TKey, string> = {
   'pricing.feature.allFree': 'Toutes les fonctions Free',
   'pricing.feature.unlimitedProjects': 'Projets, objectifs et OKR illimités',
   'pricing.feature.fullAi':
-    'Assistant IA avec votre propre clé (facultatif) · le planificateur intégré fonctionne aussi sans',
+    'IA incluse pour les plans pas à pas · ou ta propre clé · le planificateur intégré fonctionne sans',
   'pricing.feature.reportsExport': 'Rapports, export CSV/PDF et temps facturable',
   'pricing.feature.timeBlocking': 'Blocs de temps, sprints et kanban',
   'pricing.feature.cloudSync': 'Synchro cloud entre appareils',
@@ -3690,7 +3691,8 @@ export const fr: Record<TKey, string> = {
   'mono.xp.proPerk': 'Récompense de rang : +{n} plans IA inclus par jour.',
   'mono.xp.proPerkNext': 'Atteins {rank} pour +{n} plans IA inclus par jour.',
   'mono.xp.freePerk': 'Avec Pro, ton rang ajoute +{n} plans IA par jour.',
-  'pay.plan.monthly.f8': 'Mouvement Pro : tes routines, records personnels, graphiques de progrès et programme d’entraînement personnel',
+  'pay.plan.monthly.f8':
+    'Mouvement Pro : tes routines, records personnels, graphiques de progrès et programme d’entraînement personnel',
   'pay.trialBadge': '{n} premiers jours offerts',
   'pay.trialCta': 'Essayer {n} jours gratuitement',
   'pay.trialNote': 'Résilie pendant l’essai et tu ne paies rien.',
