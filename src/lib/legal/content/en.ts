@@ -50,6 +50,8 @@ export const legalEn: LegalSet = {
         blocks: [
           'Moneo helps you plan your day and run focus sessions. It is local-first: most features work without an account, and your data is stored in your browser on your device.',
           'With an account you can sync focus sessions, focus areas and settings to our cloud database. With Pro, your other planning data (projects, tasks, plans, goals, habits, journal entries and similar) is also saved to your account and synced between your devices. On the Free plan, that planning data stays on your device.',
+          'Help, not results: Moneo is a tool that helps you organize your time, plans, habits and goals. We provide the tools and suggestions; what you achieve depends on you. We do not promise any particular outcome — for example better grades, passing an exam, a job, higher income, weight loss or a set level of productivity.',
+          'Health and exercise: Move, the workout library and training programs are general information, not medical, physiotherapy or nutrition advice, and they do not replace a doctor or a qualified trainer. Talk to a doctor before you start a new exercise program, especially if you have a health condition, an injury or are pregnant. Stop if you feel pain, dizziness or shortness of breath. You exercise at your own risk, and we do not promise any particular result.',
         ],
       },
       {

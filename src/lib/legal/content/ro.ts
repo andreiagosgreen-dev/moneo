@@ -50,6 +50,8 @@ export const legalRo: LegalSet = {
         blocks: [
           'Moneo te ajută să-ți planifici ziua și să lucrezi în sesiuni de concentrare. Datele se salvează întâi pe dispozitiv: majoritatea funcțiilor merg fără cont, iar datele tale sunt salvate în browser, pe dispozitivul tău.',
           'Cu un cont poți sincroniza în baza noastră de date din cloud sesiunile de concentrare, ariile de focus și setările. Cu Pro, și celelalte date de planificare (proiecte, sarcini, planuri, obiective, obiceiuri, jurnal și date similare) se salvează în contul tău și se sincronizează între dispozitive. Pe planul Free, aceste date de planificare rămân pe dispozitivul tău.',
+          'Ajutor, nu rezultate: Moneo este un instrument care te ajută să-ți organizezi timpul, planurile, obiceiurile și obiectivele. Noi oferim instrumentele și sugestiile; ce reușești depinde de tine. Nu promitem un anumit rezultat — de exemplu note mai bune, promovarea unui examen, un loc de muncă, venituri mai mari, slăbit sau un anumit nivel de productivitate.',
+          'Sănătate și exerciții: Mișcarea, biblioteca de exerciții și programele de antrenament sunt informații generale, nu sfaturi medicale, de fizioterapie sau de nutriție, și nu înlocuiesc un medic sau un antrenor calificat. Discută cu un medic înainte să începi un program nou de exerciții, mai ales dacă ai o afecțiune, o accidentare sau ești însărcinată. Oprește-te dacă simți durere, amețeală sau lipsă de aer. Faci exercițiile pe propria răspundere și nu promitem un anumit rezultat.',
         ],
       },
       {
