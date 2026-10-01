@@ -53,6 +53,26 @@ export function remainingAt(endsAt: number, now: number): number {
   return Math.max(0, Math.round((endsAt - now) / 1000));
 }
 
+/**
+ * Where a round saved as running stands when the app opens again: still
+ * counting (resume at the same end time) or already over (credit it now).
+ * A paused or idle snapshot (no `endsAt`) keeps its saved position.
+ */
+export function resumeState(
+  snap: { remaining: number; total: number; endsAt?: number },
+  now: number,
+): { remaining: number; endsAt: number | null; ended: boolean } {
+  if (typeof snap.endsAt !== 'number') {
+    return { remaining: snap.remaining, endsAt: null, ended: false };
+  }
+  // A clock jump can't make a round longer than it was planned.
+  const endsAt = Math.min(snap.endsAt, now + snap.total * 1000);
+  const remaining = remainingAt(endsAt, now);
+  return remaining > 0
+    ? { remaining, endsAt, ended: false }
+    : { remaining: 0, endsAt, ended: true };
+}
+
 /** Epoch ms at which a round of `remaining` seconds will end. */
 export function endsAtFor(remaining: number, now: number): number {
   return now + remaining * 1000;

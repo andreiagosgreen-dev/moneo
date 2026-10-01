@@ -44,6 +44,8 @@ export interface TimerInitial {
   total: number;
   remaining: number;
   cycle: number;
+  /** End time of a round that was running when the app closed (resume it). */
+  endsAt?: number | null;
   roundMin: number;
   roundIntention: string | null;
   roundAreaId: string | null;
@@ -206,6 +208,24 @@ export function useTimer({
     gotoMode(res.mode, s.autoStart);
   };
 
+  // Resume a round that was running when the app closed, or credit it now if
+  // it finished meanwhile (stamped with its scheduled end). Once per mount.
+  const resumedRef = useRef(false);
+  useEffect(() => {
+    if (resumedRef.current) return;
+    resumedRef.current = true;
+    const endsAt = initial.endsAt;
+    if (typeof endsAt !== 'number') return;
+    endsAtRef.current = endsAt;
+    if (remainingAt(endsAt, Date.now()) > 0) {
+      runningRef.current = true;
+      setRunning(true);
+    } else {
+      completeRef.current();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!running) return;
     const id = window.setInterval(() => {
@@ -299,12 +319,34 @@ export function useTimer({
   const sigRef = useRef('');
   const lastPersistRef = useRef(0);
   useEffect(() => {
-    const sig = `${mode}|${total}|${cycle}`;
+    // `running` is part of the signature so start/pause persist immediately.
+    const sig = `${mode}|${total}|${cycle}|${running}`;
     const now = Date.now();
     if (shouldPersist(sigRef.current, sig, running, now, lastPersistRef.current, 10_000)) {
       sigRef.current = sig;
       lastPersistRef.current = now;
-      saveSnapshot({ mode, total, remaining, cycle });
+      saveSnapshot({
+        mode,
+        total,
+        remaining,
+        cycle,
+        ...(running
+          ? {
+              endsAt: endsAtRef.current,
+              ...(mode === 'focus'
+                ? {
+                    round: {
+                      min: roundMinRef.current,
+                      intention: roundIntentionRef.current,
+                      areaId: roundAreaIdRef.current,
+                      projectId: roundProjectIdRef.current,
+                      taskId: roundTaskIdRef.current,
+                    },
+                  }
+                : {}),
+            }
+          : {}),
+      });
     }
   }, [mode, total, remaining, cycle, running]);
 

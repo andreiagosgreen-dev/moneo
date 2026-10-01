@@ -238,6 +238,7 @@ import { dueStatus } from './lib/taskDue';
 import { dayProgress } from './lib/dayProgress';
 import { buildLastWeekRecap, loadRecapSeen, saveRecapSeen, shouldShowRecap } from './lib/weekRecap';
 import { addDays, mondayOf } from './lib/dayKeys';
+import { resumeState } from './lib/timerEngine';
 import { loadSyncState, onSyncStateChange } from './lib/sync/syncState';
 
 /* Boot once: restore settings, history and the paused timer position. */
@@ -248,7 +249,11 @@ const BOOT = (() => {
   const snap = loadSnapshot();
   const mode: Mode = snap?.mode ?? 'focus';
   const total = snap?.mode === mode ? snap.total : durationFor(mode, settings);
-  const remaining = snap?.mode === mode ? Math.min(snap.remaining, total) : total;
+  // A round that was running when the tab closed resumes at its real end time
+  // (or is credited at once if it finished while the app was closed).
+  const resume = snap ? resumeState(snap, Date.now()) : null;
+  const remaining = resume ? Math.min(resume.remaining, total) : total;
+  const resumedRound = resume?.endsAt && snap?.round ? snap.round : null;
   const intentionDraft = loadIntentionDraft();
   const areas = loadFocusAreas();
   const selectedAreaId = loadSelectedArea(areas);
@@ -286,7 +291,8 @@ const BOOT = (() => {
     total,
     remaining,
     cycle: snap?.cycle ?? 0,
-    roundMin: mode === 'focus' ? settings.focusMin : 0,
+    endsAt: resume?.endsAt ?? null,
+    roundMin: resumedRound?.min ?? (mode === 'focus' ? settings.focusMin : 0),
     intentionDraft,
     areas,
     selectedAreaId,
@@ -312,10 +318,14 @@ const BOOT = (() => {
     links,
     savedFilters,
     selectedProjectId,
-    roundIntention: roundMeta.intention,
-    roundAreaId: roundMeta.areaId,
-    roundProjectId: mode === 'focus' ? selectedProjectId : null,
-    roundTaskId: null,
+    roundIntention: resumedRound ? resumedRound.intention : roundMeta.intention,
+    roundAreaId: resumedRound ? resumedRound.areaId : roundMeta.areaId,
+    roundProjectId: resumedRound
+      ? resumedRound.projectId
+      : mode === 'focus'
+        ? selectedProjectId
+        : null,
+    roundTaskId: resumedRound ? resumedRound.taskId : null,
   };
 })();
 
@@ -509,6 +519,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
       total: BOOT.total,
       remaining: BOOT.remaining,
       cycle: BOOT.cycle,
+      endsAt: BOOT.endsAt,
       roundMin: BOOT.roundMin,
       roundIntention: BOOT.roundIntention,
       roundAreaId: BOOT.roundAreaId,
