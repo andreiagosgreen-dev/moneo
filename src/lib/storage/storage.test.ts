@@ -61,6 +61,7 @@ describe('centralized storage keys', () => {
       locale: 'moneo:locale',
       estimateProfiles: 'moneo:estimate-profiles',
       aiConsent: 'moneo:ai-consent',
+      complimentaryPro: 'moneo:complimentary-pro',
       links: 'moneo:links',
       capsuleDelivered: 'moneo:capsule-delivered',
       celebrationsShown: 'moneo:celebrations-shown',

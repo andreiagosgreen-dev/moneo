@@ -12,6 +12,7 @@
  */
 
 import { handleAccountDelete } from './account';
+import { handleEntitlement } from './entitlement';
 import { handleLemonSqueezyWebhook } from './lemonWebhook';
 import { handleCustomerPortal } from './portal';
 import { handleRankDiscount, type DiscountKV } from './discount';
@@ -191,6 +192,11 @@ export default {
     // the caller's JWT, verified server-side against Supabase Auth.
     if (url.pathname === '/api/account/delete') {
       return handleAccountDelete(request, env);
+    }
+
+    // Gifted Pro: the allowlist stays on the Worker; the client gets a boolean.
+    if (url.pathname === '/api/account/entitlement') {
+      return handleEntitlement(request, env);
     }
 
     // Customer Portal session for self-serve cancel/upgrade/downgrade.
