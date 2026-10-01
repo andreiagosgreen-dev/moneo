@@ -3678,4 +3678,6 @@ export const de: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Erfolgsquote der Gewohnheiten, deine Spitzenzeiten, Journal-Zusammenfassung, Balance-Ziele',
   'plan.ent.calendar': 'Google Kalender und Focus Buddy',
+  'pay.switchHint':
+    'Du hast bereits Pro. Wechsle unter „Abo verwalten“ zwischen monatlich und jährlich — ohne zweite Zahlung.',
 };

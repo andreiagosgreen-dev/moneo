@@ -3632,4 +3632,6 @@ export const ru: Record<TKey, string> = {
   'plan.ent.lifeBasics': 'Дневник, энергия и колесо жизни',
   'plan.ent.lifeInsights': 'Успешность привычек, ваши пиковые часы, сводка дневника, цели баланса',
   'plan.ent.calendar': 'Google Календарь и Focus Buddy',
+  'pay.switchHint':
+    'У вас уже есть Pro. Переключайтесь между помесячным и годовым тарифом в «Управлении подпиской» — без второго платежа.',
 };

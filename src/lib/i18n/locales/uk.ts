@@ -3638,4 +3638,6 @@ export const uk: Record<TKey, string> = {
   'plan.ent.lifeInsights':
     'Успішність звичок, ваші пікові години, підсумок щоденника, цілі балансу',
   'plan.ent.calendar': 'Google Календар і Focus Buddy',
+  'pay.switchHint':
+    'У вас уже є Pro. Перемикайтеся між щомісячним і річним планом у «Керуванні підпискою» — без другого платежу.',
 };

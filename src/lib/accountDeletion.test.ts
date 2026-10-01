@@ -335,3 +335,56 @@ describe('deleteUserRows / deleteAuthUser units', () => {
     ).resolves.toBe(false);
   });
 });
+
+describe('handleAccountDelete — Lemon subscriptions', () => {
+  const LEMON_ENV: AccountEnv = { ...ENV, LEMON_SQUEEZY_API_KEY: 'lemon-key', LEMON_STORE_ID: '7' };
+
+  function lemonBackend(lemonList: { status: number; body: unknown }) {
+    return stubFetch((url, init) => {
+      if (url.endsWith('/auth/v1/user')) {
+        return { status: 200, body: { id: 'user-1', email: 'a@example.com' } };
+      }
+      if (url.includes('/rest/v1/subscriptions?') && (init.method ?? 'GET') === 'GET') {
+        return { status: 200, body: [{ lemon_subscription_id: 'sub-yearly', status: 'active' }] };
+      }
+      if (url.startsWith('https://api.lemonsqueezy.com/v1/subscriptions?')) return lemonList;
+      if (url.startsWith('https://api.lemonsqueezy.com/v1/subscriptions/')) {
+        return { status: 200, body: {} };
+      }
+      if (url.includes('/rest/v1/')) return { status: 200, body: [] };
+      if (url.includes('/auth/v1/admin/users/')) return { status: 200, body: {} };
+      return { status: 404, body: {} };
+    });
+  }
+
+  it('cancels the subscription on file and every other live one under the email', async () => {
+    const { fn, calls } = lemonBackend({
+      status: 200,
+      body: {
+        data: [
+          { id: 'sub-yearly', attributes: { status: 'active' } },
+          { id: 'sub-monthly', attributes: { status: 'active' } },
+          { id: 'sub-old', attributes: { status: 'expired' } },
+        ],
+      },
+    });
+    const res = await handleAccountDelete(deleteRequest('good-token'), LEMON_ENV, fn);
+    expect(res.status).toBe(200);
+    const list = calls.find((c) =>
+      c.url.startsWith('https://api.lemonsqueezy.com/v1/subscriptions?'),
+    );
+    expect(list?.url).toContain('filter%5Buser_email%5D=a%40example.com');
+    expect(list?.url).toContain('filter%5Bstore_id%5D=7');
+    const cancelled = calls
+      .filter((c) => c.method === 'DELETE' && c.url.includes('api.lemonsqueezy.com'))
+      .map((c) => c.url.split('/').pop());
+    expect(cancelled.sort()).toEqual(['sub-monthly', 'sub-yearly']);
+  });
+
+  it('aborts the deletion when Lemon cannot list subscriptions', async () => {
+    const { fn, calls } = lemonBackend({ status: 500, body: {} });
+    const res = await handleAccountDelete(deleteRequest('good-token'), LEMON_ENV, fn);
+    expect(res.status).toBe(502);
+    expect(calls.some((c) => c.url.includes('/auth/v1/admin/users/'))).toBe(false);
+  });
+});
