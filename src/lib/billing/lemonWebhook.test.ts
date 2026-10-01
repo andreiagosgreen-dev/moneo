@@ -42,6 +42,8 @@ function payload(
     updatedAt?: string;
     status?: string;
     testMode?: boolean;
+    subId?: string;
+    endsAt?: string | null;
   } = {},
 ): string {
   return JSON.stringify({
@@ -51,13 +53,14 @@ function payload(
       custom_data: { user_id: 'user-1' },
     },
     data: {
-      id: 'sub-1',
+      id: overrides.subId ?? 'sub-1',
       attributes: {
         customer_id: 42,
         status: overrides.status ?? 'active',
         product_name: 'Moneo Pro (Monthly)',
         renews_at: '2030-01-01T00:00:00.000Z',
         updated_at: overrides.updatedAt ?? '2026-09-28T10:00:00.000Z',
+        ends_at: overrides.endsAt ?? null,
       },
     },
   });
@@ -75,6 +78,8 @@ interface FakeDb {
 function fakeDb(
   opts: {
     stored?: string | null;
+    /** Current row besides lemon_updated_at (the subscription on file). */
+    row?: { lemon_subscription_id?: string; status?: string; current_period_end?: string | null };
     columnMissing?: boolean;
     writeStatuses?: number[];
   } = {},
@@ -88,8 +93,11 @@ function fakeDb(
     });
   const impl = async (url: string, init?: RequestInit) => {
     if (!init?.method || init.method === 'GET') {
-      if (opts.columnMissing) return json({ code: '42703' }, 400);
-      return json(opts.stored === undefined ? [] : [{ lemon_updated_at: opts.stored }]);
+      if (opts.columnMissing && url.includes('lemon_updated_at')) {
+        return json({ code: '42703' }, 400);
+      }
+      if (opts.stored === undefined && !opts.row) return json([]);
+      return json([{ lemon_updated_at: opts.stored ?? null, ...opts.row }]);
     }
     const body = JSON.parse(String(init.body)) as Record<string, unknown>;
     if (opts.columnMissing && 'lemon_updated_at' in body) {
@@ -239,5 +247,77 @@ describe('lemon webhook — ordering', () => {
     expect(lemonUpdatedAt({ updated_at: '2026-09-28T10:00:00Z' })).toBe('2026-09-28T10:00:00.000Z');
     expect(lemonUpdatedAt({ updated_at: 'nope' })).toBeNull();
     expect(lemonUpdatedAt({})).toBeNull();
+  });
+});
+
+describe('lemon webhook — two subscriptions on one account', () => {
+  const active = {
+    lemon_subscription_id: 'sub-yearly',
+    status: 'active',
+    current_period_end: '2031-01-01T00:00:00.000Z',
+  };
+
+  it('an expiring second subscription does not downgrade the active one', async () => {
+    const db = fakeDb({ row: active });
+    const body = payload({
+      event: 'subscription_expired',
+      status: 'expired',
+      subId: 'sub-monthly',
+      endsAt: '2026-09-01T00:00:00.000Z',
+    });
+    const res = await handleLemonSqueezyWebhook(
+      await signedRequest(body),
+      ENV,
+      db.fetch,
+      createReplayGuard(60_000),
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ skipped: 'other subscription active' });
+    expect(db.writes).toHaveLength(0);
+  });
+
+  it('a second subscription that grants access replaces the row', async () => {
+    const db = fakeDb({ row: { ...active, status: 'expired' } });
+    const res = await handleLemonSqueezyWebhook(
+      await signedRequest(payload({ subId: 'sub-monthly' })),
+      ENV,
+      db.fetch,
+      createReplayGuard(60_000),
+    );
+    expect(res.status).toBe(200);
+    expect(db.writes[0]).toMatchObject({ lemon_subscription_id: 'sub-monthly', status: 'active' });
+  });
+
+  it('the same subscription can still cancel itself', async () => {
+    const db = fakeDb({ row: active });
+    const body = payload({
+      event: 'subscription_expired',
+      status: 'expired',
+      subId: 'sub-yearly',
+      endsAt: '2026-09-01T00:00:00.000Z',
+    });
+    await handleLemonSqueezyWebhook(
+      await signedRequest(body),
+      ENV,
+      db.fetch,
+      createReplayGuard(60_000),
+    );
+    expect(db.writes[0]).toMatchObject({ lemon_subscription_id: 'sub-yearly', status: 'expired' });
+  });
+
+  it('keeps the guard when migration 0012 is missing', async () => {
+    const db = fakeDb({ row: active, columnMissing: true });
+    const body = payload({
+      status: 'expired',
+      subId: 'sub-monthly',
+      endsAt: '2026-09-01T00:00:00.000Z',
+    });
+    await handleLemonSqueezyWebhook(
+      await signedRequest(body),
+      ENV,
+      db.fetch,
+      createReplayGuard(60_000),
+    );
+    expect(db.writes).toHaveLength(0);
   });
 });

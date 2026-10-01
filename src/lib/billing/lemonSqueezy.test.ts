@@ -152,3 +152,14 @@ describe('getPricingPlans', () => {
     expect(plans.every((p) => !('checkoutUrl' in p))).toBe(true);
   });
 });
+
+describe('buildCheckoutUrl — account email', () => {
+  it('prefills a valid account email and ignores junk', () => {
+    configureEnv({ store: 's1', base: BASE, monthly: '111', yearly: '222' });
+    const url = buildCheckoutUrl('pro-monthly', 'user-1', undefined, 'a+b@example.com');
+    expect(url).toContain('&checkout[email]=a%2Bb%40example.com');
+    expect(buildCheckoutUrl('pro-monthly', 'user-1', undefined, 'not-an-email')).not.toContain(
+      'checkout[email]',
+    );
+  });
+});

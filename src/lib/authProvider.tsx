@@ -25,7 +25,12 @@ import {
   DEFAULT_FREE_SUBSCRIPTION,
   type SubscriptionInfo,
 } from './cloud/subscriptionRepository';
-import { resolveIsPro } from './billing/complimentaryPro';
+import {
+  fetchComplimentaryProShared,
+  loadComplimentaryCache,
+  resolveIsPro,
+  saveComplimentaryCache,
+} from './billing/complimentaryPro';
 import { requestAccountDeletion } from './accountDeletionClient';
 
 /**
@@ -99,15 +104,32 @@ export function useAuth(): AuthApi {
   );
 
   const [subscription, setSubscription] = useState<SubscriptionInfo>(DEFAULT_FREE_SUBSCRIPTION);
+  const userId = snapshot.user?.userId ?? null;
+  // Gifted Pro: last known answer first (works offline), then the Worker's.
+  const [complimentary, setComplimentary] = useState(() => loadComplimentaryCache(userId));
 
   const refreshSubscription = useCallback(async () => {
-    if (snapshot.user?.userId) {
-      const sub = await fetchSubscription(snapshot.user.userId);
+    if (userId) {
+      const [sub, gift] = await Promise.all([
+        fetchSubscription(userId),
+        fetchComplimentaryProShared(userId, async () => {
+          const client = await getSupabaseClient();
+          const { data } = (await client?.auth.getSession()) ?? { data: null };
+          return data?.session?.access_token ?? null;
+        }),
+      ]);
       setSubscription(sub);
+      if (gift !== null) {
+        saveComplimentaryCache(userId, gift);
+        setComplimentary(gift);
+      } else {
+        setComplimentary(loadComplimentaryCache(userId));
+      }
     } else {
       setSubscription(DEFAULT_FREE_SUBSCRIPTION);
+      setComplimentary(false);
     }
-  }, [snapshot.user?.userId]);
+  }, [userId]);
 
   useEffect(() => {
     void refreshSubscription();
@@ -134,7 +156,7 @@ export function useAuth(): AuthApi {
   const { signIn, signUp, signInWithGoogle, signOut, deleteAccount } = controller;
   // Complimentary accounts: Free Lemon/plan branding (`subscription` stays
   // free) + full Pro entitlements via `isPro`. Not a paid subscription.
-  const isPro = resolveIsPro(subscription.isPro, snapshot.user?.email ?? null);
+  const isPro = resolveIsPro(subscription.isPro, complimentary);
   const { requestPasswordReset, updatePassword } = controller;
   return useMemo(
     () => ({

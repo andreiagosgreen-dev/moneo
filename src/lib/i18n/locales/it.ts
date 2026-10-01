@@ -3671,4 +3671,6 @@ export const it: Record<TKey, string> = {
   'data.saveFailed':
     'Impossibile salvare: lo spazio del browser è pieno o bloccato. Esporta i dati o attiva la sincronizzazione.',
   'data.saveFailedAction': 'Apri impostazioni',
+  'pay.switchHint':
+    'Hai già Pro. Passa tra mensile e annuale in «Gestisci abbonamento», senza un secondo pagamento.',
 };

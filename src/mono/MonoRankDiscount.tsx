@@ -73,7 +73,7 @@ export default function MonoRankDiscount({ className = '' }: { className?: strin
         return;
       }
     }
-    const url = buildCheckoutUrl('pro-monthly', userId, code);
+    const url = buildCheckoutUrl('pro-monthly', userId, code, auth.user?.email);
     if (!url || !openExternal(url)) setError(true);
   };
 

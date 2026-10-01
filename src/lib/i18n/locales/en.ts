@@ -3629,4 +3629,6 @@ export const en = {
   'data.saveFailed':
     'Couldn’t save — your browser storage is full or blocked. Export your data or turn on sync.',
   'data.saveFailedAction': 'Open settings',
+  'pay.switchHint':
+    'You already have Pro. Switch between monthly and yearly under “Manage subscription” — no second payment.',
 };

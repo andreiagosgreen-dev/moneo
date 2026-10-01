@@ -3660,4 +3660,6 @@ export const es: Record<TKey, string> = {
   'data.saveFailed':
     'No se pudo guardar: el almacenamiento del navegador está lleno o bloqueado. Exporta tus datos o activa la sincronización.',
   'data.saveFailedAction': 'Abrir ajustes',
+  'pay.switchHint':
+    'Ya tienes Pro. Cambia entre mensual y anual en «Gestionar suscripción», sin un segundo pago.',
 };
