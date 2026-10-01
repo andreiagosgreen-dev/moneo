@@ -95,6 +95,7 @@ jobs:
       VITE_LEMONSQUEEZY_YEARLY_VARIANT_ID: ${{ vars.VITE_LEMONSQUEEZY_YEARLY_VARIANT_ID }}
       VITE_TURNSTILE_SITE_KEY: ${{ vars.VITE_TURNSTILE_SITE_KEY }}
       VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
+      VITE_PRO_TRIAL_DAYS: ${{ vars.VITE_PRO_TRIAL_DAYS }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
