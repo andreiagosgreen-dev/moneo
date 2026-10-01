@@ -1057,8 +1057,7 @@ export const de: Record<TKey, string> = {
   'pay.plan.monthly.desc': 'Für alle, die täglich planen und fokussiert arbeiten',
   'pay.plan.monthly.f0': 'Alles aus dem kostenlosen Plan',
   'pay.plan.monthly.f1': 'Unbegrenzte Projekte, Ziele & OKRs',
-  'pay.plan.monthly.f2':
-    'KI-Assistent mit eigenem Schlüssel (optional) · der integrierte Planer funktioniert auch ohne',
+  'pay.plan.monthly.f2': 'Inklusive KI für Schritt-für-Schritt-Pläne — mehr pro Tag mit steigendem Rang · oder eigener Schlüssel',
   'pay.plan.monthly.f3': 'Berichte als CSV (Excel) und PDF exportieren',
   'pay.plan.monthly.f4': 'Wöchentliche Zeitblöcke, Sprint-Diagramme & Arbeitslimits im Kanban',
   'pay.plan.monthly.f5':
@@ -1069,7 +1068,7 @@ export const de: Record<TKey, string> = {
   'pay.plan.yearly.desc': 'Bester Wert — 2 Monate gratis',
   'pay.plan.yearly.f0': 'Alles aus Pro',
   'pay.plan.yearly.f1': '2 Monate gratis vs. monatlich',
-  'pay.plan.yearly.f3': 'Priorisierte E-Mail-Antworten vom Support',
+  'pay.plan.yearly.f3': 'Eine Zahlung pro Jahr — keine monatlichen Abbuchungen',
 
   'prog.meter.moved': '{project} um {dur} vorangebracht',
   'prog.meter.tasks': '{done} von {total} Aufgaben · {pct} %',
@@ -3662,9 +3661,9 @@ export const de: Record<TKey, string> = {
   'plan.ent.goals': 'Ziele',
   'plan.ent.okrs': 'OKRs',
   'plan.ent.skills': 'Fähigkeiten',
-  'plan.ent.assistant': 'KI-Assistent',
-  'plan.ent.v.quick': '2 Schnellaktionen',
-  'plan.ent.v.fullChat': 'Voller Chat + eigener Schlüssel',
+  'plan.ent.assistant': 'KI-Schritt-für-Schritt-Pläne',
+  'plan.ent.v.quick': 'Planer auf dem Gerät',
+  'plan.ent.v.fullChat': 'Inklusive KI + Rangbonus oder eigener Schlüssel',
   'plan.ent.moveLibrary': '{n} Übungen, Filter und Körperkarte',
   'plan.ent.moveWorkouts': 'Fertige Routinen, freies Training, Cardio-Log, Wochenplan',
   'plan.ent.moveRoutines': 'Meine Routinen (bis zu {n})',
@@ -3683,4 +3682,8 @@ export const de: Record<TKey, string> = {
   'mono.xp.proPerk': 'Rang-Belohnung: +{n} inklusive KI-Pläne pro Tag.',
   'mono.xp.proPerkNext': 'Erreiche {rank} für +{n} inklusive KI-Pläne pro Tag.',
   'mono.xp.freePerk': 'Mit Pro bringt dein Rang +{n} KI-Pläne pro Tag.',
+  'pay.plan.monthly.f8': 'Bewegung Pro: eigene Routinen, persönliche Rekorde, Fortschrittsdiagramme und ein persönliches Trainingsprogramm',
+  'pay.trialBadge': 'Die ersten {n} Tage gratis',
+  'pay.trialCta': '{n} Tage gratis testen',
+  'pay.trialNote': 'Kündigst du während der Testphase, zahlst du nichts.',
 };

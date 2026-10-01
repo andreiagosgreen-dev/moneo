@@ -1059,8 +1059,7 @@ export const uk: Record<TKey, string> = {
   'pay.plan.monthly.desc': 'Для тих, хто планує й працює зосереджено щодня',
   'pay.plan.monthly.f0': 'Усе з безкоштовного плану',
   'pay.plan.monthly.f1': 'Безліміт проєктів, цілей і OKR',
-  'pay.plan.monthly.f2':
-    'ШІ-асистент з вашим ключем (за бажанням) · вбудований планувальник працює й без нього',
+  'pay.plan.monthly.f2': 'Вбудований ШІ для покрокових планів — більше на день із ростом рангу · або власний ключ',
   'pay.plan.monthly.f3': 'Експорт звітів у CSV (Excel) і PDF',
   'pay.plan.monthly.f4': 'Блоки часу на тиждень, графіки спринтів і ліміти задач на канбані',
   'pay.plan.monthly.f5':
@@ -1071,7 +1070,7 @@ export const uk: Record<TKey, string> = {
   'pay.plan.yearly.desc': 'Найвигідніше — 2 місяці в подарунок',
   'pay.plan.yearly.f0': 'Усе з Pro',
   'pay.plan.yearly.f1': '2 місяці в подарунок vs щомісяця',
-  'pay.plan.yearly.f3': 'Пріоритетні відповіді підтримки email',
+  'pay.plan.yearly.f3': 'Один платіж на рік — без щомісячних списань',
 
   'prog.meter.moved': 'Ви просунули «{project}» на {dur}',
   'prog.meter.tasks': '{done} з {total} завдань · {pct}%',
@@ -3622,9 +3621,9 @@ export const uk: Record<TKey, string> = {
   'plan.ent.goals': 'Цілі',
   'plan.ent.okrs': 'OKR',
   'plan.ent.skills': 'Навички',
-  'plan.ent.assistant': 'ШІ-асистент',
-  'plan.ent.v.quick': '2 швидкі дії',
-  'plan.ent.v.fullChat': 'Повний чат + власний ключ',
+  'plan.ent.assistant': 'Покрокові плани з ШІ',
+  'plan.ent.v.quick': 'Планувальник на пристрої',
+  'plan.ent.v.fullChat': 'Вбудований ШІ + бонус рангу або власний ключ',
   'plan.ent.moveLibrary': '{n} вправ, фільтри й мапа тіла',
   'plan.ent.moveWorkouts': 'Готові тренування, вільне тренування, кардіо, тижневий розклад',
   'plan.ent.moveRoutines': 'Мої тренування (до {n})',
@@ -3643,4 +3642,8 @@ export const uk: Record<TKey, string> = {
   'mono.xp.proPerk': 'Нагорода рангу: +{n} включених ШІ-планів на день.',
   'mono.xp.proPerkNext': 'Досягніть рангу «{rank}» — +{n} ШІ-планів на день.',
   'mono.xp.freePerk': 'З Pro ваш ранг дає +{n} ШІ-планів на день.',
+  'pay.plan.monthly.f8': 'Рух Pro: власні тренування, особисті рекорди, графіки прогресу й персональна програма',
+  'pay.trialBadge': 'Перші {n} днів безкоштовно',
+  'pay.trialCta': 'Почати {n} днів безкоштовно',
+  'pay.trialNote': 'Скасуйте під час пробного періоду — і з вас нічого не спишуть.',
 };

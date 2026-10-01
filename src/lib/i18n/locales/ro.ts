@@ -1060,8 +1060,7 @@ export const ro: Record<TKey, string> = {
   'pay.plan.monthly.desc': 'Pentru cine planifică și lucrează concentrat zi de zi',
   'pay.plan.monthly.f0': 'Tot ce e în planul Gratuit',
   'pay.plan.monthly.f1': 'Proiecte, obiective și OKR-uri nelimitate',
-  'pay.plan.monthly.f2':
-    'Asistent AI cu cheia ta (opțional) · planificatorul integrat funcționează și fără',
+  'pay.plan.monthly.f2': 'AI inclus pentru planuri pas cu pas — mai multe pe zi pe măsură ce crește rangul · sau cheia ta',
   'pay.plan.monthly.f3': 'Export rapoarte în CSV (Excel) și PDF',
   'pay.plan.monthly.f4':
     'Blocuri de timp în calendar, grafice de sprint și limite de lucru pe kanban',
@@ -1073,7 +1072,7 @@ export const ro: Record<TKey, string> = {
   'pay.plan.yearly.desc': 'Cel mai bun preț — 2 luni gratis',
   'pay.plan.yearly.f0': 'Tot ce e în Pro',
   'pay.plan.yearly.f1': '2 luni gratis față de lunar',
-  'pay.plan.yearly.f3': 'Suport prioritar pe email',
+  'pay.plan.yearly.f3': 'O singură plată pe an — fără taxe lunare',
 
   'prog.meter.moved': 'Ai mutat {project} cu {dur}',
   'prog.meter.tasks': '{done} din {total} sarcini gata · {pct}%',
@@ -3641,9 +3640,9 @@ export const ro: Record<TKey, string> = {
   'plan.ent.goals': 'Obiective',
   'plan.ent.okrs': 'OKR-uri',
   'plan.ent.skills': 'Abilități',
-  'plan.ent.assistant': 'Asistent AI',
-  'plan.ent.v.quick': '2 acțiuni rapide',
-  'plan.ent.v.fullChat': 'Chat complet + cheia ta',
+  'plan.ent.assistant': 'Planuri pas cu pas cu AI',
+  'plan.ent.v.quick': 'Planificator pe dispozitiv',
+  'plan.ent.v.fullChat': 'AI inclus + bonus de rang, sau cheia ta',
   'plan.ent.moveLibrary': '{n} exerciții, filtre și harta corpului',
   'plan.ent.moveWorkouts':
     'Rutine gata făcute, antrenament liber, jurnal cardio, program săptămânal',
@@ -3663,4 +3662,8 @@ export const ro: Record<TKey, string> = {
   'mono.xp.proPerk': 'Recompensa rangului: +{n} planuri AI incluse pe zi.',
   'mono.xp.proPerkNext': 'Ajungi {rank} și primești +{n} planuri AI incluse pe zi.',
   'mono.xp.freePerk': 'Cu Pro, rangul tău îți aduce +{n} planuri AI pe zi.',
+  'pay.plan.monthly.f8': 'Mișcare Pro: rutinele tale, recorduri personale, grafice de progres și program personal de antrenament',
+  'pay.trialBadge': 'Primele {n} zile gratis',
+  'pay.trialCta': 'Începe {n} zile gratuit',
+  'pay.trialNote': 'Dacă anulezi în perioada de probă, nu plătești nimic.',
 };

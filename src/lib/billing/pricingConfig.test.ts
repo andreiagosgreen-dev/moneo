@@ -87,7 +87,7 @@ describe('pricingConfig — single source of truth', () => {
 
   it('builds comparison rows from live limits (no hardcoded numbers)', () => {
     const rows = getComparisonRows();
-    expect(rows.length).toBe(11);
+    expect(rows.length).toBe(12);
     const projects = rows[0];
     expect(projects.labelKey).toBe('pay.plan.monthly.f1');
     expect(projects.free).toEqual({ kind: 'limit', value: FREE_PROJECTS_LIMIT });

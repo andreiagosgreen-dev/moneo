@@ -1065,8 +1065,7 @@ export const en = {
   'pay.plan.monthly.desc': 'For people who plan and focus every day',
   'pay.plan.monthly.f0': 'Everything in the Free plan',
   'pay.plan.monthly.f1': 'Unlimited projects, goals & OKRs',
-  'pay.plan.monthly.f2':
-    'AI assistant with your own AI key (optional) · the built-in planner works without one',
+  'pay.plan.monthly.f2': 'Included AI for step-by-step plans — more per day as your rank grows · or use your own key',
   'pay.plan.monthly.f3': 'Export reports to CSV (Excel) and PDF',
   'pay.plan.monthly.f4': 'Weekly time blocks, sprint charts & kanban work limits',
   'pay.plan.monthly.f5':
@@ -1077,7 +1076,7 @@ export const en = {
   'pay.plan.yearly.desc': 'Best value — 2 months free',
   'pay.plan.yearly.f0': 'Everything in Pro',
   'pay.plan.yearly.f1': '2 months free vs monthly',
-  'pay.plan.yearly.f3': 'Priority email replies from support',
+  'pay.plan.yearly.f3': 'One payment a year — no monthly charges',
 
   'prog.meter.moved': 'You moved {project} by {dur}',
   'prog.meter.tasks': '{done} of {total} tasks done · {pct}%',
@@ -3611,9 +3610,9 @@ export const en = {
   'plan.ent.goals': 'Goals',
   'plan.ent.okrs': 'OKRs',
   'plan.ent.skills': 'Skills',
-  'plan.ent.assistant': 'AI assistant',
-  'plan.ent.v.quick': '2 quick actions',
-  'plan.ent.v.fullChat': 'Full chat + your own key',
+  'plan.ent.assistant': 'AI step-by-step plans',
+  'plan.ent.v.quick': 'On-device planner',
+  'plan.ent.v.fullChat': 'Included AI + rank bonus, or your own key',
   'plan.ent.moveLibrary': '{n} exercises, filters and body map',
   'plan.ent.moveWorkouts': 'Ready routines, free workout, cardio log, weekly schedule',
   'plan.ent.moveRoutines': 'My routines (up to {n})',
@@ -3631,4 +3630,8 @@ export const en = {
   'mono.xp.proPerk': 'Rank reward: +{n} included AI plans a day.',
   'mono.xp.proPerkNext': 'Reach {rank} for +{n} included AI plans a day.',
   'mono.xp.freePerk': 'With Pro, your rank adds +{n} AI plans a day.',
+  'pay.plan.monthly.f8': 'Move Pro: your own routines, personal records, progress charts and a personal training program',
+  'pay.trialBadge': 'First {n} days free',
+  'pay.trialCta': 'Start {n}-day free trial',
+  'pay.trialNote': 'Cancel during the trial and you won’t be charged.',
 };

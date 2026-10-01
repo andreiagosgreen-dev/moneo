@@ -1060,8 +1060,7 @@ export const ru: Record<TKey, string> = {
   'pay.plan.monthly.desc': 'Для тех, кто планирует и работает сосредоточенно каждый день',
   'pay.plan.monthly.f0': 'Всё из бесплатного плана',
   'pay.plan.monthly.f1': 'Безлимит проектов, целей и OKR',
-  'pay.plan.monthly.f2':
-    'ИИ-ассистент с вашим ключом (по желанию) · встроенный планировщик работает и без него',
+  'pay.plan.monthly.f2': 'Встроенный ИИ для пошаговых планов — больше в день с ростом ранга · или свой ключ',
   'pay.plan.monthly.f3': 'Экспорт отчётов в CSV (Excel) и PDF',
   'pay.plan.monthly.f4': 'Блоки времени на неделю, графики спринтов и лимиты задач на канбане',
   'pay.plan.monthly.f5':
@@ -1072,7 +1071,7 @@ export const ru: Record<TKey, string> = {
   'pay.plan.yearly.desc': 'Выгоднее всего — 2 месяца в подарок',
   'pay.plan.yearly.f0': 'Всё из Pro',
   'pay.plan.yearly.f1': '2 месяца в подарок vs помесячно',
-  'pay.plan.yearly.f3': 'Приоритетные ответы поддержки по email',
+  'pay.plan.yearly.f3': 'Один платёж в год — без ежемесячных списаний',
 
   'prog.meter.moved': 'Вы продвинули «{project}» на {dur}',
   'prog.meter.tasks': '{done} из {total} задач · {pct}%',
@@ -3617,9 +3616,9 @@ export const ru: Record<TKey, string> = {
   'plan.ent.goals': 'Цели',
   'plan.ent.okrs': 'OKR',
   'plan.ent.skills': 'Навыки',
-  'plan.ent.assistant': 'ИИ-ассистент',
-  'plan.ent.v.quick': '2 быстрых действия',
-  'plan.ent.v.fullChat': 'Полный чат + свой ключ',
+  'plan.ent.assistant': 'Пошаговые планы с ИИ',
+  'plan.ent.v.quick': 'Планировщик на устройстве',
+  'plan.ent.v.fullChat': 'Встроенный ИИ + бонус ранга или свой ключ',
   'plan.ent.moveLibrary': '{n} упражнений, фильтры и карта тела',
   'plan.ent.moveWorkouts': 'Готовые тренировки, свободная тренировка, кардио, недельный план',
   'plan.ent.moveRoutines': 'Мои тренировки (до {n})',
@@ -3637,4 +3636,8 @@ export const ru: Record<TKey, string> = {
   'mono.xp.proPerk': 'Награда ранга: +{n} включённых ИИ-планов в день.',
   'mono.xp.proPerkNext': 'Достигните ранга «{rank}» — +{n} ИИ-планов в день.',
   'mono.xp.freePerk': 'С Pro ваш ранг даёт +{n} ИИ-планов в день.',
+  'pay.plan.monthly.f8': 'Движение Pro: свои тренировки, личные рекорды, графики прогресса и персональная программа',
+  'pay.trialBadge': 'Первые {n} дней бесплатно',
+  'pay.trialCta': 'Начать {n} дней бесплатно',
+  'pay.trialNote': 'Отмените во время пробного периода — и с вас ничего не спишут.',
 };

@@ -191,6 +191,11 @@ export function getComparisonRows(): ComparisonRow[] {
       pro: { kind: 'check' },
     },
     {
+      labelKey: 'pay.plan.monthly.f8',
+      free: { kind: 'dash' },
+      pro: { kind: 'check' },
+    },
+    {
       labelKey: 'pricing.row.sync',
       free: { kind: 'key', key: 'pricing.sync.free' },
       pro: { kind: 'key', key: 'pricing.sync.pro' },

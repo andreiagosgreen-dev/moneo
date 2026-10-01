@@ -1063,8 +1063,7 @@ export const es: Record<TKey, string> = {
   'pay.plan.monthly.desc': 'Para quien planifica y se concentra cada día',
   'pay.plan.monthly.f0': 'Todo lo del plan gratuito',
   'pay.plan.monthly.f1': 'Proyectos, metas y OKR ilimitados',
-  'pay.plan.monthly.f2':
-    'Asistente de IA con tu propia clave (opcional) · el planificador integrado funciona también sin ella',
+  'pay.plan.monthly.f2': 'IA incluida para planes paso a paso — más al día según sube tu rango · o tu propia clave',
   'pay.plan.monthly.f3': 'Exporta informes a CSV (Excel) y PDF',
   'pay.plan.monthly.f4':
     'Bloques de tiempo semanales, gráficos de sprint y límites de trabajo en kanban',
@@ -1076,7 +1075,7 @@ export const es: Record<TKey, string> = {
   'pay.plan.yearly.desc': 'Mejor precio — 2 meses gratis',
   'pay.plan.yearly.f0': 'Todo lo de Pro',
   'pay.plan.yearly.f1': '2 meses gratis frente a mensual',
-  'pay.plan.yearly.f3': 'Respuestas prioritarias por email del soporte',
+  'pay.plan.yearly.f3': 'Un solo pago al año, sin cargos mensuales',
 
   'prog.meter.moved': 'Moviste {project} en {dur}',
   'prog.meter.tasks': '{done} de {total} tareas · {pct} %',
@@ -3641,9 +3640,9 @@ export const es: Record<TKey, string> = {
   'plan.ent.goals': 'Objetivos',
   'plan.ent.okrs': 'OKR',
   'plan.ent.skills': 'Habilidades',
-  'plan.ent.assistant': 'Asistente de IA',
-  'plan.ent.v.quick': '2 acciones rápidas',
-  'plan.ent.v.fullChat': 'Chat completo + tu propia clave',
+  'plan.ent.assistant': 'Planes paso a paso con IA',
+  'plan.ent.v.quick': 'Planificador en el dispositivo',
+  'plan.ent.v.fullChat': 'IA incluida + bonus de rango, o tu propia clave',
   'plan.ent.moveLibrary': '{n} ejercicios, filtros y mapa corporal',
   'plan.ent.moveWorkouts': 'Rutinas listas, entreno libre, registro de cardio, plan semanal',
   'plan.ent.moveRoutines': 'Mis rutinas (hasta {n})',
@@ -3662,4 +3661,8 @@ export const es: Record<TKey, string> = {
   'mono.xp.proPerk': 'Recompensa de rango: +{n} planes de IA incluidos al día.',
   'mono.xp.proPerkNext': 'Llega a {rank} para +{n} planes de IA incluidos al día.',
   'mono.xp.freePerk': 'Con Pro, tu rango suma +{n} planes de IA al día.',
+  'pay.plan.monthly.f8': 'Movimiento Pro: tus rutinas, récords personales, gráficos de progreso y un programa de entrenamiento personal',
+  'pay.trialBadge': 'Los primeros {n} días gratis',
+  'pay.trialCta': 'Probar {n} días gratis',
+  'pay.trialNote': 'Si cancelas durante la prueba, no se te cobra nada.',
 };
