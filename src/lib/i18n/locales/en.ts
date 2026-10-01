@@ -160,7 +160,7 @@ export const en = {
   'land.faq.title': 'Frequently asked questions',
   'land.faq.free.q': 'Is Moneo free?',
   'land.faq.free.a':
-    'Yes. The focus timer, the day plan, 3 projects, habits and the journal are free forever. Pro adds unlimited projects and goals, AI with your own AI key (optional), exports, all your data saved to your account on every device, and more.',
+    'Yes. The focus timer, the day plan, 3 projects, habits, the journal and the workout library are free forever. Pro adds unlimited projects and goals, included AI for step-by-step plans (or your own key), Move Pro, exports, all your data saved to your account on every device, and more.',
   'land.faq.account.q': 'Do I need an account?',
   'land.faq.account.a':
     'No. Open Moneo and start — everything works without an account and is saved on this device. With a free account, your focus sessions, areas and settings are saved to it too; with Pro, all your data is.',
@@ -1038,7 +1038,7 @@ export const en = {
 
   'pay.title': 'Upgrade to Pro',
   'pay.sub':
-    'Get unlimited projects and goals, AI with your own key (optional), CSV/PDF exports and a personalized look. All your data — projects, tasks, habits, journal, life map, goals and plans — is saved to your account and synced between devices.',
+    'Get unlimited projects and goals, included AI for step-by-step plans (or your own key), Move Pro, CSV/PDF exports and a personalized look. All your data — projects, tasks, habits, journal, life map, goals and plans — is saved to your account and synced between devices.',
   'pay.signin': 'Please sign in to upgrade to Pro',
   'pay.unavailable': 'Payment isn’t available right now. Please contact support.',
   'pay.current': 'Current',
@@ -1066,7 +1066,7 @@ export const en = {
   'pay.plan.monthly.f0': 'Everything in the Free plan',
   'pay.plan.monthly.f1': 'Unlimited projects, goals & OKRs',
   'pay.plan.monthly.f2':
-    'AI assistant with your own AI key (optional) · the built-in planner works without one',
+    'Included AI for step-by-step plans — more per day as your rank grows · or use your own key',
   'pay.plan.monthly.f3': 'Export reports to CSV (Excel) and PDF',
   'pay.plan.monthly.f4': 'Weekly time blocks, sprint charts & kanban work limits',
   'pay.plan.monthly.f5':
@@ -1077,7 +1077,7 @@ export const en = {
   'pay.plan.yearly.desc': 'Best value — 2 months free',
   'pay.plan.yearly.f0': 'Everything in Pro',
   'pay.plan.yearly.f1': '2 months free vs monthly',
-  'pay.plan.yearly.f3': 'Priority email replies from support',
+  'pay.plan.yearly.f3': 'One payment a year — no monthly charges',
 
   'prog.meter.moved': 'You moved {project} by {dur}',
   'prog.meter.tasks': '{done} of {total} tasks done · {pct}%',
@@ -2071,7 +2071,7 @@ export const en = {
     'Upgrade to Moneo Pro for deadline alerts, your best focus window and more suggestions from your own data.',
   'pricing.title': 'Moneo pricing',
   'pricing.sub':
-    'Start free — no card, no account needed. Pro adds advanced planning, AI with your own key (optional), CSV/PDF exports and a personalized look.',
+    'Start free — no card, no account needed. Pro adds advanced planning, included AI for step-by-step plans (or your own key), Move Pro, CSV/PDF exports and a personalized look.',
   'pricing.back': '← Back to Moneo',
   'pricing.unlimited': 'Unlimited',
   'pricing.row.ivy': 'Priority tasks per day (Ivy Lee method)',
@@ -2332,7 +2332,7 @@ export const en = {
   'pricing.feature.allFree': 'All Free features',
   'pricing.feature.unlimitedProjects': 'Unlimited projects, goals & OKRs',
   'pricing.feature.fullAi':
-    'AI assistant with your own AI key (optional) · the built-in planner works without one',
+    'Included AI for step-by-step plans · or your own key · the built-in planner works without either',
   'pricing.feature.reportsExport': 'Reports, CSV/PDF export & billable time',
   'pricing.feature.timeBlocking': 'Time blocking, sprints & kanban',
   'pricing.feature.cloudSync': 'Cloud sync across devices',
@@ -3611,9 +3611,9 @@ export const en = {
   'plan.ent.goals': 'Goals',
   'plan.ent.okrs': 'OKRs',
   'plan.ent.skills': 'Skills',
-  'plan.ent.assistant': 'AI assistant',
-  'plan.ent.v.quick': '2 quick actions',
-  'plan.ent.v.fullChat': 'Full chat + your own key',
+  'plan.ent.assistant': 'AI step-by-step plans',
+  'plan.ent.v.quick': 'On-device planner',
+  'plan.ent.v.fullChat': 'Included AI + rank bonus, or your own key',
   'plan.ent.moveLibrary': '{n} exercises, filters and body map',
   'plan.ent.moveWorkouts': 'Ready routines, free workout, cardio log, weekly schedule',
   'plan.ent.moveRoutines': 'My routines (up to {n})',
@@ -3631,6 +3631,11 @@ export const en = {
   'mono.xp.proPerk': 'Rank reward: +{n} included AI plans a day.',
   'mono.xp.proPerkNext': 'Reach {rank} for +{n} included AI plans a day.',
   'mono.xp.freePerk': 'With Pro, your rank adds +{n} AI plans a day.',
+  'pay.plan.monthly.f8':
+    'Move Pro: your own routines, personal records, progress charts and a personal training program',
+  'pay.trialBadge': 'First {n} days free',
+  'pay.trialCta': 'Start {n}-day free trial',
+  'pay.trialNote': 'Cancel during the trial and you won’t be charged.',
   'onb.qs.stepTitle': 'Your first step',
   'onb.qs.stepHint': 'The smallest piece you can start right now — edit it if you like.',
   'onb.qs.startHint': 'One clear focus. Start the timer and work only on this.',

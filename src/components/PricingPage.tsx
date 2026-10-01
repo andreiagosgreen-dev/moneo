@@ -11,6 +11,7 @@ import {
 import {
   PRICING_PLANS_DISPLAY,
   PRO_PRICES,
+  proTrialDays,
   SYNC_NOTE_KEY,
   SYNC_SCOPE_KEY,
   getComparisonRows,
@@ -68,6 +69,8 @@ export default function PricingPage() {
   const currentPlan: Plan = auth.isPro ? (auth.subscription.planId as Plan) : 'free';
   // Paying subscribers switch in the Lemon portal, never through a second checkout.
   const hasPaidSub = auth.subscription.isPro && auth.subscription.planId !== 'free';
+  // Free trial only for accounts that never subscribed (Lemon gives it per checkout).
+  const trial = auth.subscription.planId === 'free' && !auth.isPro ? proTrialDays() : 0;
   const showManage = auth.subscription.planId !== 'free';
   const intended = parsePaidPlan(searchParams.get(UPGRADE_PARAM));
   const resumePlan =
@@ -152,6 +155,11 @@ export default function PricingPage() {
                       <span className="text-[11px] font-normal text-sage"> {t(plan.perKey)}</span>
                     )}
                   </div>
+                  {isPaid && trial > 0 && (
+                    <p className="mt-1 text-[11px] font-medium text-accent">
+                      {t('pay.trialBadge', { n: trial })} · {t('pay.trialNote')}
+                    </p>
+                  )}
                   {plan.id === 'pro-yearly' && (
                     <p className="mt-1 text-[11px] font-medium text-accent">
                       {t('pay.yearlyEquiv', {
@@ -186,7 +194,7 @@ export default function PricingPage() {
                   onClick={() => handleSubscribe(plan.id as PaidPlanId)}
                   className="press btn-accent mt-5 flex h-10 w-full items-center justify-center rounded-lg font-display text-sm font-bold"
                 >
-                  {t('pay.upgrade')}
+                  {trial > 0 ? t('pay.trialCta', { n: trial }) : t('pay.upgrade')}
                 </button>
               )}
             </section>

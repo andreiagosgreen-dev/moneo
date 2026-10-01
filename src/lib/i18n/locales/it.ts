@@ -159,7 +159,7 @@ export const it: Record<TKey, string> = {
   'land.faq.title': 'Domande frequenti',
   'land.faq.free.q': 'Moneo è gratis?',
   'land.faq.free.a':
-    'Sì. Il timer di concentrazione, il piano del giorno, 3 progetti, le abitudini e il diario sono gratis per sempre. Pro aggiunge progetti e obiettivi illimitati, l’IA con la tua chiave (facoltativo), le esportazioni, tutti i tuoi dati salvati nell’account su ogni dispositivo e altro ancora.',
+    'Sì. Il timer di focus, il piano del giorno, 3 progetti, le abitudini, il diario e la libreria di esercizi sono gratis per sempre. Pro aggiunge progetti e obiettivi illimitati, IA inclusa per piani passo passo (o la tua chiave), Movimento Pro, export, tutti i dati nell’account su ogni dispositivo e altro.',
   'land.faq.account.q': 'Serve un account?',
   'land.faq.account.a':
     'No. Apri Moneo e inizia — tutto funziona senza account e viene salvato su questo dispositivo. Con un account gratuito vi si salvano anche sessioni di focus, aree e impostazioni; con Pro, tutti i tuoi dati.',
@@ -1031,7 +1031,7 @@ export const it: Record<TKey, string> = {
 
   'pay.title': 'Passa a Pro',
   'pay.sub':
-    'Ottieni progetti e obiettivi illimitati, IA con la tua chiave (facoltativo), esportazioni CSV/PDF e un aspetto su misura. Tutti i tuoi dati — progetti, attività, abitudini, diario, mappa della vita, obiettivi e piani — vengono salvati nel tuo account e sincronizzati tra dispositivi.',
+    'Progetti e obiettivi illimitati, IA inclusa per piani passo passo (o la tua chiave), Movimento Pro, export CSV/PDF e un look personalizzato. Tutti i tuoi dati — progetti, attività, abitudini, diario, mappa della vita, obiettivi e piani — vengono salvati nell’account e sincronizzati tra dispositivi.',
   'pay.signin': 'Accedi per passare a Pro',
   'pay.unavailable': 'Pagamento non disponibile al momento. Contatta il supporto.',
   'pay.current': 'Attuale',
@@ -1059,7 +1059,7 @@ export const it: Record<TKey, string> = {
   'pay.plan.monthly.f0': 'Tutto del piano gratuito',
   'pay.plan.monthly.f1': 'Progetti, obiettivi e OKR illimitati',
   'pay.plan.monthly.f2':
-    'Assistente IA con la tua chiave (facoltativo) · il pianificatore integrato funziona anche senza',
+    'IA inclusa per piani passo passo — di più al giorno man mano che sale il grado · o la tua chiave',
   'pay.plan.monthly.f3': 'Esporta i report in CSV (Excel) e PDF',
   'pay.plan.monthly.f4':
     'Blocchi di tempo settimanali, grafici sprint e limiti di lavoro nel kanban',
@@ -1071,7 +1071,7 @@ export const it: Record<TKey, string> = {
   'pay.plan.yearly.desc': 'Miglior prezzo — 2 mesi gratis',
   'pay.plan.yearly.f0': 'Tutto di Pro',
   'pay.plan.yearly.f1': '2 mesi gratis rispetto al mensile',
-  'pay.plan.yearly.f3': 'Risposte email prioritarie dal supporto',
+  'pay.plan.yearly.f3': 'Un solo pagamento all’anno, nessun addebito mensile',
 
   'prog.meter.moved': 'Hai spostato {project} di {dur}',
   'prog.meter.tasks': '{done} di {total} attività · {pct}%',
@@ -2085,7 +2085,7 @@ export const it: Record<TKey, string> = {
     'Passa a Moneo Pro per avvisi di scadenza, la tua fascia di focus migliore e più suggerimenti dai tuoi dati.',
   'pricing.title': 'Prezzi Moneo',
   'pricing.sub':
-    'Inizia gratis, senza carta e senza account. Pro aggiunge pianificazione avanzata, IA con la tua chiave (facoltativo), esportazioni CSV/PDF e un aspetto su misura.',
+    'Inizia gratis, senza carta né account. Pro aggiunge pianificazione avanzata, IA inclusa per piani passo passo (o la tua chiave), Movimento Pro, export CSV/PDF e un look personalizzato.',
   'pricing.back': '← Torna a Moneo',
   'pricing.unlimited': 'Illimitato',
   'pricing.row.ivy': 'Attività prioritarie al giorno (metodo Ivy Lee)',
@@ -2349,7 +2349,7 @@ export const it: Record<TKey, string> = {
   'pricing.feature.allFree': 'Tutte le funzioni Free',
   'pricing.feature.unlimitedProjects': 'Progetti, obiettivi e OKR illimitati',
   'pricing.feature.fullAi':
-    'Assistente IA con la tua chiave (facoltativo) · il pianificatore integrato funziona anche senza',
+    'IA inclusa per piani passo passo · o la tua chiave · il pianificatore integrato funziona anche senza',
   'pricing.feature.reportsExport': 'Report, esportazione CSV/PDF e tempo fatturabile',
   'pricing.feature.timeBlocking': 'Blocchi di tempo, sprint e kanban',
   'pricing.feature.cloudSync': 'Sincronizzazione cloud tra dispositivi',
@@ -3651,9 +3651,9 @@ export const it: Record<TKey, string> = {
   'plan.ent.goals': 'Obiettivi',
   'plan.ent.okrs': 'OKR',
   'plan.ent.skills': 'Competenze',
-  'plan.ent.assistant': 'Assistente IA',
-  'plan.ent.v.quick': '2 azioni rapide',
-  'plan.ent.v.fullChat': 'Chat completa + la tua chiave',
+  'plan.ent.assistant': 'Piani passo passo con IA',
+  'plan.ent.v.quick': 'Pianificatore sul dispositivo',
+  'plan.ent.v.fullChat': 'IA inclusa + bonus di grado, o la tua chiave',
   'plan.ent.moveLibrary': '{n} esercizi, filtri e mappa del corpo',
   'plan.ent.moveWorkouts':
     'Routine pronte, allenamento libero, registro cardio, programma settimanale',
@@ -3673,6 +3673,11 @@ export const it: Record<TKey, string> = {
   'mono.xp.proPerk': 'Premio di grado: +{n} piani IA inclusi al giorno.',
   'mono.xp.proPerkNext': 'Raggiungi {rank} per +{n} piani IA inclusi al giorno.',
   'mono.xp.freePerk': 'Con Pro, il tuo grado aggiunge +{n} piani IA al giorno.',
+  'pay.plan.monthly.f8':
+    'Movimento Pro: le tue routine, record personali, grafici dei progressi e un programma di allenamento personale',
+  'pay.trialBadge': 'I primi {n} giorni gratis',
+  'pay.trialCta': 'Prova {n} giorni gratis',
+  'pay.trialNote': 'Se annulli durante la prova, non paghi nulla.',
   'onb.qs.stepTitle': 'Il tuo primo passo',
   'onb.qs.stepHint': 'La parte più piccola che puoi iniziare adesso: puoi modificarla.',
   'onb.qs.startHint': 'Un solo obiettivo chiaro. Avvia il timer e lavora solo su questo.',

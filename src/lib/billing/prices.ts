@@ -8,6 +8,16 @@ import type { TKey } from '../i18n/types';
 
 export const FREE_PRICE = '$0';
 
+/**
+ * Free-trial length shown on the paid plans (0 = no trial). Must match the
+ * trial configured on BOTH Lemon variants — set VITE_PRO_TRIAL_DAYS only after
+ * enabling it there, so the page never promises a trial checkout won't give.
+ */
+export function trialDays(raw: string | undefined): number {
+  const n = Number.parseInt(raw ?? '', 10);
+  return Number.isFinite(n) && n > 0 && n <= 30 ? n : 0;
+}
+
 export const PRO_PRICES = {
   monthly: '$5.99',
   yearly: '$59.99',
@@ -63,6 +73,7 @@ export const PLAN_FEATURE_KEYS = {
     'pay.plan.monthly.f5',
     'pay.plan.monthly.f6',
     'pay.plan.monthly.f7',
+    'pay.plan.monthly.f8',
   ],
   proYearly: ['pay.plan.yearly.f0', 'pay.plan.yearly.f1', 'pay.plan.yearly.f3'],
 } as const satisfies Record<string, readonly TKey[]>;

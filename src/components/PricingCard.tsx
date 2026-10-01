@@ -7,6 +7,7 @@ import { loginPathForUpgrade, type PaidPlanId } from '../lib/billing/upgradeInte
 import {
   PRICING_PLANS_DISPLAY,
   PRO_PRICES,
+  proTrialDays,
   SYNC_NOTE_KEY,
   SYNC_SCOPE_KEY,
 } from '../lib/billing/pricingConfig';
@@ -58,6 +59,8 @@ export default function PricingCard() {
   // A paying subscriber switches plans in the Lemon portal — a second checkout
   // would start a second, parallel subscription (double billing).
   const hasPaidSub = auth.subscription.isPro && auth.subscription.planId !== 'free';
+  // Free trial only for accounts that never subscribed (Lemon gives it per checkout).
+  const trial = auth.subscription.planId === 'free' && !auth.isPro ? proTrialDays() : 0;
 
   const handleSubscribe = (planId: PaidPlanId) => {
     setPayError('');
@@ -102,6 +105,11 @@ export default function PricingCard() {
                 {plan.price}
                 {plan.perKey && <small> {t(plan.perKey)}</small>}
               </p>
+              {isPaid && trial > 0 && (
+                <p className="mono-caption" style={{ color: 'var(--mono-accent)' }}>
+                  {t('pay.trialBadge', { n: trial })} · {t('pay.trialNote')}
+                </p>
+              )}
               {plan.id === 'pro-yearly' && (
                 <p className="mono-caption" style={{ color: 'var(--mono-accent)' }}>
                   {t('pay.yearlyEquiv', {
@@ -131,7 +139,7 @@ export default function PricingCard() {
                   className="mono-btn mono-btn-primary mono-btn-block"
                   style={{ marginTop: 14 }}
                 >
-                  {t('pay.upgrade')}
+                  {trial > 0 ? t('pay.trialCta', { n: trial }) : t('pay.upgrade')}
                 </button>
               )}
             </li>
