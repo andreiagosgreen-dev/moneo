@@ -5848,3 +5848,78 @@ ul.mono-tree {
   color: var(--mono-accent);
   font-weight: 600;
 }
+
+/* ---------- Settings → Plan: what each plan includes ---------- */
+.mono-ent {
+  display: grid;
+  gap: 10px;
+}
+.mono-ent-current {
+  margin: 0;
+  color: var(--mono-fg-2);
+  font-weight: 600;
+}
+.mono-ent-plans {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mono-ent-plans li {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--mono-border);
+  border-radius: 12px;
+}
+.mono-ent-plans li.is-current {
+  border-color: var(--mono-accent);
+  box-shadow: inset 0 0 0 1px var(--mono-accent);
+}
+.mono-ent-plans strong {
+  color: var(--mono-fg-2);
+  font-size: 14.5px;
+}
+.mono-ent-plans span {
+  color: var(--mono-muted);
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+.mono-ent-table {
+  display: grid;
+}
+.mono-ent-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+  padding: 9px 0;
+  border-top: 1px solid var(--mono-border);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.mono-ent-row > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.mono-ent-row > span:not(:first-child) {
+  text-align: center;
+  color: var(--mono-fg-2);
+  font-variant-numeric: tabular-nums;
+}
+.mono-ent-head {
+  border-top: 0;
+  color: var(--mono-muted);
+  font-size: 12.5px;
+  font-weight: 650;
+}
+.mono-ent-head > span.is-current {
+  color: var(--mono-accent);
+}
+.mono-ent-area {
+  margin: 14px 0 2px;
+}
+.mono-ent-note {
+  margin: 4px 0 0;
+}
