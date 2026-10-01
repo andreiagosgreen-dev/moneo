@@ -3683,4 +3683,14 @@ export const de: Record<TKey, string> = {
   'mono.xp.proPerk': 'Rang-Belohnung: +{n} inklusive KI-Pläne pro Tag.',
   'mono.xp.proPerkNext': 'Erreiche {rank} für +{n} inklusive KI-Pläne pro Tag.',
   'mono.xp.freePerk': 'Mit Pro bringt dein Rang +{n} KI-Pläne pro Tag.',
+  'onb.qs.stepTitle': 'Dein erster Schritt',
+  'onb.qs.stepHint': 'Der kleinste Teil, mit dem du jetzt anfangen kannst — du kannst ihn ändern.',
+  'onb.qs.startHint': 'Ein klarer Fokus. Starte den Timer und arbeite nur daran.',
+  'mono.focus.greetRunning': 'Im Fokus.',
+  'mono.focus.greetBreak': 'Zeit für eine Pause.',
+  'data.saveFailed':
+    'Speichern fehlgeschlagen — der Browserspeicher ist voll oder blockiert. Exportiere deine Daten oder aktiviere die Synchronisierung.',
+  'data.saveFailedAction': 'Einstellungen öffnen',
+  'pay.switchHint':
+    'Du hast bereits Pro. Wechsle unter „Abo verwalten“ zwischen monatlich und jährlich — ohne zweite Zahlung.',
 };

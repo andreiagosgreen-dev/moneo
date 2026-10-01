@@ -3691,4 +3691,15 @@ export const fr: Record<TKey, string> = {
   'mono.xp.proPerk': 'Récompense de rang : +{n} plans IA inclus par jour.',
   'mono.xp.proPerkNext': 'Atteins {rank} pour +{n} plans IA inclus par jour.',
   'mono.xp.freePerk': 'Avec Pro, ton rang ajoute +{n} plans IA par jour.',
+  'onb.qs.stepTitle': 'Ta première étape',
+  'onb.qs.stepHint':
+    'Le plus petit morceau que tu peux commencer maintenant — modifie-le si tu veux.',
+  'onb.qs.startHint': 'Un seul objectif clair. Lance le minuteur et ne travaille que sur ça.',
+  'mono.focus.greetRunning': 'En focus.',
+  'mono.focus.greetBreak': 'C’est l’heure de la pause.',
+  'data.saveFailed':
+    'Enregistrement impossible — le stockage du navigateur est plein ou bloqué. Exporte tes données ou active la synchro.',
+  'data.saveFailedAction': 'Ouvrir les réglages',
+  'pay.switchHint':
+    'Tu as déjà Pro. Passe du mensuel à l’annuel dans « Gérer l’abonnement » — sans second paiement.',
 };
