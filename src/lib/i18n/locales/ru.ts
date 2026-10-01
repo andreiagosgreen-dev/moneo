@@ -3291,6 +3291,13 @@ export const ru: Record<TKey, string> = {
   'mono.focus.wake': 'Не гасить экран',
   'mono.focus.full': 'Полный экран',
   'mono.focus.fullExit': 'Выйти из полного экрана',
+  'mono.focus.lengthLabel': 'Длительность фокуса',
+  'mono.focus.pomodoroClassic': 'Классический Pomodoro',
+  'mono.focus.custom': 'Своё',
+  'mono.focus.customLabel': 'Ваша длительность в минутах ({min}–{max})',
+  'mono.focus.customSet': 'Задать',
+  'mono.focus.rhythmHint':
+    '{focus} фокус · {short} перерыв · {long} длинный перерыв после {every} раундов',
   'mono.focus.est': 'Оценка {est} · Факт {act}',
   'mono.focus.est.under': 'Быстрее, чем планировали',
   'mono.focus.est.on': 'Точно по оценке',
