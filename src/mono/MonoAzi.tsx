@@ -148,7 +148,7 @@ export default function MonoAzi({
     <>
       <form
         className="mono-row"
-        style={{ gap: 10, marginTop: hasItems ? 12 : 0 }}
+        style={{ gap: 10 }}
         onSubmit={(e) => {
           e.preventDefault();
           submit();
@@ -192,7 +192,7 @@ export default function MonoAzi({
   );
 
   return (
-    <div>
+    <div className="mono-azi">
       <MonoHead eyebrow={dayLabel(tag)} title={t('mono.azi.title')} sub={t('mono.azi.sub')} />
       {onPath ? <MonoPath active="today" onGo={onPath} /> : null}
       {motto?.text ? (
@@ -211,57 +211,55 @@ export default function MonoAzi({
         </div>
       ) : null}
 
-      <div className="mono-pad">
-        <div className="mono-row" style={{ gap: 8 }}>
-          <MonoBtn variant="ghost" onClick={onMorning} block>
+      {/* Day overview: flat (no card) so the priorities list stays the one container. */}
+      <div className="mono-pad mono-azi-day">
+        <div className="mono-azi-summary">
+          <MonoRing
+            value={pct}
+            size={56}
+            label={t('mono.azi.ringAria', {
+              done: fmtNum(doneCount),
+              total: fmtNum(totalCount),
+              pct: fmtNum(pct),
+            })}
+          >
+            {fmtNum(pct)}%
+          </MonoRing>
+          <div className="mono-list-grow">
+            {totalCount > 0 ? (
+              <div className="mono-h3">
+                {t('mono.azi.dayRing', {
+                  done: fmtNum(doneCount),
+                  total: fmtNum(totalCount),
+                  pct: fmtNum(pct),
+                })}
+              </div>
+            ) : null}
+            <p className="mono-meta" style={{ marginTop: totalCount > 0 ? 3 : 0 }}>
+              {focusMinToday > 0
+                ? t('mono.azi.focusToday', { dur: fmtDur(focusMinToday) })
+                : t('mono.azi.focusNone')}
+            </p>
+            {!hasItems ? (
+              <p className="mono-meta" style={{ marginTop: 3 }}>
+                {t('mono.azi.motto')}
+              </p>
+            ) : null}
+          </div>
+        </div>
+        <div className="mono-azi-rituals">
+          <button type="button" className="mono-azi-ritual" onClick={onMorning}>
             {morningLabel}
-          </MonoBtn>
-          <MonoBtn variant="ghost" onClick={onShutdown} block>
+          </button>
+          <button type="button" className="mono-azi-ritual" onClick={onShutdown}>
             {shutdownLabel}
-          </MonoBtn>
+          </button>
         </div>
         {estimates}
       </div>
 
-      <div className="mono-pad" style={{ marginTop: 14 }}>
-        <MonoCard>
-          <div className="mono-azi-summary">
-            <MonoRing
-              value={pct}
-              size={64}
-              label={t('mono.azi.ringAria', {
-                done: fmtNum(doneCount),
-                total: fmtNum(totalCount),
-                pct: fmtNum(pct),
-              })}
-            >
-              {fmtNum(pct)}%
-            </MonoRing>
-            <div className="mono-list-grow">
-              {totalCount > 0 ? (
-                <div className="mono-h3">
-                  {t('mono.azi.dayRing', {
-                    done: fmtNum(doneCount),
-                    total: fmtNum(totalCount),
-                    pct: fmtNum(pct),
-                  })}
-                </div>
-              ) : null}
-              <p className="mono-meta" style={{ marginTop: totalCount > 0 ? 3 : 0 }}>
-                {focusMinToday > 0
-                  ? t('mono.azi.focusToday', { dur: fmtDur(focusMinToday) })
-                  : t('mono.azi.focusNone')}
-              </p>
-              <p className="mono-meta" style={{ marginTop: 3 }}>
-                {t('mono.azi.motto')}
-              </p>
-            </div>
-          </div>
-        </MonoCard>
-      </div>
-
       {coachKind ? (
-        <div className="mono-pad" style={{ marginTop: 14 }}>
+        <div className="mono-pad mono-azi-tip">
           <MonoCoach
             kind={coachKind}
             dayKey={dayKey}
@@ -271,14 +269,14 @@ export default function MonoAzi({
         </div>
       ) : null}
 
-      <section className="mono-sec mono-pad" aria-label={t('mono.azi.prio')}>
+      <section className="mono-sec mono-pad mono-azi-prio" aria-label={t('mono.azi.prio')}>
         <p className="mono-eyebrow" style={{ marginBottom: 8 }}>
           {t('mono.azi.prio')}
         </p>
 
         {hasItems ? (
           <>
-            <MonoCard style={{ padding: '8px 16px' }}>
+            <MonoCard style={{ padding: '8px 16px 14px' }}>
               {items.map((item) => (
                 <div key={item.id} className="mono-list-row">
                   <MonoTick
@@ -320,8 +318,8 @@ export default function MonoAzi({
                   ) : null}
                 </div>
               ))}
+              <div className="mono-azi-add">{addForm}</div>
             </MonoCard>
-            {addForm}
             {hasOpen && onGoWork ? (
               <div style={{ marginTop: 14 }}>
                 <MonoBtn variant="primary" onClick={onGoWork} block>

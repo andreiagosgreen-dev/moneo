@@ -1351,6 +1351,72 @@
   gap: 16px;
 }
 
+/* Today: one raised container (priorities); everything else sits flat on the page,
+ * separated by hairlines, so the eye has a single anchor instead of a stack of cards. */
+.mono-azi-day {
+  margin-top: 8px;
+}
+.mono-azi-rituals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.mono-azi-ritual {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--mono-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--mono-fg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.mono-azi-ritual:hover {
+  background: color-mix(in oklab, var(--mono-muted) 12%, transparent);
+}
+.mono-azi-ritual:focus-visible {
+  outline: 2px solid var(--mono-accent, var(--accent));
+  outline-offset: 2px;
+}
+.mono-azi-tip {
+  margin-top: 18px;
+}
+.mono-azi .mono-azi-tip .mono-coach {
+  padding: 2px 0 2px 14px;
+  border-left: 2px solid color-mix(in oklab, var(--mono-accent, var(--accent)) 55%, transparent);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.mono-azi-add {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--mono-border);
+}
+.mono-azi > .mono-sec:not(.mono-azi-prio) {
+  position: relative;
+  margin-top: 28px;
+  padding-top: 22px;
+}
+.mono-azi > .mono-sec:not(.mono-azi-prio)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  height: 1px;
+  background: var(--mono-border);
+}
+.mono-azi > .mono-sec:not(.mono-azi-prio) .mono-card:not(.mono-card-ink):not(button) {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  background: none;
+  box-shadow: none;
+}
+
 /* ---------- progress meter (session payoff) ---------- */
 .mono-meter {
   margin-top: 12px;
