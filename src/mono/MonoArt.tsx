@@ -84,7 +84,17 @@ export type GlyphName =
   | 'target'
   | 'globe'
   | 'briefcase'
-  | 'sparkle';
+  | 'sparkle'
+  | 'hourglass'
+  | 'moon'
+  | 'coin'
+  | 'leaf'
+  | 'phoneOff'
+  | 'apple'
+  | 'heart'
+  | 'pen'
+  | 'rocket'
+  | 'sun';
 
 const GLYPH: Record<GlyphName, ReactNode> = {
   flag: <path d="M6 21V4M6 4h11l-2 4 2 4H6" />,
@@ -159,6 +169,52 @@ const GLYPH: Record<GlyphName, ReactNode> = {
     <>
       <path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" />
       <path d="M19 16l1 2 2 1-2 1-1 2-1-2-2-1 2-1z" />
+    </>
+  ),
+  hourglass: <path d="M6 3h12M6 21h12M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9" />,
+  moon: <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />,
+  coin: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .8-3 2s1.3 1.7 3 2 3 .8 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6v2M12 16v2" />
+    </>
+  ),
+  leaf: (
+    <>
+      <path d="M5 19c0-8 5-14 15-15 0 10-6 15-14 15z" />
+      <path d="M5 19c3-4 6-7 10-9" />
+    </>
+  ),
+  phoneOff: (
+    <>
+      <rect x="6" y="2" width="12" height="20" rx="2" />
+      <path d="M11 18h2M3 3l18 18" />
+    </>
+  ),
+  apple: (
+    <>
+      <path d="M12 7c-2-1.5-6-1-7 3s1 10 4 10c1 0 2-.5 3-.5s2 .5 3 .5c3 0 5-6 4-10s-5-4.5-7-3z" />
+      <path d="M12 7c0-2 1-4 3-4" />
+    </>
+  ),
+  heart: <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />,
+  pen: (
+    <>
+      <path d="M5 19l1-4L16 5l3 3L9 18z" />
+      <path d="M14 7l3 3" />
+    </>
+  ),
+  rocket: (
+    <>
+      <path d="M12 15l-3-3c1-5 4-8 10-9-1 6-4 9-9 10z" />
+      <path d="M9 12l-3 1-2 3 4-1M12 15l-1 3-3 2 1-4" />
+      <circle cx="15" cy="9" r="1" />
+    </>
+  ),
+  sun: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5" />
     </>
   ),
 };

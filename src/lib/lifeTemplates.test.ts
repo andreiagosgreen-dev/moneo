@@ -32,12 +32,20 @@ const isNoon = (ms: number) => {
 };
 
 describe('lifeTemplates', () => {
-  it('ships 8 templates, 3 of them free', () => {
-    expect(LIFE_TEMPLATES).toHaveLength(8);
-    expect(FREE_LIFE_TEMPLATES).toEqual(['exam', 'reading', 'newHabit']);
+  it('ships 18 templates, 5 of them free', () => {
+    expect(LIFE_TEMPLATES).toHaveLength(18);
+    expect(FREE_LIFE_TEMPLATES).toEqual([
+      'exam',
+      'reading',
+      'newHabit',
+      'procrastination',
+      'sleep',
+    ]);
+    expect(new Set(LIFE_TEMPLATES.map((t) => t.id)).size).toBe(18);
+    expect(new Set(LIFE_TEMPLATES.map((t) => t.color)).size).toBe(18);
   });
 
-  it('availability matrix: Free gets the 3 free ones, Pro gets all', () => {
+  it('availability matrix: Free gets the 5 free ones, Pro gets all', () => {
     for (const t of LIFE_TEMPLATES) {
       expect(isTemplateAvailable(t.id, true)).toBe(true);
       expect(isTemplateAvailable(t.id, false)).toBe(FREE_LIFE_TEMPLATES.includes(t.id));

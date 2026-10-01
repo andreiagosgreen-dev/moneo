@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import MonoBtn from './MonoBtn';
 import MonoTag from './MonoTag';
@@ -20,6 +20,16 @@ const TPL_GLYPH: Record<LifeTemplateId, GlyphName> = {
   language: 'globe',
   jobSearch: 'briefcase',
   declutter: 'sparkle',
+  procrastination: 'hourglass',
+  sleep: 'moon',
+  money: 'coin',
+  stress: 'leaf',
+  screenTime: 'phoneOff',
+  eatHealthy: 'apple',
+  family: 'heart',
+  thesis: 'pen',
+  sideProject: 'rocket',
+  morning: 'sun',
 };
 
 interface Props {
@@ -77,7 +87,12 @@ export default function MonoTemplates({ isPro, canCreate, hasProjects, onCreate 
           const name = t(tplKey.name(tpl.id));
           const locked = !isTemplateAvailable(tpl.id, isPro);
           return (
-            <li key={tpl.id} className="mono-tpl-card" data-testid={`tpl-${tpl.id}`}>
+            <li
+              key={tpl.id}
+              className="mono-tpl-card"
+              data-testid={`tpl-${tpl.id}`}
+              style={{ '--tpl-color': tpl.color } as CSSProperties}
+            >
               <div className="mono-tpl-top">
                 <span className="mono-tpl-icon" aria-hidden>
                   <MonoGlyph name={TPL_GLYPH[tpl.id]} />

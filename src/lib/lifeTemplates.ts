@@ -8,9 +8,36 @@ import { legacyFromRule, matches, nextOccurrence, type RepeatRule } from './recu
 import { noonPlusDays } from './dayKeys';
 
 export type LifeTemplateId =
-  'exam' | 'sport' | 'moving' | 'reading' | 'newHabit' | 'language' | 'jobSearch' | 'declutter';
+  | 'exam'
+  | 'sport'
+  | 'moving'
+  | 'reading'
+  | 'newHabit'
+  | 'language'
+  | 'jobSearch'
+  | 'declutter'
+  | 'procrastination'
+  | 'sleep'
+  | 'money'
+  | 'stress'
+  | 'screenTime'
+  | 'eatHealthy'
+  | 'family'
+  | 'thesis'
+  | 'sideProject'
+  | 'morning';
 
-export const FREE_LIFE_TEMPLATES: LifeTemplateId[] = ['exam', 'reading', 'newHabit'];
+/**
+ * Free systems cover the most common struggles (surveys: ~71% of adults put
+ * tasks off, only ~26% sleep 8 hours) so the free plan solves a real problem.
+ */
+export const FREE_LIFE_TEMPLATES: LifeTemplateId[] = [
+  'exam',
+  'reading',
+  'newHabit',
+  'procrastination',
+  'sleep',
+];
 
 export interface LifeTemplateTask {
   key: string;
@@ -143,6 +170,153 @@ export const LIFE_TEMPLATES: readonly LifeTemplate[] = [
       { key: 'sell', dueInDays: 10 },
     ],
     habits: [{ key: 'tidy', frequency: 'daily', targetPerWeek: 7, icon: '🧹' }],
+  },
+  {
+    id: 'procrastination',
+    icon: '⏳',
+    category: 'personal',
+    color: '#f59e0b',
+    tasks: [
+      { key: 'list', dueInDays: 0, priority: 'p1' },
+      { key: 'smallest', dueInDays: 0 },
+      { key: 'block', repeat: WEEKDAYS, estimateMin: 25, priority: 'p1' },
+      { key: 'review', repeat: { kind: 'weeks', every: 1, weekdays: [4] }, estimateMin: 15 },
+    ],
+    habits: [{ key: 'start', frequency: 'daily', targetPerWeek: 7, icon: '🐸' }],
+  },
+  {
+    id: 'sleep',
+    icon: '🌙',
+    category: 'personal',
+    color: '#6366f1',
+    tasks: [
+      { key: 'time', dueInDays: 0, priority: 'p1' },
+      { key: 'caffeine', dueInDays: 0 },
+      { key: 'room', dueInDays: 2 },
+      { key: 'review', dueInDays: 7 },
+    ],
+    habits: [
+      { key: 'screens', frequency: 'daily', targetPerWeek: 7, icon: '📵' },
+      { key: 'bedtime', frequency: 'daily', targetPerWeek: 7, icon: '🛏️' },
+    ],
+  },
+  {
+    id: 'money',
+    icon: '💰',
+    category: 'personal',
+    color: '#10b981',
+    tasks: [
+      { key: 'track', dueInDays: 0, priority: 'p1' },
+      { key: 'budget', dueInDays: 1 },
+      { key: 'subs', dueInDays: 2 },
+      { key: 'auto', dueInDays: 3, priority: 'p1' },
+      { key: 'review', repeat: { kind: 'months', every: 1, day: 1 }, estimateMin: 30 },
+    ],
+    habits: [{ key: 'log', frequency: 'daily', targetPerWeek: 7, icon: '🧾' }],
+  },
+  {
+    id: 'stress',
+    icon: '🍃',
+    category: 'personal',
+    color: '#14b8a6',
+    tasks: [
+      { key: 'triggers', dueInDays: 0 },
+      { key: 'boundary', dueInDays: 2 },
+      { key: 'talk', dueInDays: 5 },
+      { key: 'offline', repeat: { kind: 'weeks', every: 1, weekdays: [5] } },
+    ],
+    habits: [
+      { key: 'breathe', frequency: 'daily', targetPerWeek: 7, icon: '🌬️' },
+      { key: 'walk', frequency: 'daily', targetPerWeek: 7, icon: '🌳' },
+    ],
+  },
+  {
+    id: 'screenTime',
+    icon: '📵',
+    category: 'personal',
+    color: '#f43f5e',
+    tasks: [
+      { key: 'check', dueInDays: 0, priority: 'p1' },
+      { key: 'limits', dueInDays: 0 },
+      { key: 'home', dueInDays: 1 },
+      { key: 'charge', dueInDays: 1 },
+    ],
+    habits: [
+      { key: 'morning', frequency: 'daily', targetPerWeek: 7, icon: '🌅' },
+      { key: 'offline', frequency: 'daily', targetPerWeek: 7, icon: '🔕' },
+    ],
+  },
+  {
+    id: 'eatHealthy',
+    icon: '🥗',
+    category: 'personal',
+    color: '#84cc16',
+    tasks: [
+      { key: 'plan', repeat: { kind: 'weeks', every: 1, weekdays: [6] }, estimateMin: 30 },
+      { key: 'shop', repeat: { kind: 'weeks', every: 1, weekdays: [6] }, estimateMin: 45 },
+      { key: 'prep', repeat: { kind: 'weeks', every: 1, weekdays: [6] }, estimateMin: 60 },
+      { key: 'swap', dueInDays: 0 },
+    ],
+    habits: [
+      { key: 'water', frequency: 'daily', targetPerWeek: 7, icon: '💧' },
+      { key: 'veg', frequency: 'daily', targetPerWeek: 7, icon: '🥦' },
+    ],
+  },
+  {
+    id: 'family',
+    icon: '💛',
+    category: 'personal',
+    color: '#d946ef',
+    tasks: [
+      { key: 'list', dueInDays: 0 },
+      { key: 'call', repeat: { kind: 'weeks', every: 1, weekdays: [2] }, estimateMin: 20 },
+      { key: 'plan', dueInDays: 3 },
+      { key: 'dinner', repeat: { kind: 'weeks', every: 1, weekdays: [6] } },
+    ],
+    habits: [{ key: 'message', frequency: 'daily', targetPerWeek: 7, icon: '💌' }],
+  },
+  {
+    id: 'thesis',
+    icon: '✍️',
+    category: 'learning',
+    color: '#0ea5e9',
+    tasks: [
+      { key: 'topic', dueInDays: 0, priority: 'p1' },
+      { key: 'outline', dueInDays: 3, priority: 'p1' },
+      { key: 'sources', dueInDays: 7 },
+      { key: 'write', repeat: WEEKDAYS, estimateMin: 50 },
+      { key: 'feedback', dueInDays: 21 },
+    ],
+    habits: [{ key: 'words', frequency: 'daily', targetPerWeek: 7, icon: '✍️' }],
+  },
+  {
+    id: 'sideProject',
+    icon: '🚀',
+    category: 'work',
+    color: '#a855f7',
+    tasks: [
+      { key: 'problem', dueInDays: 0, priority: 'p1' },
+      { key: 'interviews', dueInDays: 7 },
+      { key: 'mvp', dueInDays: 10 },
+      { key: 'build', repeat: { kind: 'weeks', every: 1, weekdays: [1, 3] }, estimateMin: 60 },
+      { key: 'launch', dueInDays: 30, priority: 'p1' },
+    ],
+    habits: [{ key: 'progress', frequency: 'weekly', targetPerWeek: 4, icon: '🚀' }],
+  },
+  {
+    id: 'morning',
+    icon: '☀️',
+    category: 'personal',
+    color: '#fb923c',
+    tasks: [
+      { key: 'design', dueInDays: 0 },
+      { key: 'prep', dueInDays: 0 },
+      { key: 'wake', dueInDays: 7 },
+    ],
+    habits: [
+      { key: 'routine', frequency: 'daily', targetPerWeek: 7, icon: '☀️' },
+      { key: 'plan', frequency: 'daily', targetPerWeek: 7, icon: '📝' },
+    ],
   },
 ];
 
