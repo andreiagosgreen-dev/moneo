@@ -1908,6 +1908,15 @@ export const de: Record<TKey, string> = {
   'assist.roadmap.apiKeyPh': 'Dein Schlüssel',
   'assist.roadmap.keyHint':
     'Dein Schlüssel bleibt nur auf diesem Gerät. Kostenloser Gemini-Schlüssel: aistudio.google.com/apikey',
+  'assist.roadmap.guide.title': 'Kostenloser Gemini-Schlüssel in 1 Minute',
+  'assist.roadmap.guide.step1': 'Öffne Google AI Studio und melde dich mit deinem Google-Konto an.',
+  'assist.roadmap.guide.step2': 'Tippe auf „Create API key“ und kopiere den Schlüssel.',
+  'assist.roadmap.guide.step3':
+    'Wähle oben Gemini und füge den Schlüssel bei „API-Schlüssel“ ein. Fertig — er bleibt nur auf diesem Gerät.',
+  'assist.roadmap.guide.open': 'Google AI Studio öffnen',
+  'assist.roadmap.guide.useGemini': 'Gemini verwenden',
+  'assist.roadmap.keyFailed':
+    'Der KI-Anbieter hat deinen Schlüssel abgelehnt — prüfe ihn in den KI-Einstellungen. Dieser Plan wurde auf deinem Gerät erstellt.',
   'assist.roadmap.webSearch': 'Web-Ergebnisse einbeziehen',
   'assist.roadmap.webSearchHint': 'Gemini',
   'assist.roadmap.goalPh': 'Was möchtest du tun?',

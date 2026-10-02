@@ -5,6 +5,7 @@ import {
   loadByokConfig,
   pathFromModelJson,
   saveByokConfig,
+  isKeyRejected,
 } from './byok';
 
 beforeEach(() => {
@@ -92,5 +93,16 @@ describe('buildByokPath', () => {
     expect(r.ok).toBe(true);
     expect(r.used).toBe('gemini');
     expect(fetchImpl).toHaveBeenCalledOnce();
+  });
+});
+
+describe('isKeyRejected', () => {
+  it('flags a refused key from any provider, nothing else', () => {
+    expect(isKeyRejected('gemini-http-400')).toBe(true);
+    expect(isKeyRejected('openai-http-401')).toBe(true);
+    expect(isKeyRejected('deepseek-http-403')).toBe(true);
+    expect(isKeyRejected('gemini-http-429')).toBe(false);
+    expect(isKeyRejected('gemini-network')).toBe(false);
+    expect(isKeyRejected(undefined)).toBe(false);
   });
 });

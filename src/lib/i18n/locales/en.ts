@@ -1905,6 +1905,15 @@ export const en = {
   'assist.roadmap.apiKeyPh': 'Your key',
   'assist.roadmap.keyHint':
     'Your key stays only on this device. A free Gemini key: aistudio.google.com/apikey',
+  'assist.roadmap.guide.title': 'Free Gemini key in 1 minute',
+  'assist.roadmap.guide.step1': 'Open Google AI Studio and sign in with your Google account.',
+  'assist.roadmap.guide.step2': 'Press “Create API key” and copy the key.',
+  'assist.roadmap.guide.step3':
+    'Choose Gemini above and paste the key into “API key”. Done — it stays only on this device.',
+  'assist.roadmap.guide.open': 'Open Google AI Studio',
+  'assist.roadmap.guide.useGemini': 'Use Gemini',
+  'assist.roadmap.keyFailed':
+    'The AI provider rejected your key — check it in AI settings. This plan was built on your device.',
   'assist.roadmap.webSearch': 'Include web results',
   'assist.roadmap.webSearchHint': 'Gemini',
   'assist.roadmap.goalPh': 'What do you want to do?',

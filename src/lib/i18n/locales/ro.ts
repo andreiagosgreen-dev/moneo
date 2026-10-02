@@ -1912,6 +1912,15 @@ export const ro: Record<TKey, string> = {
   'assist.roadmap.apiKeyPh': 'Cheia ta',
   'assist.roadmap.keyHint':
     'Cheia ta rămâne doar pe acest dispozitiv. O cheie Gemini gratuită: aistudio.google.com/apikey',
+  'assist.roadmap.guide.title': 'Cheie Gemini gratuită în 1 minut',
+  'assist.roadmap.guide.step1': 'Deschide Google AI Studio și conectează-te cu contul Google.',
+  'assist.roadmap.guide.step2': 'Apasă „Create API key” și copiază cheia.',
+  'assist.roadmap.guide.step3':
+    'Alege Gemini mai sus și lipește cheia la „Cheie API”. Gata — rămâne doar pe acest dispozitiv.',
+  'assist.roadmap.guide.open': 'Deschide Google AI Studio',
+  'assist.roadmap.guide.useGemini': 'Folosește Gemini',
+  'assist.roadmap.keyFailed':
+    'Furnizorul AI ți-a respins cheia — verific-o în setările AI. Planul acesta a fost creat pe dispozitiv.',
   'assist.roadmap.webSearch': 'Include rezultate web',
   'assist.roadmap.webSearchHint': 'Gemini',
   'assist.roadmap.goalPh': 'Ce vrei să faci?',
