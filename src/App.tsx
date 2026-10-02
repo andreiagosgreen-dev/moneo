@@ -3,6 +3,7 @@ import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { loadBoot } from './app/boot';
 import { useFocusExtras } from './app/useFocusExtras';
 import { useAppToast } from './app/useAppToast';
+import { useWelcomeEmail } from './app/useWelcomeEmail';
 import MonoNav, { MONO_NAV_ITEMS, type MonoTab } from './mono/MonoNav';
 import MonoMore from './mono/MonoMore';
 import MonoHead from './mono/MonoHead';
@@ -795,6 +796,8 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
     if (r.added) setIvyPlans(r.plans);
     return r.added;
   };
+
+  useWelcomeEmail(auth.status === 'authenticated' ? (auth.user?.userId ?? null) : null, locale);
 
   /* ---------- quick capture: inbox, toast, morning triage ---------- */
   const { toast, setToast } = useAppToast({

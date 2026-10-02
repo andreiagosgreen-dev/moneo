@@ -14,6 +14,8 @@
  * client keeps its local data and can safely retry.
  */
 
+import type { DiscountKV } from './discount';
+import { forgetEmailMarkers } from './emails';
 import { buildSecurityHeaders, mergeHeaders } from './security';
 
 export interface AccountEnv {
@@ -23,6 +25,8 @@ export interface AccountEnv {
   LEMON_SQUEEZY_API_KEY?: string;
   /** Scopes the email lookup of further subscriptions to this store. */
   LEMON_STORE_ID?: string;
+  /** Lifecycle-email markers (welcome/reminder/unsubscribe) to forget on deletion. */
+  KV_CACHE?: DiscountKV;
 }
 
 export type FetchImpl = typeof fetch;
@@ -387,6 +391,8 @@ export async function handleAccountDelete(
       500,
     );
   }
+
+  await forgetEmailMarkers(env.KV_CACHE, userId);
 
   return json({ ok: true }, 200);
 }
