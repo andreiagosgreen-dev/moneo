@@ -93,7 +93,7 @@ describe('buildPath', () => {
     expect(path.assumptions).toContain('trimmed-to-20');
   });
 
-  it('is deterministic and references frames woven with the goal at render', () => {
+  it('is deterministic and renders short steps that do not repeat the goal', () => {
     const input = {
       text: 'Launch Moneo',
       horizonMonths: 6,
@@ -104,11 +104,12 @@ describe('buildPath', () => {
     const b = buildPath(input, render);
     expect(a).toEqual(b);
     expect(a.kind).toBe('launch');
-    // Engine stores frame ids; the UI weaves the goal text at render time.
+    // Engine stores frame ids; the UI renders them. The roadmap is already
+    // titled with the goal, so steps are short actions without it.
     expect(a.tasks.every((x) => x.title.startsWith('ai.tpl.task'))).toBe(true);
     const enT = createI18n('en');
     const rendered = a.tasks.map((x) => enT.t(x.title as TKey, { goal: a.goal, outcome: 'Proof' }));
-    expect(rendered.every((title) => title.includes('Moneo'))).toBe(true);
+    expect(rendered.every((title) => title.length > 0 && !title.includes('Moneo'))).toBe(true);
     expect(a.fitsCapacity).toBe(true);
   });
 
