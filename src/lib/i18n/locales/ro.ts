@@ -1099,6 +1099,7 @@ export const ro: Record<TKey, string> = {
   'onb.qs.task': 'Primul pas de azi',
   'onb.qs.use': 'Folosește acest pas',
   'onb.qs.start': 'Începe focusul →',
+  'onb.qs.later': 'Mai târziu',
   'onb.qs.back': 'Înapoi',
   'onb.skip': 'Sari',
   'onb.next': 'Înainte',

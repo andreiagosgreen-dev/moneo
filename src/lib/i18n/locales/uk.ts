@@ -1097,6 +1097,7 @@ export const uk: Record<TKey, string> = {
   'onb.qs.task': 'Перший крок на сьогодні',
   'onb.qs.use': 'Взяти цей крок',
   'onb.qs.start': 'Почати фокус →',
+  'onb.qs.later': 'Пізніше',
   'onb.qs.back': 'Назад',
   'onb.skip': 'Пропустити',
   'onb.next': 'Далі',

@@ -13,7 +13,7 @@ import {
   SYNC_SCOPE_KEY,
 } from '../lib/billing/pricingConfig';
 import { useI18n } from '../lib/i18n/LocaleContext';
-import { openExternal } from '../lib/links';
+import { openPaymentPage } from '../lib/links';
 import { SUPPORT_EMAIL, SUPPORT_MAILTO } from '../lib/legal/seller';
 
 function CheckIcon() {
@@ -72,11 +72,12 @@ export default function PricingCard() {
     }
 
     const checkoutUrl = initiateCheckout(planId, auth.user.userId, auth.user.email);
-    const opened = !!checkoutUrl && openExternal(checkoutUrl);
-    if (opened) track('checkout_open', planId);
-    if (!opened) {
+    if (!checkoutUrl) {
       setPayError(t('pay.unavailable'));
+      return;
     }
+    track('checkout_open', planId);
+    openPaymentPage(checkoutUrl);
   };
 
   return (

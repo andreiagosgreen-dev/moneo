@@ -8,7 +8,7 @@ import {
   type RankDiscountStatus,
 } from '../lib/billing/rankDiscount';
 import { useI18n } from '../lib/i18n/LocaleContext';
-import { openExternal } from '../lib/links';
+import { openPaymentPage } from '../lib/links';
 import { loadAtmosphere, resolveAtmosphere } from './atmosphere';
 import { RANK_KEYS } from './rankLabel';
 
@@ -74,7 +74,11 @@ export default function MonoRankDiscount({ className = '' }: { className?: strin
       }
     }
     const url = buildCheckoutUrl('pro-monthly', userId, code, auth.user?.email);
-    if (!url || !openExternal(url)) setError(true);
+    if (!url) {
+      setError(true);
+      return;
+    }
+    openPaymentPage(url);
   };
 
   const rankName = t(RANK_KEYS[status.rank]);

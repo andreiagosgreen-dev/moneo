@@ -1098,6 +1098,7 @@ export const ru: Record<TKey, string> = {
   'onb.qs.task': 'Первый шаг на сегодня',
   'onb.qs.use': 'Взять этот шаг',
   'onb.qs.start': 'Начать фокус →',
+  'onb.qs.later': 'Позже',
   'onb.qs.back': 'Назад',
   'onb.skip': 'Пропустить',
   'onb.next': 'Далее',

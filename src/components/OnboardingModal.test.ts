@@ -13,7 +13,7 @@ let root: Root | null = null;
 let container: HTMLDivElement | null = null;
 
 function renderModal(
-  props: { onDone: () => void; onQuickStart: (g: string, t: string) => void },
+  props: { onDone: () => void; onQuickStart: (g: string, t: string, startNow: boolean) => void },
   lang: 'en' | 'ro' = 'en',
 ) {
   container = document.createElement('div');
@@ -86,7 +86,20 @@ describe('OnboardingModal quickstart', () => {
     expect(onQuickStart).toHaveBeenCalledWith(
       'Launch the bakery site',
       'Write a one-paragraph scope',
+      true,
     );
+  });
+
+  it('“Later” saves the step without starting the timer', () => {
+    const onQuickStart = vi.fn();
+    const el = renderModal({ onDone: () => {}, onQuickStart });
+    typeInto(el.querySelector('input')!, 'Finish an online course');
+    clickButton(el, 'Next');
+    clickButton(el, 'Use this step');
+    clickButton(el, 'Later');
+    expect(onQuickStart).toHaveBeenCalledTimes(1);
+    expect(onQuickStart.mock.calls[0][0]).toBe('Finish an online course');
+    expect(onQuickStart.mock.calls[0][2]).toBe(false);
   });
 
   it('keeps a user-typed task instead of the suggestion', () => {
@@ -98,7 +111,7 @@ describe('OnboardingModal quickstart', () => {
     typeInto(taskInput, 'Run 2km');
     clickButton(el, 'Use this step');
     clickButton(el, 'Start focusing');
-    expect(onQuickStart).toHaveBeenCalledWith('Get fit', 'Run 2km');
+    expect(onQuickStart).toHaveBeenCalledWith('Get fit', 'Run 2km', true);
   });
 
   it('starts the first step from the person’s own words, under its own title', () => {
