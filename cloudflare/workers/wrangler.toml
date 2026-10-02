@@ -76,3 +76,9 @@ preview_id = "75386684902b4b80b85db1ddcc01b5fb"
 [[r2_buckets]]
 binding = "R2_BUCKET"
 bucket_name = "moneo-assets"
+
+# Daily lifecycle emails (cloudflare/workers/emails.ts): one-time reminder to
+# accounts quiet for a week. No-op until the RESEND_API_KEY secret is set:
+#   npx wrangler secret put RESEND_API_KEY
+[triggers]
+crons = ["0 8 * * *"]

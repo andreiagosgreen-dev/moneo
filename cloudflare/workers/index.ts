@@ -13,6 +13,7 @@
 
 import { handleAccountDelete } from './account';
 import { handleEvent, type AnalyticsDataset } from './events';
+import { handleUnsubscribe, handleWelcome, runReminders } from './emails';
 import { handleEntitlement } from './entitlement';
 import { handleLemonSqueezyWebhook } from './lemonWebhook';
 import { handleCustomerPortal } from './portal';
@@ -70,6 +71,7 @@ export function buildHealthBody(env: Env): { ok: true; env: Record<string, boole
       supabase: Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY),
       lemonSqueezy: Boolean(env.LEMON_SQUEEZY_WEBHOOK_SECRET),
       ai: Boolean(env.AI_API_KEY),
+      email: Boolean(env.RESEND_API_KEY),
     },
   };
 }
@@ -89,6 +91,10 @@ export interface Env {
   LEMON_SQUEEZY_API_KEY?: string;
   AI_API_KEY?: string;
   AI_DAILY_LIMIT?: string;
+  /** Resend API key for welcome/reminder emails (secret; optional). */
+  RESEND_API_KEY?: string;
+  /** Sender for lifecycle emails, e.g. `Moneo <no-reply@moneo.bond>` (public). */
+  EMAIL_FROM?: string;
   /** Workers Analytics Engine dataset for anonymous funnel counters (optional). */
   EVENTS?: AnalyticsDataset;
   AI_MODEL?: string;
@@ -190,6 +196,15 @@ export default {
     // Anonymous funnel counters: allowlisted names only, always 204.
     if (url.pathname === '/api/event') {
       return handleEvent(request, env);
+    }
+
+    // Lifecycle emails: one welcome after the first sign-in (JWT), and the
+    // signed one-click unsubscribe link carried by every such email.
+    if (url.pathname === '/api/email/welcome') {
+      return handleWelcome(request, env);
+    }
+    if (url.pathname === '/api/email/unsubscribe') {
+      return handleUnsubscribe(request, env);
     }
 
     // Webhook endpoint for Lemon Squeezy billing events (server-to-server,
@@ -322,5 +337,18 @@ export default {
       status: 404,
       headers: mergeHeaders(SEC, cors),
     });
+  },
+
+  /** Daily cron (wrangler.toml [triggers]): one-time reminder to quiet accounts. */
+  async scheduled(
+    _event: unknown,
+    env: Env,
+    ctx: { waitUntil(promise: Promise<unknown>): void },
+  ): Promise<void> {
+    ctx.waitUntil(
+      runReminders(env).catch((e: unknown) => {
+        console.error('reminders failed', e instanceof Error ? e.message : e);
+      }),
+    );
   },
 };
