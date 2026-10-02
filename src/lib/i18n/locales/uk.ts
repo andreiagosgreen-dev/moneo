@@ -1156,6 +1156,7 @@ export const uk: Record<TKey, string> = {
   'legal.showEnglish': 'Читати оригінал англійською',
   'legal.showTranslation': 'Показати переклад',
   'legal.agree': 'Створюючи обліковий запис, ви погоджуєтеся з {terms} та {privacy}.',
+  'auth.consent': 'Я прочитав(ла) і погоджуюся з {terms} та {privacy}.',
   'legal.ageNote':
     'Акаунт можна створити з {min} років. Вам менше {n}? Спершу отримайте дозвіл батьків або опікуна.',
   'legal.termsLink': 'Умовами використання',

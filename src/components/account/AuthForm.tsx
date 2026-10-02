@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useI18n } from '../../lib/i18n/LocaleContext';
 import { useAuth } from '../../lib/authProvider';
 import TurnstileWidget from './TurnstileWidget';
+import LegalInline from '../legal/LegalInline';
 import { getTurnstileSiteKey } from '../../lib/turnstile';
 
 function Spinner() {
@@ -47,11 +48,13 @@ export default function AuthForm({
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  // Creating an account needs an explicit, unticked-by-default "I agree".
+  const [consent, setConsent] = useState(false);
   const captchaRequired = getTurnstileSiteKey() !== null;
   const emailRef = useRef<HTMLInputElement>(null);
 
   const submit = async () => {
-    if (busy) return;
+    if (busy || (tab === 'signup' && !consent)) return;
     setBusy(true);
     setError('');
     setNote('');
@@ -229,6 +232,30 @@ export default function AuthForm({
           )}
         </div>
 
+        {tab === 'signup' && (
+          <label className="flex items-start gap-2.5 text-[12px] leading-relaxed text-sage">
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--accent)]"
+              aria-labelledby="signup-consent-text"
+              data-testid="signup-consent"
+            />
+            <span id="signup-consent-text">
+              <LegalInline
+                text={t('auth.consent')}
+                docLabels={{
+                  terms: t('legal.termsLink'),
+                  privacy: t('legal.privacyLink'),
+                  refund: t('legal.refundLink'),
+                }}
+                linkClassName="font-semibold text-cream underline underline-offset-2"
+              />
+            </span>
+          </label>
+        )}
+
         <TurnstileWidget onToken={setCaptchaToken} onExpire={() => setCaptchaToken(null)} />
 
         {messages}
@@ -239,6 +266,7 @@ export default function AuthForm({
             busy ||
             email.trim().length === 0 ||
             password.length === 0 ||
+            (tab === 'signup' && !consent) ||
             (captchaRequired && !captchaToken)
           }
           className="press btn-accent flex h-11 w-full items-center justify-center gap-2 rounded-xl font-display text-[15px] font-bold disabled:opacity-40"

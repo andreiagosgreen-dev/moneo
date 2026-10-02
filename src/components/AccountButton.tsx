@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import BrandMark from './BrandMark';
 import AuthForm from './account/AuthForm';
+import LegalInline from './legal/LegalInline';
 import GoogleSignInButton from './account/GoogleSignInButton';
 import { useAuth } from '../lib/authProvider';
 import { useI18n } from '../lib/i18n/LocaleContext';
@@ -176,6 +177,18 @@ export default function AccountButton() {
               </div>
 
               <AuthForm onAuthenticated={close} />
+
+              <p className="mt-4 text-center text-[12px] leading-relaxed text-faint">
+                <LegalInline
+                  text={t('legal.agree')}
+                  docLabels={{
+                    terms: t('legal.termsLink'),
+                    privacy: t('legal.privacyLink'),
+                    refund: t('legal.refundLink'),
+                  }}
+                  linkClassName="font-semibold text-sage underline underline-offset-2 hover:text-cream"
+                />
+              </p>
             </div>
           </div>,
           document.body,

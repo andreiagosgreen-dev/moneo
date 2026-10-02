@@ -1158,6 +1158,7 @@ export const ru: Record<TKey, string> = {
   'legal.showEnglish': 'Читать оригинал на английском',
   'legal.showTranslation': 'Показать перевод',
   'legal.agree': 'Создавая аккаунт, вы соглашаетесь с {terms} и {privacy}.',
+  'auth.consent': 'Я прочитал(а) и согласен(на) с {terms} и {privacy}.',
   'legal.ageNote':
     'Аккаунт можно создать с {min} лет. Вам меньше {n}? Сначала получите разрешение родителя или опекуна.',
   'legal.termsLink': 'Условиями использования',

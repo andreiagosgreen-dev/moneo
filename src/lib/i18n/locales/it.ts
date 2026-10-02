@@ -1157,6 +1157,7 @@ export const it: Record<TKey, string> = {
   'legal.showEnglish': "Leggi l'originale in inglese",
   'legal.showTranslation': 'Mostra la traduzione',
   'legal.agree': "Creando un account accetti i {terms} e l'{privacy}.",
+  'auth.consent': 'Ho letto e accetto i {terms} e l’{privacy}.',
   'legal.ageNote':
     'Per un account servono almeno {min} anni. Hai meno di {n} anni? Chiedi prima il permesso a un genitore o tutore.',
   'legal.termsLink': 'Termini di servizio',

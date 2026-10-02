@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { LEGAL_LAST_UPDATED } from './legal/seller';
 import {
   createAuthController,
   mapAuthError,
@@ -505,6 +506,16 @@ describe('captcha token forwarding (Faza 32a)', () => {
     const c = createAuthController(deps(client));
     await c.signUp('b@example.com', 'password123', 'tok-xyz');
     expect(calls[0]).toMatchObject({ options: { captchaToken: 'tok-xyz' } });
+  });
+
+  it('records the accepted Terms version on sign-up', async () => {
+    const { client, calls } = captchaSpyClient();
+    const c = createAuthController(deps(client));
+    await c.signUp('b@example.com', 'password123');
+    expect(calls[0]).toMatchObject({ options: { data: { terms_version: LEGAL_LAST_UPDATED } } });
+    const at = (calls[0] as { options: { data: { terms_accepted_at: string } } }).options.data
+      .terms_accepted_at;
+    expect(Number.isNaN(Date.parse(at))).toBe(false);
   });
 });
 

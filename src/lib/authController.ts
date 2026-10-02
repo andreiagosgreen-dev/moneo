@@ -1,3 +1,4 @@
+import { LEGAL_LAST_UPDATED } from './legal/seller';
 import { isValidIanaTimezone } from './timezone';
 
 /**
@@ -50,7 +51,11 @@ export interface AuthClientLike {
     password: string;
     options?: { captchaToken?: string };
   }): Promise<{ data: { user: RawUser | null }; error: { message?: string } | null }>;
-  signUp(creds: { email: string; password: string; options?: { captchaToken?: string } }): Promise<{
+  signUp(creds: {
+    email: string;
+    password: string;
+    options?: { captchaToken?: string; data?: Record<string, string> };
+  }): Promise<{
     data: { user: RawUser | null; session: unknown };
     error: { message?: string } | null;
   }>;
@@ -336,7 +341,15 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
         const { data, error } = await client.signUp({
           email: email.trim(),
           password,
-          ...(captchaToken ? { options: { captchaToken } } : {}),
+          options: {
+            // The sign-up form requires ticking "I agree"; keep which Terms
+            // version was accepted and when, as proof of consent.
+            data: {
+              terms_version: LEGAL_LAST_UPDATED,
+              terms_accepted_at: new Date().toISOString(),
+            },
+            ...(captchaToken ? { captchaToken } : {}),
+          },
         });
         if (error) return { ok: false, message: mapAuthError(error.message) };
         if (data.session && data.user) {

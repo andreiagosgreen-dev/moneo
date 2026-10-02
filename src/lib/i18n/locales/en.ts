@@ -1164,6 +1164,7 @@ export const en = {
   'legal.showEnglish': 'Read the English original',
   'legal.showTranslation': 'Show the translation',
   'legal.agree': 'By creating an account you agree to the {terms} and the {privacy}.',
+  'auth.consent': 'I have read and agree to the {terms} and the {privacy}.',
   'legal.ageNote':
     'Accounts are for ages {min}+. Under {n}? Get a parent’s or guardian’s permission first.',
   'legal.termsLink': 'Terms of Service',
