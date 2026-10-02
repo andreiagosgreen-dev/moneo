@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import { getSupabaseAccessToken, resolveCustomerPortalUrl } from '../lib/billing/lemonSqueezy';
-import { openExternal } from '../lib/links';
+import { openPaymentPage } from '../lib/links';
 
 function Spinner() {
   return (
@@ -39,8 +39,8 @@ export default function ManageSubscriptionButton() {
     setBusy(true);
     const url = await resolveCustomerPortalUrl(getSupabaseAccessToken);
     setBusy(false);
-    // The await can cost the click's popup permission — same-tab instead.
-    if (!openExternal(url)) window.location.assign(url);
+    // The await can cost the click's popup permission — same tab then.
+    openPaymentPage(url);
   };
 
   return (

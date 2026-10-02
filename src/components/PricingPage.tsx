@@ -19,7 +19,7 @@ import {
   type ComparisonValue,
 } from '../lib/billing/pricingConfig';
 import { useI18n } from '../lib/i18n/LocaleContext';
-import { openExternal } from '../lib/links';
+import { openPaymentPage } from '../lib/links';
 import { loadAtmosphere, resolveAtmosphere } from '../mono/atmosphere';
 import { REFUND_DAYS, SUPPORT_EMAIL, SUPPORT_MAILTO } from '../lib/legal/seller';
 import MonoLegalLinks from '../mono/MonoLegalLinks';
@@ -92,9 +92,12 @@ export default function PricingPage() {
       return;
     }
     const url = initiateCheckout(planId, auth.user.userId, auth.user.email);
-    const opened = !!url && openExternal(url);
-    if (opened) track('checkout_open', planId);
-    if (!opened) setPayError(t('pay.unavailable'));
+    if (!url) {
+      setPayError(t('pay.unavailable'));
+      return;
+    }
+    track('checkout_open', planId);
+    openPaymentPage(url);
   };
 
   return (

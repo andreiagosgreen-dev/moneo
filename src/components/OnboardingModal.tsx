@@ -5,8 +5,11 @@ import { firstStepFor } from '../lib/goals';
 interface Props {
   /** Dismiss without creating anything (marks onboarding seen). */
   onDone: () => void;
-  /** Goal → suggested task → first session. Caller creates and selects. */
-  onQuickStart: (goalTitle: string, taskTitle: string) => void;
+  /**
+   * Goal → suggested task → first session. Caller creates and selects; with
+   * `startNow` false it only saves them (no timer).
+   */
+  onQuickStart: (goalTitle: string, taskTitle: string, startNow: boolean) => void;
 }
 
 type Step = 'goal' | 'task' | 'start';
@@ -158,7 +161,7 @@ export default function OnboardingModal({ onDone, onQuickStart }: Props) {
           ))}
         </div>
 
-        <div className="mt-6 flex justify-center gap-2">
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
           {step === 'goal' && (
             <button
               onClick={onDone}
@@ -195,7 +198,15 @@ export default function OnboardingModal({ onDone, onQuickStart }: Props) {
           )}
           {step === 'start' && (
             <button
-              onClick={() => onQuickStart(goalTitle.trim(), taskTitle.trim())}
+              onClick={() => onQuickStart(goalTitle.trim(), taskTitle.trim(), false)}
+              className="press btn-ghost rounded-lg px-4 py-2 font-mono text-[12px]"
+            >
+              {t('onb.qs.later')}
+            </button>
+          )}
+          {step === 'start' && (
+            <button
+              onClick={() => onQuickStart(goalTitle.trim(), taskTitle.trim(), true)}
               className="press btn-accent rounded-lg px-6 py-2 font-display text-[13px] font-bold"
             >
               {t('onb.qs.start')}

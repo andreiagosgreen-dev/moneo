@@ -630,7 +630,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
 
   // First-run quickstart: one objective → suggested first step → focus round.
   // Honors Free caps: reuses an active project / skips the goal when full.
-  const handleQuickStart = (goalTitle: string, taskTitle: string) => {
+  const handleQuickStart = (goalTitle: string, taskTitle: string, startNow = true) => {
     track('onboarding_done', undefined, locale);
     const canProject = auth.isPro || projects.length < FREE_PROJECTS_LIMIT;
     const live = activeProjects(projects);
@@ -663,6 +663,12 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
     setSelectedTaskId(plan.task.id);
     setIntentionDraft(plan.task.title);
     dismissOnboarding();
+    if (!startNow) {
+      // Saved for later: the step waits in today's plan, no timer.
+      addLinkedTaskToPlan(plan.task);
+      goNav('today');
+      return;
+    }
     goNav('focus');
     setQuickStartPending(true);
   };

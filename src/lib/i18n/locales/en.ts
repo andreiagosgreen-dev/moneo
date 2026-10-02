@@ -1104,6 +1104,7 @@ export const en = {
   'onb.qs.task': 'Today’s first step',
   'onb.qs.use': 'Use this step',
   'onb.qs.start': 'Start focusing →',
+  'onb.qs.later': 'Later',
   'onb.qs.back': 'Back',
   'onb.skip': 'Skip',
   'onb.next': 'Next',

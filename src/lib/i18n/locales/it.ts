@@ -1097,6 +1097,7 @@ export const it: Record<TKey, string> = {
   'onb.qs.task': 'Primo passo di oggi',
   'onb.qs.use': 'Usa questo passo',
   'onb.qs.start': 'Inizia il focus →',
+  'onb.qs.later': 'Più tardi',
   'onb.qs.back': 'Indietro',
   'onb.skip': 'Salta',
   'onb.next': 'Avanti',
