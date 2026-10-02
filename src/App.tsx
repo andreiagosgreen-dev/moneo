@@ -94,6 +94,7 @@ import {
   planForDay,
   addTaskToDay,
   dayPlanHasLinkedTask,
+  removePlanTask,
   IVY_MAX_TASKS,
   IVY_FREE_MAX_TASKS,
 } from './lib/ivyLee';
@@ -914,6 +915,17 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
     setToast({ message: t('mono.azi.snoozed') });
   };
 
+  const handleRemoveFromToday = (planItemId: string) => {
+    const before = ivyPlans;
+    const next = removePlanTask(before, todayKey, planItemId);
+    if (next === before) return;
+    setIvyPlans(next);
+    setToast({
+      message: t('mono.azi.removed'),
+      action: { label: t('mono.azi.undo'), onClick: () => setIvyPlans(before) },
+    });
+  };
+
   const canCreateProject = auth.isPro || projects.length < FREE_PROJECTS_LIMIT;
   const handleLifeTemplate = (id: LifeTemplateId) => {
     const tpl = getLifeTemplate(id);
@@ -1255,6 +1267,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                           };
                         })}
                         onSnooze={handleSnooze}
+                        onRemove={handleRemoveFromToday}
                         maxTasks={todayMaxTasks}
                         morningLabel={t('today.morning')}
                         shutdownLabel={t('today.shutdown')}

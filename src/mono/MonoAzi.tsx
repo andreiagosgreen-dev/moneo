@@ -48,6 +48,8 @@ interface Props {
   onAdd: (text: string) => boolean | void;
   /** Move one item to tomorrow's list. */
   onSnooze?: (id: string) => void;
+  /** Take one item off today's list (its project task, if any, stays). */
+  onRemove?: (id: string) => void;
   /** Jump to Focus to work the list. */
   onGoWork?: () => void;
   /** Path map navigation. */
@@ -85,6 +87,7 @@ export default function MonoAzi({
   onToggle,
   onAdd,
   onSnooze,
+  onRemove,
   onGoWork,
   onPath,
   motto,
@@ -313,6 +316,20 @@ export default function MonoAzi({
                     >
                       <svg viewBox="0 0 20 20" aria-hidden="true">
                         <path d="M4 10h11M11 5.5l4.5 4.5-4.5 4.5" />
+                      </svg>
+                    </button>
+                  ) : null}
+                  {onRemove ? (
+                    <button
+                      type="button"
+                      className="mono-week-nav mono-azi-snooze"
+                      aria-label={t('mono.azi.remove', { title: item.text })}
+                      title={t('mono.azi.remove', { title: item.text })}
+                      onClick={() => onRemove(item.id)}
+                      data-testid="azi-remove"
+                    >
+                      <svg viewBox="0 0 20 20" aria-hidden="true">
+                        <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" />
                       </svg>
                     </button>
                   ) : null}
