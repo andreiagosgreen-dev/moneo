@@ -134,6 +134,25 @@ describe('MonoAzi', () => {
     pills.forEach((x) => expect(x.classList.contains('mono-pill-done')).toBe(true));
   });
 
+  it('removes one item from today, labelled with its title', () => {
+    const onRemove = vi.fn();
+    const c = render(screen({ onRemove }));
+    const buttons = c.querySelectorAll('[data-testid="azi-remove"]');
+    expect(buttons.length).toBe(2);
+    expect(buttons[1].getAttribute('aria-label')).toBe(
+      'Remove Schiță pentru capitolul 3 from today',
+    );
+    act(() => {
+      buttons[1].dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    expect(onRemove).toHaveBeenCalledWith('b');
+  });
+
+  it('shows no remove button when removing is not offered', () => {
+    const c = render(screen());
+    expect(c.querySelectorAll('[data-testid="azi-remove"]').length).toBe(0);
+  });
+
   it('toggles + adds tasks', () => {
     const onToggle = vi.fn();
     const onAdd = vi.fn();
