@@ -1907,6 +1907,15 @@ export const ru: Record<TKey, string> = {
   'assist.roadmap.apiKeyPh': 'Ваш ключ',
   'assist.roadmap.keyHint':
     'Ключ хранится только на этом устройстве. Бесплатный ключ Gemini: aistudio.google.com/apikey',
+  'assist.roadmap.guide.title': 'Бесплатный ключ Gemini за 1 минуту',
+  'assist.roadmap.guide.step1': 'Откройте Google AI Studio и войдите через аккаунт Google.',
+  'assist.roadmap.guide.step2': 'Нажмите «Create API key» и скопируйте ключ.',
+  'assist.roadmap.guide.step3':
+    'Выберите Gemini выше и вставьте ключ в поле «API-ключ». Готово — он хранится только на этом устройстве.',
+  'assist.roadmap.guide.open': 'Открыть Google AI Studio',
+  'assist.roadmap.guide.useGemini': 'Использовать Gemini',
+  'assist.roadmap.keyFailed':
+    'Провайдер ИИ отклонил ваш ключ — проверьте его в настройках ИИ. Этот план создан на устройстве.',
   'assist.roadmap.webSearch': 'Учитывать веб-результаты',
   'assist.roadmap.webSearchHint': 'Gemini',
   'assist.roadmap.goalPh': 'Что вы хотите сделать?',

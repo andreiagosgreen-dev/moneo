@@ -255,6 +255,11 @@ async function openAiCompatiblePlan(
   }
 }
 
+/** True when the provider refused the key itself (wrong, revoked or unauthorised). */
+export function isKeyRejected(reason: string | undefined): boolean {
+  return /^(gemini|openai|deepseek)-http-(400|401|403)$/.test(reason ?? '');
+}
+
 /**
  * Build a path with the user's own AI key; without one (or on failure) the
  * on-device planner builds it. Moneo never pays for or proxies model calls.

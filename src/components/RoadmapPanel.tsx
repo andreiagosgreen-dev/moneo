@@ -4,6 +4,7 @@ import type { TKey } from '../lib/i18n/types';
 import {
   BYOK_PROVIDERS,
   buildByokPath,
+  isKeyRejected,
   loadByokConfig,
   saveByokConfig,
   type ByokConfig,
@@ -45,6 +46,9 @@ const GROUP_KEY: Record<RoadmapGroup, TKey> = {
   life: 'assist.roadmap.group.life',
   custom: 'assist.roadmap.group.custom',
 };
+
+/** Google AI Studio page where anyone with a Google account creates a free Gemini key. */
+const GEMINI_KEY_URL = 'https://aistudio.google.com/apikey';
 
 const PROVIDER_KEY: Record<ByokProvider, TKey> = {
   local: 'assist.roadmap.provider.local',
@@ -128,7 +132,11 @@ export default function RoadmapPanel({
     setDraftPath(readable);
     setDraftSources(result.sources ?? []);
     setDraftProvider(result.used);
-    setStatus(result.used === 'local-fallback' ? t('assist.roadmap.fallback') : '');
+    setStatus(
+      result.used === 'local-fallback'
+        ? t(isKeyRejected(result.reason) ? 'assist.roadmap.keyFailed' : 'assist.roadmap.fallback')
+        : '',
+    );
   };
 
   const approveDraft = () => {
@@ -248,6 +256,35 @@ export default function RoadmapPanel({
           </div>
           {byokOk && cfg.provider !== 'local' ? (
             <p className="mono-caption">{t('assist.roadmap.keyHint')}</p>
+          ) : null}
+          {byokOk && !cfg.key ? (
+            <div className="mono-note mono-stack" style={{ gap: 6 }} data-testid="gemini-guide">
+              <p style={{ fontWeight: 600 }}>{t('assist.roadmap.guide.title')}</p>
+              <ol className="mono-stack mono-caption" style={{ gap: 4, paddingLeft: 18 }}>
+                <li>{t('assist.roadmap.guide.step1')}</li>
+                <li>{t('assist.roadmap.guide.step2')}</li>
+                <li>{t('assist.roadmap.guide.step3')}</li>
+              </ol>
+              <div className="mono-inline">
+                <a
+                  href={GEMINI_KEY_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mono-btn mono-btn-primary mono-btn-sm"
+                >
+                  {t('assist.roadmap.guide.open')}
+                </a>
+                {cfg.provider !== 'gemini' ? (
+                  <button
+                    type="button"
+                    onClick={() => persistCfg({ ...cfg, provider: 'gemini' })}
+                    className="mono-btn mono-btn-ghost mono-btn-sm"
+                  >
+                    {t('assist.roadmap.guide.useGemini')}
+                  </button>
+                ) : null}
+              </div>
+            </div>
           ) : null}
           <label className="mono-row mono-caption" style={{ gap: 8 }}>
             <input

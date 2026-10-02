@@ -1907,6 +1907,15 @@ export const uk: Record<TKey, string> = {
   'assist.roadmap.apiKeyPh': 'Ваш ключ',
   'assist.roadmap.keyHint':
     'Ключ зберігається лише на цьому пристрої. Безкоштовний ключ Gemini: aistudio.google.com/apikey',
+  'assist.roadmap.guide.title': 'Безкоштовний ключ Gemini за 1 хвилину',
+  'assist.roadmap.guide.step1': 'Відкрийте Google AI Studio й увійдіть через акаунт Google.',
+  'assist.roadmap.guide.step2': 'Натисніть «Create API key» і скопіюйте ключ.',
+  'assist.roadmap.guide.step3':
+    'Оберіть Gemini вище й вставте ключ у поле «API-ключ». Готово — він зберігається лише на цьому пристрої.',
+  'assist.roadmap.guide.open': 'Відкрити Google AI Studio',
+  'assist.roadmap.guide.useGemini': 'Використати Gemini',
+  'assist.roadmap.keyFailed':
+    'Провайдер ШІ відхилив ваш ключ — перевірте його в налаштуваннях ШІ. Цей план створено на пристрої.',
   'assist.roadmap.webSearch': 'Враховувати веб-результати',
   'assist.roadmap.webSearchHint': 'Gemini',
   'assist.roadmap.goalPh': 'Що ви хочете зробити?',
