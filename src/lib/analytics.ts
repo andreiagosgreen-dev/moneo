@@ -1,10 +1,12 @@
 /**
  * Anonymous conversion counters (see cloudflare/workers/events.ts).
  *
- * Sends only an event name, an optional plan and the interface language — no
- * user id, no content. Respects Do Not Track / Global Privacy Control, and is
+ * Sends only an event name, an optional plan, the interface language and the
+ * channel label that brought the visitor (src/lib/attribution.ts) — no user
+ * id, no content. Respects Do Not Track / Global Privacy Control, and is
  * fire-and-forget: a blocked beacon never affects the app.
  */
+import { currentSource } from './attribution';
 
 export type ProductEvent =
   | 'onboarding_start'
@@ -12,7 +14,8 @@ export type ProductEvent =
   | 'first_focus_done'
   | 'pricing_view'
   | 'upgrade_intent'
-  | 'checkout_open';
+  | 'checkout_open'
+  | 'landing_view';
 
 type Nav = {
   doNotTrack?: string | null;
@@ -30,6 +33,7 @@ export function track(
   plan?: 'pro-monthly' | 'pro-yearly',
   lang?: string,
   nav: Nav | undefined = typeof navigator !== 'undefined' ? (navigator as Nav) : undefined,
+  channel: { source: string; campaign: string } = currentSource(),
 ): boolean {
   if (optedOut(nav) || !nav?.sendBeacon) return false;
   try {
@@ -37,6 +41,8 @@ export function track(
       e: event,
       ...(plan ? { p: plan } : {}),
       l: (lang ?? nav.language ?? '').slice(0, 2).toLowerCase(),
+      ...(channel.source ? { s: channel.source } : {}),
+      ...(channel.campaign ? { c: channel.campaign } : {}),
     });
     return nav.sendBeacon('/api/event', new Blob([body], { type: 'application/json' }));
   } catch {

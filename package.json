@@ -16,6 +16,7 @@
     "test:e2e": "playwright test",
     "audit": "npm audit --audit-level=high",
     "secret-scan": "node scripts/secret-scan.mjs",
+    "funnel": "node scripts/funnel-report.mjs",
     "perf-budget": "node scripts/perf-budget.mjs",
     "db:push:staging": "node scripts/db-push-staging.mjs"
   },

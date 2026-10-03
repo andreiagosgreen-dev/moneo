@@ -1,3 +1,4 @@
+import { track } from '../lib/analytics';
 import {
   useCallback,
   useEffect,
@@ -367,6 +368,12 @@ export default function LandingPage({
     document.title = t('land.meta.title');
     setMeta('description', t('land.meta.desc'));
   }, [t, tag]);
+
+  // One anonymous "landing_view" per load, with the channel that brought it.
+  useEffect(() => {
+    track('landing_view', undefined, initialLocale);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const changeLocale = async (next: string) => {
     if (!isLocale(next) || next === locale) return;

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   EMAIL_LANGS,
   MAX_REMINDERS_PER_RUN,
@@ -158,6 +158,44 @@ describe('handleWelcome', () => {
   });
 });
 
+describe('sign-up counter', () => {
+  const req = (body: Record<string, unknown>) =>
+    new Request('https://moneo.bond/api/email/welcome', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer jwt', 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+  it('counts a new account once, with its channel', async () => {
+    const writeDataPoint = vi.fn();
+    const e = { ...env(), EVENTS: { writeDataPoint } };
+    const f = welcomeFetch(iso(NOW - 3_600_000), []);
+    await handleWelcome(req({ locale: 'ro', s: 'tiktok', c: 'exam' }), e, f, NOW);
+    await handleWelcome(req({ locale: 'ro', s: 'tiktok' }), e, f, NOW);
+    expect(writeDataPoint).toHaveBeenCalledTimes(1);
+    expect(writeDataPoint.mock.calls[0][0]).toMatchObject({
+      blobs: ['sign_up', '', 'ro', 'tiktok', 'exam', ''],
+    });
+  });
+
+  it('skips old accounts and browsers that opted out', async () => {
+    const writeDataPoint = vi.fn();
+    await handleWelcome(
+      req({ locale: 'en', count: false }),
+      { ...env(), EVENTS: { writeDataPoint } },
+      welcomeFetch(iso(NOW - 3_600_000), []),
+      NOW,
+    );
+    await handleWelcome(
+      req({ locale: 'en', s: 'reddit' }),
+      { ...env(), EVENTS: { writeDataPoint } },
+      welcomeFetch(iso(NOW - 5 * DAY), []),
+      NOW,
+    );
+    expect(writeDataPoint).not.toHaveBeenCalled();
+  });
+});
+
 describe('needsReminder', () => {
   const base = {
     id: 'q',
@@ -236,7 +274,8 @@ describe('runReminders', () => {
 describe('forgetEmailMarkers', () => {
   it('drops every marker of the deleted account', async () => {
     const kv = memoryKv();
-    for (const k of ['welcome', 'reminder', 'unsub', 'lang']) await kv.put(`mail:${k}:z`, '1');
+    for (const k of ['welcome', 'reminder', 'unsub', 'lang', 'seen'])
+      await kv.put(`mail:${k}:z`, '1');
     await kv.put('mail:welcome:other', '1');
     await forgetEmailMarkers(kv, 'z');
     expect([...kv.store.keys()]).toEqual(['mail:welcome:other']);

@@ -18,6 +18,7 @@
 
 import type { FetchImpl } from './account';
 import { classifySubscriptionEvent } from './billing';
+import { writeEvent, type AnalyticsDataset } from './events';
 import {
   MAX_WEBHOOK_BODY_BYTES,
   buildSecurityHeaders,
@@ -42,6 +43,49 @@ export interface LemonWebhookEnv {
   LEMON_MONTHLY_IDS?: string;
   /** "true" lets `meta.test_mode` events grant Pro (staging / checkout tests). */
   ALLOW_TEST_MODE?: string;
+  /** Funnel counters: which channel brought each new subscription and payment. */
+  EVENTS?: AnalyticsDataset;
+}
+
+/**
+ * Count a new subscription (trial or paid) and every real payment by the
+ * channel label the checkout carried (`custom_data.src` / `cmp`). Live mode
+ * only; never blocks or changes the webhook's answer.
+ */
+export function countBillingEvent(env: LemonWebhookEnv, payload: any): void {
+  try {
+    if (payload?.meta?.test_mode === true) return;
+    const name = payload?.meta?.event_name;
+    const custom = payload?.meta?.custom_data ?? {};
+    const attrs = payload?.data?.attributes ?? {};
+    const source = typeof custom.src === 'string' ? custom.src : '';
+    const campaign = typeof custom.cmp === 'string' ? custom.cmp : '';
+    if (name === 'subscription_created') {
+      writeEvent(env, {
+        name: 'subscribe',
+        plan: resolvePlanId(attrs, {
+          yearlyIds: env.LEMON_YEARLY_IDS,
+          monthlyIds: env.LEMON_MONTHLY_IDS,
+        }),
+        source,
+        campaign,
+        status: attrs.status === 'on_trial' ? 'trial' : 'paid',
+      });
+    } else if (name === 'subscription_payment_success') {
+      const cents = Number(attrs.total_usd ?? attrs.total ?? 0);
+      if (cents > 0) {
+        writeEvent(env, {
+          name: 'payment',
+          source,
+          campaign,
+          status: 'paid',
+          revenueUsd: cents / 100,
+        });
+      }
+    }
+  } catch {
+    /* counting must never break billing */
+  }
 }
 
 /** Same body applies once per hour per isolate (best-effort, see security.ts). */
@@ -216,6 +260,8 @@ export async function handleLemonSqueezyWebhook(
   } catch {
     return api({ error: 'Invalid JSON' }, 400);
   }
+
+  countBillingEvent(env, payload);
 
   // Only subscription-lifecycle events may write. Malformed payloads are
   // rejected (not retryable); anything else is acknowledged without effects.
