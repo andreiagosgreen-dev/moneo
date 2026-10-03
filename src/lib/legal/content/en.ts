@@ -223,7 +223,7 @@ export const legalEn: LegalSet = {
       {
         heading: '5. Why we use your data (legal bases)',
         blocks: [
-          'We process personal data under the EU General Data Protection Regulation (GDPR) for users in the EU/EEA, and under the Law of the Republic of Moldova no. 133/2011 on personal data protection (or any law that replaces it).',
+          'We process personal data under the EU General Data Protection Regulation (GDPR) for users in the EU/EEA, and under Law of the Republic of Moldova no. 195/2024 on personal data protection, in force since 23 August 2026 (it replaced Law no. 133/2011).',
           {
             list: [
               'To provide the Service you asked for — account, sync, Pro features and billing status (performance of a contract).',
@@ -259,6 +259,7 @@ export const legalEn: LegalSet = {
         heading: '7. International transfers',
         blocks: [
           'Some providers are located outside your country, including in the United States and, for DeepSeek if you choose it, in China. Where GDPR applies, transfers rely on adequacy decisions (such as the EU–US Data Privacy Framework for certified providers) or the European Commission’s Standard Contractual Clauses.',
+          'For users in the Republic of Moldova, the same safeguards are used for transfers under Law no. 195/2024.',
         ],
       },
       {
@@ -273,6 +274,7 @@ export const legalEn: LegalSet = {
               'Security logs at our hosting provider: short periods, typically days.',
               'Support emails: as long as needed to handle your request, and at most 2 years.',
               'Billing records: kept by Lemon Squeezy for as long as tax and accounting laws require.',
+              'Anonymous product counters (by step, plan, language and channel): up to 3 months, then deleted automatically.',
             ],
           },
         ],
@@ -303,6 +305,7 @@ export const legalEn: LegalSet = {
         heading: '11. Security',
         blocks: [
           'Data travels over encrypted connections (HTTPS/TLS). Cloud data is protected by access rules so that only your account can read it, and database backups are encrypted. Moneo is not end-to-end encrypted, and no system is 100% secure, so please use a strong, unique password.',
+          'If a security incident puts personal data at risk, we notify the competent authority — in the Republic of Moldova, the National Center for Personal Data Protection — within 72 hours of becoming aware of it, and we tell affected users without undue delay when the risk to them is high. We keep an internal record of processing activities and of any incidents.',
         ],
       },
       {

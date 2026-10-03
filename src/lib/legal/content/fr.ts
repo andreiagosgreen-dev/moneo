@@ -223,7 +223,7 @@ export const legalFr: LegalSet = {
       {
         heading: '5. Pourquoi nous utilisons tes données (bases légales)',
         blocks: [
-          'Nous traitons les données personnelles conformément au Règlement général sur la protection des données (RGPD) pour les utilisateurs de l’UE/EEE, et à la loi de la République de Moldavie n° 133/2011 sur la protection des données à caractère personnel (ou toute loi qui la remplace).',
+          'Nous traitons les données personnelles conformément au Règlement général sur la protection des données (RGPD) pour les utilisateurs de l’UE/EEE, et à la loi de la République de Moldavie n° 195/2024 sur la protection des données à caractère personnel, en vigueur depuis le 23 août 2026 (elle a remplacé la loi n° 133/2011).',
           {
             list: [
               'Pour fournir le Service que tu as demandé — compte, synchronisation, fonctions Pro et statut de facturation (exécution du contrat).',
@@ -259,6 +259,7 @@ export const legalFr: LegalSet = {
         heading: '7. Transferts internationaux',
         blocks: [
           'Certains prestataires sont situés hors de ton pays, notamment aux États-Unis et, pour DeepSeek si tu le choisis, en Chine. Lorsque le RGPD s’applique, les transferts reposent sur des décisions d’adéquation (comme le Data Privacy Framework UE–États-Unis pour les prestataires certifiés) ou sur les clauses contractuelles types de la Commission européenne.',
+          'Pour les utilisateurs en République de Moldavie, les mêmes garanties s’appliquent aux transferts, conformément à la loi n° 195/2024.',
         ],
       },
       {
@@ -273,6 +274,7 @@ export const legalFr: LegalSet = {
               'Journaux de sécurité chez notre hébergeur : de courtes durées, généralement quelques jours.',
               'E-mails au support : le temps nécessaire pour traiter ta demande, et au maximum 2 ans.',
               'Documents de facturation : conservés par Lemon Squeezy aussi longtemps que l’exigent les lois fiscales et comptables.',
+              'Compteurs anonymes du produit (par étape, formule, langue et canal) : jusqu’à 3 mois, puis supprimés automatiquement.',
             ],
           },
         ],
@@ -303,6 +305,7 @@ export const legalFr: LegalSet = {
         heading: '11. Sécurité',
         blocks: [
           'Les données transitent par des connexions chiffrées (HTTPS/TLS). Les données cloud sont protégées par des règles d’accès afin que seul ton compte puisse les lire, et les sauvegardes de la base de données sont chiffrées. Moneo n’est pas chiffré de bout en bout, et aucun système n’est sûr à 100 % ; utilise donc un mot de passe fort et unique.',
+          'Si un incident de sécurité met des données personnelles en danger, nous le notifions à l’autorité compétente — en République de Moldavie, le Centre national pour la protection des données à caractère personnel — dans les 72 heures après en avoir pris connaissance, et nous informons sans retard injustifié les utilisateurs concernés lorsque le risque pour eux est élevé. Nous tenons un registre interne des activités de traitement et des éventuels incidents.',
         ],
       },
       {

@@ -223,7 +223,7 @@ export const legalRo: LegalSet = {
       {
         heading: '5. De ce folosim datele (temeiuri legale)',
         blocks: [
-          'Prelucrăm datele personale conform Regulamentului general privind protecția datelor (GDPR) pentru utilizatorii din UE/SEE și conform Legii Republicii Moldova nr. 133/2011 privind protecția datelor cu caracter personal (sau oricărei legi care o înlocuiește).',
+          'Prelucrăm datele personale conform Regulamentului general privind protecția datelor (GDPR) pentru utilizatorii din UE/SEE și conform Legii Republicii Moldova nr. 195/2024 privind protecția datelor cu caracter personal, în vigoare din 23 august 2026 (care a înlocuit Legea nr. 133/2011).',
           {
             list: [
               'Ca să-ți oferim Serviciul cerut — cont, sincronizare, funcții Pro și starea abonamentului (executarea unui contract).',
@@ -259,6 +259,7 @@ export const legalRo: LegalSet = {
         heading: '7. Transferuri internaționale',
         blocks: [
           'Unii furnizori se află în afara țării tale, inclusiv în Statele Unite și, pentru DeepSeek dacă îl alegi, în China. Unde se aplică GDPR, transferurile se bazează pe decizii de adecvare (cum ar fi Cadrul UE–SUA privind protecția datelor, pentru furnizorii certificați) sau pe Clauzele contractuale standard ale Comisiei Europene.',
+          'Pentru utilizatorii din Republica Moldova, la transferuri folosim aceleași garanții, conform Legii nr. 195/2024.',
         ],
       },
       {
@@ -273,6 +274,7 @@ export const legalRo: LegalSet = {
               'Jurnalele de securitate la furnizorul de găzduire: perioade scurte, de obicei câteva zile.',
               'Emailurile către suport: cât e nevoie ca să rezolvăm cererea, dar cel mult 2 ani.',
               'Evidențele de facturare: păstrate de Lemon Squeezy cât cer legile fiscale și contabile.',
+              'Contoarele anonime de produs (pe pas, plan, limbă și canal): până la 3 luni, apoi se șterg automat.',
             ],
           },
         ],
@@ -303,6 +305,7 @@ export const legalRo: LegalSet = {
         heading: '11. Securitate',
         blocks: [
           'Datele circulă prin conexiuni criptate (HTTPS/TLS). Datele din cloud sunt protejate prin reguli de acces, astfel încât doar contul tău le poate citi, iar backup-urile bazei de date sunt criptate. Moneo nu oferă criptare end-to-end și niciun sistem nu e sigur 100%, așa că folosește o parolă puternică și unică.',
+          'Dacă un incident de securitate pune în pericol datele personale, notificăm autoritatea competentă — în Republica Moldova, Centrul Național pentru Protecția Datelor cu Caracter Personal — în cel mult 72 de ore de când aflăm de el și îi anunțăm fără întârziere nejustificată pe utilizatorii afectați când riscul pentru ei este ridicat. Ținem un registru intern al activităților de prelucrare și al eventualelor incidente.',
         ],
       },
       {
