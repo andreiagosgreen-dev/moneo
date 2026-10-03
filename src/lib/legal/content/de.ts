@@ -225,7 +225,7 @@ export const legalDe: LegalSet = {
       {
         heading: '5. Warum wir deine Daten verwenden (Rechtsgrundlagen)',
         blocks: [
-          'Wir verarbeiten personenbezogene Daten nach der EU-Datenschutz-Grundverordnung (DSGVO) für Nutzer in der EU/im EWR sowie nach dem Gesetz der Republik Moldau Nr. 133/2011 über den Schutz personenbezogener Daten (oder einem Nachfolgegesetz).',
+          'Wir verarbeiten personenbezogene Daten nach der EU-Datenschutz-Grundverordnung (DSGVO) für Nutzer in der EU/im EWR sowie nach dem Gesetz der Republik Moldau Nr. 195/2024 über den Schutz personenbezogener Daten, in Kraft seit dem 23. August 2026 (es hat das Gesetz Nr. 133/2011 ersetzt).',
           {
             list: [
               'Um den von dir gewünschten Dienst bereitzustellen — Konto, Synchronisierung, Pro-Funktionen und Abrechnungsstatus (Vertragserfüllung).',
@@ -261,6 +261,7 @@ export const legalDe: LegalSet = {
         heading: '7. Internationale Übermittlungen',
         blocks: [
           'Einige Anbieter befinden sich außerhalb deines Landes, unter anderem in den USA und — bei DeepSeek, falls du es wählst — in China. Wo die DSGVO gilt, stützen sich Übermittlungen auf Angemessenheitsbeschlüsse (etwa das EU-US Data Privacy Framework für zertifizierte Anbieter) oder auf die Standardvertragsklauseln der Europäischen Kommission.',
+          'Für Nutzer in der Republik Moldau gelten bei Übermittlungen dieselben Garantien nach dem Gesetz Nr. 195/2024.',
         ],
       },
       {
@@ -275,6 +276,7 @@ export const legalDe: LegalSet = {
               'Sicherheitsprotokolle bei unserem Hosting-Anbieter: kurze Zeiträume, in der Regel Tage.',
               'Support-E-Mails: so lange wie für die Bearbeitung deiner Anfrage nötig, höchstens 2 Jahre.',
               'Abrechnungsunterlagen: von Lemon Squeezy so lange aufbewahrt, wie Steuer- und Buchhaltungsgesetze es verlangen.',
+              'Anonyme Produktzähler (nach Schritt, Plan, Sprache und Kanal): bis zu 3 Monate, danach automatisch gelöscht.',
             ],
           },
         ],
@@ -305,6 +307,7 @@ export const legalDe: LegalSet = {
         heading: '11. Sicherheit',
         blocks: [
           'Daten werden über verschlüsselte Verbindungen (HTTPS/TLS) übertragen. Cloud-Daten sind durch Zugriffsregeln geschützt, sodass nur dein Konto sie lesen kann, und Datenbanksicherungen sind verschlüsselt. Moneo ist nicht Ende-zu-Ende-verschlüsselt, und kein System ist zu 100 % sicher; nutze daher bitte ein starkes, einzigartiges Passwort.',
+          'Gefährdet ein Sicherheitsvorfall personenbezogene Daten, melden wir ihn der zuständigen Behörde — in der Republik Moldau dem Nationalen Zentrum für den Schutz personenbezogener Daten — innerhalb von 72 Stunden, nachdem wir davon erfahren haben, und informieren betroffene Nutzer unverzüglich, wenn für sie ein hohes Risiko besteht. Wir führen ein internes Verzeichnis der Verarbeitungstätigkeiten und etwaiger Vorfälle.',
         ],
       },
       {

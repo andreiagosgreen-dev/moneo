@@ -269,6 +269,14 @@ describe('legal content', () => {
     expect(enText).toContain('Talk to a doctor before you start a new exercise program');
   });
 
+  it('Privacy follows Moldova Law no. 195/2024 and promises 72-hour breach notice', () => {
+    for (const lang of LANGS) {
+      const text = allText(getLegalDoc('privacy', lang));
+      expect(text, lang).toContain('195/2024');
+      expect(text, lang).toContain('72');
+    }
+  });
+
   it('Privacy has a children and students section with guardian contact', () => {
     for (const lang of LANGS) {
       const doc = getLegalDoc('privacy', lang);

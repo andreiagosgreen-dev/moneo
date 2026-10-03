@@ -223,7 +223,7 @@ export const legalEs: LegalSet = {
       {
         heading: '5. Para qué usamos tus datos (bases jurídicas)',
         blocks: [
-          'Tratamos los datos personales conforme al Reglamento General de Protección de Datos de la UE (RGPD) para los usuarios de la UE/EEE, y conforme a la Ley n.º 133/2011 de la República de Moldavia sobre protección de datos personales (o la que la sustituya).',
+          'Tratamos los datos personales conforme al Reglamento General de Protección de Datos de la UE (RGPD) para los usuarios de la UE/EEE, y conforme a la Ley n.º 195/2024 de la República de Moldavia sobre protección de datos personales, vigente desde el 23 de agosto de 2026 (que sustituyó a la Ley n.º 133/2011).',
           {
             list: [
               'Para prestar el Servicio que has solicitado — cuenta, sincronización, funciones Pro y estado de facturación (ejecución de un contrato).',
@@ -259,6 +259,7 @@ export const legalEs: LegalSet = {
         heading: '7. Transferencias internacionales',
         blocks: [
           'Algunos proveedores están fuera de tu país, incluidos Estados Unidos y, en el caso de DeepSeek si lo eliges, China. Cuando se aplica el RGPD, las transferencias se basan en decisiones de adecuación (como el Marco de Privacidad de Datos UE-EE. UU. para proveedores certificados) o en las cláusulas contractuales tipo de la Comisión Europea.',
+          'Para los usuarios en la República de Moldavia, en las transferencias se aplican las mismas garantías conforme a la Ley n.º 195/2024.',
         ],
       },
       {
@@ -273,6 +274,7 @@ export const legalEs: LegalSet = {
               'Registros de seguridad de nuestro proveedor de alojamiento: periodos cortos, normalmente de días.',
               'Correos al soporte: el tiempo necesario para atender tu solicitud y, como máximo, 2 años.',
               'Registros de facturación: los conserva Lemon Squeezy durante el tiempo que exijan las leyes fiscales y contables.',
+              'Contadores anónimos del producto (por paso, plan, idioma y canal): hasta 3 meses; después se borran automáticamente.',
             ],
           },
         ],
@@ -303,6 +305,7 @@ export const legalEs: LegalSet = {
         heading: '11. Seguridad',
         blocks: [
           'Los datos viajan por conexiones cifradas (HTTPS/TLS). Los datos en la nube están protegidos por reglas de acceso para que solo tu cuenta pueda leerlos, y las copias de seguridad de la base de datos están cifradas. Moneo no tiene cifrado de extremo a extremo y ningún sistema es 100 % seguro, así que usa una contraseña fuerte y única.',
+          'Si un incidente de seguridad pone en riesgo datos personales, lo notificamos a la autoridad competente —en la República de Moldavia, el Centro Nacional de Protección de Datos Personales— en un plazo de 72 horas desde que tengamos conocimiento, e informamos sin dilación indebida a los usuarios afectados cuando el riesgo para ellos sea alto. Llevamos un registro interno de las actividades de tratamiento y de los posibles incidentes.',
         ],
       },
       {
