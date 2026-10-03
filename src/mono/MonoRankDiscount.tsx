@@ -1,3 +1,4 @@
+import { currentSource } from '../lib/attribution';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../lib/authProvider';
 import { buildCheckoutUrl, getSupabaseAccessToken } from '../lib/billing/lemonSqueezy';
@@ -73,7 +74,7 @@ export default function MonoRankDiscount({ className = '' }: { className?: strin
         return;
       }
     }
-    const url = buildCheckoutUrl('pro-monthly', userId, code, auth.user?.email);
+    const url = buildCheckoutUrl('pro-monthly', userId, code, auth.user?.email, currentSource());
     if (!url) {
       setError(true);
       return;

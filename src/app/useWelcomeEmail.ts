@@ -1,7 +1,15 @@
 import { useEffect } from 'react';
+import { currentSource } from '../lib/attribution';
 import { getSupabaseAccessToken } from '../lib/billing/lemonSqueezy';
 
 const sentKey = (userId: string) => `moneo:welcome-requested:${userId}`;
+
+/** Channel for the anonymous sign-up counter; `count: false` honours DNT/GPC. */
+function welcomeChannel(): { s?: string; c?: string; count: boolean } {
+  const { source, campaign } = currentSource();
+  if (!source) return { count: false };
+  return { s: source, ...(campaign ? { c: campaign } : {}), count: true };
+}
 
 /**
  * After the first sign-in on a device, ask the Worker for the welcome email
@@ -24,7 +32,7 @@ export function useWelcomeEmail(userId: string | null, locale: string): void {
         const res = await fetch('/api/email/welcome', {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ locale }),
+          body: JSON.stringify({ locale, ...welcomeChannel() }),
         });
         if (res.ok) localStorage.setItem(sentKey(userId), '1');
       } catch {

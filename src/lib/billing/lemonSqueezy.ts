@@ -5,6 +5,8 @@
  * never hardcodes marketing text.
  */
 
+import { currentSource } from '../attribution';
+import { cleanTag } from '../attributionTags';
 import { readEnv } from '../env';
 import { en } from '../i18n/locales/en';
 import { PRICING_PLANS_DISPLAY, PRO_PRICES, type PlanId } from './pricingConfig';
@@ -73,6 +75,7 @@ export function buildCheckoutUrl(
   userId: string,
   discountCode?: string,
   email?: string | null,
+  channel?: { source: string; campaign: string },
 ): string | null {
   const config = getLemonSqueezyConfig();
   const variant = variantForPlan(planId);
@@ -92,6 +95,13 @@ export function buildCheckoutUrl(
   // (support lookups, and cancelling every subscription on account deletion).
   if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     url += `&checkout[email]=${encodeURIComponent(email)}`;
+  }
+  // Channel label (e.g. "tiktok") so the webhook can count paid sign-ups by source.
+  const src = cleanTag(channel?.source);
+  if (src) {
+    url += `&checkout[custom][src]=${src}`;
+    const cmp = cleanTag(channel?.campaign);
+    if (cmp) url += `&checkout[custom][cmp]=${cmp}`;
   }
   if (discountCode && /^[A-Z0-9]{3,64}$/.test(discountCode)) {
     return `${url}&checkout[discount_code]=${discountCode}`;
@@ -137,7 +147,7 @@ export function initiateCheckout(
   userId: string,
   email?: string | null,
 ): string | null {
-  return buildCheckoutUrl(planId, userId, undefined, email);
+  return buildCheckoutUrl(planId, userId, undefined, email, currentSource());
 }
 
 export function getProPlanCheckoutUrl(userId: string): string | null {

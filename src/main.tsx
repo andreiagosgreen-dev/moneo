@@ -1,6 +1,7 @@
 import { StrictMode, Suspense, lazy, useCallback, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom';
+import { captureAttribution } from './lib/attribution';
 import './index.css';
 import './mono/tokens.css';
 import './mono/mono.css';
@@ -102,6 +103,9 @@ function Root() {
     </Suspense>
   );
 }
+
+// Remember the channel (utm_source / known referrer) before anything counts.
+captureAttribution();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

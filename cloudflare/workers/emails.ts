@@ -6,6 +6,7 @@
  */
 import type { FetchImpl } from './account';
 import type { DiscountKV } from './discount';
+import { writeEvent, type AnalyticsDataset } from './events';
 
 export interface EmailEnv {
   SUPABASE_URL?: string;
@@ -14,6 +15,8 @@ export interface EmailEnv {
   /** Sender, e.g. `Moneo <no-reply@moneo.bond>` (domain verified in Resend). */
   EMAIL_FROM?: string;
   KV_CACHE?: DiscountKV;
+  /** Funnel counters: one anonymous "sign_up" per new account, by channel. */
+  EVENTS?: AnalyticsDataset;
 }
 
 export const SITE = 'https://moneo.bond';
@@ -282,6 +285,7 @@ const kvKey = {
   reminder: (id: string) => `mail:reminder:${id}`,
   unsub: (id: string) => `mail:unsub:${id}`,
   lang: (id: string) => `mail:lang:${id}`,
+  seen: (id: string) => `mail:seen:${id}`,
 };
 
 /** Account deletion: drop every lifecycle-email marker for that account. */
@@ -291,7 +295,7 @@ export async function forgetEmailMarkers(
 ): Promise<void> {
   if (!kv) return;
   await Promise.all(
-    [kvKey.welcome, kvKey.reminder, kvKey.unsub, kvKey.lang].map((k) =>
+    [kvKey.welcome, kvKey.reminder, kvKey.unsub, kvKey.lang, kvKey.seen].map((k) =>
       kv.delete(k(userId)).catch(() => undefined),
     ),
   );
@@ -366,14 +370,32 @@ export async function handleWelcome(
   const user = (await userRes.json()) as AuthUser;
   if (!user?.id || !user.email) return json({ error: 'unauthorized' }, 401);
 
-  let locale = '';
+  let body: { locale?: unknown; s?: unknown; c?: unknown; count?: unknown } = {};
   try {
-    locale = String(((await request.json()) as { locale?: unknown }).locale ?? '');
+    body = (await request.json()) as typeof body;
   } catch {
     /* no body */
   }
-  const lang = pickLang(locale);
+  const lang = pickLang(String(body.locale ?? ''));
   await env.KV_CACHE.put(kvKey.lang(user.id), lang);
+
+  // Count each new account once (its first sign-in), by the channel the app
+  // reports — unless the browser asked not to be counted.
+  const createdAt = Date.parse(user.created_at ?? '');
+  if (
+    body.count !== false &&
+    Number.isFinite(createdAt) &&
+    now - createdAt < 2 * DAY &&
+    !(await env.KV_CACHE.get(kvKey.seen(user.id)))
+  ) {
+    await env.KV_CACHE.put(kvKey.seen(user.id), String(now));
+    writeEvent(env, {
+      name: 'sign_up',
+      lang,
+      source: typeof body.s === 'string' ? body.s : '',
+      campaign: typeof body.c === 'string' ? body.c : '',
+    });
+  }
 
   if (!env.RESEND_API_KEY) return json({ sent: false, reason: 'not_configured' });
   const created = Date.parse(user.created_at ?? '');
