@@ -1,3 +1,4 @@
+import { soundsUnlockedByRank } from '../lib/rankRewards';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   defaultAmbientFor,
@@ -25,8 +26,11 @@ export function resolveLayers(
   atmosphere: string,
   isPro: boolean,
 ): AmbientLayer[] {
-  const saved = prefs.ambient ? sanitizeLayers(prefs.ambient, isPro) : [];
-  return saved.length > 0 ? saved : [{ id: defaultAmbientFor(atmosphere, isPro), volume: 0.6 }];
+  const extra = soundsUnlockedByRank();
+  const saved = prefs.ambient ? sanitizeLayers(prefs.ambient, isPro, extra) : [];
+  return saved.length > 0
+    ? saved
+    : [{ id: defaultAmbientFor(atmosphere, isPro, extra), volume: 0.6 }];
 }
 
 /** Ambient loop during a running focus phase only. `prime()` unlocks audio inside a click. */

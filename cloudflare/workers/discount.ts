@@ -62,10 +62,10 @@ export const CODE_VALID_DAYS = 14;
 export const FIRST_DISCOUNT_RANK: RankId = 'apprentice';
 export const FIRST_MONTH_PERCENT: Record<RankId, number> = {
   beginner: 0,
-  apprentice: 10,
-  practitioner: 20,
-  expert: 30,
-  master: 30,
+  apprentice: 20,
+  practitioner: 30,
+  expert: 40,
+  master: 50,
 };
 /** A concurrent claim for the same account waits for this lock (KV minimum TTL). */
 const LOCK_TTL_S = 60;

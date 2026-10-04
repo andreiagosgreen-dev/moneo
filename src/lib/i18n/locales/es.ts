@@ -2163,6 +2163,12 @@ export const es: Record<TKey, string> = {
     'Rangos: {ranks}. Cada rango tiene varios escalones y cada nivel nuevo pide un poco más que el anterior.',
   'mono.xp.deviceNote':
     'La XP de las sesiones de foco te acompaña a tus otros dispositivos cuando la sincronización está activada. Con Pro, las tareas y los hábitos también se sincronizan; en Free solo cuentan en el dispositivo donde los completaste.',
+  'mono.xp.rewardNext': 'Próxima recompensa en {rank}: {items}',
+  'mono.xp.rewardOwned': 'Desbloqueado por tu rango, para siempre: {items}',
+  'mono.xp.rewardThemes': 'temas +{n}',
+  'mono.xp.rewardSounds': 'sonidos +{n}',
+  'mono.xp.rewardAll': 'Tu rango ha desbloqueado todos los temas y sonidos.',
+  'set.atmRank': 'Los temas bloqueados se abren con Pro — o gratis a medida que sube tu rango.',
   'mono.discount.eyebrow': 'Recompensa de rango',
   'mono.discount.firstMonth': 'Eres {rank}: tienes un {pct}% de descuento en tu primer mes',
   'mono.discount.terms': 'Código de un solo uso, válido {days} días, uno por cuenta.',

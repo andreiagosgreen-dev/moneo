@@ -46,6 +46,8 @@ export const STORAGE_KEYS = {
   theme: 'moneo:ui-theme',
   /** Focus atmosphere: hartie, sanctuar, clar, ritual. Local only. */
   atmosphere: 'moneo:atmosphere',
+  /** Last XP rank computed on this device — unlocks rank rewards on Free. */
+  rank: 'moneo:rank',
   /** First-run onboarding dismissed flag (Premium Polish, Week 10). */
   onboardingSeen: 'moneo:onboarding-seen',
   /** Landing page "Start free" clicked — first-time visitors only (local only). */

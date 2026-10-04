@@ -2176,6 +2176,12 @@ export const it: Record<TKey, string> = {
     'Gradi: {ranks}. Ogni grado ha alcuni gradini e ogni nuovo livello richiede un po’ più del precedente.',
   'mono.xp.deviceNote':
     'Gli XP delle sessioni di focus ti seguono sugli altri dispositivi quando la sincronizzazione è attiva. Con Pro si sincronizzano anche attività e abitudini; con Free contano solo sul dispositivo in cui le hai completate.',
+  'mono.xp.rewardNext': 'Prossima ricompensa a {rank}: {items}',
+  'mono.xp.rewardOwned': 'Sbloccato dal tuo grado, per sempre: {items}',
+  'mono.xp.rewardThemes': 'temi +{n}',
+  'mono.xp.rewardSounds': 'suoni +{n}',
+  'mono.xp.rewardAll': 'Il tuo grado ha sbloccato tutti i temi e i suoni.',
+  'set.atmRank': 'I temi bloccati si aprono con Pro — o gratis man mano che il tuo grado cresce.',
   'mono.discount.eyebrow': 'Premio di grado',
   'mono.discount.firstMonth': 'Sei {rank}: hai il {pct}% di sconto sul primo mese',
   'mono.discount.terms': 'Codice monouso, valido {days} giorni, uno per account.',

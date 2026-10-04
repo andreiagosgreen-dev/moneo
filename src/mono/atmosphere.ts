@@ -1,6 +1,8 @@
 import { STORAGE_KEYS } from '../lib/storage/storageKeys';
 import { safeRead, safeWrite } from '../lib/storage/storageAdapter';
 import type { TKey } from '../lib/i18n/types';
+import { isAtmosphereUnlockedByRank } from '../lib/rankRewards';
+import type { RankId } from '../lib/xpCore';
 
 /** Classic Focus atmospheres — free for everyone. */
 export const FREE_ATMOSPHERES = [
@@ -115,9 +117,18 @@ export function isProAtmosphere(id: Atmosphere): boolean {
   return (PRO_ATMOSPHERES as readonly string[]).includes(id);
 }
 
-/** What actually paints: Pro packs only apply while the subscription is active. */
-export function resolveAtmosphere(atmosphere: Atmosphere, isPro: boolean): Atmosphere {
-  return isPro || !isProAtmosphere(atmosphere) ? atmosphere : DEFAULT_ATMOSPHERE;
+/** Usable now: free ones, everything on Pro, or a Pro pack the rank unlocked. */
+export function isAtmosphereAvailable(id: Atmosphere, isPro: boolean, rank?: RankId): boolean {
+  return isPro || !isProAtmosphere(id) || isAtmosphereUnlockedByRank(id, rank);
+}
+
+/** What actually paints: Pro packs apply on Pro or once the rank unlocked them. */
+export function resolveAtmosphere(
+  atmosphere: Atmosphere,
+  isPro: boolean,
+  rank?: RankId,
+): Atmosphere {
+  return isAtmosphereAvailable(atmosphere, isPro, rank) ? atmosphere : DEFAULT_ATMOSPHERE;
 }
 
 export function loadAtmosphere(): Atmosphere {

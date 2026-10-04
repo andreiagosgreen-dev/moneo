@@ -111,10 +111,10 @@ function lemonCalls(f: ReturnType<typeof mockFetch>) {
 describe('percentFor', () => {
   it('maps ranks to the first-month percentage', () => {
     expect(percentFor('beginner')).toBe(0);
-    expect(percentFor('apprentice')).toBe(10);
-    expect(percentFor('practitioner')).toBe(20);
-    expect(percentFor('expert')).toBe(30);
-    expect(percentFor('master')).toBe(30);
+    expect(percentFor('apprentice')).toBe(20);
+    expect(percentFor('practitioner')).toBe(30);
+    expect(percentFor('expert')).toBe(40);
+    expect(percentFor('master')).toBe(50);
   });
 });
 
@@ -125,11 +125,11 @@ describe('evaluateDiscount', () => {
     expect(evaluateDiscount({ ...base, xp: xpAtLevel(4) })).toMatchObject({
       eligible: true,
       rank: 'apprentice',
-      percent: 10,
+      percent: 20,
     });
-    expect(evaluateDiscount({ ...base, xp: xpAtLevel(9) }).percent).toBe(20);
-    expect(evaluateDiscount({ ...base, xp: xpAtLevel(15) }).percent).toBe(30);
-    expect(evaluateDiscount({ ...base, xp: xpAtLevel(22) }).percent).toBe(30);
+    expect(evaluateDiscount({ ...base, xp: xpAtLevel(9) }).percent).toBe(30);
+    expect(evaluateDiscount({ ...base, xp: xpAtLevel(15) }).percent).toBe(40);
+    expect(evaluateDiscount({ ...base, xp: xpAtLevel(22) }).percent).toBe(50);
   });
 
   it('explains how a Beginner becomes eligible', () => {
@@ -138,7 +138,7 @@ describe('evaluateDiscount', () => {
       reason: 'rank_too_low',
       targetRank: 'apprentice',
       targetLevel: 4,
-      targetPercent: 10,
+      targetPercent: 20,
     });
   });
 
@@ -264,7 +264,7 @@ describe('handleRankDiscount', () => {
     expect(await res.json()).toMatchObject({
       eligible: true,
       rank: 'practitioner',
-      percent: 20,
+      percent: 30,
     });
     expect(lemonCalls(f)).toHaveLength(0);
   });
@@ -277,7 +277,7 @@ describe('handleRankDiscount', () => {
     const body = (await res.json()) as Record<string, unknown>;
     expect(body).toMatchObject({
       discountCode: 'MONEOTESTCODE1',
-      percent: 20,
+      percent: 30,
     });
     expect(body.expiresAt).toBe(new Date(NOW + CODE_VALID_DAYS * DAY).toISOString());
 
@@ -288,7 +288,7 @@ describe('handleRankDiscount', () => {
     const sent = JSON.parse(String(init?.body));
     expect(sent.data.attributes).toMatchObject({
       code: 'MONEOTESTCODE1',
-      amount: 20,
+      amount: 30,
       amount_type: 'percent',
       duration: 'once',
       is_limited_redemptions: true,
@@ -300,7 +300,7 @@ describe('handleRankDiscount', () => {
     expect(sent.data.relationships.variants.data).toEqual([{ type: 'variants', id: '2156059' }]);
 
     const stored = JSON.parse(kv.data.get(claimKey(USER)) ?? '{}');
-    expect(stored).toMatchObject({ code: 'MONEOTESTCODE1', discountId: '9001', percent: 20 });
+    expect(stored).toMatchObject({ code: 'MONEOTESTCODE1', discountId: '9001', percent: 30 });
     expect(kv.data.has(`discount-lock:${USER}`)).toBe(false);
   });
 
@@ -391,7 +391,7 @@ describe('handleRankDiscount', () => {
       subscription: { plan_id: 'pro-monthly', status: 'expired', current_period_end: null },
     });
     const res = await handleRankDiscount(req('GET'), env(memoryKv()), deps(f));
-    expect(await res.json()).toMatchObject({ eligible: true, percent: 20 });
+    expect(await res.json()).toMatchObject({ eligible: true, percent: 30 });
   });
 
   it('counts synced tasks and habit check-ins from user_records', async () => {

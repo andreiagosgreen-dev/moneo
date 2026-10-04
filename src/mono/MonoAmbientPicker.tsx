@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import MonoTag from './MonoTag';
+import { soundsUnlockedByRank } from '../lib/rankRewards';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
 import {
@@ -29,6 +30,7 @@ export default function MonoAmbientPicker({
   onWakeLock,
 }: Props) {
   const { t } = useI18n();
+  const rankSounds = soundsUnlockedByRank();
   const volumeOf = (id: AmbientId) => layers.find((l) => l.id === id)?.volume;
   const setVolume = (id: AmbientId, volume: number) =>
     onChange(layers.map((l) => (l.id === id ? { ...l, volume } : l)));
@@ -52,7 +54,7 @@ export default function MonoAmbientPicker({
   const freeList = (
     <div role="radiogroup" aria-label={t('mono.focus.sound')} className="mono-amb-list">
       {AMBIENT_IDS.map((id) => {
-        const locked = !FREE_AMBIENT.includes(id);
+        const locked = !FREE_AMBIENT.includes(id) && !rankSounds.includes(id);
         const checked = !locked && volumeOf(id) !== undefined;
         return (
           <div key={id} className="mono-amb-row">
