@@ -867,6 +867,8 @@
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x proximity;
+  /* Days scrolled into view land right of the sticky habit names, not under them. */
+  scroll-padding-left: calc(clamp(132px, 36vw, 200px) + 10px);
 }
 .mono-hgrid {
   border-collapse: separate;
@@ -1906,6 +1908,12 @@
 .mono-shell {
   min-height: 100dvh;
   padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+}
+/* Scrolled-to and focused content stops above the bottom tab bar (< 1024px). */
+@media (max-width: 1023px) {
+  html:has(.mono-shell) {
+    scroll-padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  }
 }
 /* shared shell frame */
 .mono-shell-inner {
