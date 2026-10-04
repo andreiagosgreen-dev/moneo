@@ -122,6 +122,9 @@ export function mapAuthError(raw: string | undefined | null): string {
   if (msg.includes('invalid login credentials')) return 'Incorrect email or password.';
   if (msg.includes('already registered'))
     return 'That email already has an account — sign in instead.';
+  // Supabase "leaked password protection" (HaveIBeenPwned): the password is in a known leak.
+  if (msg.includes('known to be weak') || msg.includes('pwned'))
+    return 'This password has appeared in a data leak — choose a different one.';
   if (msg.includes('password should be at least') || msg.includes('weak password'))
     return 'Password is too weak — use at least 8 characters.';
   if (msg.includes('email not confirmed')) return 'Check your inbox and confirm your email first.';
