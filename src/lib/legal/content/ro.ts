@@ -168,7 +168,7 @@ export const legalRo: LegalSet = {
       },
       {
         heading: '19. Contact',
-        blocks: [`Întrebări despre acești Termeni? Scrie-i lui ${SELLER.name} la {email}.`],
+        blocks: [`Întrebări despre acești Termeni? Scrie-i lui ${SELLER.initials} la {email}.`],
       },
     ],
   },
@@ -335,7 +335,7 @@ export const legalRo: LegalSet = {
       {
         heading: '14. Contact',
         blocks: [
-          `Pentru întrebări sau cereri legate de confidențialitate, scrie-i lui ${SELLER.name} la {email}.`,
+          `Pentru întrebări sau cereri legate de confidențialitate, scrie-i lui ${SELLER.initials} la {email}.`,
         ],
       },
     ],

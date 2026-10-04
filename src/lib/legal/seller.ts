@@ -7,7 +7,10 @@
 export type LegalLang = 'en' | 'ro' | 'ru' | 'uk' | 'de' | 'fr' | 'es' | 'it';
 
 export const SELLER = {
+  /** Full legal name: only where the law asks who operates the service (Terms §1, Privacy controller). */
   name: 'Teleaga Andrei',
+  /** Shown everywhere else (footer, contact lines). */
+  initials: 'T. A.',
   entity: {
     en: 'a private individual',
     ro: 'persoană fizică',

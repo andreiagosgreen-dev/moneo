@@ -737,7 +737,7 @@ export default function LandingPage({
           <div className="lnd-footer-end">
             {langSelect('lnd-lang-foot')}
             <p className="lnd-seller">
-              © {new Date().getFullYear()} Moneo — {SELLER.name}, {t('land.foot.country')}
+              © {new Date().getFullYear()} Moneo — {SELLER.initials}, {t('land.foot.country')}
             </p>
           </div>
         </div>
