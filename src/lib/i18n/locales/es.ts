@@ -34,9 +34,9 @@ export const es: Record<TKey, string> = {
   'nav.sections': 'Secciones',
   'nav.searchResults': 'Resultados de búsqueda',
   // ── Landing page (/ for first-time visitors, /welcome) ──
-  'land.meta.title': 'Moneo — concéntrate, planifica y crece, día a día',
+  'land.meta.title': 'Moneo — Basta de posponer: planifica, concéntrate, termina',
   'land.meta.desc':
-    'Un temporizador de concentración tranquilo, un plan sencillo para hoy, proyectos, hábitos y un progreso que se ve. Para estudiantes de secundaria, universitarios y profesionales. Gratis, sin cuenta y funciona sin conexión.',
+    '¿Exámenes, TFG o un curso pospuesto? Moneo lo divide en los pasos de hoy y sesiones de concentración de 25 minutos, con hábitos y progreso visible. Gratis, sin cuenta, funciona sin conexión.',
   'land.about': 'Acerca de Moneo',
   'land.nav.label': 'Secciones de la página',
   'land.nav.forWhom': 'Para quién',
@@ -47,11 +47,11 @@ export const es: Record<TKey, string> = {
   'land.home': 'Moneo — inicio',
   'land.cta.start': 'Empieza gratis',
   'land.cta.pricing': 'Ver precios',
-  'land.hero.eyebrow': 'Para el colegio, la universidad, el trabajo y el día a día',
-  'land.hero.title': 'Concéntrate, planifica y {mark} — día a día.',
-  'land.hero.mark': 'crece',
+  'land.hero.eyebrow': 'Para los exámenes, el TFG — y todo lo que vas posponiendo',
+  'land.hero.title': 'Basta de posponer. {mark} hoy.',
+  'land.hero.mark': 'Empieza',
   'land.hero.sub':
-    'Moneo reúne en un solo lugar un temporizador de concentración tranquilo, un plan sencillo para hoy, tus proyectos y tus hábitos — para que siempre sepas qué hacer después y veas cómo mejoras.',
+    '¿Exámenes, el TFG o un curso que siempre dejas para mañana? Moneo lo convierte en un plan para hoy y en sesiones de concentración tranquilas de 25 minutos — para empezar ahora, no mañana, y ver tu progreso cada día.',
   'land.hero.trust': 'Sin tarjeta · Sin cuenta · Funciona sin conexión',
   'land.shot.focus.alt':
     'Pantalla Focus de Moneo: un temporizador de 25 minutos, la intención de hoy y las próximas tareas',

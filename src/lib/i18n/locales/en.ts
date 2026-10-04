@@ -40,9 +40,9 @@ export const en = {
   'nav.sections': 'Sections',
   'nav.searchResults': 'Search results',
   // ── Landing page (/ for first-time visitors, /welcome) ──
-  'land.meta.title': 'Moneo — Focus, plan and grow, day by day',
+  'land.meta.title': 'Moneo — Stop putting it off: plan, focus, finish',
   'land.meta.desc':
-    'A calm focus timer, a simple plan for today, projects, habits and progress you can see. For pupils, students and professionals. Free, no account needed, works offline.',
+    'Exams, a thesis or a course you keep postponing? Moneo breaks it into today’s steps and 25-minute focus sessions, with habits and progress you can see. Free, no account needed, works offline.',
   'land.about': 'About Moneo',
   'land.nav.label': 'Page sections',
   'land.nav.forWhom': 'Who it’s for',
@@ -53,11 +53,11 @@ export const en = {
   'land.home': 'Moneo — home',
   'land.cta.start': 'Start free',
   'land.cta.pricing': 'See pricing',
-  'land.hero.eyebrow': 'For school, university, work and everyday life',
-  'land.hero.title': 'Focus, plan and {mark} — day by day.',
-  'land.hero.mark': 'grow',
+  'land.hero.eyebrow': 'For exam season, your thesis — and everything you keep putting off',
+  'land.hero.title': 'Stop putting it off. {mark} today.',
+  'land.hero.mark': 'Start',
   'land.hero.sub':
-    'Moneo puts a calm focus timer, a simple plan for today, your projects and your habits in one place — so you always know what to do next and can see yourself getting better.',
+    'Exams, a thesis, a course you keep postponing? Moneo turns it into a plan for today and one calm 25-minute focus session at a time — so you start now, not tomorrow, and see your progress every day.',
   'land.hero.trust': 'No card · No account needed · Works offline',
   'land.shot.focus.alt':
     'Moneo Focus screen: a 25-minute timer, today’s intention and the next tasks',

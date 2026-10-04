@@ -34,9 +34,9 @@ export const fr: Record<TKey, string> = {
   'nav.sections': 'Rubriques',
   'nav.searchResults': 'Résultats de recherche',
   // ── Landing page (/ for first-time visitors, /welcome) ──
-  'land.meta.title': 'Moneo — se concentrer, planifier et progresser, jour après jour',
+  'land.meta.title': 'Moneo — Fini de repousser : planifie, concentre-toi, termine',
   'land.meta.desc':
-    'Un minuteur de concentration apaisant, un plan simple pour aujourd’hui, des projets, des habitudes et des progrès visibles. Pour les élèves, les étudiants et les professionnels. Gratuit, sans compte, fonctionne hors ligne.',
+    'Partiels, mémoire ou un cours repoussé ? Moneo les découpe en étapes du jour et en sessions de concentration de 25 minutes, avec habitudes et progrès visibles. Gratuit, sans compte, fonctionne hors ligne.',
   'land.about': 'À propos de Moneo',
   'land.nav.label': 'Sections de la page',
   'land.nav.forWhom': 'Pour qui',
@@ -47,11 +47,11 @@ export const fr: Record<TKey, string> = {
   'land.home': 'Moneo — accueil',
   'land.cta.start': 'Commencer gratuitement',
   'land.cta.pricing': 'Voir les tarifs',
-  'land.hero.eyebrow': 'Pour l’école, les études, le travail et la vie de tous les jours',
-  'land.hero.title': 'Concentrez‑vous, planifiez, {mark} — jour après jour.',
-  'land.hero.mark': 'progressez',
+  'land.hero.eyebrow': 'Pour les partiels, le mémoire — et tout ce que tu repousses',
+  'land.hero.title': 'Fini de repousser. {mark} aujourd’hui.',
+  'land.hero.mark': 'Commence',
   'land.hero.sub':
-    'Moneo réunit un minuteur de concentration apaisant, un plan simple pour aujourd’hui, vos projets et vos habitudes au même endroit — pour savoir toujours quoi faire ensuite et voir vos progrès.',
+    'Partiels, mémoire ou un cours que tu repousses sans cesse ? Moneo en fait un plan pour aujourd’hui et de calmes sessions de concentration de 25 minutes — pour commencer maintenant, pas demain, et voir tes progrès chaque jour.',
   'land.hero.trust': 'Sans carte · Sans compte · Fonctionne hors ligne',
   'land.shot.focus.alt':
     'Écran Focus de Moneo : un minuteur de 25 minutes, l’intention du jour et les prochaines tâches',

@@ -34,9 +34,9 @@ export const de: Record<TKey, string> = {
   'nav.sections': 'Bereiche',
   'nav.searchResults': 'Suchergebnisse',
   // ── Landing page (/ for first-time visitors, /welcome) ──
-  'land.meta.title': 'Moneo — fokussieren, planen und wachsen, Tag für Tag',
+  'land.meta.title': 'Moneo — Schluss mit Aufschieben: planen, fokussieren, fertig werden',
   'land.meta.desc':
-    'Ein ruhiger Fokus-Timer, ein einfacher Plan für heute, Projekte, Gewohnheiten und sichtbarer Fortschritt. Für Schüler, Studierende und Berufstätige. Kostenlos, ohne Konto, funktioniert offline.',
+    'Prüfungen, Abschlussarbeit oder ein aufgeschobener Kurs? Moneo zerlegt sie in die Schritte von heute und 25-Minuten-Fokussitzungen, mit Gewohnheiten und sichtbarem Fortschritt. Kostenlos, ohne Konto, offline nutzbar.',
   'land.about': 'Über Moneo',
   'land.nav.label': 'Abschnitte der Seite',
   'land.nav.forWhom': 'Für wen',
@@ -47,11 +47,11 @@ export const de: Record<TKey, string> = {
   'land.home': 'Moneo — Startseite',
   'land.cta.start': 'Kostenlos starten',
   'land.cta.pricing': 'Preise ansehen',
-  'land.hero.eyebrow': 'Für Schule, Studium, Arbeit und Alltag',
-  'land.hero.title': 'Fokussieren, planen, {mark} — Tag für Tag.',
-  'land.hero.mark': 'wachsen',
+  'land.hero.eyebrow': 'Für die Prüfungsphase, die Abschlussarbeit — und alles, was du aufschiebst',
+  'land.hero.title': 'Schluss mit Aufschieben. Heute {mark}.',
+  'land.hero.mark': 'anfangen',
   'land.hero.sub':
-    'Moneo vereint einen ruhigen Fokus-Timer, einen einfachen Plan für heute, deine Projekte und Gewohnheiten an einem Ort — damit du immer weißt, was als Nächstes kommt, und siehst, wie du besser wirst.',
+    'Prüfungen, Abschlussarbeit oder ein Kurs, den du ständig verschiebst? Moneo macht daraus einen Plan für heute und ruhige 25-Minuten-Fokussitzungen — damit du jetzt anfängst, nicht morgen, und deinen Fortschritt jeden Tag siehst.',
   'land.hero.trust': 'Keine Karte · Kein Konto nötig · Funktioniert offline',
   'land.shot.focus.alt':
     'Moneo-Fokusbildschirm: ein 25-Minuten-Timer, die Absicht für heute und die nächsten Aufgaben',
