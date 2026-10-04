@@ -157,7 +157,7 @@ export const de: Record<TKey, string> = {
   'land.faq.title': 'Häufige Fragen',
   'land.faq.free.q': 'Ist Moneo kostenlos?',
   'land.faq.free.a':
-    'Ja. Fokus-Timer, Tagesplan, 3 Projekte, Gewohnheiten, Journal und Übungsbibliothek sind für immer kostenlos. Pro bringt unbegrenzte Projekte und Ziele, KI-Schritt-für-Schritt-Pläne mit deinem eigenen Schlüssel, Bewegung Pro, Exporte, alle Daten im Konto auf jedem Gerät und mehr.',
+    'Ja. Fokus-Timer, Tagesplan, 3 Projekte, Gewohnheiten, Journal und Übungsbibliothek sind für immer kostenlos. Pro bringt unbegrenzte Projekte und Ziele, 3 KI-Schritt-für-Schritt-Pläne pro Tag inklusive (oder unbegrenzt mit eigenem Schlüssel), Bewegung Pro, Exporte, alle Daten im Konto auf jedem Gerät und mehr.',
   'land.faq.account.q': 'Brauche ich ein Konto?',
   'land.faq.account.a':
     'Nein. Öffne Moneo und leg los — alles funktioniert ohne Konto und wird auf diesem Gerät gespeichert. Mit einem kostenlosen Konto werden dort auch Fokussitzungen, Bereiche und Einstellungen gespeichert, mit Pro alle deine Daten.',
@@ -181,7 +181,7 @@ export const de: Record<TKey, string> = {
     'Ja. Nach deinem ersten Besuch funktioniert Moneo ohne Internet. Wenn du ein Konto nutzt, werden deine Änderungen dort gespeichert, sobald du wieder online bist.',
   'land.faq.ai.q': 'Was macht die KI? Ist mein KI-Schlüssel sicher?',
   'land.faq.ai.a':
-    'Der Plan-Assistent macht aus einem Ziel einen Schritt-für-Schritt-Plan und schlägt vor, woran du als Nächstes arbeitest. Der eingebaute Planer läuft in jedem Plan auf deinem Gerät. Mit Pro kannst du deinen eigenen KI-Schlüssel verbinden (Gemini — kostenlos im Google AI Studio —, OpenAI oder DeepSeek): Er bleibt nur auf deinem Gerät, und Anfragen gehen direkt an den Anbieter, nie über unsere Server. Gesendet werden nur dein Zieltext und zwei Zahlen (Monate und Stunden pro Woche), nie deine Aufgaben, dein Journal oder deine Sitzungen.',
+    'Der Plan-Assistent macht aus einem Ziel einen Schritt-für-Schritt-Plan und schlägt vor, woran du als Nächstes arbeitest. Der eingebaute Planer läuft in jedem Plan auf deinem Gerät. Pro enthält 3 KI-Pläne pro Tag mit Cloudflare Workers AI: Gesendet werden nur dein Zieltext und zwei Zahlen (Monate und Stunden pro Woche), nie deine Aufgaben, dein Journal oder deine Sitzungen, und nichts wird gespeichert. Für unbegrenzte Pläne kannst du auch deinen eigenen KI-Schlüssel verbinden (Gemini — kostenlos im Google AI Studio —, OpenAI oder DeepSeek): Er bleibt nur auf deinem Gerät, und Anfragen gehen direkt an den Anbieter.',
   'land.faq.support.q': 'Wie erreiche ich den Support?',
   'land.faq.support.a': 'Schreib uns an {email}. Wir lesen jede Nachricht.',
   'land.final.title': 'Deine erste Fokus-Session ist nur einen Klick entfernt',
@@ -1030,7 +1030,7 @@ export const de: Record<TKey, string> = {
 
   'pay.title': 'Upgrade auf Pro',
   'pay.sub':
-    'Unbegrenzte Projekte und Ziele, KI-Schritt-für-Schritt-Pläne mit deinem eigenen Schlüssel, Bewegung Pro, CSV/PDF-Export und ein persönlicher Look. Alle deine Daten — Projekte, Aufgaben, Gewohnheiten, Journal, Lebenskarte, Ziele und Pläne — werden im Konto gespeichert und zwischen Geräten synchronisiert.',
+    'Unbegrenzte Projekte und Ziele, 3 KI-Schritt-für-Schritt-Pläne pro Tag inklusive (unbegrenzt mit eigenem Schlüssel), Bewegung Pro, CSV/PDF-Export und ein persönlicher Look. Alle deine Daten — Projekte, Aufgaben, Gewohnheiten, Journal, Lebenskarte, Ziele und Pläne — werden im Konto gespeichert und zwischen Geräten synchronisiert.',
   'pay.signin': 'Melde dich an für Pro-Upgrade',
   'pay.unavailable': 'Bezahlung gerade nicht möglich. Bitte kontaktiere den Support.',
   'pay.current': 'Aktuell',
@@ -1058,7 +1058,7 @@ export const de: Record<TKey, string> = {
   'pay.plan.monthly.f0': 'Alles aus dem kostenlosen Plan',
   'pay.plan.monthly.f1': 'Unbegrenzte Projekte, Ziele & OKRs',
   'pay.plan.monthly.f2':
-    'KI-Schritt-für-Schritt-Pläne mit eigenem Schlüssel — Gemini (kostenloser Schlüssel), OpenAI oder DeepSeek',
+    '3 KI-Schritt-für-Schritt-Pläne pro Tag inklusive · unbegrenzt mit eigenem Schlüssel (Gemini-Schlüssel ist kostenlos)',
   'pay.plan.monthly.f3': 'Berichte als CSV (Excel) und PDF exportieren',
   'pay.plan.monthly.f4': 'Wöchentliche Zeitblöcke, Sprint-Diagramme & Arbeitslimits im Kanban',
   'pay.plan.monthly.f5':
@@ -1926,6 +1926,8 @@ export const de: Record<TKey, string> = {
   'assist.roadmap.building': 'Erstelle…',
   'assist.roadmap.buildFail': 'Plan konnte nicht erstellt werden. Nochmal versuchen.',
   'assist.roadmap.fallback': 'Stattdessen wird der integrierte Planer verwendet.',
+  'assist.roadmap.dailyLimit':
+    'Die inklusiven KI-Pläne für heute sind aufgebraucht — dieser Plan wurde auf deinem Gerät erstellt. Morgen wieder, oder unbegrenzt mit eigenem Schlüssel.',
   'assist.roadmap.draft': 'Vorschau',
   'assist.roadmap.approve': 'Starten',
   'assist.roadmap.discard': 'Abbrechen',
@@ -2098,7 +2100,7 @@ export const de: Record<TKey, string> = {
     'Upgrade auf Moneo Pro für Frist-Hinweise, dein bestes Fokus-Zeitfenster und mehr Hinweise aus deinen Daten.',
   'pricing.title': 'Moneo-Preise',
   'pricing.sub':
-    'Kostenlos starten — ohne Karte, ohne Konto. Pro bringt erweiterte Planung, KI-Schritt-für-Schritt-Pläne mit deinem eigenen Schlüssel, Bewegung Pro, CSV/PDF-Export und einen persönlichen Look.',
+    'Kostenlos starten — ohne Karte, ohne Konto. Pro bringt erweiterte Planung, 3 KI-Schritt-für-Schritt-Pläne pro Tag inklusive (unbegrenzt mit eigenem Schlüssel), Bewegung Pro, CSV/PDF-Export und einen persönlichen Look.',
   'pricing.back': '← Zurück zu Moneo',
   'pricing.unlimited': 'Unbegrenzt',
   'pricing.row.ivy': 'Top-Aufgaben pro Tag (Ivy-Lee-Methode)',
@@ -2365,7 +2367,7 @@ export const de: Record<TKey, string> = {
   'pricing.feature.allFree': 'Alle Free-Funktionen',
   'pricing.feature.unlimitedProjects': 'Unbegrenzte Projekte, Ziele & OKRs',
   'pricing.feature.fullAi':
-    'KI-Schritt-für-Schritt-Pläne mit eigenem Schlüssel (Gemini, OpenAI oder DeepSeek) · der eingebaute Planer funktioniert auch ohne',
+    '3 KI-Schritt-für-Schritt-Pläne pro Tag inklusive · unbegrenzt mit eigenem Schlüssel (Gemini, OpenAI oder DeepSeek) · der eingebaute Planer funktioniert immer',
   'pricing.feature.reportsExport': 'Berichte, CSV/PDF-Export & abrechenbare Zeit',
   'pricing.feature.timeBlocking': 'Zeitblöcke, Sprints & Kanban',
   'pricing.feature.cloudSync': 'Cloud-Sync geräteübergreifend',
@@ -3679,7 +3681,7 @@ export const de: Record<TKey, string> = {
   'plan.ent.skills': 'Fähigkeiten',
   'plan.ent.assistant': 'KI-Schritt-für-Schritt-Pläne',
   'plan.ent.v.quick': 'Planer auf dem Gerät',
-  'plan.ent.v.fullChat': 'Eigener KI-Schlüssel (Gemini, OpenAI, DeepSeek)',
+  'plan.ent.v.fullChat': '3 KI-Pläne pro Tag inklusive + eigener Schlüssel',
   'plan.ent.moveLibrary': '{n} Übungen, Filter und Körperkarte',
   'plan.ent.moveWorkouts': 'Fertige Routinen, freies Training, Cardio-Log, Wochenplan',
   'plan.ent.moveRoutines': 'Meine Routinen (bis zu {n})',

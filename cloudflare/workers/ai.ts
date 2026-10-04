@@ -7,16 +7,15 @@
  * rate limits, minimal context (goal text + two numbers — no sessions,
  * no journal, no habits) and an audit trail without goal text.
  *
- * Without AI_API_KEY the endpoint fails closed with 501: the local
- * on-device planner remains fully usable. Wiring a concrete provider
- * is a config decision, not a code change — add the adapter where
- * marked once a key exists.
+ * Provider: Cloudflare Workers AI through the `AI` binding (free daily
+ * allocation, no key), or an OpenAI-compatible API when AI_API_KEY is set.
+ * Neither → 501 and the on-device planner stays fully usable. A per-account
+ * daily allowance and a global daily cap keep usage inside the free tier;
+ * when either is used up the client quietly builds the plan on the device.
  */
 
 import { bearerToken, verifyUser, type FetchImpl } from './account';
 import { hasServerProAccess } from './proAccess';
-import { computeServerXp, loadServerXpInput } from './discount';
-import { AI_DAILY_RANK_BONUS, levelFromXp, rankForLevel, type RankId } from '../../src/lib/xpCore';
 import {
   buildSecurityHeaders,
   clientIp,
@@ -35,6 +34,10 @@ export interface AIEnv {
   PRO_COMPLIMENTARY_EMAILS?: string;
   /** Plans per Pro account per UTC day (cost guard). Default 20. */
   AI_DAILY_LIMIT?: string;
+  /** Plans for all accounts together per UTC day (keeps Workers AI free). */
+  AI_GLOBAL_DAILY_CAP?: string;
+  /** Cloudflare Workers AI binding (wrangler.toml `[ai]`). */
+  AI?: { run(model: string, input: Record<string, unknown>): Promise<unknown> };
   /** Shared KV; holds the per-account daily counters when bound. */
   KV_CACHE?: {
     get(key: string): Promise<string | null>;
@@ -53,18 +56,13 @@ export function dailyLimitOf(raw: string | undefined): number {
  * Count one plan for this account today. False once the day's allowance is
  * used. Without KV the per-IP limiter is the only guard (never blocks).
  */
-async function takeDailyAllowance(
-  env: AIEnv,
-  userId: string,
-  now: Date,
-  bonus = 0,
-): Promise<boolean> {
+async function takeDailyAllowance(env: AIEnv, userId: string, now: Date): Promise<boolean> {
   const kv = env.KV_CACHE;
   if (!kv) return true;
   const key = `ai-quota:${userId}:${now.toISOString().slice(0, 10)}`;
   try {
     const used = Number.parseInt((await kv.get(key)) ?? '0', 10) || 0;
-    if (used >= dailyLimitOf(env.AI_DAILY_LIMIT) + Math.max(0, bonus)) return false;
+    if (used >= dailyLimitOf(env.AI_DAILY_LIMIT)) return false;
     await kv.put(key, String(used + 1), { expirationTtl: 2 * 86_400 });
     return true;
   } catch {
@@ -72,38 +70,46 @@ async function takeDailyAllowance(
   }
 }
 
+const DEFAULT_GLOBAL_CAP = 150;
+
+export function globalCapOf(raw: string | undefined): number {
+  const n = Number.parseInt(raw ?? '', 10);
+  return Number.isFinite(n) && n > 0 ? Math.min(n, 100_000) : DEFAULT_GLOBAL_CAP;
+}
+
 /**
- * Pro rank reward: extra plans per day by rank, recomputed from synced data
- * (same rules as the rank discount) and cached in KV for the UTC day. Any
- * failure means no bonus — never a block.
+ * All accounts together: once the day's cap is reached, plans are built on
+ * the device until the next UTC day. Best effort (KV is eventually
+ * consistent); without KV there is no global cap.
  */
-async function rankBonusFor(
-  env: AIEnv,
-  userId: string,
-  createdAt: number | undefined,
-  now: Date,
-  fetchImpl: FetchImpl,
-): Promise<number> {
+async function takeGlobalAllowance(env: AIEnv, now: Date): Promise<boolean> {
   const kv = env.KV_CACHE;
-  if (!kv || !env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) return 0;
-  const key = `ai-rank:${userId}:${now.toISOString().slice(0, 10)}`;
+  if (!kv) return true;
+  const key = `ai-global:${now.toISOString().slice(0, 10)}`;
   try {
-    const cached = (await kv.get(key)) as RankId | null;
-    if (cached && cached in AI_DAILY_RANK_BONUS) return AI_DAILY_RANK_BONUS[cached];
-    const from = typeof createdAt === 'number' ? createdAt : 0;
-    const input = await loadServerXpInput(
-      env.SUPABASE_URL,
-      env.SUPABASE_SERVICE_ROLE_KEY,
-      userId,
-      from,
-      fetchImpl,
-    );
-    if (!input) return 0;
-    const rank = rankForLevel(levelFromXp(computeServerXp(input, from, now.getTime())).level).id;
-    await kv.put(key, rank, { expirationTtl: 86_400 });
-    return AI_DAILY_RANK_BONUS[rank];
+    const used = Number.parseInt((await kv.get(key)) ?? '0', 10) || 0;
+    if (used >= globalCapOf(env.AI_GLOBAL_DAILY_CAP)) return false;
+    await kv.put(key, String(used + 1), { expirationTtl: 2 * 86_400 });
+    return true;
   } catch {
-    return 0;
+    return true;
+  }
+}
+
+export const WORKERS_AI_MODEL = '@cf/meta/llama-3.1-8b-instruct';
+
+/** Workers AI answers `{ response: string | object }`; pull the JSON plan out. */
+export function workersAiJson(result: unknown): unknown {
+  const response = (result as { response?: unknown } | null)?.response;
+  if (response && typeof response === 'object') return response;
+  if (typeof response !== 'string') return null;
+  const start = response.indexOf('{');
+  const end = response.lastIndexOf('}');
+  if (start < 0 || end <= start) return null;
+  try {
+    return JSON.parse(response.slice(start, end + 1));
+  } catch {
+    return null;
   }
 }
 
@@ -252,14 +258,43 @@ export async function handleAIPlan(
     }),
   );
 
-  if (!env.AI_API_KEY) {
+  if (!env.AI_API_KEY && !env.AI) {
     return api({ error: 'AI provider not configured', configured: false }, 501);
   }
 
   const now = new Date();
-  const bonus = await rankBonusFor(env, userId, user.createdAt, now, fetchImpl);
-  if (!(await takeDailyAllowance(env, userId, now, bonus))) {
+  if (!(await takeDailyAllowance(env, userId, now))) {
     return api({ error: 'Daily AI limit reached', code: 'daily_limit' }, 429);
+  }
+  if (!(await takeGlobalAllowance(env, now))) {
+    return api({ error: 'AI busy for today', code: 'busy' }, 503);
+  }
+
+  const prompt = planPrompt({
+    goal: valid.goal!,
+    horizonMonths: valid.horizonMonths!,
+    hoursPerWeek: valid.hoursPerWeek!,
+    level: valid.level,
+    kind: valid.kind,
+  });
+
+  if (!env.AI_API_KEY && env.AI) {
+    try {
+      const result = await env.AI.run(env.AI_MODEL || WORKERS_AI_MODEL, {
+        messages: [
+          { role: 'system', content: 'Return only valid JSON. No markdown outside JSON.' },
+          { role: 'user', content: prompt },
+        ],
+        max_tokens: 900,
+        temperature: 0.3,
+      });
+      const steps = cleanSteps(workersAiJson(result));
+      if (steps.length === 0) return api({ error: 'AI empty plan', configured: true }, 502);
+      return api({ steps }, 200);
+    } catch {
+      // Free allocation used up or model unavailable: plan on the device.
+      return api({ error: 'AI unavailable', code: 'busy' }, 503);
+    }
   }
 
   const base = (env.AI_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '');
@@ -279,16 +314,7 @@ export async function handleAIPlan(
         response_format: { type: 'json_object' },
         messages: [
           { role: 'system', content: 'Return only valid JSON. No markdown outside JSON.' },
-          {
-            role: 'user',
-            content: planPrompt({
-              goal: valid.goal!,
-              horizonMonths: valid.horizonMonths!,
-              hoursPerWeek: valid.hoursPerWeek!,
-              level: valid.level,
-              kind: valid.kind,
-            }),
-          },
+          { role: 'user', content: prompt },
         ],
       }),
       signal: ctrl.signal,

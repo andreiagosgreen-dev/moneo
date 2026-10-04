@@ -116,6 +116,7 @@ export const legalRo: LegalSet = {
         heading: '11. Funcțiile AI',
         blocks: [
           'Unele funcții sugerează planuri, pași sau răspunsuri. Pot folosi reguli locale sau un model AI. Rezultatele AI pot fi greșite, incomplete sau depășite. Nu sunt sfaturi profesionale (medicale, juridice, financiare sau de alt fel). Verifică sugestiile înainte să te bazezi pe ele.',
+          'Pro include până la 3 planuri AI pe zi, generate prin serverul nostru cu Cloudflare Workers AI. Putem ajusta această limită ca Serviciul să rămână sustenabil; când se termină sau AI-ul nu e disponibil, planurile se creează pe dispozitivul tău.',
           'Utilizatorii Pro își pot conecta și propria cheie API pentru un furnizor AI (de exemplu Google Gemini, OpenAI sau DeepSeek). Cheia ta e salvată doar în browser. Cererile merg direct din browserul tău la acel furnizor, în baza acordului tău cu el. Tu răspunzi de cheie, de costurile percepute de furnizor și de respectarea termenilor lui. Evită să trimiți date personale sensibile către funcțiile AI.',
         ],
       },
@@ -216,6 +217,7 @@ export const legalRo: LegalSet = {
         heading: '4. Funcțiile AI',
         blocks: [
           'Implicit, planurile de tip AI sunt construite pe dispozitivul tău, cu reguli simple, și nu se trimite nimic nicăieri.',
+          'Planuri AI incluse (Pro): prin serverul nostru ajung la Cloudflare Workers AI doar textul obiectivului (maximum 500 de caractere), orizontul de timp, orele pe săptămână și nivelul. Nu se trimit sesiuni, sarcini, jurnal sau date de cont; cererea și răspunsul nu sunt păstrate de noi, iar Cloudflare nu le folosește pentru antrenarea modelelor. Numărăm doar câte planuri a făcut fiecare cont pe zi (numărătoarea se șterge după două zile).',
           'Dacă ai Pro și adaugi propria cheie API pentru Google Gemini, OpenAI sau DeepSeek, obiectivul scris de tine și detaliile de planificare (orizontul de timp, orele pe săptămână, nivelul) sunt trimise direct din browserul tău la acel furnizor. Furnizorul le prelucrează conform propriei politici de confidențialitate, ca furnizor al tău, nu al nostru.',
           'Dictarea vocală din asistent folosește recunoașterea vocală integrată în browser. Unele browsere (de exemplu Chrome) trimit sunetul către serverele producătorului browserului ca să-l transcrie.',
         ],
@@ -250,6 +252,7 @@ export const legalRo: LegalSet = {
               'GitHub (Microsoft) — păstrează copiile de siguranță săptămânale, criptate, ale bazei de date (SUA).',
               'Furnizorii AI aleși chiar de tine (Google Gemini, OpenAI, DeepSeek) — doar dacă adaugi propria cheie.',
               'Resend — trimite emailurile Moneo: autentificare, confirmare și resetarea parolei, plus emailurile de bun venit și de reamintire (SUA).',
+              'Cloudflare Workers AI — generează planurile AI incluse în Pro (primește doar textul obiectivului și setările planului; nu se păstrează nimic).',
             ],
           },
           'Nu vindem datele tale personale și nu le împărtășim cu agenți de publicitate sau brokeri de date.',

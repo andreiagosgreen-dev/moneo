@@ -118,6 +118,7 @@ export const legalDe: LegalSet = {
         heading: '11. KI-Funktionen',
         blocks: [
           'Einige Funktionen schlagen Pläne, Schritte oder Antworten vor. Sie können Regeln auf dem Gerät oder ein KI-Modell verwenden. KI-Ergebnisse können falsch, unvollständig oder veraltet sein. Sie sind keine professionelle (medizinische, rechtliche, finanzielle oder sonstige) Beratung. Bitte prüfe Vorschläge, bevor du dich darauf verlässt.',
+          'Pro enthält bis zu 3 KI-Pläne pro Tag, die über unseren Server mit Cloudflare Workers AI erstellt werden. Wir können dieses Kontingent anpassen, damit der Dienst tragfähig bleibt; ist es aufgebraucht oder die KI nicht verfügbar, werden Pläne auf deinem Gerät erstellt.',
           'Pro-Nutzer können außerdem einen eigenen API-Schlüssel eines KI-Anbieters verbinden (zum Beispiel Google Gemini, OpenAI oder DeepSeek). Dein Schlüssel wird nur in deinem Browser gespeichert. Anfragen gehen direkt von deinem Browser an diesen Anbieter, im Rahmen deiner eigenen Vereinbarung mit ihm. Du bist für deinen Schlüssel, etwaige Kosten des Anbieters und die Einhaltung seiner Bedingungen verantwortlich. Sende keine sensiblen personenbezogenen Daten an KI-Funktionen.',
         ],
       },
@@ -218,6 +219,7 @@ export const legalDe: LegalSet = {
         heading: '4. KI-Funktionen',
         blocks: [
           'Standardmäßig werden KI-ähnliche Pläne auf deinem Gerät mit einfachen Regeln erstellt, und nichts wird irgendwohin gesendet.',
+          'Inklusive KI-Pläne (Pro): Nur der Zieltext (bis zu 500 Zeichen), der Zeithorizont, die Stunden pro Woche und das Niveau werden über unseren Server an Cloudflare Workers AI gesendet. Keine Sitzungen, Aufgaben, Journal- oder Kontodaten; Anfrage und Antwort werden von uns nicht gespeichert, und Cloudflare nutzt sie nicht zum Trainieren von Modellen. Wir zählen nur, wie viele Pläne jedes Konto pro Tag erstellt hat (nach zwei Tagen gelöscht).',
           'Hast du Pro und fügst einen eigenen API-Schlüssel für Google Gemini, OpenAI oder DeepSeek hinzu, werden das eingegebene Ziel und deine Planungsangaben (Zeithorizont, Stunden pro Woche, Niveau) direkt von deinem Browser an diesen Anbieter gesendet. Der Anbieter verarbeitet sie nach seiner eigenen Datenschutzerklärung als dein Dienstleister, nicht unserer.',
           'Die Spracheingabe im Assistenten nutzt die eingebaute Spracherkennung deines Browsers. Manche Browser (zum Beispiel Chrome) senden die Audiodaten zur Umwandlung an die Server des Browserherstellers.',
         ],
@@ -252,6 +254,7 @@ export const legalDe: LegalSet = {
               'GitHub (Microsoft) — speichert unsere wöchentlichen verschlüsselten Datenbanksicherungen (USA).',
               'KI-Anbieter, die du selbst wählst (Google Gemini, OpenAI, DeepSeek) — nur wenn du einen eigenen Schlüssel hinzufügst.',
               'Resend — versendet die E-Mails von Moneo: Anmeldung, Bestätigung und Passwort-Zurücksetzung sowie Willkommens- und Erinnerungs-E-Mails (USA).',
+              'Cloudflare Workers AI — erstellt die inklusiven KI-Pläne bei Pro (erhält nur den Zieltext und die Planeinstellungen; nichts wird gespeichert).',
             ],
           },
           'Wir verkaufen deine personenbezogenen Daten nicht und geben sie nicht an Werbetreibende oder Datenhändler weiter.',

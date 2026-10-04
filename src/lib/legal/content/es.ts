@@ -116,6 +116,7 @@ export const legalEs: LegalSet = {
         heading: '11. Funciones de IA',
         blocks: [
           'Algunas funciones sugieren planes, pasos o respuestas. Pueden usar reglas en el dispositivo o un modelo de IA. Los resultados de la IA pueden ser erróneos, incompletos o estar desactualizados. No son asesoramiento profesional (médico, jurídico, financiero ni de otro tipo). Revisa las sugerencias antes de confiar en ellas.',
+          'Pro incluye hasta 3 planes de IA al día, generados a través de nuestro servidor con Cloudflare Workers AI. Podemos ajustar este cupo para que el Servicio sea sostenible; cuando se agota, o la IA no está disponible, los planes se crean en tu dispositivo.',
           'Los usuarios Pro también pueden conectar su propia clave API de un proveedor de IA (por ejemplo, Google Gemini, OpenAI o DeepSeek). Tu clave se guarda solo en tu navegador. Las solicitudes van directamente de tu navegador a ese proveedor, conforme a tu propio acuerdo con él. Eres responsable de tu clave, de los costes que cobre el proveedor y de cumplir sus condiciones. Evita enviar datos personales sensibles a las funciones de IA.',
         ],
       },
@@ -216,6 +217,7 @@ export const legalEs: LegalSet = {
         heading: '4. Funciones de IA',
         blocks: [
           'Por defecto, los planes de estilo IA se crean en tu dispositivo con reglas sencillas y no se envía nada a ningún sitio.',
+          'Planes de IA incluidos (Pro): a través de nuestro servidor solo se envían a Cloudflare Workers AI el texto del objetivo (hasta 500 caracteres), el horizonte, las horas por semana y el nivel. No se incluyen sesiones, tareas, diario ni datos de la cuenta; ni la solicitud ni la respuesta se guardan por nuestra parte, y Cloudflare no las usa para entrenar modelos. Solo contamos cuántos planes ha creado cada cuenta al día (se borra a los dos días).',
           'Si tienes Pro y añades tu propia clave API de Google Gemini, OpenAI o DeepSeek, el objetivo que escribes y tus datos de planificación (horizonte, horas por semana, nivel) se envían directamente desde tu navegador a ese proveedor. Ese proveedor los trata según su propia política de privacidad, como proveedor tuyo y no nuestro.',
           'La entrada por voz del asistente usa el reconocimiento de voz integrado en tu navegador. Algunos navegadores (por ejemplo, Chrome) envían el audio a los servidores del fabricante del navegador para transcribirlo.',
         ],
@@ -250,6 +252,7 @@ export const legalEs: LegalSet = {
               'GitHub (Microsoft) — guarda nuestras copias de seguridad semanales cifradas de la base de datos (EE. UU.).',
               'Los proveedores de IA que eliges tú (Google Gemini, OpenAI, DeepSeek) — solo si añades tu propia clave.',
               'Resend — envía los correos de Moneo: inicio de sesión, confirmación y restablecimiento de contraseña, y los correos de bienvenida y de recordatorio (EE. UU.).',
+              'Cloudflare Workers AI — genera los planes de IA incluidos en Pro (recibe solo el texto del objetivo y los ajustes del plan; no se guarda nada).',
             ],
           },
           'No vendemos tus datos personales ni los compartimos con anunciantes ni con intermediarios de datos.',

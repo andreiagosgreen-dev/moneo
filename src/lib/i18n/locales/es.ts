@@ -157,7 +157,7 @@ export const es: Record<TKey, string> = {
   'land.faq.title': 'Preguntas frecuentes',
   'land.faq.free.q': '¿Moneo es gratis?',
   'land.faq.free.a':
-    'Sí. El temporizador de enfoque, el plan del día, 3 proyectos, los hábitos, el diario y la biblioteca de ejercicios son gratis para siempre. Pro añade proyectos y objetivos ilimitados, planes de IA paso a paso con tu propia clave, Movimiento Pro, exportaciones, todos tus datos en tu cuenta en cada dispositivo y más.',
+    'Sí. El temporizador de enfoque, el plan del día, 3 proyectos, los hábitos, el diario y la biblioteca de ejercicios son gratis para siempre. Pro añade proyectos y objetivos ilimitados, 3 planes de IA paso a paso al día incluidos (o ilimitados con tu propia clave), Movimiento Pro, exportaciones, todos tus datos en tu cuenta en cada dispositivo y más.',
   'land.faq.account.q': '¿Necesito una cuenta?',
   'land.faq.account.a':
     'No. Abre Moneo y empieza — todo funciona sin cuenta y se guarda en este dispositivo. Con una cuenta gratuita también se guardan en ella tus sesiones de foco, áreas y ajustes; con Pro, todos tus datos.',
@@ -181,7 +181,7 @@ export const es: Record<TKey, string> = {
     'Sí. Después de tu primera visita, Moneo funciona sin internet. Si usas una cuenta, tus cambios se guardan en ella en cuanto vuelves a estar en línea.',
   'land.faq.ai.q': '¿Qué hace la IA? ¿Mi clave de IA está segura?',
   'land.faq.ai.a':
-    'El asistente de planes convierte un objetivo en un plan paso a paso y te sugiere en qué trabajar después. El planificador integrado funciona en tu dispositivo en todos los planes. Con Pro puedes conectar tu propia clave de IA (Gemini —gratis en Google AI Studio—, OpenAI o DeepSeek): se guarda solo en tu dispositivo y las solicitudes van directamente a ese proveedor, nunca por nuestros servidores. Solo se envían el texto del objetivo y dos números (meses y horas por semana), nunca tus tareas, tu diario ni tus sesiones.',
+    'El asistente de planes convierte un objetivo en un plan paso a paso y te sugiere en qué trabajar después. El planificador integrado funciona en tu dispositivo en todos los planes. Pro incluye 3 planes de IA al día con Cloudflare Workers AI: solo se envían el texto del objetivo y dos números (meses y horas por semana), nunca tus tareas, tu diario ni tus sesiones, y no se guarda nada. Para planes ilimitados también puedes conectar tu propia clave de IA (Gemini —gratis en Google AI Studio—, OpenAI o DeepSeek): se guarda solo en tu dispositivo y las solicitudes van directamente a ese proveedor.',
   'land.faq.support.q': '¿Cómo contacto con soporte?',
   'land.faq.support.a': 'Escríbenos a {email}. Leemos todos los mensajes.',
   'land.final.title': 'Tu primera sesión de concentración está a un clic',
@@ -1036,7 +1036,7 @@ export const es: Record<TKey, string> = {
 
   'pay.title': 'Pasa a Pro',
   'pay.sub':
-    'Proyectos y objetivos ilimitados, planes de IA paso a paso con tu propia clave, Movimiento Pro, exportación CSV/PDF y un aspecto personalizado. Todos tus datos —proyectos, tareas, hábitos, diario, mapa de vida, objetivos y planes— se guardan en tu cuenta y se sincronizan entre dispositivos.',
+    'Proyectos y objetivos ilimitados, 3 planes de IA paso a paso al día incluidos (ilimitados con tu propia clave), Movimiento Pro, exportación CSV/PDF y un aspecto personalizado. Todos tus datos —proyectos, tareas, hábitos, diario, mapa de vida, objetivos y planes— se guardan en tu cuenta y se sincronizan entre dispositivos.',
   'pay.signin': 'Inicia sesión para pasar a Pro',
   'pay.unavailable': 'El pago no está disponible ahora. Escríbenos a soporte.',
   'pay.current': 'Actual',
@@ -1064,7 +1064,7 @@ export const es: Record<TKey, string> = {
   'pay.plan.monthly.f0': 'Todo lo del plan gratuito',
   'pay.plan.monthly.f1': 'Proyectos, metas y OKR ilimitados',
   'pay.plan.monthly.f2':
-    'Planes de IA paso a paso con tu propia clave — Gemini (clave gratuita), OpenAI o DeepSeek',
+    '3 planes de IA paso a paso al día incluidos · ilimitados con tu propia clave (la clave de Gemini es gratis)',
   'pay.plan.monthly.f3': 'Exporta informes a CSV (Excel) y PDF',
   'pay.plan.monthly.f4':
     'Bloques de tiempo semanales, gráficos de sprint y límites de trabajo en kanban',
@@ -1928,6 +1928,8 @@ export const es: Record<TKey, string> = {
   'assist.roadmap.building': 'Creando…',
   'assist.roadmap.buildFail': 'No se pudo crear el plan. Inténtalo de nuevo.',
   'assist.roadmap.fallback': 'Usando el planificador integrado.',
+  'assist.roadmap.dailyLimit':
+    'Se han agotado los planes de IA incluidos de hoy: este se creó en tu dispositivo. Mañana más, o ilimitados con tu propia clave.',
   'assist.roadmap.draft': 'Vista previa',
   'assist.roadmap.approve': 'Empezar',
   'assist.roadmap.discard': 'Cancelar',
@@ -2085,7 +2087,7 @@ export const es: Record<TKey, string> = {
     'Pásate a Moneo Pro: avisos de vencimiento, tu mejor franja de enfoque y más sugerencias a partir de tus datos.',
   'pricing.title': 'Precios Moneo',
   'pricing.sub':
-    'Empieza gratis, sin tarjeta ni cuenta. Pro añade planificación avanzada, planes de IA paso a paso con tu propia clave, Movimiento Pro, exportación CSV/PDF y un aspecto personalizado.',
+    'Empieza gratis, sin tarjeta ni cuenta. Pro añade planificación avanzada, 3 planes de IA paso a paso al día incluidos (ilimitados con tu propia clave), Movimiento Pro, exportación CSV/PDF y un aspecto personalizado.',
   'pricing.back': '← Volver a Moneo',
   'pricing.unlimited': 'Ilimitado',
   'pricing.row.ivy': 'Tareas prioritarias al día (método Ivy Lee)',
@@ -2351,7 +2353,7 @@ export const es: Record<TKey, string> = {
   'pricing.feature.allFree': 'Todas las funciones Free',
   'pricing.feature.unlimitedProjects': 'Proyectos, objetivos y OKR ilimitados',
   'pricing.feature.fullAi':
-    'Planes de IA paso a paso con tu propia clave (Gemini, OpenAI o DeepSeek) · el planificador integrado funciona sin ella',
+    '3 planes de IA paso a paso al día incluidos · ilimitados con tu propia clave (Gemini, OpenAI o DeepSeek) · el planificador integrado siempre funciona',
   'pricing.feature.reportsExport': 'Informes, exportación CSV/PDF y tiempo facturable',
   'pricing.feature.timeBlocking': 'Bloques de tiempo, sprints y kanban',
   'pricing.feature.cloudSync': 'Sincronización en la nube entre dispositivos',
@@ -3658,7 +3660,7 @@ export const es: Record<TKey, string> = {
   'plan.ent.skills': 'Habilidades',
   'plan.ent.assistant': 'Planes paso a paso con IA',
   'plan.ent.v.quick': 'Planificador en el dispositivo',
-  'plan.ent.v.fullChat': 'Tu propia clave de IA (Gemini, OpenAI, DeepSeek)',
+  'plan.ent.v.fullChat': '3 planes de IA al día incluidos + tu propia clave',
   'plan.ent.moveLibrary': '{n} ejercicios, filtros y mapa corporal',
   'plan.ent.moveWorkouts': 'Rutinas listas, entreno libre, registro de cardio, plan semanal',
   'plan.ent.moveRoutines': 'Mis rutinas (hasta {n})',

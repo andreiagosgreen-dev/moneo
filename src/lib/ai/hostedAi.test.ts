@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { FetchImpl } from '../../../cloudflare/workers/account';
 import { cleanSteps, dailyLimitOf, handleAIPlan, planPrompt } from '../../../cloudflare/workers/ai';
-import { buildByokPath } from './byok';
+import { buildByokPath, hostedPlan } from './byok';
 
 function req(body: string, ip: string): Request {
   const headers = new Map([
@@ -76,7 +76,40 @@ describe('included AI planner (Worker)', () => {
       statuses.push((await handleAIPlan(req(BODY, `q-${i}`), env, backend(MODEL))).status);
     }
     expect(statuses).toEqual([200, 200, 429]);
-    expect([...kv.store.values()]).toEqual(['2']);
+    const day = new Date().toISOString().slice(0, 10);
+    expect([...kv.store.entries()].find(([k]) => k.startsWith('ai-quota:'))?.[1]).toBe('2');
+    expect(kv.store.get(`ai-global:${day}`)).toBe('2');
+  });
+
+  it('runs on Workers AI without a key and stops at the global daily cap', async () => {
+    const kv = memoryKv();
+    const run = async () => ({
+      response: `Here you go: ${JSON.stringify({ steps: [{ title: 'Learn the basics', minutes: 50 }] })}`,
+    });
+    const env = {
+      ...ENV,
+      AI_API_KEY: undefined,
+      AI: { run },
+      KV_CACHE: kv,
+      AI_GLOBAL_DAILY_CAP: '1',
+    };
+    const first = await handleAIPlan(req(BODY, 'w-1'), env, backend(MODEL));
+    expect(first.status).toBe(200);
+    expect(((await first.json()) as { steps: Array<{ title: string }> }).steps[0].title).toBe(
+      'Learn the basics',
+    );
+    const second = await handleAIPlan(req(BODY, 'w-2'), env, backend(MODEL));
+    expect(second.status).toBe(503);
+    expect(((await second.json()) as { code: string }).code).toBe('busy');
+  });
+
+  it('answers 503 busy when Workers AI refuses (free allocation used up)', async () => {
+    const run = async () => {
+      throw new Error('4006: daily free allocation exceeded');
+    };
+    const env = { ...ENV, AI_API_KEY: undefined, AI: { run }, KV_CACHE: memoryKv() };
+    const res = await handleAIPlan(req(BODY, 'w-3'), env, backend(MODEL));
+    expect(res.status).toBe(503);
   });
 
   it('asks for steps in the goal’s language with the shared prompt', () => {
@@ -101,5 +134,46 @@ describe('AI planner without an own key', () => {
     expect(r.ok).toBe(true);
     expect(r.used).toBe('local');
     expect(fetchSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('included AI planner (client)', () => {
+  const input = { text: 'Învăț React', horizonMonths: 6, hoursPerWeek: 5 };
+  const local = { provider: 'local' as const, key: '', webSearch: false };
+  const answer = (status: number, body: unknown) =>
+    (async () => new Response(JSON.stringify(body), { status })) as unknown as typeof fetch;
+
+  it('builds the path from the Worker’s steps', async () => {
+    const r = await hostedPlan(
+      input,
+      async () => 'tok',
+      answer(200, { steps: [{ title: 'Instalează Node' }] }),
+    );
+    expect(r.ok).toBe(true);
+    expect(r.used).toBe('moneo');
+    expect(r.path?.tasks.map((t) => t.title)).toContain('Instalează Node');
+  });
+
+  it('says when today’s included plans are used up', async () => {
+    const r = await hostedPlan(input, async () => 'tok', answer(429, { code: 'daily_limit' }));
+    expect(r.reason).toBe('moneo-daily-limit');
+    const built = await buildByokPath(input, local, fetch, async () => r);
+    expect(built.used).toBe('local-fallback');
+    expect(built.reason).toBe('moneo-daily-limit');
+  });
+
+  it('falls back quietly when included AI is not set up, and visibly when busy', async () => {
+    const off = await buildByokPath(input, local, fetch, async () => ({
+      ok: false,
+      reason: 'moneo-http-501',
+      used: 'moneo',
+    }));
+    expect(off.used).toBe('local');
+    const busy = await buildByokPath(input, local, fetch, async () => ({
+      ok: false,
+      reason: 'moneo-http-503',
+      used: 'moneo',
+    }));
+    expect(busy.used).toBe('local-fallback');
   });
 });

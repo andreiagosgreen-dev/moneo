@@ -70,7 +70,7 @@ export function buildHealthBody(env: Env): { ok: true; env: Record<string, boole
     env: {
       supabase: Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY),
       lemonSqueezy: Boolean(env.LEMON_SQUEEZY_WEBHOOK_SECRET),
-      ai: Boolean(env.AI_API_KEY),
+      ai: Boolean(env.AI_API_KEY || env.AI),
       email: Boolean(env.RESEND_API_KEY),
     },
   };
@@ -91,6 +91,9 @@ export interface Env {
   LEMON_SQUEEZY_API_KEY?: string;
   AI_API_KEY?: string;
   AI_DAILY_LIMIT?: string;
+  AI_GLOBAL_DAILY_CAP?: string;
+  /** Cloudflare Workers AI binding (wrangler.toml `[ai]`): included AI plans. */
+  AI?: { run(model: string, input: Record<string, unknown>): Promise<unknown> };
   /** Resend API key for welcome/reminder emails (secret; optional). */
   RESEND_API_KEY?: string;
   /** Sender for lifecycle emails, e.g. `Moneo <no-reply@moneo.bond>` (public). */
@@ -237,7 +240,7 @@ export default {
     }
 
     // Server-side AI planner (Faza 6): JWT-gated, rate-limited, audited.
-    // Fail-closed without AI_API_KEY; the browser never holds a model key.
+    // Workers AI (binding) or AI_API_KEY; fail-closed without either. The browser never holds a model key.
     if (url.pathname === '/api/ai/plan') {
       return handleAIPlan(request, env);
     }

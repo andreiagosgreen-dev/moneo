@@ -36,7 +36,7 @@ export const SUPPORT_MAILTO = `mailto:${SUPPORT_EMAIL}`;
 export const SITE_URL = 'https://moneo.bond';
 
 /** Fixed on purpose — bump by hand whenever the legal texts change. */
-export const LEGAL_LAST_UPDATED = '2026-10-03';
+export const LEGAL_LAST_UPDATED = '2026-10-05';
 
 export const REFUND_DAYS = 14;
 
