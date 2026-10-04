@@ -35,9 +35,9 @@ export const ro: Record<TKey, string> = {
   'nav.sections': 'Secțiuni',
   'nav.searchResults': 'Rezultatele căutării',
   // ── Landing page (/ for first-time visitors, /welcome) ──
-  'land.meta.title': 'Moneo — Concentrează-te, planifică și crește, zi de zi',
+  'land.meta.title': 'Moneo — Gata cu amânarea: planifică, concentrează-te, termină',
   'land.meta.desc':
-    'Un cronometru de concentrare liniștit, un plan simplu pentru azi, proiecte, obiceiuri și progres pe care îl vezi. Pentru elevi, studenți și profesioniști. Gratuit, fără cont, funcționează offline.',
+    'Sesiune, licență sau un curs amânat? Moneo îl împarte în pașii de azi și sesiuni de concentrare de 25 de minute, cu obiceiuri și progres vizibil. Gratuit, fără cont, funcționează offline.',
   'land.about': 'Despre Moneo',
   'land.nav.label': 'Secțiunile paginii',
   'land.nav.forWhom': 'Pentru cine',
@@ -48,11 +48,11 @@ export const ro: Record<TKey, string> = {
   'land.home': 'Moneo — acasă',
   'land.cta.start': 'Începe gratuit',
   'land.cta.pricing': 'Vezi prețurile',
-  'land.hero.eyebrow': 'Pentru școală, facultate, muncă și viața de zi cu zi',
-  'land.hero.title': 'Concentrează‑te, planifică și {mark} — zi de zi.',
-  'land.hero.mark': 'crește',
+  'land.hero.eyebrow': 'Pentru sesiune, licență — și tot ce tot amâni',
+  'land.hero.title': 'Gata cu amânarea. {mark} azi.',
+  'land.hero.mark': 'Începe',
   'land.hero.sub':
-    'Moneo adună la un loc un cronometru de concentrare liniștit, un plan simplu pentru azi, proiectele și obiceiurile tale — ca să știi mereu ce urmează și să vezi cum devii tot mai bun.',
+    'Sesiune, licență sau un curs pe care îl tot amâni? Moneo le transformă într-un plan pentru azi și câte o sesiune liniștită de 25 de minute — ca să începi acum, nu mâine, și să vezi progresul în fiecare zi.',
   'land.hero.trust': 'Fără card · Fără cont · Funcționează offline',
   'land.shot.focus.alt':
     'Ecranul Focus din Moneo: cronometru de 25 de minute, intenția zilei și următoarele sarcini',

@@ -8,7 +8,7 @@ import { skipOnboarding } from './helpers';
  */
 
 const landingHeading = (page: Page) =>
-  page.getByRole('heading', { level: 1, name: 'Focus, plan and grow — day by day.' });
+  page.getByRole('heading', { level: 1, name: 'Stop putting it off. Start today.' });
 
 const todayTab = (page: Page) => page.getByRole('tab', { name: 'Today', exact: true });
 

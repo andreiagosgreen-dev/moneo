@@ -34,9 +34,9 @@ export const it: Record<TKey, string> = {
   'nav.sections': 'Sezioni',
   'nav.searchResults': 'Risultati di ricerca',
   // ── Landing page (/ for first-time visitors, /welcome) ──
-  'land.meta.title': 'Moneo — concentrati, pianifica e cresci, giorno dopo giorno',
+  'land.meta.title': 'Moneo — Basta rimandare: pianifica, concentrati, finisci',
   'land.meta.desc':
-    'Un timer di concentrazione tranquillo, un piano semplice per oggi, progetti, abitudini e progressi che vedi. Per studenti delle superiori, universitari e professionisti. Gratis, senza account, funziona offline.',
+    'Esami, tesi o un corso rimandato? Moneo li divide nei passi di oggi e in sessioni di concentrazione da 25 minuti, con abitudini e progressi visibili. Gratis, senza account, funziona offline.',
   'land.about': 'Informazioni su Moneo',
   'land.nav.label': 'Sezioni della pagina',
   'land.nav.forWhom': 'Per chi',
@@ -47,11 +47,11 @@ export const it: Record<TKey, string> = {
   'land.home': 'Moneo — home',
   'land.cta.start': 'Inizia gratis',
   'land.cta.pricing': 'Vedi i prezzi',
-  'land.hero.eyebrow': 'Per la scuola, l’università, il lavoro e la vita di ogni giorno',
-  'land.hero.title': 'Concentrati, pianifica e {mark} — giorno dopo giorno.',
-  'land.hero.mark': 'cresci',
+  'land.hero.eyebrow': 'Per la sessione d’esami, la tesi — e tutto ciò che rimandi',
+  'land.hero.title': 'Basta rimandare. {mark} oggi.',
+  'land.hero.mark': 'Inizia',
   'land.hero.sub':
-    'Moneo riunisce in un unico posto un timer di concentrazione tranquillo, un piano semplice per oggi, i tuoi progetti e le tue abitudini — così sai sempre cosa fare dopo e vedi quanto stai migliorando.',
+    'Esami, tesi o un corso che continui a rimandare? Moneo li trasforma in un piano per oggi e in tranquille sessioni di concentrazione da 25 minuti — così inizi adesso, non domani, e vedi i tuoi progressi ogni giorno.',
   'land.hero.trust': 'Nessuna carta · Nessun account · Funziona offline',
   'land.shot.focus.alt':
     'Schermata Focus di Moneo: un timer di 25 minuti, l’intenzione di oggi e le prossime attività',
