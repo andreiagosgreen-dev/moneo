@@ -4,6 +4,7 @@ import type { TKey } from '../lib/i18n/types';
 import {
   BYOK_PROVIDERS,
   buildByokPath,
+  hostedPlan,
   isKeyRejected,
   loadByokConfig,
   saveByokConfig,
@@ -11,6 +12,7 @@ import {
   type ByokProvider,
   type PlanSource,
 } from '../lib/ai/byok';
+import { getSupabaseAccessToken } from '../lib/billing/lemonSqueezy';
 import {
   ROADMAP_GROUPS,
   addStep,
@@ -122,6 +124,8 @@ export default function RoadmapPanel({
       },
       effective,
       fetch,
+      // Pro without an own key: Moneo's included AI first, the on-device planner as fallback.
+      isPro ? (input) => hostedPlan(input, getSupabaseAccessToken) : undefined,
     );
     setBusy(false);
     if (!result.ok || !result.path) {
@@ -134,7 +138,13 @@ export default function RoadmapPanel({
     setDraftProvider(result.used);
     setStatus(
       result.used === 'local-fallback'
-        ? t(isKeyRejected(result.reason) ? 'assist.roadmap.keyFailed' : 'assist.roadmap.fallback')
+        ? t(
+            isKeyRejected(result.reason)
+              ? 'assist.roadmap.keyFailed'
+              : result.reason === 'moneo-daily-limit'
+                ? 'assist.roadmap.dailyLimit'
+                : 'assist.roadmap.fallback',
+          )
         : '',
     );
   };

@@ -124,7 +124,7 @@ describe('pricingConfig — single source of truth', () => {
     expect(en['pricing.sync.free'].toLowerCase()).not.toMatch(/all/);
   });
 
-  it('markets AI honestly: your own key, never included, "full" or unlimited AI', () => {
+  it('markets AI honestly: 3 included plans a day + your own key, never "full" or unlimited AI', () => {
     const keys = [
       'pay.plan.monthly.f2',
       'pay.sub',
@@ -134,9 +134,10 @@ describe('pricingConfig — single source of truth', () => {
     ] as const;
     for (const key of keys) {
       const copy = en[key].toLowerCase();
-      expect(copy).not.toMatch(/full ai|unlimited ai|included ai/);
+      expect(copy).not.toMatch(/full ai|unlimited ai/);
       expect(copy).toMatch(/own (ai )?key/);
-      expect(ro[key].toLowerCase()).not.toMatch(/ai inclus/);
+      expect(copy).toMatch(/3 ai/);
+      expect(ro[key].toLowerCase()).toMatch(/3 planuri ai/);
     }
     const ai = getComparisonRows().find((r) => r.labelKey === 'pay.plan.monthly.f2');
     expect(ai?.free).toEqual({ kind: 'dash' });
