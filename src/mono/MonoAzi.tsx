@@ -204,12 +204,12 @@ export default function MonoAzi({
         </p>
       ) : null}
       {banner ? (
-        <div className="mono-pad" style={{ marginBottom: 14 }}>
+        <div className="mono-pad mono-azi-note" style={{ marginBottom: 14 }}>
           {banner}
         </div>
       ) : null}
       {recap ? (
-        <div className="mono-pad" style={{ marginBottom: 14 }}>
+        <div className="mono-pad mono-azi-note" style={{ marginBottom: 14 }}>
           {recap}
         </div>
       ) : null}

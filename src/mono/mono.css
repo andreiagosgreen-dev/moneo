@@ -1393,6 +1393,41 @@
   background: none;
   box-shadow: none;
 }
+
+/* Phone: the list comes first. Header → notices → priorities → day ring and
+ * rituals → guide → the rest. The path steps, motto and subtitle stay on wider
+ * screens (the tab bar already reaches Focus and Schedule). */
+@media (max-width: 719px) {
+  .mono-azi {
+    display: flex;
+    flex-direction: column;
+  }
+  .mono-azi > * {
+    order: 5;
+  }
+  .mono-azi > .mono-page-head {
+    order: 0;
+  }
+  .mono-azi > .mono-azi-note {
+    order: 1;
+  }
+  .mono-azi > .mono-azi-prio {
+    order: 2;
+    margin-top: 4px;
+  }
+  .mono-azi > .mono-azi-day {
+    order: 3;
+    margin-top: 22px;
+  }
+  .mono-azi > .mono-azi-tip {
+    order: 4;
+  }
+  .mono-azi > .mono-path,
+  .mono-azi > .mono-azi-motto-line,
+  .mono-azi > .mono-page-head .mono-page-sub {
+    display: none;
+  }
+}
 .mono-azi-add {
   margin-top: 4px;
   padding-top: 12px;
