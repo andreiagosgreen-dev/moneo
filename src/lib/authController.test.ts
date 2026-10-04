@@ -363,6 +363,11 @@ describe('privacy: auth is not migration', () => {
   it('covers existing email, weak password, and unknown errors', () => {
     expect(mapAuthError('User already registered')).toContain('sign in instead');
     expect(mapAuthError('Password should be at least 8 characters')).toContain('too weak');
+    expect(
+      mapAuthError(
+        'Password is known to be weak and easy to guess, please choose a different one.',
+      ),
+    ).toContain('data leak');
     expect(mapAuthError('Something exploded #42')).toBe('Something went wrong. Please try again.');
     expect(mapAuthError(null)).toBe('Something went wrong. Please try again.');
   });
