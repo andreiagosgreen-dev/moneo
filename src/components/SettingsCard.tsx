@@ -26,7 +26,7 @@ import {
 import {
   ATMOSPHERES,
   ATMOSPHERE_LABEL,
-  isProAtmosphere,
+  isAtmosphereAvailable,
   type Atmosphere,
 } from '../mono/atmosphere';
 import { loadCelebratePrefs, saveCelebratePrefs, type CelebratePrefs } from '../lib/moments';
@@ -575,7 +575,7 @@ export function AppearanceSettings({
   };
 
   const pickAtmosphere = (id: Atmosphere) => {
-    if (isProAtmosphere(id) && !isPro) {
+    if (!isAtmosphereAvailable(id, isPro)) {
       navigate('/pricing');
       return;
     }
@@ -588,6 +588,7 @@ export function AppearanceSettings({
         <div className="mono-set-copy">
           <div className="mono-set-label">{t('set.atm')}</div>
           <div className="mono-set-hint">{isPro ? t('set.atmPro') : t('set.atmFree')}</div>
+          {!isPro && <div className="mono-set-hint">{t('set.atmRank')}</div>}
           {!isPro && (
             <Link to="/pricing" className="mono-link-btn" style={{ minHeight: 32, fontSize: 14 }}>
               {t('set.atmUpgrade')}
@@ -596,7 +597,7 @@ export function AppearanceSettings({
         </div>
         <div className="mono-inline" style={{ gap: 6 }} role="group" aria-label={t('set.atm')}>
           {ATMOSPHERES.map((id) => {
-            const locked = isProAtmosphere(id) && !isPro;
+            const locked = !isAtmosphereAvailable(id, isPro);
             return (
               <Chip
                 key={id}

@@ -4111,6 +4111,13 @@
   font-size: 13px;
   color: var(--mono-muted);
 }
+.mono-rank-rewards {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--mono-tint, var(--mono-accent)) 10%, transparent);
+}
 .mono-badges {
   display: grid;
   gap: 8px;

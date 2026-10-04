@@ -37,6 +37,7 @@ describe('centralized storage keys', () => {
       timeBlocks: 'moneo:time-blocks',
       theme: 'moneo:ui-theme',
       atmosphere: 'moneo:atmosphere',
+      rank: 'moneo:rank',
       onboardingSeen: 'moneo:onboarding-seen',
       landingSeen: 'moneo:landing-seen',
       skills: 'moneo:skills',

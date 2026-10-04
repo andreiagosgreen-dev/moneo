@@ -2163,6 +2163,12 @@ export const en = {
     'Ranks: {ranks}. Each rank has a few steps, and every new level takes a little longer than the last.',
   'mono.xp.deviceNote':
     'XP from focus sessions follows you to your other devices when sync is on. With Pro, tasks and habits sync too; on Free they count only on the device where you completed them.',
+  'mono.xp.rewardNext': 'Next reward at {rank}: {items}',
+  'mono.xp.rewardOwned': 'Unlocked by your rank, for good: {items}',
+  'mono.xp.rewardThemes': 'themes +{n}',
+  'mono.xp.rewardSounds': 'sounds +{n}',
+  'mono.xp.rewardAll': 'Every theme and sound is unlocked by your rank.',
+  'set.atmRank': 'Locked themes open with Pro — or for free as your rank grows.',
   'mono.discount.eyebrow': 'Rank reward',
   'mono.discount.firstMonth': 'You’re {rank} — you get {pct}% off your first month',
   'mono.discount.terms': 'Single-use code, valid for {days} days, one per account.',

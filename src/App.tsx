@@ -216,7 +216,8 @@ import { useAuth } from './lib/authProvider';
 import { useGoogleCalendarEvents } from './hooks/useGoogleCalendarEvents';
 import { useTimeCapsules } from './hooks/useTimeCapsules';
 import { useMoments } from './hooks/useMoments';
-import { computeXp, levelFromXp } from './lib/xp';
+import { computeXp, levelFromXp, rankForLevel } from './lib/xp';
+import { saveCachedRank } from './lib/rankRewards';
 import { computeBadges } from './lib/badges';
 import { isTodayInTz, dayKeyInTz } from './lib/timezone';
 import { dueStatus } from './lib/taskDue';
@@ -382,6 +383,9 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
     [history, tasks, habitLog, phases, projects, xp.total],
   );
   const xpLevel = levelFromXp(xp.total).level;
+  // Rank rewards (themes/sounds on Free) read the rank from this cache too.
+  const xpRank = rankForLevel(xpLevel).id;
+  useEffect(() => saveCachedRank(xpRank), [xpRank]);
   const moments = useMoments({ tasks, phases, projects, goals, history, level: xpLevel });
 
   const {
@@ -617,7 +621,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
   }, [theme, mode, auth.isPro]);
 
   // Pro interior packs only paint while auth.isPro — stored choice survives downgrade.
-  const paintedAtmosphere = resolveAtmosphere(atmosphere, auth.isPro);
+  const paintedAtmosphere = resolveAtmosphere(atmosphere, auth.isPro, xpRank);
   useEffect(() => {
     applyAtmosphere(paintedAtmosphere);
     saveAtmosphere(atmosphere);
@@ -1630,7 +1634,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                             className="reveal mono-growth-span"
                             style={{ animationDelay: '60ms' }}
                           >
-                            <MonoRankCard xp={xp} badges={badges} />
+                            <MonoRankCard xp={xp} badges={badges} isPro={auth.isPro} />
                           </div>
                           <div className="reveal" style={{ animationDelay: '90ms' }}>
                             <GrowthCard history={history} />

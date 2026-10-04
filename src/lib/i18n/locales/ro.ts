@@ -2179,6 +2179,12 @@ export const ro: Record<TKey, string> = {
     'Ranguri: {ranks}. Fiecare rang are câteva trepte, iar fiecare nivel nou cere puțin mai mult decât precedentul.',
   'mono.xp.deviceNote':
     'XP-ul din sesiunile de focus te urmează pe celelalte dispozitive când sincronizarea e pornită. Cu Pro se sincronizează și sarcinile și obiceiurile; în planul Gratuit contează doar pe dispozitivul pe care le-ai bifat.',
+  'mono.xp.rewardNext': 'Următoarea recompensă la {rank}: {items}',
+  'mono.xp.rewardOwned': 'Deblocate de rangul tău, pentru totdeauna: {items}',
+  'mono.xp.rewardThemes': 'teme +{n}',
+  'mono.xp.rewardSounds': 'sunete +{n}',
+  'mono.xp.rewardAll': 'Rangul tău a deblocat toate temele și sunetele.',
+  'set.atmRank': 'Temele blocate se deschid cu Pro — sau gratuit, pe măsură ce crește rangul.',
   'mono.discount.eyebrow': 'Recompensă de rang',
   'mono.discount.firstMonth': 'Ai rangul {rank} — primești {pct}% la prima lună',
   'mono.discount.terms': 'Cod de unică folosință, valabil {days} zile, unul per cont.',

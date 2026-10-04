@@ -1,13 +1,16 @@
 import { memo } from 'react';
 import { useI18n } from '../lib/i18n/LocaleContext';
-import { RANKS, XP_RULES, type XpBreakdown, levelFromXp } from '../lib/xp';
+import { RANKS, XP_RULES, type XpBreakdown, levelFromXp, rankForLevel } from '../lib/xp';
 import type { Badge } from '../lib/badges';
 import { RANK_KEYS, rankLabel } from './rankLabel';
 import MonoBadgeGrid from './MonoBadgeGrid';
+import { nextRankReward, unlockedUpTo, type RankUnlock } from '../lib/rankRewards';
 
 interface Props {
   xp: XpBreakdown;
   badges?: Badge[];
+  /** Pro already has every theme and sound, so the rank rewards line is hidden. */
+  isPro?: boolean;
 }
 
 const RING_R = 28;
@@ -17,9 +20,19 @@ const RING_C = 2 * Math.PI * RING_R;
  * Rank + level + progress to the next level, with a short "how you earn XP"
  * explainer. Pure view over the derived XP breakdown — nothing stored here.
  */
-function MonoRankCardBase({ xp, badges }: Props) {
+function MonoRankCardBase({ xp, badges, isPro = false }: Props) {
   const { t, fmtNum, fmtDur } = useI18n();
   const info = levelFromXp(xp.total);
+  const rank = rankForLevel(info.level);
+  const owned = unlockedUpTo(rank.id);
+  const next = nextRankReward(rank.id);
+  const items = (u: RankUnlock) =>
+    [
+      u.atmospheres.length ? t('mono.xp.rewardThemes', { n: fmtNum(u.atmospheres.length) }) : '',
+      u.sounds.length ? t('mono.xp.rewardSounds', { n: fmtNum(u.sounds.length) }) : '',
+    ]
+      .filter(Boolean)
+      .join(' · ');
   const pct = Math.round(info.progress * 100);
   const left = info.span - info.into;
   const rules: Array<{ id: string; text: string; earned: number }> = [
@@ -89,6 +102,21 @@ function MonoRankCardBase({ xp, badges }: Props) {
           </p>
         </div>
       </div>
+
+      {!isPro && (
+        <div className="mono-rank-rewards" data-testid="rank-rewards">
+          {(owned.atmospheres.length > 0 || owned.sounds.length > 0) && (
+            <p className="mono-meta">
+              {next ? t('mono.xp.rewardOwned', { items: items(owned) }) : t('mono.xp.rewardAll')}
+            </p>
+          )}
+          {next && (
+            <p className="mono-meta">
+              {t('mono.xp.rewardNext', { rank: t(RANK_KEYS[next.id]), items: items(next.unlock) })}
+            </p>
+          )}
+        </div>
+      )}
 
       {badges && badges.length > 0 && <MonoBadgeGrid badges={badges} />}
 

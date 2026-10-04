@@ -65,13 +65,21 @@ function normalize(out: Float32Array, peak: number): void {
 const OCEANIC = new Set(['tarm', 'mare', 'azur', 'cobalt', 'adanc', 'turcoaz', 'zare']);
 
 /** The atmosphere's default sound: water-ish skins get the ocean, everything else rain. */
-export function defaultAmbientFor(atmosphere: string, isPro: boolean): AmbientId {
+export function defaultAmbientFor(
+  atmosphere: string,
+  isPro: boolean,
+  extra: AmbientId[] = [],
+): AmbientId {
   const id: AmbientId = OCEANIC.has(atmosphere) ? 'ocean' : 'rain';
-  return isPro || FREE_AMBIENT.includes(id) ? id : 'rain';
+  return isPro || FREE_AMBIENT.includes(id) || extra.includes(id) ? id : 'rain';
 }
 
 /** Valid layers for the plan: Free → one free sound; Pro → up to 3 distinct sounds. */
-export function sanitizeLayers(layers: unknown, isPro: boolean): AmbientLayer[] {
+export function sanitizeLayers(
+  layers: unknown,
+  isPro: boolean,
+  extra: AmbientId[] = [],
+): AmbientLayer[] {
   if (!Array.isArray(layers)) return [];
   const seen = new Set<AmbientId>();
   const out: AmbientLayer[] = [];
@@ -80,7 +88,9 @@ export function sanitizeLayers(layers: unknown, isPro: boolean): AmbientLayer[] 
     const { id, volume } = raw as { id?: unknown; volume?: unknown };
     if (typeof id !== 'string' || !AMBIENT_IDS.includes(id as AmbientId)) continue;
     if (seen.has(id as AmbientId)) continue;
-    if (!isPro && !FREE_AMBIENT.includes(id as AmbientId)) continue;
+    if (!isPro && !FREE_AMBIENT.includes(id as AmbientId) && !extra.includes(id as AmbientId)) {
+      continue;
+    }
     const v = typeof volume === 'number' && Number.isFinite(volume) ? volume : 0.6;
     seen.add(id as AmbientId);
     out.push({ id: id as AmbientId, volume: Math.min(1, Math.max(0, v)) });
