@@ -1404,6 +1404,9 @@
   }
   .mono-azi > * {
     order: 5;
+    /* Flex items default to min-width: auto; wide children (the habit month
+     * grid) must keep scrolling inside their own box. */
+    min-width: 0;
   }
   .mono-azi > .mono-page-head {
     order: 0;
