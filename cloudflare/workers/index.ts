@@ -277,6 +277,11 @@ export default {
     // Remove leading slash for R2
     const r2Key = filePath.startsWith('/') ? filePath.slice(1) : filePath;
 
+    // Deploy bookkeeping (scripts/deploy-assets.mjs) is never served.
+    if (r2Key.startsWith('_deploy/')) {
+      return new Response('Not Found', { status: 404, headers: mergeHeaders(SEC, cors) });
+    }
+
     // Try to get file from R2
     const object = await env.R2_BUCKET?.get(r2Key);
 
