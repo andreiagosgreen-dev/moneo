@@ -13,8 +13,6 @@ on:
         description: 'Clips, comma-separated (c02, c04, c03, c15)'
         required: false
         default: 'c02,c04,c03,c15'
-  push:
-    branches: [feat/marketing-recorder]
 
 permissions:
   contents: read
@@ -39,8 +37,6 @@ jobs:
         env:
           CLIP_LANGS: ${{ inputs.langs || 'ro,ru,en' }}
           CLIPS: ${{ inputs.clips || 'c02,c04,c03,c15' }}
-      - name: Frame size
-        run: ffprobe -v error -show_entries stream=width,height -of csv=p=0 "$(ls test-results/clip-frames/*/f00000.jpg | head -1)"
       - name: Make MP4s
         run: node scripts/collect-clips.mjs
       - name: Sizes
