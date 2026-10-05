@@ -52,6 +52,8 @@ export const STORAGE_KEYS = {
   workoutSound: 'moneo:workout-sound',
   /** New-user "first steps" card: progress, reward, dismissal. */
   firstSteps: 'moneo:first-steps',
+  /** Trial tour tips the user dismissed. */
+  trialTour: 'moneo:trial-tour',
   /** First-run onboarding dismissed flag (Premium Polish, Week 10). */
   onboardingSeen: 'moneo:onboarding-seen',
   /** Landing page "Start free" clicked — first-time visitors only (local only). */

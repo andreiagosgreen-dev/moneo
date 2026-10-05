@@ -6,9 +6,12 @@ import {
   handleUnsubscribe,
   handleWelcome,
   needsReminder,
+  needsTrialEmail,
   pickLang,
   renderEmail,
   runReminders,
+  runTrialEmails,
+  trialEndLabel,
   unsubToken,
   type EmailEnv,
 } from '../../../cloudflare/workers/emails';
@@ -279,5 +282,69 @@ describe('forgetEmailMarkers', () => {
     await kv.put('mail:welcome:other', '1');
     await forgetEmailMarkers(kv, 'z');
     expect([...kv.store.keys()]).toEqual(['mail:welcome:other']);
+  });
+});
+
+describe('day-5 trial email', () => {
+  const user = (id: string, ageDays: number) => ({
+    id,
+    email: `${id}@example.com`,
+    email_confirmed_at: iso(NOW - ageDays * DAY),
+    created_at: iso(NOW - ageDays * DAY),
+    user_metadata: { locale: 'ro' },
+  });
+  function trialFetch(users: unknown[], paid: string[], sent: Array<Record<string, unknown>>) {
+    return (async (url: string | URL | Request, init?: RequestInit) => {
+      const u = String(url);
+      if (u.includes('/rest/v1/subscriptions')) {
+        return new Response(
+          JSON.stringify(
+            paid.map((user_id) => ({ user_id, status: 'active', current_period_end: null })),
+          ),
+          { status: 200 },
+        );
+      }
+      if (u.includes('/auth/v1/admin/users')) {
+        return new Response(JSON.stringify({ users }), { status: 200 });
+      }
+      if (u === 'https://api.resend.com/emails') {
+        sent.push(JSON.parse(String(init?.body)) as Record<string, unknown>);
+        return new Response('{}', { status: 200 });
+      }
+      return new Response('', { status: 404 });
+    }) as typeof fetch;
+  }
+
+  it('goes once to confirmed, non-paying accounts on day 5, in their language', async () => {
+    const e = env();
+    const sent: Array<Record<string, unknown>> = [];
+    const users = [user('day5', 4.5), user('day3', 3), user('day6', 5.5), user('payer', 4.5)];
+    const f = trialFetch(users, ['payer'], sent);
+    expect(await runTrialEmails(e, f, NOW)).toEqual({ sent: 1 });
+    expect(sent.map((m) => (m.to as string[])[0])).toEqual(['day5@example.com']);
+    expect(sent[0].subject).toBe('Mai ai 2 zile de Pro gratuit');
+    expect(String(sent[0].text)).toContain('/pricing?utm_source=email&utm_campaign=trial-day5');
+    expect(String(sent[0].text)).toMatch(/se termină pe \d+ octombrie/);
+    expect(await runTrialEmails(e, f, NOW)).toEqual({ sent: 0 });
+  });
+
+  it('respects unsubscribe and gifted Pro, and sends nothing if payments can’t be read', async () => {
+    const e = env({ PRO_COMPLIMENTARY_EMAILS: 'gift@example.com' });
+    await e.KV_CACHE.put('mail:unsub:quiet', '1');
+    const sent: Array<Record<string, unknown>> = [];
+    const users = [user('quiet', 4.5), { ...user('gift', 4.5), email: 'gift@example.com' }];
+    expect(await runTrialEmails(e, trialFetch(users, [], sent), NOW)).toEqual({ sent: 0 });
+    const down = (async () => new Response('boom', { status: 500 })) as typeof fetch;
+    await expect(runTrialEmails(env(), down, NOW)).rejects.toThrow();
+  });
+
+  it('needs a confirmed email and the day-5 window', () => {
+    const none = new Set<string>();
+    expect(needsTrialEmail(user('a', 4.2) as never, none, NOW)).toBe(true);
+    expect(
+      needsTrialEmail({ ...user('b', 4.2), email_confirmed_at: null } as never, none, NOW),
+    ).toBe(false);
+    expect(needsTrialEmail(user('c', 5) as never, none, NOW)).toBe(false);
+    expect(trialEndLabel(Date.UTC(2026, 9, 5), 'ro')).toBe('12 octombrie');
   });
 });

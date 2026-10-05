@@ -40,6 +40,7 @@ describe('centralized storage keys', () => {
       rank: 'moneo:rank',
       workoutSound: 'moneo:workout-sound',
       firstSteps: 'moneo:first-steps',
+      trialTour: 'moneo:trial-tour',
       onboardingSeen: 'moneo:onboarding-seen',
       landingSeen: 'moneo:landing-seen',
       skills: 'moneo:skills',

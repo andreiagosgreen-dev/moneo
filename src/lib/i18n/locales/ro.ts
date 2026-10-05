@@ -3640,6 +3640,22 @@ export const ro: Record<TKey, string> = {
   'mono.trial.endedSub':
     'Datele tale rămân, iar tot ce e gratuit merge în continuare. Funcțiile Pro revin când te abonezi.',
   'mono.trial.cta': 'Vezi planurile',
+  'tour.plan.day': 'Ziua 2 din proba Pro',
+  'tour.plan.t': 'Transformă un obiectiv într-un plan',
+  'tour.plan.b':
+    'Scrie un obiectiv, de exemplu „Iau examenul la anatomie”, și primești pașii, săptămână cu săptămână. Planurile AI sunt incluse în proba ta.',
+  'tour.plan.cta': 'Fă un plan',
+  'tour.move.day': 'Ziua 3 din proba Pro',
+  'tour.move.t': 'Un antrenament de 10 minute între sesiunile de învățat',
+  'tour.move.b':
+    'Alegi zona și timpul; Moneo îl construiește cu cronometre, sunete și antrenor vocal.',
+  'tour.move.cta': 'Deschide Mișcare',
+  'tour.reports.day': 'Ziua 4 din proba Pro',
+  'tour.reports.t': 'Vezi unde îți merge timpul',
+  'tour.reports.b':
+    'Rapoartele arată focusul pe zile, proiecte și arii, ca săptămâna viitoare să planifici cu cifre reale.',
+  'tour.reports.cta': 'Deschide Rapoarte',
+  'tour.later': 'Nu acum',
   'first.title': 'Primii tăi pași',
   'first.count': '{n} din 3',
   'first.task.t': 'Scrie un lucru de terminat azi',

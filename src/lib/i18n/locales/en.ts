@@ -3610,6 +3610,21 @@ export const en = {
   'mono.trial.endedSub':
     'Your data stays and everything free keeps working. Pro features return when you subscribe.',
   'mono.trial.cta': 'See plans',
+  'tour.plan.day': 'Day 2 of your Pro trial',
+  'tour.plan.t': 'Turn a goal into a plan',
+  'tour.plan.b':
+    'Write a goal like “Pass the anatomy exam” and get the steps, week by week. AI plans are included in your trial.',
+  'tour.plan.cta': 'Make a plan',
+  'tour.move.day': 'Day 3 of your Pro trial',
+  'tour.move.t': 'A 10-minute workout between study blocks',
+  'tour.move.b': 'Pick a zone and a time; Moneo builds it with timers, sounds and a voice coach.',
+  'tour.move.cta': 'Open Move',
+  'tour.reports.day': 'Day 4 of your Pro trial',
+  'tour.reports.t': 'See where your time goes',
+  'tour.reports.b':
+    'Reports show your focus by day, project and area, so next week you plan with real numbers.',
+  'tour.reports.cta': 'Open Reports',
+  'tour.later': 'Not now',
   'first.title': 'Your first steps',
   'first.count': '{n} of 3',
   'first.task.t': 'Write one thing to finish today',
