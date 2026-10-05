@@ -407,6 +407,7 @@ export default function MonoMiscare({
             </section>
 
             <MonoPackBuilder
+              isPro={isPro}
               gear={store.gear}
               place={place === 'all' ? undefined : place}
               onGear={(gear) => onChange({ ...store, gear })}

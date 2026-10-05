@@ -27,6 +27,9 @@ import {
   type PackChoice,
   type PackZone,
 } from '../lib/fitness/packs';
+import { parsePackRequest } from '../lib/fitness/packText';
+import { aiPack, packCatalog } from '../lib/fitness/packAi';
+import { getSupabaseAccessToken } from '../lib/billing/lemonSqueezy';
 
 interface Props {
   gear?: GearProfile;
@@ -34,6 +37,8 @@ interface Props {
   place?: FitPlace;
   onGear: (gear: GearProfile) => void;
   onStart: (pack: Pack) => void;
+  /** Pro: the request goes to the included AI first. */
+  isPro?: boolean;
 }
 
 const ZONE_ICON: Record<PackZone, PoseId> = {
@@ -51,7 +56,7 @@ const LEVELS: FitLevel[] = [1, 2, 3];
 const newSeed = () => Math.floor(Math.random() * 2 ** 31);
 
 /** Quick workout: pick a zone, a length, a format and a level; the pack is built live. */
-export default function MonoPackBuilder({ gear, place, onGear, onStart }: Props) {
+export default function MonoPackBuilder({ gear, place, onGear, onStart, isPro = false }: Props) {
   const { t, fmtNum } = useI18n();
   const [choice, setChoice] = useState<PackChoice>(gear?.last ?? DEFAULT_PACK_CHOICE);
   const [seed, setSeed] = useState(newSeed);
@@ -61,10 +66,51 @@ export default function MonoPackBuilder({ gear, place, onGear, onStart }: Props)
   const latest = useRef(prof);
   const { items, weights } = prof;
   const where: FitPlace = place ?? 'home';
-  const pack = useMemo(() => buildPack(choice, where, items, seed), [choice, where, items, seed]);
+  const [ask, setAsk] = useState('');
+  const [busy, setBusy] = useState(false);
+  /** How the last request was read: by the AI, on the device, or not yet. */
+  const [madeBy, setMadeBy] = useState<'ai' | 'device' | null>(null);
+  const [aiNote, setAiNote] = useState<string | null>(null);
+  /** Gear the request mentioned, used for this pack on top of My equipment. */
+  const [askGear, setAskGear] = useState<Equipment[]>([]);
+  const [prefer, setPrefer] = useState<string[]>([]);
+  const packGear = useMemo(() => [...new Set([...items, ...askGear])], [items, askGear]);
+  const pack = useMemo(
+    () => buildPack(choice, where, packGear, seed, prefer),
+    [choice, where, packGear, seed, prefer],
+  );
 
-  const set = <K extends keyof PackChoice>(key: K, value: PackChoice[K]) =>
+  const build = async () => {
+    const text = ask.trim();
+    if (!text || busy) return;
+    const parsed = parsePackRequest(text);
+    const gearNow = [...new Set([...items, ...parsed.gear])];
+    setAskGear(parsed.gear);
+    setAiNote(null);
+    if (isPro) {
+      setBusy(true);
+      const res = await aiPack(text, packCatalog(where, gearNow), getSupabaseAccessToken);
+      setBusy(false);
+      if (res.ok) {
+        setChoice(res.choice);
+        setPrefer(res.exercises);
+        setSeed(newSeed());
+        setMadeBy('ai');
+        return;
+      }
+      if (res.reason === 'daily-limit') setAiNote(t('fit.pack.aiLimit'));
+      else if (res.reason === 'busy' || res.reason === 'failed') setAiNote(t('fit.pack.aiBusy'));
+    }
+    setChoice((c) => ({ ...c, ...parsed.choice }));
+    setPrefer([]);
+    setSeed(newSeed());
+    setMadeBy('device');
+  };
+
+  const set = <K extends keyof PackChoice>(key: K, value: PackChoice[K]) => {
     setChoice((c) => ({ ...c, [key]: value }));
+    setPrefer([]);
+  };
   const update = (fn: (p: GearProfile) => GearProfile) => {
     const next = fn(latest.current);
     latest.current = next;
@@ -98,6 +144,37 @@ export default function MonoPackBuilder({ gear, place, onGear, onStart }: Props)
         {t('fit.pack.title2')}
       </h2>
       <p className="mono-meta">{t('fit.pack.sub')}</p>
+
+      <form
+        className="mono-pack-ask"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void build();
+        }}
+      >
+        <label className="mono-fit-label">
+          <span className="mono-meta">{t('fit.pack.askLabel')}</span>
+          <input
+            className="mono-field"
+            type="text"
+            maxLength={300}
+            value={ask}
+            placeholder={t('fit.pack.askPh')}
+            onChange={(e) => setAsk(e.target.value)}
+          />
+        </label>
+        <MonoBtn type="submit" disabled={!ask.trim() || busy}>
+          {busy ? t('fit.pack.askBusy') : isPro ? t('fit.pack.askAi') : t('fit.pack.askGo')}
+        </MonoBtn>
+      </form>
+      {madeBy ? (
+        <p className="mono-meta mono-fit-small" role="status">
+          {madeBy === 'ai' ? t('fit.pack.byAi') : t('fit.pack.byDevice')}
+          {aiNote ? ` ${aiNote}` : ''}
+        </p>
+      ) : !isPro ? (
+        <p className="mono-meta mono-fit-small">{t('fit.pack.askProHint')}</p>
+      ) : null}
 
       <div className="mono-pack-zones" role="group" aria-label={t('fit.pack.zoneAria')}>
         {PACK_ZONES.map((z) => (

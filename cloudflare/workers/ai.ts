@@ -56,10 +56,15 @@ export function dailyLimitOf(raw: string | undefined): number {
  * Count one plan for this account today. False once the day's allowance is
  * used. Without KV the per-IP limiter is the only guard (never blocks).
  */
-async function takeDailyAllowance(env: AIEnv, userId: string, now: Date): Promise<boolean> {
+export async function takeDailyAllowance(
+  env: AIEnv,
+  userId: string,
+  now: Date,
+  prefix = 'ai-quota',
+): Promise<boolean> {
   const kv = env.KV_CACHE;
   if (!kv) return true;
-  const key = `ai-quota:${userId}:${now.toISOString().slice(0, 10)}`;
+  const key = `${prefix}:${userId}:${now.toISOString().slice(0, 10)}`;
   try {
     const used = Number.parseInt((await kv.get(key)) ?? '0', 10) || 0;
     if (used >= dailyLimitOf(env.AI_DAILY_LIMIT)) return false;
@@ -82,7 +87,7 @@ export function globalCapOf(raw: string | undefined): number {
  * the device until the next UTC day. Best effort (KV is eventually
  * consistent); without KV there is no global cap.
  */
-async function takeGlobalAllowance(env: AIEnv, now: Date): Promise<boolean> {
+export async function takeGlobalAllowance(env: AIEnv, now: Date): Promise<boolean> {
   const kv = env.KV_CACHE;
   if (!kv) return true;
   const key = `ai-global:${now.toISOString().slice(0, 10)}`;

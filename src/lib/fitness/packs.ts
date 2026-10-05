@@ -33,7 +33,7 @@ export const PACK_ZONES: readonly PackZone[] = [
 export type PackFormat = 'circuit' | 'sets' | 'tabata';
 export const PACK_FORMATS: readonly PackFormat[] = ['circuit', 'sets', 'tabata'];
 
-export const PACK_MINUTES = [10, 20, 30, 45] as const;
+export const PACK_MINUTES = [10, 15, 20, 30, 45, 60] as const;
 
 /** Equipment a home user can own (the gym has everything). */
 export const HOME_GEAR: readonly Equipment[] = [
@@ -195,9 +195,9 @@ const COOLDOWN: Record<PackZone, string[]> = {
 
 /** Work / rest seconds per station by level (circuit). */
 const CIRCUIT: Record<FitLevel, [number, number]> = { 1: [30, 30], 2: [40, 20], 3: [45, 15] };
-const STATIONS: Record<number, number> = { 10: 4, 20: 5, 30: 6, 45: 6 };
-const SETS_EX: Record<number, number> = { 10: 3, 20: 4, 30: 5, 45: 7 };
-const WARM_COOL: Record<number, number> = { 10: 2, 20: 3, 30: 4, 45: 4 };
+const STATIONS: Record<number, number> = { 10: 4, 15: 5, 20: 5, 30: 6, 45: 6, 60: 7 };
+const SETS_EX: Record<number, number> = { 10: 3, 15: 3, 20: 4, 30: 5, 45: 7, 60: 8 };
+const WARM_COOL: Record<number, number> = { 10: 2, 15: 3, 20: 3, 30: 4, 45: 4, 60: 4 };
 const ROUND_REST = 30;
 
 /** Small deterministic PRNG (mulberry32). */
@@ -221,6 +221,11 @@ function usable(e: Exercise, place: FitPlace, gear: readonly Equipment[]): boole
     : gear.includes(e.equipment);
 }
 
+/** Exercises this place and gear allow, for the AI catalogue. */
+export function usableExercises(place: FitPlace, gear: readonly Equipment[]): Exercise[] {
+  return EXERCISES.filter((e) => usable(e, place, gear) && !LONG_CARDIO.has(e.id));
+}
+
 /** Long steady cardio (runs, walks, rowing) doesn't fit a station. */
 const LONG_CARDIO = new Set(['run', 'briskWalk', 'stairClimb', 'rowErg', 'sprints']);
 
@@ -241,8 +246,14 @@ function pickMain(
   count: number,
   gear: readonly Equipment[],
   rand: () => number,
+  prefer: readonly string[] = [],
 ): Exercise[] {
   const picked: Exercise[] = [];
+  // Exercises the AI chose come first, as long as this place, gear and level allow them.
+  for (const id of prefer) {
+    const e = pool.find((x) => x.id === id);
+    if (e && picked.length < count && !picked.some((p) => p.id === e.id)) picked.push(e);
+  }
   const score = (e: Exercise) =>
     (gear.includes(e.equipment) ? 2 : 0) + (e.level === choice.level ? 1 : 0) + rand() * 2.5;
   const take = (fits: (e: Exercise) => boolean) => {
@@ -253,7 +264,7 @@ function pickMain(
     return !!best;
   };
   if (choice.zone === 'cardio' || choice.zone === 'mobility') {
-    for (let i = 0; i < count; i++) if (!take(() => true)) break;
+    while (picked.length < count && take(() => true));
     return picked;
   }
   const slots = ZONE_SLOTS[choice.zone];
@@ -297,6 +308,7 @@ export function buildPack(
   place: FitPlace,
   gear: Equipment[],
   seed: number,
+  prefer: readonly string[] = [],
 ): Pack | null {
   const rand = rng(seed);
   const pool = candidates(choice, place, gear);
@@ -319,7 +331,7 @@ export function buildPack(
   if (choice.format === 'sets' && choice.zone !== 'mobility') {
     const sets = choice.level === 1 ? 2 : choice.level === 2 ? 3 : 4;
     rounds = sets;
-    picked = pickMain(choice, pool, SETS_EX[choice.minutes] ?? 4, gear, rand);
+    picked = pickMain(choice, pool, SETS_EX[choice.minutes] ?? 4, gear, rand, prefer);
     const restFor = (e: Exercise) =>
       e.type === 'hiit' || e.type === 'cardio' ? 30 : choice.level === 3 ? 75 : 60;
     main = picked.map((e) =>
@@ -333,7 +345,7 @@ export function buildPack(
     [work, rest] = [20, 10];
     const blocks = Math.max(1, Math.round(mainSec / (8 * 30 + 60)));
     rounds = blocks;
-    picked = pickMain(choice, pool, blocks * 2, gear, rand);
+    picked = pickMain(choice, pool, blocks * 2, gear, rand, prefer);
     for (let b = 0; b < blocks && picked.length >= 2; b++) {
       const pair = [picked[(b * 2) % picked.length], picked[(b * 2 + 1) % picked.length]];
       for (let i = 0; i < 8; i++) {
@@ -350,7 +362,7 @@ export function buildPack(
     // Circuit (and every mobility session): timed stations, rounds to fill the time.
     if (choice.zone === 'mobility') [work, rest] = [45, 10];
     const count = STATIONS[choice.minutes] ?? 5;
-    picked = pickMain(choice, pool, count, gear, rand);
+    picked = pickMain(choice, pool, count, gear, rand, prefer);
     const per = picked.length * (work + rest) + ROUND_REST;
     rounds = Math.max(1, Math.min(8, Math.round(mainSec / Math.max(1, per))));
     for (let r = 0; r < rounds; r++) {

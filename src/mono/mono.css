@@ -6212,3 +6212,10 @@ ul.mono-tree {
   display: block;
   margin: 4px 0 2px;
 }
+.mono-pack-ask {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 10px;
+}

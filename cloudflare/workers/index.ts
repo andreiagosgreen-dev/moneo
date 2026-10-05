@@ -19,6 +19,7 @@ import { handleLemonSqueezyWebhook } from './lemonWebhook';
 import { handleCustomerPortal } from './portal';
 import { handleRankDiscount, type DiscountKV } from './discount';
 import { handleAIPlan } from './ai';
+import { handleAIWorkout } from './aiWorkout';
 import {
   handleCalendarConnect,
   handleCalendarDisconnect,
@@ -241,6 +242,9 @@ export default {
 
     // Server-side AI planner (Faza 6): JWT-gated, rate-limited, audited.
     // Workers AI (binding) or AI_API_KEY; fail-closed without either. The browser never holds a model key.
+    if (url.pathname === '/api/ai/workout') {
+      return handleAIWorkout(request, env);
+    }
     if (url.pathname === '/api/ai/plan') {
       return handleAIPlan(request, env);
     }
