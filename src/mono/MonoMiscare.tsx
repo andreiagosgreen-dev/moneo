@@ -11,6 +11,8 @@ import MonoCardioLog, { paceText } from './MonoCardioLog';
 import MonoProgram from './MonoProgram';
 import MonoProgramSetup from './MonoProgramSetup';
 import MonoPackBuilder from './MonoPackBuilder';
+import MonoExerciseGoals from './MonoExerciseGoals';
+import type { GoalLevel } from '../lib/goals';
 import MonoWorkoutPlayer, { fitDose, type HabitLink } from './MonoWorkoutPlayer';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { Habit } from '../lib/habits';
@@ -71,6 +73,8 @@ interface Props {
   onDelete: (id: string) => void;
   /** Place and schedule changes. */
   onChange: (next: WorkoutStore) => void;
+  /** Mirrors an exercise goal into Goals; returns the goal id or null when Goals is full. */
+  onAddGoal?: (title: string, level: GoalLevel) => string | null;
 }
 
 type Any<T> = T | 'all';
@@ -83,7 +87,15 @@ const scrollTo = (id: string, block: ScrollLogicalPosition = 'start') =>
   document.getElementById(id)?.scrollIntoView?.({ block });
 
 /** Move tab: week ring, place, routines + schedule, body map, library, history. */
-export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, onChange }: Props) {
+export default function MonoMiscare({
+  store,
+  habits,
+  isPro,
+  onSave,
+  onDelete,
+  onChange,
+  onAddGoal,
+}: Props) {
   const { t, tp, tag, fmtDur, fmtDayKey, fmtNum } = useI18n();
   const [playing, setPlaying] = useState<string | null>(() => getActiveRun()?.routineId ?? null);
   const [saved, setSaved] = useState<NewRecord[] | null>(null);
@@ -337,6 +349,14 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
             onOpen={openDetail}
             log={store.log}
             isPro={isPro}
+            targets={store.targets ?? []}
+            onTargets={(targets) => {
+              const next = { ...store };
+              if (targets.length > 0) next.targets = targets;
+              else delete next.targets;
+              onChange(next);
+            }}
+            onAddGoal={onAddGoal}
           />
         ) : (
           <>
@@ -508,6 +528,8 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
                 </p>
               ) : null}
             </section>
+
+            <MonoExerciseGoals store={store} isPro={isPro} onOpen={openDetail} />
 
             <section className="mono-sec" aria-labelledby="fit-map-title">
               <div className="mono-fit-sechead">

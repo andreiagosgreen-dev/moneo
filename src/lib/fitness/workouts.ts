@@ -4,6 +4,7 @@
  * included in the JSON export and, for Pro with account sync on, synced one
  * record per workout (see `PRO_SYNC_COLLECTIONS`).
  */
+import { cleanTargets, type ExerciseTarget } from './targets';
 import { cleanGear, type GearProfile } from './packs';
 import { STORAGE_KEYS } from '../storage/storageKeys';
 import { safeRead as read, safeWrite as write } from '../storage/storageAdapter';
@@ -52,6 +53,8 @@ export interface WorkoutStore {
   program?: Program;
   /** "My equipment": owned gear and weights, for packs and one-tap weights. */
   gear?: GearProfile;
+  /** Exercise goals: N reps / minutes of one exercise per day, week, month or year. */
+  targets?: ExerciseTarget[];
 }
 
 export const MAX_WORKOUTS = 500;
@@ -126,6 +129,8 @@ export function sanitizeWorkoutStore(v: unknown): WorkoutStore {
   if (program) store.program = program;
   const gear = cleanGear(raw.gear);
   if (gear && (gear.items.length > 0 || gear.weights.length > 0 || gear.last)) store.gear = gear;
+  const targets = cleanTargets(raw.targets);
+  if (targets.length > 0) store.targets = targets;
   return store;
 }
 

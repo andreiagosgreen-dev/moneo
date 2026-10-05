@@ -6131,3 +6131,84 @@ ul.mono-tree {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* ---------- Move: exercise report and goals ---------- */
+.mono-fit-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+.mono-fit-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--mono-bg-2);
+}
+.mono-fit-tile-val {
+  font-family: var(--mono-font-display);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+.mono-fit-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 72px;
+  margin-top: 12px;
+}
+.mono-fit-bar {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  height: 100%;
+}
+.mono-fit-bar > span {
+  width: 100%;
+  border-radius: 6px 6px 2px 2px;
+  background: color-mix(in srgb, var(--mono-fg) 22%, transparent);
+}
+.mono-fit-bar > span.is-now {
+  background: var(--mono-accent, var(--accent));
+}
+.mono-fit-goal {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+.mono-fit-goal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.mono-fit-goal-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+}
+.mono-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.mono-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--mono-accent, var(--accent));
+}
+.mono-fit-subhead {
+  margin-top: 18px;
+}
+.mono-fit-row-copy .mono-fit-progress {
+  display: block;
+  margin: 4px 0 2px;
+}
