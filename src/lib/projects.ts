@@ -176,10 +176,6 @@ export function deleteProject(projects: Project[], id: string): Project[] {
   return projects.filter((p) => p.id !== id);
 }
 
-export function getProjectById(projects: Project[], id: string): Project | null {
-  return projects.find((p) => p.id === id) || null;
-}
-
 /** Active (non-archived) projects, name-sorted. */
 export function activeProjects(projects: Project[]): Project[] {
   return projects.filter((p) => !p.archived).sort((a, b) => a.name.localeCompare(b.name));
@@ -248,15 +244,6 @@ export function getProjectStats(
       .map(([day, min]) => ({ day, min }))
       .sort((a, b) => a.day.localeCompare(b.day)),
   };
-}
-
-export function formatProjectDuration(totalMinutes: number): string {
-  if (totalMinutes <= 0) return '0m';
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  if (hours === 0) return `${minutes}m`;
-  if (minutes === 0) return `${hours}h`;
-  return `${hours}h ${minutes}m`;
 }
 
 /* ---------- billable time (Roadmap 2.3) ---------- */

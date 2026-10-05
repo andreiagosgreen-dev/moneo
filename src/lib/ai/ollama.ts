@@ -6,10 +6,6 @@
  * (typically http://127.0.0.1:11434). No secrets in VITE_* beyond a
  * public base URL + model name.
  */
-import { buildPath, resolveInput } from './planner';
-import type { BuiltPath, PathInput } from './types';
-import { LocalPlanner, type ProviderResult, type PlannerProvider } from './providers';
-
 export function ollamaConfig(): { baseUrl: string; model: string } | null {
   const raw = (import.meta.env.VITE_AI_OLLAMA_URL as string | undefined)?.trim() ?? '';
   if (!raw) return null;
@@ -70,82 +66,6 @@ async function chatCompletion(
   }
 }
 
-/** Planner that asks a local model, falls back closed (not to invent). */
-export class OllamaPlanner implements PlannerProvider {
-  readonly id = 'ollama' as const;
-
-  async buildPath(input: PathInput): Promise<ProviderResult> {
-    const cfg = ollamaConfig();
-    if (!cfg) return { ok: false, reason: 'ollama-unconfigured' };
-    const text = input.text?.trim() ?? '';
-    if (!text) return { ok: false, reason: 'empty-goal' };
-
-    const resolved = resolveInput(input);
-    const system =
-      'You are Moneo planning helper. Reply JSON only: ' +
-      '{"tasks":[{"title":string,"pomodoros":number,"priority":"p1"|"p2"|"p3"}]}. ' +
-      'Max 20 concrete next actions. No markdown.';
-    const user = `Goal: ${resolved.text}\nHorizon months: ${resolved.horizonMonths}\nHours/week: ${resolved.hoursPerWeek}`;
-    const raw = await chatCompletion(cfg.baseUrl, cfg.model, system, user);
-    if (!raw) return { ok: false, reason: 'ollama-unreachable' };
-
-    let parsed: { tasks?: Array<{ title?: string; pomodoros?: number; priority?: string }> };
-    try {
-      const start = raw.indexOf('{');
-      const end = raw.lastIndexOf('}');
-      parsed = JSON.parse(start >= 0 ? raw.slice(start, end + 1) : raw);
-    } catch {
-      // Model failed shape → fall back to deterministic local path (still useful).
-      try {
-        return { ok: true, path: buildPath(resolved) };
-      } catch {
-        return { ok: false, reason: 'ollama-bad-payload' };
-      }
-    }
-    const tasks = Array.isArray(parsed.tasks)
-      ? parsed.tasks
-          .filter((t) => t && typeof t.title === 'string' && t.title.trim())
-          .slice(0, 20)
-          .map((t, i) => ({
-            draftId: `ol-${i + 1}`,
-            milestoneId: 'm1',
-            title: String(t.title).trim().slice(0, 120),
-            pomodoros: Math.min(8, Math.max(1, Math.round(Number(t.pomodoros) || 1))),
-            priority: (t.priority === 'p1' || t.priority === 'p3' ? t.priority : 'p2') as
-              'p1' | 'p2' | 'p3',
-          }))
-      : [];
-    if (tasks.length === 0) {
-      try {
-        return { ok: true, path: buildPath(resolved) };
-      } catch {
-        return { ok: false, reason: 'ollama-empty' };
-      }
-    }
-    const path: BuiltPath = {
-      goal: resolved.text,
-      kind: 'general',
-      horizonMonths: resolved.horizonMonths,
-      level: resolved.level,
-      hoursPerWeek: resolved.hoursPerWeek,
-      phases: [
-        {
-          id: 'p1',
-          index: 1,
-          months: [1, Math.min(3, resolved.horizonMonths)],
-          outcome: resolved.text,
-        },
-      ],
-      milestones: [{ id: 'm1', phaseId: 'p1', title: resolved.text }],
-      tasks,
-      totalPomodoros: tasks.reduce((n, t) => n + t.pomodoros, 0),
-      fitsCapacity: true,
-      assumptions: [],
-    };
-    return { ok: true, path };
-  }
-}
-
 /**
  * Libre chat for the in-app assistant. Fail-closed → caller keeps rule-based reply.
  */
@@ -165,10 +85,4 @@ export async function libreAssist(
   const text = await chatCompletion(cfg.baseUrl, cfg.model, system, user, 18_000);
   if (!text) return { ok: false, reason: 'unreachable' };
   return { ok: true, text };
-}
-
-/** Prefer local libre model when configured; else on-device deterministic. */
-export function resolveFreePlanner(): PlannerProvider {
-  if (isLibreAiConfigured()) return new OllamaPlanner();
-  return new LocalPlanner();
 }

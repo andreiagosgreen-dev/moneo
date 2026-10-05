@@ -41,25 +41,6 @@ export function toCloudSessionRow(
   };
 }
 
-export function insertSession(row: CloudSessionRow): Promise<boolean> {
-  return withClient(async (client) => {
-    const { error } = await client.from('focus_sessions').insert(row);
-    return !error;
-  }).then((r) => r ?? false);
-}
-
-export function listSessions(userId: string, limit = 500): Promise<CloudSessionRow[] | null> {
-  return withClient(async (client) => {
-    const { data, error } = await client
-      .from('focus_sessions')
-      .select('*')
-      .eq('user_id', userId)
-      .order('completed_at', { ascending: false })
-      .limit(limit);
-    return error ? null : ((data as CloudSessionRow[]) ?? null);
-  });
-}
-
 /* ---------- sync primitives (Gate 9) ---------- */
 
 /**

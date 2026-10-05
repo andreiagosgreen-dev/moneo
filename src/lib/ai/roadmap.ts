@@ -202,10 +202,6 @@ export function upsertRoadmap(list: Roadmap[], roadmap: Roadmap): Roadmap[] {
   return next;
 }
 
-export function deleteRoadmap(list: Roadmap[], id: string): Roadmap[] {
-  return list.filter((r) => r.id !== id);
-}
-
 export function updateStep(
   r: Roadmap,
   stepId: string,

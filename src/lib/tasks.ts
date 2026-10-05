@@ -71,8 +71,6 @@ export const MAX_TASK_LINKS = 5;
 
 export type TaskRecurrence = 'none' | 'daily' | 'weekly';
 
-export const TASK_RECURRENCES: TaskRecurrence[] = ['none', 'daily', 'weekly'];
-
 /** Root = 1, child = 2, grandchild = 3 (roadmap asks for 3 levels). */
 export const MAX_TASK_DEPTH = 3;
 
@@ -88,13 +86,6 @@ export const STATUS_KEYS: Record<TaskStatus, string> = {
   in_progress: 'task.status.in_progress',
   blocked: 'task.status.blocked',
   completed: 'task.status.completed',
-};
-
-/** Translation keys for recurrence options (UI renders via t()). */
-export const RECURRENCE_KEYS: Record<TaskRecurrence, string> = {
-  none: 'task.rec.none',
-  daily: 'task.rec.daily',
-  weekly: 'task.rec.weekly',
 };
 
 /** Translation keys for task template names/titles (selected text is localized). */

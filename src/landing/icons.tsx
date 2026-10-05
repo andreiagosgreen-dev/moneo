@@ -49,51 +49,11 @@ export const IconBriefcase = () => (
   </Svg>
 );
 
-export const IconFolder = () => (
-  <Svg>
-    <path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l2 2.5h7.5A2.5 2.5 0 0 1 21 10v7.5a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z" />
-    <path d="M8 13.5h8" />
-  </Svg>
-);
-
-export const IconRepeat = () => (
-  <Svg>
-    <path d="M17 2.5 20.5 6 17 9.5" />
-    <path d="M3.5 11V9.5A3.5 3.5 0 0 1 7 6h13.5" />
-    <path d="M7 21.5 3.5 18 7 14.5" />
-    <path d="M20.5 13v1.5A3.5 3.5 0 0 1 17 18H3.5" />
-  </Svg>
-);
-
-export const IconPalette = () => (
-  <Svg>
-    <path d="M12 3a9 9 0 1 0 0 18c1.2 0 2-.9 2-2 0-.6-.2-1-.5-1.4-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A3.7 3.7 0 0 0 21 10.6C21 6.4 17 3 12 3z" />
-    <circle cx="7.5" cy="11" r="1.2" />
-    <circle cx="10.5" cy="7" r="1.2" />
-    <circle cx="15.5" cy="7.5" r="1.2" />
-  </Svg>
-);
-
-export const IconLock = () => (
-  <Svg>
-    <rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5" />
-    <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
-    <path d="M12 14.5v2.5" />
-  </Svg>
-);
-
 export const IconGlobe = () => (
   <Svg size={18}>
     <circle cx="12" cy="12" r="9" />
     <path d="M3 12h18" />
     <path d="M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z" />
-  </Svg>
-);
-
-export const IconPhone = () => (
-  <Svg>
-    <rect x="6.5" y="2.5" width="11" height="19" rx="2.5" />
-    <path d="M10.5 18.5h3" />
   </Svg>
 );
 
