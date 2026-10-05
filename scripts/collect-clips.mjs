@@ -1,50 +1,51 @@
 #!/usr/bin/env node
 /**
  * Turns the marketing recordings (marketing/recorder) into upload-ready MP4s:
- * cuts the setup part, 1080×1920, 30 fps, H.264, no audio track.
- * Output: clips/<lang>-<clip>.mp4
+ * 1080×1920, 30 fps, H.264, no audio track.
+ * Input: test-results/clip-frames/<name>/frames.txt (ffconcat list)
+ * Output: clips/<name>.mp4
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-const META = 'test-results/clip-meta';
+const FRAMES = 'test-results/clip-frames';
 const OUT = 'clips';
 
-if (!existsSync(META)) {
+if (!existsSync(FRAMES)) {
   console.error('No recordings found. Run the recorder first.');
   process.exit(1);
 }
 mkdirSync(OUT, { recursive: true });
 
 let made = 0;
-for (const file of readdirSync(META).filter((f) => f.endsWith('.json'))) {
-  const meta = JSON.parse(readFileSync(join(META, file), 'utf8'));
-  if (!meta.video || !existsSync(meta.video)) {
-    console.warn(`skip ${meta.name}: no video`);
+for (const name of readdirSync(FRAMES).sort()) {
+  const list = join(FRAMES, name, 'frames.txt');
+  if (!existsSync(list)) {
+    console.warn(`skip ${name}: no frames`);
     continue;
   }
-  const out = join(OUT, `${meta.name}.mp4`);
+  const out = join(OUT, `${name}.mp4`);
   execFileSync(
     'ffmpeg',
     [
       '-y',
       '-loglevel',
       'error',
-      '-ss',
-      String(Math.max(0, meta.trim)),
+      '-f',
+      'concat',
+      '-safe',
+      '0',
       '-i',
-      meta.video,
+      list,
       '-vf',
-      'scale=1080:1920:flags=lanczos,fps=30',
+      'scale=1080:1920:flags=lanczos:force_original_aspect_ratio=decrease,pad=1080:1920:-1:-1,fps=30,format=yuv420p',
       '-c:v',
       'libx264',
       '-preset',
       'slow',
       '-crf',
       '18',
-      '-pix_fmt',
-      'yuv420p',
       '-movflags',
       '+faststart',
       '-an',

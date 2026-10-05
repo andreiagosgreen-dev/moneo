@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test, type Locator, type Page } from '@playwright/test';
 
@@ -24,7 +24,9 @@ const TODAY_TASKS: Record<Lang, string[]> = {
   en: ['Review chapter 2', 'Send the statistics homework', 'Call the library'],
 };
 
-const META_DIR = join(process.cwd(), 'test-results/clip-meta');
+// One folder of frames per clip, plus an ffconcat list with each frame's
+// duration; scripts/collect-clips.mjs turns the lists into MP4s.
+const FRAMES_DIR = join(process.cwd(), 'test-results/clip-frames');
 
 /** Fresh app, language set, no first-run screens; a circle shows each tap. */
 async function prepare(page: Page, lang: Lang): Promise<void> {
@@ -102,25 +104,52 @@ async function useSystem(page: Page, id: string, after = 1800): Promise<void> {
   await tap(page, card.locator('.mono-btn-primary'), after);
 }
 
-/** Records one clip; everything before `start()` is cut from the final video. */
+/**
+ * Records one clip. Playwright's own video is captured at CSS-pixel size
+ * (360×640), so the frames come straight from Chrome's screencast at full
+ * device resolution instead. Only `play` is recorded.
+ */
 async function record(
   page: Page,
   name: string,
   setup: () => Promise<void>,
   play: () => Promise<void>,
 ): Promise<void> {
-  const t0 = Date.now();
   await page.goto('/');
   await nav(page, 'focus').waitFor();
   await setup();
   await pause(600);
-  const trim = (Date.now() - t0) / 1000;
+
+  const dir = join(FRAMES_DIR, name);
+  rmSync(dir, { recursive: true, force: true });
+  mkdirSync(dir, { recursive: true });
+  const frames: { file: string; t: number }[] = [];
+  const cdp = await page.context().newCDPSession(page);
+  cdp.on('Page.screencastFrame', (f) => {
+    const file = `f${String(frames.length).padStart(5, '0')}.jpg`;
+    writeFileSync(join(dir, file), Buffer.from(f.data, 'base64'));
+    frames.push({ file, t: f.metadata.timestamp ?? Date.now() / 1000 });
+    cdp.send('Page.screencastFrameAck', { sessionId: f.sessionId }).catch(() => {});
+  });
+  await cdp.send('Page.startScreencast', {
+    format: 'jpeg',
+    quality: 92,
+    maxWidth: 1080,
+    maxHeight: 1920,
+  });
   await play();
   await pause(800);
-  mkdirSync(META_DIR, { recursive: true });
-  // Playwright moves the recording here once the test ends.
-  const video = test.info().outputPath('video.webm');
-  writeFileSync(join(META_DIR, `${name}.json`), JSON.stringify({ name, trim, video }));
+  await cdp.send('Page.stopScreencast');
+  const end = Date.now() / 1000;
+  if (frames.length === 0) throw new Error(`no frames for ${name}`);
+
+  const lines = ['ffconcat version 1.0'];
+  frames.forEach((f, i) => {
+    const next = i + 1 < frames.length ? frames[i + 1].t : end;
+    lines.push(`file '${f.file}'`, `duration ${Math.max(0.001, next - f.t).toFixed(3)}`);
+  });
+  lines.push(`file '${frames[frames.length - 1].file}'`);
+  writeFileSync(join(dir, 'frames.txt'), `${lines.join('\n')}\n`);
 }
 
 for (const lang of LANGS) {

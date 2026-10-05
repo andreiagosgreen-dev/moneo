@@ -17,13 +17,12 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:3000',
-    // 360×640 CSS px at 3× = 1080×1920, the size short videos use.
+    // 360×640 CSS px at 3× = 1080×1920 frames, the size short videos use.
     viewport: { width: 360, height: 640 },
     deviceScaleFactor: 3,
     isMobile: true,
     hasTouch: true,
     colorScheme: 'dark',
-    video: { mode: 'on', size: { width: 1080, height: 1920 } },
     actionTimeout: 20_000,
   },
   webServer: {
