@@ -3,12 +3,13 @@ import { join } from 'node:path';
 import { test, type Locator, type Page } from '@playwright/test';
 
 /*
- * The app parts of the week-1 clips (marketing/05-kit-saptamana-1.md in the
- * owner's folder), recorded from the real app in each language. Steps use
+ * The app parts of the short videos (the owner's marketing kit: week 1 is
+ * C02 C04 C03 C15, week 2 is C06 C11 C07 C12), recorded from the real app in
+ * each language. Steps use
  * language-independent selectors; the pace is a calm human one, and a soft
  * circle shows every tap like a phone's "show touches".
  *
- * CLIP_LANGS=ro,ru,en and CLIPS=c02,c04,c03,c15 pick what to record.
+ * CLIP_LANGS=ro,ru,en and CLIPS=c02,c04,… pick what to record (default: all).
  *
  * Slow motion: a CI runner renders 1080×1920 frames at only ~10 fps, so the
  * app runs CLIP_SLOW times slower (page clocks, timers, CSS animations and
@@ -21,13 +22,20 @@ const LANGS = (process.env.CLIP_LANGS ?? 'ro,ru,en')
   .split(',')
   .map((s) => s.trim())
   .filter((s): s is Lang => s === 'ro' || s === 'ru' || s === 'en');
-const CLIPS = (process.env.CLIPS ?? 'c02,c04,c03,c15').split(',').map((s) => s.trim());
+const ALL_CLIPS = 'c02,c04,c03,c15,c06,c11,c07,c12';
+const CLIPS = (process.env.CLIPS || ALL_CLIPS).split(',').map((s) => s.trim());
 const SLOW = Math.max(1, Number(process.env.CLIP_SLOW ?? 3) || 1);
 
 const TODAY_TASKS: Record<Lang, string[]> = {
   ro: ['Recapitulez capitolul 2', 'Trimit tema la statistică', 'Sun la bibliotecă'],
   ru: ['Повторить главу 2', 'Сдать задание по статистике', 'Позвонить в библиотеку'],
   en: ['Review chapter 2', 'Send the statistics homework', 'Call the library'],
+};
+
+const GOAL: Record<Lang, string> = {
+  ro: 'Învăț Python în 3 luni',
+  ru: 'Выучить Python за 3 месяца',
+  en: 'Learn Python in 3 months',
 };
 
 // One folder of frames per clip, plus an ffconcat list with each frame's
@@ -72,34 +80,126 @@ async function prepare(page: Page, lang: Lang): Promise<void> {
     );
   }, lang);
 
-  // Page time runs SLOW times slower: Date, performance.now, timers, frames.
+  // Page time runs SLOW times slower (Date, performance.now, timers, frames);
+  // window.__clipSpeed(x) runs it x times faster than that, for time-lapses.
   await page.addInitScript((slow: number) => {
-    if (slow === 1) return;
     const realPerf = performance.now.bind(performance);
-    const p0 = realPerf();
     const RealDate = Date;
+    const p0 = realPerf();
     const d0 = RealDate.now();
-    const warp = (ms: number) => d0 + (ms - d0) / slow;
+    let rate = 1 / slow; // page ms per real ms
+    let realBase = p0;
+    let pageBase = p0;
+    const pageNow = () => pageBase + (realPerf() - realBase) * rate;
+    (window as unknown as { __clipSpeed: (x: number) => void }).__clipSpeed = (x) => {
+      pageBase = pageNow();
+      realBase = realPerf();
+      rate = x / slow;
+    };
+    const dateNow = () => d0 + (pageNow() - p0);
     class SlowDate extends RealDate {
       constructor(...args: unknown[]) {
-        if (args.length === 0) super(warp(RealDate.now()));
+        if (args.length === 0) super(dateNow());
         else super(...(args as [number]));
       }
       static now() {
-        return warp(RealDate.now());
+        return dateNow();
       }
     }
     window.Date = SlowDate as DateConstructor;
-    performance.now = () => p0 + (realPerf() - p0) / slow;
+    performance.now = pageNow;
+
     const realTimeout = window.setTimeout.bind(window);
-    const realInterval = window.setInterval.bind(window);
+    const realClearTimeout = window.clearTimeout.bind(window);
+    const realClearInterval = window.clearInterval.bind(window);
+    const delay = (ms?: number) => Math.max(0, (ms ?? 0) / rate);
     window.setTimeout = ((fn: TimerHandler, ms?: number, ...a: unknown[]) =>
-      realTimeout(fn, (ms ?? 0) * slow, ...a)) as typeof window.setTimeout;
-    window.setInterval = ((fn: TimerHandler, ms?: number, ...a: unknown[]) =>
-      realInterval(fn, (ms ?? 0) * slow, ...a)) as typeof window.setInterval;
+      realTimeout(fn, delay(ms), ...a)) as typeof window.setTimeout;
+    // Intervals re-read the speed on every tick, so a time-lapse applies at once.
+    const intervals = new Map<number, number>();
+    let nextId = 1e9;
+    window.setInterval = ((fn: TimerHandler, ms?: number, ...a: unknown[]) => {
+      const id = ++nextId;
+      const tick = () => {
+        intervals.set(
+          id,
+          realTimeout(() => {
+            if (!intervals.has(id)) return;
+            tick();
+            if (typeof fn === 'function') (fn as (...x: unknown[]) => void)(...a);
+          }, delay(ms)),
+        );
+      };
+      tick();
+      return id;
+    }) as typeof window.setInterval;
+    const clear = (id?: number) => {
+      const handle = id === undefined ? undefined : intervals.get(id);
+      if (handle === undefined) return false;
+      realClearTimeout(handle);
+      intervals.delete(id as number);
+      return true;
+    };
+    window.clearInterval = (id?: number) => {
+      if (!clear(id)) realClearInterval(id);
+    };
+    window.clearTimeout = (id?: number) => {
+      if (!clear(id)) realClearTimeout(id);
+    };
     const realRaf = window.requestAnimationFrame.bind(window);
-    window.requestAnimationFrame = (cb) => realRaf((t) => cb(p0 + (t - p0) / slow));
+    window.requestAnimationFrame = (cb) => realRaf(() => cb(pageNow()));
   }, SLOW);
+}
+
+/** Page time x times faster than normal (1 = normal). */
+const speed = (page: Page, x: number) =>
+  page.evaluate(
+    (v) => (window as unknown as { __clipSpeed: (n: number) => void }).__clipSpeed(v),
+    x,
+  );
+
+/**
+ * A student's thesis project (the Pro "Write your thesis" system, built with
+ * the app's own code) and, with `week`, seven days of focus on it. The
+ * recorder has no account, so this stands in for a Pro trial user's data.
+ */
+async function seedThesis(page: Page, lang: Lang, week: boolean): Promise<void> {
+  const script = `(async () => {
+    const lang = ${JSON.stringify(lang)};
+    const week = ${JSON.stringify(week)};
+    const L = await import('/src/lib/lifeTemplates.ts');
+    const I = await import('/src/lib/i18n/index.ts');
+    const K = (await import('/src/lib/storage/storageKeys.ts')).STORAGE_KEYS;
+    const i18n = I.createI18n(lang, await I.loadDictionary(lang));
+    const now = Date.now();
+    const r = L.instantiateLifeTemplate(L.getLifeTemplate('thesis'), {
+      t: i18n.t, now, isPro: true, existingActiveHabits: 0,
+    });
+    const read = (k) => JSON.parse(localStorage.getItem(k) || '[]');
+    const tasks = r.tasks.map((t, i) =>
+      week && i < 2 ? { ...t, status: 'completed', completedAt: now - (5 - i * 2) * 864e5 } : t);
+    localStorage.setItem(K.projects, JSON.stringify([...read(K.projects), r.project]));
+    localStorage.setItem(K.tasks, JSON.stringify([...read(K.tasks), ...tasks]));
+    localStorage.setItem(K.habits, JSON.stringify([...read(K.habits), ...r.habits]));
+    if (!week) return;
+    const day = 864e5;
+    const midnight = new Date(now);
+    midnight.setHours(0, 0, 0, 0);
+    const plan = [[25, 25, 45], [45, 45, 25], [], [25, 45, 45, 25], [25], [45, 45, 45], [25, 50]];
+    const history = [];
+    plan.forEach((mins, i) => {
+      const base = midnight.getTime() - (6 - i) * day;
+      mins.forEach((min, j) => {
+        let at = base + (9 + j * 2) * 36e5;
+        if (i === 6) at = now - (mins.length - j) * 90 * 6e4;
+        history.push({ id: 'rec-' + i + '-' + j, at, min, projectId: r.project.id });
+      });
+    });
+    localStorage.setItem(K.history, JSON.stringify(history));
+  })()`;
+  await page.evaluate(script);
+  await page.reload();
+  await nav(page, 'focus').waitFor();
 }
 
 const pause = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms * SLOW));
@@ -306,6 +406,107 @@ for (const lang of LANGS) {
           await pause(1500);
           await glide(page, 320, 1800);
           await pause(2200);
+        },
+      );
+    });
+
+    clip('c06', async (page) => {
+      await record(
+        page,
+        `${lang}-c06-licenta`,
+        async () => {
+          await seedThesis(page, lang, false);
+          await nav(page, 'projects').click();
+          await pause(600);
+          await page.evaluate(() => window.scrollTo(0, 0));
+        },
+        async () => {
+          const row = page.locator('[data-project-id]').first();
+          const dy = await row.evaluate((el) => el.getBoundingClientRect().top - 90);
+          await glide(page, dy, 1000);
+          await pause(700);
+          await tap(page, row.locator('button').last(), 1600);
+          await glide(page, 200, 1200);
+          await pause(1600);
+          await tap(page, nav(page, 'focus'), 900);
+          const custom = page.locator('.atm-presets button[aria-expanded]');
+          await tap(page, custom, 600);
+          const minutes = page.locator('#mono-focus-custom');
+          await tap(page, minutes, 200);
+          await minutes.pressSequentially('50', { delay: 120 * SLOW });
+          await pause(300);
+          await tap(page, page.locator('form:has(#mono-focus-custom) button[type="submit"]'), 900);
+          await tap(page, startButton(page), 3500);
+        },
+      );
+    });
+
+    clip('c11', async (page) => {
+      await record(
+        page,
+        `${lang}-c11-telefon`,
+        async () => {
+          await nav(page, 'focus').click();
+          await pause(600);
+        },
+        async () => {
+          await pause(900);
+          await tap(page, preset(page, 45), 900);
+          await tap(page, startButton(page), 1800);
+          // Time-lapse: 45 minutes in about 4 seconds.
+          await speed(page, 700);
+          await pause(4000);
+          await speed(page, 1);
+          await pause(3500);
+        },
+      );
+    });
+
+    clip('c07', async (page) => {
+      await record(
+        page,
+        `${lang}-c07-ai`,
+        async () => {
+          await nav(page, 'more').click();
+          await pause(500);
+          await page.locator('.mono-more-item').first().click();
+          await pause(800);
+          const goal = page.locator('textarea.mono-field').first();
+          await goal.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+          await pause(400);
+          await page.evaluate(() => window.scrollBy(0, -120));
+        },
+        async () => {
+          const goal = page.locator('textarea.mono-field').first();
+          await tap(page, goal, 300);
+          await goal.pressSequentially(GOAL[lang], { delay: 60 * SLOW });
+          await pause(600);
+          const panel = page.locator('.mono-item:has(> textarea.mono-field)').first();
+          await tap(page, panel.locator('.mono-btn-primary').first(), 1500);
+          await glide(page, 220, 1200);
+          await pause(1800);
+          await tap(page, panel.locator('.mono-note:has(ul) .mono-btn-primary'), 2200);
+          await pause(1500);
+        },
+      );
+    });
+
+    clip('c12', async (page) => {
+      await record(
+        page,
+        `${lang}-c12-raport`,
+        async () => {
+          await seedThesis(page, lang, true);
+        },
+        async () => {
+          await pause(600);
+          await tap(page, nav(page, 'reports'), 1800);
+          await glide(page, 300, 1800);
+          await pause(1400);
+          await glide(page, 360, 1800);
+          await pause(1600);
+          await glide(page, 360, 1800);
+          await pause(2000);
         },
       );
     });

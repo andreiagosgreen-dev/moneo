@@ -10,9 +10,11 @@ on:
         required: false
         default: 'ro,ru,en'
       clips:
-        description: 'Clips, comma-separated (c02, c04, c03, c15)'
+        description: 'Clips, comma-separated (week 1: c02,c04,c03,c15 · week 2: c06,c11,c07,c12); empty = all'
         required: false
-        default: 'c02,c04,c03,c15'
+        default: ''
+  push:
+    branches: [feat/marketing-week2]
 
 permissions:
   contents: read
@@ -36,7 +38,7 @@ jobs:
         run: npx playwright test -c marketing/recorder/playwright.config.ts
         env:
           CLIP_LANGS: ${{ inputs.langs || 'ro,ru,en' }}
-          CLIPS: ${{ inputs.clips || 'c02,c04,c03,c15' }}
+          CLIPS: ${{ inputs.clips || 'c06,c11,c07,c12' }}
       - name: Make MP4s
         run: node scripts/collect-clips.mjs
       - name: Sizes

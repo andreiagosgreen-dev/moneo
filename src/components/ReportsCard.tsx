@@ -10,6 +10,7 @@ import {
   type RangeKey,
   type ReportData,
   type DayBucket,
+  type ProjectSlice,
 } from '../lib/reports';
 import { openPoints, pointsVelocity, etaByPoints } from '../lib/tasks';
 import { weeklyNarrative } from '../lib/weeklyReview';
@@ -286,10 +287,18 @@ export default function ReportsCard({
   const { t, fmtDur, fmtNum, tag } = i18n;
 
   const shownAreas = useMemo(() => areas.map((a) => ({ ...a, name: areaLabel(a, t) })), [areas, t]);
-  const report: ReportData = useMemo(
-    () => buildReport(history, projects, shownAreas, tasks, range, timezone),
-    [history, projects, shownAreas, tasks, range, timezone],
-  );
+  const report: ReportData = useMemo(() => {
+    const raw = buildReport(history, projects, shownAreas, tasks, range, timezone);
+    // Sessions without a project: buildReport names them in English.
+    const named = (s: ProjectSlice): ProjectSlice =>
+      s.projectId === '_unassigned' ? { ...s, name: t('rep.csv.unassigned') } : s;
+    const top = raw.summary.topProject;
+    return {
+      ...raw,
+      projects: raw.projects.map(named),
+      summary: { ...raw.summary, topProject: top ? named(top) : null },
+    };
+  }, [history, projects, shownAreas, tasks, range, timezone, t]);
 
   const narrative = useMemo(
     () => weeklyNarrative({ history, tasks, projects }, i18n),
