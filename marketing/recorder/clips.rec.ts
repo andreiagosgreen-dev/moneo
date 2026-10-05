@@ -9,6 +9,11 @@ import { test, type Locator, type Page } from '@playwright/test';
  * circle shows every tap like a phone's "show touches".
  *
  * CLIP_LANGS=ro,ru,en and CLIPS=c02,c04,c03,c15 pick what to record.
+ *
+ * Slow motion: a CI runner renders 1080×1920 frames at only ~10 fps, so the
+ * app runs CLIP_SLOW times slower (page clocks, timers, CSS animations and
+ * the pauses here) and the frame times are divided by the same factor:
+ * ~30 fps in the final video, at normal speed.
  */
 
 type Lang = 'ro' | 'ru' | 'en';
@@ -17,6 +22,7 @@ const LANGS = (process.env.CLIP_LANGS ?? 'ro,ru,en')
   .map((s) => s.trim())
   .filter((s): s is Lang => s === 'ro' || s === 'ru' || s === 'en');
 const CLIPS = (process.env.CLIPS ?? 'c02,c04,c03,c15').split(',').map((s) => s.trim());
+const SLOW = Math.max(1, Number(process.env.CLIP_SLOW ?? 3) || 1);
 
 const TODAY_TASKS: Record<Lang, string[]> = {
   ro: ['Recapitulez capitolul 2', 'Trimit tema la statistică', 'Sun la bibliotecă'],
@@ -65,9 +71,38 @@ async function prepare(page: Page, lang: Lang): Promise<void> {
       true,
     );
   }, lang);
+
+  // Page time runs SLOW times slower: Date, performance.now, timers, frames.
+  await page.addInitScript((slow: number) => {
+    if (slow === 1) return;
+    const realPerf = performance.now.bind(performance);
+    const p0 = realPerf();
+    const RealDate = Date;
+    const d0 = RealDate.now();
+    const warp = (ms: number) => d0 + (ms - d0) / slow;
+    class SlowDate extends RealDate {
+      constructor(...args: unknown[]) {
+        if (args.length === 0) super(warp(RealDate.now()));
+        else super(...(args as [number]));
+      }
+      static now() {
+        return warp(RealDate.now());
+      }
+    }
+    window.Date = SlowDate as DateConstructor;
+    performance.now = () => p0 + (realPerf() - p0) / slow;
+    const realTimeout = window.setTimeout.bind(window);
+    const realInterval = window.setInterval.bind(window);
+    window.setTimeout = ((fn: TimerHandler, ms?: number, ...a: unknown[]) =>
+      realTimeout(fn, (ms ?? 0) * slow, ...a)) as typeof window.setTimeout;
+    window.setInterval = ((fn: TimerHandler, ms?: number, ...a: unknown[]) =>
+      realInterval(fn, (ms ?? 0) * slow, ...a)) as typeof window.setInterval;
+    const realRaf = window.requestAnimationFrame.bind(window);
+    window.requestAnimationFrame = (cb) => realRaf((t) => cb(p0 + (t - p0) / slow));
+  }, SLOW);
 }
 
-const pause = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+const pause = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms * SLOW));
 
 /** Move to the element, then tap it, at a human pace. */
 async function tap(page: Page, target: Locator, after = 900): Promise<void> {
@@ -98,16 +133,20 @@ const startButton = (page: Page) => page.locator('.atm-actions .mono-btn-primary
 
 async function useSystem(page: Page, id: string, after = 1800): Promise<void> {
   const card = page.getByTestId(`tpl-${id}`);
-  await card.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'smooth' }));
-  await pause(900);
+  const dy = await card.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return r.top + r.height / 2 - window.innerHeight / 2;
+  });
+  await glide(page, dy, 900);
+  await pause(300);
   await tap(page, card.locator('button').first(), 600);
   await tap(page, card.locator('.mono-btn-primary'), after);
 }
 
 /**
  * Records one clip. Playwright's video and Chrome's screencast give
- * CSS-pixel frames (360×640) in headless mode, and page.screenshot is slow
- * (~10 fps), so frames are clipped CDP screenshots taken back to back.
+ * CSS-pixel frames (360×640) in headless mode, so frames are CDP
+ * screenshots rendered at 3×, taken back to back (in slow motion).
  * Only `play` is recorded.
  */
 async function record(
@@ -118,6 +157,10 @@ async function record(
 ): Promise<void> {
   await page.goto('/');
   await nav(page, 'focus').waitFor();
+  const cdp = await page.context().newCDPSession(page);
+  // CSS transitions and animations, slowed like the page clock.
+  await cdp.send('Animation.enable');
+  await cdp.send('Animation.setPlaybackRate', { playbackRate: 1 / SLOW });
   await setup();
   await pause(600);
 
@@ -125,7 +168,6 @@ async function record(
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
   const frames: { file: string; t: number }[] = [];
-  const cdp = await page.context().newCDPSession(page);
   let recording = true;
   const start = Date.now() / 1000;
   const capture = (async () => {
@@ -155,13 +197,14 @@ async function record(
   const end = Date.now() / 1000;
   if (frames.length === 0) throw new Error(`no frames for ${name}`);
   console.log(
-    `${name}: ${frames.length} frames, ${(frames.length / (end - start)).toFixed(1)} fps`,
+    `${name}: ${frames.length} frames, ${((frames.length * SLOW) / (end - start)).toFixed(1)} fps`,
   );
 
   const lines = ['ffconcat version 1.0'];
   frames.forEach((f, i) => {
     const next = i + 1 < frames.length ? frames[i + 1].t : end;
-    lines.push(`file '${f.file}'`, `duration ${Math.max(0.001, next - f.t).toFixed(3)}`);
+    const seconds = Math.max(0.001, (next - f.t) / SLOW);
+    lines.push(`file '${f.file}'`, `duration ${seconds.toFixed(3)}`);
   });
   lines.push(`file '${frames[frames.length - 1].file}'`);
   writeFileSync(join(dir, 'frames.txt'), `${lines.join('\n')}\n`);
@@ -209,7 +252,7 @@ for (const lang of LANGS) {
           const input = page.locator('.mono-azi-prio input').first();
           for (const text of TODAY_TASKS[lang]) {
             await tap(page, input, 300);
-            await input.pressSequentially(text, { delay: 55 });
+            await input.pressSequentially(text, { delay: 55 * SLOW });
             await pause(250);
             await input.press('Enter');
             await pause(700);
