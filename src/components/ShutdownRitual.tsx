@@ -5,7 +5,7 @@ import { dayKeyInTz } from '../lib/timezone';
 import { nextDayKey, shutdownSummary } from '../lib/ritual';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
-import { reviewLine } from '../lib/ai/coach';
+import { shutdownLine } from '../lib/ai/coach';
 
 interface Props {
   history: Session[];
@@ -88,7 +88,8 @@ export default function ShutdownRitual({
         </div>
 
         {(() => {
-          const line = reviewLine(summary.done, summary.unfinished.length);
+          const line = shutdownLine(summary.done, summary.unfinished.length);
+          if (!line) return null;
           return (
             <p className="mt-3 text-[13px] leading-relaxed text-cream/90">
               {t(line.key as TKey, line.vars)}

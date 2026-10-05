@@ -4,8 +4,8 @@ import { test, type Locator, type Page } from '@playwright/test';
 
 /*
  * The app parts of the short videos (the owner's marketing kit: week 1 is
- * C02 C04 C03 C15, week 2 is C06 C11 C07 C12), recorded from the real app in
- * each language. Steps use
+ * C02 C04 C03 C15, week 2 C06 C11 C07 C12, week 3 C05 C09 C14 C10), recorded
+ * from the real app in each language. Steps use
  * language-independent selectors; the pace is a calm human one, and a soft
  * circle shows every tap like a phone's "show touches".
  *
@@ -22,7 +22,7 @@ const LANGS = (process.env.CLIP_LANGS ?? 'ro,ru,en')
   .split(',')
   .map((s) => s.trim())
   .filter((s): s is Lang => s === 'ro' || s === 'ru' || s === 'en');
-const ALL_CLIPS = 'c02,c04,c03,c15,c06,c11,c07,c12';
+const ALL_CLIPS = 'c02,c04,c03,c15,c06,c11,c07,c12,c05,c09,c14,c10';
 const CLIPS = (process.env.CLIPS || ALL_CLIPS).split(',').map((s) => s.trim());
 const SLOW = Math.max(1, Number(process.env.CLIP_SLOW ?? 3) || 1);
 
@@ -30,6 +30,12 @@ const TODAY_TASKS: Record<Lang, string[]> = {
   ro: ['Recapitulez capitolul 2', 'Trimit tema la statistică', 'Sun la bibliotecă'],
   ru: ['Повторить главу 2', 'Сдать задание по статистике', 'Позвонить в библиотеку'],
   en: ['Review chapter 2', 'Send the statistics homework', 'Call the library'],
+};
+
+const TEST_TASKS: Record<Lang, string[]> = {
+  ro: ['Recapitulez capitolele 1–3', 'Rezolv exercițiile din culegere', 'Întrebările grele'],
+  ru: ['Повторить главы 1–3', 'Решить задачи из сборника', 'Сложные вопросы'],
+  en: ['Review chapters 1–3', 'Do the practice problems', 'The hard questions'],
 };
 
 const GOAL: Record<Lang, string> = {
@@ -49,6 +55,8 @@ async function prepare(page: Page, lang: Lang): Promise<void> {
     if (!localStorage.getItem('moneo:recorder')) {
       localStorage.clear();
       set('moneo:recorder', true);
+      // Seeded history earns XP; no "new level" notice unless a clip wants one.
+      set('moneo:xp-seen', { level: 500 });
     }
     set('moneo:locale', locale);
     set('moneo:landing-seen', true);
@@ -158,48 +166,113 @@ const speed = (page: Page, x: number) =>
     x,
   );
 
+interface Seed {
+  /** A ready-made system, built with the app's own code (Pro ones too). */
+  template?: string;
+  /** Seven days of focus on the template's project; two tasks done. */
+  week?: boolean;
+  /** The template's habits ticked on each of the previous N days. */
+  habitDays?: number;
+  /** ~565 XP of focus over the last six days, one session short of a new rank. */
+  nearRank?: boolean;
+}
+
 /**
- * A student's thesis project (the Pro "Write your thesis" system, built with
- * the app's own code) and, with `week`, seven days of focus on it. The
- * recorder has no account, so this stands in for a Pro trial user's data.
+ * Local data for a clip, written with the app's own modules through the dev
+ * server, then a reload. The recorder has no account, so Pro systems stand
+ * in for what a Pro trial user sees.
  */
-async function seedThesis(page: Page, lang: Lang, week: boolean): Promise<void> {
+async function seedApp(page: Page, lang: Lang, seed: Seed): Promise<void> {
   const script = `(async () => {
     const lang = ${JSON.stringify(lang)};
-    const week = ${JSON.stringify(week)};
+    const seed = ${JSON.stringify(seed)};
     const L = await import('/src/lib/lifeTemplates.ts');
     const I = await import('/src/lib/i18n/index.ts');
     const K = (await import('/src/lib/storage/storageKeys.ts')).STORAGE_KEYS;
     const i18n = I.createI18n(lang, await I.loadDictionary(lang));
     const now = Date.now();
-    const r = L.instantiateLifeTemplate(L.getLifeTemplate('thesis'), {
-      t: i18n.t, now, isPro: true, existingActiveHabits: 0,
-    });
-    const read = (k) => JSON.parse(localStorage.getItem(k) || '[]');
-    const tasks = r.tasks.map((t, i) =>
-      week && i < 2 ? { ...t, status: 'completed', completedAt: now - (5 - i * 2) * 864e5 } : t);
-    localStorage.setItem(K.projects, JSON.stringify([...read(K.projects), r.project]));
-    localStorage.setItem(K.tasks, JSON.stringify([...read(K.tasks), ...tasks]));
-    localStorage.setItem(K.habits, JSON.stringify([...read(K.habits), ...r.habits]));
-    if (!week) return;
     const day = 864e5;
     const midnight = new Date(now);
     midnight.setHours(0, 0, 0, 0);
-    const plan = [[25, 25, 45], [45, 45, 25], [], [25, 45, 45, 25], [25], [45, 45, 45], [25, 50]];
-    const history = [];
-    plan.forEach((mins, i) => {
-      const base = midnight.getTime() - (6 - i) * day;
+    const dayKey = (at) => {
+      const d = new Date(at);
+      return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+    };
+    const read = (k, empty) => JSON.parse(localStorage.getItem(k) || JSON.stringify(empty));
+    const write = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+    const history = read(K.history, []);
+    let projectId;
+    if (seed.template) {
+      const r = L.instantiateLifeTemplate(L.getLifeTemplate(seed.template), {
+        t: i18n.t, now, isPro: true, existingActiveHabits: 0,
+      });
+      projectId = r.project.id;
+      const tasks = r.tasks.map((t, i) =>
+        seed.week && i < 2 ? { ...t, status: 'completed', completedAt: now - (5 - i * 2) * day } : t);
+      write(K.projects, [...read(K.projects, []), r.project]);
+      write(K.tasks, [...read(K.tasks, []), ...tasks]);
+      write(K.habits, [...read(K.habits, []), ...r.habits]);
+      if (seed.habitDays) {
+        const log = read(K.habitLog, {});
+        for (const h of r.habits) {
+          log[h.id] = [];
+          for (let i = seed.habitDays; i >= 1; i--) log[h.id].push(dayKey(now - i * day));
+        }
+        write(K.habitLog, log);
+      }
+    }
+    const addDays = (plan, withProject) => plan.forEach((mins, i) => {
+      const base = midnight.getTime() - (plan.length - 1 - i) * day;
       mins.forEach((min, j) => {
         let at = base + (9 + j * 2) * 36e5;
-        if (i === 6) at = now - (mins.length - j) * 90 * 6e4;
-        history.push({ id: 'rec-' + i + '-' + j, at, min, projectId: r.project.id });
+        if (i === plan.length - 1) at = now - (mins.length - j) * 90 * 6e4;
+        history.push({ id: 'rec-' + history.length, at, min,
+          ...(withProject && projectId ? { projectId } : {}) });
       });
     });
-    localStorage.setItem(K.history, JSON.stringify(history));
+    if (seed.week) addDays([[25, 25, 45], [45, 45, 25], [], [25, 45, 45, 25], [25], [45, 45, 45], [25, 50]], true);
+    if (seed.nearRank) {
+      // Previous six days only (today stays empty): 565 XP, level 3.
+      addDays([[45, 50], [50, 45], [45, 50], [50, 45], [45, 50], [45, 45], []], false);
+      write(K.xpSeen, { level: 3 });
+    }
+    if (history.length) write(K.history, history);
   })()`;
   await page.evaluate(script);
   await page.reload();
   await nav(page, 'focus').waitFor();
+}
+
+/**
+ * Time-lapse a running focus session, back to normal speed a few seconds
+ * before the end, so the end-of-session moments play at their own pace.
+ */
+async function fastForward(page: Page): Promise<void> {
+  const left = async () => {
+    const m = /(\d+):(\d+)/.exec((await page.locator('.atm-time').first().textContent()) ?? '');
+    return m ? Number(m[1]) * 60 + Number(m[2]) : 0;
+  };
+  for (const [x, until] of [
+    [700, 150],
+    [60, 4],
+  ] as const) {
+    await speed(page, x);
+    while ((await left()) > until) await new Promise((r) => setTimeout(r, 15));
+  }
+  await speed(page, 1);
+}
+
+/** After a session: close the summary card and skip the "how did it go?" note. */
+async function closeSessionEnd(page: Page): Promise<void> {
+  const summary = page.locator('.atm-summary .mono-chip').last();
+  if (await summary.isVisible()) await tap(page, summary, 600);
+  const skip = page.locator('.dialog-pop:has(textarea) button').first();
+  try {
+    await skip.waitFor({ state: 'visible', timeout: 3000 * SLOW });
+  } catch {
+    return;
+  }
+  await tap(page, skip, 700);
 }
 
 const pause = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms * SLOW));
@@ -421,7 +494,7 @@ for (const lang of LANGS) {
         page,
         `${lang}-c06-licenta`,
         async () => {
-          await seedThesis(page, lang, false);
+          await seedApp(page, lang, { template: 'thesis' });
           await nav(page, 'projects').click();
           await pause(600);
           await page.evaluate(() => window.scrollTo(0, 0));
@@ -462,11 +535,8 @@ for (const lang of LANGS) {
           await pause(900);
           await tap(page, preset(page, 45), 900);
           await tap(page, startButton(page), 1800);
-          // Time-lapse: 45 minutes in about 4 seconds.
-          await speed(page, 700);
+          await fastForward(page);
           await pause(4000);
-          await speed(page, 1);
-          await pause(3500);
         },
       );
     });
@@ -505,7 +575,7 @@ for (const lang of LANGS) {
         page,
         `${lang}-c12-raport`,
         async () => {
-          await seedThesis(page, lang, true);
+          await seedApp(page, lang, { template: 'thesis', week: true });
         },
         async () => {
           await pause(600);
@@ -516,6 +586,123 @@ for (const lang of LANGS) {
           await pause(1600);
           await glide(page, 360, 1800);
           await pause(2000);
+        },
+      );
+    });
+
+    // Habit ticks outside the Today priorities list.
+    const habitTicks = (page: Page) =>
+      page.locator('.mono-list-row:not(.mono-azi-prio .mono-list-row) .mono-tick');
+
+    clip('c05', async (page) => {
+      await record(
+        page,
+        `${lang}-c05-somn`,
+        async () => {
+          await seedApp(page, lang, { template: 'sleep', habitDays: 6 });
+          await nav(page, 'projects').click();
+          await pause(600);
+          await page.evaluate(() => window.scrollTo(0, 0));
+        },
+        async () => {
+          await pause(1500);
+          await tap(page, nav(page, 'today'), 1000);
+          const first = habitTicks(page).first();
+          const dy = await first.evaluate((el) => el.getBoundingClientRect().top - 230);
+          await glide(page, dy, 1300);
+          await pause(1200);
+          await tap(page, first, 1800);
+          await tap(page, habitTicks(page).nth(1), 2600);
+        },
+      );
+    });
+
+    clip('c09', async (page) => {
+      await record(
+        page,
+        `${lang}-c09-xp`,
+        async () => {
+          await seedApp(page, lang, { nearRank: true });
+        },
+        async () => {
+          await pause(800);
+          await tap(page, preset(page, 45), 800);
+          await tap(page, startButton(page), 1200);
+          await fastForward(page);
+          await pause(4500);
+          await closeSessionEnd(page);
+          await tap(page, nav(page, 'more'), 900);
+          await tap(page, page.locator('.mono-more-item').nth(1), 1800);
+          await glide(page, 260, 1500);
+          await pause(2500);
+        },
+      );
+    });
+
+    clip('c14', async (page) => {
+      await record(
+        page,
+        `${lang}-c14-test-maine`,
+        async () => {
+          await nav(page, 'today').click();
+          await pause(800);
+        },
+        async () => {
+          const input = page.locator('.mono-azi-prio input').first();
+          for (const text of TEST_TASKS[lang]) {
+            await tap(page, input, 250);
+            await input.pressSequentially(text, { delay: 45 * SLOW });
+            await pause(200);
+            await input.press('Enter');
+            await pause(500);
+          }
+          await tap(page, nav(page, 'focus'), 800);
+          await tap(page, preset(page, 45), 700);
+          await tap(page, startButton(page), 1000);
+          await fastForward(page);
+          await pause(2500);
+          await closeSessionEnd(page);
+          await tap(page, nav(page, 'today'), 900);
+          const rows = page.locator('.mono-azi-prio .mono-list-row');
+          for (let i = 0; i < 3; i++) await tap(page, rows.nth(i).locator('button').first(), 700);
+          await pause(2200);
+        },
+      );
+    });
+
+    clip('c10', async (page) => {
+      await record(
+        page,
+        `${lang}-c10-zi`,
+        async () => {
+          await seedApp(page, lang, { template: 'exam' });
+          await nav(page, 'today').click();
+          await pause(800);
+          await page.evaluate(() => window.scrollTo(0, 0));
+        },
+        async () => {
+          const rituals = page.locator('.mono-azi-rituals .mono-azi-ritual');
+          // Morning: keep today's proposals, then the three that matter.
+          await tap(page, rituals.nth(0), 1300);
+          const dialog = page.locator('.backdrop-fade.fixed');
+          for (let i = 0; i < 6 && (await dialog.locator('button').count()) === 7; i++) {
+            await tap(page, dialog.locator('button').first(), 800);
+          }
+          for (let i = 0; i < 4 && (await dialog.count()) > 0; i++) {
+            await tap(page, dialog.locator('button').last(), i === 1 ? 1600 : 1000);
+          }
+          // Day: a focus block, time-lapsed.
+          await tap(page, nav(page, 'focus'), 800);
+          await tap(page, preset(page, 45), 600);
+          await tap(page, startButton(page), 900);
+          await fastForward(page);
+          await pause(2200);
+          await closeSessionEnd(page);
+          // Evening: tick what got done, close the day.
+          await tap(page, nav(page, 'today'), 900);
+          await page.evaluate(() => window.scrollTo(0, 0));
+          await tap(page, page.locator('.mono-azi-prio .mono-list-row button').first(), 900);
+          await tap(page, rituals.nth(1), 3500);
         },
       );
     });

@@ -70,10 +70,12 @@ export function absenceLine(missedBlocks: number): CoachLine {
   };
 }
 
-/** Weekly review: real progress, obstacle, next decision. */
-export function reviewLine(doneCount: number, blockedCount: number): CoachLine {
-  return {
-    key: doneCount > 0 && blockedCount === 0 ? 'ai.coach.reviewClean' : 'ai.coach.reviewMixed',
-    vars: { done: Math.max(0, doneCount), blocked: Math.max(0, blockedCount) },
-  };
+/** End of the day: what got done and what is left (null when nothing was planned). */
+export function shutdownLine(doneCount: number, leftCount: number): CoachLine | null {
+  const done = Math.max(0, doneCount);
+  const left = Math.max(0, leftCount);
+  if (done === 0 && left === 0) return null;
+  return left === 0
+    ? { key: 'ai.coach.dayClean', vars: { done } }
+    : { key: 'ai.coach.dayLeft', vars: { done, left } };
 }

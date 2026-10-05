@@ -25,7 +25,7 @@ import {
   blockBrief,
   morningBrief,
   postSessionLine,
-  reviewLine,
+  shutdownLine,
   shrinkSuggestion,
 } from './coach';
 import { TOOL_SCHEMAS, flagInjection, validateDraft, wrapAsData } from './tools';
@@ -249,8 +249,10 @@ describe('coach lines', () => {
       'ai.coach.doneGoal',
     );
     expect(absenceLine(0).vars.n).toBe(1);
-    expect(reviewLine(3, 0).key).toBe('ai.coach.reviewClean');
-    expect(reviewLine(3, 2).key).toBe('ai.coach.reviewMixed');
+    expect(shutdownLine(3, 0)?.key).toBe('ai.coach.dayClean');
+    // Unfinished tasks are what's left for tomorrow, not "blocked".
+    expect(shutdownLine(0, 3)).toEqual({ key: 'ai.coach.dayLeft', vars: { done: 0, left: 3 } });
+    expect(shutdownLine(0, 0)).toBeNull();
   });
 });
 
