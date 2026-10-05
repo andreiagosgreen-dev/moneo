@@ -136,12 +136,12 @@ async function record(
         returnByValue: true,
       });
       const [x, y] = result.value as [number, number];
-      // A clip at scale 1 is captured in device pixels, like page.screenshot.
+      // Headless Chrome captures CSS pixels; the clip scale renders at 3×.
       const { data } = await cdp.send('Page.captureScreenshot', {
         format: 'jpeg',
         quality: 90,
         optimizeForSpeed: true,
-        clip: { x, y, width: 360, height: 640, scale: 1 },
+        clip: { x, y, width: 360, height: 640, scale: 3 },
       });
       const file = `f${String(frames.length).padStart(5, '0')}.jpg`;
       writeFileSync(join(dir, file), Buffer.from(data, 'base64'));
