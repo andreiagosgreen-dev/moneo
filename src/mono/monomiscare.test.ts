@@ -212,7 +212,8 @@ describe('MonoMiscare', () => {
     expect(
       c.querySelector('.mono-bmap [role="button"][data-muscle="calves"]')?.getAttribute('data-lv'),
     ).toBe('0');
-    expect(button(c, /^30 days/)?.disabled).toBe(true);
+    const map = c.querySelector<HTMLElement>('[aria-labelledby="fit-map-title"]')!;
+    expect(button(map, /^30 days/)?.disabled).toBe(true);
 
     click(chest);
     expect(chest.getAttribute('aria-pressed')).toBe('true');
@@ -229,7 +230,8 @@ describe('MonoMiscare', () => {
   it('shows an empty body map hint and unlocks 30 days with Pro', () => {
     const c = render(screen({ isPro: true }));
     expect(c.textContent).toContain('Finish a workout and the muscles you trained light up here.');
-    const d30 = button(c, '30 days')!;
+    const map = c.querySelector<HTMLElement>('[aria-labelledby="fit-map-title"]')!;
+    const d30 = button(map, '30 days')!;
     expect(d30.disabled).toBe(false);
     click(d30);
     expect(d30.getAttribute('aria-pressed')).toBe('true');

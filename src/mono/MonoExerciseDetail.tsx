@@ -14,6 +14,9 @@ import {
 } from '../lib/fitness/library';
 import { exerciseBests, exerciseProgress, progressKind } from '../lib/fitness/records';
 import type { WorkoutEntry } from '../lib/fitness/workouts';
+import type { ExerciseTarget } from '../lib/fitness/targets';
+import type { GoalLevel } from '../lib/goals';
+import MonoExerciseReport from './MonoExerciseReport';
 
 interface Props {
   ex: Exercise;
@@ -21,10 +24,23 @@ interface Props {
   onOpen: (id: string) => void;
   log?: WorkoutEntry[];
   isPro?: boolean;
+  /** Exercise goals; the report and goal editor show when `onTargets` is given. */
+  targets?: ExerciseTarget[];
+  onTargets?: (targets: ExerciseTarget[]) => void;
+  onAddGoal?: (title: string, level: GoalLevel) => string | null;
 }
 
 /** One exercise, learnable on the spot: demo, muscles, how-to, mistake, swaps. */
-export default function MonoExerciseDetail({ ex, onBack, onOpen, log = [], isPro = false }: Props) {
+export default function MonoExerciseDetail({
+  ex,
+  onBack,
+  onOpen,
+  log = [],
+  isPro = false,
+  targets = [],
+  onTargets,
+  onAddGoal,
+}: Props) {
   const { t, fmtNum } = useI18n();
   const best = useMemo(() => exerciseBests(log).get(ex.id), [log, ex.id]);
   const kind = progressKind(best);
@@ -89,6 +105,17 @@ export default function MonoExerciseDetail({ ex, onBack, onOpen, log = [], isPro
         <span className="mono-tag">{t(fitKey.eq(ex.equipment))}</span>
         <span className="mono-tag">{t('fit.x.places', { places })}</span>
       </div>
+
+      {onTargets ? (
+        <MonoExerciseReport
+          ex={ex}
+          log={log}
+          isPro={isPro}
+          targets={targets}
+          onTargets={onTargets}
+          onAddGoal={onAddGoal}
+        />
+      ) : null}
 
       {best && kind ? (
         <section className="mono-sec" aria-labelledby="fit-x-prog" data-testid="fit-x-progress">

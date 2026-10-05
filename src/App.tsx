@@ -112,7 +112,15 @@ import { loadSkills, transitionAdvice, type Skill } from './lib/skills';
 import { loadFrogLog, pickFrog, recordFrog, saveFrogLog, type FrogLog } from './lib/frog';
 import { mottoForDay } from './lib/guidance/mottos';
 import { buildLifeHubSnapshot } from './lib/guidance/lifeProgress';
-import { loadGoals, saveGoals, FREE_GOALS_LIMIT, type Goal } from './lib/goals';
+import {
+  loadGoals,
+  saveGoals,
+  createGoalObject,
+  FREE_GOALS_LIMIT,
+  type Goal,
+  type GoalLevel,
+} from './lib/goals';
+import { syncExerciseGoals } from './lib/fitness/targets';
 import { planQuickStart } from './lib/quickstart';
 import { type ChatMessage } from './lib/assistant';
 import {
@@ -292,6 +300,23 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
     setWorkoutStore(next);
     saveWorkouts(next);
   };
+  /** Move → exercise → "Add to Goals": the exercise goal mirrored as a Goal. */
+  const addExerciseGoal = (title: string, level: GoalLevel): string | null => {
+    if (!auth.isPro && goals.filter((g) => !g.archived).length >= FREE_GOALS_LIMIT) return null;
+    const goal = createGoalObject(goals, title, level);
+    if (!goal) return null;
+    const next = [...goals, goal];
+    saveGoals(next);
+    setGoals(next);
+    return goal.id;
+  };
+  // Exercise goals keep their mirrored Goal's progress current.
+  useEffect(() => {
+    const next = syncExerciseGoals(goals, workoutStore.targets, workoutStore.log);
+    if (next === goals) return;
+    saveGoals(next);
+    setGoals(next);
+  }, [goals, workoutStore]);
   const handleWorkoutSave = (entry: WorkoutEntry, link: HabitLink, routine?: CustomRoutine) => {
     let habitId: string | undefined;
     if (link.kind === 'habit') {
@@ -1692,6 +1717,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                           onSave={handleWorkoutSave}
                           onDelete={(id) => commitWorkouts(deleteWorkout(workoutStore, id))}
                           onChange={commitWorkouts}
+                          onAddGoal={addExerciseGoal}
                         />
                       </main>
                     </Suspense>
