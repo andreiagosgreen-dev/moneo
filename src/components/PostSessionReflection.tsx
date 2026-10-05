@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Session } from '../lib/store';
 import type { Journal } from '../lib/journal';
-import { appendSessionReflection, promptForSession } from '../lib/journal';
+import { appendSessionReflection, promptKeyForSession } from '../lib/journal';
 import { dayKeyInTz } from '../lib/timezone';
 import { useI18n } from '../lib/i18n/LocaleContext';
 
@@ -22,7 +22,7 @@ export default function PostSessionReflection({
 }: Props) {
   const { t } = useI18n();
   const [text, setText] = useState('');
-  const prompt = promptForSession(session.at);
+  const prompt = t(promptKeyForSession(session.at));
 
   const save = () => {
     const dayKey = dayKeyInTz(session.at, timezone);

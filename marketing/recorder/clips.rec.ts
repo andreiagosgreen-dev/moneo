@@ -272,14 +272,17 @@ async function record(
   const frames: { file: string; t: number }[] = [];
   let recording = true;
   const start = Date.now() / 1000;
+  const scrollPos = async () => {
+    const { result } = await cdp.send('Runtime.evaluate', {
+      expression: '[visualViewport.pageLeft, visualViewport.pageTop]',
+      returnByValue: true,
+    });
+    return result.value as [number, number];
+  };
   const capture = (async () => {
     while (recording) {
       const t = Date.now() / 1000;
-      const { result } = await cdp.send('Runtime.evaluate', {
-        expression: '[visualViewport.pageLeft, visualViewport.pageTop]',
-        returnByValue: true,
-      });
-      const [x, y] = result.value as [number, number];
+      const [x, y] = await scrollPos();
       // Headless Chrome captures CSS pixels; the clip scale renders at 3×.
       const { data } = await cdp.send('Page.captureScreenshot', {
         format: 'jpeg',
@@ -287,6 +290,9 @@ async function record(
         optimizeForSpeed: true,
         clip: { x, y, width: 360, height: 640, scale: 3 },
       });
+      // A scroll during the capture leaves a blank strip; the next frame is clean.
+      const [x2, y2] = await scrollPos();
+      if (x2 !== x || y2 !== y) continue;
       const file = `f${String(frames.length).padStart(5, '0')}.jpg`;
       writeFileSync(join(dir, file), Buffer.from(data, 'base64'));
       frames.push({ file, t });
@@ -426,8 +432,11 @@ for (const lang of LANGS) {
           await glide(page, dy, 1000);
           await pause(700);
           await tap(page, row.locator('button').last(), 1600);
-          await glide(page, 200, 1200);
-          await pause(1600);
+          await glide(page, 250, 1100);
+          await pause(700);
+          // On to the thesis tasks: topic, outline, sources, daily writing.
+          await glide(page, 320, 1200);
+          await pause(2200);
           await tap(page, nav(page, 'focus'), 900);
           const custom = page.locator('.atm-presets button[aria-expanded]');
           await tap(page, custom, 600);
