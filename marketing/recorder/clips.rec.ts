@@ -65,7 +65,7 @@ async function prepare(page: Page, lang: Lang): Promise<void> {
   }, lang);
 }
 
-const pause = (page: Page, ms: number) => page.waitForTimeout(ms);
+const pause = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 /** Move to the element, then tap it, at a human pace. */
 async function tap(page: Page, target: Locator, after = 900): Promise<void> {
