@@ -5423,6 +5423,16 @@ ul.mono-tree {
   color: var(--mono-fg-2);
   font-variant-numeric: tabular-nums;
 }
+.mono-fit-sound {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.mono-fit-lead {
+  font-size: 88px;
+  color: var(--mono-accent);
+}
 .mono-fit-clock {
   margin: 4px 0;
   font-family: var(--mono-font-display);
