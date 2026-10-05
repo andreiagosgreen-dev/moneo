@@ -162,6 +162,8 @@ async function record(
   await cdp.send('Animation.enable');
   await cdp.send('Animation.setPlaybackRate', { playbackRate: 1 / SLOW });
   await setup();
+  // No leftover "… is ready" toast from the setup in the first frames.
+  await page.locator('.mono-toast.show').waitFor({ state: 'hidden', timeout: 60_000 });
   await pause(600);
 
   const dir = join(FRAMES_DIR, name);
