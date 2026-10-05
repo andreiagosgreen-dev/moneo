@@ -46,13 +46,6 @@ export const WEEKLY_REFLECTION_PROMPTS: string[] = [
   'What will you do differently next week?',
 ];
 
-/** Post-session reflection prompts (Faza 24) — short, session-scoped, not daily. */
-export const SESSION_REFLECTION_PROMPTS: string[] = [
-  'What did you just work on?',
-  'How did that session go, in one sentence?',
-  "What's the next small step?",
-  'Anything worth remembering from this session?',
-];
 /** Translation keys mirroring the prompt lists, in the same order. */
 export const JOURNAL_PROMPT_KEYS: string[] = [
   'life.prompt.0',
@@ -65,6 +58,14 @@ export const JOURNAL_PROMPT_KEYS: string[] = [
 ];
 
 export const WEEKLY_PROMPT_KEYS: string[] = ['life.rprompt.0', 'life.rprompt.1', 'life.rprompt.2'];
+
+/** Post-session reflection prompts (Faza 24) — short, session-scoped, not daily. */
+export const SESSION_PROMPT_KEYS = [
+  'life.sprompt.0',
+  'life.sprompt.1',
+  'life.sprompt.2',
+  'life.sprompt.3',
+] as const;
 
 export const MAX_GRATITUDE = 3;
 export const MAX_ENTRY_LENGTH = 2000;
@@ -96,10 +97,10 @@ export function promptKeyForDay(at: number = Date.now()): string {
 }
 
 /** Deterministic post-session prompt, rotating by minute so it varies session to session. */
-export function promptForSession(at: number = Date.now()): string {
+export function promptKeyForSession(at: number = Date.now()): (typeof SESSION_PROMPT_KEYS)[number] {
   const idx = Math.floor(at / 60000);
-  const n = SESSION_REFLECTION_PROMPTS.length;
-  return SESSION_REFLECTION_PROMPTS[((idx % n) + n) % n];
+  const n = SESSION_PROMPT_KEYS.length;
+  return SESSION_PROMPT_KEYS[((idx % n) + n) % n];
 }
 
 /**

@@ -130,7 +130,7 @@ export default function TaskRow({
   return (
     <div style={depth > 0 ? { marginLeft: depth * 16 } : undefined}>
       <div
-        className={`flex items-center gap-2 rounded-lg px-2.5 py-2 ${
+        className={`flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg px-2.5 py-2 sm:flex-nowrap ${
           done ? 'opacity-55' : ''
         } ${depth > 0 ? 'border-l-2 border-line/60' : ''}`}
       >
@@ -174,7 +174,8 @@ export default function TaskRow({
         </button>
         <button
           onClick={() => setShowDetails(!showDetails)}
-          className={`min-w-0 flex-1 truncate text-left text-[13px] text-cream/90 hover:text-cream ${
+          // On a phone the badges wrap below; the title keeps most of the row.
+          className={`min-w-[55%] flex-1 truncate text-left sm:min-w-0 text-[13px] text-cream/90 hover:text-cream ${
             done ? 'line-through' : ''
           }`}
           title={task.notes ?? task.title}

@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest';
 
 import {
   JOURNAL_PROMPTS,
-  SESSION_REFLECTION_PROMPTS,
+  SESSION_PROMPT_KEYS,
   WEEKLY_REFLECTION_PROMPTS,
   appendSessionReflection,
   loadJournal,
   loadTimeOff,
   moodAverage,
   promptForDay,
-  promptForSession,
+  promptKeyForSession,
   recentEntries,
   saveJournal,
   saveTimeOff,
@@ -98,9 +98,10 @@ describe('journal', () => {
 
 describe('post-session reflection (Faza 24)', () => {
   it('rotates a deterministic prompt by minute', () => {
-    const p = promptForSession(NOW);
-    expect(SESSION_REFLECTION_PROMPTS).toContain(p);
-    expect(promptForSession(NOW)).toBe(p); // stable for the same timestamp
+    const p = promptKeyForSession(NOW);
+    expect(SESSION_PROMPT_KEYS).toContain(p);
+    expect(promptKeyForSession(NOW)).toBe(p); // stable for the same timestamp
+    expect(promptKeyForSession(NOW + 60_000)).not.toBe(p);
   });
 
   it('appends a bullet to the day, accumulating across sessions', () => {
