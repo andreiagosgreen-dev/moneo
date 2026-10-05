@@ -1,8 +1,10 @@
 /**
- * Server-side Pro entitlement: paid Lemon row (`subscriptions`, read with the
- * service role) or the complimentary allowlist. Any lookup failure is Free.
+ * Server-side Pro entitlement: the free sign-up trial (first 7 days of a new
+ * account), a paid Lemon row (`subscriptions`, read with the service role) or
+ * the complimentary allowlist. Any lookup failure is Free.
  */
 
+import { inSignupTrial } from '../../src/lib/billing/signupTrial';
 import type { FetchImpl } from './account';
 import { hasComplimentaryPro, resolveComplimentaryAllowlist } from './complimentaryPro';
 import { hasPaidProAccess } from './subscriptionAccess';
@@ -18,7 +20,10 @@ export async function hasServerProAccess(
   userId: string,
   email: string | null,
   fetchImpl: FetchImpl,
+  /** Account creation time (verifyUser), for the sign-up trial. */
+  createdAt?: number,
 ): Promise<boolean> {
+  if (inSignupTrial(createdAt)) return true;
   if (hasComplimentaryPro(email, resolveComplimentaryAllowlist(env.PRO_COMPLIMENTARY_EMAILS))) {
     return true;
   }

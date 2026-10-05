@@ -3,7 +3,7 @@ import type { TKey } from '../lib/i18n/types';
 import { getEntitlements } from '../lib/billing/entitlements';
 import { PRO_PRICES, type ComparisonValue } from '../lib/billing/pricingConfig';
 
-export type CurrentPlan = 'free' | 'pro-monthly' | 'pro-yearly' | 'pro-gift';
+export type CurrentPlan = 'free' | 'pro-monthly' | 'pro-yearly' | 'pro-gift' | 'pro-trial';
 
 interface Props {
   current: CurrentPlan;
@@ -16,6 +16,7 @@ const PLAN_NAME: Record<CurrentPlan, TKey> = {
   'pro-monthly': 'pricing.plan.proMonthly.name',
   'pro-yearly': 'pricing.plan.proYearly.name',
   'pro-gift': 'plan.ent.gift',
+  'pro-trial': 'plan.ent.trial',
 };
 
 /** Settings → Plan: what Free, Pro monthly and Pro yearly each unlock, by area. */

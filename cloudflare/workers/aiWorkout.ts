@@ -175,7 +175,7 @@ export async function handleAIWorkout(
   if (!token) return api({ error: 'Missing or invalid authorization' }, 401);
   const user = await verifyUser(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, token, fetchImpl);
   if (!user) return api({ error: 'Invalid or expired session' }, 401);
-  if (!(await hasServerProAccess(env, user.userId, user.email, fetchImpl))) {
+  if (!(await hasServerProAccess(env, user.userId, user.email, fetchImpl, user.createdAt))) {
     return api({ error: 'Pro feature', code: 'not_pro' }, 403);
   }
   if (declaredBodyTooLarge(request, MAX_BODY)) return api({ error: 'Payload too large' }, 413);

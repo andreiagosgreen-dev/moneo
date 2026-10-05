@@ -139,11 +139,18 @@ export default function MonoSettings({
 
 /** Reads the subscription only when the Plan group is open (needs AuthProvider). */
 function PlanEntitlements({ isPro }: { isPro: boolean }) {
-  const { subscription } = useAuth();
+  const { subscription, trialEndsAt } = useAuth();
+  const current = currentPlanOf(isPro, subscription, trialEndsAt != null);
   return (
     <MonoPlanEntitlements
-      current={currentPlanOf(isPro, subscription)}
-      activeUntil={isCancelledButActive(subscription) ? subscription.currentPeriodEnd : null}
+      current={current}
+      activeUntil={
+        current === 'pro-trial'
+          ? (trialEndsAt ?? null)
+          : isCancelledButActive(subscription)
+            ? subscription.currentPeriodEnd
+            : null
+      }
     />
   );
 }

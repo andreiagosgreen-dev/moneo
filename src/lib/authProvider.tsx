@@ -16,6 +16,7 @@ import {
   type AuthSnapshot,
 } from './authController';
 import { getSupabaseClient } from './supabase';
+import { inSignupTrial, signupTrialEndsAt } from './billing/signupTrial';
 import { getBrowserTimezone } from './timezone';
 import { ensureProfile, getProfileTimezone } from './cloud/profileRepository';
 import { STORAGE_KEYS } from './storage/storageKeys';
@@ -78,6 +79,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export interface AuthApi extends AuthSnapshot {
   isPro: boolean;
+  /** End of the free Pro trial from sign-up (epoch ms) while it runs, else null. */
+  trialEndsAt?: number | null;
   subscription: SubscriptionInfo;
   refreshSubscription(): Promise<void>;
   signIn(email: string, password: string, captchaToken?: string): Promise<AuthResult>;
@@ -156,12 +159,16 @@ export function useAuth(): AuthApi {
   const { signIn, signUp, signInWithGoogle, signOut, deleteAccount } = controller;
   // Complimentary accounts: Free Lemon/plan branding (`subscription` stays
   // free) + full Pro entitlements via `isPro`. Not a paid subscription.
-  const isPro = resolveIsPro(subscription.isPro, complimentary);
+  const trialEnd = signupTrialEndsAt(snapshot.user?.createdAt);
+  const onTrial = inSignupTrial(snapshot.user?.createdAt);
+  const isPro = resolveIsPro(subscription.isPro, complimentary) || onTrial;
+  const trialEndsAt = onTrial ? trialEnd : null;
   const { requestPasswordReset, updatePassword } = controller;
   return useMemo(
     () => ({
       ...snapshot,
       isPro,
+      trialEndsAt,
       subscription,
       refreshSubscription,
       signIn,
@@ -175,6 +182,7 @@ export function useAuth(): AuthApi {
     [
       snapshot,
       isPro,
+      trialEndsAt,
       subscription,
       refreshSubscription,
       signIn,

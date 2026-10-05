@@ -234,7 +234,7 @@ export async function handleAIPlan(
   if (!user) return api({ error: 'Invalid or expired session' }, 401);
   const userId = user.userId;
 
-  if (!(await hasServerProAccess(env, userId, user.email, fetchImpl))) {
+  if (!(await hasServerProAccess(env, userId, user.email, fetchImpl, user.createdAt))) {
     return api({ error: 'AI planner is a Pro feature', code: 'not_pro' }, 403);
   }
 

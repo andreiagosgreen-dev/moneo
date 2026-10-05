@@ -66,7 +66,7 @@ export const legalRo: LegalSet = {
         blocks: [
           'Planul Free nu are limită de timp. Include cronometrul de concentrare și un număr limitat de proiecte, obiective, obiceiuri și alte elemente. Putem ajusta limitele Free pe viitor; nu vom șterge date deja create din cauza unei schimbări de limită.',
           `Pro este un abonament plătit: ${PRO_PRICES.monthly} pe lună sau ${PRO_PRICES.yearly} pe an. În funcție de țara ta, la plată se pot adăuga taxe precum TVA. Lista actuală a funcțiilor Pro este pe pagina de prețuri.`,
-          'Perioadă de probă gratuită: când pe pagina de prețuri e oferită o perioadă de probă, ea e disponibilă o singură dată pentru un cont care nu a avut niciodată abonament. Nu plătești nimic dacă anulezi înainte de finalul perioadei de probă; altfel abonamentul începe și se reînnoiește la prețul afișat.',
+          'Perioadă de probă Pro gratuită: fiecare cont nou primește Pro gratuit timp de 7 zile de la înregistrare, fără card. După cele 7 zile, contul revine la planul gratuit dacă nu te abonezi; nu se percepe nimic automat, iar datele tale rămân. Perioada de probă se oferă o singură dată per cont.',
           `Reduceri de rang: când un cont fără Pro ajunge la anumite ranguri XP, îi putem oferi un cod de reducere pentru prima lună de Pro lunar. Fiecare cod este de unică folosință, este valabil ${DISCOUNT_CODE_VALID_DAYS} zile, se aplică doar primei plăți lunare și se acordă cel mult unul per cont. Rangul folosit în acest scop îl calculăm noi, din activitatea sincronizată în contul tău. Codurile de reducere nu au valoare bănească, nu pot fi transferate și nu constituie un drept; putem modifica, suspenda sau încheia aceste oferte oricând, fără a afecta un cod deja emis și încă valabil.`,
         ],
       },

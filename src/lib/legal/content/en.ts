@@ -66,7 +66,7 @@ export const legalEn: LegalSet = {
         blocks: [
           'The Free plan has no time limit. It includes the focus timer and a limited number of projects, goals, habits and other items. We may adjust Free limits in the future; we will not remove data you already created because of a limit change.',
           `Pro is a paid subscription: ${PRO_PRICES.monthly} per month or ${PRO_PRICES.yearly} per year. Taxes such as VAT may be added at checkout depending on where you live. The current list of Pro features is shown on the pricing page.`,
-          'Free trial: when a trial is offered on the pricing page, it is available once per account that has never subscribed. You are not charged if you cancel before the trial ends; otherwise the subscription starts and renews at the price shown.',
+          'Free Pro trial: every new account gets Pro free for 7 days from sign-up, without a card. When the 7 days end, the account returns to the free plan unless you subscribe; nothing is charged automatically and your data stays. The trial is offered once per account.',
           `Rank discounts: when an account without Pro reaches certain XP ranks, we may offer a discount code for the first month of Pro monthly. Each code is single-use, valid for ${DISCOUNT_CODE_VALID_DAYS} days, applies only to the first monthly payment, and is limited to one per account. The rank used for this is calculated by us from the activity synced to your account. Discount codes have no cash value, cannot be transferred and are not a right; we may change, pause or end these offers at any time, without affecting a code already issued and still valid.`,
         ],
       },
