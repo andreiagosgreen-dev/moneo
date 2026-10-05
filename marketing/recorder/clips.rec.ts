@@ -117,13 +117,10 @@ async function record(
   const trim = (Date.now() - t0) / 1000;
   await play();
   await pause(800);
-  const video = page.video();
   mkdirSync(META_DIR, { recursive: true });
-  await page.close();
-  writeFileSync(
-    join(META_DIR, `${name}.json`),
-    JSON.stringify({ name, trim, video: video ? await video.path() : null }),
-  );
+  // Playwright moves the recording here once the test ends.
+  const video = test.info().outputPath('video.webm');
+  writeFileSync(join(META_DIR, `${name}.json`), JSON.stringify({ name, trim, video }));
 }
 
 for (const lang of LANGS) {
