@@ -196,12 +196,20 @@ export function pauseTimer(run: RunState, now: number): RunState {
   return { ...run, timer: { leftMs: Math.max(0, tm.endsAt - now) } };
 }
 
-/** The set a time-mode exercise logs: seconds actually held so far. */
+/**
+ * The set a timed step logs: seconds actually held so far, plus the reps the
+ * user typed when a reps exercise runs on a timer (circuit packs).
+ */
 export function timedSet(run: RunState, now: number): WorkoutSet | null {
   const step = currentStep(run);
   if (!step || !run.timer) return null;
   const held = Math.round((setWorkSec(step) * 1000 - timerLeftMs(run, now)) / 1000);
-  return { ex: step.ex, sec: Math.max(0, held) };
+  const set: WorkoutSet = { ex: step.ex, sec: Math.max(0, held) };
+  const reps = Number.parseInt(run.reps, 10);
+  if (getExercise(step.ex)?.mode === 'reps' && Number.isFinite(reps) && reps > 0) {
+    set.reps = Math.min(1000, reps);
+  }
+  return set;
 }
 
 /** The set a reps-mode exercise logs from the input drafts. */

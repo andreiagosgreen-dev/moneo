@@ -6032,3 +6032,102 @@ ul.mono-tree {
 .mono-shell [class*='tracking-['] {
   letter-spacing: 0.02em;
 }
+
+/* ---------- Move: quick workout packs ---------- */
+.mono-pack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 16px;
+}
+.mono-pack-zones {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+.mono-pack-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 76px;
+  padding: 8px 4px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--mono-bg-2);
+  color: var(--mono-fg);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background var(--mono-dur) var(--mono-ease),
+    color var(--mono-dur) var(--mono-ease);
+}
+.mono-pack-zone[aria-pressed='true'] {
+  background: var(--mono-fg-2);
+  color: var(--mono-bg);
+}
+.mono-pack-zone:focus-visible {
+  outline: 2px solid var(--mono-accent, var(--accent));
+  outline-offset: 2px;
+}
+.mono-pack-row,
+.mono-fit-weights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.mono-pack-gear {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-top: 10px;
+}
+.mono-pack-gear-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--mono-fg) 5%, transparent);
+}
+.mono-pack-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--mono-border);
+}
+.mono-pack-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0;
+  padding: 0;
+  list-style: none;
+}
+.mono-pack-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mono-pack-name {
+  flex: 1;
+  font-weight: 600;
+}
+.mono-fit-reps-opt {
+  margin-top: 12px;
+}
+@media (max-width: 330px) {
+  .mono-pack-zones {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

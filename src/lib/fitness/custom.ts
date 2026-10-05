@@ -4,6 +4,7 @@
  * the export and Pro account sync. Building and saving them is Pro; starting
  * one that already exists stays available if Pro lapses.
  */
+import { packZoneOf } from './packs';
 import type { TKey, Vars } from '../i18n/types';
 import { cardioKindOf } from './cardio';
 import { isProgramId, programSession, programSteps } from './program';
@@ -133,6 +134,13 @@ export function routineTitle(
 ): string {
   if (getRoutine(id)) return t(fitKey.rtName(id));
   if (id === FREE_RUN_ID) return t('fit.free.name');
+  const zone = packZoneOf(id);
+  if (zone) {
+    return t('fit.pack.title', {
+      zone: t(`fit.pack.zone.${zone}` as TKey),
+      min: Number(id.split('-')[2]) || 0,
+    });
+  }
   const cardio = cardioKindOf(id);
   if (cardio) return t(`fit.cardio.${cardio}` as TKey);
   if (isProgramId(id)) {
