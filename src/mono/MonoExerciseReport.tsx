@@ -11,6 +11,7 @@ import {
   PRO_RANGES,
   REPORT_RANGES,
   TARGET_PERIODS,
+  displayMetric,
   exerciseHistory,
   exerciseTotals,
   metricOf,
@@ -77,6 +78,7 @@ export default function MonoExerciseReport({
   const locked = !isPro && PRO_RANGES.includes(range);
   const [from, to] = reportRange(range);
   const totals = useMemo(() => exerciseTotals(log, ex.id, from, to), [log, ex.id, from, to]);
+  const shown = displayMetric(ex.id, totals);
   const weeks = useMemo(() => exerciseHistory(log, ex.id, 'week', 8), [log, ex.id]);
   const peak = Math.max(1, ...weeks.map((w) => w.value));
   const mine = targets.filter((x) => x.ex === ex.id);
@@ -126,8 +128,8 @@ export default function MonoExerciseReport({
         ) : (
           <div className="mono-fit-tiles">
             {tile(
-              t(metric === 'sec' ? 'fit.rep.totalTime' : 'fit.rep.totalReps'),
-              metric === 'sec'
+              t(shown === 'sec' ? 'fit.rep.totalTime' : 'fit.rep.totalReps'),
+              shown === 'sec'
                 ? metricText(i18n, 'sec', totals.sec)
                 : fmtNum(metricValue(totals, 'reps')),
             )}

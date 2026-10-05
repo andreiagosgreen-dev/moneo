@@ -37,13 +37,7 @@ export interface PricingPlanDisplay {
   featureKeys: TKey[];
 }
 
-import { PLAN_FEATURE_KEYS, PRO_PRICES, trialDays } from './prices';
-import { readEnv } from '../env';
-
-/** Trial length shown on paid plans; 0 hides every trial mention. */
-export function proTrialDays(): number {
-  return trialDays(readEnv().VITE_PRO_TRIAL_DAYS);
-}
+import { PLAN_FEATURE_KEYS, PRO_PRICES } from './prices';
 export { FREE_PRICE, PRO_PRICES, SYNC_NOTE_KEY, SYNC_SCOPE_KEY } from './prices';
 
 export const PRICING_PLANS_DISPLAY: PricingPlanDisplay[] = [

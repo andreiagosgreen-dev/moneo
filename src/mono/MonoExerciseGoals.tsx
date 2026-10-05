@@ -9,6 +9,7 @@ import type { WorkoutStore } from '../lib/fitness/workouts';
 import {
   PRO_RANGES,
   REPORT_RANGES,
+  displayMetric,
   metricOf,
   metricValue,
   reportRange,
@@ -107,7 +108,7 @@ export default function MonoExerciseGoals({ store, isPro, onOpen }: Props) {
         <ul className="mono-fit-list" data-testid="fit-rep-list">
           {rows.map(({ ex: id, totals }) => {
             const ex = getExercise(id)!;
-            const metric = metricOf(id);
+            const metric = displayMetric(id, totals);
             const name = t(fitKey.exName(id));
             return (
               <li key={id}>

@@ -128,3 +128,21 @@ describe('history and report lists', () => {
     ]);
   });
 });
+
+describe('report metric', () => {
+  it('shows time for a reps exercise done only on a timer and hides skipped sets', async () => {
+    const { displayMetric } = await import('./targets');
+    const log = [
+      entry(NOW - 1000, [
+        { ex: 'worldsGreatest', sec: 30 },
+        { ex: 'catCow', sec: 0 },
+        { ex: 'pushup', reps: 10 },
+      ]),
+    ];
+    const rows = trainedExercises(log);
+    expect(rows.map((r) => r.ex).sort()).toEqual(['pushup', 'worldsGreatest']);
+    const wg = rows.find((r) => r.ex === 'worldsGreatest')!;
+    expect(displayMetric('worldsGreatest', wg.totals)).toBe('sec');
+    expect(displayMetric('pushup', rows.find((r) => r.ex === 'pushup')!.totals)).toBe('reps');
+  });
+});

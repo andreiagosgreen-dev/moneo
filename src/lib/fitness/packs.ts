@@ -312,6 +312,13 @@ export function buildPack(
 ): Pack | null {
   const rand = rng(seed);
   const pool = candidates(choice, place, gear);
+  /** Picks from this level; tops up from one level higher when the library runs short. */
+  const pick = (count: number): Exercise[] => {
+    const first = pickMain(choice, pool, count, gear, rand, prefer);
+    if (first.length >= count || choice.level === 3) return first;
+    const wider = candidates({ ...choice, level: (choice.level + 1) as FitLevel }, place, gear);
+    return pickMain(choice, wider, count, gear, rand, [...prefer, ...first.map((e) => e.id)]);
+  };
   const warmCount = WARM_COOL[choice.minutes] ?? 3;
   const warmIds =
     choice.zone === 'mobility' ? [] : [...WARMUP].sort(() => rand() - 0.5).slice(0, warmCount);
@@ -331,7 +338,7 @@ export function buildPack(
   if (choice.format === 'sets' && choice.zone !== 'mobility') {
     const sets = choice.level === 1 ? 2 : choice.level === 2 ? 3 : 4;
     rounds = sets;
-    picked = pickMain(choice, pool, SETS_EX[choice.minutes] ?? 4, gear, rand, prefer);
+    picked = pick(SETS_EX[choice.minutes] ?? 4);
     const restFor = (e: Exercise) =>
       e.type === 'hiit' || e.type === 'cardio' ? 30 : choice.level === 3 ? 75 : 60;
     main = picked.map((e) =>
@@ -339,13 +346,18 @@ export function buildPack(
         ? { ex: e.id, sets, sec: scale(e.sec ?? 30, choice.level), restSec: restFor(e) }
         : { ex: e.id, sets, reps: scale(e.reps ?? 10, choice.level), restSec: restFor(e) },
     );
-    while (main.length > 2 && packSeconds(main) > mainSec) main.pop();
+    // Too long: shorten the rests first (45 s, then 30 s), drop exercises last.
+    for (const cap of [45, 30]) {
+      if (packSeconds(main) <= mainSec) break;
+      main = main.map((s) => ({ ...s, restSec: Math.min(s.restSec, cap) }));
+    }
+    while (main.length > 3 && packSeconds(main) > mainSec) main.pop();
     picked = picked.slice(0, main.length);
   } else if (choice.format === 'tabata' && choice.zone !== 'mobility') {
     [work, rest] = [20, 10];
     const blocks = Math.max(1, Math.round(mainSec / (8 * 30 + 60)));
     rounds = blocks;
-    picked = pickMain(choice, pool, blocks * 2, gear, rand, prefer);
+    picked = pick(blocks * 2);
     for (let b = 0; b < blocks && picked.length >= 2; b++) {
       const pair = [picked[(b * 2) % picked.length], picked[(b * 2 + 1) % picked.length]];
       for (let i = 0; i < 8; i++) {
@@ -362,7 +374,7 @@ export function buildPack(
     // Circuit (and every mobility session): timed stations, rounds to fill the time.
     if (choice.zone === 'mobility') [work, rest] = [45, 10];
     const count = STATIONS[choice.minutes] ?? 5;
-    picked = pickMain(choice, pool, count, gear, rand, prefer);
+    picked = pick(count);
     const per = picked.length * (work + rest) + ROUND_REST;
     rounds = Math.max(1, Math.min(8, Math.round(mainSec / Math.max(1, per))));
     for (let r = 0; r < rounds; r++) {

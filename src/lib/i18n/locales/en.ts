@@ -3669,9 +3669,6 @@ export const en = {
   'plan.ent.calendar': 'Google Calendar and Focus Buddy',
   'pay.plan.monthly.f8':
     'Move Pro: your own routines, personal records, progress charts and a personal training program',
-  'pay.trialBadge': 'First {n} days free',
-  'pay.trialCta': 'Start {n}-day free trial',
-  'pay.trialNote': 'Cancel during the trial and you won’t be charged.',
   'onb.qs.stepTitle': 'Your first step',
   'onb.qs.stepHint': 'The smallest piece you can start right now — edit it if you like.',
   'onb.qs.startHint': 'One clear focus. Start the timer and work only on this.',

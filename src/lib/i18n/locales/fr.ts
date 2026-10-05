@@ -3730,9 +3730,6 @@ export const fr: Record<TKey, string> = {
   'plan.ent.calendar': 'Google Agenda et Focus Buddy',
   'pay.plan.monthly.f8':
     'Mouvement Pro : tes routines, records personnels, graphiques de progrès et programme d’entraînement personnel',
-  'pay.trialBadge': '{n} premiers jours offerts',
-  'pay.trialCta': 'Essayer {n} jours gratuitement',
-  'pay.trialNote': 'Résilie pendant l’essai et tu ne paies rien.',
   'onb.qs.stepTitle': 'Ta première étape',
   'onb.qs.stepHint':
     'Le plus petit morceau que tu peux commencer maintenant — modifie-le si tu veux.',

@@ -150,3 +150,12 @@ describe('pack runs', () => {
     expect(logSet(run, set, 1000, []).sets[0].reps).toBe(12);
   });
 });
+
+describe('short sets packs', () => {
+  it('shortens rests before dropping exercises', () => {
+    for (const zone of ['upper', 'lower', 'core', 'full'] as const) {
+      const p = buildPack({ zone, minutes: 10, format: 'sets', level: 1 }, 'home', [], 3)!;
+      expect(p.main.length, zone).toBeGreaterThanOrEqual(3);
+    }
+  });
+});
