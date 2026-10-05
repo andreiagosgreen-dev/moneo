@@ -105,9 +105,10 @@ async function useSystem(page: Page, id: string, after = 1800): Promise<void> {
 }
 
 /**
- * Records one clip. Playwright's own video is captured at CSS-pixel size
- * (360×640), so the frames come straight from Chrome's screencast at full
- * device resolution instead. Only `play` is recorded.
+ * Records one clip. Playwright's video and Chrome's screencast both give
+ * CSS-pixel frames (360×640) in headless mode; screenshots keep the 3×
+ * pixels, so frames are screenshots taken back to back. Only `play` is
+ * recorded.
  */
 async function record(
   page: Page,
@@ -125,23 +126,30 @@ async function record(
   mkdirSync(dir, { recursive: true });
   const frames: { file: string; t: number }[] = [];
   const cdp = await page.context().newCDPSession(page);
-  cdp.on('Page.screencastFrame', (f) => {
-    const file = `f${String(frames.length).padStart(5, '0')}.jpg`;
-    writeFileSync(join(dir, file), Buffer.from(f.data, 'base64'));
-    frames.push({ file, t: f.metadata.timestamp ?? Date.now() / 1000 });
-    cdp.send('Page.screencastFrameAck', { sessionId: f.sessionId }).catch(() => {});
-  });
-  await cdp.send('Page.startScreencast', {
-    format: 'jpeg',
-    quality: 92,
-    maxWidth: 1080,
-    maxHeight: 1920,
-  });
+  let recording = true;
+  const start = Date.now() / 1000;
+  const capture = (async () => {
+    while (recording) {
+      const t = Date.now() / 1000;
+      const { data } = await cdp.send('Page.captureScreenshot', {
+        format: 'jpeg',
+        quality: 90,
+        optimizeForSpeed: true,
+      });
+      const file = `f${String(frames.length).padStart(5, '0')}.jpg`;
+      writeFileSync(join(dir, file), Buffer.from(data, 'base64'));
+      frames.push({ file, t });
+    }
+  })();
   await play();
   await pause(800);
-  await cdp.send('Page.stopScreencast');
+  recording = false;
+  await capture;
   const end = Date.now() / 1000;
   if (frames.length === 0) throw new Error(`no frames for ${name}`);
+  console.log(
+    `${name}: ${frames.length} frames, ${(frames.length / (end - start)).toFixed(1)} fps`,
+  );
 
   const lines = ['ffconcat version 1.0'];
   frames.forEach((f, i) => {
