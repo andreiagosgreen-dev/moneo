@@ -220,14 +220,6 @@ export const fr: Record<TKey, string> = {
   'upnext.onList': '✓ sur la liste',
   'upnext.add': '＋ Au plan',
   'upnext.addAria': 'Ajouter {title} au plan d’aujourd’hui',
-  'getting.kicker': 'Comment marche Moneo',
-  'getting.headline': 'Écrire → travailler → quand',
-  'getting.s1t': 'Écris la liste du jour',
-  'getting.s1c': 'Ouvrir Aujourd’hui',
-  'getting.s2t': 'Travaille de haut en bas',
-  'getting.s2c': 'Ouvrir Focus',
-  'getting.s3t': 'Optionnel : fixer quand',
-  'getting.s3c': 'Ouvrir le programme',
   'morning.dialog': 'Rituel du matin',
   'morning.kicker': '☀ Rituel du matin · {step}',
   'morning.step1': 'Choisissez vos 3',
@@ -2033,11 +2025,6 @@ export const fr: Record<TKey, string> = {
   'okr.rev.worst': '  À travailler : {title} {pct}%.',
   'okr.rev.cascade': '  En cascade : {items}.',
   'okr.rev.all': 'toutes les périodes',
-  'getting.s1b':
-    'Sur Aujourd’hui, liste les quelques choses qui comptent — dans l’ordre. C’est ton plan.',
-  'getting.s2b':
-    'Sur Focus, fais la première non cochée. Coche, puis la suivante. Minuteur optionnel.',
-  'getting.s3b': 'Sur Programme, pose des fenêtres de focus. Optionnel — la liste mène la journée.',
   'morning.prefill':
     'Prérempli depuis grenouille, choix de focus et objectif top — modifiez librement.',
   'morning.proNote':
@@ -3683,6 +3670,29 @@ export const fr: Record<TKey, string> = {
   'mono.trial.endedSub':
     'Tes données restent et tout ce qui est gratuit continue de marcher. Les fonctions Pro reviennent avec un abonnement.',
   'mono.trial.cta': 'Voir les plans',
+  'first.title': 'Tes premiers pas',
+  'first.count': '{n} sur 3',
+  'first.task.t': 'Écris une chose à finir aujourd’hui',
+  'first.task.b': 'Une seule. Petite et claire vaut mieux que longue et floue.',
+  'first.task.cta': 'L’écrire',
+  'first.focus.t': 'Fais une session de focus',
+  'first.focus.b': '15 minutes suffisent pour commencer. Téléphone face contre table.',
+  'first.focus.cta': 'Lancer 15 min',
+  'first.try.t': 'Essaie quelque chose de nouveau',
+  'first.try.b':
+    'Une séance de 10 minutes avec sons et minuteurs, ou un plan étape par étape pour ton objectif.',
+  'first.try.workout': 'Séance de 10 min',
+  'first.try.plan': 'Plan avec l’IA',
+  'first.reward': 'Termine les trois et débloque le thème de couleur Azur.',
+  'first.dismiss': 'Masquer',
+  'first.stepDone': 'fait',
+  'first.stepTodo': 'à faire',
+  'first.done.t': 'Trois victoires dès le premier jour !',
+  'first.done.b':
+    'Tu as débloqué le thème Azur. C’est comme ça que ça commence : une liste, une session, un essai.',
+  'first.done.cta': 'Essayer le thème',
+  'mono.trial.summary':
+    'Jusqu’ici : {focus} de focus en {sessions} sessions · séances de sport : {workouts}',
   'plan.ent.freeSum': 'Pour commencer : focus illimité et limites généreuses.',
   'plan.ent.proSum': 'Tout ce qu’offre Gratuit sans limites, plus chaque fonction marquée Pro.',
   'plan.ent.yearlySum':

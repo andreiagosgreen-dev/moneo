@@ -50,6 +50,8 @@ export const STORAGE_KEYS = {
   rank: 'moneo:rank',
   /** Workout player: beeps, voice and auto-start toggles. */
   workoutSound: 'moneo:workout-sound',
+  /** New-user "first steps" card: progress, reward, dismissal. */
+  firstSteps: 'moneo:first-steps',
   /** First-run onboarding dismissed flag (Premium Polish, Week 10). */
   onboardingSeen: 'moneo:onboarding-seen',
   /** Landing page "Start free" clicked — first-time visitors only (local only). */

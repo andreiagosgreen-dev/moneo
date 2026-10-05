@@ -53,8 +53,8 @@ const row = (channel) => {
     rows.set(key, {
       visits: 0,
       signups: 0,
+      activated: 0,
       checkouts: 0,
-      trials: 0,
       paid: 0,
       payments: 0,
       revenue: 0,
@@ -67,9 +67,10 @@ for (const r of data) {
   const target = row(r.channel);
   if (r.event === 'landing_view') target.visits += n;
   else if (r.event === 'sign_up') target.signups += n;
+  // New users who finished the three first steps (free Pro trial runs from sign-up).
+  else if (r.event === 'first_steps_done') target.activated += n;
   else if (r.event === 'checkout_open') target.checkouts += n;
-  else if (r.event === 'subscribe' && r.status === 'trial') target.trials += n;
-  else if (r.event === 'subscribe') target.paid += n;
+  else if (r.event === 'subscribe' && r.status !== 'trial') target.paid += n;
   else if (r.event === 'payment') {
     target.payments += n;
     target.revenue += Number(r.revenue) || 0;
@@ -81,12 +82,13 @@ const table = [...rows.entries()]
     [byCampaign ? 'campaign' : 'source']: channel,
     visits: Math.round(v.visits),
     'sign-ups': Math.round(v.signups),
+    activated: Math.round(v.activated),
     checkouts: Math.round(v.checkouts),
-    trials: Math.round(v.trials),
     'paid starts': Math.round(v.paid),
     payments: Math.round(v.payments),
     'revenue $': v.revenue.toFixed(2),
     'visit→sign-up': v.visits ? `${((v.signups / v.visits) * 100).toFixed(1)}%` : '—',
+    'sign-up→activated': v.signups ? `${((v.activated / v.signups) * 100).toFixed(1)}%` : '—',
   }))
   .sort((a, b) => Number(b['revenue $']) - Number(a['revenue $']) || b.visits - a.visits);
 
