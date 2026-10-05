@@ -18,7 +18,10 @@ test.describe('Life templates', () => {
     await exam.getByRole('button', { name: 'Create', exact: true }).click();
 
     await expect(page.getByText('Exam prep is ready.')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Expand Exam prep', exact: true })).toBeVisible();
+    // The new project opens by itself and scrolls into view.
+    const collapse = page.getByRole('button', { name: 'Collapse Exam prep', exact: true });
+    await expect(collapse).toBeVisible();
+    await expect(collapse).toBeInViewport();
 
     await expect
       .poll(() =>
