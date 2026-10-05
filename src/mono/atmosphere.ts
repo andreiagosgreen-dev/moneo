@@ -1,4 +1,5 @@
 import { STORAGE_KEYS } from '../lib/storage/storageKeys';
+import { FIRST_STEPS_REWARD, hasFirstStepsReward } from '../lib/firstSteps';
 import { safeRead, safeWrite } from '../lib/storage/storageAdapter';
 import type { TKey } from '../lib/i18n/types';
 import { isAtmosphereUnlockedByRank } from '../lib/rankRewards';
@@ -119,6 +120,7 @@ export function isProAtmosphere(id: Atmosphere): boolean {
 
 /** Usable now: free ones, everything on Pro, or a Pro pack the rank unlocked. */
 export function isAtmosphereAvailable(id: Atmosphere, isPro: boolean, rank?: RankId): boolean {
+  if (id === FIRST_STEPS_REWARD && hasFirstStepsReward()) return true;
   return isPro || !isProAtmosphere(id) || isAtmosphereUnlockedByRank(id, rank);
 }
 

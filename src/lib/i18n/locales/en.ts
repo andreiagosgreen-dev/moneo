@@ -221,14 +221,6 @@ export const en = {
   'upnext.onList': 'On the list',
   'upnext.add': 'Add to plan',
   'upnext.addAria': 'Add {title} to today’s plan',
-  'getting.kicker': 'How Moneo works',
-  'getting.headline': 'Write → work → when',
-  'getting.s1t': "Write today's list",
-  'getting.s1c': 'Open Today',
-  'getting.s2t': 'Work in order',
-  'getting.s2c': 'Open Focus',
-  'getting.s3t': 'Optional: set when',
-  'getting.s3c': 'Open Schedule',
   'morning.dialog': 'Morning ritual',
   'morning.kicker': 'Morning ritual · {step}',
   'morning.step1': 'Choose 3',
@@ -2027,11 +2019,6 @@ export const en = {
   'okr.rev.worst': '  Needs work: {title} {pct}%.',
   'okr.rev.cascade': '  Cascaded: {items}.',
   'okr.rev.all': 'all periods',
-  'getting.s1b': 'On Today, list the few things that matter — in order. That list is your plan.',
-  'getting.s2b':
-    'On Focus, work the top unfinished item. Check it off, then the next. Start a timer if you want.',
-  'getting.s3b':
-    'On Schedule, add focus windows for when you work. Optional — the list still drives the day.',
   'morning.proNote':
     'Pinning tasks to the calendar is Pro — your plan below still works great without it.',
   'overcommit.body':
@@ -3623,6 +3610,28 @@ export const en = {
   'mono.trial.endedSub':
     'Your data stays and everything free keeps working. Pro features return when you subscribe.',
   'mono.trial.cta': 'See plans',
+  'first.title': 'Your first steps',
+  'first.count': '{n} of 3',
+  'first.task.t': 'Write one thing to finish today',
+  'first.task.b': 'Just one. Small and clear beats long and vague.',
+  'first.task.cta': 'Write it',
+  'first.focus.t': 'Do one focus round',
+  'first.focus.b': '15 minutes is enough to start. Phone face down.',
+  'first.focus.cta': 'Start 15 min',
+  'first.try.t': 'Try something new',
+  'first.try.b':
+    'A 10-minute workout with sounds and timers, or a step-by-step plan for your goal.',
+  'first.try.workout': '10-min workout',
+  'first.try.plan': 'AI plan',
+  'first.reward': 'Finish all three and unlock the Azur colour theme.',
+  'first.dismiss': 'Hide',
+  'first.stepDone': 'done',
+  'first.stepTodo': 'to do',
+  'first.done.t': 'Three wins on day one!',
+  'first.done.b':
+    'You unlocked the Azur colour theme. This is how it starts: one list, one round, one try.',
+  'first.done.cta': 'Try the theme',
+  'mono.trial.summary': 'So far: {focus} of focus in {sessions} rounds · workouts: {workouts}',
   'plan.ent.freeSum': 'To get started: unlimited focus and generous limits.',
   'plan.ent.proSum': 'Everything in Free with no limits, plus every feature marked Pro.',
   'plan.ent.yearlySum':

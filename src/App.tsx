@@ -27,7 +27,6 @@ import MonoRapoarte from './mono/MonoRapoarte';
 import MonoCrestere from './mono/MonoCrestere';
 import MonoViata from './mono/MonoViata';
 import MonoReturn from './mono/MonoReturn';
-import GettingStarted from './components/GettingStarted';
 import TabFallback from './components/TabFallback';
 import MatrixCard from './components/MatrixCard';
 import FrogCard from './components/FrogCard';
@@ -79,6 +78,16 @@ import { getMinutesForTask, loadTasks, removeTask, saveTasks, type Task } from '
 import { rhythmFor } from './lib/focusRhythm';
 import { estimateVsActual } from './lib/estimates';
 import type { AmbientLayer } from './lib/ambient';
+import MonoFirstSteps from './mono/MonoFirstSteps';
+import {
+  FIRST_STEPS,
+  FIRST_STEPS_REWARD,
+  firstStepsProgress,
+  firstStepsView,
+  loadFirstSteps,
+  saveFirstSteps,
+  type FirstStepsState,
+} from './lib/firstSteps';
 import MonoTrialNote from './mono/MonoTrialNote';
 import { trialNotice } from './lib/billing/signupTrial';
 import { MonoVacationBanner } from './mono/MonoVacation';
@@ -740,6 +749,46 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
   /* ---------- Mono Focus + Azi: one daily spine (Ivy plan) ---------- */
   const todayKey = dayKeyInTz(Date.now(), auth.timezone);
   const todayPlan = planForDay(ivyPlans, todayKey);
+
+  /* ---------- First steps (new users): three wins, then a theme ---------- */
+  const [firstSteps, setFirstSteps] = useState<FirstStepsState>(loadFirstSteps);
+  const updateFirstSteps = (next: FirstStepsState) => {
+    setFirstSteps(next);
+    saveFirstSteps(next);
+  };
+  const fsProgress = firstStepsProgress({
+    task: (todayPlan?.tasks.length ?? 0) > 0 || tasks.length > 0,
+    focus: history.length > 0,
+    try: workoutStore.log.length > 0 || roadmaps.length > 0,
+  });
+  const fsView = firstStepsView(firstSteps, auth.user?.createdAt);
+  // A device that starts empty is a new user even before it has an account.
+  const startedEmpty = history.length === 0 && tasks.length === 0 && projects.length === 0;
+  useEffect(() => {
+    if (firstSteps.startedAt || !startedEmpty) return;
+    updateFirstSteps({ ...firstSteps, startedAt: Date.now() });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startedEmpty, firstSteps.startedAt]);
+  // Count each step once, and the reward when all three are done.
+  useEffect(() => {
+    if (fsView !== 'steps') return;
+    const counted = firstSteps.counted ?? [];
+    const fresh = FIRST_STEPS.filter((s) => fsProgress.done[s] && !counted.includes(s));
+    if (fresh.length === 0) return;
+    if (fresh.includes('task')) track('first_task_added', undefined, locale);
+    if (fresh.includes('try')) track('first_try_done', undefined, locale);
+    const next: FirstStepsState = { ...firstSteps, counted: [...counted, ...fresh] };
+    if (fsProgress.count === FIRST_STEPS.length) {
+      next.doneAt = Date.now();
+      track('first_steps_done', undefined, locale);
+    }
+    updateFirstSteps(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fsView, fsProgress.count]);
+  // While the steps lead, Today stays short: no guide, empty habits or check-in yet.
+  // Habits the user already has always show.
+  const quietToday = fsView === 'steps' && !fsProgress.done.task;
+  const hideHabits = quietToday && activeHabits(habits).length === 0;
   const planTaskIds = useMemo(
     () => new Set((todayPlan?.tasks ?? []).map((x) => x.taskId).filter((id): id is string => !!id)),
     [todayPlan],
@@ -811,6 +860,37 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
     if (running) return;
     updateSettings(rhythmFor(min));
     setRoundLength(min);
+  };
+  const firstStepsCard = fsView ? (
+    <MonoFirstSteps
+      view={fsView}
+      progress={fsProgress}
+      canAiPlan={auth.isPro}
+      onTask={() => {
+        goFill('today');
+        requestAnimationFrame(() =>
+          document.querySelector<HTMLInputElement>('.mono-azi-prio input')?.focus(),
+        );
+      }}
+      onFocus={() => {
+        handlePreset(15);
+        goFill('focus');
+      }}
+      onWorkout={() => goNav('move')}
+      onPlan={() => goNav('plan')}
+      onTryTheme={() => {
+        setAtmosphere(FIRST_STEPS_REWARD);
+        updateFirstSteps({ ...firstSteps, dismissedAt: Date.now() });
+      }}
+      onDismiss={() => updateFirstSteps({ ...firstSteps, dismissedAt: Date.now() })}
+    />
+  ) : null;
+  // Last days of the trial: what the user did since sign-up.
+  const trialSince = auth.user?.createdAt ?? Infinity;
+  const trialSummary = {
+    focusMin: history.filter((h) => h.at >= trialSince).reduce((m, h) => m + h.min, 0),
+    sessions: history.filter((h) => h.at >= trialSince).length,
+    workouts: workoutStore.log.filter((w) => w.startedAt >= trialSince).length,
   };
   const handleToggleTask = (id: string) => {
     const r = togglePlanItem(ivyPlans, todayKey, id, tasks);
@@ -1261,11 +1341,9 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                           />
                         </div>
                       ) : null}
-                      {showGettingStarted && (
-                        <div className="mono-pad atm-desk-below">
-                          <GettingStarted onGo={goFill} />
-                        </div>
-                      )}
+                      {firstStepsCard && fsView === 'steps' ? (
+                        <div className="mono-pad atm-desk-below">{firstStepsCard}</div>
+                      ) : null}
                     </main>
                   )}
                   {tab === 'today' && (
@@ -1319,9 +1397,11 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                               todayKey={todayKey}
                             />
                           ) : trialNote ? (
-                            <MonoTrialNote notice={trialNote} />
+                            <MonoTrialNote notice={trialNote} summary={trialSummary} />
                           ) : undefined
                         }
+                        intro={firstStepsCard}
+                        quiet={fsView === 'steps'}
                         recap={
                           showRecap ? (
                             <MonoWeekRecap
@@ -1380,13 +1460,15 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                           ) : undefined
                         }
                         habits={
-                          <MonoHabitsCheckin
-                            habits={habits}
-                            habitLog={habitLog}
-                            onHabitLogChange={setHabitLog}
-                            onManage={openTodayHabitsManage}
-                            timeOff={timeOff}
-                          />
+                          hideHabits ? undefined : (
+                            <MonoHabitsCheckin
+                              habits={habits}
+                              habitLog={habitLog}
+                              onHabitLogChange={setHabitLog}
+                              onManage={openTodayHabitsManage}
+                              timeOff={timeOff}
+                            />
+                          )
                         }
                         move={
                           isMoving(workoutStore, nowMs) ? (
@@ -1400,11 +1482,13 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                           ) : undefined
                         }
                         checkin={
-                          <MonoCheckin
-                            entries={energyLog}
-                            onChange={setEnergyLog}
-                            timezone={auth.timezone}
-                          />
+                          quietToday ? undefined : (
+                            <MonoCheckin
+                              entries={energyLog}
+                              onChange={setEnergyLog}
+                              timezone={auth.timezone}
+                            />
+                          )
                         }
                         more={
                           <>

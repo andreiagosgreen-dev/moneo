@@ -60,6 +60,10 @@ interface Props {
   recap?: ReactNode;
   /** Status banner above the rituals (e.g. vacation). */
   banner?: ReactNode;
+  /** New users: the first-steps card, shown first. */
+  intro?: ReactNode;
+  /** Hides the guide while the first steps lead the way. */
+  quiet?: boolean;
   estimates?: ReactNode;
   /** Optional schedule strip — omit when empty noise (Orar owns blocks). */
   program?: ReactNode;
@@ -88,6 +92,8 @@ export default function MonoAzi({
   onAdd,
   onSnooze,
   onRemove,
+  intro,
+  quiet = false,
   onGoWork,
   onPath,
   motto,
@@ -203,6 +209,11 @@ export default function MonoAzi({
           “{motto.text}”<span className="mono-azi-motto-src"> — {motto.source}</span>
         </p>
       ) : null}
+      {intro ? (
+        <div className="mono-pad mono-azi-note" style={{ marginBottom: 14 }}>
+          {intro}
+        </div>
+      ) : null}
       {banner ? (
         <div className="mono-pad mono-azi-note" style={{ marginBottom: 14 }}>
           {banner}
@@ -261,7 +272,7 @@ export default function MonoAzi({
         {estimates}
       </div>
 
-      {coachKind ? (
+      {coachKind && !quiet ? (
         <div className="mono-pad mono-azi-tip">
           <MonoCoach
             kind={coachKind}
