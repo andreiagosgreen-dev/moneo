@@ -3642,6 +3642,17 @@ export const ro: Record<TKey, string> = {
   'plan.ent.yours': 'Planul tău: {plan}',
   'plan.ent.until': 'activ până la {date}',
   'plan.ent.gift': 'Pro (cadou)',
+  'pay.trialLeft': 'Probă Pro gratuită: mai ai {n} zile. Alege un plan ca să păstrezi Pro.',
+  'pay.signupTrial': 'Conturile noi primesc {n} zile de Pro gratuit, fără card.',
+  'plan.ent.trial': 'Pro (probă gratuită)',
+  'mono.trial.left': 'Mai ai {n} zile de Pro gratuit',
+  'mono.trial.lastDay': 'Ultima zi de Pro gratuit',
+  'mono.trial.leftSub':
+    'Alege un plan ca să păstrezi sincronizarea, AI-ul și restul Pro. Dacă nu, nu se percepe nimic automat.',
+  'mono.trial.ended': 'Proba gratuită Pro s-a încheiat',
+  'mono.trial.endedSub':
+    'Datele tale rămân, iar tot ce e gratuit merge în continuare. Funcțiile Pro revin când te abonezi.',
+  'mono.trial.cta': 'Vezi planurile',
   'plan.ent.freeSum': 'Pentru început: focus nelimitat și limite generoase.',
   'plan.ent.proSum': 'Tot ce e în Gratuit, fără limite, plus toate funcțiile marcate Pro.',
   'plan.ent.yearlySum':

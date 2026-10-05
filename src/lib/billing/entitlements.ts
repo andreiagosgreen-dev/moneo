@@ -152,8 +152,9 @@ export function getEntitlements(): EntitlementArea[] {
 export function currentPlanOf(
   isPro: boolean,
   sub: { planId: 'free' | 'pro-monthly' | 'pro-yearly'; isPro: boolean },
-): 'free' | 'pro-monthly' | 'pro-yearly' | 'pro-gift' {
+  onTrial = false,
+): 'free' | 'pro-monthly' | 'pro-yearly' | 'pro-gift' | 'pro-trial' {
   if (!isPro) return 'free';
-  if (!sub.isPro || sub.planId === 'free') return 'pro-gift';
-  return sub.planId;
+  if (sub.isPro && sub.planId !== 'free') return sub.planId;
+  return onTrial ? 'pro-trial' : 'pro-gift';
 }

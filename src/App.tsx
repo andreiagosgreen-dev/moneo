@@ -79,6 +79,8 @@ import { getMinutesForTask, loadTasks, removeTask, saveTasks, type Task } from '
 import { rhythmFor } from './lib/focusRhythm';
 import { estimateVsActual } from './lib/estimates';
 import type { AmbientLayer } from './lib/ambient';
+import MonoTrialNote from './mono/MonoTrialNote';
+import { trialNotice } from './lib/billing/signupTrial';
 import { MonoVacationBanner } from './mono/MonoVacation';
 import { hasQuickTokens, parseQuickAdd } from './lib/quickAdd';
 import { assignProject, createInboxTask, inboxTasks } from './lib/inbox';
@@ -468,6 +470,8 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
   // Idle tab title follows client-side navigation; a live countdown wins.
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  // Free Pro trial from sign-up: last days left, or just ended (not for paying accounts).
+  const trialNote = auth.subscription.isPro ? null : trialNotice(auth.user?.createdAt, auth.isPro);
   useEffect(() => {
     if (!running && remaining >= total) document.title = titleForPath(pathname, t);
   }, [pathname, running, remaining, total, t]);
@@ -1314,6 +1318,8 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                               onChange={setTimeOff}
                               todayKey={todayKey}
                             />
+                          ) : trialNote ? (
+                            <MonoTrialNote notice={trialNote} />
                           ) : undefined
                         }
                         recap={

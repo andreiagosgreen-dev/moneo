@@ -6,6 +6,7 @@
  * client never supplies a user id.
  */
 
+import { inSignupTrial } from '../../src/lib/billing/signupTrial';
 import { bearerToken, verifyUser, type FetchImpl } from './account';
 import { hasComplimentaryPro, resolveComplimentaryAllowlist } from './complimentaryPro';
 import { buildSecurityHeaders, mergeHeaders } from './security';
@@ -75,7 +76,9 @@ async function isUserPro(
   email: string | null,
   complimentaryEnv: string | undefined,
   fetchImpl: FetchImpl,
+  createdAt?: number,
 ): Promise<boolean> {
+  if (inSignupTrial(createdAt)) return true;
   const allowlist = resolveComplimentaryAllowlist(complimentaryEnv);
   if (hasComplimentaryPro(email, allowlist)) return true;
   try {
@@ -98,7 +101,7 @@ async function verify(
   request: Request,
   env: FocusBuddyEnv,
   fetchImpl: FetchImpl,
-): Promise<{ userId: string; email: string | null } | Response> {
+): Promise<{ userId: string; email: string | null; createdAt?: number } | Response> {
   if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
     return json({ error: 'Focus buddy is not configured' }, 503);
   }
@@ -129,6 +132,7 @@ export async function handleBuddyInvite(
       v.email,
       env.PRO_COMPLIMENTARY_EMAILS,
       fetchImpl,
+      v.createdAt,
     ))
   ) {
     return json({ error: 'Focus buddy is a Pro feature' }, 403);
@@ -167,6 +171,7 @@ export async function handleBuddyJoin(
       v.email,
       env.PRO_COMPLIMENTARY_EMAILS,
       fetchImpl,
+      v.createdAt,
     ))
   ) {
     return json({ error: 'Focus buddy is a Pro feature' }, 403);

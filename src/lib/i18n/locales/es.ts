@@ -3642,6 +3642,17 @@ export const es: Record<TKey, string> = {
   'plan.ent.yours': 'Tu plan: {plan}',
   'plan.ent.until': 'activo hasta el {date}',
   'plan.ent.gift': 'Pro (regalo)',
+  'pay.trialLeft': 'Prueba Pro gratis: quedan {n} días. Elige un plan para mantener Pro.',
+  'pay.signupTrial': 'Las cuentas nuevas tienen {n} días de Pro gratis, sin tarjeta.',
+  'plan.ent.trial': 'Pro (prueba gratis)',
+  'mono.trial.left': 'Te quedan {n} días de Pro gratis',
+  'mono.trial.lastDay': 'Último día de Pro gratis',
+  'mono.trial.leftSub':
+    'Elige un plan para mantener la sincronización, la IA y el resto de Pro. Si no, no se cobra nada automáticamente.',
+  'mono.trial.ended': 'Tu prueba Pro gratis ha terminado',
+  'mono.trial.endedSub':
+    'Tus datos se conservan y todo lo gratuito sigue funcionando. Las funciones Pro vuelven al suscribirte.',
+  'mono.trial.cta': 'Ver planes',
   'plan.ent.freeSum': 'Para empezar: enfoque ilimitado y límites generosos.',
   'plan.ent.proSum': 'Todo lo de Gratis sin límites, más cada función marcada como Pro.',
   'plan.ent.yearlySum':

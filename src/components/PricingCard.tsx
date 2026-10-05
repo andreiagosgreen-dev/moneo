@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/authProvider';
+import { SIGNUP_TRIAL_DAYS, signupTrialDaysLeft } from '../lib/billing/signupTrial';
 import { track } from '../lib/analytics';
 import { initiateCheckout, type Plan } from '../lib/billing/lemonSqueezy';
 import ManageSubscriptionButton from './ManageSubscriptionButton';
@@ -8,7 +9,6 @@ import { loginPathForUpgrade, type PaidPlanId } from '../lib/billing/upgradeInte
 import {
   PRICING_PLANS_DISPLAY,
   PRO_PRICES,
-  proTrialDays,
   SYNC_NOTE_KEY,
   SYNC_SCOPE_KEY,
 } from '../lib/billing/pricingConfig';
@@ -60,8 +60,9 @@ export default function PricingCard() {
   // A paying subscriber switches plans in the Lemon portal — a second checkout
   // would start a second, parallel subscription (double billing).
   const hasPaidSub = auth.subscription.isPro && auth.subscription.planId !== 'free';
-  // Free trial only for accounts that never subscribed (Lemon gives it per checkout).
-  const trial = auth.subscription.planId === 'free' && !auth.isPro ? proTrialDays() : 0;
+  // Free Pro trial runs from sign-up (no card); checkout starts the paid plan.
+  const onTrial = auth.trialEndsAt != null && !hasPaidSub;
+  const trialLeft = onTrial ? signupTrialDaysLeft(auth.user?.createdAt) : 0;
 
   const handleSubscribe = (planId: PaidPlanId) => {
     setPayError('');
@@ -110,9 +111,11 @@ export default function PricingCard() {
                 {plan.price}
                 {plan.perKey && <small> {t(plan.perKey)}</small>}
               </p>
-              {isPaid && trial > 0 && (
+              {isPaid && (onTrial || !auth.user) && (
                 <p className="mono-caption" style={{ color: 'var(--mono-accent)' }}>
-                  {t('pay.trialBadge', { n: trial })} · {t('pay.trialNote')}
+                  {onTrial
+                    ? t('pay.trialLeft', { n: trialLeft })
+                    : t('pay.signupTrial', { n: SIGNUP_TRIAL_DAYS })}
                 </p>
               )}
               {plan.id === 'pro-yearly' && (
@@ -144,7 +147,7 @@ export default function PricingCard() {
                   className="mono-btn mono-btn-primary mono-btn-block"
                   style={{ marginTop: 14 }}
                 >
-                  {trial > 0 ? t('pay.trialCta', { n: trial }) : t('pay.upgrade')}
+                  {t('pay.upgrade')}
                 </button>
               )}
             </li>

@@ -15,6 +15,7 @@
  * client-supplied user id is never trusted.
  */
 
+import { inSignupTrial } from '../../src/lib/billing/signupTrial';
 import { bearerToken, verifyUser, type FetchImpl } from './account';
 import { hasComplimentaryPro, resolveComplimentaryAllowlist } from './complimentaryPro';
 import { buildSecurityHeaders, declaredBodyTooLarge, mergeHeaders } from './security';
@@ -53,7 +54,7 @@ async function requireUser(
   request: Request,
   env: CalendarEnv,
   fetchImpl: FetchImpl,
-): Promise<{ userId: string; email: string | null } | { error: Response }> {
+): Promise<{ userId: string; email: string | null; createdAt?: number } | { error: Response }> {
   if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
     return { error: json({ error: 'Calendar integration is not configured' }, 503) };
   }
@@ -74,7 +75,9 @@ async function isProUser(
   email: string | null,
   complimentaryEnv: string | undefined,
   fetchImpl: FetchImpl,
+  createdAt?: number,
 ): Promise<boolean> {
+  if (inSignupTrial(createdAt)) return true;
   const allowlist = resolveComplimentaryAllowlist(complimentaryEnv);
   if (hasComplimentaryPro(email, allowlist)) return true;
   try {
@@ -252,6 +255,7 @@ export async function handleCalendarConnect(
     auth.email,
     env.PRO_COMPLIMENTARY_EMAILS,
     fetchImpl,
+    auth.createdAt,
   );
   if (!isPro) return json({ error: 'Calendar sync is a Pro feature' }, 403);
 
@@ -335,6 +339,7 @@ export async function handleCalendarEvents(
     auth.email,
     env.PRO_COMPLIMENTARY_EMAILS,
     fetchImpl,
+    auth.createdAt,
   );
   if (!isPro) return json({ error: 'Calendar sync is a Pro feature' }, 403);
 

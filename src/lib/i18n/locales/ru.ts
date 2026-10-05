@@ -3618,6 +3618,17 @@ export const ru: Record<TKey, string> = {
   'plan.ent.yours': 'Ваш план: {plan}',
   'plan.ent.until': 'активен до {date}',
   'plan.ent.gift': 'Pro (подарок)',
+  'pay.trialLeft': 'Пробный Pro: осталось дней: {n}. Выберите план, чтобы сохранить Pro.',
+  'pay.signupTrial': 'Новые аккаунты получают {n} дней Pro бесплатно, без карты.',
+  'plan.ent.trial': 'Pro (пробный период)',
+  'mono.trial.left': 'Осталось дней бесплатного Pro: {n}',
+  'mono.trial.lastDay': 'Последний день бесплатного Pro',
+  'mono.trial.leftSub':
+    'Выберите план, чтобы сохранить синхронизацию, ИИ и остальное из Pro. Иначе ничего не спишется автоматически.',
+  'mono.trial.ended': 'Пробный период Pro закончился',
+  'mono.trial.endedSub':
+    'Ваши данные сохраняются, всё бесплатное работает. Функции Pro вернутся с подпиской.',
+  'mono.trial.cta': 'Посмотреть планы',
   'plan.ent.freeSum': 'Для начала: безлимитный фокус и щедрые лимиты.',
   'plan.ent.proSum': 'Всё из Бесплатного без ограничений, плюс все функции с пометкой Pro.',
   'plan.ent.yearlySum':

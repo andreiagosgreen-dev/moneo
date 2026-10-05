@@ -3622,6 +3622,17 @@ export const uk: Record<TKey, string> = {
   'plan.ent.yours': 'Ваш план: {plan}',
   'plan.ent.until': 'активний до {date}',
   'plan.ent.gift': 'Pro (подарунок)',
+  'pay.trialLeft': 'Пробний Pro: залишилося днів: {n}. Оберіть план, щоб зберегти Pro.',
+  'pay.signupTrial': 'Нові акаунти отримують {n} днів Pro безкоштовно, без картки.',
+  'plan.ent.trial': 'Pro (пробний період)',
+  'mono.trial.left': 'Залишилося днів безкоштовного Pro: {n}',
+  'mono.trial.lastDay': 'Останній день безкоштовного Pro',
+  'mono.trial.leftSub':
+    'Оберіть план, щоб зберегти синхронізацію, ШІ та решту Pro. Інакше нічого не спишеться автоматично.',
+  'mono.trial.ended': 'Пробний період Pro закінчився',
+  'mono.trial.endedSub':
+    'Ваші дані зберігаються, усе безкоштовне працює. Функції Pro повернуться з підпискою.',
+  'mono.trial.cta': 'Переглянути плани',
   'plan.ent.freeSum': 'Для початку: необмежений фокус і щедрі ліміти.',
   'plan.ent.proSum': 'Усе з Безкоштовного без обмежень, плюс усі функції з позначкою Pro.',
   'plan.ent.yearlySum':

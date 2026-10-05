@@ -3612,6 +3612,17 @@ export const en = {
   'plan.ent.yours': 'Your plan: {plan}',
   'plan.ent.until': 'active until {date}',
   'plan.ent.gift': 'Pro (gift)',
+  'pay.trialLeft': 'Free Pro trial: {n} days left. Pick a plan to keep Pro.',
+  'pay.signupTrial': 'New accounts get {n} days of Pro free, no card.',
+  'plan.ent.trial': 'Pro (free trial)',
+  'mono.trial.left': '{n} days of free Pro left',
+  'mono.trial.lastDay': 'Last day of free Pro',
+  'mono.trial.leftSub':
+    'Pick a plan to keep sync, AI and the rest of Pro. No automatic charge if you don’t.',
+  'mono.trial.ended': 'Your free Pro trial has ended',
+  'mono.trial.endedSub':
+    'Your data stays and everything free keeps working. Pro features return when you subscribe.',
+  'mono.trial.cta': 'See plans',
   'plan.ent.freeSum': 'To get started: unlimited focus and generous limits.',
   'plan.ent.proSum': 'Everything in Free with no limits, plus every feature marked Pro.',
   'plan.ent.yearlySum':

@@ -20,6 +20,8 @@ export type AuthStatus = 'loading' | 'anonymous' | 'authenticated';
 export interface AuthIdentity {
   userId: string;
   email: string | null;
+  /** Account creation (epoch ms), for the free Pro trial from sign-up. */
+  createdAt?: number;
 }
 
 export interface AuthSnapshot {
@@ -34,6 +36,7 @@ export type AuthResult = { ok: true; note?: string } | { ok: false; message: str
 interface RawUser {
   id: string;
   email?: string | null;
+  created_at?: string | null;
 }
 
 /** Structural subset of the Supabase auth client — keeps this module
@@ -185,7 +188,12 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
   });
 
   const applyAuthenticated = async (raw: RawUser) => {
-    const user: AuthIdentity = { userId: raw.id, email: raw.email ?? null };
+    const created = raw.created_at ? Date.parse(raw.created_at) : NaN;
+    const user: AuthIdentity = {
+      userId: raw.id,
+      email: raw.email ?? null,
+      ...(Number.isFinite(created) ? { createdAt: created } : {}),
+    };
     emit({ status: 'authenticated', user, timezone: deps.browserTimezone() });
     // Profile bootstrap: insert-if-absent with the browser timezone.
     // An existing saved timezone is NEVER overwritten.

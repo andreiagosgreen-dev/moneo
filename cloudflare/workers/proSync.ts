@@ -139,7 +139,7 @@ export async function handleSyncRecords(
   const user = await verifyUser(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, token, fetchImpl);
   if (!user) return json({ error: 'Invalid or expired session' }, 401);
 
-  if (!(await hasServerProAccess(env, user.userId, user.email, fetchImpl))) {
+  if (!(await hasServerProAccess(env, user.userId, user.email, fetchImpl, user.createdAt))) {
     return json({ error: 'Full sync is a Pro feature', code: 'not_pro' }, 403);
   }
 
