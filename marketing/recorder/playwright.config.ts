@@ -17,6 +17,9 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:3000',
+    // Full Chrome in new headless mode: its screencast keeps the 3× pixels
+    // (the default headless shell sends 360×640 frames).
+    channel: 'chromium',
     // 360×640 CSS px at 3× = 1080×1920 frames, the size short videos use.
     viewport: { width: 360, height: 640 },
     deviceScaleFactor: 3,
