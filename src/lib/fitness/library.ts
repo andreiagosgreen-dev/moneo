@@ -67,16 +67,38 @@ export type Equipment =
   | 'bench'
   | 'barbell'
   | 'machine'
-  | 'cable';
+  | 'cable'
+  | 'miniBand'
+  | 'abWheel'
+  | 'pushupBars'
+  | 'dipBars'
+  | 'abBench'
+  | 'fitball'
+  | 'medBall'
+  | 'foamRoller'
+  | 'step'
+  | 'ankleWeights'
+  | 'suspension';
 export const EQUIPMENT: readonly Equipment[] = [
   'none',
   'mat',
   'chair',
   'band',
+  'miniBand',
   'rope',
   'dumbbell',
   'kettlebell',
+  'ankleWeights',
+  'medBall',
   'pullupBar',
+  'pushupBars',
+  'dipBars',
+  'abWheel',
+  'abBench',
+  'fitball',
+  'foamRoller',
+  'step',
+  'suspension',
   'bench',
   'barbell',
   'machine',
@@ -184,7 +206,25 @@ export type PoseId =
   | 'calfstretch'
   | 'ohstretch'
   | 'sidelying'
-  | 'clam';
+  | 'clam'
+  | 'wheelin'
+  | 'wheelout'
+  | 'bandwalk'
+  | 'bandwalk2'
+  | 'hydrant'
+  | 'situptop'
+  | 'lsit'
+  | 'ballcrunch'
+  | 'ballcurl'
+  | 'ballcurl2'
+  | 'slam'
+  | 'slamdown'
+  | 'roll'
+  | 'roll2'
+  | 'trxrow'
+  | 'trxrowtop'
+  | 'pushfwd'
+  | 'pushfwd2';
 
 export interface Exercise {
   id: string;

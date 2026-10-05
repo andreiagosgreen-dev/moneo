@@ -29,12 +29,23 @@ export const fitRo: Record<FitKey, string> = {
   'fit.muscle.adductors': 'Adductori',
   'fit.muscle.calves': 'Gambe',
   'fit.eq.all': 'Orice echipament',
-  'fit.eq.band': 'Bandă elastică',
+  'fit.eq.band': 'Bandă elastică lungă',
   'fit.eq.rope': 'Coardă',
   'fit.eq.kettlebell': 'Kettlebell',
   'fit.eq.pullupBar': 'Bară de tracțiuni',
   'fit.eq.bench': 'Bancă',
   'fit.eq.cable': 'Cablu',
+  'fit.eq.miniBand': 'Benzi mini pentru picioare',
+  'fit.eq.abWheel': 'Roată abdominală',
+  'fit.eq.pushupBars': 'Mânere pentru flotări',
+  'fit.eq.dipBars': 'Paralele pentru dips',
+  'fit.eq.abBench': 'Bancă pentru abdomene',
+  'fit.eq.fitball': 'Minge de fitness',
+  'fit.eq.medBall': 'Minge medicinală',
+  'fit.eq.foamRoller': 'Rulou de masaj',
+  'fit.eq.step': 'Platformă step',
+  'fit.eq.ankleWeights': 'Greutăți pentru glezne',
+  'fit.eq.suspension': 'Chingi de suspensie (TRX)',
   'fit.level.1': 'Începător',
   'fit.level.2': 'Mediu',
   'fit.level.3': 'Avansat',
@@ -436,6 +447,126 @@ export const fitRo: Record<FitKey, string> = {
     'Pe o parte, genunchii îndoiți, deschide genunchiul de sus, tălpile lipite.',
   'fit.ex.teaser.name': 'Teaser',
   'fit.ex.teaser.cue': 'Ridică-te într-un V, brațele spre vârfuri, coboară încet.',
+  'fit.ex.abWheelKneel.name': 'Roată abdominală (de pe genunchi)',
+  'fit.ex.abWheelKneel.cue':
+    'Din genunchi, mâinile pe roată sub umeri. Rulează înainte cu abdomenul strâns, apoi trage înapoi din abdomen.',
+  'fit.ex.abWheelStand.name': 'Roată abdominală din picioare',
+  'fit.ex.abWheelStand.cue':
+    'Din picioare, aplecă-te la roată și rulează până corpul e aproape orizontal, apoi revino trăgând din abdomen.',
+  'fit.ex.abWheelOblique.name': 'Roată abdominală oblic',
+  'fit.ex.abWheelOblique.cue':
+    'De pe genunchi, rulează roata în diagonală spre o parte, apoi înapoi. Alternează părțile.',
+  'fit.ex.bandLateralWalk.name': 'Pas lateral cu bandă',
+  'fit.ex.bandLateralWalk.cue':
+    'Banda deasupra genunchilor sau la glezne, semi-genuflexiune. Pășește lateral, ținând banda întinsă tot timpul.',
+  'fit.ex.bandMonsterWalk.name': 'Mers „monstru” cu bandă',
+  'fit.ex.bandMonsterWalk.cue':
+    'Banda la genunchi sau glezne, semi-genuflexiune. Mergi înainte în pași largi pe diagonală, apoi înapoi.',
+  'fit.ex.bandSquat.name': 'Genuflexiune cu bandă',
+  'fit.ex.bandSquat.cue':
+    'Banda chiar deasupra genunchilor. Coboară împingând genunchii în afară, împotriva benzii, apoi ridică-te drept.',
+  'fit.ex.bandGluteBridge.name': 'Punte pentru fesieri cu bandă',
+  'fit.ex.bandGluteBridge.cue':
+    'Pe spate, banda deasupra genunchilor. Ridică șoldurile, împinge genunchii în afară, strânge fesierii sus.',
+  'fit.ex.bandClamshell.name': 'Scoica cu bandă',
+  'fit.ex.bandClamshell.cue':
+    'Culcat pe o parte, genunchii îndoiți, banda deasupra genunchilor. Deschide genunchiul de sus, tălpile lipite.',
+  'fit.ex.bandFireHydrant.name': 'Fire hydrant cu bandă',
+  'fit.ex.bandFireHydrant.cue':
+    'În patru labe, banda deasupra genunchilor. Ridică lateral un genunchi îndoit, ține o clipă, coboară.',
+  'fit.ex.bandDonkeyKick.name': 'Donkey kick cu bandă',
+  'fit.ex.bandDonkeyKick.cue':
+    'În patru labe, banda pe coapse. Împinge un călcâi spre tavan, genunchiul îndoit, strânge fesierul.',
+  'fit.ex.bandChestPress.name': 'Împins la piept cu bandă',
+  'fit.ex.bandChestPress.cue':
+    'Banda prinsă în spatele tău, la înălțimea pieptului. Împinge mâinile înainte până la brațe întinse, revino lent.',
+  'fit.ex.bandCurl.name': 'Flexii pentru biceps cu bandă',
+  'fit.ex.bandCurl.cue':
+    'Calcă pe bandă, palmele înainte. Adu mâinile la umeri cu coatele lângă corp, coboară lent.',
+  'fit.ex.bandOverheadExt.name': 'Extensii triceps peste cap cu bandă',
+  'fit.ex.bandOverheadExt.cue':
+    'Banda sub un picior, mâinile la ceafă. Întinde brațele deasupra capului, apoi îndoaie-le lent înapoi.',
+  'fit.ex.bandShoulderPress.name': 'Presă pentru umeri cu bandă',
+  'fit.ex.bandShoulderPress.cue':
+    'Calcă pe bandă, mâinile la înălțimea umerilor. Împinge drept deasupra capului, coboară controlat.',
+  'fit.ex.bandWoodchop.name': 'Tăietorul de lemne cu bandă',
+  'fit.ex.bandWoodchop.cue':
+    'Banda prinsă sus, într-o parte. Trage-o pe diagonală în jos, prin fața corpului, rotind din talie.',
+  'fit.ex.bandFacePull.name': 'Face pull cu bandă',
+  'fit.ex.bandFacePull.cue':
+    'Banda prinsă la nivelul feței. Trage capetele spre ochi, cu coatele sus, strângând omoplații.',
+  'fit.ex.deepPushup.name': 'Flotări adânci pe mânere',
+  'fit.ex.deepPushup.cue':
+    'Mâinile pe mânere. Coboară pieptul sub nivelul mânerelor, apoi împinge, corpul drept.',
+  'fit.ex.parallelDip.name': 'Dips la paralele',
+  'fit.ex.parallelDip.cue':
+    'Sprijină-te pe paralele cu brațele întinse. Coboară până coatele ajung la 90°, apoi împinge înapoi sus.',
+  'fit.ex.lSit.name': 'L-sit (menținere)',
+  'fit.ex.lSit.cue':
+    'Mâinile pe paralele, împinge în jos ca să ridici corpul, picioarele întinse în față. Menține.',
+  'fit.ex.chinUp.name': 'Tracțiuni cu priză inversă',
+  'fit.ex.chinUp.cue':
+    'Atârnă cu palmele spre tine, la lățimea umerilor. Trage bărbia peste bară, coboară complet.',
+  'fit.ex.hangingKneeRaise.name': 'Ridicări de genunchi la bară',
+  'fit.ex.hangingKneeRaise.cue':
+    'Atârnă de bară. Adu genunchii la piept fără să te balansezi, coboară lent.',
+  'fit.ex.declineSitUp.name': 'Abdomene pe bancă înclinată',
+  'fit.ex.declineSitUp.cue':
+    'Picioarele prinse de bancă, brațele încrucișate. Ridică-te până în șezut, coboară lent.',
+  'fit.ex.benchLegRaise.name': 'Ridicări de picioare pe bancă',
+  'fit.ex.benchLegRaise.cue':
+    'Culcat pe bancă, ține-te de ea în spatele capului. Ridică picioarele întinse la verticală, coboară fără să atingi.',
+  'fit.ex.ballCrunch.name': 'Abdomene pe minge',
+  'fit.ex.ballCrunch.cue':
+    'Culcat pe spate pe minge, tălpile pe podea. Adu coastele spre șolduri, apoi întinde-te înapoi peste minge.',
+  'fit.ex.ballHamCurl.name': 'Flexii femurale pe minge',
+  'fit.ex.ballHamCurl.cue':
+    'Pe spate, călcâiele pe minge, șoldurile sus. Trage mingea spre tine cu călcâiele, apoi împinge-o înapoi, șoldurile rămân sus.',
+  'fit.ex.ballWallSquat.name': 'Genuflexiune la perete cu minge',
+  'fit.ex.ballWallSquat.cue':
+    'Mingea între zona lombară și perete. Coboară lăsând mingea să ruleze cu tine, apoi ridică-te.',
+  'fit.ex.medBallSlam.name': 'Aruncări cu mingea medicinală',
+  'fit.ex.medBallSlam.cue':
+    'Ridică mingea deasupra capului, pe vârfuri, apoi trânteșt-o în podea cu toată forța. Ridic-o și repetă.',
+  'fit.ex.medBallTwist.name': 'Răsuciri rusești cu minge',
+  'fit.ex.medBallTwist.cue':
+    'Așezat, ușor lăsat pe spate, picioarele sus sau jos, mingea la piept. Rotește-te și atinge podeaua lângă fiecare șold.',
+  'fit.ex.rollQuads.name': 'Masaj cu rulou: coapse',
+  'fit.ex.rollQuads.cue':
+    'Cu fața în jos, pe antebrațe, ruloul sub coapse. Rulează lent de la șold până deasupra genunchiului.',
+  'fit.ex.rollBack.name': 'Masaj cu rulou: spatele de sus',
+  'fit.ex.rollBack.cue':
+    'Pe spate, ruloul sub omoplați, mâinile la ceafă. Rulează lent pe partea de sus a spatelui.',
+  'fit.ex.stepTaps.name': 'Atingeri pe step',
+  'fit.ex.stepTaps.cue':
+    'Cu fața la step, atinge-l cu un picior, apoi cu celălalt, într-un ritm rapid și constant. Fii ușor pe picioare.',
+  'fit.ex.ankleSideRaise.name': 'Ridicări laterale cu greutăți la glezne',
+  'fit.ex.ankleSideRaise.cue':
+    'Culcat pe o parte, greutățile la glezne. Ridică piciorul de sus întins, vârful înainte, coboară lent.',
+  'fit.ex.ankleKickback.name': 'Kickback cu greutăți la glezne',
+  'fit.ex.ankleKickback.cue':
+    'În patru labe, greutatea la o gleznă. Împinge piciorul înapoi și sus până coapsa e orizontală, coboară lent.',
+  'fit.ex.trxRow.name': 'Ramat la chingi (TRX)',
+  'fit.ex.trxRow.cue':
+    'Ține chingile și lasă-te pe spate cu corpul drept. Trage pieptul spre mâini, coboară lent.',
+  'fit.ex.trxPushup.name': 'Flotări la chingi (TRX)',
+  'fit.ex.trxPushup.cue':
+    'Mâinile în chingi, corpul înclinat în față ca la plank. Coboară pieptul între mâini, împinge înapoi.',
+  'fit.ex.trxSquat.name': 'Genuflexiune la chingi (TRX)',
+  'fit.ex.trxSquat.cue':
+    'Ține chingile pentru echilibru și coboară adânc, pieptul sus, apoi ridică-te. Chingile te ajută, nu te trag.',
+  'fit.ex.kbGobletSquat.name': 'Genuflexiune goblet cu kettlebell',
+  'fit.ex.kbGobletSquat.cue':
+    'Ține kettlebell-ul de mâner, la piept. Coboară între genunchi, pieptul sus, apoi ridică-te.',
+  'fit.ex.kbDeadlift.name': 'Îndreptări cu kettlebell',
+  'fit.ex.kbDeadlift.cue':
+    'Kettlebell-ul între tălpi. Împinge șoldurile înapoi, spatele drept, apucă-l și ridică-te împingând șoldurile înainte.',
+  'fit.ex.kbPress.name': 'Presă deasupra capului cu kettlebell',
+  'fit.ex.kbPress.cue':
+    'Kettlebell-ul la umăr, sprijinit pe antebraț. Împinge-l drept în sus, coboară la umăr.',
+  'fit.ex.dbFloorPress.name': 'Împins cu gantere de pe podea',
+  'fit.ex.dbFloorPress.cue':
+    'Culcat pe podea, genunchii îndoiți, ganterele deasupra pieptului. Coboară până brațele ating podeaua, împinge sus.',
   'fit.ex.squat.tip': 'Genunchii cad spre interior. Împinge-i în afară, peste vârfuri.',
   'fit.ex.sumoSquat.tip': 'Te apleci înainte. Pieptul sus, spatele drept.',
   'fit.ex.wallSit.tip': 'Genunchii trec de vârfuri. Du tălpile mai în față.',
@@ -557,4 +688,61 @@ export const fitRo: Record<FitKey, string> = {
   'fit.ex.sideLegLift.tip': 'Te rostogolești înapoi. Șoldurile unul peste altul.',
   'fit.ex.clamshell.tip': 'Bazinul cade înapoi. Șoldurile unul peste altul.',
   'fit.ex.teaser.tip': 'Îți ții respirația. Expiră la urcare.',
+  'fit.ex.abWheelKneel.tip': 'Spatele se lasă în jos. Rulează doar cât poți ține spatele drept.',
+  'fit.ex.abWheelStand.tip': 'Prea departe, prea repede. Stăpânește întâi varianta de pe genunchi.',
+  'fit.ex.abWheelOblique.tip': 'Rotești șoldurile. Ține-le drepte și lucrează din talie.',
+  'fit.ex.bandLateralWalk.tip':
+    'Picioarele se apropie prea mult. Ține-le la lățimea șoldurilor ca banda să nu se relaxeze.',
+  'fit.ex.bandMonsterWalk.tip':
+    'Genunchii cad spre interior. Împinge-i în afară, împotriva benzii.',
+  'fit.ex.bandSquat.tip': 'Banda îți trage genunchii înăuntru. Ține-i deasupra degetelor.',
+  'fit.ex.bandGluteBridge.tip':
+    'Arcuiești spatele. Ridică din fesieri și oprește-te când șoldurile sunt în linie cu umerii.',
+  'fit.ex.bandClamshell.tip': 'Rotești șoldurile spre spate. Ține-le unul peste altul.',
+  'fit.ex.bandFireHydrant.tip': 'Te apleci spre cealaltă parte. Ține greutatea la mijloc.',
+  'fit.ex.bandDonkeyKick.tip':
+    'Arcuiești spatele ca să urci mai sus. Oprește-te când coapsa e orizontală.',
+  'fit.ex.bandChestPress.tip': 'Lași banda să te tragă brusc înapoi. Controlează revenirea.',
+  'fit.ex.bandCurl.tip': 'Coatele pleacă în față. Ține-le lipite de corp.',
+  'fit.ex.bandOverheadExt.tip': 'Coatele se depărtează. Ține-le în față, aproape de cap.',
+  'fit.ex.bandShoulderPress.tip':
+    'Te lași pe spate. Strânge fesierii și abdomenul ca să ții coastele jos.',
+  'fit.ex.bandWoodchop.tip':
+    'Tragi doar din brațe. Rotește trunchiul și pivotează piciorul din spate.',
+  'fit.ex.bandFacePull.tip': 'Ridici umerii. Ține-i jos, departe de urechi.',
+  'fit.ex.deepPushup.tip': 'Șoldurile cad. Strânge fesierii și abdomenul ca la plank.',
+  'fit.ex.parallelDip.tip':
+    'Cobori prea mult și umerii cad în față. Oprește-te la 90°, pieptul sus.',
+  'fit.ex.lSit.tip':
+    'Genunchi îndoiți și umeri căzuți. Începe cu genunchii la piept și împinge în paralele.',
+  'fit.ex.chinUp.tip': 'Repetări pe jumătate. Pornește fiecare repetare din atârnare completă.',
+  'fit.ex.hangingKneeRaise.tip':
+    'Te balansezi ca să prinzi avânt. Oprește-te jos și ridică din abdomen.',
+  'fit.ex.declineSitUp.tip': 'Tragi de gât. Ține mâinile pe piept și urcă din coaste.',
+  'fit.ex.benchLegRaise.tip':
+    'Spatele se desprinde. Lipește-l de bancă; îndoaie genunchii dacă e nevoie.',
+  'fit.ex.ballCrunch.tip':
+    'Mingea se rostogolește. Ține picioarele larg și mingea fixă sub zona lombară.',
+  'fit.ex.ballHamCurl.tip': 'Șoldurile cad. Ține-le sus pe toată seria.',
+  'fit.ex.ballWallSquat.tip':
+    'Picioarele prea aproape de perete. Pune-le mai în față ca genunchii să rămână deasupra gleznelor.',
+  'fit.ex.medBallSlam.tip':
+    'Folosești o minge care sare. Folosește o minge „slam” care nu sare înapoi spre față.',
+  'fit.ex.medBallTwist.tip': 'Miști doar brațele. Rotește tot pieptul odată cu mingea.',
+  'fit.ex.rollQuads.tip':
+    'Rulezi repede peste tot. Mergi încet și oprește-te pe zonele tensionate, niciodată pe genunchi.',
+  'fit.ex.rollBack.tip': 'Rulezi și zona lombară. Rămâi între omoplați și baza coastelor.',
+  'fit.ex.stepTaps.tip': 'Bați tare cu talpa. Aterizează ușor pe partea din față a tălpii.',
+  'fit.ex.ankleSideRaise.tip':
+    'Întorci vârful în sus. Ține-l înainte ca să lucreze partea laterală a șoldului.',
+  'fit.ex.ankleKickback.tip': 'Balansezi piciorul. Mișcă-l lent și strânge fesierul sus.',
+  'fit.ex.trxRow.tip':
+    'Șoldurile cad. Ține corpul drept ca la plank; dă pașii înapoi ca să fie mai ușor.',
+  'fit.ex.trxPushup.tip': 'Chingile se depărtează. Ține-le stabile și aproape de corp.',
+  'fit.ex.trxSquat.tip':
+    'Te tragi în sus cu brațele. Folosește picioarele; chingile doar te echilibrează.',
+  'fit.ex.kbGobletSquat.tip': 'Călcâiele se ridică. Ține toată talpa pe podea și șezi pe spate.',
+  'fit.ex.kbDeadlift.tip': 'Spatele se cocoșează. Îndoaie-te din șolduri și ține pieptul sus.',
+  'fit.ex.kbPress.tip': 'Te apleci într-o parte. Strânge abdomenul și împinge în linie dreaptă.',
+  'fit.ex.dbFloorPress.tip': 'Sari din coate de pe podea. Oprește-te ușor, apoi împinge.',
 };

@@ -29,12 +29,23 @@ export const fitDe: Record<FitKey, string> = {
   'fit.muscle.adductors': 'Adduktoren',
   'fit.muscle.calves': 'Waden',
   'fit.eq.all': 'Beliebiges Equipment',
-  'fit.eq.band': 'Widerstandsband',
+  'fit.eq.band': 'Langes Widerstandsband',
   'fit.eq.rope': 'Springseil',
   'fit.eq.kettlebell': 'Kettlebell',
   'fit.eq.pullupBar': 'Klimmzugstange',
   'fit.eq.bench': 'Bank',
   'fit.eq.cable': 'Kabelzug',
+  'fit.eq.miniBand': 'Mini-Bänder',
+  'fit.eq.abWheel': 'Bauchroller',
+  'fit.eq.pushupBars': 'Liegestützgriffe',
+  'fit.eq.dipBars': 'Dip-Barren',
+  'fit.eq.abBench': 'Bauchbank',
+  'fit.eq.fitball': 'Gymnastikball',
+  'fit.eq.medBall': 'Medizinball',
+  'fit.eq.foamRoller': 'Faszienrolle',
+  'fit.eq.step': 'Stepper-Brett',
+  'fit.eq.ankleWeights': 'Gewichtsmanschetten',
+  'fit.eq.suspension': 'Schlingentrainer (TRX)',
   'fit.level.1': 'Einsteiger',
   'fit.level.2': 'Mittel',
   'fit.level.3': 'Fortgeschritten',
@@ -435,6 +446,125 @@ export const fitDe: Record<FitKey, string> = {
   'fit.ex.clamshell.cue': 'Seitenlage, Knie gebeugt, oberes Knie öffnen, Füße zusammen.',
   'fit.ex.teaser.name': 'Teaser',
   'fit.ex.teaser.cue': 'In ein V hochrollen, Arme zu den Zehen, langsam abrollen.',
+  'fit.ex.abWheelKneel.name': 'Bauchroller (kniend)',
+  'fit.ex.abWheelKneel.cue':
+    'Knie am Boden, Hände am Roller unter den Schultern. Mit festem Bauch nach vorn rollen und mit dem Bauch zurückziehen.',
+  'fit.ex.abWheelStand.name': 'Bauchroller im Stand',
+  'fit.ex.abWheelStand.cue':
+    'Aus dem Stand zum Roller beugen und fast waagerecht ausrollen, dann mit dem Bauch zurückziehen.',
+  'fit.ex.abWheelOblique.name': 'Bauchroller schräg',
+  'fit.ex.abWheelOblique.cue':
+    'Kniend den Roller diagonal zur Seite ausrollen und zurück. Seiten abwechseln.',
+  'fit.ex.bandLateralWalk.name': 'Seitwärtsgehen mit Band',
+  'fit.ex.bandLateralWalk.cue':
+    'Band über den Knien oder an den Knöcheln, halbe Kniebeuge. Seitlich gehen, das Band bleibt gespannt.',
+  'fit.ex.bandMonsterWalk.name': 'Monster Walk',
+  'fit.ex.bandMonsterWalk.cue':
+    'Band an Knien oder Knöcheln, halbe Kniebeuge. In breiten Diagonalschritten vorwärts, dann rückwärts gehen.',
+  'fit.ex.bandSquat.name': 'Kniebeuge mit Band',
+  'fit.ex.bandSquat.cue':
+    'Band knapp über den Knien. Beugen und die Knie gegen das Band nach außen drücken, dann aufrichten.',
+  'fit.ex.bandGluteBridge.name': 'Glute Bridge mit Band',
+  'fit.ex.bandGluteBridge.cue':
+    'Rückenlage, Band über den Knien. Hüfte hochdrücken, Knie nach außen, oben den Po anspannen.',
+  'fit.ex.bandClamshell.name': 'Clamshell mit Band',
+  'fit.ex.bandClamshell.cue':
+    'Seitenlage, Knie gebeugt, Band über den Knien. Oberes Knie gegen das Band öffnen, Füße zusammen.',
+  'fit.ex.bandFireHydrant.name': 'Fire Hydrant mit Band',
+  'fit.ex.bandFireHydrant.cue':
+    'Vierfüßlerstand, Band über den Knien. Ein gebeugtes Knie seitlich heben, kurz halten, senken.',
+  'fit.ex.bandDonkeyKick.name': 'Donkey Kick mit Band',
+  'fit.ex.bandDonkeyKick.cue':
+    'Vierfüßlerstand, Band um die Oberschenkel. Eine Ferse Richtung Decke drücken, Knie gebeugt, Po anspannen.',
+  'fit.ex.bandChestPress.name': 'Brustpresse mit Band',
+  'fit.ex.bandChestPress.cue':
+    'Band hinter dir auf Brusthöhe befestigt. Beide Hände nach vorn drücken, langsam zurück.',
+  'fit.ex.bandCurl.name': 'Bizepscurl mit Band',
+  'fit.ex.bandCurl.cue':
+    'Auf das Band stellen, Handflächen nach vorn. Hände zu den Schultern beugen, Ellbogen am Körper, langsam senken.',
+  'fit.ex.bandOverheadExt.name': 'Trizepsstrecken über Kopf mit Band',
+  'fit.ex.bandOverheadExt.cue':
+    'Band unter einem Fuß, Hände hinter dem Kopf. Arme nach oben strecken, langsam wieder beugen.',
+  'fit.ex.bandShoulderPress.name': 'Schulterdrücken mit Band',
+  'fit.ex.bandShoulderPress.cue':
+    'Auf das Band stellen, Hände auf Schulterhöhe. Gerade über den Kopf drücken, kontrolliert senken.',
+  'fit.ex.bandWoodchop.name': 'Holzhacker mit Band',
+  'fit.ex.bandWoodchop.cue':
+    'Band seitlich oben befestigt. Diagonal nach unten über den Körper ziehen, aus der Taille drehen.',
+  'fit.ex.bandFacePull.name': 'Face Pull mit Band',
+  'fit.ex.bandFacePull.cue':
+    'Band auf Gesichtshöhe. Enden zu den Augen ziehen, Ellbogen hoch, Schulterblätter zusammen.',
+  'fit.ex.deepPushup.name': 'Tiefe Liegestütze an Griffen',
+  'fit.ex.deepPushup.cue':
+    'Hände an den Griffen. Brust unter die Griffhöhe senken, dann in gerader Linie hochdrücken.',
+  'fit.ex.parallelDip.name': 'Dips am Barren',
+  'fit.ex.parallelDip.cue':
+    'Auf den Barren stützen, Arme gestreckt. Senken, bis die Ellbogen 90° erreichen, dann hochdrücken.',
+  'fit.ex.lSit.name': 'L-Sitz halten',
+  'fit.ex.lSit.cue':
+    'Hände am Barren, nach unten drücken und den Körper heben, Beine gestreckt nach vorn. Halten.',
+  'fit.ex.chinUp.name': 'Klimmzug im Untergriff',
+  'fit.ex.chinUp.cue':
+    'Hängen, Handflächen zu dir, schulterbreit. Kinn über die Stange ziehen, ganz absenken.',
+  'fit.ex.hangingKneeRaise.name': 'Knieheben im Hang',
+  'fit.ex.hangingKneeRaise.cue':
+    'An der Stange hängen. Knie ohne Schwung zur Brust ziehen, langsam senken.',
+  'fit.ex.declineSitUp.name': 'Sit-up auf der Schrägbank',
+  'fit.ex.declineSitUp.cue':
+    'Füße eingehakt, Arme gekreuzt. Bis zum Sitzen aufrollen, langsam zurück.',
+  'fit.ex.benchLegRaise.name': 'Beinheben auf der Bank',
+  'fit.ex.benchLegRaise.cue':
+    'Auf der Bank liegen, hinter dem Kopf festhalten. Gestreckte Beine senkrecht heben, ohne Absetzen senken.',
+  'fit.ex.ballCrunch.name': 'Crunch auf dem Gymnastikball',
+  'fit.ex.ballCrunch.cue':
+    'Rückwärts über den Ball legen, Füße flach. Rippen zur Hüfte rollen, dann über den Ball strecken.',
+  'fit.ex.ballHamCurl.name': 'Beinbeuger auf dem Gymnastikball',
+  'fit.ex.ballHamCurl.cue':
+    'Rückenlage, Fersen auf dem Ball, Hüfte hoch. Ball mit den Fersen heranrollen und zurück, Hüfte bleibt oben.',
+  'fit.ex.ballWallSquat.name': 'Wandkniebeuge mit Ball',
+  'fit.ex.ballWallSquat.cue':
+    'Ball zwischen unterem Rücken und Wand. In die Hocke gehen, der Ball rollt mit, dann aufstehen.',
+  'fit.ex.medBallSlam.name': 'Medizinball-Slam',
+  'fit.ex.medBallSlam.cue':
+    'Ball über den Kopf heben, auf die Zehen, dann mit voller Kraft auf den Boden werfen. Aufheben und wiederholen.',
+  'fit.ex.medBallTwist.name': 'Russian Twist mit Medizinball',
+  'fit.ex.medBallTwist.cue':
+    'Sitzen, leicht zurückgelehnt, Ball an der Brust. Drehen und neben jeder Hüfte abtippen.',
+  'fit.ex.rollQuads.name': 'Faszienrolle: Oberschenkel',
+  'fit.ex.rollQuads.cue':
+    'Bauchlage auf den Unterarmen, Rolle unter den Oberschenkeln. Langsam von der Hüfte bis über das Knie rollen.',
+  'fit.ex.rollBack.name': 'Faszienrolle: oberer Rücken',
+  'fit.ex.rollBack.cue':
+    'Rückenlage, Rolle unter den Schulterblättern, Hände hinter dem Kopf. Langsam über den oberen Rücken rollen.',
+  'fit.ex.stepTaps.name': 'Step Taps',
+  'fit.ex.stepTaps.cue':
+    'Vor dem Step stehen, abwechselnd mit einem Fuß oben antippen, schneller gleichmäßiger Rhythmus. Leichtfüßig bleiben.',
+  'fit.ex.ankleSideRaise.name': 'Seitliches Beinheben mit Gewichten',
+  'fit.ex.ankleSideRaise.cue':
+    'Seitenlage, Gewichte an den Knöcheln. Oberes Bein gestreckt heben, Zehen nach vorn, langsam senken.',
+  'fit.ex.ankleKickback.name': 'Kickback mit Gewichtsmanschette',
+  'fit.ex.ankleKickback.cue':
+    'Vierfüßlerstand, Gewicht an einem Knöchel. Bein nach hinten oben strecken bis der Oberschenkel waagerecht ist, langsam senken.',
+  'fit.ex.trxRow.name': 'Rudern am Schlingentrainer',
+  'fit.ex.trxRow.cue':
+    'Griffe halten, mit geradem Körper zurücklehnen. Brust zu den Händen ziehen, langsam senken.',
+  'fit.ex.trxPushup.name': 'Liegestütz am Schlingentrainer',
+  'fit.ex.trxPushup.cue':
+    'Hände in den Schlaufen, Körper im Plank nach vorn geneigt. Brust zwischen die Hände senken, hochdrücken.',
+  'fit.ex.trxSquat.name': 'Kniebeuge am Schlingentrainer',
+  'fit.ex.trxSquat.cue': 'Griffe zur Balance halten, tief in die Hocke, Brust hoch, aufstehen.',
+  'fit.ex.kbGobletSquat.name': 'Goblet Squat mit Kettlebell',
+  'fit.ex.kbGobletSquat.cue':
+    'Kettlebell an den Hörnern vor der Brust. Zwischen die Knie hocken, Brust hoch, aufstehen.',
+  'fit.ex.kbDeadlift.name': 'Kreuzheben mit Kettlebell',
+  'fit.ex.kbDeadlift.cue':
+    'Kettlebell zwischen den Füßen. Hüfte zurück, Rücken gerade, greifen und durch Hüftstreckung aufstehen.',
+  'fit.ex.kbPress.name': 'Kettlebell-Überkopfdrücken',
+  'fit.ex.kbPress.cue':
+    'Kettlebell an der Schulter, Kugel auf dem Unterarm. Gerade nach oben drücken, zur Schulter senken.',
+  'fit.ex.dbFloorPress.name': 'Kurzhantel-Bodendrücken',
+  'fit.ex.dbFloorPress.cue':
+    'Auf dem Boden liegen, Knie gebeugt, Hanteln über der Brust. Senken, bis die Oberarme den Boden berühren, hochdrücken.',
   'fit.ex.squat.tip': 'Knie fallen nach innen. Drücke sie über die Zehen.',
   'fit.ex.sumoSquat.tip': 'Nach vorne kippen. Brust hoch, Rücken aufrecht.',
   'fit.ex.wallSit.tip': 'Knie über den Zehen. Füße weiter nach vorne.',
@@ -556,4 +686,53 @@ export const fitDe: Record<FitKey, string> = {
   'fit.ex.sideLegLift.tip': 'Nach hinten kippen. Hüften übereinander.',
   'fit.ex.clamshell.tip': 'Hüfte rollt nach hinten. Hüften übereinander.',
   'fit.ex.teaser.tip': 'Atem anhalten. Beim Hochrollen ausatmen.',
+  'fit.ex.abWheelKneel.tip': 'Hohlkreuz. Nur so weit rollen, wie der Rücken gerade bleibt.',
+  'fit.ex.abWheelStand.tip': 'Zu weit, zu früh. Erst die kniende Variante beherrschen.',
+  'fit.ex.abWheelOblique.tip': 'Hüfte dreht mit. Hüfte gerade halten, die Taille arbeitet.',
+  'fit.ex.bandLateralWalk.tip':
+    'Füße kommen zusammen. Hüftbreit bleiben, damit das Band nie locker wird.',
+  'fit.ex.bandMonsterWalk.tip': 'Knie fallen nach innen. Gegen das Band nach außen drücken.',
+  'fit.ex.bandSquat.tip': 'Das Band zieht die Knie nach innen. Knie über den Zehen halten.',
+  'fit.ex.bandGluteBridge.tip':
+    'Hohlkreuz. Mit dem Po heben, bis Hüfte und Schultern auf einer Linie sind.',
+  'fit.ex.bandClamshell.tip': 'Hüfte kippt nach hinten. Hüften übereinander halten.',
+  'fit.ex.bandFireHydrant.tip': 'Zur anderen Seite lehnen. Gewicht mittig halten.',
+  'fit.ex.bandDonkeyKick.tip':
+    'Hohlkreuz für mehr Höhe. Stopp, wenn der Oberschenkel waagerecht ist.',
+  'fit.ex.bandChestPress.tip': 'Band zurückschnellen lassen. Die Rückbewegung kontrollieren.',
+  'fit.ex.bandCurl.tip': 'Ellbogen wandern nach vorn. Am Körper fixieren.',
+  'fit.ex.bandOverheadExt.tip': 'Ellbogen gehen auseinander. Nah am Kopf, nach vorn zeigend.',
+  'fit.ex.bandShoulderPress.tip': 'Nach hinten lehnen. Po und Bauch anspannen, Rippen unten.',
+  'fit.ex.bandWoodchop.tip': 'Nur mit den Armen ziehen. Oberkörper drehen, hinteren Fuß mitdrehen.',
+  'fit.ex.bandFacePull.tip': 'Schultern hochziehen. Schultern unten, weg von den Ohren.',
+  'fit.ex.deepPushup.tip': 'Hüfte sackt ab. Po und Bauch anspannen wie im Plank.',
+  'fit.ex.parallelDip.tip': 'Zu tief, Schultern rollen nach vorn. Bei 90° stoppen, Brust hoch.',
+  'fit.ex.lSit.tip':
+    'Gebeugte Knie, hängende Schultern. Mit angezogenen Knien beginnen, kräftig wegdrücken.',
+  'fit.ex.chinUp.tip': 'Halbe Wiederholungen. Jede Wiederholung aus dem vollen Hang starten.',
+  'fit.ex.hangingKneeRaise.tip': 'Schwung holen. Unten kurz halten und mit dem Bauch heben.',
+  'fit.ex.declineSitUp.tip': 'Am Nacken ziehen. Hände auf der Brust, mit den Rippen führen.',
+  'fit.ex.benchLegRaise.tip':
+    'Unterer Rücken hebt ab. Fest in die Bank drücken, Knie bei Bedarf beugen.',
+  'fit.ex.ballCrunch.tip': 'Ball rollt weg. Füße breit, Ball fest unter dem unteren Rücken.',
+  'fit.ex.ballHamCurl.tip': 'Hüfte sinkt ab. Den ganzen Satz oben halten.',
+  'fit.ex.ballWallSquat.tip': 'Füße zu nah an der Wand. Weiter vorn, Knie über den Knöcheln.',
+  'fit.ex.medBallSlam.tip': 'Springender Ball. Einen Slam Ball nehmen, der nicht zurückspringt.',
+  'fit.ex.medBallTwist.tip': 'Nur die Arme bewegen. Den ganzen Brustkorb mit dem Ball drehen.',
+  'fit.ex.rollQuads.tip':
+    'Schnell über alles rollen. Langsam, an festen Stellen kurz halten, nie auf dem Knie.',
+  'fit.ex.rollBack.tip':
+    'Den unteren Rücken rollen. Zwischen Schulterblättern und unterem Rippenrand bleiben.',
+  'fit.ex.stepTaps.tip': 'Stampfen. Weich auf dem Vorfuß landen.',
+  'fit.ex.ankleSideRaise.tip':
+    'Zehen zeigen nach oben. Nach vorn halten, damit die seitliche Hüfte arbeitet.',
+  'fit.ex.ankleKickback.tip': 'Bein schwingen. Langsam bewegen und oben den Po anspannen.',
+  'fit.ex.trxRow.tip': 'Hüfte hängt durch. Körper wie im Plank halten; Füße zurück für leichter.',
+  'fit.ex.trxPushup.tip': 'Schlaufen gehen auseinander. Stabil und nah am Körper halten.',
+  'fit.ex.trxSquat.tip':
+    'Mit den Armen hochziehen. Die Beine arbeiten, die Schlaufen geben nur Halt.',
+  'fit.ex.kbGobletSquat.tip': 'Fersen heben ab. Ganzer Fuß am Boden, nach hinten setzen.',
+  'fit.ex.kbDeadlift.tip': 'Runder Rücken. Aus der Hüfte beugen, Brust stolz.',
+  'fit.ex.kbPress.tip': 'Zur Seite lehnen. Bauch anspannen, in gerader Linie drücken.',
+  'fit.ex.dbFloorPress.tip': 'Ellbogen vom Boden abfedern. Kurz weich ablegen, dann drücken.',
 };
