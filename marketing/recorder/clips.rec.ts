@@ -105,10 +105,10 @@ async function useSystem(page: Page, id: string, after = 1800): Promise<void> {
 }
 
 /**
- * Records one clip. Playwright's video and Chrome's screencast both give
- * CSS-pixel frames (360×640) in headless mode; screenshots keep the 3×
- * pixels, so frames are screenshots taken back to back. Only `play` is
- * recorded.
+ * Records one clip. Playwright's video, Chrome's screencast and raw CDP
+ * screenshots all give CSS-pixel frames (360×640) in headless mode;
+ * `page.screenshot` keeps the 3× pixels, so frames are screenshots taken
+ * back to back. Only `play` is recorded.
  */
 async function record(
   page: Page,
@@ -125,19 +125,13 @@ async function record(
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
   const frames: { file: string; t: number }[] = [];
-  const cdp = await page.context().newCDPSession(page);
   let recording = true;
   const start = Date.now() / 1000;
   const capture = (async () => {
     while (recording) {
       const t = Date.now() / 1000;
-      const { data } = await cdp.send('Page.captureScreenshot', {
-        format: 'jpeg',
-        quality: 90,
-        optimizeForSpeed: true,
-      });
       const file = `f${String(frames.length).padStart(5, '0')}.jpg`;
-      writeFileSync(join(dir, file), Buffer.from(data, 'base64'));
+      await page.screenshot({ path: join(dir, file), type: 'jpeg', quality: 90, caret: 'initial' });
       frames.push({ file, t });
     }
   })();
