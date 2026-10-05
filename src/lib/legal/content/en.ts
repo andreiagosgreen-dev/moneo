@@ -218,6 +218,7 @@ export const legalEn: LegalSet = {
         blocks: [
           'By default, AI-style plans are built on your device by simple rules, and nothing is sent anywhere.',
           'Included AI plans (Pro): only the goal text (up to 500 characters), the time horizon, hours per week and level are sent through our server to Cloudflare Workers AI. No sessions, tasks, journal or account details are included; the request and the answer are not stored by us, and Cloudflare does not use them to train models. We count only how many plans each account made per day (deleted after two days).',
+          'Workout packs with AI (Pro): only what you type to describe the workout (up to 300 characters) and the list of exercises you can do (name, main muscle, equipment, level) are sent through our server to Cloudflare Workers AI. Nothing is stored and the text is not logged. On the free plan, the same text is read on your device and not sent anywhere.',
           'If you are on Pro and add your own API key for Google Gemini, OpenAI or DeepSeek, the goal you type and your planning details (time horizon, hours per week, level) are sent directly from your browser to that provider. That provider processes them under its own privacy policy, as your service provider, not ours.',
           'Voice input in the assistant uses your browser’s built-in speech recognition. Some browsers (for example Chrome) send the audio to the browser maker’s servers to transcribe it.',
         ],

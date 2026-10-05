@@ -128,6 +128,18 @@ export const fitFr: Record<FitKey, string> = {
   'fit.cardio.speed': '{kmh} km/h',
   'fit.cardio.dist': '{km} km',
   'fit.cardio.invalid': 'Indique une durée entre 1 et {max} minutes, un jour jusqu’à aujourd’hui.',
+  'fit.pack.askLabel': 'Ou décris-la avec tes mots',
+  'fit.pack.askPh': 'ex. : abdos 15 min avec la roue, intermédiaire',
+  'fit.pack.askGo': 'Créer',
+  'fit.pack.askAi': 'Créer avec l’IA',
+  'fit.pack.askBusy': 'Création…',
+  'fit.pack.byAi': 'Créée par l’IA à partir de ta demande.',
+  'fit.pack.byDevice': 'Créée sur ton téléphone à partir de ta demande.',
+  'fit.pack.askProHint':
+    'Indique la zone, la durée et ton matériel. Avec Pro, l’IA comprend toute demande, comme « je suis assis toute la journée ».',
+  'fit.pack.aiLimit':
+    'Les séances IA du jour sont épuisées, elle a donc été créée sur ton téléphone.',
+  'fit.pack.aiBusy': 'L’IA est occupée, elle a donc été créée sur ton téléphone.',
   'fit.goal.reps': '{n} rép.',
   'fit.goal.per.day': '{amount} par jour',
   'fit.goal.per.week': '{amount} par semaine',
