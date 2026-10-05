@@ -54,10 +54,6 @@ export function configureProSync(next: ProSyncConfig | null): void {
   config = next;
 }
 
-export function isProSyncConfigured(): boolean {
-  return config !== null;
-}
-
 const localIO = {
   read: (key: string) => safeRead<unknown>(key),
   write: (key: string, value: unknown) => safeWrite(key, value),
@@ -140,14 +136,4 @@ export function requestProSync(
     return result;
   })();
   return inFlight;
-}
-
-/** Test hook: reset module state. */
-export function __resetProSyncController(): void {
-  status = { phase: 'idle', error: null, lastSuccessAt: null };
-  statusLoaded = false;
-  config = null;
-  inFlight = null;
-  again = false;
-  listeners.clear();
 }

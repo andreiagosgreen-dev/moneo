@@ -150,10 +150,6 @@ export function initiateCheckout(
   return buildCheckoutUrl(planId, userId, undefined, email, currentSource());
 }
 
-export function getProPlanCheckoutUrl(userId: string): string | null {
-  return initiateCheckout('pro-monthly', userId);
-}
-
 /* ---------------- Customer Portal (self-serve billing) ---------------- */
 
 export interface CustomerPortalResult {

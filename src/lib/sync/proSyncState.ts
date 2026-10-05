@@ -1,5 +1,5 @@
 import { STORAGE_KEYS } from '../storage/storageKeys';
-import { safeRead, safeRemove, safeWrite } from '../storage/storageAdapter';
+import { safeRead, safeWrite } from '../storage/storageAdapter';
 import type { CollectionMeta } from './recordMerge';
 
 /**
@@ -61,12 +61,6 @@ export function loadProSyncMeta(): ProSyncMeta {
 
 export function saveProSyncMeta(meta: ProSyncMeta): boolean {
   return safeWrite(KEY, meta);
-}
-
-/** Forget this device's agreement (next run = first-sync union). Local data untouched. */
-export function resetProSyncMeta(): void {
-  safeRemove(KEY);
-  safeRemove(EDITS_KEY);
 }
 
 export function loadEditTimes(): Record<string, number> {

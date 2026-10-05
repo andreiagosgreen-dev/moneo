@@ -1,5 +1,5 @@
 import { withClient } from './withClient';
-import { sanitizeAreaName, type FocusArea } from '../focusAreas';
+import type { FocusArea } from '../focusAreas';
 import type { RemoteAreaRow } from '../sync/merge';
 
 /**
@@ -15,29 +15,6 @@ export interface CloudAreaRow {
   created_at: string;
   updated_at?: string;
   deleted_at: string | null;
-}
-
-export function insertArea(userId: string, name: string, id?: string): Promise<boolean> {
-  const clean = sanitizeAreaName(name);
-  if (!clean) return Promise.resolve(false);
-  return withClient(async (client) => {
-    const row: Record<string, unknown> = { user_id: userId, name: clean };
-    if (id) row.id = id;
-    const { error } = await client.from('focus_areas').insert(row);
-    return !error;
-  }).then((r) => r ?? false);
-}
-
-export function listAreas(userId: string): Promise<CloudAreaRow[] | null> {
-  return withClient(async (client) => {
-    const { data, error } = await client
-      .from('focus_areas')
-      .select('*')
-      .eq('user_id', userId)
-      .is('deleted_at', null)
-      .order('created_at', { ascending: true });
-    return error ? null : ((data as CloudAreaRow[]) ?? null);
-  });
 }
 
 export function softDeleteArea(userId: string, areaId: string): Promise<boolean> {
