@@ -31,6 +31,7 @@ import {
   stopSpeaking,
   type BeepKind,
 } from '../lib/fitness/workoutAudio';
+import { WEIGHTED_GEAR } from '../lib/fitness/packs';
 import {
   addFreeStep,
   currentStep,
@@ -75,6 +76,8 @@ interface Props {
   onSave: (entry: WorkoutEntry, link: HabitLink, routine?: RoutineDraft) => void;
   /** Offer "save as my routine" after a free workout. */
   canSaveRoutine?: boolean;
+  /** The user's own weights (kg), offered as one-tap picks on weighted gear. */
+  weights?: number[];
   onClose: () => void;
 }
 
@@ -122,9 +125,10 @@ export default function MonoWorkoutPlayer({
   isPro,
   onSave,
   canSaveRoutine = false,
+  weights = [],
   onClose,
 }: Props) {
-  const { t, tag } = useI18n();
+  const { t, tag, fmtNum } = useI18n();
   const [run, setRun] = useState<RunState | null>(() => {
     const parked = getActiveRun();
     if (parked && parked.routineId === routineId) return parked;
@@ -400,6 +404,7 @@ export default function MonoWorkoutPlayer({
   const left = timerLeftMs(run, now);
   const started = timed && left < setWorkSec(step) * 1000;
   const stepCount = runSteps(run).length;
+  const weightPicks = WEIGHTED_GEAR.includes(ex.equipment) ? weights : [];
 
   const completeSet = () => {
     const at = Date.now();
@@ -502,6 +507,20 @@ export default function MonoWorkoutPlayer({
                   {t('fit.p.setDone')}
                 </MonoBtn>
               </div>
+              {ex.mode === 'reps' && (ex.type === 'strength' || ex.type === 'hiit') ? (
+                <label className="mono-fit-label mono-fit-reps-opt">
+                  <span className="mono-meta">{t('fit.p.repsOptional')}</span>
+                  <input
+                    className="mono-field"
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    max={1000}
+                    value={run.reps}
+                    onChange={(e) => setRun({ ...run, reps: e.target.value })}
+                  />
+                </label>
+              ) : null}
             </>
           ) : (
             <>
@@ -534,6 +553,24 @@ export default function MonoWorkoutPlayer({
                   </label>
                 ) : null}
               </div>
+              {ex.weighted && weightPicks.length > 0 ? (
+                <div
+                  className="mono-fit-weights"
+                  role="group"
+                  aria-label={t('fit.pack.weightsTitle')}
+                >
+                  {weightPicks.map((w) => (
+                    <MonoChip
+                      key={w}
+                      type="button"
+                      pressed={Number.parseFloat(run.kg.replace(',', '.')) === w}
+                      onClick={() => setRun({ ...run, kg: String(w) })}
+                    >
+                      {t('fit.pack.kg', { n: fmtNum(w) })}
+                    </MonoChip>
+                  ))}
+                </div>
+              ) : null}
               <div className="mono-fit-actions">
                 <MonoBtn type="button" onClick={completeSet}>
                   {t('fit.p.setDone')}

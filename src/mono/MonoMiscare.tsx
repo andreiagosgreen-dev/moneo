@@ -10,6 +10,7 @@ import MonoRoutineBuilder from './MonoRoutineBuilder';
 import MonoCardioLog, { paceText } from './MonoCardioLog';
 import MonoProgram from './MonoProgram';
 import MonoProgramSetup from './MonoProgramSetup';
+import MonoPackBuilder from './MonoPackBuilder';
 import MonoWorkoutPlayer, { fitDose, type HabitLink } from './MonoWorkoutPlayer';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { Habit } from '../lib/habits';
@@ -59,6 +60,7 @@ import {
   type WorkoutStore,
 } from '../lib/fitness/workouts';
 import { getActiveRun } from '../lib/fitness/player';
+import { isPackId, type Pack } from '../lib/fitness/packs';
 
 interface Props {
   store: WorkoutStore;
@@ -95,6 +97,7 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
   const [shown, setShown] = useState(PAGE);
   const [planOpen, setPlanOpen] = useState<string | null>(null);
   const [mapDays, setMapDays] = useState<7 | 30>(7);
+  const [pack, setPack] = useState<Pack | null>(null);
   const place: Any<FitPlace> = store.place ?? 'all';
 
   const week = weekSummary(store.log);
@@ -274,7 +277,14 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
           <MonoWorkoutPlayer
             routineId={playing}
             title={routineName(playing)}
-            steps={isCustomId(playing) || isProgramId(playing) ? playingRoutine?.steps : undefined}
+            steps={
+              isCustomId(playing) || isProgramId(playing)
+                ? playingRoutine?.steps
+                : isPackId(playing)
+                  ? pack?.steps
+                  : undefined
+            }
+            weights={store.gear?.weights}
             icon={playingRoutine?.icon}
             place={store.place}
             log={store.log}
@@ -375,6 +385,20 @@ export default function MonoMiscare({ store, habits, isPro, onSave, onDelete, on
                 </p>
               </div>
             </section>
+
+            <MonoPackBuilder
+              gear={store.gear}
+              place={place === 'all' ? undefined : place}
+              onGear={(gear) => onChange({ ...store, gear })}
+              onStart={(p) => {
+                setPack(p);
+                onChange({
+                  ...store,
+                  gear: { items: [], weights: [], ...store.gear, last: p.choice },
+                });
+                start(p.id);
+              }}
+            />
 
             <MonoProgram
               store={store}
