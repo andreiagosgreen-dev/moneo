@@ -105,10 +105,10 @@ async function useSystem(page: Page, id: string, after = 1800): Promise<void> {
 }
 
 /**
- * Records one clip. Playwright's video, Chrome's screencast and raw CDP
- * screenshots all give CSS-pixel frames (360×640) in headless mode;
- * `page.screenshot` keeps the 3× pixels, so frames are screenshots taken
- * back to back. Only `play` is recorded.
+ * Records one clip. Playwright's video and Chrome's screencast give
+ * CSS-pixel frames (360×640) in headless mode, and page.screenshot is slow
+ * (~10 fps), so frames are clipped CDP screenshots taken back to back.
+ * Only `play` is recorded.
  */
 async function record(
   page: Page,
@@ -125,13 +125,26 @@ async function record(
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
   const frames: { file: string; t: number }[] = [];
+  const cdp = await page.context().newCDPSession(page);
   let recording = true;
   const start = Date.now() / 1000;
   const capture = (async () => {
     while (recording) {
       const t = Date.now() / 1000;
+      const { result } = await cdp.send('Runtime.evaluate', {
+        expression: '[visualViewport.pageLeft, visualViewport.pageTop]',
+        returnByValue: true,
+      });
+      const [x, y] = result.value as [number, number];
+      // A clip at scale 1 is captured in device pixels, like page.screenshot.
+      const { data } = await cdp.send('Page.captureScreenshot', {
+        format: 'jpeg',
+        quality: 90,
+        optimizeForSpeed: true,
+        clip: { x, y, width: 360, height: 640, scale: 1 },
+      });
       const file = `f${String(frames.length).padStart(5, '0')}.jpg`;
-      await page.screenshot({ path: join(dir, file), type: 'jpeg', quality: 90, caret: 'initial' });
+      writeFileSync(join(dir, file), Buffer.from(data, 'base64'));
       frames.push({ file, t });
     }
   })();
