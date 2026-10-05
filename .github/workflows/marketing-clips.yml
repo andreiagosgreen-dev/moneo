@@ -1,0 +1,60 @@
+name: Marketing clips
+
+# Records the app parts of the short videos (marketing/recorder) and offers
+# them as a downloadable artifact. Never deploys or publishes anything.
+on:
+  workflow_dispatch:
+    inputs:
+      langs:
+        description: 'Languages, comma-separated (ro, ru, en)'
+        required: false
+        default: 'ro,ru,en'
+      clips:
+        description: 'Clips, comma-separated (c02, c04, c03, c15)'
+        required: false
+        default: 'c02,c04,c03,c15'
+
+permissions:
+  contents: read
+
+jobs:
+  record:
+    name: Record clips
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: ffmpeg
+        run: which ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+      - name: Record
+        run: npx playwright test -c marketing/recorder/playwright.config.ts
+        env:
+          CLIP_LANGS: ${{ inputs.langs || 'ro,ru,en' }}
+          CLIPS: ${{ inputs.clips || 'c02,c04,c03,c15' }}
+      - name: Make MP4s
+        run: node scripts/collect-clips.mjs
+      - name: Sizes
+        run: for f in clips/*.mp4; do ffprobe -v error -select_streams v:0 -show_entries stream=width,height,duration -of csv=p=0 "$f" | sed "s|^|$f,|"; done
+      - name: Preview frames
+        run: |
+          mkdir -p previews
+          for f in clips/*.mp4; do
+            b=$(basename "$f" .mp4)
+            ffmpeg -v error -i "$f" -vf "fps=1/3,scale=270:480,tile=4x1" -frames:v 1 "previews/$b.png"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: moneo-clips-previews
+          path: previews/
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: moneo-clips
+          path: clips/
+          retention-days: 14
