@@ -15,11 +15,9 @@
  * client-supplied user id is never trusted.
  */
 
-import { inSignupTrial } from '../../src/lib/billing/signupTrial';
+import { hasServerProAccess } from './proAccess';
 import { bearerToken, verifyUser, type FetchImpl } from './account';
-import { hasComplimentaryPro, resolveComplimentaryAllowlist } from './complimentaryPro';
 import { buildSecurityHeaders, declaredBodyTooLarge, mergeHeaders } from './security';
-import { hasPaidProAccess } from './subscriptionAccess';
 
 export interface CalendarEnv {
   SUPABASE_URL?: string;
@@ -63,37 +61,6 @@ async function requireUser(
   const user = await verifyUser(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, token, fetchImpl);
   if (!user) return { error: json({ error: 'Invalid or expired session' }, 401) };
   return user;
-}
-
-/** Defense-in-depth: UI hides the feature from Free users, but a hidden
- *  button is not enough gating for a credential this sensitive.
- *  Also honors complimentary Pro emails (Free branding, full unlock). */
-async function isProUser(
-  supabaseUrl: string,
-  serviceKey: string,
-  userId: string,
-  email: string | null,
-  complimentaryEnv: string | undefined,
-  fetchImpl: FetchImpl,
-  createdAt?: number,
-): Promise<boolean> {
-  if (inSignupTrial(createdAt)) return true;
-  const allowlist = resolveComplimentaryAllowlist(complimentaryEnv);
-  if (hasComplimentaryPro(email, allowlist)) return true;
-  try {
-    const res = await fetchImpl(
-      `${supabaseUrl}/rest/v1/subscriptions?user_id=eq.${encodeURIComponent(userId)}&select=status,current_period_end`,
-      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
-    );
-    if (!res.ok) return false;
-    const rows = (await res.json()) as Array<{
-      status?: string;
-      current_period_end?: string | null;
-    }>;
-    return hasPaidProAccess(rows[0]?.status, rows[0]?.current_period_end);
-  } catch {
-    return false;
-  }
 }
 
 async function getConnection(
@@ -248,15 +215,7 @@ export async function handleCalendarConnect(
   const auth = await requireUser(request, env, fetchImpl);
   if ('error' in auth) return auth.error;
 
-  const isPro = await isProUser(
-    env.SUPABASE_URL!,
-    env.SUPABASE_SERVICE_ROLE_KEY!,
-    auth.userId,
-    auth.email,
-    env.PRO_COMPLIMENTARY_EMAILS,
-    fetchImpl,
-    auth.createdAt,
-  );
+  const isPro = await hasServerProAccess(env, auth.userId, auth.email, fetchImpl, auth.createdAt);
   if (!isPro) return json({ error: 'Calendar sync is a Pro feature' }, 403);
 
   if (declaredBodyTooLarge(request, MAX_CONNECT_BODY_BYTES)) {
@@ -332,15 +291,7 @@ export async function handleCalendarEvents(
   const auth = await requireUser(request, env, fetchImpl);
   if ('error' in auth) return auth.error;
 
-  const isPro = await isProUser(
-    env.SUPABASE_URL!,
-    env.SUPABASE_SERVICE_ROLE_KEY!,
-    auth.userId,
-    auth.email,
-    env.PRO_COMPLIMENTARY_EMAILS,
-    fetchImpl,
-    auth.createdAt,
-  );
+  const isPro = await hasServerProAccess(env, auth.userId, auth.email, fetchImpl, auth.createdAt);
   if (!isPro) return json({ error: 'Calendar sync is a Pro feature' }, 403);
 
   const url = new URL(request.url);

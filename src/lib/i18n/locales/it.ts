@@ -3711,9 +3711,6 @@ export const it: Record<TKey, string> = {
   'plan.ent.calendar': 'Google Calendar e Focus Buddy',
   'pay.plan.monthly.f8':
     'Movimento Pro: le tue routine, record personali, grafici dei progressi e un programma di allenamento personale',
-  'pay.trialBadge': 'I primi {n} giorni gratis',
-  'pay.trialCta': 'Prova {n} giorni gratis',
-  'pay.trialNote': 'Se annulli durante la prova, non paghi nulla.',
   'onb.qs.stepTitle': 'Il tuo primo passo',
   'onb.qs.stepHint': 'La parte più piccola che puoi iniziare adesso: puoi modificarla.',
   'onb.qs.startHint': 'Un solo obiettivo chiaro. Avvia il timer e lavora solo su questo.',

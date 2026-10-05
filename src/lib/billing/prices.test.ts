@@ -5,7 +5,6 @@ import {
   PRO_PRICES,
   formatUsd,
   parseUsd,
-  trialDays,
   yearlySavings,
 } from './prices';
 import { getPlanDisplay } from './pricingConfig';
@@ -39,16 +38,5 @@ describe('prices — shared by /pricing and the landing page', () => {
     expect(formatUsd(5)).toBe('$5.00');
     expect(parseUsd('junk')).toBe(0);
     expect(yearlySavings({ monthly: '$5', yearly: '$80' })).toMatchObject({ saved: 0, pct: 0 });
-  });
-});
-
-describe('trialDays', () => {
-  it('accepts 1–30 days and hides the trial otherwise', () => {
-    expect(trialDays('7')).toBe(7);
-    expect(trialDays(undefined)).toBe(0);
-    expect(trialDays('0')).toBe(0);
-    expect(trialDays('-3')).toBe(0);
-    expect(trialDays('90')).toBe(0);
-    expect(trialDays('abc')).toBe(0);
   });
 });

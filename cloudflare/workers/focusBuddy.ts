@@ -6,11 +6,9 @@
  * client never supplies a user id.
  */
 
-import { inSignupTrial } from '../../src/lib/billing/signupTrial';
+import { hasServerProAccess } from './proAccess';
 import { bearerToken, verifyUser, type FetchImpl } from './account';
-import { hasComplimentaryPro, resolveComplimentaryAllowlist } from './complimentaryPro';
 import { buildSecurityHeaders, mergeHeaders } from './security';
-import { hasPaidProAccess } from './subscriptionAccess';
 
 export interface FocusBuddyEnv {
   SUPABASE_URL?: string;
@@ -67,36 +65,6 @@ async function findPairForUser(
   return rows[0] ?? null;
 }
 
-/** Defense-in-depth Pro-gate — mirrors the owner-read the webhook path already does.
- *  Also honors complimentary Pro emails (Free branding, full unlock). */
-async function isUserPro(
-  supabaseUrl: string,
-  serviceKey: string,
-  userId: string,
-  email: string | null,
-  complimentaryEnv: string | undefined,
-  fetchImpl: FetchImpl,
-  createdAt?: number,
-): Promise<boolean> {
-  if (inSignupTrial(createdAt)) return true;
-  const allowlist = resolveComplimentaryAllowlist(complimentaryEnv);
-  if (hasComplimentaryPro(email, allowlist)) return true;
-  try {
-    const res = await fetchImpl(
-      `${supabaseUrl}/rest/v1/subscriptions?user_id=eq.${userId}&select=status,current_period_end&limit=1`,
-      { headers: restHeaders(serviceKey) },
-    );
-    if (!res.ok) return false;
-    const rows = (await res.json()) as Array<{
-      status: string;
-      current_period_end?: string | null;
-    }>;
-    return hasPaidProAccess(rows[0]?.status, rows[0]?.current_period_end);
-  } catch {
-    return false;
-  }
-}
-
 async function verify(
   request: Request,
   env: FocusBuddyEnv,
@@ -124,17 +92,7 @@ export async function handleBuddyInvite(
   const supabaseUrl = env.SUPABASE_URL as string;
   const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY as string;
 
-  if (
-    !(await isUserPro(
-      supabaseUrl,
-      serviceKey,
-      v.userId,
-      v.email,
-      env.PRO_COMPLIMENTARY_EMAILS,
-      fetchImpl,
-      v.createdAt,
-    ))
-  ) {
+  if (!(await hasServerProAccess(env, v.userId, v.email, fetchImpl, v.createdAt))) {
     return json({ error: 'Focus buddy is a Pro feature' }, 403);
   }
 
@@ -163,17 +121,7 @@ export async function handleBuddyJoin(
   const supabaseUrl = env.SUPABASE_URL as string;
   const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY as string;
 
-  if (
-    !(await isUserPro(
-      supabaseUrl,
-      serviceKey,
-      v.userId,
-      v.email,
-      env.PRO_COMPLIMENTARY_EMAILS,
-      fetchImpl,
-      v.createdAt,
-    ))
-  ) {
+  if (!(await hasServerProAccess(env, v.userId, v.email, fetchImpl, v.createdAt))) {
     return json({ error: 'Focus buddy is a Pro feature' }, 403);
   }
 

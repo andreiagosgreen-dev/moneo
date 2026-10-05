@@ -166,6 +166,16 @@ export function exerciseTotals(
 
 export const metricValue = (t: ExerciseTotals, m: TargetMetric) => (m === 'sec' ? t.sec : t.reps);
 
+/**
+ * What a report shows for an exercise: time for timed exercises, reps for reps
+ * exercises, but time when a reps exercise was only done on a timer (warm-ups,
+ * circuit stations without typed reps).
+ */
+export function displayMetric(exId: string, t: ExerciseTotals): TargetMetric {
+  const m = metricOf(exId);
+  return m === 'reps' && t.reps === 0 && t.sec > 0 ? 'sec' : m;
+}
+
 export interface TargetProgress {
   done: number;
   amount: number;
@@ -221,9 +231,13 @@ export function trainedExercises(
     if (e.startedAt < from || e.startedAt >= to) continue;
     for (const s of e.sets) if (getExercise(s.ex)) ids.add(s.ex);
   }
-  return [...ids]
-    .map((ex) => ({ ex, totals: exerciseTotals(log, ex, from, to) }))
-    .sort((a, b) => b.totals.sets - a.totals.sets || a.ex.localeCompare(b.ex));
+  return (
+    [...ids]
+      .map((ex) => ({ ex, totals: exerciseTotals(log, ex, from, to) }))
+      // Sets skipped straight away (no reps, no time) are not training.
+      .filter(({ totals }) => totals.reps > 0 || totals.sec > 0)
+      .sort((a, b) => b.totals.sets - a.totals.sets || a.ex.localeCompare(b.ex))
+  );
 }
 
 /** Report ranges offered in the UI. */

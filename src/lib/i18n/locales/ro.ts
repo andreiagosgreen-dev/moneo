@@ -3701,9 +3701,6 @@ export const ro: Record<TKey, string> = {
   'plan.ent.calendar': 'Google Calendar și Focus Buddy',
   'pay.plan.monthly.f8':
     'Mișcare Pro: rutinele tale, recorduri personale, grafice de progres și program personal de antrenament',
-  'pay.trialBadge': 'Primele {n} zile gratis',
-  'pay.trialCta': 'Începe {n} zile gratuit',
-  'pay.trialNote': 'Dacă anulezi în perioada de probă, nu plătești nimic.',
   'onb.qs.stepTitle': 'Primul tău pas',
   'onb.qs.stepHint': 'Cea mai mică bucată pe care o poți începe acum — o poți modifica.',
   'onb.qs.startHint': 'Un singur lucru clar. Pornește cronometrul și lucrează doar la asta.',
