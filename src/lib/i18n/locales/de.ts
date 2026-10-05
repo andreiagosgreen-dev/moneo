@@ -3662,6 +3662,21 @@ export const de: Record<TKey, string> = {
   'mono.trial.endedSub':
     'Deine Daten bleiben und alles Kostenlose funktioniert weiter. Pro-Funktionen kommen mit einem Abo zurück.',
   'mono.trial.cta': 'Pläne ansehen',
+  'tour.plan.day': 'Tag 2 deines Pro-Tests',
+  'tour.plan.t': 'Mach aus einem Ziel einen Plan',
+  'tour.plan.b':
+    'Schreib ein Ziel wie „Anatomie-Prüfung bestehen“ und erhalte die Schritte Woche für Woche. KI-Pläne sind im Test enthalten.',
+  'tour.plan.cta': 'Plan erstellen',
+  'tour.move.day': 'Tag 3 deines Pro-Tests',
+  'tour.move.t': 'Ein 10-Minuten-Training zwischen den Lernblöcken',
+  'tour.move.b': 'Wähle Zone und Dauer; Moneo baut es mit Timern, Tönen und Sprachcoach.',
+  'tour.move.cta': 'Bewegung öffnen',
+  'tour.reports.day': 'Tag 4 deines Pro-Tests',
+  'tour.reports.t': 'Sieh, wohin deine Zeit geht',
+  'tour.reports.b':
+    'Berichte zeigen deinen Fokus nach Tag, Projekt und Bereich, damit du die nächste Woche mit echten Zahlen planst.',
+  'tour.reports.cta': 'Berichte öffnen',
+  'tour.later': 'Nicht jetzt',
   'first.title': 'Deine ersten Schritte',
   'first.count': '{n} von 3',
   'first.task.t': 'Schreib eine Sache für heute auf',

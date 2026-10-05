@@ -4,6 +4,9 @@
  * most once per account (KV guards) and carry a one-click unsubscribe link.
  * Without RESEND_API_KEY everything here is a silent no-op.
  */
+import { SIGNUP_TRIAL_DAYS } from '../../src/lib/billing/signupTrial';
+import { hasPaidProAccess } from './subscriptionAccess';
+import { hasComplimentaryPro, resolveComplimentaryAllowlist } from './complimentaryPro';
 import type { FetchImpl } from './account';
 import type { DiscountKV } from './discount';
 import { writeEvent, type AnalyticsDataset } from './events';
@@ -17,6 +20,8 @@ export interface EmailEnv {
   KV_CACHE?: DiscountKV;
   /** Funnel counters: one anonymous "sign_up" per new account, by channel. */
   EVENTS?: AnalyticsDataset;
+  /** Gifted Pro accounts: no trial email. */
+  PRO_COMPLIMENTARY_EMAILS?: string;
 }
 
 export const SITE = 'https://moneo.bond';
@@ -228,7 +233,103 @@ const REMINDER: Record<EmailLang, Copy> = {
   },
 };
 
-export type EmailKind = 'welcome' | 'reminder';
+/** Day 5 of the free Pro trial: one email, only to accounts that don't pay. `{date}` = trial end. */
+const TRIAL: Record<EmailLang, Copy> = {
+  en: {
+    subject: '2 days of free Pro left',
+    lines: [
+      'Your free Pro trial ends on {date}.',
+      'Pro keeps sync on all your devices, 3 AI plans a day, workout packs with reports, and the full planner.',
+      'Nothing is charged automatically: if you don’t pick a plan, your account goes back to Free and your data stays.',
+    ],
+    cta: 'See plans',
+    unsub: 'Don’t want these emails? Unsubscribe',
+  },
+  ro: {
+    subject: 'Mai ai 2 zile de Pro gratuit',
+    lines: [
+      'Proba ta gratuită Pro se termină pe {date}.',
+      'Pro îți păstrează sincronizarea pe toate dispozitivele, 3 planuri AI pe zi, pachetele de antrenament cu rapoarte și planificatorul complet.',
+      'Nu se percepe nimic automat: dacă nu alegi un plan, contul revine la Free, iar datele tale rămân.',
+    ],
+    cta: 'Vezi planurile',
+    unsub: 'Nu vrei aceste emailuri? Dezabonează-te',
+  },
+  ru: {
+    subject: 'Осталось 2 дня бесплатного Pro',
+    lines: [
+      'Ваш бесплатный пробный период Pro заканчивается {date}.',
+      'С Pro остаются синхронизация на всех устройствах, 3 ИИ-плана в день, пакеты тренировок с отчётами и полный планировщик.',
+      'Ничего не списывается автоматически: если вы не выберете план, аккаунт вернётся к бесплатному, а данные сохранятся.',
+    ],
+    cta: 'Посмотреть планы',
+    unsub: 'Не хотите получать эти письма? Отписаться',
+  },
+  uk: {
+    subject: 'Залишилося 2 дні безкоштовного Pro',
+    lines: [
+      'Ваш безкоштовний пробний період Pro закінчується {date}.',
+      'З Pro залишаються синхронізація на всіх пристроях, 3 ШІ-плани на день, пакети тренувань зі звітами й повний планувальник.',
+      'Нічого не списується автоматично: якщо ви не оберете план, акаунт повернеться до безкоштовного, а дані збережуться.',
+    ],
+    cta: 'Переглянути плани',
+    unsub: 'Не хочете отримувати ці листи? Відписатися',
+  },
+  de: {
+    subject: 'Noch 2 Tage Pro gratis',
+    lines: [
+      'Deine kostenlose Pro-Testphase endet am {date}.',
+      'Mit Pro behältst du Sync auf allen Geräten, 3 KI-Pläne pro Tag, Trainingspakete mit Berichten und den vollen Planer.',
+      'Es wird nichts automatisch berechnet: Wählst du keinen Plan, kehrt dein Konto zu Free zurück und deine Daten bleiben.',
+    ],
+    cta: 'Pläne ansehen',
+    unsub: 'Keine solchen E-Mails mehr? Abmelden',
+  },
+  fr: {
+    subject: 'Plus que 2 jours de Pro offert',
+    lines: [
+      'Ton essai Pro gratuit se termine le {date}.',
+      'Pro garde la synchro sur tous tes appareils, 3 plans IA par jour, les séances avec bilans et le planificateur complet.',
+      'Rien n’est prélevé automatiquement : si tu ne choisis pas de plan, ton compte repasse en gratuit et tes données restent.',
+    ],
+    cta: 'Voir les plans',
+    unsub: 'Tu ne veux plus ces e-mails ? Se désabonner',
+  },
+  es: {
+    subject: 'Te quedan 2 días de Pro gratis',
+    lines: [
+      'Tu prueba gratuita de Pro termina el {date}.',
+      'Pro mantiene la sincronización en todos tus dispositivos, 3 planes de IA al día, los paquetes de entreno con informes y el planificador completo.',
+      'No se cobra nada automáticamente: si no eliges un plan, tu cuenta vuelve a Free y tus datos se conservan.',
+    ],
+    cta: 'Ver planes',
+    unsub: '¿No quieres estos correos? Darse de baja',
+  },
+  it: {
+    subject: 'Ancora 2 giorni di Pro gratis',
+    lines: [
+      'La tua prova gratuita di Pro finisce il {date}.',
+      'Pro mantiene la sincronizzazione su tutti i dispositivi, 3 piani IA al giorno, i pacchetti di allenamento con report e il planner completo.',
+      'Non viene addebitato nulla automaticamente: se non scegli un piano, l’account torna a Free e i tuoi dati restano.',
+    ],
+    cta: 'Vedi i piani',
+    unsub: 'Non vuoi queste email? Annulla l’iscrizione',
+  },
+};
+
+export type EmailKind = 'welcome' | 'reminder' | 'trial';
+
+const COPY: Record<EmailKind, Record<EmailLang, Copy>> = {
+  welcome: WELCOME,
+  reminder: REMINDER,
+  trial: TRIAL,
+};
+/** Where the button goes (the trial email opens the plans, tagged for the funnel). */
+const CTA_PATH: Record<EmailKind, string> = {
+  welcome: '/',
+  reminder: '/',
+  trial: '/pricing?utm_source=email&utm_campaign=trial-day5',
+};
 
 function escapeHtml(s: string): string {
   return s
@@ -243,18 +344,22 @@ export function renderEmail(
   kind: EmailKind,
   lang: EmailLang,
   unsubUrl: string,
+  vars: { date?: string } = {},
 ): { subject: string; html: string; text: string } {
-  const c = (kind === 'welcome' ? WELCOME : REMINDER)[lang];
+  const base = COPY[kind][lang];
+  const fill = (s: string) => s.replace('{date}', vars.date ?? '');
+  const c = { ...base, lines: base.lines.map(fill) };
+  const href = `${SITE}${CTA_PATH[kind]}`;
   const paragraphs = c.lines.map((l) => `<p style="margin:0 0 12px">${escapeHtml(l)}</p>`).join('');
   const html =
     `<!doctype html><html lang="${lang}"><body style="margin:0;background:#f4f1ea;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#1f2a24">` +
     `<div style="max-width:520px;margin:0 auto;padding:32px 24px">` +
     `<p style="margin:0 0 20px;font-size:20px;font-weight:700">Moneo</p>` +
     `<div style="font-size:15px;line-height:1.55">${paragraphs}</div>` +
-    `<p style="margin:24px 0"><a href="${SITE}/" style="display:inline-block;background:#c46f4a;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600">${escapeHtml(c.cta)}</a></p>` +
+    `<p style="margin:24px 0"><a href="${escapeHtml(href)}" style="display:inline-block;background:#c46f4a;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600">${escapeHtml(c.cta)}</a></p>` +
     `<p style="margin:32px 0 0;font-size:12px;color:#6b726c"><a href="${escapeHtml(unsubUrl)}" style="color:#6b726c">${escapeHtml(c.unsub)}</a></p>` +
     `</div></body></html>`;
-  const text = `${c.lines.join('\n')}\n\n${c.cta}: ${SITE}/\n\n${c.unsub}: ${unsubUrl}\n`;
+  const text = `${c.lines.join('\n')}\n\n${c.cta}: ${href}\n\n${c.unsub}: ${unsubUrl}\n`;
   return { subject: c.subject, html, text };
 }
 
@@ -283,6 +388,7 @@ export async function unsubUrl(userId: string, secret: string): Promise<string> 
 const kvKey = {
   welcome: (id: string) => `mail:welcome:${id}`,
   reminder: (id: string) => `mail:reminder:${id}`,
+  trial: (id: string) => `mail:trial:${id}`,
   unsub: (id: string) => `mail:unsub:${id}`,
   lang: (id: string) => `mail:lang:${id}`,
   seen: (id: string) => `mail:seen:${id}`,
@@ -295,7 +401,7 @@ export async function forgetEmailMarkers(
 ): Promise<void> {
   if (!kv) return;
   await Promise.all(
-    [kvKey.welcome, kvKey.reminder, kvKey.unsub, kvKey.lang, kvKey.seen].map((k) =>
+    [kvKey.welcome, kvKey.reminder, kvKey.trial, kvKey.unsub, kvKey.lang, kvKey.seen].map((k) =>
       kv.delete(k(userId)).catch(() => undefined),
     ),
   );
@@ -538,6 +644,87 @@ export async function runReminders(
     );
     if (ok) sent += 1;
     else await env.KV_CACHE.delete(kvKey.reminder(user.id));
+  }
+  return { sent };
+}
+
+/** The trial email goes out once, on day 5 (4–5 days after sign-up), to confirmed accounts. */
+export function needsTrialEmail(user: AuthUser, paidIds: Set<string>, now: number): boolean {
+  if (!user.email || !user.email_confirmed_at || paidIds.has(user.id)) return false;
+  const created = Date.parse(user.created_at ?? '');
+  if (!Number.isFinite(created)) return false;
+  const age = now - created;
+  return age >= 4 * DAY && age < 5 * DAY;
+}
+
+/** Accounts with paid (or still-paid) Lemon access: no trial email for them. */
+async function paidUserIds(env: EmailEnv, fetchImpl: FetchImpl, now: number): Promise<Set<string>> {
+  const res = await fetchImpl(
+    `${env.SUPABASE_URL}/rest/v1/subscriptions?select=user_id,status,current_period_end&limit=20000`,
+    {
+      headers: {
+        apikey: env.SUPABASE_SERVICE_ROLE_KEY!,
+        Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+    },
+  );
+  if (!res.ok) throw new Error(`subscriptions ${res.status}`);
+  const rows = (await res.json()) as Array<{
+    user_id?: string;
+    status?: string;
+    current_period_end?: string | null;
+  }>;
+  return new Set(
+    rows
+      .filter((r) => r.user_id && hasPaidProAccess(r.status, r.current_period_end, now))
+      .map((r) => r.user_id!),
+  );
+}
+
+/** Trial end as a date in the email's language, e.g. "12 octombrie". */
+export function trialEndLabel(createdAt: number, lang: EmailLang): string {
+  return new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(
+    createdAt + SIGNUP_TRIAL_DAYS * DAY,
+  );
+}
+
+/** Daily cron: "2 days of free Pro left" for accounts on day 5 of the trial. */
+export async function runTrialEmails(
+  env: EmailEnv,
+  fetchImpl: FetchImpl = fetch,
+  now: number = Date.now(),
+): Promise<{ sent: number; skipped?: string }> {
+  if (!env.RESEND_API_KEY || !env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY || !env.KV_CACHE) {
+    return { sent: 0, skipped: 'not_configured' };
+  }
+  // If subscriptions can't be read, send nothing rather than tell a payer to pay.
+  const paid = await paidUserIds(env, fetchImpl, now);
+  const allow = resolveComplimentaryAllowlist(env.PRO_COMPLIMENTARY_EMAILS);
+  const users = await listUsers(env, fetchImpl);
+  let sent = 0;
+  for (const user of users) {
+    if (sent >= MAX_REMINDERS_PER_RUN) break;
+    if (!needsTrialEmail(user, paid, now)) continue;
+    if (hasComplimentaryPro(user.email ?? null, allow)) continue;
+    if (await env.KV_CACHE.get(kvKey.trial(user.id))) continue;
+    if (await env.KV_CACHE.get(kvKey.unsub(user.id))) continue;
+    const meta = user.user_metadata ?? {};
+    const lang = pickLang(
+      (await env.KV_CACHE.get(kvKey.lang(user.id))) ?? String(meta.locale ?? ''),
+      String(meta.timezone ?? ''),
+    );
+    await env.KV_CACHE.put(kvKey.trial(user.id), String(now));
+    const unsub = await unsubUrl(user.id, env.SUPABASE_SERVICE_ROLE_KEY);
+    const date = trialEndLabel(Date.parse(user.created_at!), lang);
+    const ok = await sendEmail(
+      env,
+      fetchImpl,
+      user.email!,
+      renderEmail('trial', lang, unsub, { date }),
+      unsub,
+    );
+    if (ok) sent += 1;
+    else await env.KV_CACHE.delete(kvKey.trial(user.id));
   }
   return { sent };
 }

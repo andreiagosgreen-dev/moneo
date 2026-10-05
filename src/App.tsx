@@ -78,6 +78,8 @@ import { getMinutesForTask, loadTasks, removeTask, saveTasks, type Task } from '
 import { rhythmFor } from './lib/focusRhythm';
 import { estimateVsActual } from './lib/estimates';
 import type { AmbientLayer } from './lib/ambient';
+import MonoTourTip from './mono/MonoTourTip';
+import { dismissTip, loadDismissedTips, tourTip, type TourTip } from './lib/trialTour';
 import MonoFirstSteps from './mono/MonoFirstSteps';
 import {
   FIRST_STEPS,
@@ -788,6 +790,12 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
   // While the steps lead, Today stays short: no guide, empty habits or check-in yet.
   // Habits the user already has always show.
   const quietToday = fsView === 'steps' && !fsProgress.done.task;
+  // Trial tour (days 2–4): one suggestion a day once the first steps are out of the way.
+  const [dismissedTips, setDismissedTips] = useState<TourTip[]>(loadDismissedTips);
+  const tip =
+    auth.trialEndsAt != null && fsView !== 'steps'
+      ? tourTip(auth.user?.createdAt, dismissedTips)
+      : null;
   const hideHabits = quietToday && activeHabits(habits).length === 0;
   const planTaskIds = useMemo(
     () => new Set((todayPlan?.tasks ?? []).map((x) => x.taskId).filter((id): id is string => !!id)),
@@ -1398,6 +1406,15 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                             />
                           ) : trialNote ? (
                             <MonoTrialNote notice={trialNote} summary={trialSummary} />
+                          ) : tip ? (
+                            <MonoTourTip
+                              tip={tip}
+                              onGo={() => {
+                                setDismissedTips(dismissTip(tip));
+                                goNav(tip);
+                              }}
+                              onDismiss={() => setDismissedTips(dismissTip(tip))}
+                            />
                           ) : undefined
                         }
                         intro={firstStepsCard}

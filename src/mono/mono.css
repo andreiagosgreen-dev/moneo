@@ -6328,3 +6328,9 @@ ul.mono-tree {
   white-space: nowrap;
   border: 0;
 }
+.mono-tour {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-left: 3px solid var(--mono-accent, var(--accent));
+}

@@ -13,7 +13,7 @@
 
 import { handleAccountDelete } from './account';
 import { handleEvent, type AnalyticsDataset } from './events';
-import { handleUnsubscribe, handleWelcome, runReminders } from './emails';
+import { handleUnsubscribe, handleWelcome, runReminders, runTrialEmails } from './emails';
 import { handleEntitlement } from './entitlement';
 import { handleLemonSqueezyWebhook } from './lemonWebhook';
 import { handleCustomerPortal } from './portal';
@@ -351,7 +351,7 @@ export default {
     });
   },
 
-  /** Daily cron (wrangler.toml [triggers]): one-time reminder to quiet accounts. */
+  /** Daily cron (wrangler.toml [triggers]): one-time reminder to quiet accounts, day-5 trial email. */
   async scheduled(
     _event: unknown,
     env: Env,
@@ -360,6 +360,11 @@ export default {
     ctx.waitUntil(
       runReminders(env).catch((e: unknown) => {
         console.error('reminders failed', e instanceof Error ? e.message : e);
+      }),
+    );
+    ctx.waitUntil(
+      runTrialEmails(env).catch((e: unknown) => {
+        console.error('trial emails failed', e instanceof Error ? e.message : e);
       }),
     );
   },
