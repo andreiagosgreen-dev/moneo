@@ -785,8 +785,10 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
     updateFirstSteps(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fsView, fsProgress.count]);
-  // While the steps lead, Today stays short: no guide, habits or check-in yet.
+  // While the steps lead, Today stays short: no guide, empty habits or check-in yet.
+  // Habits the user already has always show.
   const quietToday = fsView === 'steps' && !fsProgress.done.task;
+  const hideHabits = quietToday && activeHabits(habits).length === 0;
   const planTaskIds = useMemo(
     () => new Set((todayPlan?.tasks ?? []).map((x) => x.taskId).filter((id): id is string => !!id)),
     [todayPlan],
@@ -1458,7 +1460,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                           ) : undefined
                         }
                         habits={
-                          quietToday ? undefined : (
+                          hideHabits ? undefined : (
                             <MonoHabitsCheckin
                               habits={habits}
                               habitLog={habitLog}
