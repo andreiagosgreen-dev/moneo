@@ -29,12 +29,23 @@ export const fitEs: Record<FitKey, string> = {
   'fit.muscle.adductors': 'Aductores',
   'fit.muscle.calves': 'Gemelos',
   'fit.eq.all': 'Cualquier material',
-  'fit.eq.band': 'Banda elástica',
+  'fit.eq.band': 'Banda elástica larga',
   'fit.eq.rope': 'Comba',
   'fit.eq.kettlebell': 'Kettlebell',
   'fit.eq.pullupBar': 'Barra de dominadas',
   'fit.eq.bench': 'Banco',
   'fit.eq.cable': 'Polea',
+  'fit.eq.miniBand': 'Minibandas',
+  'fit.eq.abWheel': 'Rueda abdominal',
+  'fit.eq.pushupBars': 'Agarres de flexiones',
+  'fit.eq.dipBars': 'Paralelas',
+  'fit.eq.abBench': 'Banco de abdominales',
+  'fit.eq.fitball': 'Fitball',
+  'fit.eq.medBall': 'Balón medicinal',
+  'fit.eq.foamRoller': 'Rodillo de espuma',
+  'fit.eq.step': 'Step',
+  'fit.eq.ankleWeights': 'Tobilleras lastradas',
+  'fit.eq.suspension': 'Cintas de suspensión (TRX)',
   'fit.level.1': 'Principiante',
   'fit.level.2': 'Intermedio',
   'fit.level.3': 'Avanzado',
@@ -439,6 +450,126 @@ export const fitEs: Record<FitKey, string> = {
   'fit.ex.clamshell.cue': 'De lado, rodillas dobladas, abre la rodilla de arriba, pies juntos.',
   'fit.ex.teaser.name': 'Teaser',
   'fit.ex.teaser.cue': 'Sube en V, brazos hacia las puntas, baja despacio.',
+  'fit.ex.abWheelKneel.name': 'Rueda abdominal (de rodillas)',
+  'fit.ex.abWheelKneel.cue':
+    'De rodillas, manos en la rueda bajo los hombros. Rueda hacia delante con el core firme y vuelve tirando con el abdomen.',
+  'fit.ex.abWheelStand.name': 'Rueda abdominal de pie',
+  'fit.ex.abWheelStand.cue':
+    'De pie, inclínate hasta la rueda y rueda hasta quedar casi horizontal; vuelve con el abdomen.',
+  'fit.ex.abWheelOblique.name': 'Rueda abdominal oblicua',
+  'fit.ex.abWheelOblique.cue':
+    'De rodillas, rueda en diagonal hacia un lado y vuelve. Alterna los lados.',
+  'fit.ex.bandLateralWalk.name': 'Paso lateral con banda',
+  'fit.ex.bandLateralWalk.cue':
+    'Banda sobre las rodillas o en los tobillos, media sentadilla. Camina de lado sin perder la tensión.',
+  'fit.ex.bandMonsterWalk.name': 'Paso de monstruo',
+  'fit.ex.bandMonsterWalk.cue':
+    'Banda en rodillas o tobillos, media sentadilla. Avanza con pasos amplios en diagonal y luego retrocede.',
+  'fit.ex.bandSquat.name': 'Sentadilla con banda',
+  'fit.ex.bandSquat.cue':
+    'Banda justo encima de las rodillas. Baja empujando las rodillas hacia fuera y sube.',
+  'fit.ex.bandGluteBridge.name': 'Puente de glúteo con banda',
+  'fit.ex.bandGluteBridge.cue':
+    'Boca arriba, banda sobre las rodillas. Sube la cadera, rodillas hacia fuera, aprieta los glúteos arriba.',
+  'fit.ex.bandClamshell.name': 'Almeja con banda',
+  'fit.ex.bandClamshell.cue':
+    'De lado, rodillas flexionadas, banda sobre las rodillas. Abre la rodilla de arriba, pies juntos.',
+  'fit.ex.bandFireHydrant.name': 'Fire hydrant con banda',
+  'fit.ex.bandFireHydrant.cue':
+    'A cuatro patas, banda sobre las rodillas. Eleva una rodilla flexionada hacia el lado, sostén y baja.',
+  'fit.ex.bandDonkeyKick.name': 'Patada de burro con banda',
+  'fit.ex.bandDonkeyKick.cue':
+    'A cuatro patas, banda en los muslos. Empuja un talón hacia el techo, rodilla flexionada, aprieta el glúteo.',
+  'fit.ex.bandChestPress.name': 'Press de pecho con banda',
+  'fit.ex.bandChestPress.cue':
+    'Banda anclada detrás a la altura del pecho. Empuja las manos al frente y vuelve despacio.',
+  'fit.ex.bandCurl.name': 'Curl de bíceps con banda',
+  'fit.ex.bandCurl.cue':
+    'Pisa la banda, palmas al frente. Sube las manos a los hombros, codos pegados, baja despacio.',
+  'fit.ex.bandOverheadExt.name': 'Extensión de tríceps por encima de la cabeza',
+  'fit.ex.bandOverheadExt.cue':
+    'Banda bajo un pie, manos detrás de la cabeza. Estira los brazos arriba y flexiona despacio.',
+  'fit.ex.bandShoulderPress.name': 'Press de hombros con banda',
+  'fit.ex.bandShoulderPress.cue':
+    'Pisa la banda, manos a la altura de los hombros. Empuja recto hacia arriba y baja con control.',
+  'fit.ex.bandWoodchop.name': 'Leñador con banda',
+  'fit.ex.bandWoodchop.cue':
+    'Banda anclada arriba a un lado. Tira en diagonal hacia abajo cruzando el cuerpo, girando desde la cintura.',
+  'fit.ex.bandFacePull.name': 'Face pull con banda',
+  'fit.ex.bandFacePull.cue':
+    'Banda a la altura de la cara. Tira de los extremos hacia los ojos, codos altos, junta las escápulas.',
+  'fit.ex.deepPushup.name': 'Flexiones profundas con agarres',
+  'fit.ex.deepPushup.cue':
+    'Manos en los agarres. Baja el pecho por debajo de ellos y empuja en línea recta.',
+  'fit.ex.parallelDip.name': 'Fondos en paralelas',
+  'fit.ex.parallelDip.cue':
+    'Apóyate en las barras con los brazos estirados. Baja hasta 90° de codo y sube.',
+  'fit.ex.lSit.name': 'L-sit (mantener)',
+  'fit.ex.lSit.cue':
+    'Manos en las barras, empuja hacia abajo para elevar el cuerpo, piernas rectas al frente. Mantén.',
+  'fit.ex.chinUp.name': 'Dominada supina',
+  'fit.ex.chinUp.cue':
+    'Cuelga con las palmas hacia ti, a la anchura de los hombros. Sube la barbilla sobre la barra y baja del todo.',
+  'fit.ex.hangingKneeRaise.name': 'Elevación de rodillas colgado',
+  'fit.ex.hangingKneeRaise.cue':
+    'Cuelga de la barra. Sube las rodillas al pecho sin balancearte y baja despacio.',
+  'fit.ex.declineSitUp.name': 'Abdominales en banco declinado',
+  'fit.ex.declineSitUp.cue':
+    'Pies sujetos, brazos cruzados. Enróllate hasta sentarte y baja despacio.',
+  'fit.ex.benchLegRaise.name': 'Elevación de piernas en banco',
+  'fit.ex.benchLegRaise.cue':
+    'Tumbado en el banco, agárrate detrás de la cabeza. Sube las piernas rectas a la vertical y baja sin apoyar.',
+  'fit.ex.ballCrunch.name': 'Crunch en fitball',
+  'fit.ex.ballCrunch.cue':
+    'Túmbate sobre el balón, pies apoyados. Lleva las costillas hacia la cadera y estírate sobre el balón.',
+  'fit.ex.ballHamCurl.name': 'Curl femoral en fitball',
+  'fit.ex.ballHamCurl.cue':
+    'Boca arriba, talones en el balón, cadera arriba. Acerca el balón con los talones y aléjalo, cadera alta.',
+  'fit.ex.ballWallSquat.name': 'Sentadilla en pared con fitball',
+  'fit.ex.ballWallSquat.cue':
+    'Balón entre la zona lumbar y la pared. Baja dejando rodar el balón y sube.',
+  'fit.ex.medBallSlam.name': 'Slam con balón medicinal',
+  'fit.ex.medBallSlam.cue':
+    'Sube el balón por encima de la cabeza de puntillas y lánzalo al suelo con fuerza. Recógelo y repite.',
+  'fit.ex.medBallTwist.name': 'Giro ruso con balón medicinal',
+  'fit.ex.medBallTwist.cue':
+    'Sentado, algo inclinado atrás, balón en el pecho. Gira y toca el suelo junto a cada cadera.',
+  'fit.ex.rollQuads.name': 'Rodillo: muslos',
+  'fit.ex.rollQuads.cue':
+    'Boca abajo sobre los antebrazos, rodillo bajo los muslos. Rueda despacio de la cadera a encima de la rodilla.',
+  'fit.ex.rollBack.name': 'Rodillo: espalda alta',
+  'fit.ex.rollBack.cue':
+    'Boca arriba, rodillo bajo las escápulas, manos tras la cabeza. Rueda despacio por la parte alta de la espalda.',
+  'fit.ex.stepTaps.name': 'Toques en step',
+  'fit.ex.stepTaps.cue':
+    'De cara al step, tócalo con un pie y luego con el otro a ritmo rápido y constante. Pisa ligero.',
+  'fit.ex.ankleSideRaise.name': 'Elevación lateral de pierna con tobilleras',
+  'fit.ex.ankleSideRaise.cue':
+    'De lado, tobilleras puestas. Sube la pierna de arriba recta, punta al frente, y baja despacio.',
+  'fit.ex.ankleKickback.name': 'Patada atrás con tobillera',
+  'fit.ex.ankleKickback.cue':
+    'A cuatro patas, tobillera en un tobillo. Lleva la pierna atrás y arriba hasta el muslo horizontal y baja despacio.',
+  'fit.ex.trxRow.name': 'Remo en suspensión (TRX)',
+  'fit.ex.trxRow.cue':
+    'Sujeta las asas e inclínate atrás con el cuerpo recto. Lleva el pecho a las manos y baja despacio.',
+  'fit.ex.trxPushup.name': 'Flexiones en suspensión (TRX)',
+  'fit.ex.trxPushup.cue':
+    'Manos en las cintas, cuerpo inclinado en plancha. Baja el pecho entre las manos y empuja.',
+  'fit.ex.trxSquat.name': 'Sentadilla en suspensión (TRX)',
+  'fit.ex.trxSquat.cue':
+    'Sujeta las cintas para equilibrarte, baja profundo con el pecho arriba y sube.',
+  'fit.ex.kbGobletSquat.name': 'Sentadilla goblet con kettlebell',
+  'fit.ex.kbGobletSquat.cue':
+    'Kettlebell por las asas a la altura del pecho. Baja entre las rodillas, pecho arriba, y sube.',
+  'fit.ex.kbDeadlift.name': 'Peso muerto con kettlebell',
+  'fit.ex.kbDeadlift.cue':
+    'Kettlebell entre los pies. Lleva la cadera atrás con la espalda recta, agárrala y sube empujando la cadera.',
+  'fit.ex.kbPress.name': 'Press por encima con kettlebell',
+  'fit.ex.kbPress.cue':
+    'Kettlebell en el hombro, apoyada en el antebrazo. Empuja recto hacia arriba y baja al hombro.',
+  'fit.ex.dbFloorPress.name': 'Press de suelo con mancuernas',
+  'fit.ex.dbFloorPress.cue':
+    'Tumbado en el suelo, rodillas flexionadas, mancuernas sobre el pecho. Baja hasta tocar el suelo con los brazos y empuja.',
   'fit.ex.squat.tip': 'Rodillas hacia dentro. Empújalas sobre las puntas.',
   'fit.ex.sumoSquat.tip': 'Inclinarse adelante. Pecho arriba, espalda recta.',
   'fit.ex.wallSit.tip': 'Rodillas más allá de las puntas. Adelanta los pies.',
@@ -560,4 +691,57 @@ export const fitEs: Record<FitKey, string> = {
   'fit.ex.sideLegLift.tip': 'Ruedas hacia atrás. Caderas una sobre otra.',
   'fit.ex.clamshell.tip': 'La cadera rueda atrás. Caderas una sobre otra.',
   'fit.ex.teaser.tip': 'Aguantas la respiración. Exhala al subir.',
+  'fit.ex.abWheelKneel.tip':
+    'Se hunde la zona lumbar. Rueda solo hasta donde mantengas la espalda recta.',
+  'fit.ex.abWheelStand.tip':
+    'Demasiado lejos demasiado pronto. Domina primero la versión de rodillas.',
+  'fit.ex.abWheelOblique.tip': 'Giran las caderas. Mantenlas de frente y trabaja con la cintura.',
+  'fit.ex.bandLateralWalk.tip':
+    'Los pies se juntan. Mantén la anchura de cadera para que la banda no se afloje.',
+  'fit.ex.bandMonsterWalk.tip': 'Rodillas hacia dentro. Empújalas hacia fuera contra la banda.',
+  'fit.ex.bandSquat.tip': 'La banda junta las rodillas. Mantenlas sobre los dedos de los pies.',
+  'fit.ex.bandGluteBridge.tip':
+    'Arquear la zona lumbar. Sube con los glúteos hasta alinear cadera y hombros.',
+  'fit.ex.bandClamshell.tip': 'La cadera rueda hacia atrás. Mantén las caderas apiladas.',
+  'fit.ex.bandFireHydrant.tip': 'Inclinarse al otro lado. Mantén el peso centrado.',
+  'fit.ex.bandDonkeyKick.tip':
+    'Arquear la espalda para subir más. Para cuando el muslo esté horizontal.',
+  'fit.ex.bandChestPress.tip': 'Dejar que la banda tire de golpe. Controla la vuelta.',
+  'fit.ex.bandCurl.tip': 'Los codos se adelantan. Mantenlos pegados al cuerpo.',
+  'fit.ex.bandOverheadExt.tip': 'Los codos se abren. Mantenlos cerca de la cabeza.',
+  'fit.ex.bandShoulderPress.tip':
+    'Inclinarse hacia atrás. Aprieta glúteos y abdomen, costillas abajo.',
+  'fit.ex.bandWoodchop.tip': 'Tirar solo con los brazos. Gira el tronco y pivota el pie de atrás.',
+  'fit.ex.bandFacePull.tip': 'Encoger los hombros. Mantenlos abajo, lejos de las orejas.',
+  'fit.ex.deepPushup.tip': 'Se hunde la cadera. Aprieta glúteos y abdomen como en plancha.',
+  'fit.ex.parallelDip.tip': 'Bajar demasiado con los hombros adelante. Para a 90°, pecho arriba.',
+  'fit.ex.lSit.tip':
+    'Rodillas flexionadas y hombros caídos. Empieza con las rodillas recogidas y empuja.',
+  'fit.ex.chinUp.tip': 'Medias repeticiones. Empieza cada una colgando del todo.',
+  'fit.ex.hangingKneeRaise.tip': 'Balancearse. Pausa abajo y sube con el abdomen.',
+  'fit.ex.declineSitUp.tip': 'Tirar del cuello. Manos en el pecho, sube con las costillas.',
+  'fit.ex.benchLegRaise.tip':
+    'Se despega la zona lumbar. Pégala al banco; flexiona las rodillas si hace falta.',
+  'fit.ex.ballCrunch.tip': 'El balón rueda. Pies separados y balón fijo bajo la zona lumbar.',
+  'fit.ex.ballHamCurl.tip': 'La cadera baja. Mantenla arriba toda la serie.',
+  'fit.ex.ballWallSquat.tip':
+    'Pies demasiado cerca de la pared. Adelántalos, rodillas sobre los tobillos.',
+  'fit.ex.medBallSlam.tip': 'Balón que rebota. Usa un slam ball que no rebote hacia la cara.',
+  'fit.ex.medBallTwist.tip': 'Mover solo los brazos. Gira todo el tronco con el balón.',
+  'fit.ex.rollQuads.tip':
+    'Rodar rápido por todo. Ve despacio y para en los puntos tensos, nunca sobre la rodilla.',
+  'fit.ex.rollBack.tip':
+    'Rodar la zona lumbar. Quédate entre las escápulas y el final de las costillas.',
+  'fit.ex.stepTaps.tip': 'Pisar fuerte. Aterriza suave sobre la parte delantera del pie.',
+  'fit.ex.ankleSideRaise.tip':
+    'Punta hacia arriba. Mantenla al frente para trabajar el lateral de la cadera.',
+  'fit.ex.ankleKickback.tip': 'Balancear la pierna. Muévete lento y aprieta el glúteo arriba.',
+  'fit.ex.trxRow.tip':
+    'Se hunde la cadera. Cuerpo recto como en plancha; retrocede los pies para facilitar.',
+  'fit.ex.trxPushup.tip': 'Las cintas se separan. Mantenlas estables y cerca del cuerpo.',
+  'fit.ex.trxSquat.tip': 'Tirar con los brazos. Trabajan las piernas; las cintas solo equilibran.',
+  'fit.ex.kbGobletSquat.tip': 'Se levantan los talones. Pie entero en el suelo, siéntate atrás.',
+  'fit.ex.kbDeadlift.tip': 'Espalda redondeada. Flexiona desde la cadera, pecho orgulloso.',
+  'fit.ex.kbPress.tip': 'Inclinarse de lado. Activa el abdomen y empuja en línea recta.',
+  'fit.ex.dbFloorPress.tip': 'Rebotar con los codos. Pausa suave y empuja.',
 };

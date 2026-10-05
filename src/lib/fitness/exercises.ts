@@ -535,4 +535,210 @@ export const EXERCISES: readonly Exercise[] = [
     pose2: 'supinestraight',
     level: 3,
   }),
+  // Home equipment: mini bands, long bands, ab wheel, bars, ball, roller, step, straps
+  x('abWheelKneel', H, 'strength', ['abs', 'lats', 'shoulders'], 'abWheel', 'wheelin', reps(3, 8), {
+    pose2: 'wheelout',
+    level: 2,
+  }),
+  x('abWheelStand', H, 'strength', ['abs', 'lats', 'shoulders'], 'abWheel', 'wheelin', reps(3, 5), {
+    pose2: 'wheelout',
+    level: 3,
+  }),
+  x('abWheelOblique', H, 'strength', ['obliques', 'abs'], 'abWheel', 'wheelin', reps(3, 6), {
+    pose2: 'wheelout',
+    sides: true,
+    level: 2,
+  }),
+  x('bandLateralWalk', HO, 'strength', ['glutes', 'quads'], 'miniBand', 'bandwalk', reps(3, 12), {
+    pose2: 'bandwalk2',
+    sides: true,
+  }),
+  x(
+    'bandMonsterWalk',
+    HO,
+    'strength',
+    ['glutes', 'quads', 'hamstrings'],
+    'miniBand',
+    'bandwalk',
+    reps(3, 12),
+    {
+      pose2: 'bandwalk2',
+    },
+  ),
+  x('bandSquat', HO, 'strength', ['quads', 'glutes'], 'miniBand', 'squat', reps(3, 15), {
+    pose2: 'stand',
+  }),
+  x('bandGluteBridge', H, 'strength', ['glutes', 'hamstrings'], 'miniBand', 'bridge', reps(3, 15), {
+    pose2: 'supine',
+  }),
+  x('bandClamshell', H, 'strength', ['glutes'], 'miniBand', 'clam', reps(3, 15), {
+    pose2: 'sidelying',
+    sides: true,
+  }),
+  x('bandFireHydrant', H, 'strength', ['glutes'], 'miniBand', 'hydrant', reps(3, 12), {
+    pose2: 'quad',
+    sides: true,
+  }),
+  x(
+    'bandDonkeyKick',
+    H,
+    'strength',
+    ['glutes', 'hamstrings'],
+    'miniBand',
+    'kickback',
+    reps(3, 12),
+    {
+      pose2: 'quad',
+      sides: true,
+    },
+  ),
+  x(
+    'bandChestPress',
+    HO,
+    'strength',
+    ['chest', 'triceps', 'shoulders'],
+    'band',
+    'pushfwd',
+    reps(3, 12),
+    {
+      pose2: 'pushfwd2',
+    },
+  ),
+  x('bandCurl', HO, 'strength', ['biceps', 'forearms'], 'band', 'curl', reps(3, 12)),
+  x('bandOverheadExt', HO, 'strength', ['triceps'], 'band', 'ohext2', reps(3, 12), {
+    pose2: 'ohext',
+  }),
+  x('bandShoulderPress', HO, 'strength', ['shoulders', 'triceps'], 'band', 'press', reps(3, 12), {
+    pose2: 'pressdown',
+  }),
+  x('bandWoodchop', HO, 'strength', ['obliques', 'abs', 'shoulders'], 'band', 'chop', reps(3, 10), {
+    sides: true,
+  }),
+  x('bandFacePull', HO, 'strength', ['shoulders', 'traps'], 'band', 'pullapart', reps(3, 15)),
+  x(
+    'deepPushup',
+    H,
+    'strength',
+    ['chest', 'triceps', 'shoulders'],
+    'pushupBars',
+    'pushup',
+    reps(3, 10),
+    {
+      pose2: 'pushlow',
+      level: 2,
+    },
+  ),
+  x(
+    'parallelDip',
+    HO,
+    'strength',
+    ['triceps', 'chest', 'shoulders'],
+    'dipBars',
+    'dip',
+    reps(3, 8),
+    {
+      pose2: 'diplow',
+      level: 2,
+    },
+  ),
+  x('lSit', HO, 'strength', ['abs', 'triceps'], 'dipBars', 'lsit', hold(3, 15), { level: 3 }),
+  x('chinUp', ALL, 'strength', ['biceps', 'lats'], 'pullupBar', 'pullup', reps(3, 6), {
+    pose2: 'hang',
+    level: 2,
+  }),
+  x('hangingKneeRaise', ALL, 'strength', ['abs'], 'pullupBar', 'hangknee', reps(3, 10), {
+    pose2: 'hang',
+    level: 2,
+  }),
+  x('declineSitUp', HG, 'strength', ['abs'], 'abBench', 'situptop', reps(3, 12), {
+    pose2: 'crunch',
+    level: 2,
+  }),
+  x('benchLegRaise', HG, 'strength', ['abs'], 'abBench', 'legraise', reps(3, 12), {
+    pose2: 'supinestraight',
+  }),
+  x('ballCrunch', HG, 'strength', ['abs'], 'fitball', 'ballcrunch', reps(3, 15)),
+  x('ballHamCurl', HG, 'strength', ['hamstrings', 'glutes'], 'fitball', 'ballcurl2', reps(3, 10), {
+    pose2: 'ballcurl',
+    level: 2,
+  }),
+  x('ballWallSquat', HG, 'strength', ['quads', 'glutes'], 'fitball', 'wallsit', reps(3, 12)),
+  x('medBallSlam', HO, 'hiit', ['abs', 'shoulders', 'lats'], 'medBall', 'slam', reps(3, 10), {
+    pose2: 'slamdown',
+    weighted: true,
+  }),
+  x('medBallTwist', H, 'strength', ['obliques', 'abs'], 'medBall', 'twist', reps(3, 16), {
+    weighted: true,
+    level: 2,
+  }),
+  x('rollQuads', H, 'mobility', ['quads'], 'foamRoller', 'roll', hold(1, 60), { pose2: 'roll2' }),
+  x('rollBack', H, 'mobility', ['lats', 'traps'], 'foamRoller', 'roll', hold(1, 60), {
+    pose2: 'roll2',
+  }),
+  x('stepTaps', HO, 'cardio', ['calves', 'quads'], 'step', 'stepup', hold(3, 40), {
+    pose2: 'stand',
+  }),
+  x(
+    'ankleSideRaise',
+    H,
+    'strength',
+    ['glutes', 'adductors'],
+    'ankleWeights',
+    'sidelying',
+    reps(3, 15),
+    {
+      sides: true,
+      weighted: true,
+    },
+  ),
+  x(
+    'ankleKickback',
+    H,
+    'strength',
+    ['glutes', 'hamstrings'],
+    'ankleWeights',
+    'kickback',
+    reps(3, 12),
+    {
+      pose2: 'quad',
+      sides: true,
+      weighted: true,
+    },
+  ),
+  x('trxRow', HO, 'strength', ['lats', 'biceps'], 'suspension', 'trxrow', reps(3, 12), {
+    pose2: 'trxrowtop',
+  }),
+  x('trxPushup', HO, 'strength', ['chest', 'triceps'], 'suspension', 'inclinepush', reps(3, 10), {
+    pose2: 'inclinelow',
+  }),
+  x('trxSquat', HO, 'strength', ['quads', 'glutes'], 'suspension', 'squat', reps(3, 15), {
+    pose2: 'stand',
+  }),
+  x('kbGobletSquat', HG, 'strength', ['quads', 'glutes'], 'kettlebell', 'squat', reps(3, 12), {
+    pose2: 'stand',
+    weighted: true,
+  }),
+  x(
+    'kbDeadlift',
+    HG,
+    'strength',
+    ['hamstrings', 'glutes', 'lowerBack'],
+    'kettlebell',
+    'deadlift',
+    reps(3, 12),
+    {
+      pose2: 'deadtop',
+      weighted: true,
+    },
+  ),
+  x('kbPress', HG, 'strength', ['shoulders', 'triceps'], 'kettlebell', 'press', reps(3, 8), {
+    pose2: 'pressdown',
+    sides: true,
+    weighted: true,
+    level: 2,
+  }),
+  x('dbFloorPress', H, 'strength', ['chest', 'triceps'], 'dumbbell', 'benchdown', reps(3, 10), {
+    pose2: 'bench',
+    weighted: true,
+  }),
 ];
