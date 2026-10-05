@@ -37,7 +37,7 @@ jobs:
       - name: Record
         run: npx playwright test -c marketing/recorder/playwright.config.ts
         env:
-          CLIP_LANGS: ${{ inputs.langs || 'ro,ru,en' }}
+          CLIP_LANGS: ${{ inputs.langs || 'ro' }}
           CLIPS: ${{ inputs.clips || 'c05,c09,c14,c10' }}
       - name: Make MP4s
         run: node scripts/collect-clips.mjs

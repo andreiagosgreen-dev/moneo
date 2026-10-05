@@ -55,6 +55,8 @@ async function prepare(page: Page, lang: Lang): Promise<void> {
     if (!localStorage.getItem('moneo:recorder')) {
       localStorage.clear();
       set('moneo:recorder', true);
+      // Seeded history earns XP; no "new level" notice unless a clip wants one.
+      set('moneo:xp-seen', { level: 500 });
     }
     set('moneo:locale', locale);
     set('moneo:landing-seen', true);
@@ -260,10 +262,17 @@ async function fastForward(page: Page): Promise<void> {
   await speed(page, 1);
 }
 
-/** The short "how did it go?" note after a session: skip it. */
-async function skipReflection(page: Page): Promise<void> {
+/** After a session: close the summary card and skip the "how did it go?" note. */
+async function closeSessionEnd(page: Page): Promise<void> {
+  const summary = page.locator('.atm-summary .mono-chip').last();
+  if (await summary.isVisible()) await tap(page, summary, 600);
   const skip = page.locator('.dialog-pop:has(textarea) button').first();
-  if (await skip.isVisible()) await tap(page, skip, 700);
+  try {
+    await skip.waitFor({ state: 'visible', timeout: 3000 * SLOW });
+  } catch {
+    return;
+  }
+  await tap(page, skip, 700);
 }
 
 const pause = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms * SLOW));
@@ -621,7 +630,7 @@ for (const lang of LANGS) {
           await tap(page, startButton(page), 1200);
           await fastForward(page);
           await pause(4500);
-          await skipReflection(page);
+          await closeSessionEnd(page);
           await tap(page, nav(page, 'more'), 900);
           await tap(page, page.locator('.mono-more-item').nth(1), 1800);
           await glide(page, 260, 1500);
@@ -652,7 +661,7 @@ for (const lang of LANGS) {
           await tap(page, startButton(page), 1000);
           await fastForward(page);
           await pause(2500);
-          await skipReflection(page);
+          await closeSessionEnd(page);
           await tap(page, nav(page, 'today'), 900);
           const rows = page.locator('.mono-azi-prio .mono-list-row');
           for (let i = 0; i < 3; i++) await tap(page, rows.nth(i).locator('button').first(), 700);
@@ -688,7 +697,7 @@ for (const lang of LANGS) {
           await tap(page, startButton(page), 900);
           await fastForward(page);
           await pause(2200);
-          await skipReflection(page);
+          await closeSessionEnd(page);
           // Evening: tick what got done, close the day.
           await tap(page, nav(page, 'today'), 900);
           await page.evaluate(() => window.scrollTo(0, 0));
