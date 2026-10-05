@@ -155,6 +155,7 @@ export default function ProjectRow({
 
   return (
     <div
+      data-project-id={project.id}
       className={`rounded-xl border transition-all ${
         isSelected
           ? 'border-accent/80 bg-accent/10 shadow-[0_0_15px_-3px_rgb(var(--accent-rgb)/0.15)]'
