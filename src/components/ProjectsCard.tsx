@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { ProjectCategory } from '../lib/projects';
 import { activeProjects, archivedProjects, FREE_PROJECTS_LIMIT } from '../lib/projects';
@@ -37,6 +37,7 @@ export default function ProjectsCard({
   onWorkFocus,
   phases = [],
   onPhasesChange,
+  revealId = null,
 }: Props) {
   const [showCreate, setShowCreate] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -44,6 +45,18 @@ export default function ProjectsCard({
   const [newProjectCategory, setNewProjectCategory] = useState<ProjectCategory>('work');
   const [showExportUpsell, setShowExportUpsell] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  // Open the new project and bring it into view (it lands below the systems gallery).
+  useEffect(() => {
+    if (!revealId) return;
+    setExpandedId(revealId);
+    // Instant and after the create toast settles: a smooth scroll gets cut short.
+    const id = window.setTimeout(() => {
+      document
+        .querySelector(`[data-project-id="${CSS.escape(revealId)}"]`)
+        ?.scrollIntoView?.({ block: 'start' });
+    }, 250);
+    return () => window.clearTimeout(id);
+  }, [revealId]);
   const [filter, setFilter] = useState('');
   const i18n = useI18n();
   const { t, fmtNum } = i18n;

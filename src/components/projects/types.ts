@@ -10,6 +10,8 @@ import type { Objective } from '../../lib/okrs';
 import type { WaterfallPhase } from '../../lib/waterfall';
 
 export interface Props {
+  /** A project just created from a ready-made system: open it and scroll to it. */
+  revealId?: string | null;
   projects: Project[];
   history: Session[];
   areas: FocusArea[];

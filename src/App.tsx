@@ -1048,6 +1048,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
   };
 
   const canCreateProject = auth.isPro || projects.length < FREE_PROJECTS_LIMIT;
+  const [revealProjectId, setRevealProjectId] = useState<string | null>(null);
   const handleLifeTemplate = (id: LifeTemplateId) => {
     const tpl = getLifeTemplate(id);
     if (!tpl || !isTemplateAvailable(id, auth.isPro) || !canCreateProject) return;
@@ -1061,6 +1062,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
     setTasks([...tasks, ...r.tasks]);
     if (r.habits.length > 0) setHabits([...habits, ...r.habits]);
     handleSelectProject(r.project.id);
+    setRevealProjectId(r.project.id);
     const created = t('goal.tpl.created', { name: r.project.name });
     setToast(
       r.skippedHabits > 0
@@ -1863,6 +1865,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                             onCreate={handleLifeTemplate}
                           />
                           <ProjectsCard
+                            revealId={revealProjectId}
                             projects={projects}
                             history={history}
                             areas={areas}
