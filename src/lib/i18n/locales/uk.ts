@@ -523,6 +523,7 @@ export const uk: Record<TKey, string> = {
   'ai.tpl.msSetup': '{outcome}: перші кроки',
   'ai.tpl.msDeliver': '{outcome}: готово',
   'ai.tpl.taskStudy': 'Вивчити ключові ідеї',
+  'ai.tpl.round': '{task} · коло {n}',
   'ai.tpl.taskDrill': 'Потренуватися: цільові повторення',
   'ai.tpl.taskProof': 'Зробити щось невелике, що показує прогрес',
   'ai.tpl.taskReview': 'Повторити й записати короткі нотатки',

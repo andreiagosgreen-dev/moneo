@@ -158,6 +158,8 @@ export function buildPath(
   const base = BASE_POMODOROS[input.level];
   let frameIdx = 0;
   let taskIdx = 0;
+  // A path has more tasks than step kinds; repeats are numbered rounds.
+  const uses = new Map<string, number>();
 
   for (let q = 0; q < quarters; q++) {
     const startMonth = q * 3 + 1;
@@ -175,12 +177,15 @@ export function buildPath(
         taskIdx += 1;
         const frame = frames[frameIdx % frames.length];
         frameIdx += 1;
+        const round = (uses.get(frame) ?? 0) + 1;
+        uses.set(frame, round);
         tasks.push({
           draftId: `draft-${taskIdx}`,
           milestoneId,
           title: render(frame, { goal, outcome }),
           pomodoros: base,
           priority: m === 0 && t === 0 ? 'p1' : t === 0 ? 'p2' : 'p3',
+          ...(round > 1 ? { round } : {}),
         });
       }
     }

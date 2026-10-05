@@ -53,6 +53,8 @@ export interface PlannedTask {
   title: string;
   pomodoros: number;
   priority: 'p1' | 'p2' | 'p3';
+  /** 2+ when the same kind of step comes back later in the path. */
+  round?: number;
 }
 
 /** Structured assumption flags — UI renders them via translated keys. */

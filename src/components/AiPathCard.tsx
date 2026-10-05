@@ -9,6 +9,7 @@ import {
 } from '../lib/ai/planner';
 import { buildSprint, type BuiltSprint } from '../lib/ai/sprint';
 import { loadAIConsent, saveAIConsent } from '../lib/ai/providers';
+import { withRound } from '../lib/ai/pathText';
 import type { BuiltPath, ClarifyId, PathInput, SkillLevel } from '../lib/ai/types';
 import {
   createProjectObject,
@@ -148,12 +149,16 @@ export default function AiPathCard({
     };
     const taskPhase = (milestoneId: string): string =>
       path?.milestones.find((m) => m.id === milestoneId)?.phaseId ?? '';
-    const taskText = (frame: string, milestoneId: string): string =>
-      t(frame as TKey, { goal: path?.goal ?? '', outcome: outcomeText(taskPhase(milestoneId)) });
+    const taskText = (frame: string, milestoneId: string, round?: number): string =>
+      withRound(
+        t(frame as TKey, { goal: path?.goal ?? '', outcome: outcomeText(taskPhase(milestoneId)) }),
+        round,
+        (key, vars) => t(key as TKey, vars),
+      );
 
     const planned =
       path?.tasks.map((x) => ({
-        title: taskText(x.title, x.milestoneId),
+        title: taskText(x.title, x.milestoneId, x.round),
         pomodoros: x.pomodoros,
         priority: x.priority,
       })) ??
@@ -485,10 +490,14 @@ function RoadmapView({
               {path.tasks.map((x) => (
                 <li key={x.draftId} className="mono-between" style={{ gap: 8 }}>
                   <span className="mono-meta" style={{ fontSize: 14.5, minWidth: 0 }}>
-                    {t(x.title as TKey, {
-                      goal: path.goal,
-                      outcome: outcomeText(phaseOfTask(x.milestoneId)),
-                    })}
+                    {withRound(
+                      t(x.title as TKey, {
+                        goal: path.goal,
+                        outcome: outcomeText(phaseOfTask(x.milestoneId)),
+                      }),
+                      x.round,
+                      (key, vars) => t(key as TKey, vars),
+                    )}
                   </span>
                   <span className="mono-caption" style={{ flexShrink: 0 }}>
                     ~{x.pomodoros}🍅

@@ -525,6 +525,7 @@ export const de: Record<TKey, string> = {
   'ai.tpl.msSetup': '{outcome}: erste Schritte',
   'ai.tpl.msDeliver': '{outcome}: erledigt',
   'ai.tpl.taskStudy': 'Die wichtigsten Ideen lernen',
+  'ai.tpl.round': '{task} · Runde {n}',
   'ai.tpl.taskDrill': 'Gezielt wiederholen und üben',
   'ai.tpl.taskProof': 'Etwas Kleines machen, das Fortschritt zeigt',
   'ai.tpl.taskReview': 'Wiederholen und kurze Notizen schreiben',

@@ -523,6 +523,7 @@ export const fr: Record<TKey, string> = {
   'ai.tpl.msSetup': '{outcome} : premiers pas',
   'ai.tpl.msDeliver': '{outcome} : terminé',
   'ai.tpl.taskStudy': 'Apprendre les idées clés',
+  'ai.tpl.round': '{task} · tour {n}',
   'ai.tpl.taskDrill': 'S’entraîner par répétitions ciblées',
   'ai.tpl.taskProof': 'Faire quelque chose de petit qui montre le progrès',
   'ai.tpl.taskReview': 'Réviser et prendre de courtes notes',
