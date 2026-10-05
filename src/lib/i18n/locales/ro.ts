@@ -528,6 +528,7 @@ export const ro: Record<TKey, string> = {
   'ai.tpl.msSetup': '{outcome}: primii pași',
   'ai.tpl.msDeliver': '{outcome}: gata',
   'ai.tpl.taskStudy': 'Învață ideile de bază',
+  'ai.tpl.round': '{task} · runda {n}',
   'ai.tpl.taskDrill': 'Exersează prin repetări țintite',
   'ai.tpl.taskProof': 'Fă ceva mic care arată progresul',
   'ai.tpl.taskReview': 'Recapitulează și scrie notițe scurte',

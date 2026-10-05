@@ -11,6 +11,7 @@ import {
   MAX_DRAFT_TASKS,
 } from './planner';
 import { buildSprint, logPractice } from './sprint';
+import { materializeBuiltPath } from './pathText';
 import {
   adjustEstimate,
   loadEstimateProfiles,
@@ -111,6 +112,22 @@ describe('buildPath', () => {
     const rendered = a.tasks.map((x) => enT.t(x.title as TKey, { goal: a.goal, outcome: 'Proof' }));
     expect(rendered.every((title) => title.length > 0 && !title.includes('Moneo'))).toBe(true);
     expect(a.fitsCapacity).toBe(true);
+  });
+
+  it('numbers steps that come back, so no two read the same', () => {
+    const path = buildPath({
+      text: 'Learn Python',
+      horizonMonths: 12,
+      level: 'beginner',
+      hoursPerWeek: 5,
+    });
+    expect(path.tasks[5].round).toBe(2);
+    const enT = createI18n('en');
+    const titles = materializeBuiltPath(path, (key, vars) => enT.t(key as TKey, vars)).tasks.map(
+      (x) => x.title,
+    );
+    expect(new Set(titles).size).toBe(titles.length);
+    expect(titles[5]).toBe(`${titles[0]} · round 2`);
   });
 
   it('flags tight capacity honestly', () => {

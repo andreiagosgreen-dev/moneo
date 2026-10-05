@@ -10,6 +10,15 @@ export function isTplFrame(text: string): boolean {
   return text.startsWith('ai.tpl.');
 }
 
+/** "Practice … · round 2" for a step kind that comes back later in the path. */
+export function withRound(
+  title: string,
+  round: number | undefined,
+  translate: PathTranslate,
+): string {
+  return round && round > 1 ? translate('ai.tpl.round', { task: title, n: String(round) }) : title;
+}
+
 /** Resolve phase/milestone/task frame keys using the same two-pass as AiPathCard. */
 export function materializeBuiltPath(path: BuiltPath, translate: PathTranslate): BuiltPath {
   const outcomeText = (phaseId: string): string => {
@@ -37,7 +46,11 @@ export function materializeBuiltPath(path: BuiltPath, translate: PathTranslate):
     const outcome = ms ? outcomeText(ms.phaseId) : '';
     return {
       ...task,
-      title: translate(task.title, { goal: path.goal, outcome }).slice(0, 160),
+      title: withRound(
+        translate(task.title, { goal: path.goal, outcome }),
+        task.round,
+        translate,
+      ).slice(0, 160),
     };
   });
 

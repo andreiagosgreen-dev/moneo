@@ -524,6 +524,7 @@ export const en = {
   'ai.tpl.msSetup': '{outcome}: first steps',
   'ai.tpl.msDeliver': '{outcome}: done',
   'ai.tpl.taskStudy': 'Learn the key ideas',
+  'ai.tpl.round': '{task} · round {n}',
   'ai.tpl.taskDrill': 'Practice with focused repetitions',
   'ai.tpl.taskProof': 'Make something small that shows progress',
   'ai.tpl.taskReview': 'Review and write short notes',
