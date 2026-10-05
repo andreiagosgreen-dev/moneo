@@ -170,7 +170,7 @@ export const legalRu: LegalSet = {
       },
       {
         heading: '19. Контакты',
-        blocks: [`Вопросы по настоящим Условиям? Пишите ${SELLER.name} на {email}.`],
+        blocks: [`Вопросы по настоящим Условиям? Пишите ${SELLER.initials} на {email}.`],
       },
     ],
   },
@@ -336,7 +336,9 @@ export const legalRu: LegalSet = {
       },
       {
         heading: '14. Контакты',
-        blocks: [`По вопросам и запросам о конфиденциальности пишите ${SELLER.name} на {email}.`],
+        blocks: [
+          `По вопросам и запросам о конфиденциальности пишите ${SELLER.initials} на {email}.`,
+        ],
       },
     ],
   },

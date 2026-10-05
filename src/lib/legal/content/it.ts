@@ -168,7 +168,9 @@ export const legalIt: LegalSet = {
       },
       {
         heading: '19. Contatti',
-        blocks: [`Domande sui presenti Termini? Scrivi a ${SELLER.name} all’indirizzo {email}.`],
+        blocks: [
+          `Domande sui presenti Termini? Scrivi a ${SELLER.initials} all’indirizzo {email}.`,
+        ],
       },
     ],
   },
@@ -335,7 +337,7 @@ export const legalIt: LegalSet = {
       {
         heading: '14. Contatti',
         blocks: [
-          `Per domande o richieste sulla privacy, scrivi a ${SELLER.name} all’indirizzo {email}.`,
+          `Per domande o richieste sulla privacy, scrivi a ${SELLER.initials} all’indirizzo {email}.`,
         ],
       },
     ],

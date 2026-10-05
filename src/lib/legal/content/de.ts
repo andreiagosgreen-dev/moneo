@@ -170,7 +170,7 @@ export const legalDe: LegalSet = {
       },
       {
         heading: '19. Kontakt',
-        blocks: [`Fragen zu diesen Bedingungen? Schreib an ${SELLER.name} unter {email}.`],
+        blocks: [`Fragen zu diesen Bedingungen? Schreib an ${SELLER.initials} unter {email}.`],
       },
     ],
   },
@@ -336,7 +336,9 @@ export const legalDe: LegalSet = {
       },
       {
         heading: '14. Kontakt',
-        blocks: [`Für Datenschutzfragen oder -anfragen schreib an ${SELLER.name} unter {email}.`],
+        blocks: [
+          `Für Datenschutzfragen oder -anfragen schreib an ${SELLER.initials} unter {email}.`,
+        ],
       },
     ],
   },
