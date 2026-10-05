@@ -283,6 +283,12 @@ describe('MonoMiscare', () => {
     click(c.querySelector('[aria-label="Start Morning yoga 15 min"]') ?? undefined);
     expect(c.textContent).toContain('1:00');
     click(button(c, 'Start timer'));
+    // A 3-2-1 lead-in comes first, then the minute runs.
+    expect(c.textContent).toContain('Get ready');
+    act(() => {
+      vi.advanceTimersByTime(3_500);
+    });
+    expect(c.textContent).not.toContain('Get ready');
     act(() => {
       vi.advanceTimersByTime(61_000);
     });

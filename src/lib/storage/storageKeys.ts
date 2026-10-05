@@ -48,6 +48,8 @@ export const STORAGE_KEYS = {
   atmosphere: 'moneo:atmosphere',
   /** Last XP rank computed on this device — unlocks rank rewards on Free. */
   rank: 'moneo:rank',
+  /** Workout player: beeps, voice and auto-start toggles. */
+  workoutSound: 'moneo:workout-sound',
   /** First-run onboarding dismissed flag (Premium Polish, Week 10). */
   onboardingSeen: 'moneo:onboarding-seen',
   /** Landing page "Start free" clicked — first-time visitors only (local only). */

@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MonoBtn from './MonoBtn';
+import MonoChip from './MonoChip';
 import MonoExerciseIcon from './MonoExerciseIcon';
 import MonoExercisePicker from './MonoExercisePicker';
 import { useI18n } from '../lib/i18n/LocaleContext';
@@ -15,6 +16,21 @@ import {
 } from '../lib/fitness/library';
 import { FREE_RUN_ID, MAX_ROUTINE_NAME, stepsFromSets } from '../lib/fitness/custom';
 import { findFitnessHabit, newWorkoutEntry, type WorkoutEntry } from '../lib/fitness/workouts';
+import {
+  LEAD_IN_MS,
+  countdownCue,
+  loadSoundPrefs,
+  saveSoundPrefs,
+  type WorkoutSoundPrefs,
+} from '../lib/fitness/cues';
+import {
+  beep,
+  canSpeak,
+  onVoicesReady,
+  speak,
+  stopSpeaking,
+  type BeepKind,
+} from '../lib/fitness/workoutAudio';
 import {
   addFreeStep,
   currentStep,
@@ -108,7 +124,7 @@ export default function MonoWorkoutPlayer({
   canSaveRoutine = false,
   onClose,
 }: Props) {
-  const { t } = useI18n();
+  const { t, tag } = useI18n();
   const [run, setRun] = useState<RunState | null>(() => {
     const parked = getActiveRun();
     if (parked && parked.routineId === routineId) return parked;
@@ -117,12 +133,33 @@ export default function MonoWorkoutPlayer({
   });
   const [now, setNow] = useState(() => Date.now());
   const [confirmQuit, setConfirmQuit] = useState(false);
+  const [prefs, setPrefs] = useState<WorkoutSoundPrefs>(loadSoundPrefs);
+  const [voiceOk, setVoiceOk] = useState(() => canSpeak(tag));
+  /** 3-2-1 before a timed hold started by hand. */
+  const [leadUntil, setLeadUntil] = useState<number | null>(null);
+  const prevLeft = useRef<{ key: string; ms: number } | null>(null);
+  const spoken = useRef('');
+
+  useEffect(() => onVoicesReady(() => setVoiceOk(canSpeak(tag))), [tag]);
+  useEffect(() => stopSpeaking, []);
+
+  const cue = useCallback((kind: BeepKind) => prefs.beeps && beep(kind), [prefs.beeps]);
+  const say = useCallback(
+    (text: string) => prefs.voice && voiceOk && speak(text, tag),
+    [prefs.voice, voiceOk, tag],
+  );
+  const setPref = (key: keyof WorkoutSoundPrefs, value: boolean) => {
+    const next = { ...prefs, [key]: value };
+    setPrefs(next);
+    saveSoundPrefs(next);
+    if (key === 'voice' && !value) stopSpeaking();
+  };
 
   useEffect(() => {
     setActiveRun(run);
   }, [run]);
 
-  const ticking = run?.phase === 'rest' || run?.timer?.endsAt !== undefined;
+  const ticking = run?.phase === 'rest' || run?.timer?.endsAt !== undefined || leadUntil !== null;
   useEffect(() => {
     if (!ticking) return;
     setNow(Date.now());
@@ -132,8 +169,37 @@ export default function MonoWorkoutPlayer({
 
   useEffect(() => {
     if (!run) return;
+    // Countdown beeps: the last three seconds of the lead-in, a rest or a timed hold.
+    let key: string | null = null;
+    let ms = 0;
+    if (leadUntil !== null) {
+      key = 'lead';
+      ms = Math.max(0, leadUntil - now);
+    } else if (run.phase === 'rest') {
+      key = `rest:${run.stepIdx}:${run.setIdx}`;
+      ms = restLeftMs(run, now);
+    } else if (run.timer?.endsAt !== undefined) {
+      key = `hold:${run.stepIdx}:${run.setIdx}`;
+      ms = timerLeftMs(run, now);
+    }
+    const prev = prevLeft.current;
+    if (key && prev?.key === key) {
+      const c = countdownCue(prev.ms, ms);
+      if (c) cue(c);
+    }
+    prevLeft.current = key ? { key, ms } : null;
+
+    if (leadUntil !== null) {
+      if (now >= leadUntil) {
+        setLeadUntil(null);
+        if (run.phase === 'work') setRun(startTimer(run, Date.now()));
+      }
+      return;
+    }
     if (run.phase === 'rest' && restLeftMs(run, now) === 0) {
-      setRun(endRest(run));
+      const next = endRest(run);
+      // The rest's own 3-2-1 already counted in: a timed hold can start right away.
+      setRun(prefs.autoStart && next.timer ? startTimer(next, Date.now()) : next);
       buzz();
     } else if (
       run.phase === 'work' &&
@@ -144,7 +210,37 @@ export default function MonoWorkoutPlayer({
       if (set) setRun(logSet(run, set, now, log));
       buzz();
     }
-  }, [now, run, log]);
+  }, [now, run, log, leadUntil, prefs.autoStart, cue]);
+
+  // Spoken cues: what comes next during a rest, the exercise name when it starts, the end.
+  useEffect(() => {
+    if (!run) return;
+    const step = currentStep(run);
+    let key = '';
+    let text = '';
+    if (run.phase === 'done') {
+      key = 'done';
+      text = t('fit.voice.done');
+    } else if (run.phase === 'rest' && step) {
+      key = `rest:${run.stepIdx}:${run.setIdx}`;
+      text = t('fit.voice.rest', { name: t(fitKey.exName(step.ex)) });
+    } else if (run.phase === 'work' && step && run.setIdx === 0) {
+      key = `work:${run.stepIdx}`;
+      text = t(fitKey.exName(step.ex));
+    }
+    if (!key || key === spoken.current) return;
+    spoken.current = key;
+    if (key === 'done') cue('done');
+    say(text);
+  }, [run, t, say, cue]);
+
+  const switchNow = run ? shouldSwitchSides(run, now) : false;
+  const sideKey = run ? `${run.stepIdx}:${run.setIdx}` : '';
+  useEffect(() => {
+    if (!switchNow) return;
+    cue('tick');
+    say(t('fit.p.switchSides'));
+  }, [switchNow, sideKey, cue, say, t]);
 
   if (!run) {
     return (
@@ -227,6 +323,32 @@ export default function MonoWorkoutPlayer({
         </div>
       )}
 
+      <div className="mono-fit-sound" role="group" aria-label={t('fit.snd.aria')}>
+        <MonoChip
+          type="button"
+          pressed={prefs.beeps}
+          onClick={() => setPref('beeps', !prefs.beeps)}
+        >
+          {t('fit.snd.beeps')}
+        </MonoChip>
+        {voiceOk ? (
+          <MonoChip
+            type="button"
+            pressed={prefs.voice}
+            onClick={() => setPref('voice', !prefs.voice)}
+          >
+            {t('fit.snd.voice')}
+          </MonoChip>
+        ) : null}
+        <MonoChip
+          type="button"
+          pressed={prefs.autoStart}
+          onClick={() => setPref('autoStart', !prefs.autoStart)}
+        >
+          {t('fit.snd.auto')}
+        </MonoChip>
+      </div>
+
       {confirmQuit ? (
         <div className="mono-fit-confirm" role="group" aria-label={t('fit.p.quitAsk')}>
           <p className="mono-meta">{t('fit.p.quitAsk')}</p>
@@ -273,7 +395,8 @@ export default function MonoWorkoutPlayer({
   const name = t(fitKey.exName(ex.id));
   const upcoming = nextStep(run);
   const timed = run.timer !== undefined;
-  const running = run.timer?.endsAt !== undefined;
+  const leading = leadUntil !== null;
+  const running = run.timer?.endsAt !== undefined || leading;
   const left = timerLeftMs(run, now);
   const started = timed && left < setWorkSec(step) * 1000;
   const stepCount = runSteps(run).length;
@@ -326,9 +449,18 @@ export default function MonoWorkoutPlayer({
 
           {timed ? (
             <>
-              <p className="mono-fit-clock" role="timer">
-                {clock(left)}
-              </p>
+              {leading ? (
+                <>
+                  <p className="mono-eyebrow">{t('fit.p.getReady')}</p>
+                  <p className="mono-fit-clock mono-fit-lead" role="timer" aria-live="assertive">
+                    {Math.max(1, Math.ceil((leadUntil - now) / 1000))}
+                  </p>
+                </>
+              ) : (
+                <p className="mono-fit-clock" role="timer">
+                  {clock(left)}
+                </p>
+              )}
               {shouldSwitchSides(run, now) ? (
                 <p className="mono-fit-cue-strong" role="status">
                   {t('fit.p.switchSides')}
@@ -339,12 +471,26 @@ export default function MonoWorkoutPlayer({
                   <MonoBtn
                     type="button"
                     variant="ghost"
-                    onClick={() => setRun(pauseTimer(run, Date.now()))}
+                    onClick={() =>
+                      leading ? setLeadUntil(null) : setRun(pauseTimer(run, Date.now()))
+                    }
                   >
                     {t('fit.p.pause')}
                   </MonoBtn>
                 ) : (
-                  <MonoBtn type="button" onClick={() => setRun(startTimer(run, Date.now()))}>
+                  <MonoBtn
+                    type="button"
+                    onClick={() => {
+                      // A fresh hold gets a 3-2-1 when there is a sound to count with.
+                      if (!started && (prefs.beeps || (prefs.voice && voiceOk))) {
+                        setNow(Date.now());
+                        setLeadUntil(Date.now() + LEAD_IN_MS);
+                        say(t('fit.p.getReady'));
+                      } else {
+                        setRun(startTimer(run, Date.now()));
+                      }
+                    }}
+                  >
                     {started ? t('fit.p.resume') : t('fit.p.startTimer')}
                   </MonoBtn>
                 )}
