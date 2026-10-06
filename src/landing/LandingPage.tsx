@@ -33,6 +33,7 @@ import {
   SUPPORT_MAILTO,
 } from '../lib/legal/seller';
 import { loadLandingDictionary } from './dictionaries';
+import { GUIDE_BASE, hasGuides } from '../guides/paths';
 import {
   DEVICE_SCREENS,
   HERO_DESKTOP_SIZES,
@@ -732,6 +733,10 @@ export default function LandingPage({
             <Link to={LEGAL_PATHS.refund}>{t('foot.refund')}</Link>
             <a href={SUPPORT_MAILTO}>{t('foot.contact')}</a>
             <Link to="/help">{t('foot.help')}</Link>
+            {hasGuides(locale) ? (
+              // Static pages outside the SPA: a plain link, not a router Link.
+              <a href={GUIDE_BASE[locale]}>{t('land.foot.guides')}</a>
+            ) : null}
             <Link to="/login">{t('auth.signIn')}</Link>
           </nav>
           <div className="lnd-footer-end">

@@ -189,6 +189,7 @@ export const ro: Record<TKey, string> = {
   'land.final.sub':
     'Gratuit, fără cont, fără card. Începe acum și vezi cât poți face în 25 de minute.',
   'land.foot.nav': 'Informații legale și contact',
+  'land.foot.guides': 'Ghiduri',
   'land.foot.country': 'Republica Moldova',
   'today.rituals': 'Ritualuri zilnice',
   'today.ritualsTitle': 'Începe cu intenție. Încheie cu o scurtă recapitulare.',

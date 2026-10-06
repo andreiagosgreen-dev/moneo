@@ -1,7 +1,9 @@
 /**
  * After `vite build`: write a prerendered landing page per language
  * (dist/welcome/index.html for English, dist/<lang>/index.html for the rest)
- * and add hreflang + structured data to dist/index.html.
+ * and add hreflang + structured data to dist/index.html. Then write the static
+ * guides (src/guides: /guides, /ro/ghiduri, /ru/stati), their stylesheet and
+ * their sitemap entries.
  *
  * Each page is the built shell with localized head tags, the landing CSS
  * linked up front (no unstyled flash) and the rendered landing inside #root.
@@ -9,6 +11,7 @@
  * Vite's SSR loader, so the landing code is shared, not duplicated.
  */
 
+import { createHash } from 'node:crypto';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -77,6 +80,22 @@ try {
   await writeFile(join(dist, 'index.html'), rootHtml);
 
   console.log(`prerender-landing: ${pages.map((p) => p.path).join(' ')}`);
+
+  // Guides: plain static pages with a content-hashed stylesheet.
+  const css = await readFile(join(root, 'src/guides/guides.css'), 'utf8');
+  const cssName = `guides-${createHash('sha256').update(css).digest('hex').slice(0, 8)}.css`;
+  await writeFile(join(dist, 'assets', cssName), css);
+  const guides = await vite.ssrLoadModule('/src/guides/render.ts');
+  const site = guides.renderGuideSite(`/assets/${cssName}`);
+  for (const page of site.pages) {
+    const dir = join(dist, page.path.slice(1));
+    await mkdir(dir, { recursive: true });
+    await writeFile(join(dir, 'index.html'), page.html);
+  }
+  const sitemapPath = join(dist, 'sitemap.xml');
+  const sitemap = await readFile(sitemapPath, 'utf8');
+  await writeFile(sitemapPath, sitemap.replace('</urlset>', `${site.sitemap}\n</urlset>`));
+  console.log(`prerender-guides: ${site.pages.length} pages`);
 } finally {
   console.error = consoleError;
   await vite.close();

@@ -190,6 +190,7 @@ export const it: Record<TKey, string> = {
   'land.final.sub':
     'Gratis, senza account, senza carta. Inizia ora e scopri quanto riesci a fare in 25 minuti.',
   'land.foot.nav': 'Note legali e contatti',
+  'land.foot.guides': 'Guide',
   'land.foot.country': 'Repubblica di Moldova',
   'today.rituals': '☀️ Rituali del giorno',
   'today.ritualsTitle': 'Inizia la giornata con un’intenzione, chiudila con una revisione',

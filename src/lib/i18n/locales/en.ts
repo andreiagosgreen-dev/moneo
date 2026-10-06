@@ -191,6 +191,7 @@ export const en = {
   'land.final.sub':
     'Free, no account, no card. Start now and see how much you can get done in 25 minutes.',
   'land.foot.nav': 'Legal and contact',
+  'land.foot.guides': 'Guides',
   'land.foot.country': 'Republic of Moldova',
   'today.rituals': 'Day rituals',
   'today.ritualsTitle': 'Start with intention. End with a short review.',
