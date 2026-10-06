@@ -186,6 +186,7 @@ export const ru: Record<TKey, string> = {
   'land.final.sub':
     'Бесплатно, без аккаунта, без карты. Начните сейчас и посмотрите, сколько успеете за 25 минут.',
   'land.foot.nav': 'Правовая информация и контакты',
+  'land.foot.guides': 'Статьи',
   'land.foot.country': 'Республика Молдова',
   'today.rituals': '☀️ Дневные ритуалы',
   'today.ritualsTitle': 'Начните день с намерением, завершите обзором',

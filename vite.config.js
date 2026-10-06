@@ -143,6 +143,8 @@ export default defineConfig({
         // Brand artwork (1200px logos, Lemon covers, store header) and og.png
         // are multi-MB and not needed offline; the nav mark is runtime-cached.
         globPatterns: ['**/*.{js,css,html,svg,png}'],
+        // Static guide pages (src/guides) are real pages, not SPA routes.
+        navigateFallbackDenylist: [/^\/guides(\/|$)/, /^\/ro\/ghiduri(\/|$)/, /^\/ru\/stati(\/|$)/],
         globIgnores: ['**/*.{woff,woff2}', 'brand/*-1200.png', 'brand/*-1600x300.png', 'og.png'],
         runtimeCaching: [
           {

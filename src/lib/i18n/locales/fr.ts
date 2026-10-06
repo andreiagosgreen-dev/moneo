@@ -190,6 +190,7 @@ export const fr: Record<TKey, string> = {
   'land.final.sub':
     'Gratuit, sans compte, sans carte. Commencez maintenant et voyez tout ce que vous pouvez faire en 25 minutes.',
   'land.foot.nav': 'Mentions légales et contact',
+  'land.foot.guides': 'Guides',
   'land.foot.country': 'République de Moldavie',
   'today.rituals': '☀️ Rituels du jour',
   'today.ritualsTitle': 'Commencez avec une intention, terminez par une revue',
