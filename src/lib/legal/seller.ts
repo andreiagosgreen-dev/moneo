@@ -39,7 +39,7 @@ export const SUPPORT_MAILTO = `mailto:${SUPPORT_EMAIL}`;
 export const SITE_URL = 'https://moneo.bond';
 
 /** Fixed on purpose — bump by hand whenever the legal texts change. */
-export const LEGAL_LAST_UPDATED = '2026-10-05';
+export const LEGAL_LAST_UPDATED = '2026-10-07';
 
 export const REFUND_DAYS = 14;
 
@@ -74,6 +74,11 @@ const LEGAL_DATE_LOCALE: Record<LegalLang, string> = {
 };
 
 /** "September 27, 2026" / "27 septembrie 2026" — UTC so it never shifts a day. */
+/** Version label of the legal texts: the update date as `2026.10.07`. */
+export function legalVersion(iso: string = LEGAL_LAST_UPDATED): string {
+  return iso.replace(/-/g, '.');
+}
+
 export function formatLegalDate(lang: LegalLang, iso: string = LEGAL_LAST_UPDATED): string {
   const [y, m, d] = iso.split('-').map(Number);
   const date = new Date(Date.UTC(y, m - 1, d));

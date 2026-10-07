@@ -3,6 +3,9 @@
  * `?ref=…`) or, failing that, a known referring site. Only a short label is
  * kept (e.g. "tiktok", "reddit"), never a person or device id, so funnel
  * counters can be split by channel.
+ *
+ * The label lives in memory for the current page load only: nothing optional
+ * is written to the visitor's device, so no cookie consent is needed.
  */
 import { cleanTag } from './attributionTags';
 
@@ -78,7 +81,8 @@ export function mergeAttribution(
   return live;
 }
 
-const STORAGE_KEY = 'moneo:attribution';
+/** Where earlier versions kept the label for 30 days; removed on load. */
+const LEGACY_STORAGE_KEY = 'moneo:attribution';
 
 type Nav = { doNotTrack?: string | null; globalPrivacyControl?: boolean };
 
@@ -88,23 +92,25 @@ function optedOut(): boolean {
   return nav.doNotTrack === '1' || nav.globalPrivacyControl === true;
 }
 
-function readStored(): Attribution | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const v = JSON.parse(raw) as Partial<Attribution>;
-    const source = cleanTag(v.source);
-    return source && typeof v.at === 'number'
-      ? { source, campaign: cleanTag(v.campaign), at: v.at }
-      : null;
-  } catch {
-    return null;
-  }
+let current: Attribution | null = null;
+
+/** Forget the channel of this page load. */
+export function clearAttribution(): void {
+  current = null;
 }
 
 /** Call once per page load, before any counter is sent. */
 export function captureAttribution(now: number = Date.now()): void {
-  if (typeof window === 'undefined' || optedOut()) return;
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
+  } catch {
+    /* storage blocked: nothing to clean up */
+  }
+  if (optedOut()) {
+    current = null;
+    return;
+  }
   const params = new URLSearchParams(window.location.search);
   const freshIsTagged = Boolean(cleanTag(params.get('utm_source') ?? params.get('ref')));
   const fresh = readAttribution(
@@ -113,21 +119,14 @@ export function captureAttribution(now: number = Date.now()): void {
     window.location.hostname,
     now,
   );
-  const next = mergeAttribution(readStored(), fresh, now, freshIsTagged);
-  try {
-    if (next) localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    else localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    /* storage blocked — counters fall back to "direct" */
-  }
+  current = mergeAttribution(current, fresh, now, freshIsTagged);
 }
 
 /** The channel to attach to counters and checkout: "direct" when unknown. */
 export function currentSource(now: number = Date.now()): { source: string; campaign: string } {
   if (optedOut()) return { source: '', campaign: '' };
-  const stored = readStored();
-  if (stored && now - stored.at < ATTRIBUTION_TTL_MS) {
-    return { source: stored.source, campaign: stored.campaign };
+  if (current && now - current.at < ATTRIBUTION_TTL_MS) {
+    return { source: current.source, campaign: current.campaign };
   }
   return { source: 'direct', campaign: '' };
 }

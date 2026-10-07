@@ -9,11 +9,12 @@ import {
   SELLER,
   SITE_URL,
   formatLegalDate,
+  legalVersion,
 } from '../seller';
 import type { LegalSet } from '../types';
 
 const OPERATOR = `${SELLER.name}, ${SELLER.entity.it} con sede nella ${SELLER.country.it}`;
-const UPDATED = `Ultimo aggiornamento: ${formatLegalDate('it')}`;
+const UPDATED = `Versione ${legalVersion()} · Ultimo aggiornamento: ${formatLegalDate('it')}`;
 const MOR = MERCHANT_OF_RECORD;
 
 /** Italian translation. The English version (en.ts) is the legally binding one. */
@@ -208,7 +209,7 @@ export const legalIt: LegalSet = {
               'Segnalazioni di errore: se l’app si blocca, un messaggio di errore tecnico e uno stack trace. Le segnalazioni non sono collegate al tuo account e non sono pensate per contenere i tuoi contenuti.',
               'Dati di sicurezza: indirizzo IP e dati della richiesta, trattati brevemente dal nostro fornitore di hosting e dalla protezione anti-bot del modulo di accesso, per proteggere il Servizio dagli abusi.',
               'Statistiche di utilizzo: Cloudflare Web Analytics conta le visualizzazioni di pagina e misura le prestazioni. Registra l’indirizzo della pagina, il sito di provenienza, il Paese e il tipo di browser e dispositivo, e ci mostra solo totali aggregati. Non usa cookie, non usa la memoria del browser per tracciarti, non ti identifica e non ti segue su altri siti.',
-              'Contatori di prodotto anonimi: quando raggiungi alcuni passaggi nell’app (ad esempio completare i passaggi di benvenuto, il tuo primo round di concentrazione o aprire il pagamento), Moneo conta il passaggio solo insieme al piano scelto e alla lingua dell’interfaccia — senza identificativo dell’account, indirizzo IP, identificativo del dispositivo o contenuti — per capire quali parti di Moneo funzionano. Annotiamo anche il canale da cui sei arrivato — un’etichetta di campagna nel link (ad esempio utm_source=tiktok) o il nome del sito di provenienza — e conserviamo solo questa breve etichetta nel tuo browser per 30 giorni, per vedere quali canali portano a iscrizioni e abbonamenti; non ti identifica. Attivare Do Not Track o Global Privacy Control nel browser interrompe questi contatori.',
+              'Contatori di prodotto anonimi: quando raggiungi alcuni passaggi nell’app (ad esempio completare i passaggi di benvenuto, il tuo primo round di concentrazione o aprire il pagamento), Moneo conta il passaggio solo insieme al piano scelto e alla lingua dell’interfaccia — senza identificativo dell’account, indirizzo IP, identificativo del dispositivo o contenuti — per capire quali parti di Moneo funzionano. Annotiamo anche il canale da cui sei arrivato — un’etichetta di campagna nel link (ad esempio utm_source=tiktok) o il nome del sito di provenienza — e teniamo questa breve etichetta solo nella pagina aperta, senza salvarla nel tuo browser, per vedere quali canali portano a iscrizioni e abbonamenti; non ti identifica. Attivare Do Not Track o Global Privacy Control nel browser interrompe questi contatori.',
               'Messaggi che ci invii: il tuo indirizzo e-mail e il contenuto del messaggio.',
             ],
           },
@@ -288,7 +289,20 @@ export const legalIt: LegalSet = {
       {
         heading: '9. I tuoi diritti e le tue scelte',
         blocks: [
-          'Hai il diritto di accedere ai tuoi dati personali, rettificarli, esportarli o cancellarli, di opporti a determinati trattamenti o di limitarli, di revocare il consenso in qualsiasi momento e alla portabilità dei dati.',
+          'Hai i seguenti diritti sui tuoi dati personali:',
+          {
+            list: [
+              'Accesso: ottenere una copia dei dati personali che conserviamo su di te.',
+              'Rettifica: far correggere i dati inesatti o incompleti.',
+              'Cancellazione («diritto all’oblio»): far cancellare i tuoi dati.',
+              'Limitazione del trattamento: limitare il modo in cui trattiamo i tuoi dati.',
+              'Portabilità: ricevere i tuoi dati in un formato strutturato e leggibile da dispositivo automatico.',
+              'Opposizione: opporti al trattamento basato sul nostro legittimo interesse.',
+              'Revoca del consenso: in qualsiasi momento, senza pregiudicare il trattamento effettuato prima.',
+              'Non essere sottoposto a una decisione basata unicamente sul trattamento automatizzato con effetti giuridici o analoghi (Moneo non prende decisioni di questo tipo su di te).',
+            ],
+          },
+          'Come esercitarli:',
           {
             list: [
               'Eliminare i dati su questo dispositivo: Impostazioni → «Elimina tutti i dati su questo dispositivo».',
@@ -297,7 +311,7 @@ export const legalIt: LegalSet = {
               'Interrompi la sincronizzazione cloud uscendo dall’account; i tuoi dati restano sul dispositivo.',
             ],
           },
-          'Rispondiamo alle richieste entro un mese. Puoi anche presentare reclamo a un’autorità di protezione dei dati: nella Repubblica di Moldova, il Centro nazionale per la protezione dei dati personali; nell’UE/SEE, l’autorità del tuo Paese di residenza (in Italia, il Garante per la protezione dei dati personali).',
+          'Rispondiamo alle richieste entro un mese. Puoi anche presentare reclamo a un’autorità di protezione dei dati: nella Repubblica di Moldova, il Centro nazionale per la protezione dei dati personali (CNPDCP); nell’UE/SEE, l’autorità del tuo Paese di residenza (in Italia, il Garante per la protezione dei dati personali).',
         ],
       },
       {
@@ -311,7 +325,7 @@ export const legalIt: LegalSet = {
         heading: '11. Sicurezza',
         blocks: [
           'I dati viaggiano su connessioni crittografate (HTTPS/TLS). I dati cloud sono protetti da regole di accesso in modo che solo il tuo account possa leggerli, e i backup del database sono crittografati. Moneo non è crittografato end-to-end e nessun sistema è sicuro al 100 %, quindi usa una password robusta e unica.',
-          'Se un incidente di sicurezza mette a rischio dati personali, lo notifichiamo all’autorità competente — nella Repubblica di Moldova, il Centro nazionale per la protezione dei dati personali — entro 72 ore da quando ne veniamo a conoscenza e informiamo senza ingiustificato ritardo gli utenti interessati quando il rischio per loro è elevato. Teniamo un registro interno delle attività di trattamento e degli eventuali incidenti.',
+          'Se un incidente di sicurezza mette a rischio dati personali, lo notifichiamo all’autorità competente — nella Repubblica di Moldova, il Centro nazionale per la protezione dei dati personali (CNPDCP) — entro 72 ore da quando ne veniamo a conoscenza e informiamo senza ingiustificato ritardo gli utenti interessati quando il rischio per loro è elevato. Teniamo un registro interno delle attività di trattamento e degli eventuali incidenti.',
         ],
       },
       {

@@ -9,11 +9,12 @@ import {
   SELLER,
   SITE_URL,
   formatLegalDate,
+  legalVersion,
 } from '../seller';
 import type { LegalSet } from '../types';
 
 const OPERATOR = `${SELLER.name}, ${SELLER.entity.en} based in ${SELLER.country.en}`;
-const UPDATED = `Last updated: ${formatLegalDate('en')}`;
+const UPDATED = `Version ${legalVersion()} · Last updated: ${formatLegalDate('en')}`;
 const MOR = MERCHANT_OF_RECORD;
 
 /** English — the legally binding version. */
@@ -206,7 +207,7 @@ export const legalEn: LegalSet = {
               'Error reports: if the app crashes, a technical error message and stack trace. Reports are not linked to your account and are not meant to contain your content.',
               'Security data: IP address and request data, processed briefly by our hosting provider and by bot protection on the sign-in form, to protect the Service against abuse.',
               'Usage statistics: Cloudflare Web Analytics counts page views and measures page performance. It records the page address, referring site, country, and browser and device type, and shows us only aggregated totals. It uses no cookies, does not use your browser storage to track you, and does not identify you or follow you across other sites.',
-              'Anonymous product counters: when you reach a few steps in the app (for example finishing the welcome steps, your first focus round, or opening checkout), Moneo counts the step with the chosen plan and the interface language only — no account id, IP address, device id or content — so we can see which parts of Moneo work. We also note the channel that brought you — a campaign label from the link (for example utm_source=tiktok) or the name of the referring site — and keep only that short label in your browser for 30 days, so we can see which channels lead to sign-ups and subscriptions; it does not identify you. Turning on Do Not Track or Global Privacy Control in your browser stops these counters.',
+              'Anonymous product counters: when you reach a few steps in the app (for example finishing the welcome steps, your first focus round, or opening checkout), Moneo counts the step with the chosen plan and the interface language only — no account id, IP address, device id or content — so we can see which parts of Moneo work. We also note the channel that brought you — a campaign label from the link (for example utm_source=tiktok) or the name of the referring site — and keep that short label only in the open page, without saving it in your browser, so we can see which channels lead to sign-ups and subscriptions; it does not identify you. Turning on Do Not Track or Global Privacy Control in your browser stops these counters.',
               'Messages you send us: your email address and the content of your message.',
             ],
           },
@@ -286,7 +287,20 @@ export const legalEn: LegalSet = {
       {
         heading: '9. Your rights and choices',
         blocks: [
-          'You have the right to access, correct, export or delete your personal data, to object to or restrict certain processing, to withdraw consent at any time, and to data portability.',
+          'You have these rights over your personal data:',
+          {
+            list: [
+              'Access: get a copy of the personal data we hold about you.',
+              'Rectification: have inaccurate or incomplete data corrected.',
+              'Erasure ("right to be forgotten"): have your data deleted.',
+              'Restriction of processing: have the way we process your data limited.',
+              'Data portability: receive your data in a structured, machine-readable format.',
+              'Objection: object to processing based on our legitimate interests.',
+              'Withdrawal of consent: at any time, without affecting the processing done before.',
+              'Not to be subject to a decision based solely on automated processing with legal or similarly significant effects (Moneo makes no such decisions about you).',
+            ],
+          },
+          'How to use them:',
           {
             list: [
               'Delete data on this device: Settings → "Delete all data on this device".',
@@ -295,7 +309,7 @@ export const legalEn: LegalSet = {
               'Stop cloud sync by signing out; your data stays on your device.',
             ],
           },
-          'We answer requests within one month. You can also complain to a data protection authority: in the Republic of Moldova, the National Center for Personal Data Protection; in the EU/EEA, the authority of your country of residence.',
+          'We answer requests within one month. You can also complain to a data protection authority: in the Republic of Moldova, the National Center for Personal Data Protection (CNPDCP); in the EU/EEA, the authority of your country of residence.',
         ],
       },
       {
@@ -309,7 +323,7 @@ export const legalEn: LegalSet = {
         heading: '11. Security',
         blocks: [
           'Data travels over encrypted connections (HTTPS/TLS). Cloud data is protected by access rules so that only your account can read it, and database backups are encrypted. Moneo is not end-to-end encrypted, and no system is 100% secure, so please use a strong, unique password.',
-          'If a security incident puts personal data at risk, we notify the competent authority — in the Republic of Moldova, the National Center for Personal Data Protection — within 72 hours of becoming aware of it, and we tell affected users without undue delay when the risk to them is high. We keep an internal record of processing activities and of any incidents.',
+          'If a security incident puts personal data at risk, we notify the competent authority — in the Republic of Moldova, the National Center for Personal Data Protection (CNPDCP) — within 72 hours of becoming aware of it, and we tell affected users without undue delay when the risk to them is high. We keep an internal record of processing activities and of any incidents.',
         ],
       },
       {
