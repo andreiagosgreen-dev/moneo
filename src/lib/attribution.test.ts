@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   ATTRIBUTION_TTL_MS,
   captureAttribution,
+  clearAttribution,
   cleanTag,
   currentSource,
   mergeAttribution,
@@ -62,18 +63,30 @@ describe('readAttribution / mergeAttribution', () => {
 
 describe('capture in the browser', () => {
   afterEach(() => {
+    clearAttribution();
     localStorage.clear();
     window.history.replaceState(null, '', '/');
     vi.unstubAllGlobals();
   });
 
-  it('remembers a campaign for later counters and checkout', () => {
+  it('remembers a campaign for later counters and checkout, without storing it', () => {
     window.history.replaceState(null, '', '/ro?utm_source=TikTok&utm_campaign=sesiune');
     captureAttribution(NOW);
     window.history.replaceState(null, '', '/');
     captureAttribution(NOW + 1000);
     expect(currentSource(NOW + 2000)).toEqual({ source: 'tiktok', campaign: 'sesiune' });
     expect(currentSource(NOW + ATTRIBUTION_TTL_MS + 1)).toEqual({ source: 'direct', campaign: '' });
+    expect(localStorage.getItem('moneo:attribution')).toBeNull();
+  });
+
+  it('removes the label older versions kept on the device', () => {
+    localStorage.setItem(
+      'moneo:attribution',
+      JSON.stringify({ source: 'x', campaign: '', at: NOW }),
+    );
+    captureAttribution(NOW);
+    expect(localStorage.getItem('moneo:attribution')).toBeNull();
+    expect(currentSource(NOW)).toEqual({ source: 'direct', campaign: '' });
   });
 
   it('stores nothing and reports nothing under Do Not Track', () => {
