@@ -9,11 +9,12 @@ import {
   SELLER,
   SITE_URL,
   formatLegalDate,
+  legalVersion,
 } from '../seller';
 import type { LegalSet } from '../types';
 
 const OPERATOR = `${SELLER.name}, ${SELLER.entity.ro} cu sediul în ${SELLER.country.ro}`;
-const UPDATED = `Ultima actualizare: ${formatLegalDate('ro')}`;
+const UPDATED = `Versiunea ${legalVersion()} · Ultima actualizare: ${formatLegalDate('ro')}`;
 const MOR = MERCHANT_OF_RECORD;
 
 /** Romanian translation. The English version (en.ts) is the legally binding one. */
@@ -286,7 +287,20 @@ export const legalRo: LegalSet = {
       {
         heading: '9. Drepturile și opțiunile tale',
         blocks: [
-          'Ai dreptul să-ți accesezi, corectezi, exporți sau ștergi datele personale, să te opui anumitor prelucrări sau să ceri restricționarea lor, să-ți retragi oricând consimțământul și dreptul la portabilitatea datelor.',
+          'Ai următoarele drepturi asupra datelor tale personale:',
+          {
+            list: [
+              'Acces: primești o copie a datelor personale pe care le avem despre tine.',
+              'Rectificare: corectăm datele inexacte sau incomplete.',
+              'Ștergere („dreptul de a fi uitat”): îți ștergem datele.',
+              'Restricționarea prelucrării: limităm felul în care îți prelucrăm datele.',
+              'Portabilitate: primești datele într-un format structurat, care poate fi citit automat.',
+              'Opoziție: te poți opune prelucrării bazate pe interesul nostru legitim.',
+              'Retragerea consimțământului: oricând, fără să afecteze prelucrarea făcută până atunci.',
+              'Dreptul de a nu face obiectul unei decizii bazate exclusiv pe prelucrare automată, cu efecte juridice sau similare (Moneo nu ia astfel de decizii despre tine).',
+            ],
+          },
+          'Cum le exerciți:',
           {
             list: [
               'Ștergerea datelor de pe dispozitiv: Setări → „Șterge toate datele de pe acest dispozitiv”.',
@@ -295,7 +309,7 @@ export const legalRo: LegalSet = {
               'Oprești sincronizarea în cloud deconectându-te; datele rămân pe dispozitivul tău.',
             ],
           },
-          'Răspundem la cereri în cel mult o lună. Poți depune și o plângere la o autoritate de protecție a datelor: în Republica Moldova, Centrul Național pentru Protecția Datelor cu Caracter Personal; în UE/SEE, autoritatea din țara ta de reședință.',
+          'Răspundem la cereri în cel mult o lună. Poți depune și o plângere la o autoritate de protecție a datelor: în Republica Moldova, Centrul Național pentru Protecția Datelor cu Caracter Personal (CNPDCP); în UE/SEE, autoritatea din țara ta de reședință.',
         ],
       },
       {
@@ -309,7 +323,7 @@ export const legalRo: LegalSet = {
         heading: '11. Securitate',
         blocks: [
           'Datele circulă prin conexiuni criptate (HTTPS/TLS). Datele din cloud sunt protejate prin reguli de acces, astfel încât doar contul tău le poate citi, iar backup-urile bazei de date sunt criptate. Moneo nu oferă criptare end-to-end și niciun sistem nu e sigur 100%, așa că folosește o parolă puternică și unică.',
-          'Dacă un incident de securitate pune în pericol datele personale, notificăm autoritatea competentă — în Republica Moldova, Centrul Național pentru Protecția Datelor cu Caracter Personal — în cel mult 72 de ore de când aflăm de el și îi anunțăm fără întârziere nejustificată pe utilizatorii afectați când riscul pentru ei este ridicat. Ținem un registru intern al activităților de prelucrare și al eventualelor incidente.',
+          'Dacă un incident de securitate pune în pericol datele personale, notificăm autoritatea competentă — în Republica Moldova, Centrul Național pentru Protecția Datelor cu Caracter Personal (CNPDCP) — în cel mult 72 de ore de când aflăm de el și îi anunțăm fără întârziere nejustificată pe utilizatorii afectați când riscul pentru ei este ridicat. Ținem un registru intern al activităților de prelucrare și al eventualelor incidente.',
         ],
       },
       {

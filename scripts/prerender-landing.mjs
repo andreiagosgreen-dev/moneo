@@ -1,7 +1,8 @@
 /**
  * After `vite build`: write a prerendered landing page per language
  * (dist/welcome/index.html for English, dist/<lang>/index.html for the rest)
- * and add hreflang + structured data to dist/index.html. Then write the static
+ * and add hreflang + structured data to dist/index.html; put the legal texts
+ * into dist/{terms,privacy,refund}/index.html. Then write the static
  * guides (src/guides: /guides, /ro/ghiduri, /ru/stati), their stylesheet and
  * their sitemap entries.
  *
@@ -60,6 +61,23 @@ try {
     let html = stripHead(shell)
       .replace(/<html lang="[^"]*"/, `<html lang="${page.locale}"`)
       .replace('</head>', `    ${page.head}\n    ${cssLinks}\n  </head>`)
+      .replace('<div id="root"></div>', `<div id="root">${page.body}</div>`);
+    const dir = join(dist, page.path.slice(1));
+    await mkdir(dir, { recursive: true });
+    await writeFile(join(dir, 'index.html'), html);
+  }
+
+  // Terms / Privacy / Refund: the real text in the shell (SPA routes otherwise
+  // look empty to crawlers and compliance checkers that don't run JavaScript).
+  const legal = await vite.ssrLoadModule('/src/components/legal/prerender.tsx');
+  for (const page of await legal.prerenderAllLegal()) {
+    const html = stripHead(shell)
+      .replace(/<html lang="[^"]*"/, `<html lang="${page.locale}"`)
+      .replace(
+        '</head>',
+        `    ${page.head}
+  </head>`,
+      )
       .replace('<div id="root"></div>', `<div id="root">${page.body}</div>`);
     const dir = join(dist, page.path.slice(1));
     await mkdir(dir, { recursive: true });

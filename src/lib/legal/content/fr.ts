@@ -9,11 +9,12 @@ import {
   SELLER,
   SITE_URL,
   formatLegalDate,
+  legalVersion,
 } from '../seller';
 import type { LegalSet } from '../types';
 
 const OPERATOR = `${SELLER.name}, ${SELLER.entity.fr} établie en ${SELLER.country.fr}`;
-const UPDATED = `Dernière mise à jour : ${formatLegalDate('fr')}`;
+const UPDATED = `Version ${legalVersion()} · Dernière mise à jour : ${formatLegalDate('fr')}`;
 const MOR = MERCHANT_OF_RECORD;
 
 /** French translation. The English version (en.ts) is the legally binding one. */
@@ -286,7 +287,20 @@ export const legalFr: LegalSet = {
       {
         heading: '9. Tes droits et tes choix',
         blocks: [
-          'Tu as le droit d’accéder à tes données personnelles, de les rectifier, de les exporter ou de les supprimer, de t’opposer à certains traitements ou de les limiter, de retirer ton consentement à tout moment, et à la portabilité de tes données.',
+          'Tu disposes des droits suivants sur tes données personnelles :',
+          {
+            list: [
+              'Accès : obtenir une copie des données personnelles que nous détenons sur toi.',
+              'Rectification : faire corriger les données inexactes ou incomplètes.',
+              'Effacement (« droit à l’oubli ») : faire supprimer tes données.',
+              'Limitation du traitement : faire limiter la manière dont nous traitons tes données.',
+              'Portabilité : recevoir tes données dans un format structuré et lisible par machine.',
+              'Opposition : t’opposer au traitement fondé sur notre intérêt légitime.',
+              'Retrait du consentement : à tout moment, sans remettre en cause le traitement effectué avant.',
+              'Ne pas faire l’objet d’une décision fondée exclusivement sur un traitement automatisé produisant des effets juridiques ou similaires (Moneo ne prend aucune décision de ce type à ton sujet).',
+            ],
+          },
+          'Comment les exercer :',
           {
             list: [
               'Supprimer les données de cet appareil : Réglages → « Supprimer toutes les données de cet appareil ».',
@@ -295,7 +309,7 @@ export const legalFr: LegalSet = {
               'Arrête la synchronisation cloud en te déconnectant ; tes données restent sur ton appareil.',
             ],
           },
-          'Nous répondons aux demandes dans un délai d’un mois. Tu peux aussi déposer une plainte auprès d’une autorité de protection des données : en République de Moldavie, le Centre national pour la protection des données à caractère personnel ; dans l’UE/EEE, l’autorité de ton pays de résidence (en France, la CNIL).',
+          'Nous répondons aux demandes dans un délai d’un mois. Tu peux aussi déposer une plainte auprès d’une autorité de protection des données : en République de Moldavie, le Centre national pour la protection des données à caractère personnel (CNPDCP) ; dans l’UE/EEE, l’autorité de ton pays de résidence (en France, la CNIL).',
         ],
       },
       {
@@ -309,7 +323,7 @@ export const legalFr: LegalSet = {
         heading: '11. Sécurité',
         blocks: [
           'Les données transitent par des connexions chiffrées (HTTPS/TLS). Les données cloud sont protégées par des règles d’accès afin que seul ton compte puisse les lire, et les sauvegardes de la base de données sont chiffrées. Moneo n’est pas chiffré de bout en bout, et aucun système n’est sûr à 100 % ; utilise donc un mot de passe fort et unique.',
-          'Si un incident de sécurité met des données personnelles en danger, nous le notifions à l’autorité compétente — en République de Moldavie, le Centre national pour la protection des données à caractère personnel — dans les 72 heures après en avoir pris connaissance, et nous informons sans retard injustifié les utilisateurs concernés lorsque le risque pour eux est élevé. Nous tenons un registre interne des activités de traitement et des éventuels incidents.',
+          'Si un incident de sécurité met des données personnelles en danger, nous le notifions à l’autorité compétente — en République de Moldavie, le Centre national pour la protection des données à caractère personnel (CNPDCP) — dans les 72 heures après en avoir pris connaissance, et nous informons sans retard injustifié les utilisateurs concernés lorsque le risque pour eux est élevé. Nous tenons un registre interne des activités de traitement et des éventuels incidents.',
         ],
       },
       {
