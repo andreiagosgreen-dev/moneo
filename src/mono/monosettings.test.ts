@@ -68,6 +68,7 @@ describe('MonoSettings', () => {
       'set-alerts',
       'set-look',
       'set-lang',
+      'set-ai',
       'set-data',
       'set-plan',
       'set-help',
