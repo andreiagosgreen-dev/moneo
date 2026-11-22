@@ -619,17 +619,26 @@ export function AppearanceSettings({
           <div className="mono-set-hint">{isPro ? t('set.modePro') : t('set.modeFree')}</div>
         </div>
         <div className="mono-set-ctl">
-          {THEME_OPTIONS.map((opt) => (
-            <Chip
-              key={opt}
-              selected={theme.theme === opt}
-              disabled={opt === 'light' && !isPro}
-              onClick={() => set({ theme: opt as ThemeName })}
-            >
-              {opt === 'light' ? t('set.theme.light') : t('set.theme.dark')}
-              {opt === 'light' && !isPro && ' · Pro'}
-            </Chip>
-          ))}
+          {THEME_OPTIONS.map((opt) => {
+            const locked = opt === 'light' && !isPro;
+            return (
+              <Chip
+                key={opt}
+                selected={isPro ? theme.theme === opt : opt === 'dark'}
+                locked={locked}
+                onClick={() => {
+                  if (locked) {
+                    navigate('/pricing');
+                    return;
+                  }
+                  set({ theme: opt as ThemeName });
+                }}
+              >
+                {opt === 'light' ? t('set.theme.light') : t('set.theme.dark')}
+                {locked && ' · Pro'}
+              </Chip>
+            );
+          })}
         </div>
       </div>
 
@@ -649,19 +658,26 @@ export function AppearanceSettings({
             .map((k) => {
               const isAuto = k === 'auto';
               const active = theme.accent === k;
+              const locked = !isPro && !isAuto;
               return (
                 <button
                   key={k}
-                  onClick={() => (isPro ? set({ accent: k }) : undefined)}
-                  disabled={!isPro}
+                  onClick={() => {
+                    if (locked) {
+                      navigate('/pricing');
+                      return;
+                    }
+                    set({ accent: k });
+                  }}
                   aria-pressed={active}
                   className="mono-swatch"
                   style={{
                     background: isAuto
                       ? 'var(--mono-bg-2)'
                       : ACCENT_PRESETS[k as Exclude<AccentName, 'auto'>].accent,
+                    opacity: locked ? 0.65 : 1,
                   }}
-                  title={String(k)}
+                  title={locked ? `${String(k)} · Pro` : String(k)}
                   aria-label={t('set.accentAria', { k })}
                 >
                   {isAuto ? 'A' : ''}

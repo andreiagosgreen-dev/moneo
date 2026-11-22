@@ -47,12 +47,33 @@ export interface LemonWebhookEnv {
   EVENTS?: AnalyticsDataset;
 }
 
+export interface LemonWebhookPayload {
+  meta?: {
+    test_mode?: boolean;
+    event_name?: string;
+    custom_data?: {
+      user_id?: string | number;
+      src?: string;
+      cmp?: string;
+      [key: string]: unknown;
+    };
+  };
+  data?: {
+    id?: string | number;
+    attributes?: LemonSubscriptionAttributes & {
+      total_usd?: number | string;
+      total?: number | string;
+      customer_id?: string | number;
+    };
+  };
+}
+
 /**
  * Count a new subscription (trial or paid) and every real payment by the
  * channel label the checkout carried (`custom_data.src` / `cmp`). Live mode
  * only; never blocks or changes the webhook's answer.
  */
-export function countBillingEvent(env: LemonWebhookEnv, payload: any): void {
+export function countBillingEvent(env: LemonWebhookEnv, payload: LemonWebhookPayload): void {
   try {
     if (payload?.meta?.test_mode === true) return;
     const name = payload?.meta?.event_name;
@@ -254,9 +275,9 @@ export async function handleLemonSqueezyWebhook(
   );
   if (!isValid) return api({ error: 'Invalid signature' }, 401);
 
-  let payload: any;
+  let payload: LemonWebhookPayload;
   try {
-    payload = JSON.parse(rawBody);
+    payload = JSON.parse(rawBody) as LemonWebhookPayload;
   } catch {
     return api({ error: 'Invalid JSON' }, 400);
   }

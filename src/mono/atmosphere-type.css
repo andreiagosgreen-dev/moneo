@@ -1,28 +1,30 @@
 /**
  * Shared type system for EVERY atmosphere.
- * Themes may only change colors (--mono-bg, --mono-fg, accents…).
- * Fonts, weights, and tracking stay identical so the app never
- * reshapes when you switch skins.
+ * Crisp geometric sans (Inter) + precision tabular numerals (JetBrains Mono).
+ * `font-synthesis: none` prevents faux-bold glyph collisions on display headings.
+ * Named Pro font packs in pro-fonts.css override cleanly on top.
  */
 
 html,
 .atm-root {
-  --mono-font-display: 'Literata', Georgia, 'Palatino Linotype', serif;
+  --mono-font-display: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono-font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --mono-font-mono: var(--mono-font-body);
-  --atm-time-font: var(--mono-font-display);
+  --mono-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --atm-time-font: var(--mono-font-mono);
   --atm-ritual-font: var(--mono-font-body);
-  --mono-h1-weight: 600;
+  --mono-h1-weight: 700;
   --mono-h1-tracking: -0.02em;
-  --mono-h2-weight: 600;
+  --mono-h2-weight: 650;
   --mono-h2-tracking: -0.015em;
   --mono-h3-weight: 600;
-  --mono-eyebrow-tracking: 0.09em;
+  --mono-eyebrow-tracking: 0.11em;
   --mono-btn-weight: 600;
-  --mono-btn-tracking: -0.005em;
-  --atm-time-weight: 500;
+  --mono-btn-tracking: 0em;
+  --atm-time-weight: 700;
   --atm-time-tracking: -0.03em;
-  --mono-body-lh: 1.45;
+  --mono-body-lh: 1.48;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
 }
 
 html,
@@ -36,7 +38,11 @@ body,
 .mono-h1,
 .mono-h2,
 .mono-h3,
-.atm-time,
 .mono-rail-name {
   font-family: var(--mono-font-display);
+  font-synthesis: none;
+}
+
+.atm-time {
+  font-family: var(--atm-time-font);
 }

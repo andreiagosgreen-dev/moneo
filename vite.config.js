@@ -3,11 +3,11 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// Above-the-fold faces on the landing: hero title (Literata 600) and body copy
-// (Inter 400). Latin subset only — other subsets still load via unicode-range.
+// Above-the-fold faces: Cal Sans 600, Inter 400, and JetBrains Mono 500.
 const PRELOAD_FONTS = [
-  /\/literata-latin-600-normal-[\w-]+\.woff2$/,
+  /\/cal-sans-latin-600-normal-[\w-]+\.woff2$/,
   /\/inter-latin-400-normal-[\w-]+\.woff2$/,
+  /\/jetbrains-mono-latin-500-normal-[\w-]+\.woff2$/,
 ];
 
 function preloadLandingFonts() {
@@ -77,12 +77,39 @@ function cloudflareBeacon() {
   };
 }
 
+/**
+ * Google Search Console HTML meta tag verification. Injected at build time
+ * only when VITE_GOOGLE_SITE_VERIFICATION is set (public token, zero cookies,
+ * zero external scripts).
+ */
+function googleSiteVerification() {
+  let token = '';
+  return {
+    name: 'moneo-google-site-verification',
+    apply: 'build',
+    configResolved(config) {
+      token = String(config.env.VITE_GOOGLE_SITE_VERIFICATION || '').trim();
+    },
+    transformIndexHtml() {
+      if (!/^[a-zA-Z0-9_-]{16,128}$/.test(token)) return [];
+      return [
+        {
+          tag: 'meta',
+          attrs: { name: 'google-site-verification', content: token },
+          injectTo: 'head',
+        },
+      ];
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
     preloadLandingFonts(),
     cloudflareBeacon(),
+    googleSiteVerification(),
     VitePWA({
       registerType: 'autoUpdate',
       // includeAssets / manifest icons bypass workbox.globIgnores, so only list
@@ -91,17 +118,17 @@ export default defineConfig({
       includeManifestIcons: false,
       manifest: {
         id: '/',
-        name: 'Moneo - Focus Timer',
+        name: 'Moneo — Focus, Priorities, Body & Habits',
         short_name: 'Moneo',
         description:
-          'A calm focus companion for intentional work, structured breaks, and consistent progress.',
+          'Deep focus sessions, daily priorities, biometric muscle recovery, smart meal analogs, and 1% daily habits — works offline.',
         lang: 'en',
         start_url: '/',
         scope: '/',
-        theme_color: '#0f1117',
-        background_color: '#0d1310',
+        theme_color: '#070b14',
+        background_color: '#070b14',
         display: 'standalone',
-        orientation: 'portrait',
+        orientation: 'any',
         icons: [
           {
             src: '/icon-192.png',
@@ -125,13 +152,27 @@ export default defineConfig({
             type: 'image/png',
           },
         ],
-        categories: ['productivity', 'utilities'],
+        categories: ['productivity', 'health', 'fitness', 'lifestyle'],
         shortcuts: [
           {
             name: 'Start Focus',
             short_name: 'Focus',
             description: 'Start a focus session',
             url: '/?action=focus',
+            icons: [{ src: '/icon-192.png', sizes: '192x192' }],
+          },
+          {
+            name: 'Today Plan & Meals',
+            short_name: 'Today',
+            description: 'Open today priorities and meals',
+            url: '/?tab=today',
+            icons: [{ src: '/icon-192.png', sizes: '192x192' }],
+          },
+          {
+            name: 'Muscle Recovery & Workout',
+            short_name: 'Move',
+            description: 'Open muscle recovery map and workouts',
+            url: '/?tab=move',
             icons: [{ src: '/icon-192.png', sizes: '192x192' }],
           },
         ],

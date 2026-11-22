@@ -618,31 +618,42 @@
 }
 .mono-btn-primary {
   background: var(--mono-accent);
-  color: #fff;
+  color: var(--atm-on, #fff);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 22%, transparent),
+    0 6px 18px -8px color-mix(in oklab, var(--mono-accent) 65%, transparent);
 }
 [data-theme='dark'] .mono-btn-primary {
-  color: #0b1020;
+  color: var(--atm-on, #0b1020);
 }
 .mono-btn-primary:not(:disabled):hover {
   background: var(--mono-accent-2);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 26%, transparent),
+    0 10px 24px -8px color-mix(in oklab, var(--mono-accent) 75%, transparent);
 }
 .mono-btn-primary:not(:disabled):active {
-  transform: translateY(1px);
+  transform: translateY(0) scale(0.975);
 }
 .mono-btn-light {
   background: #fff;
   color: var(--mono-ink-2);
 }
 .mono-btn-light:not(:disabled):active {
-  transform: translateY(1px);
+  transform: scale(0.975);
 }
 .mono-btn-ghost {
   background: transparent;
   color: var(--mono-fg);
   box-shadow: inset 0 0 0 1px var(--mono-border-2);
 }
+.mono-btn-ghost:not(:disabled):hover {
+  background: color-mix(in oklab, var(--mono-muted) 12%, transparent);
+  color: var(--mono-fg-2);
+}
 .mono-btn-ghost:not(:disabled):active {
-  transform: translateY(1px);
+  transform: scale(0.975);
 }
 .mono-btn-block {
   width: 100%;
@@ -1360,6 +1371,18 @@
 .mono-azi-day {
   margin-top: 8px;
 }
+@media (min-width: 720px) {
+  .mono-azi-day {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 20px;
+  }
+  .mono-azi-day .mono-azi-rituals {
+    margin-top: 0;
+  }
+}
 .mono-azi-rituals {
   display: flex;
   flex-wrap: wrap;
@@ -1367,19 +1390,27 @@
   margin-top: 14px;
 }
 .mono-azi-ritual {
-  min-height: 44px;
+  min-height: 40px;
   padding: 0 16px;
   border: 1px solid var(--mono-border);
   border-radius: 999px;
-  background: transparent;
+  background: color-mix(in oklab, var(--mono-surface) 60%, transparent);
   color: var(--mono-fg);
   font: inherit;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
+  transition:
+    background var(--mono-dur) var(--mono-ease),
+    border-color var(--mono-dur) var(--mono-ease),
+    transform var(--mono-dur) var(--mono-ease);
 }
 .mono-azi-ritual:hover {
-  background: color-mix(in oklab, var(--mono-muted) 12%, transparent);
+  background: color-mix(in oklab, var(--mono-accent-soft) 70%, var(--mono-surface) 30%);
+  border-color: color-mix(in oklab, var(--mono-accent) 40%, var(--mono-border));
+}
+.mono-azi-ritual:active {
+  transform: scale(0.97);
 }
 .mono-azi-ritual:focus-visible {
   outline: 2px solid var(--mono-accent, var(--accent));
@@ -1492,11 +1523,37 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 13px 0;
+  margin: 0 -8px;
+  padding: 12px 8px;
+  border-radius: 12px;
   border-top: 1px solid var(--mono-border);
+  transition: background var(--mono-dur) var(--mono-ease);
 }
 .mono-list-row:first-child {
   border-top: 0;
+}
+@media (hover: hover) {
+  .mono-list-row:hover {
+    background: color-mix(in oklab, var(--mono-muted) 8%, transparent);
+  }
+}
+.mono-azi-focus-btn {
+  color: var(--mono-accent);
+  border-color: color-mix(in oklab, var(--mono-accent) 30%, var(--mono-border));
+  transition:
+    background var(--mono-dur) var(--mono-ease),
+    color var(--mono-dur) var(--mono-ease),
+    transform var(--mono-dur) var(--mono-ease);
+}
+@media (hover: hover) {
+  .mono-azi-focus-btn:hover {
+    background: var(--mono-accent);
+    color: var(--atm-on, #fff);
+    border-color: var(--mono-accent);
+  }
+}
+.mono-azi-focus-btn:active {
+  transform: scale(0.93);
 }
 .mono-list-grow {
   flex: 1 1 auto;
@@ -1544,21 +1601,26 @@
   background: var(--mono-raised, var(--mono-surface));
   border-radius: 14px;
   box-shadow: var(--mono-sh-card);
-  padding: 13px 14px;
+  padding: 13px 12px;
+  text-align: center;
+  transition:
+    transform var(--mono-dur) var(--mono-ease),
+    box-shadow var(--mono-dur) var(--mono-ease);
 }
 .mono-stat-v {
   font-family: var(--mono-font-mono);
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 21px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
   color: var(--mono-fg-2);
 }
 .mono-stat-k {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 500;
   color: var(--mono-muted);
-  margin-top: 2px;
-  letter-spacing: 0.01em;
+  margin-top: 3px;
+  letter-spacing: 0.015em;
 }
 
 /* ---------- fields ---------- */
@@ -2019,6 +2081,12 @@
 .mono-rail-primary {
   display: contents;
 }
+.mono-rail-slot {
+  display: contents;
+}
+.mono-rail-sep {
+  display: none;
+}
 .mono-rail-kicker {
   display: none;
 }
@@ -2118,6 +2186,35 @@
     gap: 2px;
     flex: 0 0 auto;
     overflow: visible;
+  }
+  .mono-rail-sep {
+    display: block;
+    height: 1px;
+    margin: 7px 12px;
+    background: var(--mono-border);
+    opacity: 0.85;
+  }
+  .mono-nav-item {
+    position: relative;
+  }
+  .mono-nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 22%;
+    bottom: 22%;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--mono-accent);
+  }
+  @media (hover: hover) {
+    .mono-nav-item:not(.active):hover {
+      color: var(--mono-fg-2);
+      background: color-mix(in oklab, var(--mono-surface) 70%, var(--mono-accent-soft) 30%);
+    }
+    .mono-nav-item:not(.active):hover svg {
+      transform: translateX(1px);
+    }
   }
   .mono-rail-kicker {
     display: block;
@@ -2303,27 +2400,27 @@
 }
 .atm-root[data-atmosphere='ritual'] {
   color-scheme: dark;
-  --mono-bg: #17211c;
-  --mono-bg-2: #121a16;
-  --mono-surface: #1c2822;
-  --mono-raised: #283830;
-  --mono-panel: #1f2c26;
-  --mono-fg: #f6f1e7;
-  --mono-fg-2: #f6f1e7;
-  --mono-muted: #cdd5c9;
-  --mono-muted-2: #aeb7ab;
-  --mono-border: rgba(246, 241, 231, 0.12);
-  --mono-border-2: rgba(246, 241, 231, 0.2);
-  --mono-accent: #9b603d;
-  --mono-accent-2: #c4926a;
-  --mono-accent-soft: rgba(155, 96, 61, 0.16);
-  --mono-nav-bg: rgba(23, 33, 28, 0.94);
+  --mono-bg: #070b14;
+  --mono-bg-2: #0a101d;
+  --mono-surface: #0d1424;
+  --mono-raised: #121c30;
+  --mono-panel: #0f182a;
+  --mono-fg: #eaf2ff;
+  --mono-fg-2: #f8fbff;
+  --mono-muted: #93a7c6;
+  --mono-muted-2: #7288ab;
+  --mono-border: rgba(148, 197, 255, 0.13);
+  --mono-border-2: rgba(148, 197, 255, 0.24);
+  --mono-accent: #38bdf8;
+  --mono-accent-2: #7dd3fc;
+  --mono-accent-soft: rgba(56, 189, 248, 0.16);
+  --mono-nav-bg: rgba(7, 11, 20, 0.92);
   --mono-sh-card:
-    0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 2px 4px rgb(0 0 0 / 0.35),
-    0 18px 48px -12px rgb(0 0 0 / 0.65), 0 0 0 1px var(--mono-border);
-  --atm-accent: #9b603d;
-  --atm-on: #f6f1e7;
-  --atm-time: #f6f1e7;
+    0 1px 0 rgba(186, 230, 253, 0.1) inset, 0 4px 10px rgb(0 0 0 / 0.45),
+    0 24px 60px -16px rgb(0 0 0 / 0.8), 0 0 0 1px var(--mono-border);
+  --atm-accent: #38bdf8;
+  --atm-on: #04101d;
+  --atm-time: #f8fbff;
 }
 .atm-root[data-atmosphere='zori'] {
   --mono-bg: #e7eef2;
@@ -3116,7 +3213,7 @@
 .atm-root[data-atmosphere='rosa'] .mono-nav-item.active,
 .atm-root[data-atmosphere='merlot'] .mono-nav-item.active,
 .atm-root[data-atmosphere='fildes'] .mono-nav-item.active {
-  background: transparent;
+  background: var(--mono-accent-soft);
   color: var(--atm-accent);
 }
 
@@ -3153,13 +3250,41 @@
   margin: 8px auto 4px;
 }
 .atm-ring {
-  width: 228px;
-  height: 228px;
+  width: 236px;
+  height: 236px;
   display: block;
+}
+.atm-ring .ticks line {
+  stroke: var(--mono-border-2);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.72;
+}
+.atm-ring .track {
+  stroke: color-mix(in oklab, var(--mono-border-2) 75%, transparent);
 }
 .atm-ring .bar {
   stroke: var(--atm-accent, var(--mono-accent));
-  transition: stroke-dashoffset 300ms linear;
+  transition: stroke-dashoffset 320ms linear;
+}
+@keyframes mono-focus-breathe {
+  0%,
+  100% {
+    transform: scale(0.96);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+.atm-ring-wrap.is-running::before {
+  animation: mono-focus-breathe 4.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .atm-ring-wrap.is-running::before {
+    animation: none;
+  }
 }
 .atm-ring-readout {
   position: absolute;
@@ -3194,23 +3319,27 @@
   color: var(--mono-fg);
 }
 .atm-presets {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: 4px;
+  gap: 4px;
+  padding: 4px;
+  margin-top: 6px;
+  border-radius: 14px;
+  background: var(--mono-sunken, var(--mono-bg-2));
+  border: 1px solid var(--mono-border);
 }
 .atm-preset {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--mono-border-2);
-  border-radius: var(--mono-r-btn);
-  background: var(--mono-bg-2);
-  color: var(--mono-fg);
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--mono-muted);
   font: inherit;
   font-family: var(--mono-font-body);
   font-size: 13.5px;
@@ -3219,16 +3348,22 @@
   transition:
     background var(--mono-dur) var(--mono-ease),
     border-color var(--mono-dur) var(--mono-ease),
-    color var(--mono-dur) var(--mono-ease);
+    color var(--mono-dur) var(--mono-ease),
+    transform var(--mono-dur) var(--mono-ease),
+    box-shadow var(--mono-dur) var(--mono-ease);
 }
 .atm-preset:hover:not(:disabled) {
-  border-color: var(--atm-accent, var(--mono-accent));
+  background: color-mix(in oklab, var(--mono-raised, var(--mono-surface)) 65%, transparent);
   color: var(--mono-fg-2);
 }
+.atm-preset:active:not(:disabled) {
+  transform: scale(0.96);
+}
 .atm-preset[aria-pressed='true'] {
-  background: var(--atm-accent, var(--mono-accent));
-  border-color: var(--atm-accent, var(--mono-accent));
-  color: var(--atm-on, #fff);
+  background: var(--mono-raised, var(--mono-surface));
+  border-color: color-mix(in oklab, var(--atm-accent, var(--mono-accent)) 60%, transparent);
+  color: var(--mono-fg-2);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.22);
 }
 .atm-rhythm {
   display: grid;
@@ -3285,13 +3420,26 @@
 .atm-context {
   grid-column: 1 / -1;
   margin: 0;
-  padding: 16px 20px 20px;
-  border-radius: 16px;
-  border: 0;
-  background: var(--mono-raised, var(--mono-surface));
-  box-shadow: var(--mono-sh-card);
+  padding: 8px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--mono-border);
+  background: var(--mono-sunken, var(--mono-surface));
+  box-shadow: none;
   color: var(--mono-fg-2);
   box-sizing: border-box;
+  transition:
+    border-color var(--mono-dur) var(--mono-ease),
+    background var(--mono-dur) var(--mono-ease);
+}
+.atm-context[open] {
+  padding: 12px 18px 18px;
+  background: var(--mono-raised, var(--mono-surface));
+  box-shadow: var(--mono-sh-card);
+}
+@media (hover: hover) {
+  .atm-context:not([open]):hover {
+    border-color: var(--mono-border-2);
+  }
 }
 .atm-context > summary {
   cursor: pointer;
@@ -3433,7 +3581,7 @@
 
 /* ---------- More hub (mobile overflow) ---------- */
 .mono-more {
-  max-width: 560px;
+  max-width: 640px;
 }
 .mono-more-col {
   display: flex;
@@ -3444,52 +3592,103 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.mono-more-list > li {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+}
+.mono-more-wide {
+  grid-column: 1 / -1;
 }
 .mono-more-item {
   width: 100%;
-  display: grid;
-  grid-template-columns: 40px 1fr auto;
-  align-items: center;
-  gap: 12px;
-  min-height: 56px;
-  padding: 16px 18px;
-  border-radius: 14px;
-  border: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 108px;
+  padding: 15px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--mono-border);
   background: var(--mono-raised, var(--mono-surface));
   box-shadow: var(--mono-sh-card);
   color: var(--mono-fg);
   font-family: var(--mono-font-body);
-  font-size: 16px;
+  font-size: 15px;
   text-align: left;
   cursor: pointer;
+  position: relative;
+  transition:
+    transform var(--mono-dur) var(--mono-ease),
+    border-color var(--mono-dur) var(--mono-ease),
+    box-shadow 200ms var(--mono-ease);
+}
+.mono-more-wide .mono-more-item {
+  flex-direction: row;
+  align-items: center;
+  min-height: 68px;
+  gap: 14px;
+}
+.mono-more-item:active {
+  transform: scale(0.98);
 }
 .mono-more-item.is-on {
-  border-color: var(--mono-accent);
+  border-color: color-mix(in oklab, var(--mono-accent) 55%, transparent);
   background: var(--mono-accent-soft);
 }
-.mono-more-num {
-  width: 28px;
-  height: 28px;
+.mono-more-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
   display: grid;
   place-items: center;
-  border-radius: 999px;
-  background: var(--mono-bg-2);
-  color: var(--mono-muted);
-  font-size: 12px;
-  font-weight: 700;
+  border-radius: 11px;
+  background: color-mix(in oklab, var(--mono-accent-soft) 85%, var(--mono-bg-2) 15%);
+  color: var(--mono-accent);
+}
+.mono-more-icon svg {
+  width: 19px;
+  height: 19px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .mono-more-copy {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
+  flex: 1 1 auto;
 }
 .mono-more-chev {
+  position: absolute;
+  top: 14px;
+  right: 14px;
   color: var(--mono-muted);
-  font-size: 16px;
+  font-size: 15px;
+  opacity: 0.7;
+}
+.mono-more-wide .mono-more-chev {
+  position: static;
+  margin-left: auto;
+}
+@media (max-width: 359px) {
+  .mono-more-list {
+    grid-template-columns: 1fr;
+  }
+  .mono-more-item {
+    flex-direction: row;
+    align-items: center;
+    min-height: 64px;
+  }
+  .mono-more-chev {
+    position: static;
+    margin-left: auto;
+  }
 }
 .mono-legal-links {
   display: flex;
@@ -3689,7 +3888,7 @@
 .atm-root .mono-card:not(.mono-card-ink),
 .atm-root .atm-stage,
 .atm-root .atm-aside,
-.atm-root .atm-context,
+.atm-root .atm-context[open],
 .atm-root .mono-coach,
 .atm-root .mono-more-item:not(.is-on),
 .atm-root .mono-growth-board .card {
@@ -6333,4 +6532,3332 @@ ul.mono-tree {
   flex-direction: column;
   gap: 4px;
   border-left: 3px solid var(--mono-accent, var(--accent));
+}
+
+/* ==========================================================================
+   SIGNATURE VISUAL ENGINE (9.5+ Obsidian Glass · Chronograph · Bento · Schemes)
+   Works across all 42 atmospheres by deriving all glow/glass tones from --mono-*.
+   ========================================================================== */
+
+@keyframes mono-aurora-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, -2%, 0) scale(1.06);
+  }
+}
+
+@keyframes mono-wire-flow {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes mono-beacon-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.18);
+  }
+}
+
+/* Living atmospheric canvas: architectural dot-matrix + soft drifting dual aurora */
+.atm-root {
+  position: relative;
+  overflow-x: clip;
+  isolation: isolate;
+  background-image:
+    radial-gradient(
+      980px 560px at 78% -8%,
+      color-mix(in oklab, var(--mono-tint) 24%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      760px 520px at 8% 36%,
+      color-mix(in oklab, var(--mono-tint) 11%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      circle at 1px 1px,
+      color-mix(in oklab, var(--mono-fg) 7%, transparent) 1px,
+      transparent 0
+    );
+  background-size:
+    100% 100%,
+    100% 100%,
+    26px 26px;
+  background-repeat: no-repeat, no-repeat, repeat;
+}
+
+.atm-root::after {
+  content: '';
+  position: fixed;
+  inset: -12% -10% auto auto;
+  width: min(680px, 75vw);
+  height: min(680px, 75vw);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--mono-tint) 16%, transparent) 0%,
+    transparent 68%
+  );
+  filter: blur(42px);
+  animation: mono-aurora-drift 18s ease-in-out infinite;
+}
+
+/* Frosted glass elevation + luminous specular top-rim across hero & cards */
+.atm-root .atm-stage,
+.atm-root .atm-aside,
+.atm-root .mono-card:not(.mono-card-ink) {
+  position: relative;
+  background: color-mix(in oklab, var(--mono-raised, var(--mono-surface)) 86%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.22);
+  backdrop-filter: blur(18px) saturate(1.22);
+  border: 1px solid color-mix(in oklab, var(--mono-border-2) 78%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 12%, transparent),
+    0 20px 54px -22px rgb(0 0 0 / 0.55);
+  transition:
+    border-color 220ms var(--mono-ease),
+    box-shadow 260ms var(--mono-ease),
+    transform 220ms var(--mono-ease);
+}
+
+.atm-root .atm-stage::before,
+.atm-root .atm-aside::before {
+  content: '';
+  position: absolute;
+  inset: 0 12% auto;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--mono-tint) 75%, white 25%),
+    transparent
+  );
+  opacity: 0.72;
+}
+
+@media (hover: hover) {
+  .atm-root .atm-stage:hover,
+  .atm-root .atm-aside:hover {
+    border-color: color-mix(in oklab, var(--mono-tint) 38%, var(--mono-border-2));
+  }
+}
+
+/* Wider, more breathable workspace on desktop */
+@media (min-width: 1024px) {
+  .mono-shell-inner {
+    max-width: 1120px;
+  }
+  .atm-root .mono-nav {
+    background: color-mix(in oklab, var(--mono-bg-2) 74%, transparent);
+    -webkit-backdrop-filter: blur(22px) saturate(1.2);
+    backdrop-filter: blur(22px) saturate(1.2);
+    border-right: 1px solid color-mix(in oklab, var(--mono-border-2) 70%, transparent);
+  }
+}
+
+/* Luxury 60-tick chronograph timer + orbiting glowing beacon */
+.atm-ring {
+  width: 248px;
+  height: 248px;
+}
+.atm-ring .ticks line {
+  stroke: color-mix(in oklab, var(--mono-muted) 45%, transparent);
+  stroke-width: 1;
+}
+.atm-ring .ticks line.is-major {
+  stroke: color-mix(in oklab, var(--mono-muted) 75%, transparent);
+  stroke-width: 1.5;
+}
+.atm-ring .ticks line.is-cardinal {
+  stroke: color-mix(in oklab, var(--mono-tint) 82%, var(--mono-fg-2) 18%);
+  stroke-width: 2;
+}
+.atm-ring .bar {
+  filter: drop-shadow(0 0 10px color-mix(in oklab, var(--mono-tint) 72%, transparent));
+}
+.atm-ring .beacon {
+  fill: var(--mono-fg-2);
+  stroke: var(--mono-tint);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 8px var(--mono-tint));
+}
+.atm-ring .beacon-halo {
+  fill: color-mix(in oklab, var(--mono-tint) 36%, transparent);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mono-beacon-pulse 2.6s ease-in-out infinite;
+}
+.atm-ring-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--mono-font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--mono-tint);
+  background: color-mix(in oklab, var(--mono-tint) 14%, transparent);
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 28%, transparent);
+}
+
+/* Live Focus Loop Visual Scheme inside Focus aside */
+.atm-scheme {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--mono-bg-2) 72%, transparent);
+  border: 1px solid var(--mono-border);
+}
+.atm-scheme-nodes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.atm-scheme-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--mono-muted);
+  white-space: nowrap;
+}
+.atm-scheme-node i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mono-border-2);
+  display: inline-block;
+  transition:
+    background 220ms var(--mono-ease),
+    box-shadow 220ms var(--mono-ease);
+}
+.atm-scheme-node.is-lit,
+.atm-scheme-node.is-active {
+  color: var(--mono-fg-2);
+}
+.atm-scheme-node.is-lit i {
+  background: var(--mono-tint);
+  box-shadow: 0 0 8px color-mix(in oklab, var(--mono-tint) 65%, transparent);
+}
+.atm-scheme-node.is-active i {
+  background: var(--mono-tint);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--mono-tint) 26%, transparent);
+}
+.atm-scheme-wire {
+  flex: 1 1 auto;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--mono-tint) 15%, var(--mono-border)),
+    color-mix(in oklab, var(--mono-tint) 75%, transparent),
+    color-mix(in oklab, var(--mono-tint) 15%, var(--mono-border))
+  );
+  background-size: 200% 100%;
+  animation: mono-wire-flow 3.4s linear infinite;
+}
+.atm-scheme-track {
+  margin-top: 10px;
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--mono-border-2) 60%, transparent);
+  overflow: hidden;
+}
+.atm-scheme-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--mono-tint), var(--mono-accent-2, var(--mono-tint)));
+  box-shadow: 0 0 12px color-mix(in oklab, var(--mono-tint) 65%, transparent);
+  transition: width 420ms var(--mono-ease);
+}
+
+/* Primary CTA shimmer glow */
+.atm-root .mono-btn-primary {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    var(--mono-accent-2, var(--mono-accent)) 0%,
+    var(--mono-accent) 100%
+  );
+  color: var(--atm-on, #fff);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 30%, transparent),
+    0 10px 26px -10px color-mix(in oklab, var(--mono-accent) 80%, transparent);
+}
+
+/* Today 2-column Desktop Bento Dashboard (keeps phone flex ordering intact) */
+.mono-azi-bento,
+.mono-azi-side {
+  display: contents;
+}
+
+@media (min-width: 1024px) {
+  .mono-azi-bento {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr);
+    gap: 24px;
+    align-items: start;
+    margin-top: 18px;
+  }
+  .mono-azi-side {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-width: 0;
+  }
+  .mono-azi-bento > .mono-azi-prio {
+    margin-top: 0;
+  }
+  .mono-azi-side > .mono-sec {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+  .mono-azi-side > .mono-sec::before {
+    display: none;
+  }
+  .mono-azi-day {
+    padding: 16px 20px;
+    border-radius: 18px;
+    background: color-mix(in oklab, var(--mono-raised, var(--mono-surface)) 82%, transparent);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--mono-border);
+    box-shadow: inset 0 1px 0 color-mix(in oklab, white 9%, transparent);
+  }
+}
+
+/* Visual priority left-edge accent stripe on Today rows */
+.mono-list-row.is-p0 {
+  box-shadow: inset 3px 0 0 var(--mono-danger);
+  padding-left: 12px;
+}
+.mono-list-row.is-p1 {
+  box-shadow: inset 3px 0 0 var(--mono-tint);
+  padding-left: 12px;
+}
+.mono-list-row.is-done {
+  opacity: 0.72;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atm-root::after,
+  .atm-ring .beacon-halo,
+  .atm-scheme-wire {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   VISUAL-FIRST FOCUS COCKPIT (Mini-Ring Gauges · Pill CTA · Inline Context)
+   ========================================================================== */
+
+.atm-ring-readout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.atm-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mono-muted);
+  background: color-mix(in oklab, var(--mono-bg-2) 78%, transparent);
+  border: 1px solid var(--mono-border);
+}
+
+.atm-status-pill.is-live {
+  color: var(--mono-tint);
+  border-color: color-mix(in oklab, var(--mono-tint) 42%, transparent);
+  background: color-mix(in oklab, var(--mono-tint) 14%, transparent);
+}
+
+.atm-status-pill.is-live::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mono-tint);
+  box-shadow: 0 0 8px var(--mono-tint);
+}
+
+.atm-start-cta {
+  min-width: 192px;
+  min-height: 54px;
+  padding: 0 32px;
+  border-radius: 999px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.atm-custom-pop {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  width: min(100%, 340px);
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--mono-bg-2) 86%, transparent);
+  border: 1px solid var(--mono-border);
+}
+
+.atm-presets-extra {
+  margin-top: 0;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.atm-context-inline {
+  width: 100%;
+  margin-top: 6px;
+  border-radius: 12px;
+  padding: 4px 12px;
+  background: color-mix(in oklab, var(--mono-bg-2) 55%, transparent);
+}
+.atm-context-inline > summary {
+  justify-content: center;
+  min-height: 36px;
+  font-size: 12.5px;
+  color: var(--mono-muted);
+}
+.atm-context-inline[open] {
+  padding: 10px 14px 14px;
+}
+
+.atm-aside-link {
+  border: 0;
+  background: transparent;
+  padding: 6px 8px;
+  border-radius: 8px;
+  color: var(--mono-tint);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--mono-dur) var(--mono-ease);
+}
+.atm-aside-link:hover {
+  background: color-mix(in oklab, var(--mono-tint) 14%, transparent);
+}
+
+.atm-task-pick {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 2px 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.atm-task-pick:hover {
+  color: var(--mono-fg-2);
+}
+
+.atm-empty-plan {
+  display: grid;
+  gap: 12px;
+  padding: 8px 0 4px;
+}
+
+/* 3 Visual Circular Mini-Ring Gauges in Focus Aside */
+.atm-gauges {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--mono-border);
+}
+.atm-gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--mono-bg-2) 72%, transparent);
+  border: 1px solid var(--mono-border);
+}
+.atm-gauge-ring {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+}
+.atm-gauge-ring svg {
+  width: 52px;
+  height: 52px;
+}
+.atm-gauge-track {
+  fill: none;
+  stroke: var(--mono-border-2);
+  stroke-width: 3.5;
+}
+.atm-gauge-bar {
+  fill: none;
+  stroke: var(--mono-tint);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 5px color-mix(in oklab, var(--mono-tint) 55%, transparent));
+  transition: stroke-dashoffset 420ms var(--mono-ease);
+}
+.atm-gauge-val {
+  position: absolute;
+  font-family: var(--mono-font-mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--mono-fg-2);
+}
+.atm-gauge-cap {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--mono-muted);
+  text-align: center;
+}
+
+.mono-azi-go {
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 13.5px;
+}
+
+@media (min-width: 820px) {
+  .atm-ring {
+    width: 276px;
+    height: 276px;
+  }
+  .atm-time {
+    font-size: 74px;
+  }
+}
+
+/* ==========================================================================
+   INTEGRATED SEGMENTED WORKSPACE BARS (replaces ugly "More" Disclosures)
+   ========================================================================== */
+
+.mono-seg-bar {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 16px;
+  max-width: 100%;
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--mono-bg-2) 78%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--mono-border);
+}
+
+.mono-seg-btn {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--mono-muted);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    background var(--mono-dur) var(--mono-ease),
+    border-color var(--mono-dur) var(--mono-ease),
+    color var(--mono-dur) var(--mono-ease),
+    transform var(--mono-dur) var(--mono-ease);
+}
+
+.mono-seg-btn:hover {
+  color: var(--mono-fg-2);
+  background: color-mix(in oklab, var(--mono-raised, var(--mono-surface)) 55%, transparent);
+}
+
+.mono-seg-btn:active {
+  transform: scale(0.97);
+}
+
+.mono-seg-btn.is-on {
+  background: var(--mono-raised, var(--mono-surface));
+  border-color: color-mix(in oklab, var(--mono-tint) 52%, transparent);
+  color: var(--mono-fg-2);
+  box-shadow: 0 4px 12px -4px rgb(0 0 0 / 0.35);
+}
+
+.mono-seg-panel {
+  margin-top: 6px;
+  animation: mono-screen-fade 200ms var(--mono-ease) backwards;
+}
+
+.mono-azi-tools {
+  padding-top: 12px;
+}
+
+/* ==========================================================================
+   J.A.R.V.I.S. PERSONAL OS HUD · BIOMETRIC BODY SCANNER · UNIFIED GLASS CARDS
+   ========================================================================== */
+
+@keyframes mono-hud-orbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.mono-hud {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: center;
+  padding: 22px 24px;
+  border-radius: 22px;
+  background: color-mix(in oklab, var(--mono-raised, var(--mono-surface)) 86%, transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(1.25);
+  backdrop-filter: blur(22px) saturate(1.25);
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 36%, var(--mono-border-2));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 14%, transparent),
+    0 24px 60px -24px rgb(0 0 0 / 0.7),
+    0 0 42px -22px color-mix(in oklab, var(--mono-tint) 48%, transparent);
+}
+
+@media (min-width: 720px) {
+  .mono-hud {
+    grid-template-columns: 204px minmax(0, 1fr);
+    gap: 28px;
+  }
+}
+
+.mono-hud-dial {
+  position: relative;
+  width: 196px;
+  height: 196px;
+  margin-inline: auto;
+  display: grid;
+  place-items: center;
+}
+.mono-hud-dial svg {
+  width: 100%;
+  height: 100%;
+}
+.mono-hud-reticle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mono-hud-orbit 48s linear infinite;
+}
+.mono-hud-orbit {
+  fill: none;
+  stroke: color-mix(in oklab, var(--mono-tint) 24%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 4 6;
+}
+.mono-hud-reticle line {
+  stroke: color-mix(in oklab, var(--mono-muted) 42%, transparent);
+  stroke-width: 1.2;
+}
+.mono-hud-track {
+  fill: none;
+  stroke: color-mix(in oklab, var(--mono-border-2) 70%, transparent);
+}
+.mono-hud-arc {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 520ms var(--mono-ease);
+}
+.mono-hud-arc.is-mind {
+  filter: drop-shadow(0 0 7px color-mix(in oklab, var(--mono-tint) 75%, transparent));
+}
+.mono-hud-arc.is-exec {
+  filter: drop-shadow(0 0 7px rgb(56 189 248 / 0.65));
+}
+.mono-hud-arc.is-body {
+  filter: drop-shadow(0 0 7px rgb(52 211 153 / 0.65));
+}
+
+.mono-hud-center {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+.mono-hud-score {
+  font-family: var(--mono-font-display);
+  font-size: 38px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  color: var(--mono-fg-2);
+}
+.mono-hud-unit {
+  margin-top: 3px;
+  font-family: var(--mono-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--mono-tint);
+}
+
+.mono-hud-telemetry {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.mono-hud-channels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (max-width: 520px) {
+  .mono-hud-channels {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mono-hud-ch {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--mono-border);
+  background: color-mix(in oklab, var(--mono-bg-2) 72%, transparent);
+  color: var(--mono-fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--mono-dur) var(--mono-ease),
+    transform var(--mono-dur) var(--mono-ease);
+}
+.mono-hud-ch:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--mono-tint) 42%, var(--mono-border));
+}
+.mono-hud-ch-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.mono-hud-ch-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.mono-hud-ch.is-mind .mono-hud-ch-dot {
+  background: var(--mono-tint);
+  box-shadow: 0 0 8px var(--mono-tint);
+}
+.mono-hud-ch.is-exec .mono-hud-ch-dot {
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+}
+.mono-hud-ch.is-body .mono-hud-ch-dot {
+  background: #34d399;
+  box-shadow: 0 0 8px #34d399;
+}
+.mono-hud-ch-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mono-hud-ch-meta {
+  margin-left: auto;
+  font-family: var(--mono-font-mono);
+  font-size: 12px;
+  color: var(--mono-fg-2);
+}
+.mono-hud-ch-bar {
+  height: 5px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--mono-border-2) 60%, transparent);
+  overflow: hidden;
+}
+.mono-hud-ch-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 420ms var(--mono-ease);
+}
+.mono-hud-ch.is-mind .mono-hud-ch-bar > span {
+  background: linear-gradient(90deg, var(--mono-tint), var(--mono-accent-2, var(--mono-tint)));
+}
+.mono-hud-ch.is-exec .mono-hud-ch-bar > span {
+  background: linear-gradient(90deg, #0ea5e9, #7dd3fc);
+}
+.mono-hud-ch.is-body .mono-hud-ch-bar > span {
+  background: linear-gradient(90deg, #10b981, #86efac);
+}
+
+.mono-hud-spark {
+  padding: 12px 14px 10px;
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--mono-bg-2) 72%, transparent);
+  border: 1px solid var(--mono-border);
+}
+.mono-hud-spark-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.mono-hud-spark-total {
+  font-family: var(--mono-font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mono-fg-2);
+}
+.mono-hud-delta {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-family: var(--mono-font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.mono-hud-delta.is-up {
+  color: #34d399;
+  background: rgb(52 211 153 / 0.14);
+  border: 1px solid rgb(52 211 153 / 0.32);
+}
+.mono-hud-delta.is-down {
+  color: var(--mono-muted);
+  background: color-mix(in oklab, var(--mono-muted) 12%, transparent);
+}
+.mono-hud-svg {
+  display: block;
+  width: 100%;
+  height: 58px;
+}
+.mono-hud-spark-line {
+  fill: none;
+  stroke: var(--mono-tint);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--mono-tint) 65%, transparent));
+}
+
+/* Holographic Biometric Body Scanner upgrade for Move (MonoBodyMap) */
+.atm-root .mono-bmap {
+  padding: 14px;
+  border-radius: 18px;
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      color-mix(in oklab, var(--mono-tint) 16%, transparent),
+      transparent 72%
+    ),
+    color-mix(in oklab, var(--mono-bg-2) 76%, transparent);
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 24%, var(--mono-border));
+  box-shadow: inset 0 1px 0 color-mix(in oklab, white 8%, transparent);
+}
+.atm-root [data-lv='2'].mono-bmap-m > *,
+.atm-root [data-lv='3'].mono-bmap-m > * {
+  filter: drop-shadow(0 0 5px color-mix(in oklab, var(--mono-tint) 70%, transparent));
+}
+
+/* Unify legacy .card surfaces (Projects / Agile / Goals / OKR / Reports) into Mono Glass */
+.atm-root .card {
+  background: color-mix(in oklab, var(--mono-raised, var(--mono-surface)) 86%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.18);
+  backdrop-filter: blur(16px) saturate(1.18);
+  border-color: color-mix(in oklab, var(--mono-border-2) 72%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 10%, transparent),
+    0 18px 46px -22px rgb(0 0 0 / 0.52);
+  transition: border-color 200ms var(--mono-ease);
+}
+@media (hover: hover) {
+  .atm-root .card:hover {
+    border-color: color-mix(in oklab, var(--mono-tint) 32%, var(--mono-border-2));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mono-hud-reticle {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   60FPS HOLOGRAPHIC CANVAS ENGINE + CURSOR-TRACKING SPECULAR SPOTLIGHT
+   ========================================================================== */
+
+.mono-engine-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.92;
+}
+
+.atm-root > .mono-shell,
+.atm-root > main,
+.atm-root > footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* Cursor-reactive luminous holographic spotlight across the canvas */
+.atm-root::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    520px circle at var(--mx, 60%) var(--my, 28%),
+    color-mix(in oklab, var(--mono-tint) 12%, transparent),
+    transparent 65%
+  );
+  transition: opacity 300ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mono-engine-canvas,
+  .atm-root::before {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   CONCEPT 1 + 2 + 3 MASTERPIECE: J.A.R.V.I.S. SPATIAL HUD ARCHITECTURE
+   - Floating Spatial Glass Dock on Desktop (replaces flat full-height wall)
+   - Multi-Layered Rotating Cyan + Gold Holographic Reactor Rings
+   - 3D Perspective Horizon Floor Grid under the Focus Stage
+   - Biometric Holographic Body Scanner Axis & Target Rings
+   ========================================================================== */
+
+@keyframes jarvis-spin-cw {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes jarvis-spin-ccw {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+/* Floating Spatial Glass Navigation Dock on Desktop (Concept 1 & 3) */
+@media (min-width: 1024px) {
+  .mono-shell {
+    padding-left: 264px;
+  }
+  .atm-root .mono-nav {
+    top: 18px;
+    bottom: 18px;
+    left: 16px;
+    height: calc(100dvh - 36px);
+    width: 236px;
+    border-radius: 24px;
+    background: color-mix(in oklab, var(--mono-surface) 76%, transparent);
+    -webkit-backdrop-filter: blur(26px) saturate(1.3);
+    backdrop-filter: blur(26px) saturate(1.3);
+    border: 1px solid color-mix(in oklab, var(--mono-tint) 28%, var(--mono-border-2));
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, white 16%, transparent),
+      0 26px 64px -20px rgb(0 0 0 / 0.72),
+      0 0 36px -20px color-mix(in oklab, var(--mono-tint) 38%, transparent);
+  }
+}
+
+/* Multi-layered rotating holographic reactor rings (Cyan + Amber-Gold) */
+.atm-orbit-outer,
+.atm-orbit-mid,
+.atm-orbit-inner {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.atm-orbit-outer {
+  stroke: color-mix(in oklab, var(--mono-tint) 55%, #f59e0b 45%);
+  opacity: 0.55;
+  animation: jarvis-spin-cw 44s linear infinite;
+}
+.atm-orbit-mid {
+  opacity: 0.78;
+  filter: drop-shadow(0 0 6px color-mix(in oklab, #f59e0b 50%, var(--mono-tint)));
+  animation: jarvis-spin-ccw 28s linear infinite;
+}
+.atm-orbit-inner {
+  opacity: 0.62;
+  animation: jarvis-spin-cw 36s linear infinite;
+}
+.atm-ring-wrap.is-running .atm-orbit-mid {
+  animation-duration: 14s;
+  opacity: 0.95;
+}
+.atm-ring-wrap.is-running .atm-orbit-inner {
+  animation-duration: 18s;
+  opacity: 0.85;
+}
+
+.atm-ring .ticks line.is-warm {
+  stroke: color-mix(in oklab, #f59e0b 62%, var(--mono-muted));
+}
+.atm-ring .ticks line.is-major.is-warm {
+  stroke: #f59e0b;
+}
+
+.atm-ring-core-glow {
+  position: absolute;
+  width: 78%;
+  height: 78%;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--mono-tint) 24%, transparent) 0%,
+    color-mix(in oklab, #f59e0b 14%, transparent) 48%,
+    transparent 72%
+  );
+  filter: blur(18px);
+}
+
+/* 3D Perspective Holographic Horizon Grid inside the Focus Hero Stage (Concept 1) */
+.atm-root .atm-stage {
+  overflow: hidden;
+  isolation: isolate;
+}
+.atm-horizon-grid {
+  position: absolute;
+  left: -18%;
+  right: -18%;
+  bottom: -24px;
+  height: 145px;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--mono-tint) 26%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--mono-tint) 26%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 28px 22px;
+  transform: perspective(360px) rotateX(64deg);
+  transform-origin: center bottom;
+  -webkit-mask-image: radial-gradient(ellipse 70% 80% at 50% 100%, #000 25%, transparent 78%);
+  mask-image: radial-gradient(ellipse 70% 80% at 50% 100%, #000 25%, transparent 78%);
+  opacity: 0.72;
+}
+.atm-horizon-grid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--mono-tint) 85%, #fff),
+    #f59e0b,
+    transparent
+  );
+  box-shadow: 0 0 16px var(--mono-tint);
+}
+
+/* Holographic Biometric Body Scanner reticle lines */
+.mono-bmap-axis,
+.mono-bmap-ring {
+  fill: none;
+  stroke: color-mix(in oklab, var(--mono-tint) 32%, transparent);
+  stroke-width: 0.7;
+  stroke-dasharray: 2 3;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atm-orbit-outer,
+  .atm-orbit-mid,
+  .atm-orbit-inner {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   4-IN-1 IDEAL FUSION:
+   - Concept 3: 3D Iridescent Liquid-Glass Aurora Sphere Core (.atm-aurora-orb)
+   - Concept 4: Cyber-Athletic Live Focus Waveform Visualizer (.atm-waveform)
+   - Concept 2: Recessed Titanium Hardware Bezel Shadow
+   ========================================================================== */
+
+@keyframes aurora-orb-morph {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.04);
+  }
+}
+
+@keyframes waveform-dance {
+  0%,
+  100% {
+    transform: scaleY(0.42);
+    opacity: 0.65;
+  }
+  50% {
+    transform: scaleY(1.18);
+    opacity: 1;
+  }
+}
+
+.atm-aurora-orb {
+  position: absolute;
+  width: 58%;
+  height: 58%;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.24) 0%, transparent 42%),
+    radial-gradient(circle at 28% 68%, rgb(56 189 248 / 0.28) 0%, transparent 58%),
+    radial-gradient(circle at 72% 34%, rgb(168 85 247 / 0.26) 0%, transparent 58%),
+    radial-gradient(circle at 64% 74%, rgb(245 158 11 / 0.2) 0%, transparent 56%);
+  box-shadow:
+    inset 0 10px 24px rgb(255 255 255 / 0.16),
+    inset 0 -14px 28px rgb(56 189 248 / 0.22),
+    0 12px 32px -12px rgb(0 0 0 / 0.65);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  animation: aurora-orb-morph 22s ease-in-out infinite;
+}
+
+.atm-ring,
+.atm-ring-readout,
+.lnd-live-dial svg,
+.lnd-live-clock {
+  position: relative;
+  z-index: 1;
+}
+
+.atm-waveform {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 20px;
+  margin-top: 4px;
+}
+
+.atm-waveform > span {
+  display: block;
+  width: 2.5px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #38bdf8 0%, #a855f7 55%, #34d399 100%);
+  opacity: 0.55;
+  transform: scaleY(0.55);
+  transform-origin: center;
+  transition:
+    transform 240ms var(--mono-ease),
+    opacity 240ms var(--mono-ease);
+}
+
+.atm-waveform.is-live > span {
+  opacity: 0.95;
+  animation: waveform-dance 900ms ease-in-out infinite;
+  box-shadow: 0 0 6px rgb(56 189 248 / 0.65);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atm-aurora-orb,
+  .atm-waveform.is-live > span {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   ANATOMICAL 3D HOLOGRAPHIC MUSCLE SCANNER (Concept 1 + 4 Sculpted Muscles)
+   ========================================================================== */
+
+@keyframes biometric-laser-sweep {
+  0%,
+  100% {
+    transform: translateY(0px);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateY(125px);
+    opacity: 0.85;
+  }
+}
+
+.atm-root .mono-bmap-base > path {
+  fill: color-mix(in oklab, var(--mono-tint) 11%, var(--mono-bg-2));
+  stroke: color-mix(in oklab, var(--mono-tint) 58%, var(--mono-border-2));
+  stroke-width: 1.05;
+}
+
+.atm-root .mono-bmap-m > * {
+  stroke: color-mix(in oklab, var(--mono-tint) 52%, transparent);
+  stroke-width: 0.65;
+  transition:
+    fill 220ms var(--mono-ease),
+    filter 220ms var(--mono-ease);
+}
+
+.atm-root [data-lv='0'].mono-bmap-m > * {
+  fill: color-mix(in oklab, var(--mono-tint) 24%, #10b981 12%);
+  stroke: color-mix(in oklab, var(--mono-tint) 58%, transparent);
+}
+
+.atm-root [data-lv='1'].mono-bmap-m > * {
+  fill: color-mix(in oklab, var(--mono-tint) 44%, #a855f7 26%);
+}
+
+.atm-root [data-lv='2'].mono-bmap-m > * {
+  fill: color-mix(in oklab, var(--mono-tint) 75%, #34d399 25%);
+  stroke: color-mix(in oklab, white 35%, var(--mono-tint));
+  filter: drop-shadow(0 0 5px color-mix(in oklab, var(--mono-tint) 65%, transparent));
+}
+
+.atm-root [data-lv='3'].mono-bmap-m > * {
+  fill: #34d399;
+  stroke: #c4ff3b;
+  stroke-width: 0.8;
+  filter: drop-shadow(0 0 8px rgb(196 255 59 / 0.72));
+}
+
+.mono-bmap-scan {
+  stroke: #34d399;
+  stroke-width: 1.1;
+  filter: drop-shadow(0 0 5px #34d399);
+  animation: biometric-laser-sweep 5.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mono-bmap-scan {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   4-IN-1 IDEAL FUSION COCKPIT ARCHITECTURE (Matches 5-fuziunea-4-in-1.svg)
+   - Unified Typography (var(--mono-font-display) + var(--mono-font-mono))
+   - Wide 1440px Cockpit Frame (.mono-shell-inner)
+   - Top Header Bar: Brand Lockup + Segmented Glass Switcher + XP Apex Badge
+   - 2-Column Asymmetric Focus Cockpit: Hero Chronograph Left + 3-Card Bento Stack Right
+   ========================================================================== */
+
+@media (min-width: 1024px) {
+  .atm-root .mono-shell-inner {
+    max-width: 1460px;
+    padding: 18px 28px 40px;
+  }
+}
+
+.mono-os-kicker {
+  display: block;
+  font-family: var(--mono-font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--mono-tint) 68%, var(--mono-muted));
+}
+
+/* ---------- TOP HEADER BAR (Compact Pill Bar without full-width duplicate frame) ---------- */
+.mono-top-os-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 0 6px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.mono-top-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mono-top-brand-ring {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2.5px solid var(--mono-tint);
+  box-shadow:
+    0 0 12px color-mix(in oklab, var(--mono-tint) 55%, transparent),
+    inset 0 0 6px rgb(245 158 11 / 0.45);
+  display: grid;
+  place-items: center;
+}
+
+.mono-top-brand-ring > i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mono-tint);
+  box-shadow: 0 0 8px var(--mono-tint);
+}
+
+.mono-top-brand-name {
+  font-family: var(--mono-font-display);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--mono-fg-2);
+}
+
+.mono-top-brand-sub {
+  font-family: var(--mono-font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--mono-tint);
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--mono-tint) 12%, var(--mono-bg));
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 34%, transparent);
+}
+
+@media (max-width: 680px) {
+  .mono-top-brand-sub {
+    display: none;
+  }
+}
+
+.mono-top-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--mono-bg) 78%, transparent);
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 26%, var(--mono-border));
+}
+
+.mono-top-seg-btn {
+  padding: 6px 15px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--mono-muted);
+  font-family: var(--mono-font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition:
+    color 160ms var(--mono-ease),
+    background 160ms var(--mono-ease),
+    border-color 160ms var(--mono-ease),
+    box-shadow 160ms var(--mono-ease);
+}
+
+.mono-top-seg-btn:hover {
+  color: var(--mono-fg-2);
+}
+
+.mono-top-seg-btn.is-on {
+  color: var(--mono-fg-2);
+  background: color-mix(in oklab, var(--mono-tint) 22%, var(--mono-surface));
+  border-color: color-mix(in oklab, var(--mono-tint) 60%, transparent);
+  box-shadow: 0 0 16px -4px color-mix(in oklab, var(--mono-tint) 55%, transparent);
+}
+
+.mono-top-os-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.mono-top-os-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 34%, var(--mono-border));
+  background: color-mix(in oklab, var(--mono-tint) 11%, var(--mono-bg));
+  color: var(--mono-fg-2);
+  font-family: var(--mono-font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition:
+    background 160ms var(--mono-ease),
+    border-color 160ms var(--mono-ease),
+    transform 160ms var(--mono-ease);
+}
+
+.mono-top-os-btn:hover,
+.mono-top-os-btn.is-live {
+  border-color: var(--mono-tint);
+  background: color-mix(in oklab, var(--mono-tint) 24%, var(--mono-bg));
+  transform: translateY(-1px);
+}
+
+.mono-top-xp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 14px 5px 7px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 42%, var(--mono-border));
+  background: color-mix(in oklab, var(--mono-bg) 82%, transparent);
+  color: var(--mono-fg-2);
+  cursor: pointer;
+  transition: transform 160ms var(--mono-ease);
+}
+
+.mono-top-xp-pill:hover {
+  transform: translateY(-1px);
+}
+
+.mono-top-xp-badge {
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--mono-tint) 18%, var(--mono-bg-2));
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 58%, transparent);
+  color: var(--mono-tint);
+  font-family: var(--mono-font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.mono-top-xp-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.mono-top-xp-line {
+  font-family: var(--mono-font-display);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--mono-fg-2);
+}
+
+.mono-top-xp-line strong {
+  color: var(--mono-tint);
+}
+
+.mono-top-xp-track {
+  width: 112px;
+  height: 5px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--mono-fg) 14%, transparent);
+  overflow: hidden;
+}
+
+.mono-top-xp-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--mono-tint), #a855f7, #f59e0b);
+}
+
+/* ---------- 4-IN-1 FOCUS COCKPIT 2-COLUMN BENTO GRID ---------- */
+@media (min-width: 1060px) {
+  .atm-root .atm-board {
+    grid-template-columns: minmax(420px, 1.05fr) minmax(460px, 1.15fr);
+    gap: 22px;
+    align-items: stretch;
+  }
+  .atm-root .atm-stage {
+    position: sticky;
+    top: 18px;
+    min-height: 680px;
+    justify-content: center;
+  }
+  .atm-root .atm-ring {
+    width: 320px;
+    height: 320px;
+  }
+  .atm-root .atm-time {
+    font-size: 74px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+}
+
+.atm-bento-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.atm-bento-slot {
+  min-width: 0;
+}
+
+/* Compact Card A (3-Ring Personal OS HUD) when mounted inside the right Bento stack */
+.atm-bento-right .mono-hud {
+  padding: 16px 18px;
+  border-radius: 22px;
+  gap: 16px;
+}
+
+.atm-bento-right .mono-hud-dial {
+  width: 138px;
+  height: 138px;
+}
+
+.atm-bento-right .mono-hud-score {
+  font-size: 30px;
+}
+
+/* Card B (Middle-Right): Today Priorities with ACTIVE / NEXT badges & 1-click Play */
+.atm-aside-ratio {
+  margin-left: auto;
+  margin-right: 10px;
+  font-family: var(--mono-font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--mono-tint);
+}
+
+.atm-root .atm-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.atm-root .atm-tasks li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px 10px 14px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in oklab, var(--mono-border-2) 85%, transparent);
+  background: color-mix(in oklab, var(--mono-bg) 72%, transparent);
+  transition:
+    border-color 160ms var(--mono-ease),
+    background 160ms var(--mono-ease);
+}
+
+.atm-root .atm-tasks li.is-current {
+  border-color: color-mix(in oklab, var(--mono-tint) 58%, transparent);
+  background: color-mix(in oklab, var(--mono-tint) 11%, var(--mono-bg));
+  box-shadow: 0 0 22px -10px color-mix(in oklab, var(--mono-tint) 60%, transparent);
+}
+
+.atm-task-accent {
+  width: 4px;
+  height: 26px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: #64748b;
+}
+
+.atm-task-accent.is-active {
+  background: #c4ff3b;
+  box-shadow: 0 0 8px rgb(196 255 59 / 0.65);
+}
+
+.atm-task-accent.is-next {
+  background: #f59e0b;
+}
+
+.atm-task-accent.is-done {
+  background: #34d399;
+  opacity: 0.55;
+}
+
+.atm-task-badge {
+  margin-left: auto;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-family: var(--mono-font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.atm-task-badge.is-active {
+  color: var(--mono-tint);
+  background: color-mix(in oklab, var(--mono-tint) 16%, var(--mono-bg));
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 48%, transparent);
+}
+
+.atm-task-badge.is-next {
+  color: color-mix(in oklab, #a855f7 65%, var(--mono-fg-2));
+  background: color-mix(in oklab, #a855f7 16%, var(--mono-bg));
+  border: 1px solid color-mix(in oklab, #a855f7 42%, transparent);
+}
+
+.atm-task-badge.is-done {
+  color: color-mix(in oklab, #10b981 65%, var(--mono-fg-2));
+  background: color-mix(in oklab, #10b981 14%, var(--mono-bg));
+  border: 1px solid color-mix(in oklab, #10b981 36%, transparent);
+}
+
+.atm-task-play {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 55%, transparent);
+  background: color-mix(in oklab, var(--mono-tint) 16%, var(--mono-bg));
+  color: var(--mono-tint);
+  font-size: 11px;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background 160ms var(--mono-ease),
+    transform 160ms var(--mono-ease);
+}
+
+.atm-task-play:hover {
+  background: var(--mono-tint);
+  color: #04101d;
+  transform: scale(1.06);
+}
+
+.atm-quick-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.atm-quick-input {
+  min-height: 40px;
+  padding: 8px 13px;
+  font-size: 13.5px;
+  border-radius: 12px;
+}
+
+.atm-quick-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 48%, transparent);
+  background: color-mix(in oklab, var(--mono-tint) 20%, var(--mono-bg));
+  color: var(--mono-fg-2);
+  font-family: var(--mono-font-mono);
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.atm-quick-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ---------- CARD C: 3-TAB HOLOGRAPHIC COMMAND DECK ---------- */
+.mono-os-deck {
+  position: relative;
+  border-radius: 24px;
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 30%, var(--mono-border-2));
+  background: linear-gradient(
+    155deg,
+    color-mix(in oklab, var(--mono-surface) 90%, transparent) 0%,
+    color-mix(in oklab, var(--mono-bg-2) 94%, transparent) 100%
+  );
+  -webkit-backdrop-filter: blur(22px) saturate(1.22);
+  backdrop-filter: blur(22px) saturate(1.22);
+  padding: 16px 18px;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    0 20px 48px -24px rgb(0 0 0 / 0.65);
+}
+
+.mono-os-deck-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding: 4px;
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--mono-bg) 78%, transparent);
+  border: 1px solid color-mix(in oklab, var(--mono-fg) 10%, transparent);
+}
+
+@media (max-width: 560px) {
+  .mono-os-deck-tabs {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mono-os-deck-tab {
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--mono-muted);
+  font-family: var(--mono-font-display);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    color 160ms var(--mono-ease),
+    border-color 160ms var(--mono-ease),
+    background 160ms var(--mono-ease);
+}
+
+.mono-os-deck-tab.is-on {
+  color: var(--mono-fg-2);
+  border-color: color-mix(in oklab, var(--mono-tint) 58%, transparent);
+  background: color-mix(in oklab, var(--mono-tint) 18%, var(--mono-surface));
+  box-shadow: 0 0 16px -6px color-mix(in oklab, var(--mono-tint) 55%, transparent);
+}
+
+.mono-os-panel {
+  padding-top: 14px;
+}
+
+.mono-fuel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mono-fuel-goals,
+.mono-atomic-identities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mono-fuel-goal-pill {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--mono-fg) 14%, transparent);
+  background: color-mix(in oklab, var(--mono-bg) 72%, transparent);
+  color: var(--mono-muted);
+  font-family: var(--mono-font-display);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mono-fuel-goal-pill.is-on {
+  color: var(--mono-fg-2);
+  border-color: var(--mono-tint);
+  background: color-mix(in oklab, var(--mono-tint) 22%, var(--mono-bg));
+}
+
+.mono-fuel-macros {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono-font-mono);
+  font-size: 12px;
+  color: var(--mono-muted);
+}
+
+.mono-fuel-macros strong {
+  color: var(--mono-fg-2);
+}
+
+.mono-fuel-progress-badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in oklab, #34d399 22%, var(--mono-bg));
+  color: #34d399;
+  font-family: var(--mono-font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.mono-fuel-slot-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.mono-fuel-slot-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklab, var(--mono-fg) 12%, transparent);
+  background: color-mix(in oklab, var(--mono-bg) 65%, transparent);
+  color: var(--mono-muted);
+  font-family: var(--mono-font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mono-fuel-slot-tab.is-active {
+  color: var(--mono-fg-2);
+  border-color: var(--mono-tint);
+  background: color-mix(in oklab, var(--mono-tint) 16%, var(--mono-bg));
+}
+
+.mono-fuel-dot-ok {
+  font-style: normal;
+  color: #34d399;
+  font-weight: 800;
+}
+
+.mono-fuel-hint {
+  margin: 10px 0;
+  font-family: var(--mono-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: color-mix(in oklab, var(--mono-tint) 75%, var(--mono-fg));
+}
+
+.mono-fuel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+@media (min-width: 860px) {
+  .mono-os-deck.is-single-module .mono-fuel-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.mono-fuel-card {
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in oklab, var(--mono-fg) 12%, transparent);
+  background: color-mix(in oklab, var(--mono-bg) 76%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.mono-fuel-card.is-focused-slot {
+  border-color: color-mix(in oklab, var(--mono-tint) 45%, var(--mono-border));
+}
+
+.mono-fuel-card.is-eaten {
+  border-color: color-mix(in oklab, #34d399 58%, var(--mono-border));
+  background: color-mix(in oklab, #34d399 9%, var(--mono-bg));
+}
+
+.mono-fuel-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.mono-fuel-slot {
+  font-family: var(--mono-font-mono);
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mono-tint);
+}
+
+.mono-fuel-eat-btn {
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, #34d399 45%, var(--mono-border));
+  background: transparent;
+  color: var(--mono-fg-2);
+  font-family: var(--mono-font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mono-fuel-eat-btn.is-on {
+  background: #34d399;
+  color: #04101d;
+  border-color: #34d399;
+}
+
+.mono-fuel-title {
+  margin: 0;
+  font-family: var(--mono-font-display);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--mono-fg-2);
+}
+
+.mono-fuel-meta {
+  margin: 0;
+  font-family: var(--mono-font-mono);
+  font-size: 11px;
+  color: var(--mono-muted);
+}
+
+.mono-fuel-ingredients {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.mono-fuel-ing-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 28%, var(--mono-border));
+  background: color-mix(in oklab, var(--mono-bg-2) 78%, transparent);
+  color: var(--mono-fg-2);
+  font-family: var(--mono-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 150ms var(--mono-ease),
+    background 150ms var(--mono-ease);
+}
+
+.mono-fuel-ing-chip:hover {
+  border-color: var(--mono-tint);
+  background: color-mix(in oklab, var(--mono-tint) 14%, var(--mono-bg-2));
+}
+
+.mono-fuel-ing-swap {
+  font-family: var(--mono-font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--mono-tint);
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--mono-tint) 14%, var(--mono-bg));
+  white-space: nowrap;
+}
+
+.mono-atomic-grid,
+.mono-body-hud-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+
+.mono-atomic-col,
+.mono-body-hud-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mono-atomic-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.mono-atomic-stat {
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in oklab, var(--mono-fg) 10%, transparent);
+  background: color-mix(in oklab, var(--mono-bg) 74%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mono-atomic-val {
+  font-family: var(--mono-font-mono);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--mono-tint);
+}
+
+.mono-atomic-val.is-lime {
+  color: color-mix(in oklab, #10b981 65%, var(--mono-tint));
+}
+
+.mono-atomic-lbl {
+  font-family: var(--mono-font-mono);
+  font-size: 10.5px;
+  color: var(--mono-muted);
+}
+
+.mono-atomic-curve {
+  width: 100%;
+  height: 58px;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--mono-bg) 80%, transparent);
+  border: 1px solid color-mix(in oklab, var(--mono-fg) 10%, transparent);
+  padding: 4px;
+}
+
+.mono-atomic-stack {
+  margin: 0;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border-left: 3px solid #a855f7;
+  background: color-mix(in oklab, #a855f7 12%, var(--mono-bg));
+  font-family: var(--mono-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--mono-fg-2);
+}
+
+.mono-atomic-alert {
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklab, #f59e0b 50%, transparent);
+  background: color-mix(in oklab, #f59e0b 14%, var(--mono-bg));
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--mono-fg-2);
+}
+
+.mono-atomic-rescue-btn {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 48%, var(--mono-border));
+  background: color-mix(in oklab, var(--mono-tint) 18%, var(--mono-bg));
+  color: var(--mono-fg-2);
+  font-family: var(--mono-font-display);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 160ms var(--mono-ease),
+    border-color 160ms var(--mono-ease);
+}
+
+.mono-atomic-rescue-btn:hover {
+  border-color: var(--mono-tint);
+  background: color-mix(in oklab, var(--mono-tint) 28%, var(--mono-bg));
+}
+
+.mono-atomic-rescue-btn.is-on {
+  border-color: #34d399;
+  background: color-mix(in oklab, #34d399 24%, var(--mono-bg));
+}
+
+.mono-atomic-radar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--mono-bg) 76%, transparent);
+  border: 1px solid color-mix(in oklab, var(--mono-fg) 10%, transparent);
+}
+
+.mono-radar-svg {
+  width: 100%;
+  max-width: 235px;
+  height: auto;
+}
+
+.mono-body-hud-scanner-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--mono-bg) 80%, transparent);
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 24%, var(--mono-border));
+}
+
+.mono-body-hud-scanner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 14px;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in oklab, var(--mono-tint) 18%, transparent) 0%,
+    transparent 74%
+  );
+}
+
+.mono-body-hud-svg {
+  width: 100%;
+  max-width: 236px;
+  height: auto;
+}
+
+.mono-body-synergy-pill {
+  padding: 8px 11px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklab, #10b981 45%, transparent);
+  background: color-mix(in oklab, #10b981 14%, var(--mono-bg));
+  font-family: var(--mono-font-mono);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: color-mix(in oklab, #10b981 55%, var(--mono-fg-2));
+}
+
+.mono-body-rec-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mono-body-muscle-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.mono-body-mchip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--mono-fg) 14%, transparent);
+  background: color-mix(in oklab, var(--mono-bg) 78%, transparent);
+  color: var(--mono-fg-2);
+  font-family: var(--mono-font-display);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mono-body-mchip.is-fresh {
+  border-color: color-mix(in oklab, #10b981 55%, transparent);
+  color: color-mix(in oklab, #10b981 55%, var(--mono-fg-2));
+}
+
+.mono-body-mchip.is-rec {
+  border-color: color-mix(in oklab, #f59e0b 55%, transparent);
+  color: color-mix(in oklab, #f59e0b 55%, var(--mono-fg-2));
+}
+
+.mono-body-mchip.is-sel {
+  background: color-mix(in oklab, var(--mono-tint) 25%, var(--mono-bg));
+  border-color: var(--mono-tint);
+  color: var(--mono-fg-2);
+}
+
+/* 28-Day 7×4 Glowing LED Cadence Matrix (Card C Right Half from 5-fuziunea-4-in-1.svg) */
+.mono-cadence-box {
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--mono-bg) 82%, transparent);
+  border: 1px solid color-mix(in oklab, var(--mono-fg) 10%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mono-cadence-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mono-cadence-pct {
+  font-family: var(--mono-font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--mono-tint);
+}
+
+.mono-cadence-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.mono-cadence-led {
+  height: 18px;
+  border-radius: 5px;
+  background: color-mix(in oklab, var(--mono-fg) 10%, transparent);
+}
+
+.mono-cadence-led.is-mind {
+  background: var(--mono-tint);
+  box-shadow: 0 0 8px color-mix(in oklab, var(--mono-tint) 45%, transparent);
+}
+
+.mono-cadence-led.is-body {
+  background: #34d399;
+  box-shadow: 0 0 8px rgb(52 211 153 / 0.5);
+}
+
+.mono-cadence-led.is-apex {
+  background: linear-gradient(135deg, var(--mono-tint), #34d399);
+  box-shadow: 0 0 10px color-mix(in oklab, var(--mono-tint) 55%, transparent);
+}
+
+/* ==========================================================================
+   SINGLE TOP FLOATING NAVIGATION HEADER ON DESKTOP + OPEN BENTO GRID + PWA
+   ========================================================================== */
+
+@media (min-width: 1024px) {
+  .atm-root .mono-shell {
+    padding-left: 0 !important;
+    padding-top: 86px;
+  }
+
+  .atm-root .mono-nav {
+    position: fixed;
+    top: 14px;
+    left: 20px;
+    right: 20px;
+    bottom: auto;
+    width: auto;
+    max-width: 1440px;
+    height: 60px;
+    margin-inline: auto;
+    padding: 6px 18px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-radius: 999px;
+    overflow: hidden;
+    z-index: 45;
+  }
+
+  .atm-root .mono-rail-brand {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 0 6px 0 2px;
+    margin: 0;
+    border: 0;
+    flex-shrink: 0;
+  }
+
+  .atm-root .mono-rail-tag,
+  .atm-root .mono-rail-kicker,
+  .atm-root .mono-rail-sep,
+  .atm-root .mono-rail-new {
+    display: none;
+  }
+
+  .atm-root .mono-rail-primary {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    padding: 2px 4px;
+  }
+
+  .atm-root .mono-rail-primary::-webkit-scrollbar {
+    height: 3px;
+  }
+
+  .atm-root .mono-rail-primary::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--mono-tint) 35%, transparent);
+    border-radius: 999px;
+  }
+
+  .atm-root .mono-nav-item {
+    min-height: 36px;
+    padding: 6px 11px;
+    font-size: 13px;
+    font-weight: 650;
+    gap: 6px;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .atm-root .mono-nav-item svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+  }
+
+  .atm-root .mono-nav-item.active::before {
+    display: none;
+  }
+
+  .atm-root .mono-rail-foot {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    flex-shrink: 0;
+  }
+
+  .atm-root .mono-rail-tools {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 3px;
+    padding: 2px;
+    border-radius: 999px;
+  }
+
+  .atm-root .mono-rail-tools .mono-rail-tool {
+    min-height: 34px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+  }
+
+  .atm-root .mono-rail-account button,
+  .atm-root .mono-rail-account .btn {
+    min-height: 34px;
+    max-width: 158px;
+    padding: 0 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .atm-root .atm-stage {
+    position: relative;
+    top: 0;
+    min-height: 540px;
+  }
+}
+
+.mono-os-deck.is-single-module {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.mono-os-deck.is-single-module .mono-os-open-grid {
+  grid-template-columns: 1fr !important;
+}
+
+.mono-os-title-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.mono-os-sec-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  stroke: var(--mono-tint);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--mono-tint) 55%, transparent));
+}
+
+/* Open Bento Layout: All 3 cards visible side-by-side without hiding in tabs */
+.mono-os-deck.is-open-bento {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.mono-os-deck.is-open-bento > .mono-os-deck-tabs {
+  margin-bottom: 14px;
+}
+
+@media (min-width: 1120px) {
+  .mono-os-deck.is-open-bento > .mono-os-deck-tabs {
+    display: none;
+  }
+}
+
+.mono-os-open-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  align-items: stretch;
+}
+
+@media (min-width: 1120px) {
+  .mono-os-deck.is-open-bento .mono-os-open-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.mono-os-card-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 28%, var(--mono-border-2));
+  background: linear-gradient(
+    155deg,
+    color-mix(in oklab, var(--mono-surface) 90%, transparent) 0%,
+    color-mix(in oklab, var(--mono-bg-2) 94%, transparent) 100%
+  );
+  -webkit-backdrop-filter: blur(22px) saturate(1.22);
+  backdrop-filter: blur(22px) saturate(1.22);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    0 20px 48px -24px rgb(0 0 0 / 0.6);
+  min-width: 0;
+}
+
+.mono-os-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid color-mix(in oklab, var(--mono-fg) 10%, transparent);
+}
+
+.mono-os-card-title {
+  margin: 0;
+  font-family: var(--mono-font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--mono-fg-2);
+}
+
+.mono-os-card-sub {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--mono-muted);
+  line-height: 1.35;
+}
+
+.mono-fuel-adaptive-banner {
+  padding: 8px 11px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklab, #10b981 45%, transparent);
+  background: color-mix(in oklab, #10b981 12%, var(--mono-bg));
+  font-family: var(--mono-font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: color-mix(in oklab, #10b981 65%, var(--mono-fg-2));
+}
+
+.mono-body-detail-bar {
+  padding: 8px 11px;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--mono-tint) 14%, var(--mono-bg));
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 38%, transparent);
+  font-family: var(--mono-font-mono);
+  font-size: 11px;
+  color: var(--mono-fg-2);
+  text-align: center;
+}
+
+.mono-twomin-box {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--mono-bg) 78%, transparent);
+  border: 1px solid color-mix(in oklab, var(--mono-fg) 10%, transparent);
+}
+
+.mono-twomin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mono-twomin-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklab, var(--mono-fg) 12%, transparent);
+  background: color-mix(in oklab, var(--mono-bg-2) 72%, transparent);
+  color: var(--mono-fg-2);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms var(--mono-ease);
+}
+
+.mono-twomin-item.is-done {
+  border-color: color-mix(in oklab, #10b981 55%, transparent);
+  background: color-mix(in oklab, #10b981 12%, var(--mono-bg));
+}
+
+.mono-twomin-check {
+  font-family: var(--mono-font-mono);
+  font-weight: 800;
+  color: var(--mono-tint);
+}
+
+/* Mobile & Tablet Responsive + PWA Safe-Area Polish */
+@media (max-width: 719px) {
+  .mono-top-os-bar {
+    padding: 4px 0;
+    gap: 6px;
+  }
+  .mono-top-xp-pill {
+    padding: 5px 10px;
+  }
+  .mono-top-xp-track {
+    width: 58px;
+  }
+  .mono-top-os-btn {
+    padding: 6px 10px;
+    font-size: 11.5px;
+  }
+  .mono-os-card-box {
+    padding: 14px;
+    border-radius: 18px;
+  }
+  .atm-hero-card {
+    padding: 16px 14px 18px;
+  }
+  .atm-dial {
+    width: min(218px, 60vw);
+    height: min(218px, 60vw);
+  }
+}
+
+/* ==========================================================================
+   ARCHITECTURAL DEPTH, LAYERED SHADOWS, MONEO AI DRAWER & PRO THEME INTEGRITY
+   ========================================================================== */
+
+/* 1. Multi-layer realistic shadows + specular top highlight across all surfaces */
+.atm-root .mono-card,
+.atm-root .card,
+.atm-root .atm-hero-card,
+.atm-root .mono-hud,
+.atm-root .mono-os-card-box,
+.atm-root .mono-stat-card,
+.atm-root .mono-rank-card {
+  box-shadow:
+    0 20px 48px -20px rgba(0, 0, 0, 0.78),
+    0 8px 20px -8px rgba(0, 0, 0, 0.52),
+    0 0 0 1px color-mix(in oklab, var(--mono-tint) 16%, rgba(255, 255, 255, 0.08)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition:
+    transform 200ms var(--mono-ease),
+    box-shadow 220ms var(--mono-ease),
+    border-color 200ms var(--mono-ease);
+}
+
+.atm-root .mono-card:hover,
+.atm-root .mono-os-card-box:hover,
+.atm-root .mono-hud:hover {
+  box-shadow:
+    0 26px 56px -20px rgba(0, 0, 0, 0.85),
+    0 10px 24px -8px rgba(0, 0, 0, 0.55),
+    0 0 28px -12px color-mix(in oklab, var(--mono-tint) 38%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--mono-tint) 34%, rgba(255, 255, 255, 0.14)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.atm-root .mono-btn-primary,
+.atm-root .atm-primary {
+  box-shadow:
+    0 14px 32px -10px color-mix(in oklab, var(--mono-tint) 75%, transparent),
+    0 4px 12px -4px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.atm-root .mono-btn-primary:hover,
+.atm-root .atm-primary:hover {
+  transform: translateY(-1.5px);
+  box-shadow:
+    0 18px 38px -10px color-mix(in oklab, var(--mono-tint) 90%, transparent),
+    0 6px 16px -4px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.42);
+}
+
+.atm-root .mono-top-xp-pill,
+.atm-root .mono-top-os-btn {
+  box-shadow:
+    0 8px 22px -10px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* 2. Crisp typography — never glue characters on headings, badges, or buttons */
+.atm-root .mono-h1,
+.atm-root .mono-h2,
+.atm-root .mono-h3,
+.atm-root .mono-top-xp-line,
+.atm-root .mono-top-os-btn,
+.atm-root .mono-os-card-title,
+.atm-root .mono-nav-label {
+  font-synthesis: none;
+  word-spacing: normal;
+}
+
+.atm-root .mono-top-xp-line,
+.atm-root .mono-top-os-btn,
+.atm-root .mono-os-card-title {
+  letter-spacing: -0.005em;
+}
+
+/* 3. Fix HUD mini-pill overflow (0m / 0/0 / 0/3 stay 100% legible, never clipped) */
+.atm-root .mono-hud-channels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.atm-root .mono-hud-ch {
+  min-width: 0;
+  overflow: hidden;
+  padding: 9px 10px;
+  gap: 6px;
+}
+
+.atm-root .mono-hud-ch-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  min-width: 0;
+}
+
+.atm-root .mono-hud-ch-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--mono-muted);
+}
+
+.atm-root .mono-hud-ch-meta {
+  flex-basis: 100%;
+  margin-left: 0;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mono-fg-2);
+  line-height: 1.15;
+}
+
+/* 4. Desktop top bar active from 900px+ (matches MonoNav MOBILE_QUERY) with real shadow */
+@media (min-width: 900px) {
+  .atm-root .mono-shell {
+    padding-left: 0 !important;
+    padding-top: 88px;
+  }
+
+  .atm-root .mono-nav {
+    position: fixed;
+    top: 12px;
+    left: 16px;
+    right: 16px;
+    bottom: auto;
+    width: auto !important;
+    max-width: 1440px !important;
+    height: 56px !important;
+    margin-inline: auto;
+    padding: 6px 12px 6px 14px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    border-radius: 999px;
+    overflow: hidden;
+    z-index: 45;
+    box-shadow:
+      0 18px 44px -16px rgba(0, 0, 0, 0.8),
+      0 4px 16px -4px rgba(0, 0, 0, 0.45),
+      0 0 0 1px color-mix(in oklab, var(--mono-tint) 24%, rgba(255, 255, 255, 0.12)),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  }
+
+  .atm-root .mono-rail-brand {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 8px;
+    padding: 0 4px 0 0;
+    margin: 0;
+    border: 0;
+    flex-shrink: 0;
+  }
+
+  .atm-root .mono-rail-brand-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 0;
+    padding: 2px 4px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: inherit;
+  }
+
+  .atm-root .mono-rail-tag,
+  .atm-root .mono-rail-kicker,
+  .atm-root .mono-rail-new {
+    display: none !important;
+  }
+
+  .atm-root .mono-rail-sep {
+    display: inline-block;
+    width: 1px;
+    height: 18px;
+    margin: 0 3px;
+    background: color-mix(in oklab, var(--mono-fg) 16%, transparent);
+    flex-shrink: 0;
+  }
+
+  .atm-root .mono-rail-primary {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 3px;
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    padding: 0 2px;
+  }
+
+  .atm-root .mono-rail-primary::-webkit-scrollbar {
+    display: none;
+  }
+
+  .atm-root .mono-rail-slot {
+    display: inline-flex !important;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .atm-root .mono-nav-item,
+  .atm-root .mono-rail-tool {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+    padding: 0 9px !important;
+    border-radius: 999px !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    line-height: 1 !important;
+  }
+
+  .atm-root .mono-nav-item svg,
+  .atm-root .mono-rail-tool svg {
+    width: 15px !important;
+    height: 15px !important;
+    flex-shrink: 0;
+  }
+
+  .atm-root .mono-rail-palette .mono-rail-item-label,
+  .atm-root .mono-rail-settings .mono-rail-item-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .atm-root .mono-rail-settings {
+    width: 34px !important;
+    padding: 0 !important;
+  }
+
+  .atm-root .mono-rail-palette {
+    padding: 0 9px !important;
+    border: 1px solid color-mix(in oklab, var(--mono-fg) 14%, transparent) !important;
+  }
+
+  .atm-root .mono-rail-kbd {
+    display: inline-flex !important;
+    align-items: center;
+    height: 19px;
+    padding: 0 5px;
+    font-size: 10px;
+    line-height: 1;
+    margin-left: 0;
+  }
+
+  .atm-root .mono-rail-foot {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 6px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    flex-shrink: 0;
+  }
+
+  .atm-root .mono-rail-foot-identity {
+    display: inline-flex;
+    align-items: center;
+    max-width: 124px;
+    overflow: hidden;
+  }
+
+  .atm-root .mono-rail-account {
+    display: inline-flex !important;
+    align-items: center;
+    max-width: 100%;
+  }
+
+  .atm-root .mono-rail-tools {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 6px;
+  }
+
+  .atm-root .mono-nav-item.is-desk-only {
+    display: inline-flex !important;
+  }
+
+  .atm-root .mono-nav-item.is-mobile-more {
+    display: none !important;
+  }
+
+  .atm-root .mono-top-ai-btn {
+    display: none;
+  }
+
+  .atm-root .mono-shell-inner {
+    max-width: 1420px;
+    padding-inline: 24px !important;
+  }
+}
+
+/* Compact desktop navbar spacing (900px–1380px) so all 10 tabs fit with zero edge clipping */
+@media (min-width: 900px) and (max-width: 1380px) {
+  .atm-root .mono-nav {
+    left: 10px;
+    right: 10px;
+    padding: 6px 10px 6px 12px !important;
+    gap: 6px !important;
+  }
+  .atm-root .mono-rail-primary {
+    gap: 1px !important;
+  }
+  .atm-root .mono-nav-item {
+    padding: 0 7px !important;
+    gap: 4px !important;
+    font-size: 12px !important;
+  }
+  .atm-root .mono-nav-item svg {
+    width: 13.5px !important;
+    height: 13.5px !important;
+  }
+  .atm-root .mono-nav-ai-btn {
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .atm-root .mono-rail-sep {
+    margin: 0 2px;
+  }
+}
+
+/* Mobile (<900px): guarantee generous bottom padding so bottom nav NEVER occludes buttons */
+@media (max-width: 899px) {
+  .atm-root .mono-shell-inner {
+    padding-bottom: calc(116px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .atm-root .mono-nav {
+    box-shadow:
+      0 -12px 32px -12px rgba(0, 0, 0, 0.72),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+}
+
+/* 5. Prominent Moneo AI Button + Slide-Over Drawer */
+.mono-nav-ai-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 13px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 60%, #818cf8);
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--mono-tint) 28%, var(--mono-surface)),
+    color-mix(in oklab, #6366f1 28%, var(--mono-surface))
+  );
+  color: var(--mono-fg-2);
+  font-family: var(--mono-font-display);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow:
+    0 6px 20px -6px color-mix(in oklab, var(--mono-tint) 70%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition:
+    transform 160ms var(--mono-ease),
+    box-shadow 180ms var(--mono-ease);
+}
+
+.mono-nav-ai-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--mono-tint);
+  stroke: none;
+  flex-shrink: 0;
+}
+
+.mono-nav-ai-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 10px 26px -6px color-mix(in oklab, var(--mono-tint) 90%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+.mono-top-ai-btn {
+  border-color: color-mix(in oklab, var(--mono-tint) 55%, #818cf8) !important;
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--mono-tint) 24%, var(--mono-surface)),
+    color-mix(in oklab, #6366f1 24%, var(--mono-surface))
+  ) !important;
+  color: var(--mono-fg-2) !important;
+  font-weight: 700 !important;
+}
+
+.mono-ai-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(3, 7, 18, 0.68);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: flex-end;
+  padding: 14px;
+}
+
+.mono-ai-drawer {
+  width: min(560px, 100%);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  background: color-mix(in oklab, var(--mono-bg-2, #0b1224) 94%, transparent);
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 36%, rgba(255, 255, 255, 0.14));
+  box-shadow:
+    -24px 0 64px -16px rgba(0, 0, 0, 0.85),
+    0 0 40px -16px color-mix(in oklab, var(--mono-tint) 35%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+.mono-ai-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid color-mix(in oklab, var(--mono-fg) 10%, transparent);
+}
+
+.mono-ai-drawer-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mono-ai-spark {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  color: var(--mono-tint);
+  background: color-mix(in oklab, var(--mono-tint) 16%, transparent);
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 40%, transparent);
+}
+
+.mono-ai-drawer-title h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--mono-fg-2);
+}
+
+.mono-ai-drawer-title p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--mono-muted);
+}
+
+.mono-ai-drawer-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklab, var(--mono-fg) 14%, transparent);
+  background: transparent;
+  color: var(--mono-fg-2);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mono-ai-drawer-close:hover {
+  background: color-mix(in oklab, var(--mono-fg) 10%, transparent);
+}
+
+.mono-ai-drawer-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px 18px 24px;
+}
+
+/* 6. Daily Briefing Live Banner + Compact Move Recovery Strip */
+.mono-briefing-banner {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--mono-tint) 14%, var(--mono-surface));
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 42%, transparent);
+  color: var(--mono-fg-2);
+  font-size: 13px;
+  line-height: 1.45;
+  box-shadow: 0 12px 28px -14px rgba(0, 0, 0, 0.7);
+}
+
+.mono-briefing-close {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 0;
+  background: color-mix(in oklab, var(--mono-fg) 10%, transparent);
+  color: var(--mono-fg-2);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.mono-body-hud-grid.is-compact-move {
+  grid-template-columns: 1fr;
+}
+
+/* 7. PAID PRO FEATURE INTEGRITY: Accent Colors & Light Mode */
+.atm-root[data-accent='tomato'] {
+  --mono-tint: #f07167;
+  --mono-accent: #f07167;
+  --mono-accent-2: #d65448;
+}
+.atm-root[data-accent='mint'] {
+  --mono-tint: #3ecf8e;
+  --mono-accent: #3ecf8e;
+  --mono-accent-2: #27a56e;
+}
+.atm-root[data-accent='sky'] {
+  --mono-tint: #7aa5ff;
+  --mono-accent: #7aa5ff;
+  --mono-accent-2: #4f7dd6;
+}
+.atm-root[data-accent='violet'] {
+  --mono-tint: #a78bfa;
+  --mono-accent: #a78bfa;
+  --mono-accent-2: #7c5ce8;
+}
+.atm-root[data-accent='amber'] {
+  --mono-tint: #f5a524;
+  --mono-accent: #f5a524;
+  --mono-accent-2: #cf850a;
+}
+.atm-root[data-accent='rose'] {
+  --mono-tint: #f483b8;
+  --mono-accent: #f483b8;
+  --mono-accent-2: #d65696;
+}
+
+/* Crisp contrast on active zone/filter chips across all themes (dark & light) */
+.atm-root .mono-chip[aria-pressed='true'] {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--mono-tint) 88%, #ffffff),
+    var(--mono-tint)
+  );
+  color: var(--atm-on, #04101d);
+  box-shadow: 0 8px 20px -8px color-mix(in oklab, var(--mono-tint) 75%, transparent);
+}
+
+.atm-root .mono-chip[aria-pressed='true'] svg,
+.atm-root .mono-chip[aria-pressed='true'] .mono-fit-icon,
+.atm-root [aria-pressed='true'] .mono-fit-icon {
+  color: var(--atm-on, #04101d) !important;
+  stroke: currentColor !important;
+}
+
+/* Light-paper atmospheres get clean studio shadows without forcing dark `ritual` white */
+.atm-root[data-atmosphere='hartie'] .mono-card,
+.atm-root[data-atmosphere='fildes'] .mono-card,
+.atm-root[data-atmosphere='alba'] .mono-card,
+.atm-root[data-atmosphere='nor'] .mono-card,
+.atm-root[data-atmosphere='ceata'] .mono-card,
+.atm-root[data-atmosphere='marmura'] .mono-card,
+.atm-root[data-atmosphere='hartie'] .mono-nav,
+.atm-root[data-atmosphere='fildes'] .mono-nav,
+.atm-root[data-atmosphere='alba'] .mono-nav {
+  box-shadow:
+    0 18px 40px -20px rgba(15, 23, 42, 0.16),
+    0 4px 12px -4px rgba(15, 23, 42, 0.08),
+    0 0 0 1px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+/* #1 Highlight of the Day (Make Time) & 3-Min Weekly Review (GTD) */
+.mono-list-row.is-highlight {
+  position: relative;
+  border-radius: 14px;
+  padding-inline: 10px;
+  background: color-mix(in oklab, var(--mono-tint) 9%, transparent);
+  box-shadow: inset 3px 0 0 var(--mono-tint);
+}
+
+.mono-highlight-tag {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-family: var(--mono-font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mono-tint);
+  background: color-mix(in oklab, var(--mono-tint) 16%, transparent);
+  border: 1px solid color-mix(in oklab, var(--mono-tint) 38%, transparent);
+}
+
+.mono-wr-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.mono-wr-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--mono-bg) 68%, transparent);
+  border: 1px solid color-mix(in oklab, var(--mono-fg) 10%, transparent);
+}
+
+.mono-wr-stat strong {
+  font-family: var(--mono-font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--mono-fg-2);
+}
+
+.mono-wr-stat span {
+  font-size: 12px;
+  color: var(--mono-muted);
+}
+
+.mono-wr-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 680px) {
+  .mono-wr-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mono-wr-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mono-wr-field span {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--mono-fg-2);
+}
+
+.mono-wr-field input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklab, var(--mono-fg) 16%, transparent);
+  background: color-mix(in oklab, var(--mono-bg) 76%, transparent);
+  color: var(--mono-fg-2);
+  font: inherit;
+  font-size: 13.5px;
+}
+
+.mono-wr-field input:focus {
+  outline: none;
+  border-color: var(--mono-tint);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--mono-tint) 22%, transparent);
+}
+
+.mono-wr-foot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.mono-wr-saved {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #34d399;
+}
+
+/* Pro Light Mode (activates ONLY when Pro subscriber explicitly chooses Light in Settings) */
+html[data-pro-light='true'] .atm-root[data-atmosphere='ritual'],
+html[data-pro-light='true'] .atm-root[data-atmosphere='sanctuar'],
+html[data-pro-light='true'] .atm-root[data-atmosphere='adanc'],
+html[data-pro-light='true'] .atm-root[data-atmosphere='noapte'],
+html[data-pro-light='true'] .atm-root[data-atmosphere='carbune'] {
+  --mono-bg: #f4f7fb;
+  --mono-bg-2: #ffffff;
+  --mono-surface: #ffffff;
+  --mono-raised: #eef3fa;
+  --mono-fg: #1e293b;
+  --mono-fg-2: #0f172a;
+  --mono-muted: #52627a;
+  --mono-border: rgba(15, 23, 42, 0.1);
+  --mono-border-2: rgba(15, 23, 42, 0.18);
+  --mono-tint: #0369a1;
+  --mono-accent: #0369a1;
+  --mono-accent-2: #075985;
+  --mono-accent-soft: rgba(3, 105, 161, 0.12);
+  --atm-on: #ffffff;
+}
+
+html[data-pro-light='true'] .atm-root .mono-card,
+html[data-pro-light='true'] .atm-root .card,
+html[data-pro-light='true'] .atm-root .atm-hero-card,
+html[data-pro-light='true'] .atm-root .mono-hud,
+html[data-pro-light='true'] .atm-root .mono-os-card-box,
+html[data-pro-light='true'] .atm-root .mono-nav {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 18px 40px -20px rgba(15, 23, 42, 0.18),
+    0 4px 12px -4px rgba(15, 23, 42, 0.08),
+    0 0 0 1px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+html[data-pro-light='true'] .atm-root .mono-ai-drawer {
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow:
+    -20px 0 48px -14px rgba(15, 23, 42, 0.22),
+    0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+/* Pricing page glass elevation */
+.atm-root.pricing-surface section {
+  box-shadow:
+    0 18px 42px -20px rgba(0, 0, 0, 0.72),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }

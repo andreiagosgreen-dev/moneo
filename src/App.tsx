@@ -25,6 +25,10 @@ import MonoToast from './mono/MonoToast';
 import { track } from './lib/analytics';
 import MonoRapoarte from './mono/MonoRapoarte';
 import MonoCrestere from './mono/MonoCrestere';
+import MonoHudCore, { computeHudMetrics } from './mono/MonoHudCore';
+import { MonoTopOsBar, MonoOsCommandDeck } from './mono/MonoPersonalOsSuite';
+import MonoWeeklyReview from './mono/MonoWeeklyReview';
+import MonoVisualEngine from './mono/MonoVisualEngine';
 import MonoViata from './mono/MonoViata';
 import MonoReturn from './mono/MonoReturn';
 import TabFallback from './components/TabFallback';
@@ -112,8 +116,6 @@ import {
   IVY_FREE_MAX_TASKS,
 } from './lib/ivyLee';
 import { togglePlanItem, syncPlanWithTasks } from './lib/planTaskSync';
-import { isEngagedUser } from './lib/engagement';
-import Disclosure from './components/Disclosure';
 import {
   loadBlocks,
   nextFocusBlock,
@@ -164,6 +166,7 @@ import {
   markHabitDone,
   plannedOn,
   saveWorkouts,
+  weekGoal,
   type WorkoutEntry,
   type WorkoutStore,
 } from './lib/fitness/workouts';
@@ -612,6 +615,21 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
     goFill('focus');
   };
 
+  /** Start Focus directly from any open Today priority row. */
+  const handleFocusPlanItem = (id: string) => {
+    const item = todayPlan?.tasks.find((x) => x.id === id);
+    if (!item) return;
+    autoIntentionRef.current = '';
+    setIntentionDraft(item.text);
+    const linked = item.taskId ? taskById.get(item.taskId) : undefined;
+    if (linked) {
+      setSelectedProjectId(linked.projectId);
+      saveSelectedProject(linked.projectId);
+      setSelectedTaskId(linked.id);
+    }
+    goFill('focus');
+  };
+
   const activeRm = activeRoadmap(roadmaps);
 
   // Refresh roadmap ETA from recent Focus minutes on the linked project.
@@ -731,7 +749,6 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
   useEffect(() => saveSelectedArea(selectedAreaId), [selectedAreaId]);
   /* ---------- focus areas (CRUD moves to Settings in MONO-5) ---------- */
 
-  const showGettingStarted = history.length === 0 && projects.length === 0 && tasks.length === 0;
   const selectedTask = tasks.find((x) => x.id === selectedTaskId) ?? null;
 
   /* ---------- Focus extras: ambient sound, wake lock, zen ---------- */
@@ -1105,13 +1122,23 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
     lifeMap,
   });
 
-  // Progressive disclosure (Roadmap Faza 2): brand-new workspaces see only
-  // the calm core flow; everything else unfolds after first sessions.
-  const engaged = isEngagedUser(history, projects);
-  const [todayMoreOpen, setTodayMoreOpen] = useState<boolean | null>(null);
-  const moreIsOpen = todayMoreOpen ?? false;
+  const [todayTool, setTodayTool] = useState<'none' | 'frog' | 'life'>('none');
+  const [moveView, setMoveView] = useState<'workouts' | 'recovery' | 'nutrition'>('workouts');
+  const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
+  const [projectsView, setProjectsView] = useState<'list' | 'board' | 'matrix' | 'overview'>(
+    'list',
+  );
+  const [planView, setPlanView] = useState<'goals' | 'assistant' | 'okrs' | 'skills'>('goals');
+  useEffect(() => {
+    if (!aiDrawerOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setAiDrawerOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [aiDrawerOpen]);
   const openTodayHabitsManage = () => {
-    setTodayMoreOpen(true);
+    setTodayTool('life');
     queueMicrotask(() => {
       document.getElementById('today-life-habits')?.scrollIntoView({
         behavior: 'smooth',
@@ -1224,6 +1251,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
               data-atmosphere={paintedAtmosphere}
               className="atm-root relative min-h-screen overflow-hidden"
             >
+              <MonoVisualEngine focusing={running} />
               <p role="status" aria-live="polite" className="sr-only">
                 {announce}
               </p>
@@ -1233,6 +1261,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                 onTab={goNav}
                 onNewSession={() => goNav('focus')}
                 onOpenPalette={() => setPaletteOpen(true)}
+                onOpenAi={() => setAiDrawerOpen(true)}
               />
               <CommandPalette
                 open={paletteOpen}
@@ -1270,6 +1299,42 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                   {returnTo && returnTo !== tab ? (
                     <MonoReturn to={returnTo} onBack={goBack} />
                   ) : null}
+                  {(tab === 'today' || tab === 'growth') &&
+                    (() => {
+                      const wg = weekGoal(workoutStore);
+                      const habitsDone = habits.filter(
+                        (h) => !h.archived && habitLog[h.id]?.includes(todayKey),
+                      ).length;
+                      const habitsTotal = habits.filter((h) => !h.archived).length;
+                      const hudM = computeHudMetrics({
+                        focusMinToday: todayProgress.focusMin,
+                        focusGoalMin: settings.dailyGoal * settings.focusMin,
+                        tasksDone: todayProgress.done,
+                        tasksTotal: todayProgress.total,
+                        workoutsThisWeek: wg.done,
+                        workoutsGoal: wg.goal,
+                        habitsDoneToday: habitsDone,
+                        habitsTotalToday: habitsTotal,
+                        history,
+                      });
+                      return (
+                        <div className="mono-pad" style={{ marginBottom: 12 }}>
+                          <MonoTopOsBar
+                            xp={xp}
+                            osScore={hudM.score}
+                            mindPct={hudM.mindPct}
+                            execPct={hudM.execPct}
+                            bodyPct={hudM.bodyPct}
+                            openTasks={Math.max(0, todayProgress.total - todayProgress.done)}
+                            workoutStore={workoutStore}
+                            activeTab={tab}
+                            onTab={goNav}
+                            onGoGrowth={() => goNav('growth')}
+                            onOpenAi={() => setAiDrawerOpen(true)}
+                          />
+                        </div>
+                      );
+                    })()}
                   {tab === 'focus' && (
                     <main>
                       <MonoFocus
@@ -1341,6 +1406,25 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                           rootRef: focusRootRef,
                         }}
                         estimate={focusEstimate}
+                        onQuickAdd={handleQuickAdd}
+                        bentoTop={
+                          <MonoHudCore
+                            focusMinToday={todayProgress.focusMin}
+                            focusGoalMin={settings.dailyGoal * settings.focusMin}
+                            tasksDone={todayProgress.done}
+                            tasksTotal={todayProgress.total}
+                            workoutsThisWeek={weekGoal(workoutStore).done}
+                            workoutsGoal={weekGoal(workoutStore).goal}
+                            habitsDoneToday={
+                              habits.filter(
+                                (h) => !h.archived && habitLog[h.id]?.includes(todayKey),
+                              ).length
+                            }
+                            habitsTotalToday={habits.filter((h) => !h.archived).length}
+                            history={history}
+                            onGo={goNav}
+                          />
+                        }
                       />
                       {activeRm ? (
                         <div className="mono-pad" style={{ marginTop: 14 }}>
@@ -1388,6 +1472,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                           };
                         })}
                         onSnooze={handleSnooze}
+                        onFocusItem={handleFocusPlanItem}
                         onRemove={handleRemoveFromToday}
                         maxTasks={todayMaxTasks}
                         morningLabel={t('today.morning')}
@@ -1510,31 +1595,37 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                           )
                         }
                         more={
-                          <>
-                            <div className="mono-sec">
-                              <Disclosure
-                                title={t('today.more')}
-                                hint={t('today.moreHint')}
-                                defaultOpen={false}
-                                open={moreIsOpen}
-                                onOpenChange={setTodayMoreOpen}
+                          <div className="mono-sec mono-pad mono-azi-tools">
+                            <div
+                              className="mono-seg-bar"
+                              role="tablist"
+                              aria-label={t('today.more')}
+                            >
+                              <button
+                                type="button"
+                                role="tab"
+                                aria-selected={todayTool === 'frog'}
+                                className={`mono-seg-btn${todayTool === 'frog' ? ' is-on' : ''}`}
+                                onClick={() =>
+                                  setTodayTool((cur) => (cur === 'frog' ? 'none' : 'frog'))
+                                }
                               >
-                                {!showGettingStarted && (
-                                  <CommandCenter
-                                    projects={projects}
-                                    tasks={tasks}
-                                    goals={goals}
-                                    sprints={sprints}
-                                    history={history}
-                                    areas={areas}
-                                    habits={habits}
-                                    habitLog={habitLog}
-                                    timezone={auth.timezone}
-                                    selectedProjectId={selectedProjectId}
-                                    selectedTaskId={selectedTaskId}
-                                    planTaskIds={planTaskIds}
-                                  />
-                                )}
+                                {t('frog.title')}
+                              </button>
+                              <button
+                                type="button"
+                                role="tab"
+                                aria-selected={todayTool === 'life'}
+                                className={`mono-seg-btn${todayTool === 'life' ? ' is-on' : ''}`}
+                                onClick={() =>
+                                  setTodayTool((cur) => (cur === 'life' ? 'none' : 'life'))
+                                }
+                              >
+                                {t('life.title')}
+                              </button>
+                            </div>
+                            {todayTool === 'frog' && (
+                              <div className="mono-seg-panel">
                                 <FrogCard
                                   tasks={tasks}
                                   projects={projects}
@@ -1555,44 +1646,38 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                                       : undefined
                                   }
                                 />
-                                <MatrixCard
-                                  tasks={tasks}
+                              </div>
+                            )}
+                            {todayTool === 'life' && (
+                              <div id="today-life-habits" className="mono-seg-panel">
+                                <LifeCard
+                                  habits={habits}
+                                  habitsChange={setHabits}
+                                  habitLog={habitLog}
+                                  habitLogChange={setHabitLog}
+                                  lifeAreas={lifeAreas}
+                                  lifeAreasChange={setLifeAreas}
+                                  focusAreas={areas}
+                                  journal={journal}
+                                  journalChange={setJournal}
+                                  timeOff={timeOff}
+                                  timeOffChange={setTimeOff}
+                                  energyLog={energyLog}
+                                  energyLogChange={setEnergyLog}
+                                  goals={goals}
+                                  projects={projects}
+                                  skills={skills}
+                                  objectives={objectives}
+                                  links={links}
+                                  onLinksChange={setLinks}
+                                  frogLog={frogLog}
                                   history={history}
-                                  onTasksChange={setTasks}
+                                  timezone={auth.timezone}
                                   isPro={auth.isPro}
-                                  planTaskIds={planTaskIds}
-                                  onAddToPlan={addLinkedTaskToPlan}
                                 />
-                                <div id="today-life-habits">
-                                  <LifeCard
-                                    habits={habits}
-                                    habitsChange={setHabits}
-                                    habitLog={habitLog}
-                                    habitLogChange={setHabitLog}
-                                    lifeAreas={lifeAreas}
-                                    lifeAreasChange={setLifeAreas}
-                                    focusAreas={areas}
-                                    journal={journal}
-                                    journalChange={setJournal}
-                                    timeOff={timeOff}
-                                    timeOffChange={setTimeOff}
-                                    energyLog={energyLog}
-                                    energyLogChange={setEnergyLog}
-                                    goals={goals}
-                                    projects={projects}
-                                    skills={skills}
-                                    objectives={objectives}
-                                    links={links}
-                                    onLinksChange={setLinks}
-                                    frogLog={frogLog}
-                                    history={history}
-                                    timezone={auth.timezone}
-                                    isPro={auth.isPro}
-                                  />
-                                </div>
-                              </Disclosure>
-                            </div>
-                          </>
+                              </div>
+                            )}
+                          </div>
                         }
                       />
                       {activeRm ? (
@@ -1644,35 +1729,69 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                   {tab === 'plan' && (
                     <Suspense fallback={<TabFallback />}>
                       <main>
-                        <MonoHead title={t('nav.plan')} sub={t('nav.hint.plan')} />
-                        <div className="mono-pad mt-2 grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 md:gap-6">
-                          <div
-                            className="reveal flex min-h-0 flex-col"
-                            style={{ animationDelay: '90ms' }}
-                          >
-                            <GoalsCard
-                              goals={goals}
-                              goalsChange={setGoals}
-                              projects={projects}
-                              projectsChange={setProjects}
-                              tasks={tasks}
-                              onTasksChange={setTasks}
-                              ivyPlans={ivyPlans}
-                              onIvyPlansChange={setIvyPlans}
-                              timezone={auth.timezone}
-                              lifeAreas={lifeAreas}
-                              skills={skills}
-                              objectives={objectives}
-                              links={links}
-                              onLinksChange={setLinks}
-                              isPro={auth.isPro}
-                              onWorkFocus={handleWorkFocus}
-                            />
+                        <MonoHead title={t('nav.plan')} />
+                        <div className="mono-pad">
+                          <div className="mono-seg-bar" role="tablist" aria-label={t('nav.plan')}>
+                            {(
+                              [
+                                ['goals', 'goal.title'],
+                                ['assistant', 'assistant.title'],
+                                ['okrs', 'okr.title'],
+                                ['skills', 'skill.title'],
+                              ] as const
+                            ).map(([id, key]) => (
+                              <button
+                                key={id}
+                                type="button"
+                                role="tab"
+                                aria-selected={planView === id}
+                                className={`mono-seg-btn${planView === id ? ' is-on' : ''}`}
+                                onClick={() => setPlanView(id)}
+                              >
+                                {t(key)}
+                              </button>
+                            ))}
                           </div>
-                          <div
-                            className="reveal flex min-h-0 flex-col"
-                            style={{ animationDelay: '130ms' }}
-                          >
+                        </div>
+                        <div className="mono-pad mt-4 flex flex-col gap-5">
+                          {planView === 'goals' && (
+                            <>
+                              <GoalsCard
+                                goals={goals}
+                                goalsChange={setGoals}
+                                projects={projects}
+                                projectsChange={setProjects}
+                                tasks={tasks}
+                                onTasksChange={setTasks}
+                                ivyPlans={ivyPlans}
+                                onIvyPlansChange={setIvyPlans}
+                                timezone={auth.timezone}
+                                lifeAreas={lifeAreas}
+                                skills={skills}
+                                objectives={objectives}
+                                links={links}
+                                onLinksChange={setLinks}
+                                isPro={auth.isPro}
+                                onWorkFocus={handleWorkFocus}
+                              />
+                              <AiPathCard
+                                projects={projects}
+                                projectsChange={setProjects}
+                                tasks={tasks}
+                                tasksChange={setTasks}
+                                ivyPlans={ivyPlans}
+                                plansChange={setIvyPlans}
+                                blocks={timeBlocks}
+                                goals={goals}
+                                goalsChange={setGoals}
+                                phases={phases}
+                                phasesChange={setPhases}
+                                timezone={auth.timezone}
+                                isPro={auth.isPro}
+                              />
+                            </>
+                          )}
+                          {planView === 'assistant' && (
                             <AssistantCard
                               messages={chatHistory}
                               messagesChange={setChatHistory}
@@ -1695,67 +1814,38 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                               onWorkFocus={handleWorkFocus}
                               isPro={auth.isPro}
                             />
-                          </div>
-                          <div className="reveal md:col-span-2" style={{ animationDelay: '150ms' }}>
-                            <AiPathCard
-                              projects={projects}
-                              projectsChange={setProjects}
-                              tasks={tasks}
-                              tasksChange={setTasks}
-                              ivyPlans={ivyPlans}
-                              plansChange={setIvyPlans}
-                              blocks={timeBlocks}
+                          )}
+                          {planView === 'okrs' && (
+                            <OkrCard
+                              objectives={objectives}
+                              objectivesChange={setObjectives}
+                              links={links}
+                              onLinksChange={setLinks}
                               goals={goals}
-                              goalsChange={setGoals}
-                              phases={phases}
-                              phasesChange={setPhases}
-                              timezone={auth.timezone}
+                              projects={projects}
+                              skills={skills}
                               isPro={auth.isPro}
                             />
-                          </div>
-                          <Disclosure
-                            title={t('today.advPlan')}
-                            hint={t('today.advSkillsHint')}
-                            defaultOpen={engaged}
-                          >
-                            <div
-                              className="reveal h-full min-w-0"
-                              style={{ animationDelay: '170ms' }}
-                            >
-                              <OkrCard
-                                objectives={objectives}
-                                objectivesChange={setObjectives}
-                                links={links}
-                                onLinksChange={setLinks}
-                                goals={goals}
-                                projects={projects}
-                                skills={skills}
-                                isPro={auth.isPro}
-                              />
-                            </div>
-                            <div
-                              className="reveal h-full min-w-0"
-                              style={{ animationDelay: '210ms' }}
-                            >
-                              <SkillsCard
-                                skills={skills}
-                                skillsChange={setSkills}
-                                transitionTip={transitionAdvice(
-                                  skills,
-                                  tasks,
-                                  projects,
-                                  goals,
-                                  appI18n,
-                                )}
-                                links={links}
-                                onLinksChange={setLinks}
-                                goals={goals}
-                                projects={projects}
-                                objectives={objectives}
-                                isPro={auth.isPro}
-                              />
-                            </div>
-                          </Disclosure>
+                          )}
+                          {planView === 'skills' && (
+                            <SkillsCard
+                              skills={skills}
+                              skillsChange={setSkills}
+                              transitionTip={transitionAdvice(
+                                skills,
+                                tasks,
+                                projects,
+                                goals,
+                                appI18n,
+                              )}
+                              links={links}
+                              onLinksChange={setLinks}
+                              goals={goals}
+                              projects={projects}
+                              objectives={objectives}
+                              isPro={auth.isPro}
+                            />
+                          )}
                         </div>
                       </main>
                     </Suspense>
@@ -1764,9 +1854,76 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                     <Suspense fallback={<TabFallback />}>
                       <main>
                         <MonoCrestere>
+                          <div className="reveal mono-growth-span">
+                            <MonoHudCore
+                              focusMinToday={todayProgress.focusMin}
+                              focusGoalMin={settings.dailyGoal * settings.focusMin}
+                              tasksDone={todayProgress.done}
+                              tasksTotal={todayProgress.total}
+                              workoutsThisWeek={weekGoal(workoutStore).done}
+                              workoutsGoal={weekGoal(workoutStore).goal}
+                              habitsDoneToday={
+                                habits.filter(
+                                  (h) => !h.archived && habitLog[h.id]?.includes(todayKey),
+                                ).length
+                              }
+                              habitsTotalToday={habits.filter((h) => !h.archived).length}
+                              history={history}
+                              onGo={goNav}
+                            />
+                          </div>
+                          <div
+                            className="reveal mono-growth-span"
+                            style={{ animationDelay: '35ms' }}
+                          >
+                            <MonoOsCommandDeck
+                              dayKey={todayKey}
+                              history={history}
+                              workoutStore={workoutStore}
+                              mindPct={Math.min(
+                                100,
+                                Math.round(
+                                  (todayProgress.focusMin /
+                                    Math.max(15, settings.dailyGoal * settings.focusMin)) *
+                                    100,
+                                ),
+                              )}
+                              execPct={
+                                todayProgress.total > 0
+                                  ? Math.round((todayProgress.done / todayProgress.total) * 100)
+                                  : 0
+                              }
+                              bodyPct={Math.min(
+                                100,
+                                Math.round(
+                                  (weekGoal(workoutStore).done /
+                                    Math.max(1, weekGoal(workoutStore).goal)) *
+                                    100,
+                                ),
+                              )}
+                              habitsDoneToday={
+                                habits.filter(
+                                  (h) => !h.archived && habitLog[h.id]?.includes(todayKey),
+                                ).length
+                              }
+                              habitsTotalToday={habits.filter((h) => !h.archived).length}
+                              onGo={goNav}
+                              layout="atomic"
+                            />
+                          </div>
                           <div
                             className="reveal mono-growth-span"
                             style={{ animationDelay: '60ms' }}
+                          >
+                            <MonoWeeklyReview
+                              history={history}
+                              workouts={workoutStore.log}
+                              doneTasksCount={tasks.filter((x) => x.status === 'completed').length}
+                            />
+                          </div>
+                          <div
+                            className="reveal mono-growth-span"
+                            style={{ animationDelay: '75ms' }}
                           >
                             <MonoRankCard xp={xp} badges={badges} isPro={auth.isPro} />
                           </div>
@@ -1819,15 +1976,115 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                   {tab === 'move' && (
                     <Suspense fallback={<TabFallback />}>
                       <main>
-                        <MonoMiscare
-                          store={workoutStore}
-                          habits={habits}
-                          isPro={auth.isPro}
-                          onSave={handleWorkoutSave}
-                          onDelete={(id) => commitWorkouts(deleteWorkout(workoutStore, id))}
-                          onChange={commitWorkouts}
-                          onAddGoal={addExerciseGoal}
-                        />
+                        <div className="mono-pad" style={{ marginBottom: 14 }}>
+                          <div className="mono-seg-bar" role="tablist" aria-label={t('nav.move')}>
+                            {(
+                              [
+                                [
+                                  'workouts',
+                                  {
+                                    en: 'Workouts',
+                                    ro: 'Antrenamente',
+                                    ru: 'Тренировки',
+                                    uk: 'Тренування',
+                                    de: 'Workouts',
+                                    fr: 'Entraînements',
+                                    it: 'Allenamenti',
+                                    es: 'Entrenamientos',
+                                  }[locale],
+                                ],
+                                [
+                                  'recovery',
+                                  {
+                                    en: 'Recovery 0–100%',
+                                    ro: 'Recuperare 0–100%',
+                                    ru: 'Восстановление 0–100%',
+                                    uk: 'Відновлення 0–100%',
+                                    de: 'Erholung 0–100%',
+                                    fr: 'Récupération 0–100%',
+                                    it: 'Recupero 0–100%',
+                                    es: 'Recuperación 0–100%',
+                                  }[locale],
+                                ],
+                                [
+                                  'nutrition',
+                                  {
+                                    en: 'Nutrition & Swaps',
+                                    ro: 'Alimentație & Înlocuitori',
+                                    ru: 'Питание и замены',
+                                    uk: 'Харчування і заміни',
+                                    de: 'Ernährung & Tausch',
+                                    fr: 'Nutrition & Échanges',
+                                    it: 'Nutrizione & Sostituzioni',
+                                    es: 'Nutrición y cambios',
+                                  }[locale],
+                                ],
+                              ] as const
+                            ).map(([id, label]) => (
+                              <button
+                                key={id}
+                                type="button"
+                                role="tab"
+                                aria-selected={moveView === id}
+                                className={`mono-seg-btn${moveView === id ? ' is-on' : ''}`}
+                                onClick={() => setMoveView(id)}
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {moveView === 'workouts' && (
+                          <MonoMiscare
+                            store={workoutStore}
+                            habits={habits}
+                            isPro={auth.isPro}
+                            onSave={handleWorkoutSave}
+                            onDelete={(id) => commitWorkouts(deleteWorkout(workoutStore, id))}
+                            onChange={commitWorkouts}
+                            onAddGoal={addExerciseGoal}
+                          />
+                        )}
+
+                        {(moveView === 'recovery' || moveView === 'nutrition') && (
+                          <div className="mono-pad">
+                            <MonoOsCommandDeck
+                              dayKey={todayKey}
+                              history={history}
+                              workoutStore={workoutStore}
+                              mindPct={Math.min(
+                                100,
+                                Math.round(
+                                  (todayProgress.focusMin /
+                                    Math.max(15, settings.dailyGoal * settings.focusMin)) *
+                                    100,
+                                ),
+                              )}
+                              execPct={
+                                todayProgress.total > 0
+                                  ? Math.round((todayProgress.done / todayProgress.total) * 100)
+                                  : 0
+                              }
+                              bodyPct={Math.min(
+                                100,
+                                Math.round(
+                                  (weekGoal(workoutStore).done /
+                                    Math.max(1, weekGoal(workoutStore).goal)) *
+                                    100,
+                                ),
+                              )}
+                              habitsDoneToday={
+                                habits.filter(
+                                  (h) => !h.archived && habitLog[h.id]?.includes(todayKey),
+                                ).length
+                              }
+                              habitsTotalToday={habits.filter((h) => !h.archived).length}
+                              onGo={goNav}
+                              layout={moveView === 'recovery' ? 'body' : 'fuel'}
+                            />
+                          </div>
+                        )}
                       </main>
                     </Suspense>
                   )}
@@ -1849,64 +2106,117 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                     <Suspense fallback={<TabFallback />}>
                       <main>
                         <MonoProiecte activeCount={projects.filter((p) => !p.archived).length}>
-                          <MonoInbox
-                            tasks={inboxList}
-                            projects={projects}
-                            onToday={handleInboxToday}
-                            onAssign={(id, projectId) =>
-                              setTasks(assignProject(tasks, id, projectId))
-                            }
-                            onDelete={handleInboxDelete}
-                          />
-                          <MonoTemplates
-                            isPro={auth.isPro}
-                            canCreate={canCreateProject}
-                            hasProjects={projects.length > 0}
-                            onCreate={handleLifeTemplate}
-                          />
-                          <ProjectsCard
-                            revealId={revealProjectId}
-                            projects={projects}
-                            history={history}
-                            areas={areas}
-                            tasks={tasks}
-                            selectedProjectId={selectedProjectId}
-                            onSelectProject={handleSelectProject}
-                            onProjectsChange={setProjects}
-                            onTasksChange={setTasks}
-                            links={links}
-                            onLinksChange={setLinks}
-                            goals={goals}
-                            skills={skills}
-                            objectives={objectives}
-                            savedFilters={savedFilters}
-                            onSavedFiltersChange={setSavedFilters}
-                            isPro={auth.isPro}
-                            onWorkFocus={handleWorkFocus}
-                            phases={phases}
-                            onPhasesChange={setPhases}
-                          />
-                          <div className="mono-sec">
-                            <Disclosure
-                              title={t('today.advPlan')}
-                              hint={t('today.advAgileHint')}
-                              defaultOpen={engaged}
-                            >
-                              <AgileCard
+                          <div
+                            className="mono-seg-bar"
+                            role="tablist"
+                            aria-label={t('nav.projects')}
+                          >
+                            {(
+                              [
+                                ['list', 'nav.projects'],
+                                ['board', 'agile.tab.board'],
+                                ['matrix', 'matrix.title'],
+                                ['overview', 'commandCenter.title'],
+                              ] as const
+                            ).map(([id, key]) => (
+                              <button
+                                key={id}
+                                type="button"
+                                role="tab"
+                                aria-selected={projectsView === id}
+                                className={`mono-seg-btn${projectsView === id ? ' is-on' : ''}`}
+                                onClick={() => setProjectsView(id)}
+                              >
+                                {t(key)}
+                              </button>
+                            ))}
+                          </div>
+                          {projectsView === 'list' && (
+                            <>
+                              <MonoInbox
+                                tasks={inboxList}
                                 projects={projects}
+                                onToday={handleInboxToday}
+                                onAssign={(id, projectId) =>
+                                  setTasks(assignProject(tasks, id, projectId))
+                                }
+                                onDelete={handleInboxDelete}
+                              />
+                              <MonoTemplates
+                                isPro={auth.isPro}
+                                canCreate={canCreateProject}
+                                hasProjects={projects.length > 0}
+                                onCreate={handleLifeTemplate}
+                              />
+                              <ProjectsCard
+                                revealId={revealProjectId}
+                                projects={projects}
+                                history={history}
+                                areas={areas}
                                 tasks={tasks}
-                                onTasksChange={setTasks}
-                                sprints={sprints}
-                                sprintsChange={setSprints}
-                                phases={phases}
-                                phasesChange={setPhases}
                                 selectedProjectId={selectedProjectId}
                                 onSelectProject={handleSelectProject}
+                                onProjectsChange={setProjects}
+                                onTasksChange={setTasks}
+                                links={links}
+                                onLinksChange={setLinks}
+                                goals={goals}
+                                skills={skills}
+                                objectives={objectives}
+                                savedFilters={savedFilters}
+                                onSavedFiltersChange={setSavedFilters}
                                 isPro={auth.isPro}
                                 onWorkFocus={handleWorkFocus}
+                                phases={phases}
+                                onPhasesChange={setPhases}
                               />
-                            </Disclosure>
-                          </div>
+                            </>
+                          )}
+                          {projectsView === 'board' && (
+                            <AgileCard
+                              projects={projects}
+                              tasks={tasks}
+                              onTasksChange={setTasks}
+                              sprints={sprints}
+                              sprintsChange={setSprints}
+                              phases={phases}
+                              phasesChange={setPhases}
+                              selectedProjectId={selectedProjectId}
+                              onSelectProject={handleSelectProject}
+                              isPro={auth.isPro}
+                              onWorkFocus={handleWorkFocus}
+                              initialTab="board"
+                              alwaysOpen
+                            />
+                          )}
+                          {projectsView === 'matrix' && (
+                            <MatrixCard
+                              tasks={tasks}
+                              history={history}
+                              onTasksChange={setTasks}
+                              isPro={auth.isPro}
+                              planTaskIds={planTaskIds}
+                              onAddToPlan={addLinkedTaskToPlan}
+                              onOpenProjects={() => setProjectsView('list')}
+                            />
+                          )}
+                          {projectsView === 'overview' && (
+                            <CommandCenter
+                              projects={projects}
+                              tasks={tasks}
+                              goals={goals}
+                              sprints={sprints}
+                              history={history}
+                              areas={areas}
+                              habits={habits}
+                              habitLog={habitLog}
+                              timezone={auth.timezone}
+                              selectedProjectId={selectedProjectId}
+                              selectedTaskId={selectedTaskId}
+                              planTaskIds={planTaskIds}
+                              onOpenProjects={() => setProjectsView('list')}
+                            />
+                          )}
                         </MonoProiecte>
                       </main>
                     </Suspense>
@@ -1980,6 +2290,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                             projects={projects}
                             skills={skills}
                             objectives={objectives}
+                            onGoPlan={() => goNav('plan')}
                           />
                         </div>
                       </main>
@@ -2065,6 +2376,68 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                 <Suspense fallback={null}>
                   <MonoCelebrate moment={moments.current} onDone={moments.dismiss} />
                 </Suspense>
+              )}
+              {aiDrawerOpen && (
+                <div
+                  className="mono-ai-backdrop"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label={t('assistant.title')}
+                  onClick={(e) => {
+                    if (e.target === e.currentTarget) setAiDrawerOpen(false);
+                  }}
+                >
+                  <div className="mono-ai-drawer">
+                    <div className="mono-ai-drawer-head">
+                      <div className="mono-ai-drawer-title">
+                        <span className="mono-ai-spark" aria-hidden="true">
+                          ✦
+                        </span>
+                        <div>
+                          <h2>Moneo AI</h2>
+                          <p>{t('assistant.title')}</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        className="mono-ai-drawer-close"
+                        onClick={() => setAiDrawerOpen(false)}
+                        aria-label={t('timer.close')}
+                      >
+                        ×
+                      </button>
+                    </div>
+                    <div className="mono-ai-drawer-body">
+                      <Suspense fallback={<TabFallback />}>
+                        <AssistantCard
+                          messages={chatHistory}
+                          messagesChange={setChatHistory}
+                          tasks={tasks}
+                          projects={projects}
+                          history={history}
+                          timezone={auth.timezone}
+                          goals={goals}
+                          energyLog={energyLog}
+                          ivyPlans={ivyPlans}
+                          onIvyPlansChange={setIvyPlans}
+                          selectedProjectId={selectedProjectId}
+                          sprints={sprints}
+                          onTasksChange={setTasks}
+                          onProjectsChange={setProjects}
+                          phases={phases}
+                          onPhasesChange={setPhases}
+                          roadmaps={roadmaps}
+                          onRoadmapsChange={setRoadmaps}
+                          onWorkFocus={(projectId, taskId) => {
+                            setAiDrawerOpen(false);
+                            handleWorkFocus(projectId, taskId);
+                          }}
+                          isPro={auth.isPro}
+                        />
+                      </Suspense>
+                    </div>
+                  </div>
+                </div>
               )}
               <MonoToast message={toast?.message ?? null} action={toast?.action ?? null} />
             </div>

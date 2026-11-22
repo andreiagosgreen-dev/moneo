@@ -92,12 +92,22 @@ describe('MonoFocus', () => {
     expect(c.textContent).toContain('Short break');
   });
 
-  it('offers 5–65 minute lengths and shows the paired breaks', () => {
+  it('shows 3 clean quick presets up front and reveals all 5–65m lengths + paired breaks in Custom', () => {
     const c = render(screen({ focusMin: 45, shortMin: 9, longMin: 27 }));
-    const labels = Array.from(c.querySelectorAll('.atm-presets button[aria-label]')).map((b) =>
+    const quick = Array.from(c.querySelectorAll('.atm-presets button[aria-label]')).map((b) =>
       b.getAttribute('aria-label'),
     );
-    expect(labels).toEqual(['5 min', '15 min', '25 min', '35 min', '45 min', '55 min', '65 min']);
+    expect(quick).toEqual(['5 min', '25 min', '45 min']);
+    const custom = Array.from(c.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Custom',
+    )!;
+    act(() => {
+      custom.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    const all = Array.from(c.querySelectorAll('.atm-presets button[aria-label]')).map((b) =>
+      b.getAttribute('aria-label'),
+    );
+    expect(all).toEqual(['5 min', '25 min', '45 min', '15 min', '35 min', '55 min', '65 min']);
     expect(c.querySelector('.atm-rhythm-hint')!.textContent).toBe(
       '45 min focus · 9 min break · 27 min long break after 4 rounds',
     );
@@ -140,8 +150,8 @@ describe('MonoFocus', () => {
       start.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
     expect(onToggle).toHaveBeenCalledTimes(1);
-    const see = Array.from(c.querySelectorAll('button')).find(
-      (b) => b.textContent === 'Open plan',
+    const see = Array.from(c.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Open plan'),
     )!;
     act(() => {
       see.dispatchEvent(new MouseEvent('click', { bubbles: true }));

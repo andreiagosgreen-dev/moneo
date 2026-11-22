@@ -68,17 +68,17 @@ describe('MonoNav', () => {
 
   it('supports arrow-key navigation between tabs', () => {
     const onTab = vi.fn();
-    const c = render(withProviders('today', onTab));
-    const today = Array.from(c.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find((el) =>
-      el.textContent?.includes('Today'),
+    const c = render(withProviders('focus', onTab));
+    const focus = Array.from(c.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find((el) =>
+      el.textContent?.includes('Focus'),
     )!;
 
     act(() => {
-      today.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+      focus.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
     });
 
-    expect(onTab).toHaveBeenCalledWith('focus');
-    expect(document.activeElement?.id).toBe('mono-tab-focus');
+    expect(onTab).toHaveBeenCalledWith('today');
+    expect(document.activeElement?.id).toBe('mono-tab-today');
   });
 
   it('keeps More as the selected mobile destination for overflow tabs', () => {
@@ -117,7 +117,7 @@ describe('MonoNav', () => {
     const brand = c.querySelector('.mono-rail-brand');
     expect(brand).toBeTruthy();
     const img = brand!.querySelector('img.mono-rail-mark') as HTMLImageElement | null;
-    expect(img?.getAttribute('src')).toBe('/brand/moneo-mark-1200.png');
+    expect(img?.getAttribute('src')).toBe('/brand/moneo-mark.svg');
     expect(brand!.textContent).toContain('Moneo');
   });
 

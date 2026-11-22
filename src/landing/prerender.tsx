@@ -14,7 +14,13 @@ import { loadLandingDictionary } from './dictionaries';
 import { createI18n } from '../lib/i18n';
 import type { Locale, TKey } from '../lib/i18n/types';
 import { PRO_PRICES, parseUsd } from '../lib/billing/prices';
-import { ADULT_AGE, DIGITAL_CONSENT_AGE, MIN_ACCOUNT_AGE, REFUND_DAYS } from '../lib/legal/seller';
+import {
+  ADULT_AGE,
+  DIGITAL_CONSENT_AGE,
+  MIN_ACCOUNT_AGE,
+  REFUND_DAYS,
+  SUPPORT_EMAIL,
+} from '../lib/legal/seller';
 
 export const SITE = 'https://moneo.bond';
 export const PRERENDER_LOCALES: readonly Locale[] = [
@@ -82,23 +88,34 @@ export async function prerenderLanding(locale: Locale): Promise<PrerenderedLandi
     '@type': 'SoftwareApplication',
     name: 'Moneo',
     url,
+    image: `${SITE}/og.png`,
+    screenshot: `${SITE}/landing/en/focus-desktop-1440.webp`,
     applicationCategory: 'ProductivityApplication',
     operatingSystem: 'Web, Android, iOS, Windows, macOS',
+    isAccessibleForFree: true,
     description: desc,
     inLanguage: locale,
     offers: [
-      { '@type': 'Offer', name: t('pricing.plan.free.name'), price: '0', priceCurrency: 'USD' },
+      {
+        '@type': 'Offer',
+        name: t('pricing.plan.free.name'),
+        price: '0',
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+      },
       {
         '@type': 'Offer',
         name: t('pricing.plan.proMonthly.name'),
         price: String(parseUsd(PRO_PRICES.monthly)),
         priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
       },
       {
         '@type': 'Offer',
         name: t('pricing.plan.proYearly.name'),
         price: String(parseUsd(PRO_PRICES.yearly)),
         priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
       },
     ],
   };
@@ -120,6 +137,37 @@ export async function prerenderLanding(locale: Locale): Promise<PrerenderedLandi
       },
     })),
   };
+  const org = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Moneo',
+    url: SITE,
+    logo: `${SITE}/icon-512.png`,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: SUPPORT_EMAIL,
+      contactType: 'customer support',
+    },
+  };
+  const website = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Moneo',
+    url: SITE,
+    inLanguage: locale,
+  };
+  const howTo = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: t('land.how.title'),
+    inLanguage: locale,
+    step: (['s1', 's2', 's3'] as const).map((s, i) => ({
+      '@type': 'HowToStep',
+      position: i + 1,
+      name: t(`land.how.${s}.t` as TKey),
+      text: t(`land.how.${s}.b` as TKey),
+    })),
+  };
   // `<` is escaped so no answer text can close the script element.
   const ld = (o: unknown) =>
     `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, '\\u003c')}</script>`;
@@ -127,6 +175,7 @@ export async function prerenderLanding(locale: Locale): Promise<PrerenderedLandi
   const head = [
     `<title>${esc(title)}</title>`,
     `<meta name="description" content="${esc(desc)}" />`,
+    `<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />`,
     `<link rel="canonical" href="${url}" />`,
     alternates,
     `<link rel="alternate" hreflang="x-default" href="${SITE}/welcome" />`,
@@ -138,6 +187,9 @@ export async function prerenderLanding(locale: Locale): Promise<PrerenderedLandi
     `<meta name="twitter:description" content="${esc(desc)}" />`,
     ld(app),
     ld(faq),
+    ld(org),
+    ld(website),
+    ld(howTo),
   ].join('\n    ');
 
   return { locale, path, body, head };

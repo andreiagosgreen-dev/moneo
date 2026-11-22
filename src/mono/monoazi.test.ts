@@ -215,11 +215,11 @@ describe('MonoAzi', () => {
     expect(input.value).toBe('Read');
   });
 
-  it('shows an empty priorities card with plural add placeholder (no thick blank bar)', () => {
+  it('shows a clean empty priorities card with plural add placeholder (no extra guide text)', () => {
     const c = render(screen({ items: [], totalCount: 0, doneCount: 0, program: undefined }));
-    expect(c.textContent).toContain('What should you finish today?');
     expect(c.textContent).not.toContain('Draft the chapter outline');
-    expect(c.textContent).toContain('Write the list. Work in order.');
+    expect(c.textContent).not.toContain('What should you finish today?');
+    expect(c.textContent).not.toContain('Write the list. Work in order.');
     const input = c.querySelector('#mono-azi-new') as HTMLInputElement;
     expect(input.placeholder).toBe('Add tasks for today');
     expect(c.querySelectorAll('[role="checkbox"]').length).toBe(0);
@@ -251,6 +251,18 @@ describe('MonoAzi', () => {
       btns[0].dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
     expect(onMorning).toHaveBeenCalledTimes(1);
+  });
+
+  it('offers 1-click Focus on open items only and skips completed items', () => {
+    const onFocusItem = vi.fn();
+    const c = render(screen({ onFocusItem }));
+    const buttons = c.querySelectorAll('[data-testid="azi-focus"]');
+    expect(buttons.length).toBe(1);
+    expect(buttons[0].getAttribute('aria-label')).toBe('Focus: Schiță pentru capitolul 3');
+    act(() => {
+      buttons[0].dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    expect(onFocusItem).toHaveBeenCalledWith('b');
   });
 
   it('renders the habits slot between program and more', () => {

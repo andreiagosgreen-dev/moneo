@@ -1,11 +1,29 @@
 # MONEO — Fișier de predare (handoff)
 
 **Pentru:** orice agent care continuă lucrul (Cursor, Claude Code, OpenCode).
-**Ultima actualizare:** 28 septembrie 2026 (stare migrații + PR-uri #67–#76) — vezi §0. Secțiunile §1–§6 de mai jos sunt istoricul din 18.09; unde contrazic §0, **§0 are dreptate**.
+**Ultima actualizare:** 22 noiembrie 2026 (stare PR-uri până la #199 + upgrade UX/Design/Perf pe `feat/upgrade-to-95`) — vezi §0. Secțiunile §1–§6 de mai jos sunt istoricul din 18.09; unde contrazic §0, **§0 are dreptate**.
 
 ---
 
-## 0. Actualizare 22.09.2026 — integrări externe + Mono adus peste `main`
+## 0. Actualizare 22.11.2026 — Stare curentă (`main` la PR #199 + `feat/upgrade-to-95`)
+
+### 0.0. Ce s-a livrat între PR #76 și PR #199 (pe `origin/main`)
+
+- **Move / Fitness complet (#175–#179):** echipamente home-gym + 40+ exerciții, ghidaj audio/beeps/voice coach 3-2-1, pachete rapide de antrenament, obiective & rapoarte per exercițiu legate la Goals, generare AI de antrenamente pe Pro (`/api/ai/workout`).
+- **Trial & Lifecycle Emails (#183–#187):** 7 zile Pro gratuit de la sign-up fără card, tur de 7 zile (`trialTour.ts`), email ziua 5 + reminders via Resend (`cloudflare/workers/emails.ts`, cron zilnic `0 8 * * *`), verificare Pro unificată pe server.
+- **SEO & Legal (#174, #196, #199):** ghiduri statice în `en/ro/ru` cu `hreflang`, date structurate și sitemap; pagini legale (`/terms`, `/privacy`, `/refund`) prerendered fără JS (`src/components/legal/prerender.tsx`), în toate 8 limbile; `0` exporturi moarte (`#186`); `wrangler 4.147.0` + `react-router-dom 7.18.4`.
+- **Migrații SQL:** `0001`–`0009` + `0011_user_records` + `0012_subscription_lemon_updated_at` + `0013_subscriptions_policy_initplan` (`0010_google_calendar_connections` rămâne condiționată de decizia proprietarului).
+- **Worker bindings active (`cloudflare/workers/wrangler.toml`):** R2 (`moneo-assets`), KV (`KV_CACHE`), Workers AI (`AI`), Analytics Engine (`EVENTS` → `moneo_events`), cron (`0 8 * * *`).
+- **Branch `feat/upgrade-to-95` (redesign complet Visual-First + Personal OS HUD + Google SEO + igienă):**
+  - **Igienă & Securitate:** șterse 3 componente legacy moarte (1.420 LOC: `TimerCard.tsx`, `IvyLeeCard.tsx`, `UpNext.tsx`); `0` `dangerouslySetInnerHTML` (`MonoNav.tsx` → JSX `<MonoTabIcon>`); `0` `as any` / `: any` în producție (`syncEngine.ts`, `cloudflare/workers/index.ts`, `lemonWebhook.ts`).
+  - **Performanță:** lazy-loading pentru cele 11 pachete de fonturi Pro (`src/lib/proFontLoader.ts` + test), eliminate 41 de importuri CSS eager din `src/AppRoot.tsx`.
+  - **Redesign Visual-First (stil Apple / Opal / Linear / WHOOP):**
+    - Atmosferă default `ritual` obsidian-pin cu contrast WCAG AAA/AA (`42/42` atmosfere verzi), dot-matrix + auroră animată pe GPU, carduri glassmorphic unificate (inclusiv `.card` legacy).
+    - **Focus Cockpit (`MonoFocus.tsx`):** cronograf 60-ticks cu arc gradat luminos + punct orbital, doar 3 pastile rapide (`5m · 25m · 45m`) + `Custom` la cerere, un singur CTA luminos rotunjit (`Start`), 3 mini-inele SVG pentru statistici, zero texte/ghiduri redundante.
+    - **Today Bento Cockpit (`MonoAzi.tsx`):** 2 coloane pe desktop, benzi laterale de prioritate, buton `▶ Focus` 1-click pe fiecare task, fără ziduri de text.
+    - **Zero secțiuni „More / Advanced planning” urâte:** toate cele 3 `<Disclosure>` din `App.tsx` înlocuite cu bare curate Segmented Switcher integrate natural (`Projects · Board · Matrix · Command Center` în Proiecte; `Goals · Assistant · OKRs · Skills` în Plan; `Frog · Life` discret în Today).
+    - **J.A.R.V.I.S. Personal OS HUD (`MonoHudCore.tsx` + test):** 3 inele concentrice luminoase (Mind · Execution · Body) cu scor OS 0–100 + curbă de evoluție pe 14 zile cu delta săptămânal `+X%` în `Growth`, plus scanner biometric luminos pe harta musculară (`MonoBodyMap`) din `Move`.
+  - **Landing Page & Google SEO:** demo **LIVE interactiv** (`LiveHeroDemo.tsx`: Focus / Today / Habits / HUD 3-inele) chiar în Hero pe `/welcome`, schemă animată SVG `01 → 02 → 03`, JSON-LD extins (`SoftwareApplication`, `FAQPage`, `Organization`, `WebSite`, `HowTo`), `robots` rich previews și `VITE_GOOGLE_SITE_VERIFICATION` în `vite.config.js` + `ci.yml`.
 
 ### 0.1. Stare Git (important înainte de orice)
 

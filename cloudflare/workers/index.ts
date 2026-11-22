@@ -84,8 +84,17 @@ function api(body: Record<string, unknown>, status: number): Response {
   });
 }
 
+export interface R2ObjectLike {
+  body: BodyInit | null;
+  text(): Promise<string>;
+}
+
+export interface R2BucketLike {
+  get(key: string): Promise<R2ObjectLike | null>;
+}
+
 export interface Env {
-  R2_BUCKET?: any;
+  R2_BUCKET?: R2BucketLike;
   SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
   LEMON_SQUEEZY_WEBHOOK_SECRET?: string;

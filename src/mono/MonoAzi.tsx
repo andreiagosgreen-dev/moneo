@@ -5,12 +5,9 @@ import MonoBtn from './MonoBtn';
 import MonoTick from './MonoTick';
 import MonoRing from './MonoRing';
 import MonoPill from './MonoPill';
-import MonoPath from './MonoPath';
-import MonoCoach from './MonoCoach';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import { dayLabel } from './monoDate';
 import type { MonoTab } from './MonoNav';
-import { pickProgramCoach } from '../lib/guidance/programCoach';
 import type { TaskPriority } from '../lib/tasks';
 import { dueTone, priorityTone, type DueStatus } from '../lib/taskDue';
 import { hasQuickTokens, parseQuickAdd } from '../lib/quickAdd';
@@ -48,6 +45,8 @@ interface Props {
   onAdd: (text: string) => boolean | void;
   /** Move one item to tomorrow's list. */
   onSnooze?: (id: string) => void;
+  /** Jump straight into Focus pre-filled with this task. */
+  onFocusItem?: (id: string) => void;
   /** Take one item off today's list (its project task, if any, stays). */
   onRemove?: (id: string) => void;
   /** Jump to Focus to work the list. */
@@ -76,9 +75,8 @@ interface Props {
   more?: ReactNode;
 }
 
-/** Today screen: rituals, progress, priorities, then optional extras. */
+/** Visual-first Today Cockpit: glowing day header, priorities left, widgets right. */
 export default function MonoAzi({
-  dayKey,
   doneCount,
   totalCount,
   focusMinToday = 0,
@@ -91,12 +89,10 @@ export default function MonoAzi({
   onToggle,
   onAdd,
   onSnooze,
+  onFocusItem,
   onRemove,
   intro,
-  quiet = false,
   onGoWork,
-  onPath,
-  motto,
   recap,
   banner,
   estimates,
@@ -115,18 +111,24 @@ export default function MonoAzi({
   const full = totalCount >= maxTasks;
   const hasItems = items.length > 0;
   const hasOpen = items.some((x) => !x.done);
+  const highlightId = items.find((x) => !x.done)?.id ?? null;
+  const highlightLabel = (
+    {
+      en: '#1 Highlight',
+      ro: '#1 Prioritate',
+      ru: '#1 Главная',
+      uk: '#1 Головна',
+      de: '#1 Fokus',
+      fr: '#1 Priorité',
+      it: '#1 Priorità',
+      es: '#1 Prioridad',
+    } as const
+  )[locale];
   const dueLabel = (due: DueStatus): string => {
     if (due.kind === 'today') return t('task.due.today');
     if (due.kind === 'tomorrow') return t('task.due.tomorrow');
     return tp(due.kind === 'overdue' ? 'task.due.overdue' : 'task.due.inDays', due.days);
   };
-  const openCount = items.filter((x) => !x.done).length;
-  const coachKind = pickProgramCoach({
-    screen: 'today',
-    planTaskCount: totalCount,
-    planOpenCount: openCount,
-    hasBlocks: false,
-  });
 
   const pills = (item: MonoAziItem) => {
     const showPrio = item.priority === 'p0' || item.priority === 'p1';
@@ -202,13 +204,7 @@ export default function MonoAzi({
 
   return (
     <div className="mono-azi">
-      <MonoHead eyebrow={dayLabel(tag)} title={t('mono.azi.title')} sub={t('mono.azi.sub')} />
-      {onPath ? <MonoPath active="today" onGo={onPath} /> : null}
-      {motto?.text ? (
-        <p className="mono-azi-motto-line">
-          “{motto.text}”<span className="mono-azi-motto-src"> — {motto.source}</span>
-        </p>
-      ) : null}
+      <MonoHead eyebrow={dayLabel(tag)} title={t('mono.azi.title')} />
       {intro ? (
         <div className="mono-pad mono-azi-note" style={{ marginBottom: 14 }}>
           {intro}
@@ -225,12 +221,12 @@ export default function MonoAzi({
         </div>
       ) : null}
 
-      {/* Day overview: flat (no card) so the priorities list stays the one container. */}
+      {/* Visual Day Cockpit Header: glowing ring + concise metrics + compact ritual/focus actions. */}
       <div className="mono-pad mono-azi-day">
         <div className="mono-azi-summary">
           <MonoRing
             value={pct}
-            size={56}
+            size={64}
             label={t('mono.azi.ringAria', {
               done: fmtNum(doneCount),
               total: fmtNum(totalCount),
@@ -254,11 +250,6 @@ export default function MonoAzi({
                 ? t('mono.azi.focusToday', { dur: fmtDur(focusMinToday) })
                 : t('mono.azi.focusNone')}
             </p>
-            {!hasItems ? (
-              <p className="mono-meta" style={{ marginTop: 3 }}>
-                {t('mono.azi.motto')}
-              </p>
-            ) : null}
           </div>
         </div>
         <div className="mono-azi-rituals">
@@ -268,113 +259,131 @@ export default function MonoAzi({
           <button type="button" className="mono-azi-ritual" onClick={onShutdown}>
             {shutdownLabel}
           </button>
+          {hasOpen && onGoWork ? (
+            <MonoBtn variant="primary" className="mono-azi-go" onClick={onGoWork}>
+              {t('mono.azi.goWork')}
+            </MonoBtn>
+          ) : null}
         </div>
         {estimates}
       </div>
 
-      {coachKind && !quiet ? (
-        <div className="mono-pad mono-azi-tip">
-          <MonoCoach
-            kind={coachKind}
-            dayKey={dayKey}
-            onCta={coachKind === 'aziDone' ? onShutdown : undefined}
-            ctaLabel={coachKind === 'aziDone' ? shutdownLabel : undefined}
-          />
-        </div>
-      ) : null}
-
-      <section className="mono-sec mono-pad mono-azi-prio" aria-label={t('mono.azi.prio')}>
-        <p className="mono-eyebrow" style={{ marginBottom: 8 }}>
-          {t('mono.azi.prio')}
-        </p>
-
-        {hasItems ? (
-          <>
-            <MonoCard style={{ padding: '8px 16px 14px' }}>
-              {items.map((item) => (
-                <div key={item.id} className="mono-list-row">
-                  <MonoTick
-                    checked={item.done}
-                    onToggle={() => onToggle(item.id)}
-                    label={item.text}
-                  />
-                  <div className="mono-list-grow">
-                    <div
-                      className="mono-h3"
-                      style={
-                        item.done
-                          ? { textDecoration: 'line-through', color: 'var(--mono-muted)' }
-                          : undefined
-                      }
-                    >
-                      {item.icon ? (
-                        <span className="mono-icon-inline" aria-hidden>
-                          {item.icon}
-                        </span>
-                      ) : null}
-                      {item.text}
-                    </div>
-                    {pills(item)}
-                    {item.meta && <div className="mono-meta">{item.meta}</div>}
-                  </div>
-                  {onSnooze && item.snooze && !item.done ? (
-                    <button
-                      type="button"
-                      className="mono-week-nav mono-azi-snooze"
-                      aria-label={t('mono.azi.snooze', { title: item.text })}
-                      title={t('mono.azi.snooze', { title: item.text })}
-                      onClick={() => onSnooze(item.id)}
-                    >
-                      <svg viewBox="0 0 20 20" aria-hidden="true">
-                        <path d="M4 10h11M11 5.5l4.5 4.5-4.5 4.5" />
-                      </svg>
-                    </button>
-                  ) : null}
-                  {onRemove ? (
-                    <button
-                      type="button"
-                      className="mono-week-nav mono-azi-snooze"
-                      aria-label={t('mono.azi.remove', { title: item.text })}
-                      title={t('mono.azi.remove', { title: item.text })}
-                      onClick={() => onRemove(item.id)}
-                      data-testid="azi-remove"
-                    >
-                      <svg viewBox="0 0 20 20" aria-hidden="true">
-                        <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" />
-                      </svg>
-                    </button>
-                  ) : null}
-                </div>
-              ))}
-              <div className="mono-azi-add">{addForm}</div>
-            </MonoCard>
-            {hasOpen && onGoWork ? (
-              <div style={{ marginTop: 14 }}>
-                <MonoBtn variant="primary" onClick={onGoWork} block>
-                  {t('mono.azi.goWork')}
-                </MonoBtn>
-              </div>
-            ) : null}
-          </>
-        ) : (
-          <MonoCard>{addForm}</MonoCard>
-        )}
-      </section>
-
-      {program ? (
-        <section className="mono-sec mono-pad" aria-label={t('mono.azi.program')}>
+      <div className="mono-azi-bento">
+        <section className="mono-sec mono-pad mono-azi-prio" aria-label={t('mono.azi.prio')}>
           <p className="mono-eyebrow" style={{ marginBottom: 8 }}>
-            {t('mono.azi.program')}
+            {t('mono.azi.prio')}
           </p>
-          {program}
+
+          {hasItems ? (
+            <>
+              <MonoCard style={{ padding: '8px 16px 14px' }}>
+                {items.map((item) => {
+                  const isHighlight = item.id === highlightId;
+                  return (
+                    <div
+                      key={item.id}
+                      className={`mono-list-row${item.done ? ' is-done' : ''}${
+                        isHighlight ? ' is-highlight' : ''
+                      }${
+                        item.priority === 'p0' ? ' is-p0' : item.priority === 'p1' ? ' is-p1' : ''
+                      }`}
+                    >
+                      <MonoTick
+                        checked={item.done}
+                        onToggle={() => onToggle(item.id)}
+                        label={item.text}
+                      />
+                      <div className="mono-list-grow">
+                        {isHighlight && (
+                          <span className="mono-highlight-tag">{highlightLabel}</span>
+                        )}
+                        <div
+                          className="mono-h3"
+                          style={
+                            item.done
+                              ? { textDecoration: 'line-through', color: 'var(--mono-muted)' }
+                              : undefined
+                          }
+                        >
+                          {item.icon ? (
+                            <span className="mono-icon-inline" aria-hidden>
+                              {item.icon}
+                            </span>
+                          ) : null}
+                          {item.text}
+                        </div>
+                        {pills(item)}
+                        {item.meta && <div className="mono-meta">{item.meta}</div>}
+                      </div>
+                      {onFocusItem && !item.done ? (
+                        <button
+                          type="button"
+                          className="mono-week-nav mono-azi-focus-btn"
+                          aria-label={`${t('mono.nav.focus')}: ${item.text}`}
+                          title={`${t('mono.nav.focus')}: ${item.text}`}
+                          onClick={() => onFocusItem(item.id)}
+                          data-testid="azi-focus"
+                        >
+                          <svg viewBox="0 0 20 20" aria-hidden="true">
+                            <path d="M7 5.5l8 4.5-8 4.5z" fill="currentColor" stroke="none" />
+                          </svg>
+                        </button>
+                      ) : null}
+                      {onSnooze && item.snooze && !item.done ? (
+                        <button
+                          type="button"
+                          className="mono-week-nav mono-azi-snooze"
+                          aria-label={t('mono.azi.snooze', { title: item.text })}
+                          title={t('mono.azi.snooze', { title: item.text })}
+                          onClick={() => onSnooze(item.id)}
+                        >
+                          <svg viewBox="0 0 20 20" aria-hidden="true">
+                            <path d="M4 10h11M11 5.5l4.5 4.5-4.5 4.5" />
+                          </svg>
+                        </button>
+                      ) : null}
+                      {onRemove ? (
+                        <button
+                          type="button"
+                          className="mono-week-nav mono-azi-snooze"
+                          aria-label={t('mono.azi.remove', { title: item.text })}
+                          title={t('mono.azi.remove', { title: item.text })}
+                          onClick={() => onRemove(item.id)}
+                          data-testid="azi-remove"
+                        >
+                          <svg viewBox="0 0 20 20" aria-hidden="true">
+                            <path d="M5.5 5.5l9 9M14.5 5.5l-9 9" />
+                          </svg>
+                        </button>
+                      ) : null}
+                    </div>
+                  );
+                })}
+                <div className="mono-azi-add">{addForm}</div>
+              </MonoCard>
+            </>
+          ) : (
+            <MonoCard>{addForm}</MonoCard>
+          )}
         </section>
-      ) : null}
 
-      {habits}
+        <div className="mono-azi-side">
+          {program ? (
+            <section className="mono-sec mono-pad" aria-label={t('mono.azi.program')}>
+              <p className="mono-eyebrow" style={{ marginBottom: 8 }}>
+                {t('mono.azi.program')}
+              </p>
+              {program}
+            </section>
+          ) : null}
 
-      {move}
+          {habits}
 
-      {checkin}
+          {move}
+
+          {checkin}
+        </div>
+      </div>
 
       {more ? <div className="mono-pad-mobile">{more}</div> : null}
     </div>

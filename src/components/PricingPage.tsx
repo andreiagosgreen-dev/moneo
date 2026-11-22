@@ -25,6 +25,7 @@ import { REFUND_DAYS, SUPPORT_EMAIL, SUPPORT_MAILTO } from '../lib/legal/seller'
 import MonoLegalLinks from '../mono/MonoLegalLinks';
 import ManageSubscriptionButton from './ManageSubscriptionButton';
 import LegalInline from './legal/LegalInline';
+import BrandMark from './BrandMark';
 
 const MonoRankDiscount = lazy(() => import('../mono/MonoRankDiscount'));
 
@@ -106,9 +107,15 @@ export default function PricingPage() {
       className="atm-root mono-public pricing-surface relative z-10 mx-auto max-w-2xl px-4 pb-12 pt-10 sm:px-6"
       data-atmosphere={atmosphere}
     >
-      <Link to="/" className="press font-mono text-[12px] text-sage hover:text-cream">
-        {t('pricing.back')}
-      </Link>
+      <div className="flex items-center justify-between gap-4">
+        <Link to="/" className="press font-mono text-[12px] text-sage hover:text-cream">
+          {t('pricing.back')}
+        </Link>
+        <Link to="/welcome" className="inline-flex items-center gap-2 text-cream">
+          <BrandMark size={28} />
+          <span className="font-display text-sm font-bold tracking-tight">Moneo</span>
+        </Link>
+      </div>
       <h1 className="mt-5 font-display text-3xl font-extrabold tracking-tight text-cream">
         {t('pricing.title')}
       </h1>

@@ -28,7 +28,7 @@
 
 html:has(.lnd),
 html:has(.lnd) body {
-  background-color: #121a16;
+  background-color: #070b14;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -1091,4 +1091,1060 @@ html:has(.lnd) body {
 .lnd[data-reveal='on'] .lnd-grid-3 > .lnd-reveal:nth-child(3),
 .lnd[data-reveal='on'] .lnd-steps > .lnd-reveal:nth-child(3) {
   transition-delay: 180ms;
+}
+
+/* ==========================================================================
+   SIGNATURE LANDING UPGRADE (Aurora · Dot Grid · Shimmer · Live Flow Scheme)
+   ========================================================================== */
+
+@keyframes lnd-aurora-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-3%, 2%, 0) scale(1.07);
+  }
+}
+
+@keyframes lnd-flow-dash {
+  from {
+    stroke-dashoffset: 64;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.atm-root.lnd {
+  background-image:
+    radial-gradient(
+      980px 600px at 84% -6%,
+      color-mix(in oklab, var(--mono-accent) 30%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      780px 560px at -8% 24%,
+      color-mix(in oklab, var(--mono-accent-2) 14%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      circle at 1px 1px,
+      color-mix(in oklab, var(--mono-fg) 8%, transparent) 1px,
+      transparent 0
+    );
+  background-size:
+    100% 100%,
+    100% 100%,
+    28px 28px;
+  background-repeat: no-repeat, no-repeat, repeat;
+}
+
+.lnd-mark {
+  background: linear-gradient(
+    120deg,
+    var(--mono-fg-2) 0%,
+    var(--mono-accent-2) 55%,
+    var(--mono-accent) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lnd-hero-visual::before {
+  content: '';
+  position: absolute;
+  inset: 8% 4%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--mono-accent) 34%, transparent) 0%,
+    transparent 68%
+  );
+  filter: blur(44px);
+  animation: lnd-aurora-float 14s ease-in-out infinite;
+}
+
+.lnd-card,
+.lnd-tile,
+.lnd-step {
+  position: relative;
+  background: color-mix(in oklab, var(--mono-raised, var(--mono-surface)) 82%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid color-mix(in oklab, var(--mono-border-2) 72%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 10%, transparent),
+    0 20px 50px -24px rgb(0 0 0 / 0.65);
+  transition:
+    transform 220ms var(--mono-ease),
+    border-color 220ms var(--mono-ease),
+    box-shadow 240ms var(--mono-ease);
+}
+
+@media (hover: hover) {
+  .lnd-card:hover,
+  .lnd-tile:hover,
+  .lnd-step:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in oklab, var(--mono-accent) 45%, var(--mono-border-2));
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, white 14%, transparent),
+      0 26px 56px -22px color-mix(in oklab, var(--mono-accent) 32%, rgb(0 0 0 / 0.75));
+  }
+}
+
+.lnd-plan-pro {
+  border-color: color-mix(in oklab, var(--mono-accent) 62%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--mono-accent-2) 45%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--mono-accent) 28%, transparent),
+    0 28px 68px -22px color-mix(in oklab, var(--mono-accent) 46%, rgb(0 0 0 / 0.75));
+}
+
+/* Interactive Animated Visual Workflow Scheme (01 Plan -> 02 Focus -> 03 Momentum) */
+.lnd-scheme {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  background: color-mix(in oklab, var(--mono-surface) 74%, transparent);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border: 1px solid color-mix(in oklab, var(--mono-accent) 26%, var(--mono-border));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 10%, transparent),
+    0 18px 46px -24px rgb(0 0 0 / 0.6);
+}
+.lnd-scheme-node {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--mono-bg-2) 78%, transparent);
+  border: 1px solid var(--mono-border);
+  min-width: 0;
+}
+.lnd-scheme-node.is-center {
+  border-color: color-mix(in oklab, var(--mono-accent) 55%, transparent);
+  background: color-mix(in oklab, var(--mono-accent-soft) 72%, var(--mono-bg-2) 28%);
+  box-shadow: 0 0 24px -10px color-mix(in oklab, var(--mono-accent) 65%, transparent);
+}
+.lnd-scheme-dot {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  font-family: var(--mono-font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--atm-on, var(--mono-bg));
+  background: linear-gradient(135deg, var(--mono-accent-2), var(--mono-accent));
+  box-shadow: 0 4px 12px -4px color-mix(in oklab, var(--mono-accent) 75%, transparent);
+}
+.lnd-scheme-label {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--mono-fg-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lnd-scheme-connector {
+  display: none;
+}
+@media (min-width: 840px) {
+  .lnd-scheme {
+    grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1fr) 72px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+  }
+  .lnd-scheme-connector {
+    display: block;
+    width: 100%;
+    height: 24px;
+  }
+  .lnd-scheme-track {
+    fill: none;
+    stroke: var(--mono-border-2);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+  .lnd-scheme-pulse {
+    fill: none;
+    stroke: var(--mono-accent-2);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 18 46;
+    animation: lnd-flow-dash 2.2s linear infinite;
+    filter: drop-shadow(0 0 6px var(--mono-accent));
+  }
+  .lnd-scheme-pulse.is-delayed {
+    animation-delay: -1.1s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lnd-hero-visual::before,
+  .lnd-scheme-pulse {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   LIVE INTERACTIVE HERO DEMO (Playable Focus · Today · Habits Showcase)
+   ========================================================================== */
+
+.lnd-live {
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+  border-radius: 24px;
+  overflow: hidden;
+  background: color-mix(in oklab, var(--mono-raised, var(--mono-surface)) 88%, transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(1.25);
+  backdrop-filter: blur(22px) saturate(1.25);
+  border: 1px solid color-mix(in oklab, var(--mono-accent) 34%, var(--mono-border-2));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 16%, transparent),
+    0 32px 80px -24px rgb(0 0 0 / 0.8),
+    0 0 0 1px color-mix(in oklab, var(--mono-accent) 18%, transparent);
+}
+
+.lnd-live-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--mono-border);
+  background: color-mix(in oklab, var(--mono-bg-2) 72%, transparent);
+}
+
+.lnd-live-dots {
+  display: inline-flex;
+  gap: 6px;
+}
+.lnd-live-dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--mono-border-2);
+  display: block;
+}
+
+.lnd-live-tabs {
+  display: inline-flex;
+  gap: 3px;
+  padding: 3px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--mono-bg) 75%, transparent);
+  border: 1px solid var(--mono-border);
+}
+
+.lnd-live-tab {
+  border: 0;
+  background: transparent;
+  color: var(--mono-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background 160ms var(--mono-ease),
+    color 160ms var(--mono-ease);
+}
+.lnd-live-tab.is-on {
+  background: var(--mono-raised);
+  color: var(--mono-fg-2);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
+}
+
+.lnd-live-body {
+  padding: 24px 20px 26px;
+  min-height: 368px;
+  display: grid;
+  align-items: center;
+}
+
+.lnd-live-focus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.lnd-live-dial {
+  position: relative;
+  width: 214px;
+  height: 214px;
+  display: grid;
+  place-items: center;
+}
+.lnd-live-dial svg {
+  width: 100%;
+  height: 100%;
+}
+.lnd-dial-ticks line {
+  stroke: color-mix(in oklab, var(--mono-muted) 42%, transparent);
+  stroke-width: 1;
+}
+.lnd-dial-ticks line.is-major {
+  stroke: color-mix(in oklab, var(--mono-muted) 72%, transparent);
+  stroke-width: 1.5;
+}
+.lnd-dial-ticks line.is-cardinal {
+  stroke: var(--mono-accent-2);
+  stroke-width: 2;
+}
+.lnd-dial-track {
+  fill: none;
+  stroke: var(--mono-border-2);
+  stroke-width: 4.5;
+}
+.lnd-dial-bar {
+  fill: none;
+  stroke-width: 5.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 10px color-mix(in oklab, var(--mono-accent) 75%, transparent));
+  transition: stroke-dashoffset 320ms linear;
+}
+.lnd-dial-halo {
+  fill: color-mix(in oklab, var(--mono-accent) 34%, transparent);
+}
+.lnd-dial-dot {
+  fill: var(--mono-fg-2);
+  stroke: var(--mono-accent);
+  stroke-width: 2;
+}
+
+.lnd-live-clock {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.lnd-live-time {
+  font-family: var(--mono-font-display);
+  font-size: 50px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--mono-fg-2);
+}
+.lnd-live-pill {
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--mono-accent-2);
+  background: color-mix(in oklab, var(--mono-accent) 16%, transparent);
+}
+
+.lnd-live-presets {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--mono-bg) 70%, transparent);
+  border: 1px solid var(--mono-border);
+}
+.lnd-live-preset {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--mono-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.lnd-live-preset.is-on {
+  background: var(--mono-raised);
+  border-color: color-mix(in oklab, var(--mono-accent) 55%, transparent);
+  color: var(--mono-fg-2);
+}
+
+.lnd-live-cta {
+  min-width: 176px;
+  min-height: 46px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--mono-accent-2), var(--mono-accent));
+  color: var(--atm-on, var(--mono-bg));
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 12px 28px -10px color-mix(in oklab, var(--mono-accent) 85%, transparent);
+  transition: transform 150ms var(--mono-ease);
+}
+.lnd-live-cta:hover {
+  transform: translateY(-1px);
+}
+.lnd-live-cta:active {
+  transform: scale(0.97);
+}
+
+.lnd-live-today,
+.lnd-live-habits {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+}
+
+.lnd-live-today-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--mono-bg) 62%, transparent);
+  border: 1px solid var(--mono-border);
+}
+
+.lnd-live-ring {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.lnd-live-ring svg {
+  width: 60px;
+  height: 60px;
+}
+.lnd-live-ring span {
+  position: absolute;
+  font-family: var(--mono-font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mono-fg-2);
+}
+
+.lnd-live-kicker {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mono-muted);
+}
+.lnd-live-stat {
+  margin: 2px 0 0;
+  font-family: var(--mono-font-display);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--mono-fg-2);
+}
+
+.lnd-live-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.lnd-live-task {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--mono-border);
+  background: color-mix(in oklab, var(--mono-bg) 52%, transparent);
+  color: var(--mono-fg-2);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms var(--mono-ease),
+    transform 160ms var(--mono-ease);
+}
+.lnd-live-task:hover {
+  border-color: color-mix(in oklab, var(--mono-accent) 48%, transparent);
+}
+.lnd-live-task.is-done .lnd-live-task-txt {
+  text-decoration: line-through;
+  color: var(--mono-muted);
+}
+.lnd-live-check {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1.5px solid var(--mono-border-2);
+  color: var(--atm-on, var(--mono-bg));
+}
+.lnd-live-task.is-done .lnd-live-check {
+  background: var(--mono-accent);
+  border-color: var(--mono-accent);
+  box-shadow: 0 0 10px color-mix(in oklab, var(--mono-accent) 65%, transparent);
+}
+.lnd-live-task-txt {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lnd-live-dur {
+  font-family: var(--mono-font-mono);
+  font-size: 12px;
+  color: var(--mono-muted);
+}
+
+.lnd-live-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+.lnd-live-cell {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 1px solid var(--mono-border);
+  background: color-mix(in oklab, var(--mono-bg) 65%, transparent);
+  cursor: pointer;
+  transition:
+    transform 150ms var(--mono-ease),
+    background 180ms var(--mono-ease),
+    box-shadow 180ms var(--mono-ease);
+}
+.lnd-live-cell:hover {
+  transform: scale(1.06);
+}
+.lnd-live-cell.is-on {
+  background: linear-gradient(135deg, var(--mono-accent-2), var(--mono-accent));
+  border-color: var(--mono-accent-2);
+  box-shadow: 0 4px 14px -4px color-mix(in oklab, var(--mono-accent) 75%, transparent);
+}
+
+/* Live 3-Ring HUD inside Hero Demo */
+.lnd-live-hud {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+}
+.lnd-live-hud-dial {
+  position: relative;
+  width: 204px;
+  height: 204px;
+  display: grid;
+  place-items: center;
+}
+.lnd-live-hud-dial svg {
+  width: 100%;
+  height: 100%;
+}
+.lnd-live-hud-bars {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+.lnd-hud-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 10px;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--mono-bg) 62%, transparent);
+  border: 1px solid var(--mono-border);
+  font-size: 12px;
+  color: var(--mono-muted);
+}
+.lnd-hud-row strong {
+  margin-left: auto;
+  font-family: var(--mono-font-mono);
+  color: var(--mono-fg-2);
+}
+.lnd-hud-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.lnd-hud-dot.is-mind {
+  background: var(--mono-accent);
+  box-shadow: 0 0 8px var(--mono-accent);
+}
+.lnd-hud-dot.is-exec {
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+}
+.lnd-hud-dot.is-body {
+  background: #34d399;
+  box-shadow: 0 0 8px #34d399;
+}
+
+/* ==========================================================================
+   LANDING 9.5+ ELEVATION, SHADOWS, NAVBAR ALIGNMENT & LIVE DEMO POLISH
+   ========================================================================== */
+
+/* Instant above-the-fold Hero LCP (never wait for delayed opacity fade) */
+.lnd .lnd-hero-copy > *,
+.lnd .lnd-hero-visual {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.lnd .lnd-h1,
+.lnd .lnd-h2,
+.lnd .lnd-h3,
+.lnd .lnd-h4,
+.lnd .lnd-brand {
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  font-synthesis: none;
+  word-spacing: normal;
+}
+
+/* Razor-straight sticky navbar alignment (Sign in · Language · Start free all 38px tall) */
+.lnd .lnd-header-end {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lnd .lnd-signin {
+  height: 38px;
+  min-height: 38px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.lnd .lnd-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--mono-surface) 78%, transparent);
+  border: 1px solid var(--mono-border-2);
+  box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.55);
+}
+
+.lnd .lnd-lang select {
+  min-height: 0;
+  height: 36px;
+  line-height: 36px;
+  padding: 0 4px 0 0;
+  margin: 0;
+  vertical-align: middle;
+}
+
+.lnd .lnd-btn-sm {
+  height: 38px;
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 999px;
+}
+
+/* Multi-layered studio depth & ambient glow across landing cards & hero */
+.lnd .lnd-live {
+  box-shadow:
+    0 32px 72px -24px rgba(0, 0, 0, 0.88),
+    0 14px 32px -12px rgba(0, 0, 0, 0.58),
+    0 0 48px -18px color-mix(in oklab, var(--mono-accent) 42%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--mono-accent) 26%, rgba(255, 255, 255, 0.14)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.lnd .lnd-card,
+.lnd .lnd-tile,
+.lnd .lnd-step,
+.lnd .lnd-stats {
+  box-shadow:
+    0 22px 50px -22px rgba(0, 0, 0, 0.8),
+    0 8px 20px -10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.11);
+  transition:
+    transform 220ms var(--mono-ease),
+    box-shadow 220ms var(--mono-ease),
+    border-color 200ms var(--mono-ease);
+}
+
+.lnd .lnd-card:hover,
+.lnd .lnd-tile:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 28px 60px -20px rgba(0, 0, 0, 0.88),
+    0 0 32px -14px color-mix(in oklab, var(--mono-accent) 36%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.lnd .lnd-plan-pro {
+  border-color: color-mix(in oklab, var(--mono-accent) 55%, rgba(255, 255, 255, 0.18));
+  box-shadow:
+    0 28px 64px -20px rgba(0, 0, 0, 0.88),
+    0 0 42px -14px color-mix(in oklab, var(--mono-accent) 42%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.lnd .lnd-btn-primary {
+  box-shadow:
+    0 16px 34px -10px color-mix(in oklab, var(--mono-accent) 78%, transparent),
+    0 6px 14px -4px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.lnd .lnd-laptop,
+.lnd .lnd-phone-frame,
+.lnd .lnd-phone {
+  box-shadow:
+    0 30px 68px -22px rgba(0, 0, 0, 0.88),
+    0 0 36px -16px color-mix(in oklab, var(--mono-accent) 28%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+/* Interactive Today / Habits / Fuel / Body controls inside LiveHeroDemo */
+.lnd-live-progress {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--mono-fg) 10%, transparent);
+  overflow: hidden;
+}
+.lnd-live-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #38bdf8, #34d399);
+  transition: width 220ms var(--mono-ease);
+}
+.lnd-live-tasks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lnd-live-today-title {
+  font-weight: 700;
+  color: var(--mono-fg-2);
+}
+.lnd-live-today-pct {
+  margin-left: auto;
+  font-family: var(--mono-font-mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--mono-accent);
+}
+.lnd-live-task-dur {
+  font-family: var(--mono-font-mono);
+  font-size: 12px;
+  color: var(--mono-muted);
+}
+.lnd-live-heat {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+
+.lnd-demo-hint {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--mono-muted);
+}
+
+.lnd-demo-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.lnd-demo-pill {
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--mono-border-2);
+  background: color-mix(in oklab, var(--mono-bg) 72%, transparent);
+  color: var(--mono-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 150ms var(--mono-ease),
+    color 150ms var(--mono-ease),
+    background 150ms var(--mono-ease);
+}
+
+.lnd-demo-pill.is-on {
+  color: var(--mono-fg-2);
+  border-color: color-mix(in oklab, var(--mono-accent) 65%, transparent);
+  background: color-mix(in oklab, var(--mono-accent) 18%, var(--mono-surface));
+  box-shadow: 0 4px 14px -6px color-mix(in oklab, var(--mono-accent) 70%, transparent);
+}
+
+.lnd-demo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lnd-demo-swap-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 13px;
+  border-radius: 13px;
+  border: 1px solid var(--mono-border-2);
+  background: color-mix(in oklab, var(--mono-bg) 62%, transparent);
+  color: var(--mono-fg-2);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 150ms var(--mono-ease),
+    transform 140ms var(--mono-ease);
+}
+
+.lnd-demo-swap-row:hover {
+  border-color: color-mix(in oklab, var(--mono-accent) 55%, transparent);
+  transform: translateY(-1px);
+}
+
+.lnd-demo-swap-badge {
+  flex-shrink: 0;
+  font-family: var(--mono-font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--mono-accent);
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--mono-accent) 14%, transparent);
+}
+
+.lnd-live-body-scan {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.lnd-demo-body-wrap {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  gap: 14px;
+}
+
+.lnd-demo-body-svg {
+  width: 120px;
+  height: auto;
+  margin-inline: auto;
+}
+
+.lnd-bzone-base {
+  fill: rgba(148, 163, 184, 0.22);
+  stroke: rgba(148, 163, 184, 0.35);
+  stroke-width: 1.2;
+}
+
+.lnd-bzone {
+  fill: rgba(56, 189, 248, 0.26);
+  stroke: rgba(56, 189, 248, 0.65);
+  stroke-width: 1.5;
+  cursor: pointer;
+  transition:
+    fill 160ms ease,
+    filter 160ms ease;
+}
+
+.lnd-bzone.is-fresh {
+  fill: rgba(52, 211, 153, 0.28);
+  stroke: rgba(52, 211, 153, 0.72);
+}
+
+.lnd-bzone.is-amber {
+  fill: rgba(245, 158, 11, 0.32);
+  stroke: rgba(245, 158, 11, 0.8);
+}
+
+.lnd-bzone.is-sel {
+  fill: rgba(56, 189, 248, 0.7);
+  stroke: #e0f2fe;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.75));
+}
+
+.lnd-demo-body-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.lnd-demo-body-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--mono-bg) 70%, transparent);
+  border: 1px solid color-mix(in oklab, var(--mono-accent) 34%, transparent);
+}
+
+.lnd-demo-body-readout strong {
+  font-size: 13.5px;
+  color: var(--mono-fg-2);
+}
+
+.lnd-demo-body-readout span {
+  font-size: 12px;
+  color: var(--mono-muted);
+}
+
+@media (max-width: 480px) {
+  .lnd-demo-body-wrap {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Value Comparison Strip ("4 subscriptions -> 1 unified Moneo system") */
+.lnd .lnd-value-bar {
+  margin-top: 28px;
+  padding: 22px 24px;
+  border-radius: 22px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  align-items: center;
+  gap: 20px;
+  background: color-mix(in oklab, var(--mono-surface) 84%, transparent);
+  border: 1px solid color-mix(in oklab, var(--mono-accent) 30%, rgba(255, 255, 255, 0.12));
+  box-shadow:
+    0 24px 54px -24px rgba(0, 0, 0, 0.85),
+    0 0 32px -16px color-mix(in oklab, var(--mono-accent) 32%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.lnd .lnd-value-pills {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lnd .lnd-value-pills li {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--mono-muted);
+  background: color-mix(in oklab, var(--mono-bg) 72%, transparent);
+  border: 1px solid var(--mono-border);
+}
+
+.lnd .lnd-value-right {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lnd .lnd-value-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  color: var(--mono-muted);
+  background: color-mix(in oklab, var(--mono-bg) 68%, transparent);
+  border: 1px solid var(--mono-border);
+}
+
+.lnd .lnd-value-row strong {
+  font-family: var(--mono-font-mono);
+  font-size: 15px;
+  color: var(--mono-fg-2);
+}
+
+.lnd .lnd-value-row.is-moneo {
+  color: var(--mono-fg-2);
+  font-weight: 600;
+  background: color-mix(in oklab, var(--mono-accent) 16%, var(--mono-bg));
+  border-color: color-mix(in oklab, var(--mono-accent) 55%, transparent);
+  box-shadow: 0 10px 24px -12px color-mix(in oklab, var(--mono-accent) 75%, transparent);
+}
+
+.lnd .lnd-value-row.is-moneo strong {
+  color: var(--mono-accent);
+  font-size: 17px;
+}
+
+@media (max-width: 840px) {
+  .lnd .lnd-value-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Ensure header & footer language select and Hero Demo tabs never clip in long locales (DE/FR/RU) */
+.lnd .lnd-live-tabs {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.lnd .lnd-live-tabs::-webkit-scrollbar {
+  display: none;
+}
+.lnd .lnd-live-tab {
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 5px 9px;
+  font-size: 12px;
+}
+
+@media (max-width: 639px) {
+  .lnd .lnd-lang {
+    max-width: 140px;
+    padding: 0 8px;
+  }
+  .lnd .lnd-lang select {
+    max-width: 96px;
+    font-size: 0.85rem;
+  }
 }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import type { Project } from '../lib/projects';
 import { activeProjects, FREE_PROJECTS_LIMIT } from '../lib/projects';
 import type { Task, TaskPriority } from '../lib/tasks';
@@ -108,6 +109,7 @@ export default function AssistantCard({
   const [speakOn, setSpeakOn] = useState(false);
   const [listening, setListening] = useState(false);
   const scrollRef = useRef<HTMLUListElement | null>(null);
+  const navigate = useNavigate();
   const i18n = useI18n();
   const { t, tag } = i18n;
 
@@ -469,9 +471,9 @@ export default function AssistantCard({
           return (
             <button
               key={q.label}
-              onClick={() => !locked && send(q.message)}
-              disabled={locked}
+              onClick={() => (locked ? navigate('/pricing') : send(q.message))}
               className="mono-chip mono-chip-sm"
+              style={locked ? { opacity: 0.72 } : undefined}
               title={locked ? t('assist.locked') : label}
             >
               {locked ? `🔒 ${label}` : label}
@@ -515,7 +517,14 @@ export default function AssistantCard({
           </button>
         </div>
       ) : (
-        <p className="mono-note">{t('assist.proBox')}</p>
+        <div className="mono-between" style={{ gap: 12, flexWrap: 'wrap' }}>
+          <p className="mono-note" style={{ margin: 0, flex: '1 1 220px' }}>
+            {t('assist.proBox')}
+          </p>
+          <Link to="/pricing" className="mono-btn mono-btn-primary mono-btn-sm">
+            {t('pay.upgrade')} →
+          </Link>
+        </div>
       )}
     </section>
   );

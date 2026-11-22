@@ -7,6 +7,7 @@ import type { EntityLink, LinkEntityType } from '../lib/entityLinks';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
 import MonoEmpty from '../mono/MonoEmpty';
+import MonoBtn from '../mono/MonoBtn';
 import { MonoArt } from '../mono/MonoArt';
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
   projects: Project[];
   skills: Skill[];
   objectives: Objective[];
+  onGoPlan?: () => void;
 }
 
 interface GraphNode {
@@ -49,7 +51,7 @@ const SIZE = 320;
 const CENTER = SIZE / 2;
 const RADIUS = 128;
 
-export default function GraphCard({ links, goals, projects, skills, objectives }: Props) {
+export default function GraphCard({ links, goals, projects, skills, objectives, onGoPlan }: Props) {
   const { t, fmtDayKey } = useI18n();
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -110,6 +112,13 @@ export default function GraphCard({ links, goals, projects, skills, objectives }
           art={<MonoArt name="graph" />}
           title={t('graph.emptyTitle')}
           body={t('graph.emptyBody')}
+          action={
+            onGoPlan ? (
+              <MonoBtn type="button" variant="primary" onClick={onGoPlan}>
+                {t('nav.plan')} →
+              </MonoBtn>
+            ) : undefined
+          }
         />
       </section>
     );

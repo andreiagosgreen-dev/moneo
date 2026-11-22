@@ -8,10 +8,10 @@
 
 ## Legenda — cine face ce
 
-| Marcaj | Semnificatie |
-|---|---|
+| Marcaj     | Semnificatie                                                    |
+| ---------- | --------------------------------------------------------------- |
 | **[REPO]** | Deja facut in cod / documentat acum (nu mai trebuie reinventat) |
-| **[TU]** | Actiuni in browser / dashboard / CLI pe masina ta |
+| **[TU]**   | Actiuni in browser / dashboard / CLI pe masina ta               |
 
 Ghid detaliat: acest fisier. Checklist scurt: `LAUNCH-9.md`. Securitate: `SECURITY.md`. Deploy lung: `DEPLOYMENT.md`.
 
@@ -19,19 +19,19 @@ Ghid detaliat: acest fisier. Checklist scurt: `LAUNCH-9.md`. Securitate: `SECURI
 
 ## Stare reala din repo (citita acum)
 
-| Componenta | Stare |
-|---|---|
-| Checkout Lemon (FE) | **[REPO]** `buildCheckoutUrl` fail-closed; nevoie de 4x `VITE_LEMONSQUEEZY_*` + HTTPS |
-| Webhook Lemon | **[REPO]** Worker `POST /api/webhook/lemonsqueezy` — HMAC, rate-limit 30/min/IP, dedupe, fail-closed fara secret |
-| Customer Portal | **[REPO]** `GET /api/billing/portal` (link semnat, cere `LEMON_SQUEEZY_API_KEY` pe Worker); fara cheie → portalul magazinului `/billing`, apoi `app.lemonsqueezy.com/my-orders` |
-| Migratii Supabase | **[REPO]** `0001`…`0006` (inclusiv `subscriptions` + CHECK-uri) |
-| Rate-limit API Worker | **[REPO]** webhook/API 30/min/IP; delete account 10/min/IP (per-isolate) |
-| CORS | **[REPO]** allowlist; default `https://moneo.bond` |
-| Sentry FE | **[REPO]** stub `src/lib/sentry.ts` + `initSentry()` in `main.tsx`; **lipseste** `@sentry/react` in package.json |
-| Email | **[REPO]** fail-closed (`sendEmailNotification` nu trimite); fara backend |
-| Turnstile / captcha in app | **Nu exista** → anti-bot = Cloudflare dashboard (faza 1); Turnstile pe auth = faza 2 optionala |
-| Domeniu | **[REPO]** `wrangler.toml` → `moneo.bond`; R2 `moneo-assets`; KV legat |
-| CI | **[REPO]** lint + build:ci + audit + secret-scan; deploy pe `workflow_dispatch` + env `production`; DNS check la 6h; Dependabot |
+| Componenta                 | Stare                                                                                                                                                                           |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Checkout Lemon (FE)        | **[REPO]** `buildCheckoutUrl` fail-closed; nevoie de 4x `VITE_LEMONSQUEEZY_*` + HTTPS                                                                                           |
+| Webhook Lemon              | **[REPO]** Worker `POST /api/webhook/lemonsqueezy` — HMAC, rate-limit 30/min/IP, dedupe, fail-closed fara secret                                                                |
+| Customer Portal            | **[REPO]** `GET /api/billing/portal` (link semnat, cere `LEMON_SQUEEZY_API_KEY` pe Worker); fara cheie → portalul magazinului `/billing`, apoi `app.lemonsqueezy.com/my-orders` |
+| Migratii Supabase          | **[REPO]** `0001`…`0006` (inclusiv `subscriptions` + CHECK-uri)                                                                                                                 |
+| Rate-limit API Worker      | **[REPO]** webhook/API 30/min/IP; delete account 10/min/IP (per-isolate)                                                                                                        |
+| CORS                       | **[REPO]** allowlist; default `https://moneo.bond`                                                                                                                              |
+| Sentry FE                  | **[REPO]** stub `src/lib/sentry.ts` + `initSentry()` in `main.tsx`; **lipseste** `@sentry/react` in package.json                                                                |
+| Email                      | **[REPO]** fail-closed (`sendEmailNotification` nu trimite); fara backend                                                                                                       |
+| Turnstile / captcha in app | **Nu exista** → anti-bot = Cloudflare dashboard (faza 1); Turnstile pe auth = faza 2 optionala                                                                                  |
+| Domeniu                    | **[REPO]** `wrangler.toml` → `moneo.bond`; R2 `moneo-assets`; KV legat                                                                                                          |
+| CI                         | **[REPO]** lint + build:ci + audit + secret-scan; deploy pe `workflow_dispatch` + env `production`; DNS check la 6h; Dependabot                                                 |
 
 ---
 
@@ -80,10 +80,10 @@ Project Settings → API (fiecare proiect):
 
 Authentication → URL Configuration:
 
-| Camp | Valoare |
-|---|---|
-| Site URL (prod) | `https://moneo.bond` |
-| Redirect URLs | `https://moneo.bond/**`, `http://localhost:3000/**` |
+| Camp            | Valoare                                             |
+| --------------- | --------------------------------------------------- |
+| Site URL (prod) | `https://moneo.bond`                                |
+| Redirect URLs   | `https://moneo.bond/**`, `http://localhost:3000/**` |
 
 **Resetare parola** **[REPO]**: „Ai uitat parola?” la conectare trimite un email Supabase cu link spre `https://moneo.bond/reset-password`, unde utilizatorul alege parola noua. **[TU]** verifica:
 
@@ -289,15 +289,15 @@ node scripts\check-dns.mjs
 
 ## PASUL 8 — Mentenanta **[TU]**
 
-| Ce | Cum |
-|---|---|
-| Health | Actions DNS + edge; `node scripts/check-dns.mjs` |
-| Migratii | Staging first → prod gated; adauga `0007_…`, nu edita SQL aplicat |
-| Backup | Free: Actions **DB backup** (saptamanal, vezi 8.1). Pro: Supabase Database → Backups |
-| Keepalive | Actions **Supabase keepalive** (zilnic, citire REST) — Free pune proiectul pe pauza dupa ~7 zile fara activitate |
-| UAT | `docs/UAT.md` — Focus, Auth+Sync, Pricing |
-| Dependabot | `.github/dependabot.yml` |
-| Email | Poate astepta (fail-closed in UI) |
+| Ce         | Cum                                                                                                              |
+| ---------- | ---------------------------------------------------------------------------------------------------------------- |
+| Health     | Actions DNS + edge; `node scripts/check-dns.mjs`                                                                 |
+| Migratii   | Staging first → prod gated; adauga `0007_…`, nu edita SQL aplicat                                                |
+| Backup     | Free: Actions **DB backup** (saptamanal, vezi 8.1). Pro: Supabase Database → Backups                             |
+| Keepalive  | Actions **Supabase keepalive** (zilnic, citire REST) — Free pune proiectul pe pauza dupa ~7 zile fara activitate |
+| UAT        | `docs/UAT.md` — Focus, Auth+Sync, Pricing                                                                        |
+| Dependabot | `.github/dependabot.yml`                                                                                         |
+| Email      | Poate astepta (fail-closed in UI)                                                                                |
 
 ### 8.1 Backup DB (cat timp Supabase e pe Free)
 
@@ -378,13 +378,13 @@ Nota: GitHub opreste singur workflow-urile programate intr-un repo public dupa 6
 
 ## Referinte
 
-| Fisier | Rol |
-|---|---|
-| `cloudflare/workers/index.ts` | Rute API + webhook |
-| `cloudflare/workers/portal.ts` | Customer portal |
-| `cloudflare/workers/wrangler.toml` | Domain, R2, KV |
-| `src/lib/billing/lemonSqueezy.ts` | Checkout + portal FE |
-| `src/lib/sentry.ts` | Sentry fail-closed |
-| `SECURITY.md` | Model amenintari |
-| `docs/UAT.md` | QA |
-| `DEPLOYMENT.md` | Release lung |
+| Fisier                             | Rol                  |
+| ---------------------------------- | -------------------- |
+| `cloudflare/workers/index.ts`      | Rute API + webhook   |
+| `cloudflare/workers/portal.ts`     | Customer portal      |
+| `cloudflare/workers/wrangler.toml` | Domain, R2, KV       |
+| `src/lib/billing/lemonSqueezy.ts`  | Checkout + portal FE |
+| `src/lib/sentry.ts`                | Sentry fail-closed   |
+| `SECURITY.md`                      | Model amenintari     |
+| `docs/UAT.md`                      | QA                   |
+| `DEPLOYMENT.md`                    | Release lung         |

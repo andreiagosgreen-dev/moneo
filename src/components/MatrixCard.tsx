@@ -21,6 +21,8 @@ interface Props {
   planTaskIds?: Set<string>;
   /** Add a project task into today's Ivy plan. */
   onAddToPlan?: (task: Task) => boolean;
+  /** Jump to the Projects list when there are no tasks yet. */
+  onOpenProjects?: () => void;
 }
 
 function dueBadge(task: Task, tag: string): string | null {
@@ -40,6 +42,7 @@ export default function MatrixCard({
   isPro = false,
   planTaskIds,
   onAddToPlan,
+  onOpenProjects,
 }: Props) {
   const i18n = useI18n();
   const { t, tp, tag, fmtDur, fmtNum } = i18n;
@@ -93,8 +96,17 @@ export default function MatrixCard({
       )}
 
       {total === 0 ? (
-        <div className="empty-panel mt-4">
+        <div className="empty-panel mt-4 flex flex-col items-center gap-3">
           <p>{t('matrix.empty')}</p>
+          {onOpenProjects && (
+            <button
+              type="button"
+              onClick={onOpenProjects}
+              className="mono-btn mono-btn-primary mono-btn-sm"
+            >
+              {t('proj.new')}
+            </button>
+          )}
         </div>
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
