@@ -1,4 +1,4 @@
-import type { Settings, Session } from '../store';
+import type { Settings, Session, SoundType } from '../store';
 import type { FocusArea } from '../focusAreas';
 import { newSessionId, replaceSessionById, sessionFromRemoteRow } from '../sessions';
 import {
@@ -29,6 +29,21 @@ import { resolveCloudAreaId, resolveLocalAreaId } from '../focusAreas';
  * - Growth/stats are never synced — they recompute from merged history.
  * - Never throws; every outcome is a plain SyncOutcome.
  */
+
+const VALID_SOUND_TYPES: ReadonlySet<SoundType> = new Set([
+  'bell',
+  'gong',
+  'piano',
+  'birds',
+  'gentle',
+  'rain',
+  'ocean',
+  'custom',
+]);
+
+function toSoundType(value: string | undefined): SoundType {
+  return value && VALID_SOUND_TYPES.has(value as SoundType) ? (value as SoundType) : 'bell';
+}
 
 export interface SyncRepos {
   pullSessions(userId: string): Promise<RemoteSessionRow[] | null>;
@@ -256,7 +271,7 @@ export async function runSync(opts: {
         dailyGoal: remoteSettings.dailyGoal,
         autoStart: remoteSettings.autoStart,
         sound: remoteSettings.sound,
-        soundType: (remoteSettings.soundType || 'bell') as any,
+        soundType: toSoundType(remoteSettings.soundType),
         volume: remoteSettings.volume || 50,
         notifications:
           remoteSettings.notifications !== undefined ? remoteSettings.notifications : true,

@@ -9,59 +9,96 @@ type Shape =
   | { r: [number, number, number, number, number] }
   | { d: string };
 
-/* Stylised front/back figures on a 100×190 grid each; the back figure is
- * drawn 120 units to the right. Mirrored pairs share one muscle group. */
-const pair = (cx: number, cy: number, rx: number, ry: number): Shape[] => [
-  { e: [cx, cy, rx, ry] },
-  { e: [100 - cx, cy, rx, ry] },
-];
-
+/* Anatomical front/back human figures on a 100×190 grid each; the back figure is
+ * drawn 120 units to the right. Sculpted muscle paths mirror across x = 50. */
 const FRONT: Partial<Record<Muscle, Shape[]>> = {
-  shoulders: pair(29, 40, 7.5, 7),
-  chest: pair(42, 46, 9, 7.5),
-  biceps: pair(24, 53, 4.8, 9),
-  forearms: pair(20.5, 80, 4.5, 11),
-  abs: [{ r: [43.5, 56, 13, 30, 4] }],
-  obliques: pair(37, 70, 4, 11),
-  quads: pair(40.5, 116, 7, 18),
-  adductors: pair(47.5, 104, 2.8, 9),
-  calves: pair(40.5, 156, 5, 13),
+  shoulders: [
+    { d: 'M33 30 C23 31 18 38 19 47 C22 48 28 45 33 38 Z' },
+    { d: 'M67 30 C77 31 82 38 81 47 C78 48 72 45 67 38 Z' },
+  ],
+  chest: [
+    { d: 'M33 33 L49 34 L49 51 C41 53 33 49 31 41 Z' },
+    { d: 'M67 33 L51 34 L51 51 C59 53 67 49 69 41 Z' },
+  ],
+  biceps: [
+    { d: 'M20 48 C17 54 17 62 20 67 C24 67 27 61 27 52 Z' },
+    { d: 'M80 48 C83 54 83 62 80 67 C76 67 73 61 73 52 Z' },
+  ],
+  forearms: [
+    { d: 'M18 69 C14 75 14 86 17 94 L22 93 C24 85 25 76 24 69 Z' },
+    { d: 'M82 69 C86 75 86 86 83 94 L78 93 C76 85 75 76 76 69 Z' },
+  ],
+  abs: [
+    { r: [42.5, 53, 6.5, 9, 2.2] },
+    { r: [51, 53, 6.5, 9, 2.2] },
+    { r: [42.5, 64, 6.5, 9, 2.2] },
+    { r: [51, 64, 6.5, 9, 2.2] },
+    { r: [43, 75, 6, 10, 2.2] },
+    { r: [51, 75, 6, 10, 2.2] },
+  ],
+  obliques: [
+    { d: 'M33 52 C32 63 34 75 39 85 L41.5 84 L41.5 54 Z' },
+    { d: 'M67 52 C68 63 66 75 61 85 L58.5 84 L58.5 54 Z' },
+  ],
+  quads: [
+    { d: 'M34 94 C30 108 31 124 36 135 L43 135 C45 123 45 107 43 94 Z' },
+    { d: 'M44 98 C44 112 44 126 47 134 C49 127 49 112 47 98 Z' },
+    { d: 'M66 94 C70 108 69 124 64 135 L57 135 C55 123 55 107 57 94 Z' },
+    { d: 'M56 98 C56 112 56 126 53 134 C51 127 51 112 53 98 Z' },
+  ],
+  adductors: [
+    { d: 'M44 93 L49 93 L48 117 L44.5 112 Z' },
+    { d: 'M56 93 L51 93 L52 117 L55.5 112 Z' },
+  ],
+  calves: [
+    { d: 'M35 142 C31 151 32 163 37 173 L43 173 C45 162 45 150 42 142 Z' },
+    { d: 'M65 142 C69 151 68 163 63 173 L57 173 C55 162 55 150 58 142 Z' },
+  ],
 };
 
 const BACK: Partial<Record<Muscle, Shape[]>> = {
-  traps: [{ d: 'M50 26 L64 36 L50 52 L36 36 Z' }],
-  shoulders: pair(29, 40, 7.5, 7),
-  lats: [
-    { d: 'M34 44 Q31 62 40 78 L47 70 L47 48 Z' },
-    { d: 'M66 44 Q69 62 60 78 L53 70 L53 48 Z' },
+  traps: [{ d: 'M50 24 L65 31 L59 46 L50 54 L41 46 L35 31 Z' }],
+  shoulders: [
+    { d: 'M34 30 C24 31 19 38 20 46 C24 47 29 44 34 38 Z' },
+    { d: 'M66 30 C76 31 81 38 80 46 C76 47 71 44 66 38 Z' },
   ],
-  triceps: pair(24, 53, 4.8, 9),
-  forearms: pair(20.5, 80, 4.5, 11),
-  lowerBack: [{ r: [43, 70, 14, 16, 4] }],
-  glutes: pair(42, 95, 8.5, 8),
-  hamstrings: pair(40.5, 121, 6.8, 15),
-  calves: pair(40.5, 154, 6, 13),
+  lats: [
+    { d: 'M33 43 C30 56 33 70 40 80 L48 72 L48 48 Z' },
+    { d: 'M67 43 C70 56 67 70 60 80 L52 72 L52 48 Z' },
+  ],
+  triceps: [
+    { d: 'M20 47 C17 54 17 62 20 67 C25 66 27 60 27 51 Z' },
+    { d: 'M80 47 C83 54 83 62 80 67 C75 66 73 60 73 51 Z' },
+  ],
+  forearms: [
+    { d: 'M18 69 C14 75 14 86 17 94 L22 93 C24 85 25 76 24 69 Z' },
+    { d: 'M82 69 C86 75 86 86 83 94 L78 93 C76 85 75 76 76 69 Z' },
+  ],
+  lowerBack: [{ d: 'M42 71 L49 71 L49 87 L40 85 Z' }, { d: 'M58 71 L51 71 L51 87 L60 85 Z' }],
+  glutes: [
+    { d: 'M35 86 C31 93 32 103 41 106 L49 104 L49 87 Z' },
+    { d: 'M65 86 C69 93 68 103 59 106 L51 104 L51 87 Z' },
+  ],
+  hamstrings: [
+    { d: 'M34 107 C32 118 33 129 37 137 L46 137 C48 128 48 117 46 107 Z' },
+    { d: 'M66 107 C68 118 67 129 63 137 L54 137 C52 128 52 117 54 107 Z' },
+  ],
+  calves: [
+    { d: 'M35 142 C31 151 32 163 37 173 L44 173 C46 162 46 150 43 142 Z' },
+    { d: 'M65 142 C69 151 68 163 63 173 L56 173 C54 162 54 150 57 142 Z' },
+  ],
 };
 
 function Silhouette() {
   return (
     <g className="mono-bmap-base">
-      <circle cx={50} cy={14} r={10} />
-      <rect x={45} y={22} width={10} height={8} rx={3} />
-      <rect x={31} y={29} width={38} height={62} rx={12} />
-      <rect x={18} y={33} width={12} height={34} rx={6} />
-      <rect x={70} y={33} width={12} height={34} rx={6} />
-      <rect x={15} y={66} width={11} height={30} rx={5.5} />
-      <rect x={74} y={66} width={11} height={30} rx={5.5} />
-      <circle cx={20.5} cy={100} r={4.5} />
-      <circle cx={79.5} cy={100} r={4.5} />
-      <rect x={33} y={86} width={34} height={16} rx={7} />
-      <rect x={33} y={96} width={16} height={44} rx={8} />
-      <rect x={51} y={96} width={16} height={44} rx={8} />
-      <rect x={34} y={138} width={13} height={40} rx={6.5} />
-      <rect x={53} y={138} width={13} height={40} rx={6.5} />
-      <ellipse cx={40.5} cy={181} rx={7} ry={3} />
-      <ellipse cx={59.5} cy={181} rx={7} ry={3} />
+      {/* Holographic biometric scanner reticle & axis */}
+      <line className="mono-bmap-axis" x1={50} y1={2} x2={50} y2={186} />
+      <circle className="mono-bmap-ring" cx={50} cy={62} r={44} />
+      {/* Sculpted anatomical human silhouette */}
+      <path d="M50 4 C44 4 40 9 40 15 C40 20 43 24 45 25 L44 29 L32 30 C22 31 17 38 17 48 C15 55 16 63 17 68 C13 75 13 86 16 95 L13 102 C13 105 18 106 21 101 L23 93 C26 84 26 74 26 68 L28 52 L31 52 C31 64 33 76 35 86 C31 97 30 119 35 137 C31 148 31 162 36 175 L33 182 C33 185 43 185 44 181 L44 174 C46 163 46 150 44 137 L48 116 L50 105 L52 116 L56 137 C54 150 54 163 56 174 L56 181 C57 185 67 185 67 182 L64 175 C69 162 69 148 65 137 C70 119 69 97 65 86 C67 76 69 64 69 52 L72 52 L74 68 C74 74 74 84 77 93 L79 101 C82 106 87 105 87 102 L84 95 C87 86 87 75 83 68 C84 63 85 55 83 48 C83 38 78 31 68 30 L56 29 L55 25 C57 24 60 20 60 15 C60 9 56 4 50 4 Z" />
+      {/* Animated horizontal biometric laser scan line */}
+      <line className="mono-bmap-scan" x1={12} y1={40} x2={88} y2={40} />
     </g>
   );
 }
@@ -85,7 +122,7 @@ interface Props {
   className?: string;
 }
 
-/** Front + back body map; muscles filled by heat level (atmosphere accent). */
+/** Front + back anatomical body map; muscles filled by heat level. */
 export default function MonoBodyMap({ levels, selected, onPick, label, className }: Props) {
   const { t } = useI18n();
   const seen = new Set<Muscle>();
@@ -118,10 +155,8 @@ export default function MonoBodyMap({ levels, selected, onPick, label, className
         role={first ? 'button' : undefined}
         tabIndex={first ? 0 : -1}
         aria-hidden={first ? undefined : true}
+        aria-label={first ? `${t(fitKey.muscle(m))}: ${lvText(lv)}` : undefined}
         aria-pressed={first ? selected === m : undefined}
-        aria-label={
-          first ? t('fit.map.aria', { muscle: t(fitKey.muscle(m)), level: lvText(lv) }) : undefined
-        }
         onClick={pick}
         onKeyDown={first ? onKey : undefined}
       >
@@ -130,29 +165,20 @@ export default function MonoBodyMap({ levels, selected, onPick, label, className
     );
   };
 
-  const figure = (map: Partial<Record<Muscle, Shape[]>>) =>
-    MUSCLES.filter((m) => map[m]).map((m) => group(m, map[m]!));
-
   return (
     <svg
-      className={className ? `mono-bmap ${className}` : 'mono-bmap'}
-      viewBox="0 0 220 198"
-      role={onPick ? 'group' : 'img'}
+      viewBox="0 0 220 190"
+      role="img"
       aria-label={label}
+      className={className ? `mono-bmap ${className}` : 'mono-bmap'}
     >
       <g>
         <Silhouette />
-        {figure(FRONT)}
-        <text x={50} y={196} className="mono-bmap-cap">
-          {t('fit.map.front')}
-        </text>
+        {MUSCLES.map((m) => (FRONT[m] ? group(m, FRONT[m]!) : null))}
       </g>
       <g transform="translate(120 0)">
         <Silhouette />
-        {figure(BACK)}
-        <text x={50} y={196} className="mono-bmap-cap">
-          {t('fit.map.back')}
-        </text>
+        {MUSCLES.map((m) => (BACK[m] ? group(m, BACK[m]!) : null))}
       </g>
     </svg>
   );

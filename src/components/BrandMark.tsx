@@ -1,17 +1,17 @@
 /**
- * Moneo brand mark — the terracotta "m" plate from /brand/moneo-mark-1200.png.
- * Served from public/ so the same asset powers favicon, PWA, and UI.
+ * Moneo geometric SVG brand mark — crisp obsidian squircle + luminous M monogram + zenith apex.
+ * Served from public/brand/moneo-mark.svg across favicon, nav, landing, and account pages.
  */
 export default function BrandMark({ size = 30 }: { size?: number }) {
   return (
     <img
-      src="/brand/moneo-mark-1200.png"
+      src="/brand/moneo-mark.svg"
       alt=""
       width={size}
       height={size}
       decoding="async"
       className="brand-mark"
-      style={{ width: size, height: size, borderRadius: Math.round(size * 0.22) }}
+      style={{ width: size, height: size, borderRadius: Math.round(size * 0.24) }}
     />
   );
 }

@@ -51,9 +51,11 @@ test.describe('Quick add + inbox', () => {
     await page.keyboard.press('Control+k');
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
-    await page.keyboard.type('Read !2');
+    const input = dialog.locator('input');
+    await expect(input).toBeFocused();
+    await input.fill('Read !2');
     await expect(dialog.getByText('Add task: Read')).toBeVisible();
-    await page.keyboard.press('Enter');
+    await input.press('Enter');
     await expect(dialog).toBeHidden();
     await expect(page.getByRole('checkbox', { name: 'Read' })).toBeVisible();
   });

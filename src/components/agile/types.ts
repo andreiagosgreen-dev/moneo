@@ -19,6 +19,10 @@ export interface AgileProps {
   isPro?: boolean;
   /** Start a Focus round on a task (board "▶" on In progress cards). */
   onWorkFocus?: (projectId: string, taskId: string | null) => void;
+  /** Initial sub-tab when explicitly opened (e.g. 'board' from Projects → Board). */
+  initialTab?: AgileTab;
+  /** Bypass the hidden-planning gate when the user explicitly chose this view. */
+  alwaysOpen?: boolean;
 }
 
 export interface BoardProps {

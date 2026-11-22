@@ -10,6 +10,8 @@ import './mono/mono.css';
  * family ships with the app chunk (AppRoot.tsx). */
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/600.css';
+import '@fontsource/cal-sans/400.css';
+import '@fontsource/jetbrains-mono/500.css';
 import '@fontsource/literata/600.css';
 import AppErrorBoundary from './components/AppErrorBoundary';
 import { initErrorReporting } from './lib/errorReporting';

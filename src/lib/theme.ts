@@ -1,6 +1,7 @@
 /* Premium Polish (Week 10) — appearance: theme, accent, fonts. */
 import { STORAGE_KEYS } from './storage/storageKeys';
 import { safeRead as read, safeWrite as write } from './storage/storageAdapter';
+import { loadProFont } from './proFontLoader';
 
 /**
  * Appearance system. Deterministic and additive:
@@ -135,9 +136,12 @@ export function saveTheme(t: UITheme): boolean {
  */
 export function applyTheme(t: UITheme, accentRoot: HTMLElement | null, isPro = false): void {
   const root = document.documentElement;
+  const effective = resolveFont(t.font, isPro);
   root.dataset.theme = t.theme;
-  root.dataset.font = resolveFont(t.font, isPro);
+  root.dataset.proLight = isPro && t.theme === 'light' ? 'true' : 'false';
+  root.dataset.font = effective;
   root.dataset.fontScale = t.fontScale;
+  void loadProFont(effective);
   if (accentRoot) {
     accentRoot.dataset.accent = t.accent;
   }

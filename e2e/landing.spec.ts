@@ -10,7 +10,8 @@ import { skipOnboarding } from './helpers';
 const landingHeading = (page: Page) =>
   page.getByRole('heading', { level: 1, name: 'Stop putting it off. Start today.' });
 
-const todayTab = (page: Page) => page.getByRole('tab', { name: 'Today', exact: true });
+const todayTab = (page: Page) =>
+  page.locator('.mono-nav').getByRole('tab', { name: 'Today', exact: true });
 
 test.describe('landing page', () => {
   test('a fresh visitor sees the landing, starts free and lands in the app', async ({ page }) => {

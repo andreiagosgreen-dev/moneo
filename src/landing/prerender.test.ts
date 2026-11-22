@@ -35,7 +35,7 @@ describe('prerendered landing', () => {
     for (const l of PRERENDER_LOCALES) expect(page.head).toContain(`hreflang="${l}"`);
     const blocks = [...page.head.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)];
     const types = blocks.map((m) => JSON.parse(m[1])['@type']);
-    expect(types).toEqual(['SoftwareApplication', 'FAQPage']);
+    expect(types).toEqual(['SoftwareApplication', 'FAQPage', 'Organization', 'WebSite', 'HowTo']);
     const app = JSON.parse(blocks[0][1]);
     expect(app.offers.map((o: { price: string }) => o.price)).toEqual(['0', '5.99', '59.99']);
   });

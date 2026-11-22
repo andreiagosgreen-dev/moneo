@@ -23,7 +23,9 @@ build/
 .wrangler
 
 # Playwright E2E output
-/test-results/
+/test-results
+/design-preview
+/public/design-preview/
 /playwright-report/
 /blob-report/
 /playwright/.cache/

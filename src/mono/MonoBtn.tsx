@@ -16,9 +16,18 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 /** Mono button (V1 prototype). 48px target, focus-visible ring. */
-export default function MonoBtn({ variant = 'primary', block = false, children, ...rest }: Props) {
+export default function MonoBtn({
+  variant = 'primary',
+  block = false,
+  className,
+  children,
+  ...rest
+}: Props) {
+  const cls = [CLASSES[variant], block ? 'mono-btn-block' : '', className ?? '']
+    .filter(Boolean)
+    .join(' ');
   return (
-    <button {...rest} className={`${CLASSES[variant]}${block ? ' mono-btn-block' : ''}`}>
+    <button {...rest} className={cls}>
       {children}
     </button>
   );

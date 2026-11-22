@@ -61,6 +61,8 @@ import {
   IconSun,
   IconTimer,
 } from './icons';
+import LiveHeroDemo from './LiveHeroDemo';
+import MonoVisualEngine from '../mono/MonoVisualEngine';
 import './landing.css';
 
 export interface LandingPageProps {
@@ -113,6 +115,114 @@ const ALL_IN_ONE: Array<{ id: string; icon: ReactNode }> = [
   { id: 'week', icon: <IconCalendarWeek /> },
   { id: 'xp', icon: <IconStar /> },
 ];
+
+const VALUE_COMPARE: Record<
+  Locale,
+  {
+    kicker: string;
+    items: readonly [string, string, string, string];
+    sumLabel: string;
+    sumPrice: string;
+    moneoLabel: string;
+  }
+> = {
+  en: {
+    kicker: 'ONE SYSTEM INSTEAD OF FOUR SUBSCRIPTIONS',
+    items: [
+      'Focus Timer App · ~$8/mo',
+      'Daily & Project Planner · ~$12/mo',
+      'Workout & Recovery App · ~$10/mo',
+      'Habit & Nutrition Tracker · ~$6/mo',
+    ],
+    sumLabel: '4 separate apps',
+    sumPrice: '~$36/mo',
+    moneoLabel: 'All inside Moneo Pro',
+  },
+  ro: {
+    kicker: 'UN SINGUR SISTEM ÎN LOC DE 4 ABONAMENTE',
+    items: [
+      'Aplicație Focus · ~$8/lună',
+      'Planner Proiecte & Zilnic · ~$12/lună',
+      'Aplicație Fitness & Recuperare · ~$10/lună',
+      'Obiceiuri & Nutriție · ~$6/lună',
+    ],
+    sumLabel: '4 aplicații separate',
+    sumPrice: '~$36/lună',
+    moneoLabel: 'Totul inclus în Moneo Pro',
+  },
+  ru: {
+    kicker: 'ОДНА СИСТЕМА ВМЕСТО ЧЕТЫРЁХ ПОДПИСОК',
+    items: [
+      'Таймер фокуса · ~$8/мес',
+      'Планировщик проектов · ~$12/мес',
+      'Фитнес и восстановление · ~$10/мес',
+      'Привычки и питание · ~$6/мес',
+    ],
+    sumLabel: '4 отдельных приложения',
+    sumPrice: '~$36/мес',
+    moneoLabel: 'Всё в Moneo Pro',
+  },
+  uk: {
+    kicker: 'ОДНА СИСТЕМА ЗАМІСТЬ ЧОТИРЬОХ ПІДПИСОК',
+    items: [
+      'Таймер фокусу · ~$8/міс',
+      'Планувальник проєктів · ~$12/міс',
+      'Фітнес і відновлення · ~$10/міс',
+      'Звички та харчування · ~$6/міс',
+    ],
+    sumLabel: '4 окремі застосунки',
+    sumPrice: '~$36/міс',
+    moneoLabel: 'Усе в Moneo Pro',
+  },
+  de: {
+    kicker: 'EIN SYSTEM STATT VIER ABOS',
+    items: [
+      'Fokus-Timer-App · ~8 $/Monat',
+      'Projekt- & Tagesplaner · ~12 $/Monat',
+      'Fitness & Erholung · ~10 $/Monat',
+      'Gewohnheiten & Ernährung · ~6 $/Monat',
+    ],
+    sumLabel: '4 einzelne Apps',
+    sumPrice: '~36 $/Monat',
+    moneoLabel: 'Alles in Moneo Pro',
+  },
+  fr: {
+    kicker: 'UN SEUL SYSTÈME AU LIEU DE 4 ABONNEMENTS',
+    items: [
+      'Minuteur Focus · ~8 $/mois',
+      'Planificateur Projets · ~12 $/mois',
+      'Fitness & Récupération · ~10 $/mois',
+      'Habitudes & Nutrition · ~6 $/mois',
+    ],
+    sumLabel: '4 applis séparées',
+    sumPrice: '~36 $/mois',
+    moneoLabel: 'Tout dans Moneo Pro',
+  },
+  it: {
+    kicker: 'UN SOLO SISTEMA INVECE DI 4 ABBONAMENTI',
+    items: [
+      'App Focus Timer · ~8 $/mese',
+      'Planner Progetti · ~12 $/mese',
+      'Fitness & Recupero · ~10 $/mese',
+      'Abitudini & Nutrizione · ~6 $/mese',
+    ],
+    sumLabel: '4 app separate',
+    sumPrice: '~36 $/mese',
+    moneoLabel: 'Tutto in Moneo Pro',
+  },
+  es: {
+    kicker: 'UN SOLO SISTEMA EN LUGAR DE 4 SUSCRIPCIONES',
+    items: [
+      'App de Enfoque · ~$8/mes',
+      'Planificador de Proyectos · ~$12/mes',
+      'Fitness y Recuperación · ~$10/mes',
+      'Hábitos y Nutrición · ~$6/mes',
+    ],
+    sumLabel: '4 apps separadas',
+    sumPrice: '~$36/mes',
+    moneoLabel: 'Todo en Moneo Pro',
+  },
+};
 
 const SAVINGS = yearlySavings();
 
@@ -402,10 +512,11 @@ export default function LandingPage({
 
   return (
     <div ref={rootRef} className="atm-root lnd" data-atmosphere="ritual">
+      <MonoVisualEngine />
       <header className="lnd-header">
         <div className="lnd-wrap lnd-header-in">
           <a className="lnd-brand" href="#top" aria-label={t('land.home')}>
-            <img src="/landing/mark-64.webp" width={32} height={32} alt="" />
+            <img src="/brand/moneo-mark.svg" width={34} height={34} alt="" />
             <span>Moneo</span>
           </a>
           <nav className="lnd-nav" aria-label={t('land.nav.label')}>
@@ -446,7 +557,7 @@ export default function LandingPage({
               <p className="lnd-trust">{t('land.hero.trust')}</p>
             </div>
             <div className="lnd-hero-visual">
-              <DeviceMockup t={t} lang={lang} />
+              <LiveHeroDemo t={t} locale={locale} />
             </div>
           </div>
         </section>
@@ -518,6 +629,9 @@ export default function LandingPage({
                 {t('land.feat.title')}
               </h2>
             </header>
+            <div className="lnd-reveal" style={{ marginBottom: 36 }}>
+              <DeviceMockup t={t} lang={lang} />
+            </div>
             <ul className="lnd-grid-3">
               {SHOWCASE.map((s) => (
                 <li key={s.id} className="lnd-card lnd-showcase lnd-reveal">
@@ -544,6 +658,28 @@ export default function LandingPage({
                 {t('land.how.title')}
               </h2>
             </header>
+            <div className="lnd-scheme lnd-reveal" aria-hidden="true">
+              <div className="lnd-scheme-node">
+                <span className="lnd-scheme-dot">01</span>
+                <span className="lnd-scheme-label">{t('land.how.s1.t')}</span>
+              </div>
+              <svg className="lnd-scheme-connector" viewBox="0 0 120 24" preserveAspectRatio="none">
+                <path className="lnd-scheme-track" d="M2 12 H118" />
+                <path className="lnd-scheme-pulse" d="M2 12 H118" />
+              </svg>
+              <div className="lnd-scheme-node is-center">
+                <span className="lnd-scheme-dot">02</span>
+                <span className="lnd-scheme-label">{t('land.how.s2.t')}</span>
+              </div>
+              <svg className="lnd-scheme-connector" viewBox="0 0 120 24" preserveAspectRatio="none">
+                <path className="lnd-scheme-track" d="M2 12 H118" />
+                <path className="lnd-scheme-pulse is-delayed" d="M2 12 H118" />
+              </svg>
+              <div className="lnd-scheme-node">
+                <span className="lnd-scheme-dot">03</span>
+                <span className="lnd-scheme-label">{t('land.how.s3.t')}</span>
+              </div>
+            </div>
             <ol className="lnd-steps">
               {(['s1', 's2', 's3'] as const).map((s, i) => (
                 <li key={s} className="lnd-step lnd-reveal">
@@ -578,6 +714,31 @@ export default function LandingPage({
                 </li>
               ))}
             </ul>
+            <div className="lnd-value-bar lnd-reveal">
+              <div className="lnd-value-left">
+                <span className="lnd-eyebrow">
+                  {(VALUE_COMPARE[locale] ?? VALUE_COMPARE.en).kicker}
+                </span>
+                <ul className="lnd-value-pills">
+                  {(VALUE_COMPARE[locale] ?? VALUE_COMPARE.en).items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="lnd-value-right">
+                <div className="lnd-value-row">
+                  <span>{(VALUE_COMPARE[locale] ?? VALUE_COMPARE.en).sumLabel}</span>
+                  <strong>{(VALUE_COMPARE[locale] ?? VALUE_COMPARE.en).sumPrice}</strong>
+                </div>
+                <div className="lnd-value-row is-moneo">
+                  <span>{(VALUE_COMPARE[locale] ?? VALUE_COMPARE.en).moneoLabel}</span>
+                  <strong>
+                    {PRO_PRICES.monthly}
+                    {t('pay.perMonth')}
+                  </strong>
+                </div>
+              </div>
+            </div>
             <p className="lnd-note">{t('land.all.tm')}</p>
           </div>
         </section>
@@ -641,8 +802,8 @@ export default function LandingPage({
                   ))}
                 </ul>
                 <div className="lnd-plan-cta">
-                  <Link className="lnd-btn lnd-btn-light" to="/pricing">
-                    {t('land.price.pro.cta')}
+                  <Link className="lnd-btn lnd-btn-primary" to="/pricing">
+                    {t('land.cta.start')} — Pro
                   </Link>
                 </div>
               </article>
@@ -722,7 +883,7 @@ export default function LandingPage({
         <div className="lnd-wrap lnd-footer-in">
           <div className="lnd-footer-brand">
             <span className="lnd-brand">
-              <img src="/landing/mark-64.webp" width={28} height={28} alt="" loading="lazy" />
+              <img src="/brand/moneo-mark.svg" width={30} height={30} alt="" loading="lazy" />
               <span>Moneo</span>
             </span>
             <p>{t('land.hero.title', { mark: t('land.hero.mark') })}</p>

@@ -39,6 +39,14 @@ export function track(
   channel: { source: string; campaign: string } = currentSource(),
 ): boolean {
   if (optedOut(nav) || !nav?.sendBeacon) return false;
+  // Local Vite dev has no /api/event Worker — skip beacon to keep the console clean.
+  if (
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
+    nav === (typeof navigator !== 'undefined' ? (navigator as Nav) : undefined)
+  ) {
+    return false;
+  }
   try {
     const body = JSON.stringify({
       e: event,

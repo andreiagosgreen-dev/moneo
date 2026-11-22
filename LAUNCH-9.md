@@ -7,16 +7,16 @@
 
 ## Eu am facut in repo (agent)
 
-| Item | Stare |
-|---|---|
-| Checkout Lemon fail-closed + preturi $5.99 / $59.99 | OK |
-| Worker webhook HMAC + portal + rate-limit + CORS | OK |
-| Migratii Supabase 0001–0006 + workflow staging→prod | OK |
-| Stub Sentry (`VITE_SENTRY_DSN` + boot, fail-closed) | OK |
-| `.env.example` documenteaza Vite + Worker secrets (comentarii) | OK |
-| CI deploy R2/Worker, DNS check, Dependabot, secret-scan | OK |
-| Turnstile in app | Nu (anti-bot = CF dashboard) |
-| Ghid ops | `OPS-LAUNCH.md` |
+| Item                                                           | Stare                        |
+| -------------------------------------------------------------- | ---------------------------- |
+| Checkout Lemon fail-closed + preturi $5.99 / $59.99            | OK                           |
+| Worker webhook HMAC + portal + rate-limit + CORS               | OK                           |
+| Migratii Supabase 0001–0006 + workflow staging→prod            | OK                           |
+| Stub Sentry (`VITE_SENTRY_DSN` + boot, fail-closed)            | OK                           |
+| `.env.example` documenteaza Vite + Worker secrets (comentarii) | OK                           |
+| CI deploy R2/Worker, DNS check, Dependabot, secret-scan        | OK                           |
+| Turnstile in app                                               | Nu (anti-bot = CF dashboard) |
+| Ghid ops                                                       | `OPS-LAUNCH.md`              |
 
 ---
 

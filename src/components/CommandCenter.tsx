@@ -16,6 +16,9 @@ import { effectiveQuadrant, QUADRANT_META } from '../lib/eisenhower';
 import { type Habit, type HabitLog, habitStreak } from '../lib/habits';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n';
+import MonoEmpty from '../mono/MonoEmpty';
+import MonoBtn from '../mono/MonoBtn';
+import { MonoArt } from '../mono/MonoArt';
 
 interface Props {
   projects: Project[];
@@ -31,6 +34,8 @@ interface Props {
   selectedTaskId: string | null;
   /** Project-task ids already on today's plan. */
   planTaskIds?: ReadonlySet<string>;
+  /** Jump to the Projects list to create a first project when none exist. */
+  onOpenProjects?: () => void;
 }
 
 const MAX_BOARD_CARDS = 3;
@@ -48,6 +53,7 @@ export default function CommandCenter({
   selectedProjectId,
   selectedTaskId,
   planTaskIds,
+  onOpenProjects,
 }: Props) {
   const { t, tp, fmtDayKey } = useI18n();
 
@@ -86,7 +92,24 @@ export default function CommandCenter({
   );
   const weekMax = Math.max(1, ...week.map((d) => d.min));
 
-  if (!project) return null;
+  if (!project) {
+    return (
+      <section className="card px-5 py-6 sm:px-6" aria-label={t('commandCenter.title')}>
+        <MonoEmpty
+          art={<MonoArt name="chart" />}
+          title={t('commandCenter.title')}
+          body={t('proj.emptyB')}
+          action={
+            onOpenProjects ? (
+              <MonoBtn type="button" variant="primary" onClick={onOpenProjects}>
+                {t('proj.new')}
+              </MonoBtn>
+            ) : undefined
+          }
+        />
+      </section>
+    );
+  }
 
   const pct = completion.total > 0 ? Math.round((completion.done / completion.total) * 100) : 0;
 
@@ -137,14 +160,16 @@ export default function CommandCenter({
         </div>
       )}
 
-      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {TASK_STATUSES.map((status) => {
           const col = scoped.filter((x) => x.status === status).slice(0, MAX_BOARD_CARDS);
           const colTotal = scoped.filter((x) => x.status === status).length;
           return (
             <div
               key={status}
-              className="rounded-xl bg-ink/40 px-3 py-2.5 ring-1 ring-inset ring-line"
+              className={`rounded-xl bg-ink/40 px-3 py-2.5 ring-1 ring-inset ring-line transition-opacity ${
+                colTotal === 0 ? 'opacity-60' : ''
+              }`}
             >
               <p className="flex items-center justify-between text-[12px] font-semibold uppercase tracking-[0.06em] text-sage">
                 {t(STATUS_KEYS[status] as TKey)}

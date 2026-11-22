@@ -30,10 +30,12 @@ export default function AgileCard({
   onSelectProject,
   isPro = false,
   onWorkFocus,
+  initialTab = 'timeline',
+  alwaysOpen = false,
 }: AgileProps) {
-  const [tab, setTab] = useState<AgileTab>('timeline');
+  const [tab, setTab] = useState<AgileTab>(initialTab);
   const [board, setBoard] = useState<BoardConfig>(loadBoardConfig);
-  const [advanced, setAdvanced] = useState(loadAdvancedPlanning);
+  const [advanced, setAdvanced] = useState(() => alwaysOpen || loadAdvancedPlanning());
   const { t } = useI18n();
   const live = useMemo(() => activeProjects(projects), [projects]);
   const projectId = selectedProjectId ?? live[0]?.id ?? null;

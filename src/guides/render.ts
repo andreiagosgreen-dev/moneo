@@ -77,7 +77,7 @@ function page(s: Shell): string {
     <header class="g-head">
       <div class="g-wrap g-head-in">
         <a class="g-brand" href="${LANDING[s.locale]}">
-          <img src="/landing/mark-64.webp" width="28" height="28" alt="" />
+          <img src="/brand/moneo-mark.svg" width="28" height="28" alt="" />
           <span>Moneo</span>
         </a>
         <nav class="g-nav" aria-label="${esc(ui.section)}">

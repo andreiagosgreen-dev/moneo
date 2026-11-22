@@ -34,23 +34,24 @@ export default function Disclosure({
   return (
     <div className="md:col-span-2" id="today-more">
       <button
+        type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="press flex w-full items-center gap-3 border-t border-line/60 pt-6 text-left"
+        className="press flex w-full items-center gap-3 rounded-2xl border border-line/70 bg-card/60 px-4 py-3.5 text-left transition-colors hover:border-accent/40"
       >
         <span
           aria-hidden
-          className={`shrink-0 font-mono text-[13px] text-sage transition-transform duration-200 ${
+          className={`shrink-0 font-mono text-[13px] text-accent transition-transform duration-200 ${
             open ? 'rotate-90' : ''
           }`}
         >
           ▸
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block font-display text-[19px] font-bold tracking-tight text-cream">
+          <span className="block font-display text-[16px] font-semibold tracking-tight text-cream">
             {title}
           </span>
-          {hint && <span className="mt-1.5 block text-[15px] leading-snug text-sage">{hint}</span>}
+          {hint && <span className="mt-0.5 block text-[13px] leading-snug text-sage">{hint}</span>}
         </span>
       </button>
       {open && (
