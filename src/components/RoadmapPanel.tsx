@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
 import {
@@ -93,6 +93,13 @@ export default function RoadmapPanel({
   const [draftProvider, setDraftProvider] = useState<PlanSource>('local');
   const [status, setStatus] = useState('');
   const [newStep, setNewStep] = useState('');
+  const draftRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (draftPath) {
+      draftRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [draftPath]);
 
   const persistCfg = (next: ByokConfig) => {
     const safe = byokOk ? next : { ...next, provider: 'local' as const, webSearch: false };
@@ -314,7 +321,7 @@ export default function RoadmapPanel({
       {status ? <p className="mono-caption">{status}</p> : null}
 
       {draftPath ? (
-        <div className="mono-note mono-stack">
+        <div ref={draftRef} className="mono-note mono-stack">
           <p style={{ fontWeight: 600 }}>{t('assist.roadmap.draft')}</p>
           <ul className="mono-stack" style={{ gap: 4 }}>
             {draftPath.tasks.slice(0, 12).map((task) => (
