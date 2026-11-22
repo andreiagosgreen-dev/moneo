@@ -469,13 +469,12 @@ export default function LiveHeroDemo({ t, locale = 'en' }: { t: T; locale?: Loca
           <i />
           <i />
         </span>
-        <div className="lnd-live-tabs" role="tablist">
+        <div className="lnd-live-tabs" role="group" aria-label="Interactive preview switcher">
           {(['focus', 'today', 'hud', 'body', 'fuel', 'habits'] as const).map((k) => (
             <button
               key={k}
               type="button"
-              role="tab"
-              aria-selected={tab === k}
+              aria-pressed={tab === k}
               className={`lnd-live-tab${tab === k ? ' is-on' : ''}`}
               onClick={() => setTab(k)}
             >
