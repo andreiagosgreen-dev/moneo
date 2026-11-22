@@ -55,8 +55,7 @@ export default function CommandPalette({
     if (open) {
       setQuery('');
       setHighlight(0);
-      const id = requestAnimationFrame(() => inputRef.current?.focus());
-      return () => cancelAnimationFrame(id);
+      inputRef.current?.focus();
     }
   }, [open]);
 
@@ -196,6 +195,7 @@ export default function CommandPalette({
       >
         <input
           ref={inputRef}
+          autoFocus
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t('palette.placeholder')}
