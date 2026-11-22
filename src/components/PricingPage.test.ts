@@ -18,6 +18,10 @@ const authState = vi.hoisted(() => ({
   user: null as { userId: string } | null,
 }));
 
+vi.mock('../mono/MonoRankDiscount', () => ({
+  default: () => null,
+}));
+
 vi.mock('../lib/authProvider', () => ({
   useAuth: () => ({
     isPro: authState.isPro,
