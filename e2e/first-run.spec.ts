@@ -48,6 +48,38 @@ async function openSettings(page: Page, isMobile: boolean) {
   }
 }
 
+test('the welcome dialog keeps keyboard focus and can be dismissed with Escape', async ({
+  page,
+}) => {
+  await page.goto('/?action=focus');
+  const dialog = page.getByRole('dialog', { name: 'Welcome to Moneo' });
+  const heading = dialog.getByRole('heading', { name: 'Name this intention' });
+  await expect(heading).toBeFocused();
+  await page
+    .getByRole('button', { name: 'Start', exact: true })
+    .evaluate((button) => button.focus());
+  await expect(heading).toBeFocused();
+
+  await page.keyboard.press('Tab');
+  const intention = dialog.getByRole('textbox', { name: 'Name this intention' });
+  await expect(intention).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(dialog.getByRole('button', { name: 'Skip' })).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  await expect(intention).toBeFocused();
+
+  await page.keyboard.type('Finish my thesis');
+  await page.keyboard.press('Enter');
+  await expect(dialog.getByRole('heading', { name: 'Your first step' })).toBeFocused();
+
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole('timer')).toHaveText('25:00');
+  await page.reload();
+  await expect(page.getByRole('timer')).toBeVisible();
+  await expect(dialog).toHaveCount(0);
+});
+
 test.describe('clean first run', () => {
   test.beforeEach(async ({ page }) => {
     await skipOnboarding(page);

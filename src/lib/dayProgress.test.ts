@@ -20,6 +20,7 @@ describe('dayProgress', () => {
       total: 0,
       pct: 0,
       focusMin: 0,
+      focusSessions: 0,
     });
     expect(dayProgress(plan([]), [], '2026-9-29', TZ).pct).toBe(0);
   });
@@ -32,6 +33,9 @@ describe('dayProgress', () => {
       // 21:30 UTC on the 28th is already the 29th in Bucharest.
       { at: Date.UTC(2026, 8, 28, 21, 30), min: 10 },
     ];
-    expect(dayProgress(null, history, '2026-9-29', TZ).focusMin).toBe(65);
+    expect(dayProgress(null, history, '2026-9-29', TZ)).toMatchObject({
+      focusMin: 65,
+      focusSessions: 3,
+    });
   });
 });

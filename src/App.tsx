@@ -243,7 +243,7 @@ import { useMoments } from './hooks/useMoments';
 import { computeXp, levelFromXp, rankForLevel } from './lib/xp';
 import { saveCachedRank } from './lib/rankRewards';
 import { computeBadges } from './lib/badges';
-import { isTodayInTz, dayKeyInTz } from './lib/timezone';
+import { dayKeyInTz } from './lib/timezone';
 import { dueStatus } from './lib/taskDue';
 import { dayProgress } from './lib/dayProgress';
 import { buildLastWeekRecap, loadRecapSeen, saveRecapSeen, shouldShowRecap } from './lib/weekRecap';
@@ -863,9 +863,12 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
     setRecapSeen(monday);
   };
 
-  const todayProgress = dayProgress(todayPlan, history, todayKey, auth.timezone);
+  const todayProgress = useMemo(
+    () => dayProgress(todayPlan, history, todayKey, auth.timezone),
+    [todayPlan, history, todayKey, auth.timezone],
+  );
   const focusStats = {
-    sessions: history.filter((s) => isTodayInTz(s.at, auth.timezone)).length,
+    sessions: todayProgress.focusSessions,
     focusMin: todayProgress.focusMin,
     done: todayProgress.done,
   };
@@ -1113,14 +1116,6 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [frogPick?.id, frogPick?.status, frogDayKey]);
   const dayMotto = mottoForDay(todayKey, locale);
-  const lifeHub = buildLifeHubSnapshot({
-    plan: todayPlan,
-    focusSessions: focusStats.sessions,
-    focusMin: focusStats.focusMin,
-    tasks,
-    projects,
-    lifeMap,
-  });
 
   const [todayTool, setTodayTool] = useState<'none' | 'frog' | 'life'>('none');
   const [moveView, setMoveView] = useState<'workouts' | 'recovery' | 'nutrition'>('workouts');
@@ -2093,8 +2088,14 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                       <main>
                         <MonoViata
                           motto={dayMotto}
-                          frames={lifeHub.frames}
-                          next={lifeHub.next}
+                          {...buildLifeHubSnapshot({
+                            plan: todayPlan,
+                            focusSessions: focusStats.sessions,
+                            focusMin: focusStats.focusMin,
+                            tasks,
+                            projects,
+                            lifeMap,
+                          })}
                           onGo={goFill}
                         >
                           {lifeMapCard}

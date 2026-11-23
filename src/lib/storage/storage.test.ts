@@ -126,8 +126,8 @@ describe('migration runner', () => {
     expect(safeRead<unknown>(STORAGE_KEYS.history)).toEqual([{ at: 1, min: 25 }]);
   });
 
-  it.skip('does not advance the marker when persisting fails', () => {
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+  it('does not advance the marker when persisting fails', () => {
+    vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
       throw new Error('quota');
     });
     const res = runLocalMigrations();
@@ -136,14 +136,17 @@ describe('migration runner', () => {
     expect(getSchemaVersion()).toBeNull();
   });
 
-  it.skip('stays calm when storage is entirely unavailable', () => {
-    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+  it('stays calm when storage is entirely unavailable', () => {
+    vi.spyOn(localStorage, 'getItem').mockImplementation(() => {
       throw new Error('denied');
     });
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+    vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
       throw new Error('denied');
     });
-    expect(() => runLocalMigrations()).not.toThrow();
+    vi.spyOn(localStorage, 'removeItem').mockImplementation(() => {
+      throw new Error('denied');
+    });
+    expect(runLocalMigrations().status).toBe('failed');
     expect(safeRead<unknown>(STORAGE_KEYS.settings)).toBeNull();
     expect(safeWrite(STORAGE_KEYS.settings, {})).toBe(false);
     expect(() => safeRemove(STORAGE_KEYS.settings)).not.toThrow();
@@ -270,24 +273,22 @@ describe('legacy session-id backfill (schema v2)', () => {
     expect(currentStreak(migrated)).toBe(beforeStreak);
   });
 
-  it.skip('does not advance the marker when the backfilled history cannot be saved', () => {
-    localStorage.setItem(STORAGE_KEYS.history, JSON.stringify([{ at: 1000, min: 25 }]));
-    const real = Storage.prototype.setItem;
-    let calls = 0;
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (
-      this: Storage,
-      key: string,
-      value: string,
-    ) {
-      calls++;
-      if (key === STORAGE_KEYS.history && calls > 0) {
-        throw new Error('quota exceeded');
-      }
-      return real.call(this, key, value);
+  it('retries a failed history backfill without advancing the marker or losing data', () => {
+    const history = [{ at: 1000, min: 25 }];
+    localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(history));
+    const write = localStorage.setItem.bind(localStorage);
+    const spy = vi.spyOn(localStorage, 'setItem').mockImplementation((key, value) => {
+      if (key === STORAGE_KEYS.history) throw new Error('quota exceeded');
+      write(key, value);
     });
     const res = runLocalMigrations();
     expect(res.status).toBe('failed');
-    vi.restoreAllMocks();
-    expect(getSchemaVersion()).toBeNull(); // never falsely advanced
+    expect(getSchemaVersion()).toBeNull();
+    expect(safeRead(STORAGE_KEYS.history)).toEqual(history);
+
+    spy.mockRestore();
+    expect(runLocalMigrations().status).toBe('migrated');
+    expect(getSchemaVersion()).toBe(CURRENT_SCHEMA_VERSION);
+    expect(safeRead(STORAGE_KEYS.history)).toEqual([{ ...history[0], id: expect.any(String) }]);
   });
 });

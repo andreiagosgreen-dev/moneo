@@ -6,6 +6,22 @@ import { LocaleProvider } from '../lib/i18n/LocaleContext';
 import { ro } from '../lib/i18n/locales/ro';
 import OnboardingModal from './OnboardingModal';
 
+// JSDOM does not implement the dialog top layer. Keyboard behavior runs in Playwright.
+Object.defineProperties(HTMLDialogElement.prototype, {
+  showModal: {
+    configurable: true,
+    value(this: HTMLDialogElement) {
+      this.open = true;
+    },
+  },
+  close: {
+    configurable: true,
+    value(this: HTMLDialogElement) {
+      this.open = false;
+    },
+  },
+});
+
 // Enables React 18 act() flushing outside RTL.
 (globalThis as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT = true;
 
