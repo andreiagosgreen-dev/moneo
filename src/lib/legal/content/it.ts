@@ -82,7 +82,7 @@ export const legalIt: LegalSet = {
         heading: '7. Rinnovo automatico e disdetta',
         blocks: [
           'Gli abbonamenti si rinnovano automaticamente alla fine di ogni periodo di fatturazione (mensile o annuale) e vengono addebitati sul tuo metodo di pagamento finché non disdici.',
-          'Puoi disdire in qualsiasi momento dal portale clienti (Account → Gestisci abbonamento) o scrivendo a {email}. La disdetta interrompe i rinnovi futuri; mantieni Pro fino alla fine del periodo già pagato, poi il tuo account torna al piano gratuito.',
+          'Puoi disdire in qualsiasi momento direttamente in Moneo (Account → Gestisci abbonamento) o scrivendo a {email}. La disdetta interrompe i rinnovi futuri; mantieni Pro fino alla fine del periodo già pagato, poi il tuo account torna al piano gratuito.',
           'Se modifichiamo il prezzo di Pro, te lo comunicheremo in anticipo. Il nuovo prezzo si applica solo dal tuo prossimo rinnovo e puoi disdire prima che entri in vigore.',
         ],
       },
@@ -306,7 +306,7 @@ export const legalIt: LegalSet = {
           {
             list: [
               'Eliminare i dati su questo dispositivo: Impostazioni → «Elimina tutti i dati su questo dispositivo».',
-              'Eliminare l’account e i dati cloud: Account → «Elimina account». Se hai un abbonamento attivo, disdicilo prima nel portale clienti.',
+              'Eliminare l’account e i dati cloud: Account → «Elimina account». Se hai un abbonamento attivo, disdicilo prima da Account → Gestisci abbonamento.',
               'Accesso e portabilità: nelle Impostazioni chiunque può esportare gratuitamente tutti i propri dati Moneo in un file JSON e importarli su un altro dispositivo. Pro aggiunge formati di report aggiuntivi (CSV/PDF). Per qualsiasi altra richiesta, scrivi a {email}.',
               'Interrompi la sincronizzazione cloud uscendo dall’account; i tuoi dati restano sul dispositivo.',
             ],
@@ -400,7 +400,7 @@ export const legalIt: LegalSet = {
         blocks: [
           {
             list: [
-              'Disdetta: interrompe i rinnovi futuri. Mantieni Pro fino alla fine del periodo già pagato. Non viene restituito denaro. Puoi disdire in qualsiasi momento nel portale clienti (Account → Gestisci abbonamento).',
+              'Disdetta: interrompe i rinnovi futuri. Mantieni Pro fino alla fine del periodo già pagato. Non viene restituito denaro. Puoi disdire in qualsiasi momento direttamente in Moneo (Account → Gestisci abbonamento).',
               `Rimborso: restituisce il denaro di un pagamento effettuato negli ultimi ${REFUND_DAYS} giorni e termina Pro immediatamente.`,
             ],
           },

@@ -93,6 +93,8 @@ export async function fetchCustomerPortalUrl(
 interface SubscriptionIds {
   customerId: string | null;
   subscriptionId: string | null;
+  status: string | null;
+  periodEnd: string | null;
 }
 
 async function lookupSubscriptionIds(
@@ -103,7 +105,7 @@ async function lookupSubscriptionIds(
 ): Promise<SubscriptionIds | null> {
   try {
     const res = await fetchImpl(
-      `${supabaseUrl}/rest/v1/subscriptions?user_id=eq.${encodeURIComponent(userId)}&select=lemon_customer_id,lemon_subscription_id`,
+      `${supabaseUrl}/rest/v1/subscriptions?user_id=eq.${encodeURIComponent(userId)}&select=lemon_customer_id,lemon_subscription_id,status,current_period_end`,
       {
         headers: {
           apikey: serviceKey,
@@ -115,9 +117,11 @@ async function lookupSubscriptionIds(
     const rows = (await res.json()) as Array<{
       lemon_customer_id?: unknown;
       lemon_subscription_id?: unknown;
+      status?: unknown;
+      current_period_end?: unknown;
     }>;
     const row = Array.isArray(rows) ? rows[0] : null;
-    if (!row) return { customerId: null, subscriptionId: null };
+    if (!row) return { customerId: null, subscriptionId: null, status: null, periodEnd: null };
     return {
       customerId:
         typeof row.lemon_customer_id === 'string' && row.lemon_customer_id.length > 0
@@ -127,10 +131,165 @@ async function lookupSubscriptionIds(
         typeof row.lemon_subscription_id === 'string' && row.lemon_subscription_id.length > 0
           ? row.lemon_subscription_id
           : null,
+      status: typeof row.status === 'string' ? row.status : null,
+      periodEnd: typeof row.current_period_end === 'string' ? row.current_period_end : null,
     };
   } catch {
     return null;
   }
+}
+
+export interface SubscriptionActionResult {
+  status: string;
+  endsAt: string | null;
+  updatedAt: string | null;
+}
+
+/** Read the state returned by Lemon after cancelling or resuming. */
+export function extractSubscriptionActionResult(payload: unknown): SubscriptionActionResult | null {
+  if (!payload || typeof payload !== 'object') return null;
+  const data = (payload as { data?: unknown }).data;
+  if (!data || typeof data !== 'object') return null;
+  const attributes = (data as { attributes?: unknown }).attributes;
+  if (!attributes || typeof attributes !== 'object') return null;
+  const attrs = attributes as Record<string, unknown>;
+  if (typeof attrs.status !== 'string' || attrs.status.length === 0) return null;
+  const endsAt = typeof attrs.ends_at === 'string' ? attrs.ends_at : null;
+  const renewsAt = typeof attrs.renews_at === 'string' ? attrs.renews_at : null;
+  const updatedAt = typeof attrs.updated_at === 'string' ? attrs.updated_at : null;
+  return {
+    status: attrs.status,
+    endsAt: endsAt ?? renewsAt,
+    updatedAt,
+  };
+}
+
+async function saveSubscriptionAction(
+  supabaseUrl: string,
+  serviceKey: string,
+  userId: string,
+  result: SubscriptionActionResult,
+  fetchImpl: FetchImpl,
+): Promise<boolean> {
+  try {
+    const body: Record<string, unknown> = {
+      status: result.status,
+      current_period_end: result.endsAt,
+      updated_at: new Date().toISOString(),
+    };
+    if (result.updatedAt && Number.isFinite(Date.parse(result.updatedAt))) {
+      body.lemon_updated_at = new Date(result.updatedAt).toISOString();
+    }
+    const res = await fetchImpl(
+      `${supabaseUrl}/rest/v1/subscriptions?user_id=eq.${encodeURIComponent(userId)}`,
+      {
+        method: 'PATCH',
+        headers: {
+          apikey: serviceKey,
+          Authorization: `Bearer ${serviceKey}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal',
+        },
+        body: JSON.stringify(body),
+      },
+    );
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * POST /api/billing/subscription — cancel or resume without leaving Moneo.
+ * Card data still stays on Lemon's PCI-hosted payment page.
+ */
+export async function handleSubscriptionAction(
+  request: Request,
+  env: PortalEnv,
+  fetchImpl: FetchImpl = fetch,
+): Promise<Response> {
+  if (request.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY || !env.LEMON_SQUEEZY_API_KEY) {
+    return json({ error: 'Billing management is not configured' }, 503);
+  }
+  const token = bearerToken(request);
+  if (!token) return json({ error: 'Missing or invalid authorization' }, 401);
+  const userId = await verifyUserToken(
+    env.SUPABASE_URL,
+    env.SUPABASE_SERVICE_ROLE_KEY,
+    token,
+    fetchImpl,
+  );
+  if (!userId) return json({ error: 'Invalid or expired session' }, 401);
+
+  let action: unknown;
+  try {
+    action = ((await request.json()) as { action?: unknown }).action;
+  } catch {
+    return json({ error: 'Invalid JSON' }, 400);
+  }
+  if (action !== 'cancel' && action !== 'resume') {
+    return json({ error: 'Invalid subscription action' }, 400);
+  }
+
+  const ids = await lookupSubscriptionIds(
+    env.SUPABASE_URL,
+    env.SUPABASE_SERVICE_ROLE_KEY,
+    userId,
+    fetchImpl,
+  );
+  if (!ids?.subscriptionId) return json({ error: 'No subscription found' }, 404);
+  if (action === 'cancel' && ids.status === 'cancelled') {
+    return json({ ok: true, status: 'cancelled', endsAt: ids.periodEnd }, 200);
+  }
+  if (action === 'resume' && ids.status !== 'cancelled') {
+    return json({ error: 'Subscription cannot be resumed' }, 409);
+  }
+
+  const subscriptionId = ids.subscriptionId;
+  let lemonResponse: Response;
+  try {
+    lemonResponse = await fetchImpl(
+      `https://api.lemonsqueezy.com/v1/subscriptions/${encodeURIComponent(subscriptionId)}`,
+      action === 'cancel'
+        ? {
+            method: 'DELETE',
+            headers: {
+              Accept: 'application/vnd.api+json',
+              'Content-Type': 'application/vnd.api+json',
+              Authorization: `Bearer ${env.LEMON_SQUEEZY_API_KEY}`,
+            },
+          }
+        : {
+            method: 'PATCH',
+            headers: {
+              Accept: 'application/vnd.api+json',
+              'Content-Type': 'application/vnd.api+json',
+              Authorization: `Bearer ${env.LEMON_SQUEEZY_API_KEY}`,
+            },
+            body: JSON.stringify({
+              data: {
+                type: 'subscriptions',
+                id: subscriptionId,
+                attributes: { cancelled: false },
+              },
+            }),
+          },
+    );
+  } catch {
+    return json({ error: 'Billing provider unavailable' }, 502);
+  }
+  if (!lemonResponse.ok) return json({ error: 'Subscription update failed' }, 502);
+  const result = extractSubscriptionActionResult(await lemonResponse.json());
+  if (!result) return json({ error: 'Invalid billing response' }, 502);
+  const synced = await saveSubscriptionAction(
+    env.SUPABASE_URL,
+    env.SUPABASE_SERVICE_ROLE_KEY,
+    userId,
+    result,
+    fetchImpl,
+  );
+  return json({ ok: true, status: result.status, endsAt: result.endsAt, synced }, 200);
 }
 
 /**

@@ -82,7 +82,7 @@ export const legalEs: LegalSet = {
         heading: '7. Renovación automática y cancelación',
         blocks: [
           'Las suscripciones se renuevan automáticamente al final de cada periodo de facturación (mensual o anual) y se cargan a tu método de pago hasta que canceles.',
-          'Puedes cancelar en cualquier momento desde el portal de cliente (Cuenta → Gestionar suscripción) o escribiendo a {email}. La cancelación detiene las renovaciones futuras; mantienes Pro hasta el final del periodo ya pagado y después tu cuenta vuelve al plan gratuito.',
+          'Puedes cancelar en cualquier momento directamente en Moneo (Cuenta → Gestionar suscripción) o escribiendo a {email}. La cancelación detiene las renovaciones futuras; mantienes Pro hasta el final del periodo ya pagado y después tu cuenta vuelve al plan gratuito.',
           'Si cambiamos el precio de Pro, te avisaremos con antelación. El nuevo precio solo se aplica a partir de tu próxima renovación, y puedes cancelar antes de que entre en vigor.',
         ],
       },
@@ -304,7 +304,7 @@ export const legalEs: LegalSet = {
           {
             list: [
               'Borrar los datos de este dispositivo: Ajustes → «Eliminar todos los datos de este dispositivo».',
-              'Eliminar tu cuenta y tus datos en la nube: Cuenta → «Eliminar cuenta». Si tienes una suscripción activa, cancélala primero en el portal de cliente.',
+              'Eliminar tu cuenta y tus datos en la nube: Cuenta → «Eliminar cuenta». Si tienes una suscripción activa, cancélala primero desde Cuenta → Gestionar suscripción.',
               'Acceso y portabilidad: en Ajustes, cualquier persona puede exportar gratis todos sus datos de Moneo en un archivo JSON e importarlos en otro dispositivo. Pro añade formatos de informe adicionales (CSV/PDF). Para cualquier otra solicitud, escribe a {email}.',
               'Detén la sincronización en la nube cerrando sesión; tus datos se quedan en tu dispositivo.',
             ],
@@ -398,7 +398,7 @@ export const legalEs: LegalSet = {
         blocks: [
           {
             list: [
-              'Cancelar: detiene las renovaciones futuras. Mantienes Pro hasta el final del periodo ya pagado. No se devuelve dinero. Puedes cancelar en cualquier momento en el portal de cliente (Cuenta → Gestionar suscripción).',
+              'Cancelar: detiene las renovaciones futuras. Mantienes Pro hasta el final del periodo ya pagado. No se devuelve dinero. Puedes cancelar en cualquier momento directamente en Moneo (Cuenta → Gestionar suscripción).',
               `Reembolso: devuelve el dinero de un pago realizado en los últimos ${REFUND_DAYS} días y termina Pro de inmediato.`,
             ],
           },

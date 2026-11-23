@@ -1,7 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { requestCustomerPortalUrl } from './billing/lemonSqueezy';
-import { extractCustomerPortalUrl, fetchCustomerPortalUrl } from '../../cloudflare/workers/portal';
+import {
+  extractCustomerPortalUrl,
+  extractSubscriptionActionResult,
+  fetchCustomerPortalUrl,
+  handleSubscriptionAction,
+} from '../../cloudflare/workers/portal';
 
 const PORTAL = 'https://moneo.lemonsqueezy.com/billing?token=abc';
 
@@ -110,5 +115,102 @@ describe('requestCustomerPortalUrl (browser → Worker)', () => {
     expect(
       await requestCustomerPortalUrl(async () => 'jwt', evilFetch as unknown as typeof fetch),
     ).toEqual({ ok: false, url: null });
+  });
+});
+
+describe('in-app subscription actions', () => {
+  it('extracts the cancellation state returned by Lemon', () => {
+    expect(
+      extractSubscriptionActionResult({
+        data: {
+          attributes: {
+            status: 'cancelled',
+            ends_at: '2027-01-15T00:00:00Z',
+            updated_at: '2026-11-23T10:00:00Z',
+          },
+        },
+      }),
+    ).toEqual({
+      status: 'cancelled',
+      endsAt: '2027-01-15T00:00:00Z',
+      updatedAt: '2026-11-23T10:00:00Z',
+    });
+  });
+
+  it('authenticates, cancels at Lemon and synchronizes Supabase', async () => {
+    const fetchImpl = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+      const target = String(url);
+      if (target.endsWith('/auth/v1/user')) {
+        return new Response(JSON.stringify({ id: 'user-1' }), { status: 200 });
+      }
+      if (target.includes('/rest/v1/subscriptions') && init?.method !== 'PATCH') {
+        return new Response(
+          JSON.stringify([
+            {
+              lemon_customer_id: 'customer-1',
+              lemon_subscription_id: 'subscription-1',
+              status: 'active',
+              current_period_end: '2027-01-15T00:00:00Z',
+            },
+          ]),
+          { status: 200 },
+        );
+      }
+      if (target.includes('api.lemonsqueezy.com/v1/subscriptions/subscription-1')) {
+        return new Response(
+          JSON.stringify({
+            data: {
+              attributes: {
+                status: 'cancelled',
+                ends_at: '2027-01-15T00:00:00Z',
+                updated_at: '2026-11-23T10:00:00Z',
+              },
+            },
+          }),
+          { status: 200 },
+        );
+      }
+      if (target.includes('/rest/v1/subscriptions') && init?.method === 'PATCH') {
+        return new Response(null, { status: 204 });
+      }
+      return new Response(null, { status: 500 });
+    });
+    const response = await handleSubscriptionAction(
+      new Request('https://moneo.bond/api/billing/subscription', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer jwt', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'cancel' }),
+      }),
+      {
+        SUPABASE_URL: 'https://supabase.test',
+        SUPABASE_SERVICE_ROLE_KEY: 'service-key',
+        LEMON_SQUEEZY_API_KEY: 'lemon-key',
+      },
+      fetchImpl as unknown as typeof fetch,
+    );
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      status: 'cancelled',
+      endsAt: '2027-01-15T00:00:00Z',
+      synced: true,
+    });
+    const lemonCall = fetchImpl.mock.calls.find(([url]) =>
+      String(url).includes('api.lemonsqueezy.com'),
+    );
+    expect(lemonCall?.[1]?.method).toBe('DELETE');
+    const syncCall = fetchImpl.mock.calls.find(([, init]) => init?.method === 'PATCH');
+    expect(syncCall).toBeDefined();
+  });
+
+  it('rejects cancellation when server billing management is not configured', async () => {
+    const response = await handleSubscriptionAction(
+      new Request('https://moneo.bond/api/billing/subscription', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'cancel' }),
+      }),
+      {},
+    );
+    expect(response.status).toBe(503);
   });
 });

@@ -84,7 +84,7 @@ export const legalDe: LegalSet = {
         heading: '7. Automatische Verlängerung und Kündigung',
         blocks: [
           'Abonnements verlängern sich am Ende jedes Abrechnungszeitraums (monatlich oder jährlich) automatisch und werden deiner Zahlungsmethode belastet, bis du kündigst.',
-          'Du kannst jederzeit im Kundenportal (Konto → Abo verwalten) oder per E-Mail an {email} kündigen. Die Kündigung stoppt künftige Verlängerungen; Pro bleibt bis zum Ende des bereits bezahlten Zeitraums aktiv, danach kehrt dein Konto zum kostenlosen Plan zurück.',
+          'Du kannst jederzeit direkt in Moneo (Konto → Abo verwalten) oder per E-Mail an {email} kündigen. Die Kündigung stoppt künftige Verlängerungen; Pro bleibt bis zum Ende des bereits bezahlten Zeitraums aktiv, danach kehrt dein Konto zum kostenlosen Plan zurück.',
           'Ändern wir den Preis von Pro, informieren wir dich im Voraus. Ein neuer Preis gilt erst ab deiner nächsten Verlängerung, und du kannst vorher kündigen.',
         ],
       },
@@ -306,7 +306,7 @@ export const legalDe: LegalSet = {
           {
             list: [
               'Daten auf diesem Gerät löschen: Einstellungen → „Alle Daten auf diesem Gerät löschen“.',
-              'Konto und Cloud-Daten löschen: Konto → „Konto löschen“. Hast du ein aktives Abonnement, kündige es zuerst im Kundenportal.',
+              'Konto und Cloud-Daten löschen: Konto → „Konto löschen“. Hast du ein aktives Abonnement, kündige es zuerst über Konto → Abo verwalten.',
               'Auskunft und Übertragbarkeit: In den Einstellungen kann jeder alle seine Moneo-Daten kostenlos als JSON-Datei exportieren und auf einem anderen Gerät wieder importieren. Pro bietet zusätzliche Berichtsformate (CSV/PDF). Für jede andere Anfrage schreib an {email}.',
               'Beende die Cloud-Synchronisierung, indem du dich abmeldest; deine Daten bleiben auf deinem Gerät.',
             ],
@@ -400,7 +400,7 @@ export const legalDe: LegalSet = {
         blocks: [
           {
             list: [
-              'Kündigen: stoppt künftige Verlängerungen. Pro bleibt bis zum Ende des bereits bezahlten Zeitraums aktiv. Es wird kein Geld zurückgezahlt. Du kannst jederzeit im Kundenportal kündigen (Konto → Abo verwalten).',
+              'Kündigen: stoppt künftige Verlängerungen. Pro bleibt bis zum Ende des bereits bezahlten Zeitraums aktiv. Es wird kein Geld zurückgezahlt. Du kannst jederzeit direkt in Moneo kündigen (Konto → Abo verwalten).',
               `Erstattung: zahlt das Geld für eine Zahlung der letzten ${REFUND_DAYS} Tage zurück und beendet Pro sofort.`,
             ],
           },

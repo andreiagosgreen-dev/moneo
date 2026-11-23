@@ -15,14 +15,19 @@ import PricingPage from './PricingPage';
 const authState = vi.hoisted(() => ({
   isPro: false,
   planId: 'free' as string,
+  status: 'free' as string,
+  currentPeriodEnd: null as number | null,
   user: null as { userId: string } | null,
 }));
 
 const resolvePortal = vi.hoisted(() => vi.fn<() => Promise<string>>());
+const subscriptionAction = vi.hoisted(() => vi.fn());
+const refreshSubscription = vi.hoisted(() => vi.fn(async () => {}));
 
 vi.mock('../lib/billing/lemonSqueezy', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/billing/lemonSqueezy')>()),
   resolveCustomerPortalUrl: resolvePortal,
+  requestSubscriptionAction: subscriptionAction,
 }));
 
 vi.mock('../mono/MonoRankDiscount', () => ({
@@ -32,11 +37,17 @@ vi.mock('../mono/MonoRankDiscount', () => ({
 vi.mock('../lib/authProvider', () => ({
   useAuth: () => ({
     isPro: authState.isPro,
-    subscription: { ...DEFAULT_FREE_SUBSCRIPTION, planId: authState.planId },
+    subscription: {
+      ...DEFAULT_FREE_SUBSCRIPTION,
+      planId: authState.planId,
+      status: authState.status,
+      currentPeriodEnd: authState.currentPeriodEnd,
+      isPro: authState.isPro,
+    },
     user: authState.user,
     status: authState.user ? 'authenticated' : 'anonymous',
     timezone: 'UTC',
-    refreshSubscription: async () => {},
+    refreshSubscription,
   }),
 }));
 
@@ -85,8 +96,12 @@ afterEach(() => {
   container = null;
   authState.isPro = false;
   authState.planId = 'free';
+  authState.status = 'free';
+  authState.currentPeriodEnd = null;
   authState.user = null;
   resolvePortal.mockReset();
+  subscriptionAction.mockReset();
+  refreshSubscription.mockClear();
 });
 
 describe('PricingPage (/pricing)', () => {
@@ -128,12 +143,17 @@ describe('PricingPage (/pricing)', () => {
     expect(renderPage('en')).toContain('Manage subscription');
   });
 
-  it('lets a paying subscriber open the portal or reach the refund policy directly', async () => {
+  it('manages and cancels a paid subscription inside Moneo', async () => {
     authState.isPro = true;
     authState.planId = 'pro-monthly';
+    authState.status = 'active';
+    authState.currentPeriodEnd = Date.UTC(2027, 0, 15);
     authState.user = { userId: 'u-1' };
-    const portalUrl = 'https://moneo.lemonsqueezy.com/billing';
-    resolvePortal.mockResolvedValue(portalUrl);
+    subscriptionAction.mockResolvedValue({
+      ok: true,
+      status: 'cancelled',
+      endsAt: '2027-01-15T00:00:00.000Z',
+    });
     const open = vi.spyOn(window, 'open').mockReturnValue({ opener: window } as Window);
     try {
       renderPage('en');
@@ -146,7 +166,23 @@ describe('PricingPage (/pricing)', () => {
       );
       expect(manage).toBeDefined();
       await act(async () => manage!.click());
-      expect(open).toHaveBeenCalledWith(portalUrl, '_blank');
+      expect(document.body.textContent).toContain('Your subscription');
+      expect(document.body.textContent).toContain('Cancel subscription');
+      expect(open).not.toHaveBeenCalled();
+
+      const cancel = [...document.body.querySelectorAll('button')].find(
+        (button) => button.textContent === 'Cancel subscription',
+      );
+      act(() => cancel!.click());
+      expect(document.body.textContent).toContain('Cancel future renewals?');
+      const confirm = [...document.body.querySelectorAll('button')].find(
+        (button) => button.textContent === 'Confirm cancellation',
+      );
+      await act(async () => confirm!.click());
+      expect(subscriptionAction).toHaveBeenCalledWith('cancel');
+      expect(document.body.textContent).toContain('Renewal stopped');
+      expect(document.body.textContent).toContain('Resume subscription');
+      expect(refreshSubscription).toHaveBeenCalledTimes(1);
     } finally {
       open.mockRestore();
     }

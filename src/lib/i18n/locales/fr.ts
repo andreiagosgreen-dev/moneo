@@ -1041,7 +1041,28 @@ export const fr: Record<TKey, string> = {
   'pay.manage': 'Gérer l’abonnement',
   'pay.manageAction': 'Gérer ou résilier',
   'pay.requestRefund': 'Demander un remboursement',
-  'pay.manageTitle': 'Changer de formule, mettre à jour le paiement ou résilier',
+  'pay.manageTitle': 'Consultez la formule, la date de paiement ou résiliez dans Moneo',
+  'pay.manageDialogTitle': 'Votre abonnement',
+  'pay.closeManageDialog': 'Fermer la gestion de l’abonnement',
+  'pay.currentPlan': 'Formule actuelle',
+  'pay.nextRenewal': 'Prochain renouvellement',
+  'pay.proAccessUntil': 'Accès Pro jusqu’au',
+  'pay.cancelSubscription': 'Résilier l’abonnement',
+  'pay.resumeSubscription': 'Réactiver l’abonnement',
+  'pay.cancelConfirmTitle': 'Arrêter les futurs renouvellements ?',
+  'pay.cancelConfirmBody': 'Vous garderez Pro jusqu’à la fin de la période déjà payée.',
+  'pay.cancelConfirmBodyDate':
+    'Vous garderez Pro jusqu’au {date}. Aucun autre renouvellement ne sera facturé.',
+  'pay.keepSubscription': 'Garder l’abonnement',
+  'pay.confirmCancellation': 'Confirmer la résiliation',
+  'pay.cancelledSuccess':
+    'Le renouvellement est arrêté. Votre accès Pro payé reste actif jusqu’à la date affichée.',
+  'pay.resumedSuccess':
+    'Votre abonnement est de nouveau actif et sera renouvelé à la date affichée.',
+  'pay.subscriptionActionError': 'Impossible de mettre à jour l’abonnement. Réessayez.',
+  'pay.paymentSettings': 'Paiement et formule',
+  'pay.paymentSettingsHint':
+    'Les changements de carte et de formule s’ouvrent sur la page protégée du prestataire de paiement.',
   'pay.portalError': 'Impossible d’ouvrir le portail. Réessayez.',
   'pay.resumeTitle': 'Vous êtes connecté — terminez votre passage à Pro',
   'pay.resumeCta': 'Continuer vers le paiement',
@@ -2285,7 +2306,7 @@ export const fr: Record<TKey, string> = {
   'account.subscriptionStatus': 'Abonnement',
   'account.manageSubscription': 'Gérer l’abonnement',
   'account.deleteSubWarning':
-    'Vous avez un abonnement Pro actif. Résiliez-le d’abord dans le portail d’abonnement pour être sûr de ne plus être débité.',
+    'Vous avez un abonnement Pro actif. Fermez cette confirmation et résiliez-le d’abord dans la section abonnement ci-dessus.',
   'account.deleteSubPortal': 'Ouvrir le portail d’abonnement',
   'pricingPage.title': 'Des tarifs simples et honnêtes',
   'pricingPage.subtitle':

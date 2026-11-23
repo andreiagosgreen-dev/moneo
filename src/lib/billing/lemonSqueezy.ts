@@ -235,3 +235,40 @@ export async function getSupabaseAccessToken(): Promise<string | null> {
     return null;
   }
 }
+
+export type SubscriptionAction = 'cancel' | 'resume';
+
+export interface SubscriptionActionResponse {
+  ok: boolean;
+  status: string | null;
+  endsAt: string | null;
+}
+
+/** Cancel or resume the signed-in buyer's subscription without leaving Moneo. */
+export async function requestSubscriptionAction(
+  action: SubscriptionAction,
+  getAccessToken: () => Promise<string | null> = getSupabaseAccessToken,
+  fetchFn: typeof fetch = fetch,
+): Promise<SubscriptionActionResponse> {
+  try {
+    const token = await getAccessToken();
+    if (!token) return { ok: false, status: null, endsAt: null };
+    const res = await fetchFn('/api/billing/subscription', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ action }),
+    });
+    if (!res.ok) return { ok: false, status: null, endsAt: null };
+    const body = (await res.json()) as { ok?: unknown; status?: unknown; endsAt?: unknown };
+    return {
+      ok: body.ok === true,
+      status: typeof body.status === 'string' ? body.status : null,
+      endsAt: typeof body.endsAt === 'string' ? body.endsAt : null,
+    };
+  } catch {
+    return { ok: false, status: null, endsAt: null };
+  }
+}

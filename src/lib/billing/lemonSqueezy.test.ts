@@ -8,6 +8,7 @@ import {
   getLemonSqueezyConfig,
   getPricingPlans,
   initiateCheckout,
+  requestSubscriptionAction,
   resolveCustomerPortalUrl,
 } from './lemonSqueezy';
 
@@ -156,6 +157,43 @@ describe('fallbackCustomerPortalUrl / resolveCustomerPortalUrl', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe('requestSubscriptionAction', () => {
+  it('sends an authenticated in-app cancellation request', async () => {
+    const fetchFn = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({ ok: true, status: 'cancelled', endsAt: '2027-01-15T00:00:00Z' }),
+          { status: 200 },
+        ),
+    );
+    await expect(
+      requestSubscriptionAction('cancel', async () => 'jwt', fetchFn as unknown as typeof fetch),
+    ).resolves.toEqual({
+      ok: true,
+      status: 'cancelled',
+      endsAt: '2027-01-15T00:00:00Z',
+    });
+    expect(fetchFn).toHaveBeenCalledWith(
+      '/api/billing/subscription',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ action: 'cancel' }),
+      }),
+    );
+  });
+
+  it('fails closed without a session or when the Worker rejects the action', async () => {
+    const fetchFn = vi.fn(async () => new Response('{}', { status: 503 }));
+    await expect(
+      requestSubscriptionAction('cancel', async () => null, fetchFn as unknown as typeof fetch),
+    ).resolves.toEqual({ ok: false, status: null, endsAt: null });
+    expect(fetchFn).not.toHaveBeenCalled();
+    await expect(
+      requestSubscriptionAction('resume', async () => 'jwt', fetchFn as unknown as typeof fetch),
+    ).resolves.toEqual({ ok: false, status: null, endsAt: null });
   });
 });
 

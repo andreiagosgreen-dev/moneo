@@ -82,7 +82,7 @@ export const legalEn: LegalSet = {
         heading: '7. Automatic renewal and cancellation',
         blocks: [
           'Subscriptions renew automatically at the end of each billing period (monthly or yearly) and are charged to your payment method until you cancel.',
-          `You can cancel at any time from the customer portal (Account → Manage subscription) or by writing to {email}. Cancellation stops future renewals; you keep Pro until the end of the period you already paid for, and your account then returns to Free.`,
+          `You can cancel at any time in Moneo (Account → Manage subscription) or by writing to {email}. Cancellation stops future renewals; you keep Pro until the end of the period you already paid for, and your account then returns to Free.`,
           'If we change the price of Pro, we will tell you in advance. A new price applies only from your next renewal, and you can cancel before it takes effect.',
         ],
       },
@@ -304,7 +304,7 @@ export const legalEn: LegalSet = {
           {
             list: [
               'Delete data on this device: Settings → "Delete all data on this device".',
-              'Delete your account and cloud data: Account → "Delete account". If you have an active subscription, cancel it first in the customer portal.',
+              'Delete your account and cloud data: Account → "Delete account". If you have an active subscription, cancel it first from Account → Manage subscription.',
               'Access and portability: in Settings, anyone can export all their Moneo data as a JSON file, free of charge, and import it again on another device. Pro adds extra report formats (CSV/PDF). For any other request, write to {email}.',
               'Stop cloud sync by signing out; your data stays on your device.',
             ],
@@ -396,7 +396,7 @@ export const legalEn: LegalSet = {
         blocks: [
           {
             list: [
-              'Cancel: stops future renewals. You keep Pro until the end of the period you already paid for. No money is returned. You can cancel at any time in the customer portal (Account → Manage subscription).',
+              'Cancel: stops future renewals. You keep Pro until the end of the period you already paid for. No money is returned. You can cancel at any time in Moneo (Account → Manage subscription).',
               `Refund: returns the money for a payment made in the last ${REFUND_DAYS} days and ends Pro right away.`,
             ],
           },
