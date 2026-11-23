@@ -198,14 +198,11 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette, onOpe
   const isActive = (id: MonoTab): boolean => selectedTab === id;
 
   const onTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
-    const horizontal = event.key === 'ArrowLeft' || event.key === 'ArrowRight';
-    const vertical = event.key === 'ArrowUp' || event.key === 'ArrowDown';
-    const backwards = event.key === 'ArrowLeft' || event.key === 'ArrowUp';
+    const backwards = event.key === 'ArrowLeft';
+    const forwards = event.key === 'ArrowRight';
     const isHome = event.key === 'Home';
     const isEnd = event.key === 'End';
-    if ((!horizontal && !vertical) || (isMobile ? vertical : horizontal)) {
-      if (!isHome && !isEnd) return;
-    }
+    if (!backwards && !forwards && !isHome && !isEnd) return;
 
     const nav = event.currentTarget.closest('.mono-nav');
     if (!nav) return;
@@ -232,12 +229,7 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette, onOpe
   };
 
   return (
-    <nav
-      className="mono-nav"
-      role="tablist"
-      aria-label={t('mono.nav.aria')}
-      aria-orientation={isMobile ? 'horizontal' : 'vertical'}
-    >
+    <nav className="mono-nav">
       <div className="mono-rail-brand">
         <button
           type="button"
@@ -260,6 +252,9 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette, onOpe
 
       <div
         className="mono-rail-primary"
+        role="tablist"
+        aria-label={t('mono.nav.aria')}
+        aria-owns={isMobile ? undefined : 'mono-tab-settings'}
         onWheel={(e) => {
           if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
             e.currentTarget.scrollLeft += e.deltaY;
@@ -321,11 +316,10 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette, onOpe
               type="button"
               onClick={onOpenPalette}
               title={`${t('palette.title')} (⌘K)`}
-              aria-label={t('palette.title')}
               className="mono-nav-item mono-rail-tool mono-rail-palette"
             >
               <MonoTabIcon id="search" />
-              <span className="mono-rail-item-label">{t('mono.nav.palette')}</span>
+              <span className="mono-rail-item-label">{t('palette.title')}</span>
               <kbd className="mono-rail-kbd">⌘K</kbd>
             </button>
           )}

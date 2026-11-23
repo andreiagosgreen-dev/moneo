@@ -414,12 +414,11 @@ export default function MonoFocus({
             type="button"
             className="atm-preset"
             aria-pressed={focusMin === m && mode === 'focus'}
-            aria-label={minLabel(m)}
             title={m === POMODORO_MIN ? t('mono.focus.pomodoroClassic') : undefined}
             disabled={running}
             onClick={() => onPreset(m)}
           >
-            {fmtNum(m)}m
+            {minLabel(m)}
           </button>
         ))}
         <button
@@ -442,13 +441,12 @@ export default function MonoFocus({
                 type="button"
                 className="atm-preset"
                 aria-pressed={focusMin === m && mode === 'focus'}
-                aria-label={minLabel(m)}
                 onClick={() => {
                   onPreset(m);
                   setCustomOpen(false);
                 }}
               >
-                {fmtNum(m)}m
+                {minLabel(m)}
               </button>
             ))}
           </div>
