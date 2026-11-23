@@ -95,9 +95,11 @@ test.describe('clean first run', () => {
   });
 
   test('Settings wipes everything saved on this device', async ({ page, isMobile }) => {
-    await page.goto('/');
-    await expect(page.getByRole('tab', { name: 'Today', exact: true })).toBeVisible();
-    await page.evaluate(() => {
+    await page.addInitScript(() => {
+      // Seed before React loads its stores. The test's reset reload must stay empty.
+      const seedKey = 'moneo-e2e:seeded-reset-test';
+      if (sessionStorage.getItem(seedKey)) return;
+      sessionStorage.setItem(seedKey, '1');
       localStorage.setItem(
         'moneo:projects',
         JSON.stringify([
@@ -115,7 +117,7 @@ test.describe('clean first run', () => {
         JSON.stringify([{ id: 's-e2e', at: Date.now(), min: 25 }]),
       );
     });
-    await page.reload();
+    await page.goto('/');
     await page.getByRole('tab', { name: 'Projects', exact: true }).click();
     await expect(page.getByText('Leftover project').first()).toBeVisible();
 
