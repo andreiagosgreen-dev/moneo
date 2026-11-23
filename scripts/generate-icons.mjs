@@ -23,37 +23,39 @@ import sharp from 'sharp';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const OUT = join(here, '..', 'public');
-const MARK = join(OUT, 'brand', 'moneo-mark-1200.png');
-const LOGO = join(OUT, 'brand', 'moneo-logo-1200.png');
+const MARK = join(OUT, 'brand', 'moneo-mark.svg');
 
 await mkdir(OUT, { recursive: true });
 
-/** Sample a near-edge pixel so OG / maskable bg matches the mark plate. */
-async function sampleBg(path) {
-  const { data } = await sharp(path)
-    .ensureAlpha()
-    .extract({ left: 8, top: 8, width: 1, height: 1 })
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-  return { r: data[0], g: data[1], b: data[2], alpha: 1 };
+/** Brand obsidian plate — matches public/brand/moneo-mark.svg and the app background. */
+const PLATE = { r: 7, g: 11, b: 20, alpha: 1 };
+
+/** The mark is a vector: rasterise it crisp at any target size. */
+const markSharp = () => sharp(MARK, { density: 1200 });
+
+async function sampleBg() {
+  return PLATE;
 }
 
-async function writeResized(name, size, { fit = 'cover' } = {}) {
+async function writeResized(name, size) {
   const file = join(OUT, name);
-  await sharp(MARK).resize(size, size, { fit, position: 'centre' }).png().toFile(file);
+  await markSharp()
+    .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png()
+    .toFile(file);
   console.log(`✓ ${name} (${size}×${size})`);
 }
 
 /**
  * Maskable icons need ~20% safe padding around the glyph.
- * Full-bleed plate from mark bg + inset mark.
+ * Full-bleed plate + inset mark.
  */
 async function writeMaskable(name, size) {
   const pad = Math.round(size * 0.18);
   const inner = size - pad * 2;
-  const bg = await sampleBg(MARK);
-  const inset = await sharp(MARK)
-    .resize(inner, inner, { fit: 'cover', position: 'centre' })
+  const bg = await sampleBg();
+  const inset = await markSharp()
+    .resize(inner, inner, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer();
   await sharp({
@@ -65,68 +67,35 @@ async function writeMaskable(name, size) {
   console.log(`✓ ${name} (${size}×${size}, maskable)`);
 }
 
-/** 1200×630 social card: dark plate + mark + centered wordmark from logo. */
+/** 1200×630 social card: obsidian plate + geometric mark + "Moneo" wordmark + tagline. */
 async function writeOg() {
   const W = 1200;
   const H = 630;
-  const bg = await sampleBg(MARK);
-  const markSize = 360;
-  const markBuf = await sharp(MARK)
-    .resize(markSize, markSize, { fit: 'cover', position: 'centre' })
+  const markSize = 300;
+  const markBuf = await markSharp()
+    .resize(markSize, markSize, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer();
 
-  // Logo is square (mark + wordmark on cream). Crop lower third ≈ wordmark,
-  // then flatten onto the dark plate so we avoid a cream box.
-  const logoMeta = await sharp(LOGO).metadata();
-  const lw = logoMeta.width ?? 1200;
-  const lh = logoMeta.height ?? 1200;
-  const cropTop = Math.round(lh * 0.62);
-  const cropH = Math.max(1, lh - cropTop);
-  const wordW = 420;
-  const wordH = Math.round((wordW * cropH) / lw);
-  const wordBuf = await sharp(LOGO)
-    .extract({ left: 0, top: cropTop, width: lw, height: cropH })
-    .resize(wordW, wordH, { fit: 'fill' })
-    .ensureAlpha()
-    // Drop near-cream pixels so only the green wordmark remains.
-    .raw()
-    .toBuffer({ resolveWithObject: true })
-    .then(({ data, info }) => {
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        // Cream / paper plate → transparent
-        if (r > 220 && g > 210 && b > 190) {
-          data[i + 3] = 0;
-          continue;
-        }
-        // Dark forest wordmark → soft cream so it reads on the dark plate
-        const ink = 1 - (r + g + b) / (3 * 255);
-        data[i] = 238;
-        data[i + 1] = 241;
-        data[i + 2] = 232;
-        data[i + 3] = Math.round(Math.min(255, data[i + 3] * (0.35 + ink * 0.65)));
-      }
-      return sharp(data, {
-        raw: { width: info.width, height: info.height, channels: 4 },
-      })
-        .png()
-        .toBuffer();
-    });
+  const textSvg = Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="300">
+      <text x="0" y="132" font-family="Inter, Helvetica, Arial, sans-serif" font-size="128" font-weight="800" fill="#f2f6ff" letter-spacing="-3">Moneo</text>
+      <text x="4" y="196" font-family="Inter, Helvetica, Arial, sans-serif" font-size="34" font-weight="600" fill="#7dd3fc">Plan. Focus. Move. Grow.</text>
+      <text x="4" y="248" font-family="Inter, Helvetica, Arial, sans-serif" font-size="26" font-weight="500" fill="#93a7c6">One system instead of four apps · moneo.bond</text>
+    </svg>`,
+  );
 
-  const markLeft = 140;
+  const markLeft = 130;
   const markTop = Math.round((H - markSize) / 2);
-  const wordLeft = 560;
-  const wordTop = Math.round((H - wordH) / 2);
+  const textLeft = 490;
+  const textTop = Math.round((H - 300) / 2);
 
   await sharp({
-    create: { width: W, height: H, channels: 4, background: bg },
+    create: { width: W, height: H, channels: 4, background: PLATE },
   })
     .composite([
       { input: markBuf, left: markLeft, top: markTop },
-      { input: wordBuf, left: wordLeft, top: wordTop },
+      { input: textSvg, left: textLeft, top: textTop },
     ])
     .png()
     .toFile(join(OUT, 'og.png'));
