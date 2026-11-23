@@ -18,6 +18,13 @@ const authState = vi.hoisted(() => ({
   user: null as { userId: string } | null,
 }));
 
+const resolvePortal = vi.hoisted(() => vi.fn<() => Promise<string>>());
+
+vi.mock('../lib/billing/lemonSqueezy', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../lib/billing/lemonSqueezy')>()),
+  resolveCustomerPortalUrl: resolvePortal,
+}));
+
 vi.mock('../mono/MonoRankDiscount', () => ({
   default: () => null,
 }));
@@ -79,6 +86,7 @@ afterEach(() => {
   authState.isPro = false;
   authState.planId = 'free';
   authState.user = null;
+  resolvePortal.mockReset();
 });
 
 describe('PricingPage (/pricing)', () => {
@@ -118,6 +126,30 @@ describe('PricingPage (/pricing)', () => {
     authState.planId = 'pro-monthly';
     authState.user = { userId: 'u-1' };
     expect(renderPage('en')).toContain('Manage subscription');
+  });
+
+  it('lets a paying subscriber open the portal or reach the refund policy directly', async () => {
+    authState.isPro = true;
+    authState.planId = 'pro-monthly';
+    authState.user = { userId: 'u-1' };
+    const portalUrl = 'https://moneo.lemonsqueezy.com/billing';
+    resolvePortal.mockResolvedValue(portalUrl);
+    const open = vi.spyOn(window, 'open').mockReturnValue({ opener: window } as Window);
+    try {
+      renderPage('en');
+      const refund = [...container!.querySelectorAll('a')].find(
+        (link) => link.textContent === 'Request a refund',
+      );
+      expect(refund?.getAttribute('href')).toBe('/refund');
+      const manage = [...container!.querySelectorAll('button')].find(
+        (button) => button.textContent === 'Manage or cancel',
+      );
+      expect(manage).toBeDefined();
+      await act(async () => manage!.click());
+      expect(open).toHaveBeenCalledWith(portalUrl, '_blank');
+    } finally {
+      open.mockRestore();
+    }
   });
 
   it('sends a logged-out buyer to sign-in with the chosen plan — no alert()', () => {

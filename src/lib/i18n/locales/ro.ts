@@ -1041,6 +1041,8 @@ export const ro: Record<TKey, string> = {
   'pay.upgrade': 'Treci la Pro',
   'pay.note': 'Plată securizată prin Lemon Squeezy. Anulezi oricând din contul tău.',
   'pay.manage': 'Gestionează abonamentul',
+  'pay.manageAction': 'Gestionează sau anulează',
+  'pay.requestRefund': 'Cere rambursare',
   'pay.manageTitle': 'Schimbă planul, actualizează cardul sau anulează',
   'pay.portalError': 'Nu am putut deschide portalul. Încearcă din nou.',
   'pay.resumeTitle': 'Ești conectat — finalizează trecerea la Pro',

@@ -1040,6 +1040,8 @@ export const uk: Record<TKey, string> = {
   'pay.upgrade': 'Перейти на Pro',
   'pay.note': 'Безпечна оплата через Lemon Squeezy. Скасувати можна будь-коли у вашому акаунті.',
   'pay.manage': 'Керування підпискою',
+  'pay.manageAction': 'Керувати або скасувати',
+  'pay.requestRefund': 'Запросити повернення коштів',
   'pay.manageTitle': 'Змінити план, оновити спосіб оплати або скасувати',
   'pay.portalError': 'Не вдалося відкрити портал. Спробуйте ще раз.',
   'pay.resumeTitle': 'Ви увійшли — завершіть перехід на Pro',

@@ -205,7 +205,7 @@ export default function CabinetPage() {
           )}
           <div className="mt-4">
             <Suspense fallback={null}>
-              <PricingCard />
+              <PricingCard showSubscriptionActions={false} />
             </Suspense>
           </div>
         </section>

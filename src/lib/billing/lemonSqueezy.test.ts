@@ -143,6 +143,20 @@ describe('fallbackCustomerPortalUrl / resolveCustomerPortalUrl', () => {
       'https://moneo.lemonsqueezy.com/billing',
     );
   });
+
+  it('opens the email login portal when the signed request stalls', async () => {
+    configureEnv({ store: 's1', base: BASE });
+    vi.useFakeTimers();
+    try {
+      const fetchFn = vi.fn<typeof fetch>(() => new Promise(() => {}));
+      const portal = resolveCustomerPortalUrl(async () => 'jwt', fetchFn);
+      await vi.advanceTimersByTimeAsync(5_000);
+      await expect(portal).resolves.toBe('https://moneo.lemonsqueezy.com/billing');
+      expect(fetchFn.mock.calls[0]?.[1]?.signal?.aborted).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
 
 describe('getPricingPlans', () => {

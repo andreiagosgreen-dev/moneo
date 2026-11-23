@@ -177,12 +177,14 @@ function isHttpsUrl(value: unknown): value is string {
 export async function requestCustomerPortalUrl(
   getAccessToken: () => Promise<string | null>,
   fetchFn: typeof fetch = fetch,
+  signal?: AbortSignal,
 ): Promise<CustomerPortalResult> {
   try {
     const token = await getAccessToken();
-    if (!token) return { ok: false, url: null };
+    if (!token || signal?.aborted) return { ok: false, url: null };
     const res = await fetchFn('/api/billing/portal', {
       headers: { Authorization: `Bearer ${token}` },
+      signal,
     });
     if (!res.ok) return { ok: false, url: null };
     const body = (await res.json()) as { url?: unknown };
@@ -202,8 +204,22 @@ export async function resolveCustomerPortalUrl(
   getAccessToken: () => Promise<string | null>,
   fetchFn: typeof fetch = fetch,
 ): Promise<string> {
-  const signed = await requestCustomerPortalUrl(getAccessToken, fetchFn);
-  return signed.ok && signed.url ? signed.url : fallbackCustomerPortalUrl();
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const signed = await Promise.race([
+      requestCustomerPortalUrl(getAccessToken, fetchFn, controller.signal),
+      new Promise<null>((resolve) => {
+        timer = setTimeout(() => {
+          controller.abort();
+          resolve(null);
+        }, 5_000);
+      }),
+    ]);
+    return signed?.url ?? fallbackCustomerPortalUrl();
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /** Resolve the Supabase access token for the portal call. Null when offline. */

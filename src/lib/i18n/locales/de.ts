@@ -1038,6 +1038,8 @@ export const de: Record<TKey, string> = {
   'pay.upgrade': 'Upgrade',
   'pay.note': 'Sichere Zahlung über Lemon Squeezy. Jederzeit in deinem Konto kündbar.',
   'pay.manage': 'Abo verwalten',
+  'pay.manageAction': 'Verwalten oder kündigen',
+  'pay.requestRefund': 'Erstattung beantragen',
   'pay.manageTitle': 'Plan wechseln, Zahlungsmethode ändern oder kündigen',
   'pay.portalError': 'Portal konnte nicht geöffnet werden. Bitte erneut versuchen.',
   'pay.resumeTitle': 'Du bist angemeldet — schließe dein Upgrade ab',

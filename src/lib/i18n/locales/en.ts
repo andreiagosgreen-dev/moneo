@@ -1046,6 +1046,8 @@ export const en = {
   'pay.upgrade': 'Upgrade',
   'pay.note': 'Secure checkout by Lemon Squeezy. Cancel anytime from your account.',
   'pay.manage': 'Manage subscription',
+  'pay.manageAction': 'Manage or cancel',
+  'pay.requestRefund': 'Request a refund',
   'pay.manageTitle': 'Change plan, update your payment method or cancel',
   'pay.portalError': 'Could not open the subscription portal. Please try again.',
   'pay.resumeTitle': 'You’re signed in — finish your upgrade',

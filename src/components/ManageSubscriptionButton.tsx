@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import { getSupabaseAccessToken, resolveCustomerPortalUrl } from '../lib/billing/lemonSqueezy';
 import { openPaymentPage } from '../lib/links';
@@ -33,11 +34,13 @@ function Spinner() {
 export default function ManageSubscriptionButton() {
   const { t } = useI18n();
   const [busy, setBusy] = useState(false);
+  const portalButton = useRef<HTMLButtonElement>(null);
 
   const open = async () => {
     if (busy) return;
     setBusy(true);
     const url = await resolveCustomerPortalUrl(getSupabaseAccessToken);
+    if (!portalButton.current?.isConnected) return;
     setBusy(false);
     // The await can cost the click's popup permission — same tab then.
     openPaymentPage(url);
@@ -45,19 +48,30 @@ export default function ManageSubscriptionButton() {
 
   return (
     <div className="rounded-xl border border-line bg-ink/50 px-4 py-3">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="text-[13px] font-semibold text-cream">{t('pay.manage')}</div>
-          <div className="mt-0.5 truncate text-[11px] text-faint">{t('pay.manageTitle')}</div>
+          <div className="mt-0.5 text-[12px] leading-relaxed text-sage">{t('pay.manageTitle')}</div>
         </div>
-        <button
-          onClick={() => void open()}
-          disabled={busy}
-          className="press btn-ghost flex h-9 shrink-0 items-center gap-2 rounded-lg px-3 font-mono text-[12px] disabled:opacity-50"
-        >
-          {busy ? <Spinner /> : null}
-          {t('pay.manage')}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            ref={portalButton}
+            type="button"
+            onClick={() => void open()}
+            disabled={busy}
+            aria-busy={busy}
+            className="press btn-ghost inline-flex min-h-11 items-center gap-2 rounded-lg px-3 font-mono text-[12px] disabled:opacity-50"
+          >
+            {busy ? <Spinner /> : null}
+            {t('pay.manageAction')}
+          </button>
+          <Link
+            to="/refund"
+            className="press inline-flex min-h-11 items-center rounded-lg px-2 text-[12px] font-semibold text-cream underline underline-offset-2"
+          >
+            {t('pay.requestRefund')}
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -1039,6 +1039,8 @@ export const fr: Record<TKey, string> = {
   'pay.upgrade': 'Passer à Pro',
   'pay.note': 'Paiement sécurisé via Lemon Squeezy. Résiliable à tout moment depuis votre compte.',
   'pay.manage': 'Gérer l’abonnement',
+  'pay.manageAction': 'Gérer ou résilier',
+  'pay.requestRefund': 'Demander un remboursement',
   'pay.manageTitle': 'Changer de formule, mettre à jour le paiement ou résilier',
   'pay.portalError': 'Impossible d’ouvrir le portail. Réessayez.',
   'pay.resumeTitle': 'Vous êtes connecté — terminez votre passage à Pro',

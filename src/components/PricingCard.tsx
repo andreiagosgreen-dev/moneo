@@ -50,7 +50,11 @@ function StarIcon() {
   );
 }
 
-export default function PricingCard() {
+export default function PricingCard({
+  showSubscriptionActions = true,
+}: {
+  showSubscriptionActions?: boolean;
+}) {
   const { t } = useI18n();
   const auth = useAuth();
   const plans = PRICING_PLANS_DISPLAY;
@@ -155,7 +159,7 @@ export default function PricingCard() {
         })}
       </ul>
 
-      {hasPaidSub && <ManageSubscriptionButton />}
+      {hasPaidSub && showSubscriptionActions && <ManageSubscriptionButton />}
 
       {payError && (
         <p role="alert" className="mono-note mono-note-danger">

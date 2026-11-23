@@ -1041,6 +1041,8 @@ export const ru: Record<TKey, string> = {
   'pay.note':
     'Безопасная оплата через Lemon Squeezy. Отменить можно в любой момент в вашем аккаунте.',
   'pay.manage': 'Управление подпиской',
+  'pay.manageAction': 'Управлять или отменить',
+  'pay.requestRefund': 'Запросить возврат',
   'pay.manageTitle': 'Сменить план, обновить способ оплаты или отменить',
   'pay.portalError': 'Не удалось открыть портал. Попробуйте ещё раз.',
   'pay.resumeTitle': 'Вы вошли — завершите переход на Pro',
