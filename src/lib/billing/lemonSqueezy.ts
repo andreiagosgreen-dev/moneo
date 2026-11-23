@@ -177,12 +177,14 @@ function isHttpsUrl(value: unknown): value is string {
 export async function requestCustomerPortalUrl(
   getAccessToken: () => Promise<string | null>,
   fetchFn: typeof fetch = fetch,
+  signal?: AbortSignal,
 ): Promise<CustomerPortalResult> {
   try {
     const token = await getAccessToken();
-    if (!token) return { ok: false, url: null };
+    if (!token || signal?.aborted) return { ok: false, url: null };
     const res = await fetchFn('/api/billing/portal', {
       headers: { Authorization: `Bearer ${token}` },
+      signal,
     });
     if (!res.ok) return { ok: false, url: null };
     const body = (await res.json()) as { url?: unknown };
@@ -202,8 +204,22 @@ export async function resolveCustomerPortalUrl(
   getAccessToken: () => Promise<string | null>,
   fetchFn: typeof fetch = fetch,
 ): Promise<string> {
-  const signed = await requestCustomerPortalUrl(getAccessToken, fetchFn);
-  return signed.ok && signed.url ? signed.url : fallbackCustomerPortalUrl();
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const signed = await Promise.race([
+      requestCustomerPortalUrl(getAccessToken, fetchFn, controller.signal),
+      new Promise<null>((resolve) => {
+        timer = setTimeout(() => {
+          controller.abort();
+          resolve(null);
+        }, 5_000);
+      }),
+    ]);
+    return signed?.url ?? fallbackCustomerPortalUrl();
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /** Resolve the Supabase access token for the portal call. Null when offline. */
@@ -217,5 +233,42 @@ export async function getSupabaseAccessToken(): Promise<string | null> {
     return typeof token === 'string' && token.length > 0 ? token : null;
   } catch {
     return null;
+  }
+}
+
+export type SubscriptionAction = 'cancel' | 'resume';
+
+export interface SubscriptionActionResponse {
+  ok: boolean;
+  status: string | null;
+  endsAt: string | null;
+}
+
+/** Cancel or resume the signed-in buyer's subscription without leaving Moneo. */
+export async function requestSubscriptionAction(
+  action: SubscriptionAction,
+  getAccessToken: () => Promise<string | null> = getSupabaseAccessToken,
+  fetchFn: typeof fetch = fetch,
+): Promise<SubscriptionActionResponse> {
+  try {
+    const token = await getAccessToken();
+    if (!token) return { ok: false, status: null, endsAt: null };
+    const res = await fetchFn('/api/billing/subscription', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ action }),
+    });
+    if (!res.ok) return { ok: false, status: null, endsAt: null };
+    const body = (await res.json()) as { ok?: unknown; status?: unknown; endsAt?: unknown };
+    return {
+      ok: body.ok === true,
+      status: typeof body.status === 'string' ? body.status : null,
+      endsAt: typeof body.endsAt === 'string' ? body.endsAt : null,
+    };
+  } catch {
+    return { ok: false, status: null, endsAt: null };
   }
 }

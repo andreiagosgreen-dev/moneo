@@ -16,7 +16,7 @@ import { handleEvent, type AnalyticsDataset } from './events';
 import { handleUnsubscribe, handleWelcome, runReminders, runTrialEmails } from './emails';
 import { handleEntitlement } from './entitlement';
 import { handleLemonSqueezyWebhook } from './lemonWebhook';
-import { handleCustomerPortal } from './portal';
+import { handleCustomerPortal, handleSubscriptionAction } from './portal';
 import { handleRankDiscount, type DiscountKV } from './discount';
 import { handleAIPlan } from './ai';
 import { handleAIWorkout } from './aiWorkout';
@@ -241,6 +241,9 @@ export default {
     // Same-origin, JWT-gated; the Lemon Squeezy API key never leaves the Worker.
     if (url.pathname === '/api/billing/portal') {
       return handleCustomerPortal(request, env);
+    }
+    if (url.pathname === '/api/billing/subscription') {
+      return handleSubscriptionAction(request, env);
     }
 
     // Rank discount codes: JWT-gated, rank recomputed from synced data,

@@ -82,7 +82,7 @@ export const legalRo: LegalSet = {
         heading: '7. Reînnoirea automată și anularea',
         blocks: [
           'Abonamentele se reînnoiesc automat la sfârșitul fiecărei perioade de facturare (lunar sau anual) și se plătesc cu metoda ta de plată până le anulezi.',
-          'Poți anula oricând din portalul clientului (Cont → Gestionează abonamentul) sau scriindu-ne la {email}. Anularea oprește reînnoirile viitoare; păstrezi Pro până la sfârșitul perioadei deja plătite, apoi contul revine la Free.',
+          'Poți anula oricând direct în Moneo (Cont → Gestionează abonamentul) sau scriindu-ne la {email}. Anularea oprește reînnoirile viitoare; păstrezi Pro până la sfârșitul perioadei deja plătite, apoi contul revine la Free.',
           'Dacă schimbăm prețul Pro, te anunțăm din timp. Noul preț se aplică doar de la următoarea reînnoire, iar tu poți anula înainte să intre în vigoare.',
         ],
       },
@@ -304,7 +304,7 @@ export const legalRo: LegalSet = {
           {
             list: [
               'Ștergerea datelor de pe dispozitiv: Setări → „Șterge toate datele de pe acest dispozitiv”.',
-              'Ștergerea contului și a datelor din cloud: Cont → „Șterge contul”. Dacă ai un abonament activ, anulează-l întâi din portalul clientului.',
+              'Ștergerea contului și a datelor din cloud: Cont → „Șterge contul”. Dacă ai un abonament activ, anulează-l întâi din Cont → Gestionează abonamentul.',
               'Acces și portabilitate: din Setări, oricine își poate exporta gratuit toate datele Moneo într-un fișier JSON și le poate importa apoi pe alt dispozitiv. Pro adaugă formate de raport în plus (CSV/PDF). Pentru orice altă cerere, scrie-ne la {email}.',
               'Oprești sincronizarea în cloud deconectându-te; datele rămân pe dispozitivul tău.',
             ],
@@ -398,7 +398,7 @@ export const legalRo: LegalSet = {
         blocks: [
           {
             list: [
-              'Anulare: oprește reînnoirile viitoare. Păstrezi Pro până la sfârșitul perioadei deja plătite. Nu se returnează bani. Poți anula oricând din portalul clientului (Cont → Gestionează abonamentul).',
+              'Anulare: oprește reînnoirile viitoare. Păstrezi Pro până la sfârșitul perioadei deja plătite. Nu se returnează bani. Poți anula oricând direct în Moneo (Cont → Gestionează abonamentul).',
               `Rambursare: îți returnează banii pentru o plată făcută în ultimele ${REFUND_DAYS} zile și oprește Pro imediat.`,
             ],
           },

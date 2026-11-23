@@ -1038,7 +1038,31 @@ export const de: Record<TKey, string> = {
   'pay.upgrade': 'Upgrade',
   'pay.note': 'Sichere Zahlung über Lemon Squeezy. Jederzeit in deinem Konto kündbar.',
   'pay.manage': 'Abo verwalten',
-  'pay.manageTitle': 'Plan wechseln, Zahlungsmethode ändern oder kündigen',
+  'pay.manageAction': 'Verwalten oder kündigen',
+  'pay.requestRefund': 'Erstattung beantragen',
+  'pay.manageTitle': 'Plan, Abrechnungsdatum und Kündigung direkt in Moneo verwalten',
+  'pay.manageDialogTitle': 'Dein Abonnement',
+  'pay.closeManageDialog': 'Abonnementverwaltung schließen',
+  'pay.currentPlan': 'Aktueller Plan',
+  'pay.nextRenewal': 'Nächste Verlängerung',
+  'pay.proAccessUntil': 'Pro-Zugang bis',
+  'pay.cancelSubscription': 'Abonnement kündigen',
+  'pay.resumeSubscription': 'Abonnement fortsetzen',
+  'pay.cancelConfirmTitle': 'Künftige Verlängerungen stoppen?',
+  'pay.cancelConfirmBody': 'Pro bleibt bis zum Ende des bereits bezahlten Zeitraums aktiv.',
+  'pay.cancelConfirmBodyDate':
+    'Pro bleibt bis {date} aktiv. Es erfolgt keine weitere Verlängerung.',
+  'pay.keepSubscription': 'Abonnement behalten',
+  'pay.confirmCancellation': 'Kündigung bestätigen',
+  'pay.cancelledSuccess':
+    'Die Verlängerung wurde gestoppt. Dein bezahlter Pro-Zugang bleibt bis zum angezeigten Datum aktiv.',
+  'pay.resumedSuccess':
+    'Dein Abonnement ist wieder aktiv und verlängert sich am angezeigten Datum.',
+  'pay.subscriptionActionError':
+    'Das Abonnement konnte nicht aktualisiert werden. Bitte versuche es erneut.',
+  'pay.paymentSettings': 'Zahlungsmethode und Plan',
+  'pay.paymentSettingsHint':
+    'Karten- und Planänderungen öffnen sich auf der geschützten Seite des Zahlungsanbieters.',
   'pay.portalError': 'Portal konnte nicht geöffnet werden. Bitte erneut versuchen.',
   'pay.resumeTitle': 'Du bist angemeldet — schließe dein Upgrade ab',
   'pay.resumeCta': 'Weiter zur Kasse',
@@ -2274,7 +2298,7 @@ export const de: Record<TKey, string> = {
   'account.subscriptionStatus': 'Abo',
   'account.manageSubscription': 'Abo verwalten',
   'account.deleteSubWarning':
-    'Du hast ein aktives Pro-Abo. Kündige es zuerst im Abo-Portal, damit du sicher nicht erneut belastet wirst.',
+    'Du hast ein aktives Pro-Abo. Schließe diese Bestätigung und kündige es zuerst im Abo-Bereich oben.',
   'account.deleteSubPortal': 'Abo-Portal öffnen',
   'pricingPage.title': 'Einfache, ehrliche Preise',
   'pricingPage.subtitle':

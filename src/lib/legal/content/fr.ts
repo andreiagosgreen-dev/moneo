@@ -82,7 +82,7 @@ export const legalFr: LegalSet = {
         heading: '7. Renouvellement automatique et résiliation',
         blocks: [
           'Les abonnements se renouvellent automatiquement à la fin de chaque période de facturation (mensuelle ou annuelle) et sont prélevés sur ton moyen de paiement jusqu’à ce que tu résilies.',
-          'Tu peux résilier à tout moment depuis le portail client (Compte → Gérer l’abonnement) ou en écrivant à {email}. La résiliation arrête les renouvellements futurs ; tu gardes Pro jusqu’à la fin de la période déjà payée, puis ton compte repasse en formule gratuite.',
+          'Tu peux résilier à tout moment directement dans Moneo (Compte → Gérer l’abonnement) ou en écrivant à {email}. La résiliation arrête les renouvellements futurs ; tu gardes Pro jusqu’à la fin de la période déjà payée, puis ton compte repasse en formule gratuite.',
           'Si nous modifions le prix de Pro, nous te prévenons à l’avance. Le nouveau prix ne s’applique qu’à partir de ton prochain renouvellement, et tu peux résilier avant son entrée en vigueur.',
         ],
       },
@@ -304,7 +304,7 @@ export const legalFr: LegalSet = {
           {
             list: [
               'Supprimer les données de cet appareil : Réglages → « Supprimer toutes les données de cet appareil ».',
-              'Supprimer ton compte et tes données cloud : Compte → « Supprimer le compte ». Si tu as un abonnement actif, résilie-le d’abord dans le portail client.',
+              'Supprimer ton compte et tes données cloud : Compte → « Supprimer le compte ». Si tu as un abonnement actif, résilie-le d’abord via Compte → Gérer l’abonnement.',
               'Accès et portabilité : dans les Réglages, chacun peut exporter gratuitement toutes ses données Moneo dans un fichier JSON et les importer sur un autre appareil. Pro ajoute des formats de rapport supplémentaires (CSV/PDF). Pour toute autre demande, écris à {email}.',
               'Arrête la synchronisation cloud en te déconnectant ; tes données restent sur ton appareil.',
             ],
@@ -398,7 +398,7 @@ export const legalFr: LegalSet = {
         blocks: [
           {
             list: [
-              'Résilier : arrête les renouvellements futurs. Tu gardes Pro jusqu’à la fin de la période déjà payée. Aucun argent n’est rendu. Tu peux résilier à tout moment dans le portail client (Compte → Gérer l’abonnement).',
+              'Résilier : arrête les renouvellements futurs. Tu gardes Pro jusqu’à la fin de la période déjà payée. Aucun argent n’est rendu. Tu peux résilier à tout moment directement dans Moneo (Compte → Gérer l’abonnement).',
               `Remboursement : rend l’argent d’un paiement effectué au cours des ${REFUND_DAYS} derniers jours et met fin à Pro immédiatement.`,
             ],
           },

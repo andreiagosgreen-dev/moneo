@@ -12,7 +12,6 @@ import {
   isCancelledButActive,
   type SubscriptionInfo,
 } from '../lib/cloud/subscriptionRepository';
-import { LEMON_MY_ORDERS_URL, buildCustomerPortalUrl } from '../lib/billing/lemonSqueezy';
 import ManageSubscriptionButton from './ManageSubscriptionButton';
 import { computeXp } from '../lib/xp';
 import { computeBadges } from '../lib/badges';
@@ -63,7 +62,6 @@ export default function CabinetPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const portalUrl = buildCustomerPortalUrl();
   const { xp, badges } = useMemo(() => {
     const input = {
       history: loadHistory(),
@@ -205,7 +203,7 @@ export default function CabinetPage() {
           )}
           <div className="mt-4">
             <Suspense fallback={null}>
-              <PricingCard />
+              <PricingCard showSubscriptionActions={false} />
             </Suspense>
           </div>
         </section>
@@ -276,15 +274,7 @@ export default function CabinetPage() {
                   role="note"
                   className="mt-2 rounded-lg border border-tomato/30 px-3 py-2 text-[11px] leading-relaxed text-cream"
                 >
-                  {t('account.deleteSubWarning')}{' '}
-                  <a
-                    href={portalUrl ?? LEMON_MY_ORDERS_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-semibold text-tomato underline underline-offset-2"
-                  >
-                    {t('account.deleteSubPortal')}
-                  </a>
+                  {t('account.deleteSubWarning')}
                 </p>
               )}
               <div className="mt-3 flex gap-2">
