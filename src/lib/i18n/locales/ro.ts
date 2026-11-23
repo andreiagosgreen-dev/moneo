@@ -1200,6 +1200,7 @@ export const ro: Record<TKey, string> = {
   'horizon.short.year10': '10a',
   'horizon.short.life': 'Viață',
   'mono.nav.aria': 'Navigare principală',
+  'mono.nav.shortcuts': 'Scurtături',
   'mono.nav.account': 'Cont',
   'mono.nav.settings': 'Setări',
   'mono.nav.palette': 'Paletă',

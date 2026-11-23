@@ -4,13 +4,14 @@ import { loadBoot } from './app/boot';
 import { useFocusExtras } from './app/useFocusExtras';
 import { useAppToast } from './app/useAppToast';
 import { useWelcomeEmail } from './app/useWelcomeEmail';
-import MonoNav, { MONO_NAV_ITEMS, type MonoTab } from './mono/MonoNav';
+import MonoNav, { MONO_NAV_ITEMS, MonoCockpitRail, type MonoTab } from './mono/MonoNav';
 import MonoMore from './mono/MonoMore';
 import MonoHead from './mono/MonoHead';
 import MonoEmpty from './mono/MonoEmpty';
 import MonoBtn from './mono/MonoBtn';
 import { MonoArt } from './mono/MonoArt';
 import MonoFocus from './mono/MonoFocus';
+import MonoFocusPulse from './mono/MonoFocusPulse';
 import MonoAzi from './mono/MonoAzi';
 import MonoHabitsCheckin from './mono/MonoHabitsCheckin';
 import MonoWeek from './mono/MonoWeek';
@@ -1249,7 +1250,7 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
               data-mode={mode}
               data-focusing={running}
               data-atmosphere={paintedAtmosphere}
-              className="atm-root relative min-h-screen overflow-hidden"
+              className="atm-root mono-cockpit-layout relative min-h-screen overflow-hidden"
             >
               <MonoVisualEngine focusing={running} />
               <p role="status" aria-live="polite" className="sr-only">
@@ -1262,7 +1263,9 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                 onNewSession={() => goNav('focus')}
                 onOpenPalette={() => setPaletteOpen(true)}
                 onOpenAi={() => setAiDrawerOpen(true)}
+                xpTotal={xp.total}
               />
+              <MonoCockpitRail tab={tab} onTab={goNav} />
               <CommandPalette
                 open={paletteOpen}
                 onClose={() => setPaletteOpen(false)}
@@ -1407,6 +1410,19 @@ export default function App({ initialLocale, initialDictionary }: AppProps) {
                         }}
                         estimate={focusEstimate}
                         onQuickAdd={handleQuickAdd}
+                        bentoBottom={
+                          <MonoFocusPulse
+                            day={todayKey}
+                            habits={habits}
+                            habitLog={habitLog}
+                            workouts={workoutStore.log}
+                            onOpenBody={() => {
+                              setMoveView('recovery');
+                              goNav('move');
+                            }}
+                            onOpenHabits={openTodayHabitsManage}
+                          />
+                        }
                         bentoTop={
                           <MonoHudCore
                             focusMinToday={todayProgress.focusMin}

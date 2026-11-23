@@ -1199,6 +1199,7 @@ export const ru: Record<TKey, string> = {
   'horizon.short.year10': '10л',
   'horizon.short.life': 'Жизнь',
   'mono.nav.aria': 'Основная навигация',
+  'mono.nav.shortcuts': 'Быстрый доступ',
   'mono.nav.account': 'Аккаунт',
   'mono.nav.settings': 'Настройки',
   'mono.nav.palette': 'Палитра',

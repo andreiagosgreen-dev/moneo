@@ -1199,6 +1199,7 @@ export const fr: Record<TKey, string> = {
   'horizon.short.year10': '10a',
   'horizon.short.life': 'Vie',
   'mono.nav.aria': 'Navigation principale',
+  'mono.nav.shortcuts': 'Raccourcis',
   'mono.nav.account': 'Compte',
   'mono.nav.settings': 'Réglages',
   'mono.nav.palette': 'Palette',

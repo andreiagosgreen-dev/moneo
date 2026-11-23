@@ -74,7 +74,7 @@ describe('MonoNav', () => {
     )!;
 
     act(() => {
-      focus.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+      focus.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
     });
 
     expect(onTab).toHaveBeenCalledWith('today');

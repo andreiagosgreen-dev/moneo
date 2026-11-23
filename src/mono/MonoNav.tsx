@@ -1,6 +1,8 @@
 import { lazy, Suspense, useEffect, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import type { TKey } from '../lib/i18n/types';
+import { levelFromXp } from '../lib/xp';
+import { rankLabel } from './rankLabel';
 
 const AccountButton = lazy(() => import('../components/AccountButton'));
 
@@ -158,6 +160,35 @@ const PRIMARY: Item[] = [
 const MOBILE_QUERY = '(max-width: 899px)';
 const MOBILE_MORE_TABS: readonly MonoTab[] = ['plan', 'move', 'growth', 'map', 'graph', 'settings'];
 
+const SHORTCUTS = [
+  ['focus', 'mono.nav.focus'],
+  ['today', 'mono.nav.azi'],
+  ['reports', 'mono.nav.rapoarte'],
+  ['move', 'nav.move'],
+  ['map', 'nav.map'],
+  ['settings', 'mono.nav.settings'],
+] as const;
+
+export function MonoCockpitRail({ tab, onTab }: { tab: MonoTab; onTab: (tab: MonoTab) => void }) {
+  const { t } = useI18n();
+  return (
+    <nav className="mono-cockpit-rail" aria-label={t('mono.nav.shortcuts')}>
+      {SHORTCUTS.map(([id, label]) => (
+        <button
+          key={id}
+          type="button"
+          aria-current={id === tab ? 'page' : undefined}
+          aria-label={t(label)}
+          title={t(label)}
+          onClick={() => onTab(id)}
+        >
+          <MonoTabIcon id={id} />
+        </button>
+      ))}
+    </nav>
+  );
+}
+
 /** Every navigable destination (for the ⌘K palette) — rail items minus the mobile overflow. */
 export const MONO_NAV_ITEMS: ReadonlyArray<{ id: MonoTab; label: TKey }> = [
   ...PRIMARY.filter((it) => it.id !== 'more').map(({ id, label }) => ({ id, label })),
@@ -172,10 +203,19 @@ interface Props {
   onOpenPalette?: () => void;
   /** Opens Moneo AI assistant directly from anywhere. */
   onOpenAi?: () => void;
+  xpTotal?: number;
 }
 
-export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette, onOpenAi }: Props) {
-  const { t } = useI18n();
+export default function MonoNav({
+  tab,
+  onTab,
+  onNewSession,
+  onOpenPalette,
+  onOpenAi,
+  xpTotal,
+}: Props) {
+  const { t, fmtNum } = useI18n();
+  const xp = xpTotal === undefined ? null : levelFromXp(xpTotal);
   const [isMobile, setIsMobile] = useState(
     () =>
       typeof window !== 'undefined' &&
@@ -198,14 +238,11 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette, onOpe
   const isActive = (id: MonoTab): boolean => selectedTab === id;
 
   const onTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
-    const horizontal = event.key === 'ArrowLeft' || event.key === 'ArrowRight';
-    const vertical = event.key === 'ArrowUp' || event.key === 'ArrowDown';
-    const backwards = event.key === 'ArrowLeft' || event.key === 'ArrowUp';
+    const backwards = event.key === 'ArrowLeft';
+    const forwards = event.key === 'ArrowRight';
     const isHome = event.key === 'Home';
     const isEnd = event.key === 'End';
-    if ((!horizontal && !vertical) || (isMobile ? vertical : horizontal)) {
-      if (!isHome && !isEnd) return;
-    }
+    if (!backwards && !forwards && !isHome && !isEnd) return;
 
     const nav = event.currentTarget.closest('.mono-nav');
     if (!nav) return;
@@ -232,12 +269,7 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette, onOpe
   };
 
   return (
-    <nav
-      className="mono-nav"
-      role="tablist"
-      aria-label={t('mono.nav.aria')}
-      aria-orientation={isMobile ? 'horizontal' : 'vertical'}
-    >
+    <nav className="mono-nav">
       <div className="mono-rail-brand">
         <button
           type="button"
@@ -260,6 +292,9 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette, onOpe
 
       <div
         className="mono-rail-primary"
+        role="tablist"
+        aria-label={t('mono.nav.aria')}
+        aria-owns={isMobile ? undefined : 'mono-tab-settings'}
         onWheel={(e) => {
           if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
             e.currentTarget.scrollLeft += e.deltaY;
@@ -321,11 +356,10 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette, onOpe
               type="button"
               onClick={onOpenPalette}
               title={`${t('palette.title')} (⌘K)`}
-              aria-label={t('palette.title')}
               className="mono-nav-item mono-rail-tool mono-rail-palette"
             >
               <MonoTabIcon id="search" />
-              <span className="mono-rail-item-label">{t('mono.nav.palette')}</span>
+              <span className="mono-rail-item-label">{t('palette.title')}</span>
               <kbd className="mono-rail-kbd">⌘K</kbd>
             </button>
           )}
@@ -346,6 +380,19 @@ export default function MonoNav({ tab, onTab, onNewSession, onOpenPalette, onOpe
             <MonoTabIcon id="settings" />
             <span className="mono-rail-item-label">{t('mono.nav.settings')}</span>
           </button>
+          {xp ? (
+            <button type="button" className="mono-cockpit-rank" onClick={() => onTab('growth')}>
+              <span className="mono-top-xp-badge">XP</span>
+              <span className="mono-top-xp-copy">
+                <span className="mono-top-xp-line">
+                  {fmtNum(xp.level)} · <strong>{rankLabel(t, xp.level)}</strong>
+                </span>
+                <span className="mono-top-xp-track" aria-hidden="true">
+                  <span className="mono-top-xp-fill" style={{ width: `${xp.progress * 100}%` }} />
+                </span>
+              </span>
+            </button>
+          ) : null}
         </div>
 
         <button

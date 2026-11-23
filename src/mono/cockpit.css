@@ -1,0 +1,398 @@
+/* Shared dashboard surfaces. Atmospheres still supply the palette. */
+.mono-cockpit-layout {
+  --cockpit-edge: color-mix(in oklab, var(--mono-accent) 34%, var(--mono-border-2));
+  --cockpit-surface: color-mix(in oklab, var(--mono-raised) 88%, var(--mono-bg));
+  --cockpit-inset: color-mix(in oklab, var(--mono-surface) 78%, var(--mono-bg));
+  --cockpit-warm: color-mix(in oklab, #fbbf24 77%, var(--mono-accent));
+  background-image:
+    radial-gradient(
+      circle,
+      color-mix(in oklab, var(--mono-accent) 13%, transparent) 1px,
+      transparent 1.5px
+    ),
+    radial-gradient(
+      ellipse at 68% 12%,
+      color-mix(in oklab, var(--mono-accent) 10%, transparent),
+      transparent 58%
+    );
+  background-size:
+    30px 30px,
+    100% 100%;
+}
+
+.mono-cockpit-layout
+  .mono-shell
+  :is(.mono-card:not(.mono-card-ink), .card, .mono-hud, .atm-aside, .atm-pulse) {
+  border: 1px solid var(--cockpit-edge);
+  border-radius: 20px;
+  background: linear-gradient(145deg, var(--cockpit-surface), var(--cockpit-inset));
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--mono-accent) 8%, transparent);
+}
+
+.mono-cockpit-layout .mono-page-head .mono-eyebrow {
+  color: var(--mono-accent);
+  letter-spacing: 0.12em;
+}
+
+.mono-cockpit-layout :is(.mono-seg-bar, .mono-tabs) {
+  border-color: var(--cockpit-edge);
+  background-color: var(--cockpit-inset);
+}
+
+.mono-cockpit-rail,
+.mono-cockpit-rank {
+  display: none;
+}
+
+@media (min-width: 1060px) {
+  .mono-cockpit-layout .mono-shell {
+    padding-block-start: 74px;
+  }
+
+  .mono-cockpit-layout .mono-shell-inner {
+    padding-inline-start: 86px !important;
+    padding-block-start: 0;
+  }
+
+  .mono-cockpit-layout .mono-nav {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .mono-cockpit-layout .mono-rail-primary {
+    flex: 0 1 auto;
+    padding-inline: 4px;
+    border: 1px solid var(--cockpit-edge);
+    border-radius: 999px;
+    background: var(--cockpit-surface);
+  }
+
+  .mono-cockpit-layout .mono-nav .mono-rail-primary .mono-nav-item {
+    gap: 4px !important;
+    padding-inline: 6px !important;
+  }
+
+  .mono-cockpit-rail {
+    position: fixed;
+    z-index: 40;
+    inset-block-start: clamp(88px, 18svh, 134px);
+    inset-inline-start: max(14px, calc((100vw - 1440px) / 2 + 14px));
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 7px;
+    border: 1px solid var(--cockpit-edge);
+    border-radius: 999px;
+    background: var(--cockpit-surface);
+  }
+
+  .mono-cockpit-rail button {
+    display: grid;
+    place-items: center;
+    inline-size: 38px;
+    block-size: 38px;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    color: var(--mono-muted);
+    cursor: pointer;
+  }
+
+  .mono-cockpit-rail button:is(:hover, [aria-current='page']) {
+    border-color: var(--cockpit-edge);
+    color: var(--mono-accent);
+    background: var(--mono-accent-soft);
+  }
+
+  .mono-cockpit-rail svg {
+    inline-size: 19px;
+    block-size: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.55;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+@media (min-width: 1180px) {
+  .mono-cockpit-rank {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--cockpit-edge);
+    border-radius: 999px;
+    padding: 4px 9px 4px 5px;
+    background: var(--cockpit-inset);
+    color: var(--mono-fg);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .mono-cockpit-rank .mono-top-xp-track {
+    inline-size: 66px;
+    block-size: 3px;
+  }
+}
+
+.atm-cockpit .atm-ring-wrap {
+  inline-size: min(100%, 320px);
+  aspect-ratio: 1;
+  isolation: isolate;
+  margin: 0;
+}
+
+.atm-cockpit .atm-ring {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.atm-cockpit .atm-ring .bar {
+  stroke: url(#atm-ring-grad);
+}
+
+.atm-cockpit .atm-ring-readout {
+  position: absolute;
+  inset: 0;
+  justify-content: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.atm-cockpit .atm-ring-readout .atm-presets {
+  max-inline-size: 72%;
+  margin-block-start: 4px;
+  padding: 3px;
+  pointer-events: auto;
+}
+
+.atm-cockpit .atm-ring-readout .atm-preset {
+  padding-inline: 7px;
+  min-block-size: 27px;
+  font-size: 0.73rem;
+}
+
+.atm-cockpit .atm-time {
+  font-family: var(--mono-font-mono);
+  font-size: clamp(42px, 9vw, 65px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+
+.atm-cockpit .atm-aurora-orb {
+  opacity: 0.34;
+}
+
+.atm-cockpit .atm-stage .atm-start-cta {
+  background: linear-gradient(
+    105deg,
+    var(--mono-accent),
+    var(--mono-accent-2) 68%,
+    var(--cockpit-warm)
+  );
+  color: var(--atm-on, #06101f);
+  min-block-size: 46px;
+  min-inline-size: 205px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.82rem;
+}
+
+.atm-cockpit .atm-bento-right[hidden] {
+  display: none;
+}
+
+.atm-cockpit .atm-bento-right {
+  gap: 14px;
+}
+
+.atm-cockpit .atm-aside {
+  gap: 9px;
+  padding: 13px 16px;
+}
+
+.atm-cockpit .atm-empty-plan {
+  padding-block: 14px 6px;
+}
+
+.atm-cockpit .mono-hud-ch {
+  min-block-size: 0;
+  padding: 7px;
+}
+
+.atm-cockpit .mono-hud-spark {
+  padding-block: 7px;
+}
+
+.atm-cockpit .atm-gauges {
+  inline-size: min(100%, 360px);
+  margin-block: 4px 0;
+  padding-block-start: 7px;
+}
+
+.atm-cockpit .atm-gauge {
+  padding: 4px 6px;
+}
+
+.atm-cockpit .atm-gauge-ring {
+  inline-size: 32px;
+  block-size: 32px;
+}
+
+.atm-pulse {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.atm-pulse-block {
+  min-inline-size: 0;
+}
+
+.atm-pulse-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 3px 6px;
+  inline-size: 100%;
+  min-block-size: 25px;
+  padding: 0 1px;
+  color: var(--mono-muted);
+  text-align: start;
+  font-size: 0.67rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.atm-pulse-heading:hover {
+  color: var(--mono-accent);
+}
+
+.atm-pulse-heading span {
+  color: var(--mono-accent);
+}
+
+.atm-pulse-map,
+.atm-pulse-habits {
+  display: grid;
+  min-block-size: 124px;
+  place-items: center;
+  border: 1px solid var(--mono-border);
+  border-radius: 12px;
+  background: var(--cockpit-inset);
+}
+
+.atm-pulse-map .mono-bmap {
+  inline-size: min(100%, 147px);
+  max-block-size: 116px;
+  padding: 2px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.atm-pulse-habits {
+  align-content: center;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+  padding: 10px;
+}
+
+.atm-pulse-habits span {
+  inline-size: 100%;
+  aspect-ratio: 1;
+  border-radius: 5px;
+  background: var(--mono-panel);
+  border: 1px solid var(--mono-border);
+}
+
+.atm-pulse-habits [data-level='1'] {
+  background: var(--mono-accent);
+}
+
+.atm-pulse-habits [data-level='2'] {
+  background: var(--mono-success);
+}
+
+.atm-pulse-habits [data-level='3'] {
+  background: var(--cockpit-warm);
+}
+
+.atm-pulse-habits [data-today='true'] {
+  outline: 1px solid var(--mono-accent);
+  outline-offset: 1px;
+}
+
+@media (min-width: 1060px) {
+  .atm-cockpit .atm-desk > .mono-page-head {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .atm-root .atm-cockpit .atm-board {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: clamp(16px, 2.3vw, 33px);
+    padding-block-start: 0;
+    align-items: start;
+  }
+
+  .atm-root .atm-cockpit .atm-stage {
+    min-block-size: 0;
+    gap: 9px;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+    padding: clamp(30px, 8svh, 66px) 0 16px;
+  }
+
+  .atm-cockpit .atm-stage::before {
+    display: none;
+  }
+
+  .atm-cockpit .atm-ring-wrap {
+    inline-size: min(100%, clamp(300px, 32vw, 420px));
+  }
+
+  .atm-cockpit .atm-ring-readout {
+    gap: 8px;
+  }
+
+  .atm-cockpit .atm-time {
+    font-size: clamp(58px, 5.8vw, 81px);
+  }
+
+  .atm-cockpit .atm-horizon-grid {
+    bottom: 5%;
+    height: 210px;
+  }
+}
+
+@media (max-width: 420px) {
+  .atm-cockpit .atm-ring-wrap {
+    inline-size: min(100%, 280px);
+  }
+
+  .atm-cockpit .atm-ring-readout .atm-presets {
+    max-inline-size: 77%;
+  }
+
+  .atm-pulse {
+    gap: 8px;
+    padding-inline: 10px;
+  }
+
+  .atm-pulse-habits {
+    padding: 8px;
+    gap: 4px;
+  }
+}

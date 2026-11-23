@@ -1204,6 +1204,7 @@ export const en = {
   'horizon.short.year10': '10y',
   'horizon.short.life': 'Life',
   'mono.nav.aria': 'Main navigation',
+  'mono.nav.shortcuts': 'Shortcuts',
   'mono.nav.account': 'Account',
   'mono.nav.settings': 'Settings',
   'mono.nav.palette': 'Palette',

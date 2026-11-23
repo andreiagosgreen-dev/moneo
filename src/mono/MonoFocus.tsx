@@ -126,7 +126,7 @@ interface Props {
   onQuickAdd?: (text: string) => boolean | void;
   /** Card A (Top-Right Bento): 3-Ring Personal OS HUD + 14D Transformation Chart. */
   bentoTop?: ReactNode;
-  /** Card C (Bottom-Right Bento): Biometric Muscle Scanner + Smart Fuel + Atomic Habits 1%. */
+  /** Workout and habit activity. */
   bentoBottom?: ReactNode;
 }
 
@@ -246,7 +246,7 @@ export default function MonoFocus({
   const beaconX = Number((100 + 86 * Math.cos(progressAngle)).toFixed(2));
   const beaconY = Number((100 + 86 * Math.sin(progressAngle)).toFixed(2));
 
-  const ring = (
+  const ring = (controls?: ReactNode) => (
     <div className={ringClass}>
       {/* Concept 3: Iridescent 3D Aurora Glass Orb Core */}
       <div className="atm-ring-core-glow" aria-hidden="true" />
@@ -371,8 +371,10 @@ export default function MonoFocus({
         <circle className="beacon" cx={beaconX} cy={beaconY} r="4.5" />
       </svg>
       <div className="atm-ring-readout">
-        <span className={`atm-status-pill${running ? ' is-live' : ''}`}>{title}</span>
-        <div className="atm-time" aria-live="polite">
+        <span className={`atm-status-pill${running ? ' is-live' : ''}`} role="status">
+          {title}
+        </span>
+        <div className="atm-time" role="timer">
           {mm}:{ss}
         </div>
         {/* Concept 4: Cyber-Athletic live focus waveform visualizer */}
@@ -387,6 +389,7 @@ export default function MonoFocus({
             />
           ))}
         </div>
+        {controls}
       </div>
     </div>
   );
@@ -404,96 +407,96 @@ export default function MonoFocus({
   };
 
   const presets = (
-    <div className="atm-rhythm">
-      <div className="atm-presets" role="group" aria-label={t('mono.focus.lengthLabel')}>
-        {QUICK_PRESETS.map((m) => (
-          <button
-            key={m}
-            type="button"
-            className="atm-preset"
-            aria-pressed={focusMin === m && mode === 'focus'}
-            aria-label={minLabel(m)}
-            title={m === POMODORO_MIN ? t('mono.focus.pomodoroClassic') : undefined}
-            disabled={running}
-            onClick={() => onPreset(m)}
-          >
-            {fmtNum(m)}m
-          </button>
-        ))}
+    <div className="atm-presets" role="group" aria-label={t('mono.focus.lengthLabel')}>
+      {QUICK_PRESETS.map((m) => (
         <button
+          key={m}
           type="button"
           className="atm-preset"
-          aria-pressed={customOn}
-          aria-expanded={customOpen}
+          aria-pressed={focusMin === m && mode === 'focus'}
+          aria-label={minLabel(m)}
+          title={m === POMODORO_MIN ? t('mono.focus.pomodoroClassic') : undefined}
           disabled={running}
-          onClick={() => setCustomOpen((o) => !o)}
+          onClick={() => onPreset(m)}
         >
-          {customOn ? minLabel(focusMin) : t('mono.focus.custom')}
+          {minLabel(m)}
         </button>
-      </div>
-      {customOpen && !running ? (
-        <div className="atm-custom-pop">
-          <div className="atm-presets atm-presets-extra">
-            {EXTRA_PRESETS.map((m) => (
-              <button
-                key={m}
-                type="button"
-                className="atm-preset"
-                aria-pressed={focusMin === m && mode === 'focus'}
-                aria-label={minLabel(m)}
-                onClick={() => {
-                  onPreset(m);
-                  setCustomOpen(false);
-                }}
-              >
-                {fmtNum(m)}m
-              </button>
-            ))}
-          </div>
-          <form
-            className="atm-custom"
-            onSubmit={(e) => {
-              e.preventDefault();
-              applyCustom();
-            }}
-          >
-            <label htmlFor="mono-focus-custom" className="mono-meta">
-              {t('mono.focus.customLabel', {
-                min: fmtNum(CUSTOM_FOCUS_MIN),
-                max: fmtNum(CUSTOM_FOCUS_MAX),
-              })}
-            </label>
-            <div className="mono-row" style={{ gap: 8 }}>
-              <input
-                id="mono-focus-custom"
-                className="mono-field"
-                type="number"
-                inputMode="numeric"
-                min={CUSTOM_FOCUS_MIN}
-                max={CUSTOM_FOCUS_MAX}
-                step={1}
-                value={customDraft}
-                placeholder={fmtNum(focusMin)}
-                onChange={(e) => setCustomDraft(e.target.value)}
-                style={{ flex: 1 }}
-              />
-              <MonoBtn type="submit" disabled={sanitizeFocusMin(customDraft) === null}>
-                {t('mono.focus.customSet')}
-              </MonoBtn>
-            </div>
-          </form>
-          <p className="mono-meta atm-rhythm-hint">
-            {t('mono.focus.rhythmHint', {
-              focus: minLabel(focusMin),
-              short: minLabel(breakShort),
-              long: minLabel(breakLong),
-              every: fmtNum(longEvery),
-            })}
-          </p>
-        </div>
-      ) : null}
+      ))}
+      <button
+        type="button"
+        className="atm-preset"
+        aria-pressed={customOn}
+        aria-expanded={customOpen}
+        disabled={running}
+        onClick={() => setCustomOpen((o) => !o)}
+      >
+        {customOn ? minLabel(focusMin) : t('mono.focus.custom')}
+      </button>
     </div>
   );
+
+  const customPanel =
+    customOpen && !running ? (
+      <div className="atm-custom-pop">
+        <div className="atm-presets atm-presets-extra">
+          {EXTRA_PRESETS.map((m) => (
+            <button
+              key={m}
+              type="button"
+              className="atm-preset"
+              aria-pressed={focusMin === m && mode === 'focus'}
+              aria-label={minLabel(m)}
+              onClick={() => {
+                onPreset(m);
+                setCustomOpen(false);
+              }}
+            >
+              {minLabel(m)}
+            </button>
+          ))}
+        </div>
+        <form
+          className="atm-custom"
+          onSubmit={(e) => {
+            e.preventDefault();
+            applyCustom();
+          }}
+        >
+          <label htmlFor="mono-focus-custom" className="mono-meta">
+            {t('mono.focus.customLabel', {
+              min: fmtNum(CUSTOM_FOCUS_MIN),
+              max: fmtNum(CUSTOM_FOCUS_MAX),
+            })}
+          </label>
+          <div className="mono-row" style={{ gap: 8 }}>
+            <input
+              id="mono-focus-custom"
+              className="mono-field"
+              type="number"
+              inputMode="numeric"
+              min={CUSTOM_FOCUS_MIN}
+              max={CUSTOM_FOCUS_MAX}
+              step={1}
+              value={customDraft}
+              placeholder={fmtNum(focusMin)}
+              onChange={(e) => setCustomDraft(e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <MonoBtn type="submit" disabled={sanitizeFocusMin(customDraft) === null}>
+              {t('mono.focus.customSet')}
+            </MonoBtn>
+          </div>
+        </form>
+        <p className="mono-meta atm-rhythm-hint">
+          {t('mono.focus.rhythmHint', {
+            focus: minLabel(focusMin),
+            short: minLabel(breakShort),
+            long: minLabel(breakLong),
+            every: fmtNum(longEvery),
+          })}
+        </p>
+      </div>
+    ) : null;
 
   const intentionField = (
     <input
@@ -707,7 +710,10 @@ export default function MonoFocus({
     upNext.length > 0 ? upNext.filter((x) => x.done).length / upNext.length : stats.done / 3;
 
   return (
-    <div ref={fullscreen?.rootRef} className={`atm atm-${atmosphere}${zen ? ' is-zen' : ''}`}>
+    <div
+      ref={fullscreen?.rootRef}
+      className={`atm atm-cockpit atm-${atmosphere}${zen ? ' is-zen' : ''}`}
+    >
       <div className="atm-desk">
         {zen ? null : (
           <MonoHead
@@ -724,11 +730,10 @@ export default function MonoFocus({
         <div className="atm-board mono-pad">
           <section className="atm-stage" aria-label={title}>
             <div className="atm-horizon-grid" aria-hidden="true" />
-            {ring}
+            {ring(zen ? undefined : presets)}
             {zen && taskTitle ? <p className="atm-zen-task">{taskTitle}</p> : null}
-            {intentionField}
             {estimateLine}
-            {zen ? null : presets}
+            {zen ? null : customPanel}
             <div className="atm-actions">
               <MonoBtn type="button" variant="primary" className="atm-start-cta" onClick={onToggle}>
                 {startLabel}
@@ -739,9 +744,29 @@ export default function MonoFocus({
                 </MonoBtn>
               ) : null}
             </div>
+            {intentionField}
             {tools}
             {ambientPop}
             {zen ? null : context}
+            {!zen && (
+              <div className="atm-gauges">
+                <MiniGauge
+                  value={fmtNum(stats.sessions)}
+                  caption={t('mono.focus.sSessions')}
+                  pct={stats.sessions / 4}
+                />
+                <MiniGauge
+                  value={fmtDur(stats.focusMin)}
+                  caption={t('mono.focus.sFocus')}
+                  pct={stats.focusMin / 120}
+                />
+                <MiniGauge
+                  value={fmtNum(stats.done)}
+                  caption={t('mono.focus.sDone')}
+                  pct={donePct}
+                />
+              </div>
+            )}
           </section>
 
           <div className="atm-bento-right" hidden={zen}>
@@ -752,6 +777,7 @@ export default function MonoFocus({
                 <p className="atm-aside-title">{t('mono.focus.secToday')}</p>
                 <span className="atm-aside-ratio">
                   {fmtNum(upNext.filter((x) => x.done).length)} / {fmtNum(upNext.length)}
+                  {upNext.length > 0 ? ` · ${fmtNum(Math.round(donePct * 100))}%` : ''}
                 </span>
                 <button type="button" className="atm-aside-link" onClick={onSeePlan}>
                   {t('mono.focus.seePlan')} →
@@ -785,23 +811,6 @@ export default function MonoFocus({
                   </button>
                 </form>
               ) : null}
-              <div className="atm-gauges">
-                <MiniGauge
-                  value={fmtNum(stats.sessions)}
-                  caption={t('mono.focus.sSessions')}
-                  pct={stats.sessions / 4}
-                />
-                <MiniGauge
-                  value={fmtDur(stats.focusMin)}
-                  caption={t('mono.focus.sFocus')}
-                  pct={stats.focusMin / 120}
-                />
-                <MiniGauge
-                  value={fmtNum(stats.done)}
-                  caption={t('mono.focus.sDone')}
-                  pct={donePct}
-                />
-              </div>
             </aside>
 
             {bentoBottom ? <div className="atm-bento-slot">{bentoBottom}</div> : null}

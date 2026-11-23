@@ -1198,6 +1198,7 @@ export const uk: Record<TKey, string> = {
   'horizon.short.year10': '10р',
   'horizon.short.life': 'Життя',
   'mono.nav.aria': 'Головна навігація',
+  'mono.nav.shortcuts': 'Швидкий доступ',
   'mono.nav.account': 'Акаунт',
   'mono.nav.settings': 'Налаштування',
   'mono.nav.palette': 'Палітра',

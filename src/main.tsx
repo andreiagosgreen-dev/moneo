@@ -5,6 +5,7 @@ import { captureAttribution } from './lib/attribution';
 import './index.css';
 import './mono/tokens.css';
 import './mono/mono.css';
+import './mono/cockpit.css';
 /* Only the faces the landing renders (Fontsource, bundled locally — offline +
  * PWA safe); vite.config.js preloads two of them. Every other weight and
  * family ships with the app chunk (AppRoot.tsx). */
