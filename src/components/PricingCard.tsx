@@ -74,6 +74,7 @@ export default function PricingCard() {
 
     const checkoutUrl = initiateCheckout(planId, auth.user.userId, auth.user.email);
     if (!checkoutUrl) {
+      track('checkout_unavailable', planId);
       setPayError(t('pay.unavailable'));
       return;
     }

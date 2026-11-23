@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { useI18n } from '../lib/i18n/LocaleContext';
 import { firstStepFor } from '../lib/goals';
 
@@ -27,7 +27,20 @@ export default function OnboardingModal({ onDone, onQuickStart }: Props) {
   const [step, setStep] = useState<Step>('goal');
   const [goalTitle, setGoalTitle] = useState('');
   const [taskTitle, setTaskTitle] = useState('');
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const idx = ORDER.indexOf(step);
+
+  useLayoutEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    dialog.showModal();
+    return () => dialog.close();
+  }, []);
+
+  useLayoutEffect(() => {
+    headingRef.current?.focus();
+  }, [step]);
 
   const goTask = () => {
     const clean = goalTitle.trim();
@@ -39,13 +52,18 @@ export default function OnboardingModal({ onDone, onQuickStart }: Props) {
   };
 
   return (
-    <div
-      className="backdrop-fade fixed inset-0 z-50 flex items-center justify-center bg-ink/85 p-4 backdrop-blur-sm"
-      role="dialog"
+    <dialog
+      ref={dialogRef}
+      className="dialog-pop card fixed inset-0 m-auto w-[calc(100%_-_2rem)] max-w-sm overflow-y-auto px-6 py-7 text-center backdrop:bg-ink/85 backdrop:backdrop-blur-sm"
       aria-modal="true"
       aria-label={t('onb.aria')}
+      onCancel={(event) => {
+        event.preventDefault();
+        onDone();
+      }}
+      onKeyDown={(event) => event.stopPropagation()}
     >
-      <div className="dialog-pop card w-full max-w-sm px-6 py-7 text-center">
+      <div>
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl text-cream ring-1 ring-line bg-ink/40">
           {step === 'goal' && (
             <svg
@@ -95,7 +113,11 @@ export default function OnboardingModal({ onDone, onQuickStart }: Props) {
           )}
         </div>
 
-        <h1 className="mt-4 font-display text-2xl font-bold tracking-tight text-cream">
+        <h1
+          ref={headingRef}
+          tabIndex={-1}
+          className="mt-4 font-display text-2xl font-bold tracking-tight text-cream"
+        >
           {step === 'start'
             ? taskTitle.trim() || goalTitle.trim()
             : step === 'task'
@@ -214,6 +236,6 @@ export default function OnboardingModal({ onDone, onQuickStart }: Props) {
           )}
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }

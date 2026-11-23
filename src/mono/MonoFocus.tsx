@@ -371,8 +371,10 @@ export default function MonoFocus({
         <circle className="beacon" cx={beaconX} cy={beaconY} r="4.5" />
       </svg>
       <div className="atm-ring-readout">
-        <span className={`atm-status-pill${running ? ' is-live' : ''}`}>{title}</span>
-        <div className="atm-time" aria-live="polite">
+        <span className={`atm-status-pill${running ? ' is-live' : ''}`} role="status">
+          {title}
+        </span>
+        <div className="atm-time" role="timer">
           {mm}:{ss}
         </div>
         {/* Concept 4: Cyber-Athletic live focus waveform visualizer */}
@@ -412,12 +414,11 @@ export default function MonoFocus({
             type="button"
             className="atm-preset"
             aria-pressed={focusMin === m && mode === 'focus'}
-            aria-label={minLabel(m)}
             title={m === POMODORO_MIN ? t('mono.focus.pomodoroClassic') : undefined}
             disabled={running}
             onClick={() => onPreset(m)}
           >
-            {fmtNum(m)}m
+            {minLabel(m)}
           </button>
         ))}
         <button
@@ -440,13 +441,12 @@ export default function MonoFocus({
                 type="button"
                 className="atm-preset"
                 aria-pressed={focusMin === m && mode === 'focus'}
-                aria-label={minLabel(m)}
                 onClick={() => {
                   onPreset(m);
                   setCustomOpen(false);
                 }}
               >
-                {fmtNum(m)}m
+                {minLabel(m)}
               </button>
             ))}
           </div>

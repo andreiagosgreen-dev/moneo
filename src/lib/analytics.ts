@@ -18,6 +18,7 @@ export type ProductEvent =
   | 'pricing_view'
   | 'upgrade_intent'
   | 'checkout_open'
+  | 'checkout_unavailable'
   | 'landing_view';
 
 type Nav = {

@@ -59,6 +59,27 @@ jobs:
           path: playwright-report/
           retention-days: 14
 
+  webkit:
+    name: WebKit smoke (desktop + iPhone emulation)
+    runs-on: ubuntu-latest
+    env:
+      PLAYWRIGHT_WEBKIT: '1'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: webkit-test-results
+          path: test-results/
+          retention-days: 14
+
   supply-chain:
     name: Audit + Secret scan
     runs-on: ubuntu-latest
@@ -74,7 +95,7 @@ jobs:
 
   deploy:
     name: Deploy (Cloudflare)
-    needs: [lint, typecheck-test-build, e2e, supply-chain]
+    needs: [lint, typecheck-test-build, e2e, webkit, supply-chain]
     # Production releases are manual: push to main keeps running CI checks,
     # deploying requires an explicit workflow_dispatch + `production` approval.
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'

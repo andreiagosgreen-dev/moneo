@@ -95,6 +95,7 @@ export default function PricingPage() {
     }
     const url = initiateCheckout(planId, auth.user.userId, auth.user.email);
     if (!url) {
+      track('checkout_unavailable', planId, locale);
       setPayError(t('pay.unavailable'));
       return;
     }

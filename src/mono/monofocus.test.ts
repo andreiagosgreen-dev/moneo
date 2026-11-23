@@ -94,8 +94,8 @@ describe('MonoFocus', () => {
 
   it('shows 3 clean quick presets up front and reveals all 5–65m lengths + paired breaks in Custom', () => {
     const c = render(screen({ focusMin: 45, shortMin: 9, longMin: 27 }));
-    const quick = Array.from(c.querySelectorAll('.atm-presets button[aria-label]')).map((b) =>
-      b.getAttribute('aria-label'),
+    const quick = Array.from(c.querySelectorAll('.atm-presets button:not([aria-expanded])')).map(
+      (b) => b.textContent,
     );
     expect(quick).toEqual(['5 min', '25 min', '45 min']);
     const custom = Array.from(c.querySelectorAll('button')).find(
@@ -104,8 +104,8 @@ describe('MonoFocus', () => {
     act(() => {
       custom.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
-    const all = Array.from(c.querySelectorAll('.atm-presets button[aria-label]')).map((b) =>
-      b.getAttribute('aria-label'),
+    const all = Array.from(c.querySelectorAll('.atm-presets button:not([aria-expanded])')).map(
+      (b) => b.textContent,
     );
     expect(all).toEqual(['5 min', '25 min', '45 min', '15 min', '35 min', '55 min', '65 min']);
     expect(c.querySelector('.atm-rhythm-hint')!.textContent).toBe(
@@ -140,7 +140,9 @@ describe('MonoFocus', () => {
     const onToggle = vi.fn();
     const onSeePlan = vi.fn();
     const c = render(screen({ onPreset, onToggle, onSeePlan }));
-    const chip5 = c.querySelector('button[aria-label="5 min"]') as HTMLButtonElement;
+    const chip5 = Array.from(c.querySelectorAll('.atm-preset')).find(
+      (button) => button.textContent === '5 min',
+    )!;
     act(() => {
       chip5.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });

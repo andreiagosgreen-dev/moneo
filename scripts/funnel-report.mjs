@@ -10,8 +10,9 @@
  *   CLOUDFLARE_ACCOUNT_ID  — Cloudflare dashboard → Account home → Account ID
  *   CLOUDFLARE_API_TOKEN   — a token with "Account Analytics: Read" only
  *
- * Columns: visits (landing views), sign-ups, checkouts opened, trials
- * started, paid subscriptions started directly, payments and revenue (USD).
+ * Columns: landing and pricing views, sign-ups, activation, checkout events,
+ * paid subscription starts, payments and revenue (USD).
+ * Counts are aggregate events, not a matched cohort of customers.
  */
 
 const days = Math.min(90, Math.max(1, Number.parseInt(process.argv[2] ?? '30', 10) || 30));
@@ -54,7 +55,10 @@ const row = (channel) => {
       visits: 0,
       signups: 0,
       activated: 0,
+      pricingViews: 0,
+      signInUpgrades: 0,
       checkouts: 0,
+      checkoutUnavailable: 0,
       paid: 0,
       payments: 0,
       revenue: 0,
@@ -69,7 +73,10 @@ for (const r of data) {
   else if (r.event === 'sign_up') target.signups += n;
   // New users who finished the three first steps (free Pro trial runs from sign-up).
   else if (r.event === 'first_steps_done') target.activated += n;
+  else if (r.event === 'pricing_view') target.pricingViews += n;
+  else if (r.event === 'upgrade_intent') target.signInUpgrades += n;
   else if (r.event === 'checkout_open') target.checkouts += n;
+  else if (r.event === 'checkout_unavailable') target.checkoutUnavailable += n;
   else if (r.event === 'subscribe' && r.status !== 'trial') target.paid += n;
   else if (r.event === 'payment') {
     target.payments += n;
@@ -83,7 +90,10 @@ const table = [...rows.entries()]
     visits: Math.round(v.visits),
     'sign-ups': Math.round(v.signups),
     activated: Math.round(v.activated),
+    'pricing views': Math.round(v.pricingViews),
+    'upgrades requiring sign-in': Math.round(v.signInUpgrades),
     checkouts: Math.round(v.checkouts),
+    'checkout unavailable': Math.round(v.checkoutUnavailable),
     'paid starts': Math.round(v.paid),
     payments: Math.round(v.payments),
     'revenue $': v.revenue.toFixed(2),

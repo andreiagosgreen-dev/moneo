@@ -7,9 +7,10 @@ export interface DayProgress {
   total: number;
   pct: number;
   focusMin: number;
+  focusSessions: number;
 }
 
-/** Numbers behind the Today ring: plan completion and focus minutes of the day. */
+/** Plan completion and focus activity for one calendar day. */
 export function dayProgress(
   plan: IvyPlan | null,
   history: Session[],
@@ -18,9 +19,18 @@ export function dayProgress(
 ): DayProgress {
   const total = plan?.tasks.length ?? 0;
   const done = plan?.tasks.filter((x) => x.done).length ?? 0;
-  const focusMin = history.reduce(
-    (sum, s) => (dayKeyInTz(s.at, timezone) === todayKey ? sum + s.min : sum),
-    0,
-  );
-  return { done, total, pct: total ? Math.round((done / total) * 100) : 0, focusMin };
+  let focusMin = 0;
+  let focusSessions = 0;
+  for (const session of history) {
+    if (dayKeyInTz(session.at, timezone) !== todayKey) continue;
+    focusMin += session.min;
+    focusSessions++;
+  }
+  return {
+    done,
+    total,
+    pct: total ? Math.round((done / total) * 100) : 0,
+    focusMin,
+    focusSessions,
+  };
 }
