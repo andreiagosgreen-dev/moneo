@@ -137,7 +137,11 @@ test.describe('Recurrence + suggestions for today', () => {
     await page.getByRole('button', { name: 'Show details for Pay rent' }).click();
     const picker = page.getByTestId('repeat-picker');
     await picker.getByRole('combobox', { name: 'Repeat' }).selectOption('everyDays');
-    await picker.getByRole('spinbutton').fill('3');
+    const interval = picker.getByRole('spinbutton');
+    await expect(interval).toHaveValue('2');
+    await interval.press('ControlOrMeta+a');
+    await interval.press('Backspace');
+    await interval.press('3');
     await expect(picker).toContainText('↻ Every 3 days');
     const rule = await page.evaluate(
       () =>

@@ -1,5 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const webkitSmoke = {
+  testMatch: /(?:first-run|focus-upgrades|navigation|recurrence-triage|timer)\.spec\.ts$/,
+  timeout: 90_000,
+};
+
 /**
  * E2E config (ROADMAP.md Etapa 2). Runs against the real Vite dev server —
  * no mocked backend, so tests cover what's actually reachable without a
@@ -22,10 +27,16 @@ export default defineConfig({
     trace: 'on-first-retry',
     actionTimeout: 15_000,
   },
-  projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile-chrome', use: { ...devices['Pixel 7'] } },
-  ],
+  projects:
+    process.env.PLAYWRIGHT_WEBKIT === '1'
+      ? [
+          { ...webkitSmoke, name: 'desktop-webkit', use: { ...devices['Desktop Safari'] } },
+          { ...webkitSmoke, name: 'iphone-webkit', use: { ...devices['iPhone 15'] } },
+        ]
+      : [
+          { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+          { name: 'mobile-chrome', use: { ...devices['Pixel 7'] } },
+        ],
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',

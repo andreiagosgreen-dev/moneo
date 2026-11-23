@@ -4762,6 +4762,9 @@
 .atm.is-zen .atm-aside {
   display: none;
 }
+.mono-zen .mono-nav {
+  visibility: hidden;
+}
 .atm:fullscreen {
   background: var(--mono-bg);
 }
