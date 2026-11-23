@@ -41,6 +41,25 @@ describe('track (client)', () => {
     expect(sendBeacon).not.toHaveBeenCalled();
     expect(optedOut(undefined)).toBe(true);
   });
+
+  it('reports a checkout configuration failure through the anonymous event allowlist', async () => {
+    const sendBeacon = vi.fn(() => true);
+    track(
+      'checkout_unavailable',
+      'pro-monthly',
+      'ro',
+      { sendBeacon },
+      { source: '', campaign: '' },
+    );
+    const [, blob] = sendBeacon.mock.calls[0] as unknown as [string, Blob];
+    expect(cleanEvent(JSON.parse(await blob.text()))).toEqual({
+      name: 'checkout_unavailable',
+      plan: 'pro-monthly',
+      lang: 'ro',
+      source: '',
+      campaign: '',
+    });
+  });
 });
 
 describe('POST /api/event (Worker)', () => {

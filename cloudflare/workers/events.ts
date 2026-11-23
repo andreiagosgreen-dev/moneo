@@ -22,6 +22,7 @@ export const EVENT_NAMES: ReadonlySet<string> = new Set([
   'pricing_view',
   'upgrade_intent',
   'checkout_open',
+  'checkout_unavailable',
   'landing_view',
 ]);
 
